@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class AppLoadedSubscriber implements EventSubscriberInterface
@@ -22,10 +22,12 @@ class AppLoadedSubscriber implements EventSubscriberInterface
 
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var AppEntity $app */
         foreach ($event->getEntities() as $app) {
-            $iconRaw = $app->getIconRaw();
+            if (!$app instanceof AppEntity) {
+                continue;
+            }
 
+            $iconRaw = $app->getIconRaw();
             if ($iconRaw !== null) {
                 $app->setIcon(base64_encode($iconRaw));
             }

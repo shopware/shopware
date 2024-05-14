@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Database;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -14,9 +15,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Database\BlueGreenDeploymentService
  */
+#[CoversClass(BlueGreenDeploymentService::class)]
 class BlueGreenDeploymentServiceTest extends TestCase
 {
     use EnvTestBehaviour;

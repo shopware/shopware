@@ -31,11 +31,7 @@
             variant="primary"
             :disabled="isLoading || !acl.can('review.editor')"
             :process-success="isSaveSuccessful"
-            {% if VUE3 %}
-            @update:processSuccess="onSaveFinish"
-            {% else %}
-            @process-finish="onSaveFinish"
-            {% endif %}
+            @update:process-success="onSaveFinish"
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -97,7 +93,7 @@
                                                     class="sw-review-detail__metadata-review-stars"
                                                 >
                                                     <sw-rating-stars
-                                                        v-model="review.points"
+                                                        :value="review.points"
                                                         class="star-count-display"
                                                     />
                                                     <div class="star-count-description">
@@ -147,7 +143,7 @@
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_customer_base_metadata_created_at_content %}
                                                 <dd>
-                                                    {{ review.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
+                                                    {{ dateFilter(review.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
                                                 </dd>
                                                 {% endblock %}
                                             </sw-description-list>
@@ -266,11 +262,8 @@
                         {% block sw_review_detail_description_list_language %}
                         <sw-entity-single-select
                             id="language"
-                            {% if VUE3 %}
                             v-model:value="review.languageId"
-                            {% else %}
-                            v-model="review.languageId"
-                            {% endif %}
+                            name="sw-field--review-languageId"
                             entity="language"
                             class="sw-review__language-select"
                             required
@@ -284,11 +277,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_review_detail_description_list_status %}
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="review.status"
-                            {% else %}
-                            v-model="review.status"
-                            {% endif %}
+                            name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor')"
                             :label="$tc('sw-review.detail.labelStatus')"
@@ -308,11 +298,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_review_detail_basic_info_card_comment %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="review.comment"
-                        {% else %}
-                        v-model="review.comment"
-                        {% endif %}
+                        name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor')"
                         :label="$tc('sw-review.detail.titleCardComment')"

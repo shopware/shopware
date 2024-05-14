@@ -16,9 +16,16 @@ abstract class AbstractCacheTracer
     abstract public function getDecorated(): AbstractCacheTracer;
 
     /**
-     * @return TCachedContent
+     * @template TReturn of TCachedContent
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn
      */
     abstract public function trace(string $key, \Closure $param);
 
+    /**
+     * @return array<string>
+     */
     abstract public function get(string $key): array;
 }

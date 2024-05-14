@@ -3,7 +3,7 @@ import './sw-order-new-customer-modal.scss';
 import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -28,10 +28,6 @@ export default {
     data() {
         return {
             customer: null,
-            /**
-             * @deprecated tag:v6.6.0 - salesChannels Will be removed due to unused
-             * */
-            salesChannels: null,
             isLoading: false,
             customerNumberPreview: '',
         };
@@ -168,7 +164,7 @@ export default {
             Shopware.State.dispatch(
                 'error/removeApiError',
                 {
-                    expression: `customer_address.${this.billingAddress.id}.company`,
+                    expression: `customer_address.${this.billingAddress?.id}.company`,
                 },
             );
         },

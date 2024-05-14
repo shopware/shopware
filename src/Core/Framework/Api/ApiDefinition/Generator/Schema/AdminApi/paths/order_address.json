@@ -1,0 +1,68 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": {
+        "\/_action\/order\/{orderId}\/order-address": {
+            "post": {
+                "tags": [
+                    "Order address"
+                ],
+                "summary": "Update order addresses",
+                "description": "Endpoint which takes a list of mapping objects as payload and updates the order addresses accordingly",
+                "operationId": "updateOrderAddresses",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "description": "Identifier of the order.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mapping": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "customerAddressId": {
+                                                    "type": "string",
+                                                    "description": "The ID of the customer address"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "description": "The type of the address"
+                                                },
+                                                "deliveryId": {
+                                                    "type": "string",
+                                                    "description": "The ID of the delivery (optional)",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "required": ["customerAddressId", "type"]
+                                        },
+                                        "description": "The mapping of order addresses"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "204": {
+                        "description": "Returns a no content response indicating that the update has been made."
+                    }
+                }
+            }
+        }
+    }
+}

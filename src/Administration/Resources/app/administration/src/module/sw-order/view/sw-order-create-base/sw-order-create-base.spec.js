@@ -1,46 +1,45 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderCreateBase from 'src/module/sw-order/view/sw-order-create-base';
+import { mount } from '@vue/test-utils';
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @package customer-order
  */
 
-Shopware.Component.register('sw-order-create-base', swOrderCreateBase);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-create-base'), {
-        stubs: {
-            'sw-card-view': true,
-            'sw-card': {
-                template: `
-                    <div class="sw-card__content">
-                        <slot name="grid"></slot>
-                    </div>
-                `,
+    return mount(await wrapTestComponent('sw-order-create-base', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+                'sw-card': {
+                    template: `
+                        <div class="sw-card__content">
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
+                },
+                'sw-order-user-card': true,
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-order-state-select': true,
+                'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
+                'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
+                'sw-order-saveable-field': true,
+                'sw-order-state-history-card': true,
+                'sw-order-delivery-metadata': true,
+                'sw-order-document-card': true,
+                'sw-order-create-details-header': true,
+                'sw-order-create-details-body': true,
+                'sw-order-create-details-footer': true,
+                'sw-order-promotion-tag-field': true,
+                'sw-order-line-items-grid-sales-channel': true,
+                'sw-switch-field': true,
             },
-            'sw-order-user-card': true,
-            'sw-container': true,
-            'sw-order-state-select': true,
-            'sw-card-section': true,
-            'sw-description-list': true,
-            'sw-order-saveable-field': true,
-            'sw-order-state-history-card': true,
-            'sw-order-delivery-metadata': true,
-            'sw-order-document-card': true,
-            'sw-order-create-details-header': true,
-            'sw-order-create-details-body': true,
-            'sw-order-create-details-footer': true,
-            'sw-order-promotion-tag-field': true,
-            'sw-order-line-items-grid-sales-channel': true,
-            'sw-switch-field': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => { },
-                    };
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => { },
+                        };
+                    },
                 },
             },
         },
@@ -147,7 +146,6 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         });
 
         await wrapper.vm.$nextTick();
-
         const orderSummary = wrapper.find('.sw-order-create-summary__data');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountTotal');

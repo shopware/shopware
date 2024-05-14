@@ -11,6 +11,18 @@
                 "summary": "Fetch languages",
                 "description": "Perform a filtered search for languages.",
                 "operationId": "readLanguages",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -31,7 +43,6 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
                                     "allOf": [
                                         {
                                             "properties": {
@@ -42,6 +53,7 @@
                                                     }
                                                 }
                                             },
+                                            "required": ["elements"],
                                             "type": "object"
                                         },
                                         {

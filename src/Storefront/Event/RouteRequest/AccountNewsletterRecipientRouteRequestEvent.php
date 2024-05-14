@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Event\RouteRequest;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountNewsletterRecipientRouteRequestEvent extends RouteRequestEvent
 {
 }

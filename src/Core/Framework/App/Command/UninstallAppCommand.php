@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
@@ -18,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[AsCommand(
     name: 'app:uninstall',
@@ -27,6 +28,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class UninstallAppCommand extends Command
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository
@@ -44,7 +48,7 @@ class UninstallAppCommand extends Command
             throw new \InvalidArgumentException('Argument $name must be an string');
         }
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $app = $this->getAppByName($name, $context);
 
         if (!$app) {
@@ -81,6 +85,6 @@ class UninstallAppCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        return $this->appRepository->search($criteria, $context)->first();
+        return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer;
 use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexingMessage;
@@ -16,12 +17,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer
  */
+#[CoversClass(CustomerIndexer::class)]
 class CustomerIndexerTest extends TestCase
 {
     public function testUpdate(): void

@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
@@ -14,26 +16,24 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs
  */
+#[CoversClass(AdminUiXmlSchema::class)]
+#[CoversClass(AdminUi::class)]
+#[CoversClass(Card::class)]
+#[CoversClass(CardField::class)]
+#[CoversClass(Column::class)]
+#[CoversClass(Columns::class)]
+#[CoversClass(Detail::class)]
+#[CoversClass(Entity::class)]
+#[CoversClass(Listing::class)]
+#[CoversClass(Tab::class)]
+#[CoversClass(Tabs::class)]
 class AdminUiXmlSchemaTest extends TestCase
 {
     public function testPublicConstants(): void
@@ -51,7 +51,6 @@ class AdminUiXmlSchemaTest extends TestCase
             AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.min-setting.xml')
         );
 
-        static::assertIsArray($entities);
         static::assertCount(1, $entities);
 
         $this->minSettingsTest(
@@ -65,7 +64,6 @@ class AdminUiXmlSchemaTest extends TestCase
             AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.max-setting.xml')
         );
 
-        static::assertIsArray($entities);
         static::assertCount(2, $entities);
 
         $this->minSettingsTest(
@@ -86,17 +84,14 @@ class AdminUiXmlSchemaTest extends TestCase
         );
 
         $detail = $customEntityComplex->getDetail();
-        static::assertInstanceOf(Detail::class, $detail);
-
         $tabs = $detail->getTabs();
-        static::assertInstanceOf(Tabs::class, $tabs);
         static::assertCount(
             2,
             $tabs->getContent()
         );
 
         $cards = $this->checkTab($tabs->getContent()[0], 'foo');
-        static::assertIsArray($cards);
+
         static::assertCount(2, $cards);
         $this->checkCard(
             $cards[0],
@@ -117,8 +112,8 @@ class AdminUiXmlSchemaTest extends TestCase
         );
 
         $cards = $this->checkTab($tabs->getContent()[1], 'bar');
-        static::assertIsArray($cards);
         static::assertCount(3, $cards);
+
         $this->checkCard(
             $cards[0],
             'stone',
@@ -153,14 +148,12 @@ class AdminUiXmlSchemaTest extends TestCase
         try {
             AdminUiXmlSchema::createFromXmlFile('invalid_path');
             static::fail('no Exception was thrown');
-        } catch (XmlParsingException $exception) {
-            static::assertInstanceOf(XmlParsingException::class, $exception);
-            // Exception is thrown in listing first
+        } catch (CustomEntityXmlParsingException $exception) {
             static::assertEquals(
                 'Unable to parse file "invalid_path". Message: Resource "invalid_path" is not a file.',
                 $exception->getMessage()
             );
-            static::assertEquals('SYSTEM__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertEquals('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
             static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         }
     }
@@ -170,14 +163,13 @@ class AdminUiXmlSchemaTest extends TestCase
         try {
             AdminUiXmlSchema::createFromXmlFile(__DIR__ . '/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.invalid.xml');
             static::fail('no Exception was thrown');
-        } catch (XmlParsingException $exception) {
-            static::assertInstanceOf(XmlParsingException::class, $exception);
+        } catch (CustomEntityXmlParsingException $exception) {
             // Exception is thrown in listing first
             static::assertStringContainsString(
                 'System/CustomEntity/Xml/Config/AdminUi/../../../_fixtures/AdminUiXmlSchemaTest/admin-ui.invalid.xml". Message: [ERROR 1871] Element \'ERROR\': This element is not expected. Expected is ( field ).',
                 $exception->getMessage()
             );
-            static::assertEquals('SYSTEM__XML_PARSE_ERROR', $exception->getErrorCode());
+            static::assertEquals('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
             static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         }
     }
@@ -190,14 +182,10 @@ class AdminUiXmlSchemaTest extends TestCase
         );
 
         $detail = $customEntityTest->getDetail();
-        static::assertInstanceOf(Detail::class, $detail);
-
         $tabs = $detail->getTabs();
-        static::assertInstanceOf(Tabs::class, $tabs);
         static::assertCount(1, $tabs->getContent());
 
         $cards = $this->checkTab($tabs->getContent()[0], 'main');
-        static::assertIsArray($cards);
         static::assertCount(1, $cards);
 
         $this->checkCard(
@@ -212,12 +200,7 @@ class AdminUiXmlSchemaTest extends TestCase
      */
     private function getEntities(AdminUiXmlSchema $adminUiXmlSchema): array
     {
-        static::assertInstanceOf(AdminUiXmlSchema::class, $adminUiXmlSchema);
-
-        $adminUi = $adminUiXmlSchema->getAdminUi();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
-
-        return $adminUi->getEntities();
+        return $adminUiXmlSchema->getAdminUi()->getEntities();
     }
 
     /**
@@ -237,15 +220,11 @@ class AdminUiXmlSchemaTest extends TestCase
     private function checkListing(Entity $entity, array $refs): void
     {
         $listing = $entity->getListing();
-        static::assertInstanceOf(Listing::class, $listing);
-
         $columns = $listing->getColumns();
-        static::assertInstanceOf(Columns::class, $columns);
         static::assertCount(\count($refs), $columns->getContent());
 
         foreach ($columns->getContent() as $column) {
             static::assertInstanceOf(Column::class, $column);
-            static::assertIsString($column->getRef());
             static::assertContains($column->getRef(), $refs);
             unset($refs[array_search($column->getRef(), $refs, true)]);
         }
@@ -259,7 +238,6 @@ class AdminUiXmlSchemaTest extends TestCase
         Tab $tab,
         string $tabName
     ): array {
-        static::assertInstanceOf(Tab::class, $tab);
         static::assertEquals($tabName, $tab->getName());
 
         return $tab->getCards();
@@ -280,7 +258,6 @@ class AdminUiXmlSchemaTest extends TestCase
 
         foreach ($fields as $cardField) {
             static::assertInstanceOf(CardField::class, $cardField);
-            static::assertIsString($cardField->getRef());
             static::assertContains($cardField->getRef(), $refs);
 
             unset($refs[array_search($cardField->getRef(), $refs, true)]);

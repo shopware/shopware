@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PreWriteValidationEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param WriteCommand[] $commands
+     * @param list<WriteCommand> $commands
      */
     public function __construct(
         private readonly WriteContext $writeContext,
@@ -34,7 +34,7 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return WriteCommand[]
+     * @return list<WriteCommand>
      */
     public function getCommands(): array
     {
@@ -46,16 +46,25 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
         return $this->writeContext->getExceptions();
     }
 
+    /**
+     * @return list<array<string, string>>
+     */
     public function getPrimaryKeys(string $entity): array
     {
         return $this->findPrimaryKeys($entity);
     }
 
+    /**
+     * @return list<array<string, string>>
+     */
     public function getDeletedPrimaryKeys(string $entity): array
     {
         return $this->findPrimaryKeys($entity, fn (WriteCommand $command) => $command instanceof DeleteCommand);
     }
 
+    /**
+     * @return list<array<string, string>>
+     */
     private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array
     {
         $ids = [];

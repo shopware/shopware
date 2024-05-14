@@ -2,7 +2,7 @@ import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -95,11 +95,6 @@ export default {
             return criteria;
         },
 
-        summaryMainHeader() {
-            // eslint-disable-next-line max-len
-            return `${this.order.orderNumber} - ${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName} (${this.order.orderCustomer.email})`;
-        },
-
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
@@ -141,6 +136,14 @@ export default {
         delivery() {
             return this.order.deliveries[0];
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -148,6 +151,10 @@ export default {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
             }
+        },
+
+        'order.id'() {
+            this.createdComponent();
         },
     },
 

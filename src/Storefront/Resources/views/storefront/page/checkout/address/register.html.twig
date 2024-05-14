@@ -2,7 +2,7 @@
 
 {% block component_account_register_personal_account_fields %}
     {% block page_checkout_register_personal_guest %}
-        <div class="form-check register-guest-control">
+        <div class="form-check register-guest-control mb-3">
             {% block page_checkout_register_personal_guest_input %}
             <input type="checkbox"
                    class="form-check-input"
@@ -18,7 +18,7 @@
             {% block page_checkout_register_personal_guest_label %}
                 <label class="custom-control-label"
                        for="personalGuest">
-                {{ "checkout.registerCustomermodeLabel"|trans|sw_sanitize }}
+                {{ 'checkout.registerCustomermodeLabel'|trans|sw_sanitize }}
                 </label>
             {% endblock %}
         </div>

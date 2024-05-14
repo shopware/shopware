@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
@@ -24,6 +25,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 class TranslationValidator implements EventSubscriberInterface
 {
     final public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
+
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
+    {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -62,8 +67,8 @@ class TranslationValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $def = $writeCommand->getDefinition();
-            if (!$def instanceof EntityTranslationDefinition) {
+            $definition = $this->definitionRegistry->getByEntityName($writeCommand->getEntityName());
+            if (!$definition instanceof EntityTranslationDefinition) {
                 continue;
             }
 
@@ -71,7 +76,7 @@ class TranslationValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $fks = $this->getFkFields($def);
+            $fks = $this->getFkFields($definition);
             $id = Uuid::fromBytesToHex($pk[$fks['id']->getStorageName()]);
             $violations->add(
                 $this->buildViolation(

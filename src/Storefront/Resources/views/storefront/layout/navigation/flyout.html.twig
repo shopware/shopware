@@ -1,6 +1,7 @@
 {% block layout_navigation_flyout %}
     {% set category = navigationTree.category %}
     {% set name = category.translated.name %}
+
     {% block layout_navigation_flyout_bar %}
         <div class="row navigation-flyout-bar">
             {% block layout_navigation_flyout_bar_category %}
@@ -13,10 +14,10 @@
                                    itemprop="url"
                                    title="{{ name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
-                                        {{ "general.toCategory"|trans|sw_sanitize }} {{ name }}
+                                        {{ 'general.toCategory'|trans|sw_sanitize }} {{ name }}
                                         {% sw_icon 'arrow-right' style {
-                                            'color': 'primary',
-                                            'pack':'solid'
+                                            color: 'primary',
+                                            pack:'solid'
                                         } %}
                                     {% endblock %}
                                 </a>
@@ -64,20 +65,20 @@
                             <a class="navigation-flyout-teaser-image-container"
                                href="{{ category_url(category) }}"
                                {% if category_linknewtab(category) %}target="_blank"
-                                   {% if category.linkType == "external" %}rel="noopener noreferrer"{% endif %}
+                                   {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                {% endif %}
                                title="{{ name }}">
                                 {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
                                     media: category.media,
                                     sizes: {
-                                        'default': '310px'
+                                        default: '310px'
                                     },
                                     attributes: {
-                                        'class': 'navigation-flyout-teaser-image',
-                                        'alt': (category.media.translated.alt ?: ''),
-                                        'title': (category.media.translated.title ?: ''),
+                                        class: 'navigation-flyout-teaser-image',
+                                        alt: (category.media.translated.alt ?: ''),
+                                        title: (category.media.translated.title ?: ''),
                                         'data-object-fit': 'cover',
-                                        'loading': 'lazy'
+                                        loading: 'lazy'
                                     }
                                 } %}
                             </a>

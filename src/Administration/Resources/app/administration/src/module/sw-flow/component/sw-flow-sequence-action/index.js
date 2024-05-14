@@ -2,7 +2,6 @@ import orderBy from 'lodash/orderBy';
 import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
-import { ACTION } from '../../constant/flow.constant';
 
 const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -10,11 +9,10 @@ const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
-const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -59,13 +57,6 @@ export default {
 
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use appFlowActionRepository in `sw-flow-detail` instead
-         */
-        appFlowActionRepository() {
-            return this.repositoryFactory.create('app_flow_action');
         },
 
         actionOptions() {
@@ -150,29 +141,6 @@ export default {
             return Shopware.State.get('session').currentLocale;
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - use getActionDescriptions in `flow-builder.service` instead
-         */
-        actionDescription() {
-            return {
-                [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
-                [ACTION.SET_ORDER_STATE]: (config) => this.getSetOrderStateDescription(config),
-                [ACTION.GENERATE_DOCUMENT]: (config) => this.getGenerateDocumentDescription(config),
-                [ACTION.MAIL_SEND]: (config) => this.getMailSendDescription(config),
-                [ACTION.CHANGE_CUSTOMER_GROUP]: (config) => this.getCustomerGroupDescription(config),
-                [ACTION.CHANGE_CUSTOMER_STATUS]: (config) => this.getCustomerStatusDescription(config),
-                [ACTION.SET_CUSTOMER_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
-                // eslint-disable-next-line max-len
-                [ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
-                [ACTION.SET_ORDER_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
-                [ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]:
-                    (config) => this.getAffiliateAndCampaignCodeDescription(config),
-                [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]:
-                    (config) => this.getAffiliateAndCampaignCodeDescription(config),
-                [ACTION.APP_FLOW_ACTION]: (config, actionName) => this.getAppFlowActionDescription(config, actionName),
-            };
-        },
-
         ...mapState(
             'swFlowState',
             [
@@ -208,16 +176,7 @@ export default {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         */
-        createdComponent() {},
-
         openDynamicModal(value) {
             const appAction = this.getSelectedAppAction(value);
             if (appAction) {
@@ -233,13 +192,6 @@ export default {
                 return;
             }
             this.selectedAction = value;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getSelectedAppFlowAction in `flow-builder.service` instead
-         */
-        getSelectedAppFlowAction(actionName) {
-            return this.appFlowActions.find((item) => item.name === actionName);
         },
 
         onSaveActionSuccess(sequence) {
@@ -445,17 +397,6 @@ export default {
             };
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - use getAppFlowAction in `sw-flow-detail` instead
-         */
-        getAppFlowAction() {
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('app');
-            return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
-                this.appFlowActions = response;
-            });
-        },
-
         sortByPosition(sequences) {
             return sequences.sort((prev, current) => {
                 return prev.position - current.position;
@@ -466,41 +407,6 @@ export default {
             return {
                 'is--stop-flow': value === this.stopFlowActionName,
             };
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use convertTagString in `flow-builder.service` instead
-         */
-        convertTagString(tagsString) {
-            return tagsString.toString().replace(/,/g, ', ');
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use method `getActionDescriptions` of `flowBuilderService ` instead
-         */
-        getActionDescription(sequence) {
-            const { actionName, config } = sequence;
-
-            if (!actionName || !this.hasAvailableAction(actionName)) return '';
-
-            if (this.getSelectedAppFlowAction(actionName)) {
-                return this.actionDescription[ACTION.APP_FLOW_ACTION](config, actionName);
-            }
-
-            if (actionName.includes('tag') &&
-                (actionName.includes('add') || actionName.includes('remove'))) {
-                return `${this.$tc('sw-flow.actions.labelTo', 0, {
-                    entity: this.capitalize(config.entity),
-                })}<br>${this.$tc('sw-flow.actions.labelTag', 0, {
-                    tagNames: this.convertTagString(Object.values(config.tagIds)),
-                })}`;
-            }
-
-            if (typeof this.actionDescription[actionName] !== 'function' && !this.isAppAction) {
-                return '';
-            }
-
-            return this.actionDescription[actionName](config);
         },
 
         getActionDescriptions(sequence) {
@@ -544,228 +450,8 @@ export default {
             return item.actionName !== this.stopFlowActionName;
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - use getSetOrderStateDescription in `flow-builder.service` instead
-         */
-        getSetOrderStateDescription(config) {
-            const description = [];
-            if (config.order) {
-                const orderStatus = this.stateMachineState.find(item => item.technicalName === config.order
-                && item.stateMachine.technicalName === 'order.state');
-                const orderStatusName = orderStatus?.translated?.name || '';
-                description.push(`${this.$tc('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
-            }
-
-            if (config.order_delivery) {
-                const deliveryStatus = this.stateMachineState.find(item => item.technicalName === config.order_delivery
-                    && item.stateMachine.technicalName === 'order_delivery.state');
-                const deliveryStatusName = deliveryStatus?.translated?.name || '';
-                description.push(`${this.$tc('sw-flow.modals.status.labelDeliveryStatus')}: ${deliveryStatusName}`);
-            }
-
-            if (config.order_transaction) {
-                const paymentStatus = this.stateMachineState.find(item => item.technicalName === config.order_transaction
-                    && item.stateMachine.technicalName === 'order_transaction.state');
-                const paymentStatusName = paymentStatus?.translated?.name || '';
-                description.push(`${this.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
-            }
-
-            const forceTransition = config.force_transition
-                ? this.$tc('global.default.yes')
-                : this.$tc('global.default.no');
-
-            description.push(`${this.$tc('sw-flow.modals.status.forceTransition')}: ${forceTransition}`);
-
-            return description.join('<br>');
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getGenerateDocumentDescription in `flow-builder.service` instead
-         */
-        getGenerateDocumentDescription(config) {
-            if (config.documentType) {
-                config = {
-                    documentTypes: [config],
-                };
-            }
-
-            const documentType = config.documentTypes.map((type) => {
-                return this.documentTypes.find(item => item.technicalName === type.documentType)?.translated?.name;
-            });
-
-            return this.convertTagString(documentType);
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getCustomerGroupDescription in `flow-builder.service` instead
-         */
-        getCustomerGroupDescription(config) {
-            const customerGroup = this.customerGroups.find(item => item.id === config.customerGroupId);
-            return customerGroup?.translated?.name;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getCustomerStatusDescription in `flow-builder.service` instead
-         */
-        getCustomerStatusDescription(config) {
-            return config.active
-                ? this.$tc('sw-flow.modals.customerStatus.active')
-                : this.$tc('sw-flow.modals.customerStatus.inactive');
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getMailSendDescription in `flow-builder.service` instead
-         */
-        getMailSendDescription(config) {
-            const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
-
-            let mailSendDescription = this.$tc('sw-flow.actions.labelTemplate', 0, {
-                template: mailTemplateData?.mailTemplateType?.name,
-            });
-
-            let mailDescription = mailTemplateData?.description;
-
-            if (mailDescription) {
-                // Truncate description string
-                mailDescription = mailDescription.length > 60
-                    ? `${mailDescription.substring(0, 60)}...`
-                    : mailDescription;
-
-                mailSendDescription = `${mailSendDescription}<br>${this.$tc('sw-flow.actions.labelDescription', 0, {
-                    description: mailDescription,
-                })}`;
-            }
-
-            return mailSendDescription;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getCustomFieldDescription in `flow-builder.service` instead
-         */
-        getCustomFieldDescription(config) {
-            const customFieldSet = this.customFieldSets.find(item => item.id === config.customFieldSetId);
-            const customField = this.customFields.find(item => item.id === config.customFieldId);
-            if (!customFieldSet || !customField) {
-                return '';
-            }
-
-            return `${this.$tc('sw-flow.actions.labelCustomFieldSet', 0, {
-                customFieldSet: this.getInlineSnippet(customFieldSet.config.label) || customFieldSet.name,
-            })}<br>${this.$tc('sw-flow.actions.labelCustomField', 0, {
-                customField: this.getInlineSnippet(customField.config.label) || customField.name,
-            })}<br>${this.$tc('sw-flow.actions.labelCustomFieldOption', 0, {
-                customFieldOption: config.optionLabel,
-            })}`;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getAffiliateAndCampaignCodeDescription in `flow-builder.service` instead
-         */
-        getAffiliateAndCampaignCodeDescription(config) {
-            let description = this.$tc('sw-flow.actions.labelTo', 0, {
-                entity: this.capitalize(config.entity),
-            });
-
-            if (config.affiliateCode.upsert || config.affiliateCode.value != null) {
-                description = `${description}<br>${this.$tc('sw-flow.actions.labelAffiliateCode', 0, {
-                    affiliateCode: config.affiliateCode.value || '',
-                })}`;
-            }
-
-            if (config.campaignCode.upsert || config.campaignCode.value != null) {
-                description = `${description}<br>${this.$tc('sw-flow.actions.labelCampaignCode', 0, {
-                    campaignCode: config.campaignCode.value || '',
-                })}`;
-            }
-
-            return description;
-        },
-
         capitalize(msg) {
             return `${msg.slice(0, 1).toUpperCase()}${msg.slice(1)}`;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use getAppFlowActionDescription in `flow-builder.service` instead
-         */
-        getAppFlowActionDescription(config, actionName) {
-            const cloneConfig = { ...config };
-            let descriptions = '';
-
-            Object.entries(cloneConfig).forEach(([fieldName]) => {
-                if (typeof cloneConfig[fieldName] === 'object' && cloneConfig[fieldName].length > 1) {
-                    let html = '';
-                    cloneConfig[fieldName].forEach((val) => {
-                        const valPreview = this.formatValuePreview(fieldName, actionName, val);
-                        html = `${html}- ${valPreview}<br/>`;
-                    });
-
-                    descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}:<br/> ${html}`;
-
-                    return;
-                }
-
-                const valPreview = this.formatValuePreview(fieldName, actionName, cloneConfig[fieldName]);
-                descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}: ${valPreview}<br/>`;
-            });
-
-            return descriptions;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use formatValuePreview in `flow-builder.service` instead
-         */
-        formatValuePreview(fieldName, actionName, val) {
-            const appAction = this.getSelectedAppFlowAction(actionName);
-            if (appAction === undefined) {
-                return val;
-            }
-
-            const config = appAction.config.find((field) => field.name === fieldName);
-            if (config === undefined) {
-                return val;
-            }
-
-            if (['password'].includes(config.type)) {
-                return val.replace(/([^;])/g, '*');
-            }
-
-            if (['single-select', 'multi-select'].includes(config.type)) {
-                const value = typeof val === 'string' ? val : val[0];
-                const option = config.options.find((opt) => opt.value === value);
-                if (option === undefined) {
-                    return val;
-                }
-
-                return option.label[this.currentLocale] ?? config.label['en-GB'] ?? val;
-            }
-
-            if (['datetime', 'date', 'time'].includes(config.type)) {
-                return new Date(val);
-            }
-
-            if (['colorpicker'].includes(config.type)) {
-                return `<span class="sw-color-badge is--default" style="background: ${val};"></span> ${val}`;
-            }
-
-            return val;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use convertLabelPreview in `flow-builder.service` instead
-         */
-        convertLabelPreview(fieldName, actionName) {
-            const appAction = this.getSelectedAppFlowAction(actionName);
-            if (appAction === undefined) {
-                return fieldName;
-            }
-
-            const config = appAction.config.find((field) => field.name === fieldName);
-            if (config === undefined) {
-                return fieldName;
-            }
-
-            return config.label[this.currentLocale] ?? config.label['en-GB'] ?? fieldName;
         },
 
         isAppDisabled(appAction) {

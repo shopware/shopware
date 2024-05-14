@@ -2,7 +2,7 @@ import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import swProductDetailState from '../../../sw-product/page/sw-product-detail/state';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
@@ -83,6 +83,7 @@ export default {
         hasSelectedChanges() {
             return Object.values(this.bulkEditProduct).some(field => field.isChanged) || this.bulkEditSelected.length > 0;
         },
+
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -91,6 +92,7 @@ export default {
             return criteria;
         },
 
+        /** @deprecated tag:v6.7.0 - Will be removed. */
         currencyCriteria() {
             return (new Criteria(1, 25))
                 .addSorting(Criteria.sort('name', 'ASC'));
@@ -893,8 +895,8 @@ export default {
         },
 
         loadDefaultCurrency() {
-            return this.currencyRepository.search(this.currencyCriteria).then((currencies) => {
-                this.currency = currencies.find(currency => currency.isSystemDefault);
+            return this.currencyRepository.get(Context.app.systemCurrencyId).then(currency => {
+                this.currency = currency;
             });
         },
 
@@ -1025,12 +1027,19 @@ export default {
             }
         },
 
-        onChangePrices(item) {
+        onChangePrices(item, value = null) {
             if (item === 'taxId') {
                 this.taxRate = this.productTaxRate();
-            } else if (item === 'price') {
+                return;
+            }
+
+            if (item === 'price') {
                 this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
                 this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
+            }
+
+            if (value && typeof value !== 'boolean') {
+                this.$set(this.product, `${item}`, [value]);
             }
         },
 

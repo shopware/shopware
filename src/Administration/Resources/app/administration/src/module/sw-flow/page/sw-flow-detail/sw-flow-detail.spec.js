@@ -1,12 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swFlowDetail from 'src/module/sw-flow/page/sw-flow-detail';
-
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
-Shopware.Component.register('sw-flow-detail', swFlowDetail);
 Shopware.Service().register('flowBuilderService', () => {
     return {
         ...new FlowBuilderService(),
@@ -86,117 +82,125 @@ const mockBusinessEvents = [
 ];
 
 async function createWrapper(
-    privileges = [],
     query = {},
     config = {},
     flowId = null,
     saveSuccess = true,
     param = {},
 ) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-detail'), {
-        localVue,
-        provide: { repositoryFactory: {
-            create: (entity) => ({
-                create: () => {
-                    return {};
-                },
-                save: () => {
-                    return saveSuccess ? Promise.resolve() : Promise.reject();
-                },
-                get: (id) => {
-                    if (id === ID_FLOW) {
-                        return Promise.resolve(
-                            {
-                                id,
-                                name: 'Flow 1',
-                                eventName: 'checkout.customer',
-                                ...config,
-                            },
-                        );
-                    }
-
-                    return Promise.resolve(
-                        {
-                            id,
-                            name: 'Flow template 1',
-                            config: config,
-                        },
-                    );
-                },
-                search: () => {
-                    if (entity === 'rule') {
-                        return Promise.resolve([
-                            { id: '1111', name: 'test rule' },
-                        ]);
-                    }
-
-                    return Promise.resolve([]);
-                },
-                sync: () => {
-                    return Promise.resolve();
-                },
-                syncDeleted: () => {
-                    return Promise.resolve();
-                },
-            }),
-        },
-        flowBuilderService: Shopware.Service('flowBuilderService'),
-
-        ruleConditionDataProviderService: {
-            getRestrictedRules: () => Promise.resolve([]),
-        },
-
-        acl: {
-            can: (identifier) => {
-                if (!identifier) {
-                    return true;
-                }
-
-                return privileges.includes(identifier);
-            },
-        } },
-
-        mocks: {
-            $route: { params: param, query: query },
-        },
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-flow-detail', {
+        sync: true,
+    }), {
+        props: {
             flowId: flowId,
         },
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: (entity) => {
+                        if (entity === 'flow_sequence') {
+                            return {
+                                sync: jest.fn((sequences) => {
+                                    expect(sequences).toHaveLength(2);
 
-        stubs: {
-            'sw-page': {
-                template: `
-                    <div class="sw-page">
-                        <slot name="search-bar"></slot>
-                        <slot name="smart-bar-back"></slot>
-                        <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="side-content"></slot>
-                        <slot name="content"></slot>
-                        <slot name="sidebar"></slot>
-                        <slot></slot>
-                    </div>
-                `,
+                                    const ids = [];
+                                    sequences.forEach((sequence) => {
+                                        ids.push(sequence.id);
+                                    });
+
+                                    expect(ids).toEqual(['1', '3']);
+                                }),
+                                syncDeleted: jest.fn((sequencesIds) => {
+                                    const ids = [];
+                                    sequencesIds.forEach((sequenceId) => {
+                                        ids.push(sequenceId);
+                                    });
+
+                                    expect(ids).toEqual(['2', '4']);
+                                }),
+                                create: () => {
+                                    return {};
+                                },
+                            };
+                        }
+
+                        return {
+                            create: () => {
+                                return {};
+                            },
+                            save: () => {
+                                return saveSuccess ? Promise.resolve() : Promise.reject();
+                            },
+                            get: (id) => {
+                                if (id === ID_FLOW) {
+                                    return Promise.resolve(
+                                        {
+                                            id,
+                                            name: 'Flow 1',
+                                            eventName: 'checkout.customer',
+                                            config,
+                                        },
+                                    );
+                                }
+
+                                return Promise.resolve(
+                                    {
+                                        id,
+                                        name: 'Flow template 1',
+                                        config,
+                                    },
+                                );
+                            },
+                            search: () => {
+                                if (entity === 'rule') {
+                                    return Promise.resolve([
+                                        { id: '1111', name: 'test rule' },
+                                    ]);
+                                }
+
+                                return Promise.resolve([]);
+                            },
+                            sync: () => {
+                                return Promise.resolve();
+                            },
+                            syncDeleted: () => {
+                                return Promise.resolve();
+                            },
+                        };
+                    },
+                },
+                flowBuilderService: Shopware.Service('flowBuilderService'),
+                ruleConditionDataProviderService: {
+                    getRestrictedRules: () => Promise.resolve([]),
+                },
             },
-            'sw-button': true,
-            'sw-card-view': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'router-view': true,
-            'sw-button-process': {
-                template: `
-                    <button class="sw-button-process" v-bind="$attrs" v-on="$listeners">
-                        <slot></slot>
-                    </button>
-                `,
+            mocks: {
+                $route: { params: param, query: query },
             },
-            'sw-skeleton': true,
-            'sw-alert': true,
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="search-bar"></slot>
+                            <slot name="smart-bar-back"></slot>
+                            <slot name="smart-bar-header"></slot>
+                            <slot name="language-switch"></slot>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="side-content"></slot>
+                            <slot name="content"></slot>
+                            <slot name="sidebar"></slot>
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
+                'router-view': true,
+                'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-skeleton': true,
+                'sw-alert': true,
+            },
         },
     });
 }
@@ -224,30 +228,33 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     });
 
     it('should not be able to save a flow', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.attributes().disabled).toBe('');
     });
 
     it('should be able to save a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ], {}, {}, ID_FLOW);
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({}, {}, ID_FLOW);
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should be able to remove selector sequences before saving', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+    it('should be able to remove selector sequences before saving a newly created flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         const flow = {
             eventName: 'checkout.customer',
             name: 'Flow 1',
             sequences: getSequencesCollection(sequencesFixture),
+            isNew: () => true,
         };
 
         Shopware.State.commit(
@@ -268,10 +275,39 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequencesState).toHaveLength(2);
     });
 
+    it('should be able to update sequences before saving exist flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const flow = {
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection(sequencesFixture),
+        };
+
+        Shopware.State.commit(
+            'swFlowState/setFlow',
+            {
+                ...flow,
+                getOrigin: () => flow,
+            },
+        );
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState).toHaveLength(4);
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.flowSequenceRepository.syncDeleted).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
+    });
+
     it('should not able to saving flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ], {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({
             type: 'template',
         }, {}, null, true, {
             flowTemplateId: ID_FLOW_TEMPLATE,
@@ -305,9 +341,9 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     });
 
     it('should able to validate sequences before saving', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         wrapper.vm.createNotificationWarning = jest.fn();
 
@@ -328,6 +364,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         await saveButton.trigger('click');
+        await flushPromises();
 
         invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual(['1']);
@@ -336,10 +373,36 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         wrapper.vm.createNotificationWarning.mockRestore();
     });
 
+    it('should set route for card tabs when creating a new flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({}, {
+            eventName: 'checkout.customer',
+            sequences: [{
+                id: 'sequence-id',
+                config: {},
+            }],
+        });
+        await flushPromises();
+
+        const tabs = {
+            general: wrapper.findComponent('.sw-flow-detail__tab-general'),
+            flow: wrapper.findComponent('.sw-flow-detail__tab-flow'),
+        };
+
+        expect(tabs.general.vm.route).toStrictEqual({
+            name: 'sw.flow.create.general',
+        });
+
+        expect(tabs.flow.vm.route).toStrictEqual({
+            name: 'sw.flow.create.flow',
+        });
+    });
+
     it('should be able to create flow from flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ], {}, {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({}, {
             eventName: 'checkout.customer',
             sequences: [{
                 id: 'sequence-id',
@@ -358,7 +421,38 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(saveButton.attributes().disabled).toBeUndefined();
     });
 
+    it('should set flowTemplateId in route for card tabs when creating flow from flow template', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({}, {
+            eventName: 'checkout.customer',
+            sequences: [{
+                id: 'sequence-id',
+                config: {},
+            }],
+        }, null, true, {
+            flowTemplateId: ID_FLOW_TEMPLATE,
+        });
+        await flushPromises();
+
+        const tabs = {
+            general: wrapper.findComponent('.sw-flow-detail__tab-general'),
+            flow: wrapper.findComponent('.sw-flow-detail__tab-flow'),
+        };
+
+        expect(tabs.general.vm.route).toStrictEqual({
+            name: 'sw.flow.create.general',
+            params: { flowTemplateId: ID_FLOW_TEMPLATE },
+        });
+
+        expect(tabs.flow.vm.route).toStrictEqual({
+            name: 'sw.flow.create.flow',
+            params: { flowTemplateId: ID_FLOW_TEMPLATE },
+        });
+    });
+
     it('should be able to build sequence collection from config of flow template', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -381,22 +475,22 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
     });
 
     it('should be able to show the warning message when editing flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ], {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({
             type: 'template',
         }, {}, null, true, {
             flowTemplateId: ID_FLOW_TEMPLATE,
         });
+        await flushPromises();
 
-        const alertElement = wrapper.findAll('.sw-flow-detail__template');
+        const alertElement = wrapper.find('.sw-flow-detail__template');
         expect(alertElement.exists()).toBe(true);
     });
 
     it('should be able to get rule data for flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ], {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({
             type: 'template',
         }, {}, null, true, {
             flowTemplateId: ID_FLOW_TEMPLATE,

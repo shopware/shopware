@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Annotation\DocBlock;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -14,14 +15,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
  */
+#[CoversClass(ErrorResponseFactory::class)]
 class ErrorResponseFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -45,16 +43,14 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertSame(self::class, $stack[0]['class']);
         static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(DocBlock::class, $stack[1]['class']);
-        static::assertSame('getDataFromDataProviderAnnotation', $stack[1]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
+        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
 
-        static::assertSame(DocBlock::class, $stack[2]['class']);
-        static::assertSame('getProvidedData', $stack[2]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[2]['class']);
+        static::assertSame('providedData', $stack[2]['function']);
     }
 
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testNoStackTraceForExceptionNotInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -255,24 +251,22 @@ class ErrorResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return list<array<string, string>>
+     * @return array<string, array{string}>
      */
     public static function invalidUtf8SequencesProvider(): array
     {
         return [
-            ['Invalid 2 Octet Sequence' => "\xc3\x28"],
-            ['Invalid Sequence Identifier' => "\xa0\xa1"],
-            ['Invalid 3 Octet Sequence (in 2nd Octet)' => "\xe2\x28\xa1"],
-            ['Invalid 3 Octet Sequence (in 3rd Octet)' => "\xe2\x82\x28"],
-            ['Invalid 4 Octet Sequence (in 2nd Octet)' => "\xf0\x28\x8c\xbc"],
-            ['Invalid 4 Octet Sequence (in 3rd Octet)' => "\xf0\x90\x28\xbc"],
-            ['Invalid 4 Octet Sequence (in 4th Octet)' => "\xf0\x28\x8c\x28"],
+            'Invalid 2 Octet Sequence' => ["\xc3\x28"],
+            'Invalid Sequence Identifier' => ["\xa0\xa1"],
+            'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"],
+            'Invalid 3 Octet Sequence (in 3rd Octet)' => ["\xe2\x82\x28"],
+            'Invalid 4 Octet Sequence (in 2nd Octet)' => ["\xf0\x28\x8c\xbc"],
+            'Invalid 4 Octet Sequence (in 3rd Octet)' => ["\xf0\x90\x28\xbc"],
+            'Invalid 4 Octet Sequence (in 4th Octet)' => ["\xf0\x28\x8c\x28"],
         ];
     }
 
-    /**
-     * @dataProvider invalidUtf8SequencesProvider
-     */
+    #[DataProvider('invalidUtf8SequencesProvider')]
     public function testInvalidUtf8CharactersShouldNotThrow(string $invalid): void
     {
         $prefix = 'valid prefix';
@@ -289,6 +283,35 @@ class ErrorResponseFactoryTest extends TestCase
 
         static::assertStringStartsWith($prefix, $json['errors'][0]['detail']);
         static::assertStringEndsWith($suffix, $json['errors'][0]['detail']);
+    }
+
+    public function testResourceValueShouldNotThrow(): void
+    {
+        $fileResource = false;
+        try {
+            $closedFileResource = \tmpfile();
+            static::assertTrue(\is_resource($closedFileResource));
+            fclose($closedFileResource);
+
+            $fileResource = \tmpfile();
+            static::assertTrue(\is_resource($fileResource));
+
+            $exception = new SimpleShopwareHttpException([
+                'normal' => 'value',
+                'resource' => $fileResource,
+                'closed_resource' => $closedFileResource,
+            ]);
+
+            $factory = new ErrorResponseFactory();
+            // might throw a InvalidArgumentException: Type is not supported
+            // because a resource was passed to json_encode
+            $response = $factory->getResponseFromException($exception);
+            static::assertSame(Response::HTTP_I_AM_A_TEAPOT, $response->getStatusCode());
+        } finally {
+            if ($fileResource) {
+                fclose($fileResource);
+            }
+        }
     }
 }
 

@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +37,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly CriteriaParser $criteriaParser,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $timeout = '5s'
+        private readonly string $timeout,
+        private readonly string $searchType
     ) {
     }
 
@@ -49,36 +52,51 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return new IdSearchResult(0, [], $criteria, $context);
         }
 
-        $search = $this->createSearch($criteria, $definition, $context);
+        try {
+            $search = $this->createSearch($criteria, $definition, $context);
 
-        $this->eventDispatcher->dispatch(
-            new ElasticsearchEntitySearcherSearchEvent(
+            $this->eventDispatcher->dispatch(
+                new ElasticsearchEntitySearcherSearchEvent(
+                    $search,
+                    $definition,
+                    $criteria,
+                    $context
+                )
+            );
+
+            $searchBody = $this->convertSearch($criteria, $definition, $context, $search);
+
+            $trackTotalHits = $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT;
+
+            $result = $this->client->search([
+                'index' => $this->helper->getIndexName($definition),
+                'track_total_hits' => $trackTotalHits,
+                'body' => $searchBody,
+                'search_type' => $this->searchType,
+            ]);
+
+            $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+            $this->eventDispatcher->dispatch(new ElasticsearchEntitySearcherSearchedEvent(
+                $result,
                 $search,
                 $definition,
                 $criteria,
                 $context
-            )
-        );
+            ));
 
-        $search = $this->convertSearch($criteria, $definition, $context, $search);
+            $result->addState(self::RESULT_STATE);
 
-        try {
-            $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
-                'track_total_hits' => true,
-                'body' => $search,
-            ]);
+            return $result;
         } catch (\Throwable $e) {
+            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+                return new IdSearchResult(0, [], $criteria, $context);
+            }
+
             $this->helper->logAndThrowException($e);
 
             return $this->decorated->search($definition, $criteria, $context);
         }
-
-        $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
-
-        $result->addState(self::RESULT_STATE);
-
-        return $result;
     }
 
     private function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search
@@ -114,9 +132,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return $array;
         }
 
-        $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT) {
+            $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
-        $search->addAggregation($aggregation);
+            $search->addAggregation($aggregation);
+        }
+
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
         $array['timeout'] = $this->timeout;

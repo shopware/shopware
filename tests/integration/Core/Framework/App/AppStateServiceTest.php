@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -31,6 +32,9 @@ class AppStateServiceTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private AppStateService $appStateService;
@@ -52,13 +56,13 @@ class AppStateServiceTest extends TestCase
 
     public function testNotFoundAppThrowsOnActivate(): void
     {
-        static::expectException(AppNotFoundException::class);
+        $this->expectException(AppNotFoundException::class);
         $this->appStateService->activateApp(Uuid::randomHex(), Context::createDefaultContext());
     }
 
     public function testNotFoundAppThrowsOnDeactivate(): void
     {
-        static::expectException(AppNotFoundException::class);
+        $this->expectException(AppNotFoundException::class);
         $this->appStateService->deactivateApp(Uuid::randomHex(), Context::createDefaultContext());
     }
 
@@ -80,7 +84,7 @@ class AppStateServiceTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppActivatedHook::HOOK_NAME, $traces);
-        static::assertEquals('activated', $traces[AppActivatedHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('activated', $traces[AppActivatedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppInstalled);
@@ -106,7 +110,7 @@ class AppStateServiceTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeactivatedHook::HOOK_NAME, $traces);
-        static::assertEquals('deactivated', $traces[AppDeactivatedHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('deactivated', $traces[AppDeactivatedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppInstalled);
@@ -128,7 +132,7 @@ class AppStateServiceTest extends TestCase
             ],
         ], $this->context);
 
-        static::expectException(\RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->appStateService->deactivateApp($appId, $this->context);
     }
 
@@ -142,8 +146,7 @@ class AppStateServiceTest extends TestCase
         $criteria->addAssociation('scripts');
         $criteria->addAssociation('scriptConditions');
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $this->context)->first();
+        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNotNull($app);
         static::assertSame($active, $app->isActive());
         $this->assertDefaultTemplate($app);
@@ -187,9 +190,11 @@ class AppStateServiceTest extends TestCase
         $scriptCondition = $app->getScriptConditions()->first();
         static::assertNotNull($scriptCondition);
         static::assertSame($app->isActive(), $scriptCondition->isActive());
-        static::assertEquals(
-            file_get_contents(__DIR__ . '/Manifest/_fixtures/test/Resources/scripts/rule-conditions/customer-group-rule-script.twig'),
-            $scriptCondition->getScript()
+        $script = $scriptCondition->getScript();
+        static::assertIsString($script);
+        static::assertStringEqualsFile(
+            __DIR__ . '/Manifest/_fixtures/test/Resources/scripts/rule-conditions/customer-group-rule-script.twig',
+            $script
         );
         static::assertIsArray($scriptCondition->getConstraints());
         static::assertArrayHasKey('operator', $scriptCondition->getConstraints());
@@ -198,6 +203,6 @@ class AppStateServiceTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $scriptCondition->getConstraints()['customerGroupIds'][0]);
         static::assertInstanceOf(Choice::class, $scriptCondition->getConstraints()['operator'][1]);
         static::assertInstanceOf(ArrayOfUuid::class, $scriptCondition->getConstraints()['customerGroupIds'][1]);
-        static::assertEquals(['=', '!='], $scriptCondition->getConstraints()['operator'][1]->choices);
+        static::assertSame(['=', '!='], $scriptCondition->getConstraints()['operator'][1]->choices);
     }
 }

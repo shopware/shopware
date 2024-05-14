@@ -12,11 +12,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_gtc_checkbox %}
     <sw-gtc-checkbox
-        {% if VUE3 %}
         v-model:value="tocAccepted"
-        {% else %}
-        v-model="tocAccepted"
-        {% endif %}
     />
     {% endblock %}
 
@@ -26,16 +22,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_buttons_submit_button %}
         <sw-button-process
+            class="sw-extension-review-creation__submit"
             variant="primary"
             size="small"
             :is-loading="isLoading"
             :process-success="isCreatedSuccessful"
             :disabled="disabled"
-            {% if VUE3 %}
-            @update:processSuccess="emitCreated"
-            {% else %}
-            @process-finish="emitCreated"
-            {% endif %}
+            @update:process-success="emitCreated"
             @click="handleCreateReview"
         >
             {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation.submitBtn') }}

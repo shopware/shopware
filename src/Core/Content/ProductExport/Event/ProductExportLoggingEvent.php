@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ProductExport\Event;
 
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
@@ -17,20 +16,12 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware are deprecated and will be removed in v6.6.0
- */
-#[Package('sales-channel')]
-class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware, ScalarValuesAware, FlowEventAware
+#[Package('inventory')]
+class ProductExportLoggingEvent extends Event implements LogAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const NAME = 'product_export.log';
 
-    /**
-     * @deprecated tag:v6.6.0 - Property $logLevel will no longer allow integer values
-     *
-     * @var value-of<Level::VALUES>|Level
-     */
-    private readonly int|Level $logLevel;
+    private readonly Level $logLevel;
 
     /**
      * Do not remove initialization, even though the property is set in the constructor.
@@ -40,15 +31,11 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Na
 
     /**
      * @internal
-     *
-     * @deprecated tag:v6.6.0 - Parameter $logLevel will no longer allow integer values
-     *
-     * @param value-of<Level::VALUES>|Level|null $logLevel
      */
     public function __construct(
         private readonly Context $context,
         ?string $name,
-        int|Level|null $logLevel,
+        ?Level $logLevel,
         private readonly ?\Throwable $throwable = null
     ) {
         $this->name = $name ?? self::NAME;
@@ -73,16 +60,9 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Na
         return $this->context;
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
-     */
-    public function getLogLevel(): int
+    public function getLogLevel(): Level
     {
-        if (\is_int($this->logLevel)) {
-            return $this->logLevel;
-        }
-
-        return $this->logLevel->value;
+        return $this->logLevel;
     }
 
     public function getName(): string
@@ -90,6 +70,9 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Na
         return $this->name;
     }
 
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
     public function getLogData(): array
     {
         $logData = [];

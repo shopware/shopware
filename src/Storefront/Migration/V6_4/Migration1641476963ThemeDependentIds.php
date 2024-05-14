@@ -3,12 +3,13 @@
 namespace Shopware\Storefront\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1641476963ThemeDependentIds extends MigrationStep
@@ -47,38 +48,10 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
-        foreach ($roles as $role) {
-            $currentPrivileges = json_decode((string) $role['privileges'], null, 512, \JSON_THROW_ON_ERROR);
-            $newPrivileges = array_values($this->fixRolePrivileges($currentPrivileges));
-            if ($currentPrivileges === $newPrivileges) {
-                continue;
-            }
-
-            $role['privileges'] = json_encode($newPrivileges, \JSON_THROW_ON_ERROR);
-            $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
-
-            $connection->update('acl_role', $role, ['id' => $role['id']]);
-        }
+        $this->addAdditionalPrivileges($connection, self::NEW_PRIVILEGES);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-    }
-
-    /**
-     * @param list<string> $rolePrivileges
-     *
-     * @return list<string>
-     */
-    private function fixRolePrivileges(array $rolePrivileges): array
-    {
-        foreach (self::NEW_PRIVILEGES as $key => $new) {
-            if (\in_array($key, $rolePrivileges, true)) {
-                $rolePrivileges = array_merge($rolePrivileges, $new);
-            }
-        }
-
-        return array_unique($rolePrivileges);
     }
 }

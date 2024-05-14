@@ -117,7 +117,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('sales_channel_id IN (:salesChannelIds)')
             ->andWhere('language_id = :languageId')
-            ->setParameter('salesChannelIds', $salesChannelIds, ArrayParameterType::STRING)
+            ->setParameter('salesChannelIds', $salesChannelIds, ArrayParameterType::BINARY)
             ->setParameter('languageId', $languageId)
             ->addOrderBy('name', 'ASC')
             ->executeQuery()
@@ -141,7 +141,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
     {
         return [
             'username' => $username,
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'admin',
             'lastName' => 'user',
             'email' => $username . '@test.com',
@@ -198,7 +198,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('language_id IN (:languages)')
             ->orderBy('name', 'ASC')
-            ->setParameter('languages', Uuid::fromHexToBytesList($languages), ArrayParameterType::STRING)
+            ->setParameter('languages', Uuid::fromHexToBytesList($languages), ArrayParameterType::BINARY)
             ->executeQuery()
             ->fetchAllAssociative();
 

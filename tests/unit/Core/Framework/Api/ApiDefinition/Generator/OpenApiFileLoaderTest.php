@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiFileLoader
- *
  * @internal
  */
+#[CoversClass(OpenApiFileLoader::class)]
 class OpenApiFileLoaderTest extends TestCase
 {
     public function testMergingOfFiles(): void

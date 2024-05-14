@@ -100,10 +100,10 @@
 
                     {% block buy_widget_tax %}
                         <div class="product-detail-tax-container">
-                            {% if context.taxState == "gross" %}
-                                {% set taxText = "general.grossTaxInformation"|trans|sw_sanitize %}
+                            {% if context.taxState == 'gross' %}
+                                {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
                             {% else %}
-                                {% set taxText = "general.netTaxInformation"|trans|sw_sanitize %}
+                                {% set taxText = 'general.netTaxInformation'|trans|sw_sanitize %}
                             {% endif %}
 
                             <p class="product-detail-tax">
@@ -111,7 +111,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-bs-toggle="modal"
+                                       data-ajax-modal="true"
                                        data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
@@ -125,13 +125,14 @@
 
                             {% if remoteClickOptions is not defined %}
                                 {% set remoteClickOptions = {
-                                    selector: "#review-tab-" ~ product.id,
-                                    scrollToElement: true
+                                    selector: '#review-tab-' ~ product.id,
+                                    scrollToElement: true,
+                                    excludedViewports: ['XS']
                                 } %}
                             {% endif %}
 
                             {% if reviewTabHref is not defined %}
-                                {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+                                {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
                             {% endif %}
 
                             <div class="product-detail-reviews">
@@ -143,19 +144,14 @@
                                 <a
                                     data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
-                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                    {% if feature('v6.6.0.0') %}
-                                        data-off-canvas-tabs="true"
-                                    {% else %}
-                                        data-offcanvas-tabs="true"
-                                    {% endif %}
+                                    data-off-canvas-tabs="true"
                                     data-remote-click="true"
-                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    data-remote-click-options="{{ remoteClickOptions|json_encode }}"
                                     href="{{ reviewTabHref }}"
                                     aria-controls="review-tab-pane"
                                 >
                                     {{ totalReviews }}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}
+                                    {{ 'detail.reviewLinkText'|trans({'%count%': totalReviews})|sw_sanitize }}
                                 </a>
                             </div>
                         {% endif %}
@@ -190,7 +186,7 @@
             {% block buy_widget_wishlist %}
                 {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                     showText: true,
-                    size: 'md',
+                    size: 'sm',
                     productId: product.id
                 } %}
             {% endblock %}
@@ -201,7 +197,7 @@
                 <div class="product-detail-ordernumber-container">
                     {% block buy_widget_ordernumber_label %}
                         <span class="product-detail-ordernumber-label">
-                            {{ "detail.productNumberLabel"|trans|sw_sanitize }}
+                            {{ 'detail.productNumberLabel'|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 

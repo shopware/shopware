@@ -4,7 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_media_upload %}
     <sw-cms-mapping-field
-        v-model="element.config.media"
+        v-model:config="element.config.media"
         :label="$tc('sw-cms.elements.image.label')"
         value-types="entity"
         entity="media"
@@ -48,18 +48,10 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_display_mode %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="element.config.displayMode.value"
-        {% else %}
-        v-model="element.config.displayMode.value"
-        {% endif %}
         class="sw-cms-el-config-image__display-mode"
         :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-        {% if VUE3 %}
         @update:value="onChangeDisplayMode"
-        {% else %}
-        @change="onChangeDisplayMode"
-        {% endif %}
     >
         <option value="standard">
             {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
@@ -77,18 +69,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_image_config_min_height %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="element.config.minHeight.value"
-            {% else %}
-            v-model="element.config.minHeight.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
             :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterMinHeight')"
-            {% if VUE3 %}
             @update:value="onChangeMinHeight"
-            {% else %}
-            @input="onChangeMinHeight"
-            {% endif %}
         />
         {% endblock %}
     </template>
@@ -96,11 +80,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_image_config_vertical_align %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="element.config.verticalAlign.value"
-        {% else %}
-        v-model="element.config.verticalAlign.value"
-        {% endif %}
         :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
         :disabled="element.config.displayMode.value === 'cover'"
@@ -119,11 +99,7 @@
 
     {% block sw_cms_element_image_config_horizontal_align %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="element.config.horizontalAlign.value"
-        {% else %}
-        v-model="element.config.horizontalAlign.value"
-        {% endif %}
         :label="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :disabled="element.config.displayMode.value === 'cover'"
@@ -144,14 +120,10 @@
     {% block sw_cms_element_image_config_link %}
     <div class="sw-cms-el-config-image__link">
         <sw-dynamic-url-field
-            v-model="element.config.url.value"
+            v-model:value="element.config.url.value"
         />
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.newTab.value"
-            {% else %}
-            v-model="element.config.newTab.value"
-            {% endif %}
             class="sw-cms-el-config-image__link-tab"
             :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"
         />
@@ -162,7 +134,7 @@
     {% block sw_cms_element_image_config_media_modal %}
     <sw-media-modal-v2
         v-if="mediaModalIsOpen"
-        variant="regular"
+        variant="full"
         :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
         :entity-context="cmsPageState.entityName"
         :allow-multi-select="false"

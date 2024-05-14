@@ -2,7 +2,7 @@ import template from './sw-order-state-change-modal-attach-documents.html.twig';
 import './sw-order-state-change-modal-attach-documents.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

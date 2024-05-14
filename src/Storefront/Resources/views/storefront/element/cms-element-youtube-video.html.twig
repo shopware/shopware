@@ -39,13 +39,13 @@
     {% endif %}
 
     <div class="cms-element-youtube-video {{ displayMode }}">
-
         {% block element_youtube_video_inner %}
             {% set iframeClass = 'cms-element-youtube-video__video' %}
 
             {% if config.needsConfirmation.value == false %}
                 <iframe class="{{ iframeClass }}"
-                        src="{{ videoUrl }}">
+                        src="{{ videoUrl }}"
+                        allowfullscreen="allowfullscreen">
                 </iframe>
             {% else %}
                 {% set pluginConfiguration = {

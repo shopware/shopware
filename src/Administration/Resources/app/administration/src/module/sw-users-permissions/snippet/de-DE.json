@@ -48,7 +48,7 @@
       },
       "view": {
         "detailed": {
-          "alertText": "In dieser Ansicht kannst Du Privilegien detailliert konfigurieren. Alle deaktivierten Checkboxen sind Berechtigungen, die durch Auswahlen im Tab \"Allgemein\" gesetzt wurden und sind dadurch nicht veränderbar. Konfiguration an dieser Stelle sind notwendig, wenn im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben."
+          "alertText": "In dieser Ansicht kannst Du Privilegien detailliert konfigurieren. Alle deaktivierten Checkboxen sind Berechtigungen, die durch Auswahlen im Tab \"Allgemein\" gesetzt wurden und sind dadurch nicht veränderbar. Konfiguration an dieser Stelle ist notwendig, wenn im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben."
         }
       },
       "tabs": {
@@ -216,14 +216,14 @@
         "api_acl_privileges_route_get": "ACL-Endpunkt-Berechtigungen lesen",
         "api_action_cache_info": "Cache-Info lesen",
         "api_action_cache_index": "Indexer triggern",
-        "api_action_cache_delete_and_warmup": "Cache löschen und aufwärmen",
         "api_action_cache_delete": "Cache löschen",
         "api_action_cache_cleanup": "Cache aufräumen",
         "api_action_container-cache_delete": "Container-Cache löschen",
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
         "system:clear:cache": "Cache leeren",
-        "api_proxy_switch-customer": "Im Namen eines Kunden handeln"
+        "api_proxy_switch-customer": "Im Namen eines Kunden handeln",
+        "api_feature_flag_toggle": "Merkmalskennzeichen umschalten"
       },
       "app": {
         "label": "Apps",

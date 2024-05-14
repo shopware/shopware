@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
@@ -37,9 +38,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @dataProvider serializerProvider
-     */
+    #[DataProvider('serializerProvider')]
     public function testSerializer(PriceDefinitionInterface $definition): void
     {
         $serializer = $this->getContainer()->get(PriceDefinitionFieldSerializer::class);

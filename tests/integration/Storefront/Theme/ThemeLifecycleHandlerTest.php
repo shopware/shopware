@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -17,6 +18,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -27,15 +29,15 @@ use Shopware\Storefront\Theme\ThemeSalesChannel;
 use Shopware\Storefront\Theme\ThemeSalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\InheritanceWithConfig\InheritanceWithConfig;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\PluginWithAdditionalBundles\PluginWithAdditionalBundles;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeLifecycleHandler
  */
+#[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -71,6 +73,27 @@ class ThemeLifecycleHandlerTest extends TestCase
     public function testHandleThemeInstallOrUpdateWillRecompileThemeIfNecessary(): void
     {
         $installConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
+
+        $this->themeServiceMock->expects(static::once())
+            ->method('compileTheme')
+            ->with(
+                TestDefaults::SALES_CHANNEL,
+                static::isType('string'),
+                static::isInstanceOf(Context::class),
+                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+            );
+
+        $configs = new StorefrontPluginConfigurationCollection([
+            $this->configFactory->createFromBundle(new Storefront()),
+            $installConfig,
+        ]);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
+    }
+
+    public function testHandleThemeInstallOrUpdateWillRecompilePluginWithSubBundles(): void
+    {
+        $installConfig = $this->configFactory->createFromBundle(new PluginWithAdditionalBundles(true, __DIR__ . '/fixtures/PluginWithSubBundles'));
 
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
@@ -145,7 +168,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 static::isInstanceOf(Context::class),
                 static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (
-                        $configs->first()
+                        $configs->first() instanceof StorefrontPluginConfiguration
                         ? $configs->first()->getTechnicalName()
                         : ''
                     ) === 'Storefront'

@@ -29,12 +29,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_overlay %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="!disabled"
         class="sw-cms-block__config-overlay"
         :class="overlayClasses"
+        role="button"
+        tabindex="0"
         @click="onBlockOverlayClick"
+        @keydown.enter="onBlockOverlayClick"
     ></div>
     {% endblock %}
 </div>

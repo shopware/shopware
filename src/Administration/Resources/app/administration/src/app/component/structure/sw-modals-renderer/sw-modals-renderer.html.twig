@@ -2,12 +2,15 @@
     class="sw-modals-renderer"
     style="display: none;"
 >
-    <template v-for="modal in modals">
+    <template
+        v-for="modal in modals"
+        :key="modal.locationId"
+    >
         <sw-modal
-            :key="modal.locationId"
-            :title="modal.title"
+            :title="$tc(modal.title ?? '')"
             :closable="modal.closable"
             :show-header="modal.showHeader"
+            :show-footer="modal.showFooter"
             :variant="modal.variant"
             @modal-close="closeModal(modal.locationId)"
         >
@@ -25,7 +28,7 @@
                     :square="buttonProps(button).square"
                     @click="() => buttonProps(button).method()"
                 >
-                    {{ button.label }}
+                    {{ $tc(button.label ?? '') }}
                 </sw-button>
             </template>
         </sw-modal>

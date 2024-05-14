@@ -26,7 +26,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @phpstan-type CombinationPayload list<array{id: string, parentId: string, productNumber: string, stock: int, options: list<array{id: string, name: string, group: array{id: string, name: string}}>}>
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     /**
@@ -91,12 +91,14 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             return;
         }
 
-        $payload = $this->getCombinationsPayload($variants, $parentId, $parentPayload['productNumber']);
+        $context = $event->getContext();
+        $payload = $this->getCombinationsPayload($variants, $parentId, $parentPayload['productNumber'], $context);
+
         $variantIds = array_column($payload, 'id');
         $this->connection->executeStatement(
             'DELETE FROM `product_option` WHERE `product_id` IN (:ids);',
             ['ids' => Uuid::fromHexToBytesList($variantIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         $configuratorSettingPayload = $this->getProductConfiguratorSettingPayload($payload, $parentId);
         $this->connection->executeStatement(
@@ -105,7 +107,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 'parentId' => Uuid::fromHexToBytes($parentId),
                 'ids' => Uuid::fromHexToBytesList(array_column($configuratorSettingPayload, 'id')),
             ],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $this->syncService->sync([
@@ -121,7 +123,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 SyncOperation::ACTION_UPSERT,
                 $configuratorSettingPayload
             ),
-        ], Context::createDefaultContext(), new SyncBehavior());
+        ], $context, new SyncBehavior());
     }
 
     public function reset(): void
@@ -176,7 +178,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      *
      * @return CombinationPayload
      */
-    private function getCombinationsPayload(array $variants, string $parentId, string $productNumber): array
+    private function getCombinationsPayload(array $variants, string $parentId, string $productNumber, Context $context): array
     {
         $combinations = $this->getCombinations($variants);
         $payload = [];
@@ -191,8 +193,8 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             foreach ($combination as $option) {
                 [$group, $option] = explode('|', $option);
 
-                $optionId = $this->getOptionId($group, $option);
-                $groupId = $this->getGroupId($group);
+                $optionId = $this->getOptionId($group, $option, $context);
+                $groupId = $this->getGroupId($group, $context);
 
                 $options[] = [
                     'id' => $optionId,
@@ -275,7 +277,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
         return $payload;
     }
 
-    private function getGroupId(string $groupName): string
+    private function getGroupId(string $groupName, Context $context): string
     {
         $groupId = Uuid::fromStringToHex($groupName);
 
@@ -286,20 +288,15 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $groupName));
 
-        $group = $this->groupRepository->search($criteria, Context::createDefaultContext())->first();
+        $this->groupIdCache[$groupId] = $this->groupRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId() ?? $groupId;
 
-        if ($group !== null) {
-            $this->groupIdCache[$groupId] = $group->getId();
-
-            return $group->getId();
-        }
-
-        $this->groupIdCache[$groupId] = $groupId;
-
-        return $groupId;
+        return $this->groupIdCache[$groupId];
     }
 
-    private function getOptionId(string $groupName, string $optionName): string
+    private function getOptionId(string $groupName, string $optionName, Context $context): string
     {
         $optionId = Uuid::fromStringToHex(sprintf('%s.%s', $groupName, $optionName));
 
@@ -311,16 +308,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
         $criteria->addFilter(new EqualsFilter('name', $optionName));
         $criteria->addFilter(new EqualsFilter('group.name', $groupName));
 
-        $option = $this->optionRepository->search($criteria, Context::createDefaultContext())->first();
+        $this->optionIdCache[$optionId] = $this->optionRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId() ?? $optionId;
 
-        if ($option !== null) {
-            $this->optionIdCache[$optionId] = $option->getId();
-
-            return $option->getId();
-        }
-
-        $this->optionIdCache[$optionId] = $optionId;
-
-        return $optionId;
+        return $this->optionIdCache[$optionId];
     }
 }

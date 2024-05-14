@@ -28,7 +28,7 @@ use Symfony\Component\Console\Question\Question;
     name: 'store:login',
     description: 'Login to the store',
 )]
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreLoginCommand extends Command
 {
     public function __construct(
@@ -53,7 +53,7 @@ class StoreLoginCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $host = $input->getOption('host');
         if (!empty($host)) {

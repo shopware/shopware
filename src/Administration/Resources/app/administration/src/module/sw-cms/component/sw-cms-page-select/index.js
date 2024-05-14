@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -62,7 +62,7 @@ export default {
     watch: {
         currentValue(value) {
             if (value !== this.value) {
-                this.$emit('input', value);
+                this.$emit('update:value', value);
             }
         },
 

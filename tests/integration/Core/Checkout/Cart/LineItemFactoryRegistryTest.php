@@ -120,7 +120,6 @@ class LineItemFactoryRegistryTest extends TestCase
     public function testCreatePromotion(): void
     {
         $lineItem = $this->service->create(['type' => 'promotion', 'referencedId' => 'test'], $this->context);
-        static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertSame('test', $lineItem->getReferencedId());
         static::assertSame(1, $lineItem->getQuantity());
         static::assertSame(LineItem::PROMOTION_LINE_ITEM_TYPE, $lineItem->getType());

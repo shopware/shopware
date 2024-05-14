@@ -20,11 +20,7 @@
         :criteria="optionCriteria"
         @select-collapsed="onSelectCollapsed"
         @search-term-change="setSearchTerm"
-        {% if VUE3 %}
-        @update:entityCollection="setOptions"
-        {% else %}
-        @change="setOptions"
-        {% endif %}
+        @update:entity-collection="setOptions"
     >
 
         <template #selection-label-property="{ item }">

@@ -23,7 +23,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -31,7 +30,6 @@ export default {
         showSettingsInformation: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -134,7 +132,6 @@ export default {
         },
 
         updateIsTitleRequired() {
-            // TODO: Refactor when there is a possibility to check if the title field is inherited
             this.isTitleRequired = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
         },
 

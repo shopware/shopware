@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\User\UserCollection;
@@ -16,12 +18,10 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Authentication\LocaleProvider
  */
+#[Package('checkout')]
+#[CoversClass(LocaleProvider::class)]
 class LocaleProviderTest extends TestCase
 {
     public function testGetLocaleFromContextReturnsEnGbInSystemSource(): void

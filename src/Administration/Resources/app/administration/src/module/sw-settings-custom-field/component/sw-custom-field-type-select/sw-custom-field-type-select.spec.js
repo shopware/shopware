@@ -1,26 +1,15 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-
-import swCustomFieldTypeBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-base';
-import swCustomFieldTypeSelect from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-select';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/sw-switch-field';
-
-Shopware.Component.register('sw-custom-field-type-base', swCustomFieldTypeBase);
-Shopware.Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', swCustomFieldTypeSelect);
+import { mount } from '@vue/test-utils';
 
 let currentCustomField = {};
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-custom-field-type-select'), {
-        mocks: {
-            $i18n: {
-                fallbackLocale: 'en-GB',
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-custom-field-type-select', {
+        sync: true,
+    }), {
+        props: {
             currentCustomField,
             set: {
                 name: 'technical_test',
@@ -45,23 +34,26 @@ async function createWrapper() {
                 products: [],
             },
         },
-        stubs: {
-            'sw-custom-field-translated-labels': true,
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-text-field': {
-                props: {
-                    value: {
-                        type: String,
-                        default: '',
-                    },
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $i18n: {
+                    fallbackLocale: 'en-GB',
                 },
-                template: '<input type="text" :value="value" @input="event => $emit(\'input\', event.target.value)" />',
             },
-            'sw-base-field': true,
-            'sw-field': true,
-            'sw-field-error': true,
-            'sw-button': true,
-            'sw-container': true,
+            stubs: {
+                'sw-custom-field-translated-labels': true,
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-field-error': true,
+                'sw-button': true,
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+            },
         },
     });
 }
@@ -108,15 +100,21 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
 
     it('should allow saving of labels for options', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        const labelInputs = wrapper.findAll('.sw-custom-field-type-select__option-label');
+        const labelInputs = wrapper.findAll('.sw-custom-field-type-select__option-label input');
+        expect(labelInputs[0].element.value).toBe('translated-label-1');
+        expect(labelInputs[1].element.value).toBe('');
+        expect(labelInputs[2].element.value).toBe('');
 
-        expect(labelInputs.at(0).props('value')).toBe('translated-label-1');
-        expect(labelInputs.at(1).props('value')).toBe('');
-        expect(labelInputs.at(2).props('value')).toBe('');
+        // eslint-disable-next-line no-restricted-syntax
+        for (const labelInput of labelInputs) {
+            const index = labelInputs.indexOf(labelInput);
+            // eslint-disable-next-line no-await-in-loop
+            await labelInput.setValue(`label-${index}`);
+        }
 
-        // eslint-disable-next-line sw-test-rules/await-async-functions
-        labelInputs.wrappers.forEach((labelInput, index) => labelInput.setValue(`label-${index}`));
+        await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config).toEqual({
             componentName: 'sw-single-select',

@@ -31,6 +31,7 @@ class CartException extends HttpException
     public const CART_LINE_ITEM_NOT_REMOVABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_REMOVABLE';
     public const CART_LINE_ITEM_NOT_STACKABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE';
     public const CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_LINE_ITEM_TYPE_NOT_SUPPORTED';
+    public const CART_LINE_ITEM_TYPE_NOT_UPDATABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE';
     public const CART_MISSING_LINE_ITEM_PRICE_CODE = 'CHECKOUT__CART_MISSING_LINE_ITEM_PRICE';
     public const CART_INVALID_PRICE_DEFINITION_CODE = 'CHECKOUT__CART_MISSING_PRICE_DEFINITION';
     public const CART_MIXED_LINE_ITEM_TYPE_CODE = 'CHECKOUT__CART_MIXED_LINE_ITEM_TYPE';
@@ -48,6 +49,7 @@ class CartException extends HttpException
     public const TAX_ID_PARAMETER_IS_MISSING = 'CHECKOUT__TAX_ID_PARAMETER_IS_MISSING';
     public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
     public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
+    public const CART_LINE_ITEM_INVALID = 'CHECKOUT__CART_LINE_ITEM_INVALID';
 
     public static function deserializeFailed(): self
     {
@@ -205,6 +207,16 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE,
             'Line item type "{{ type }}" is not supported.',
+            ['type' => $type]
+        );
+    }
+
+    public static function lineItemTypeNotUpdatable(string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_LINE_ITEM_TYPE_NOT_UPDATABLE_CODE,
+            'Line item type "{{ type }}" cannot be updated.',
             ['type' => $type]
         );
     }
@@ -371,6 +383,15 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PRICES_PARAMETER_IS_MISSING,
             'Parameter "prices" is missing.',
+        );
+    }
+
+    public static function lineItemInvalid(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_LINE_ITEM_INVALID,
+            'Line item is invalid: ' . $reason
         );
     }
 

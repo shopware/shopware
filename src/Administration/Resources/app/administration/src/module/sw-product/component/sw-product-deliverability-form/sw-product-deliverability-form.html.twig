@@ -8,11 +8,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_stock_field %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="product.stock"
-            {% else %}
-            v-model="product.stock"
-            {% endif %}
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
@@ -25,11 +21,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_available_stock_field %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="product.availableStock"
-            {% else %}
-            v-model="product.availableStock"
-            {% endif %}
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -40,11 +32,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_deliverability_form_is_closeout_field %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.isCloseout"
-            {% else %}
-            v-model="product.isCloseout"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.isCloseout"
         >
@@ -58,11 +46,7 @@
                     :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -78,11 +62,7 @@
         {% block sw_product_deliverability_form_delivery_time_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.deliveryTimeId"
-            {% else %}
-            v-model="product.deliveryTimeId"
-            {% endif %}
             :inherited-value="parentProduct.deliveryTimeId"
             :has-parent="!!parentProduct.id"
             :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
@@ -99,7 +79,7 @@
                     :error="productDeliveryTimeIdError"
                     :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
                     show-clearable-button
-                    @change="updateCurrentValue"
+                    @update:value="updateCurrentValue"
                 />
             </template>
         </sw-inherit-wrapper>
@@ -109,11 +89,7 @@
         {% block sw_product_deliverability_form_restock_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.restockTime"
-            {% else %}
-            v-model="product.restockTime"
-            {% endif %}
             class="sw-product-deliverability__restock-field"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.restockTime"
@@ -131,11 +107,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
                     :value="props.currentValue"
                     :error="productRestockTimeError"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -146,11 +118,7 @@
         {% block sw_product_deliverability_form_shipping_free_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.shippingFree"
-            {% else %}
-            v-model="product.shippingFree"
-            {% endif %}
             class="sw-product-deliverability__shipping-free"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.shippingFree"
@@ -163,11 +131,7 @@
                     :label="$tc('sw-product.settingsForm.labelShippingFree')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -183,11 +147,7 @@
         {% block sw_product_deliverability_form_min_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.minPurchase"
-            {% else %}
-            v-model="product.minPurchase"
-            {% endif %}
             class="sw-product-deliverability__min-purchase"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.minPurchase"
@@ -203,11 +163,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -218,11 +174,7 @@
         {% block sw_product_deliverability_form_purchase_steps_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.purchaseSteps"
-            {% else %}
-            v-model="product.purchaseSteps"
-            {% endif %}
             class="sw-product-deliverability__purchase-step"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.purchaseSteps"
@@ -238,11 +190,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>
@@ -252,11 +200,7 @@
         {% block sw_product_deliverability_form_max_purchase_field %}
         <sw-inherit-wrapper
             v-if="showModeSetting"
-            {% if VUE3 %}
             v-model:value="product.maxPurchase"
-            {% else %}
-            v-model="product.maxPurchase"
-            {% endif %}
             class="sw-product-deliverability__max-purchase"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.maxPurchase"
@@ -273,11 +217,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
             </template>
         </sw-inherit-wrapper>

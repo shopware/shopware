@@ -9,7 +9,7 @@ const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -87,6 +87,79 @@ export default {
             return Object.fromEntries(blocks);
         },
 
+        cmsBlockCategories() {
+            const defaultCategories = [
+                {
+                    value: 'favorite',
+                    label: 'sw-cms.detail.label.blockCategoryFavorite',
+                },
+                {
+                    value: 'text',
+                    label: 'sw-cms.detail.label.blockCategoryText',
+                },
+                {
+                    value: 'image',
+                    label: 'sw-cms.detail.label.blockCategoryImage',
+                },
+                {
+                    value: 'video',
+                    label: 'sw-cms.detail.label.blockCategoryVideo',
+                },
+                {
+                    value: 'text-image',
+                    label: 'sw-cms.detail.label.blockCategoryTextImage',
+                },
+                {
+                    value: 'commerce',
+                    label: 'sw-cms.detail.label.blockCategoryCommerce',
+                },
+                {
+                    value: 'sidebar',
+                    label: 'sw-cms.detail.label.blockCategorySidebar',
+                },
+                {
+                    value: 'form',
+                    label: 'sw-cms.detail.label.blockCategoryForm',
+                },
+                {
+                    value: 'html',
+                    label: 'sw-cms.detail.label.blockCategoryHtml',
+                },
+            ];
+
+            // Check if blocks with the category 'app' are available
+            if (Object.values(this.cmsService.getCmsBlockRegistry()).some(block => {
+                return block.category === 'app';
+            })) {
+                defaultCategories.push({
+                    value: 'app',
+                    label: 'sw-cms.detail.label.blockCategoryApp',
+                });
+            }
+
+            // Get all missing categories from the block registry
+            const categories = Object.values(this.cmsService.getCmsBlockRegistry()).map(block => block.category);
+            const uniqueCategories = [...new Set(categories)];
+
+            // Add all missing categories to the default categories
+            uniqueCategories.forEach(category => {
+                if (defaultCategories.some(defaultCategory => defaultCategory.value === category)) {
+                    return;
+                }
+
+                if (this.isDuplicateCategory(category)) {
+                    return;
+                }
+
+                defaultCategories.push({
+                    value: category,
+                    label: `apps.sw-cms.detail.label.blockCategory.${category}`,
+                });
+            });
+
+            return defaultCategories;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -158,11 +231,7 @@ export default {
                 return true;
             }
 
-            if (this.page.type === 'product_detail' && this.feature.isActive('v6.6.0.0')) {
-                return true;
-            }
-
-            return false;
+            return this.page.type === 'product_detail';
         },
 
         cmsBlocksBySelectedBlockCategory() {
@@ -545,6 +614,23 @@ export default {
 
         onVisibilityChange(selectedBlock, viewport, isVisible) {
             selectedBlock.visibility[viewport] = isVisible;
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Remove the duplicate category check and all usages.
+         * Use the auto-generated category label instead of the hardcoded option
+         * value inside the template.
+         */
+        isDuplicateCategory(categoryValue) {
+            /**
+             * This method is a unusual hack to prevent the category from being added twice.
+             * Recommended for plugin developer is to remove the hardcoded option value
+             * inside the template and use the auto-generated category label instead.
+             * */
+            const swCmsSidebarTemplate = Shopware.Template.getRenderedTemplate('sw-cms-sidebar');
+            const isCategoryValueDuplicate = swCmsSidebarTemplate.includes(`value="${categoryValue}"`);
+
+            return isCategoryValueDuplicate;
         },
     },
 };

@@ -2,10 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,15 +19,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule
- * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
+#[Package('services-settings')]
+#[CoversClass(DaysSinceLastOrderRule::class)]
+#[CoversClass(DaysSinceRule::class)]
+#[Group('rules')]
 class DaysSinceLastOrderRuleTest extends TestCase
 {
     private DaysSinceLastOrderRule $rule;
@@ -37,7 +39,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }
@@ -223,13 +225,11 @@ class DaysSinceLastOrderRuleTest extends TestCase
         static::assertArrayHasKey('daysPassed', $ruleConstraints, 'Constraint daysPassed not found in Rule');
         $daysPassed = $ruleConstraints['daysPassed'];
         static::assertEquals(new NotBlank(), $daysPassed[0]);
-        static::assertEquals(new Type('int'), $daysPassed[1]);
+        static::assertEquals(new Type('numeric'), $daysPassed[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
-    public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
+    #[DataProvider('getMatchValues')]
+    public function testRuleMatching(string $operator, bool $isMatching, float $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
@@ -260,17 +260,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
     public static function getMatchValues(): \Traversable
     {
         $datetime = self::getTestTimestamp();
-        if (!$datetime instanceof \DateTimeImmutable) {
-            throw new \Error();
-        }
-
         $dayTest = $datetime->modify('-30 minutes');
 
-        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest];
+        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1.2, $dayTest];
         yield 'operator_eq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest];
         yield 'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest];
         yield 'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest];
-        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest];
+        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1.1, $dayTest];
         yield 'operator_lte_lt / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 1,  $dayTest];
         yield 'operator_lte_e / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 0, $dayTest];
         yield 'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest];

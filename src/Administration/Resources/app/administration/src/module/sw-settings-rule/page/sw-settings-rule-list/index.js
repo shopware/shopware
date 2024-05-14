@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -169,6 +169,10 @@ export default {
 
             return properties;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {
@@ -195,11 +199,10 @@ export default {
         },
 
         getCounts(propertyName, id) {
-            const countBucket = this.rules.aggregations[propertyName].buckets.filter((bucket) => {
-                return bucket.key === id;
-            })[0];
+            const countBucket = this.rules.aggregations[propertyName].buckets
+                .find((bucket) => bucket.key === id);
 
-            if (!countBucket[propertyName] || !countBucket[propertyName].count) {
+            if (!countBucket || !countBucket[propertyName] || !countBucket[propertyName].count) {
                 return 0;
             }
 
@@ -238,7 +241,7 @@ export default {
                 },
             };
 
-            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api, behaviour).then((duplicatedData) => {
+            this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',
@@ -251,7 +254,7 @@ export default {
         onInlineEditSave(promise, rule) {
             this.isLoading = true;
 
-            promise.then(() => {
+            return promise.then(() => {
                 this.isLoading = false;
 
                 this.createNotificationSuccess({

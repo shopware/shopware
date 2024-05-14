@@ -14,7 +14,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_price %}
         <div class="sw-cms-el-buy-box__price">
-            {{ product.price[0].gross | currency('EUR') }}
+            {{ currencyFilter(product.price[0].gross, 'EUR') }}
         </div>
         {% endblock %}
 
@@ -32,9 +32,7 @@
                 {{ $tc('sw-cms.elements.buyBox.component.label.deliveryShippingFree') }}
             </li>
             <li v-if="product.deliveryTime">
-                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', 0, {
-                    name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)
-                }) }}
+                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', 0, {name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)}) }}
             </li>
         </ul>
         {% endblock %}

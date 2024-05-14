@@ -35,6 +35,8 @@ class CustomEntityEntity extends Entity
      */
     protected ?array $flags;
 
+    protected ?\DateTimeInterface $deletedAt = null;
+
     public function getName(): string
     {
         return $this->name;
@@ -130,5 +132,15 @@ class CustomEntityEntity extends Entity
     public function setLabelProperty(?string $labelProperty): void
     {
         $this->labelProperty = $labelProperty;
+    }
+
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): void
+    {
+        $this->deletedAt = $deletedAt;
     }
 }

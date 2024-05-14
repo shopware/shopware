@@ -3,7 +3,7 @@ title: Add possibility for plugins to add a HTML file
 date: 2021-11-23
 area: administration
 tags: [plugin, admin, extension-api]
---- 
+---
 
 ## Context
 The new ExtensionAPI is based on a iFrame communication architecture. The old App system for the admin relies on the XML

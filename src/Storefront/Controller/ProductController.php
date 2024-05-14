@@ -8,12 +8,12 @@ use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -24,7 +24,7 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -55,19 +55,6 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductPageLoadedHook($page, $context));
 
-        $ratingSuccess = $request->get('success');
-
-        /**
-         * @deprecated tag:v6.6.0 - remove complete if statement, cms page id is always set
-         *
-         * Fallback layout for non-assigned product layout
-         */
-        if (!$page->getCmsPage()) {
-            Feature::throwException('v6.6.0.0', 'Fallback will be removed because cms page is always set in subscriber.');
-
-            return $this->renderStorefront('@Storefront/storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
-        }
-
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
@@ -76,18 +63,23 @@ class ProductController extends StorefrontController
     {
         $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
 
-        /** @var array<mixed>|null $options */
-        $options = json_decode($request->query->get('options', ''), true);
+        try {
+            $options = json_decode($request->query->get('options', '[]'), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            $options = [];
+        }
+
+        $variantRequestData = [
+            'switchedGroup' => $switchedGroup,
+            'options' => $options,
+        ];
+
+        $variantRequest = $request->duplicate($variantRequestData);
 
         try {
             $variantResponse = $this->findVariantRoute->load(
                 $productId,
-                new Request(
-                    [
-                        'switchedGroup' => $switchedGroup,
-                        'options' => $options ?? [],
-                    ]
-                ),
+                $variantRequest,
                 $salesChannelContext
             );
 
@@ -155,7 +147,7 @@ class ProductController extends StorefrontController
     }
 
     #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
-    public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
+    public function loadReviews(Request $request, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
 
@@ -163,7 +155,7 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
-        return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
+        return $this->renderStorefront('storefront/component/review/review.html.twig', [
             'reviews' => $reviews,
             'ratingSuccess' => $request->get('success'),
         ]);
@@ -177,7 +169,7 @@ class ProductController extends StorefrontController
         $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
 
         if (!$showReview) {
-            throw new ReviewNotActiveExeption();
+            throw StorefrontException::reviewNotActive();
         }
     }
 }

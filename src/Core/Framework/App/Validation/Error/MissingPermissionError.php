@@ -12,6 +12,9 @@ class MissingPermissionError extends Error
 {
     private const KEY = 'manifest-missing-permission';
 
+    /**
+     * @param list<string> $violations
+     */
     public function __construct(array $violations)
     {
         $this->message = sprintf(

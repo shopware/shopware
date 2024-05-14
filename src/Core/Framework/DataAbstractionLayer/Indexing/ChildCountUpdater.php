@@ -76,6 +76,6 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        $this->connection->executeStatement($sql, $params, ['ids' => ArrayParameterType::STRING]);
+        $this->connection->executeStatement($sql, $params, ['ids' => ArrayParameterType::BINARY]);
     }
 }

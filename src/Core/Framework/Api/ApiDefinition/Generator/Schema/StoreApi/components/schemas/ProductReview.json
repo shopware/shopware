@@ -1,0 +1,19 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductReview": {
+                "type": "object",
+                "properties": {
+                    "points": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "required": ["points"]
+            }
+        }
+    }
+}

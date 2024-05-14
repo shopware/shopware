@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class Counter
 {
     private int $counter = 0;
@@ -16,6 +16,6 @@ class Counter
 
     public function increment(): void
     {
-        $this->counter = $this->counter + 1;
+        ++$this->counter;
     }
 }

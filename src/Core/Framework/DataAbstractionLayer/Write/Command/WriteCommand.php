@@ -3,8 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -12,19 +18,29 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class WriteCommand
 {
+    protected string $entityName;
+
     protected bool $failed = false;
 
     /**
+     * @var array<string, string>
+     */
+    protected array $decodedPrimaryKey = [];
+
+    /**
      * @param array<string, mixed> $payload
-     * @param array<string> $primaryKey
+     * @param array<string, string> $primaryKey
      */
     public function __construct(
-        protected EntityDefinition $definition,
+        EntityDefinition $definition,
         protected array $payload,
         protected array $primaryKey,
         protected EntityExistence $existence,
         protected string $path
     ) {
+        $this->entityName = $definition->getEntityName();
+
+        $this->setDecodedPrimaryKey($definition);
     }
 
     abstract public function getPrivilege(): ?string;
@@ -50,22 +66,25 @@ abstract class WriteCommand
         $this->payload[$key] = $value;
     }
 
-    public function getDefinition(): EntityDefinition
-    {
-        return $this->definition;
-    }
-
     public function getEntityName(): string
     {
-        return $this->definition->getEntityName();
+        return $this->entityName;
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getPrimaryKey(): array
     {
         return $this->primaryKey;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getDecodedPrimaryKey(): array
+    {
+        return $this->decodedPrimaryKey;
     }
 
     public function getEntityExistence(): EntityExistence
@@ -91,5 +110,30 @@ abstract class WriteCommand
     public function isFailed(): bool
     {
         return $this->failed;
+    }
+
+    private function setDecodedPrimaryKey(EntityDefinition $definition): void
+    {
+        $primaryKeys = $definition->getPrimaryKeys()->filter(static fn (Field $field) => !$field instanceof VersionField
+            && !$field instanceof ReferenceVersionField
+            && $field instanceof StorageAware);
+
+        foreach ($primaryKeys as $primaryKey) {
+            if (!$primaryKey instanceof StorageAware) {
+                continue;
+            }
+
+            if (!isset($this->primaryKey[$primaryKey->getStorageName()])) {
+                continue;
+            }
+
+            if (!$primaryKey instanceof IdField) {
+                $this->decodedPrimaryKey[$primaryKey->getPropertyName()] = $this->primaryKey[$primaryKey->getStorageName()];
+
+                continue;
+            }
+
+            $this->decodedPrimaryKey[$primaryKey->getPropertyName()] = Uuid::fromBytesToHex($this->primaryKey[$primaryKey->getStorageName()]);
+        }
     }
 }

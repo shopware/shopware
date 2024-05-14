@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Composer\Console\Input\InputOption;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Log\Package;
@@ -31,22 +32,27 @@ class AssetInstallCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Force the install of assets regardless of the manifest state');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
 
         foreach ($this->kernel->getBundles() as $bundle) {
             $io->writeln(sprintf('Copying files for bundle: %s', $bundle->getName()));
-            $this->assetService->copyAssetsFromBundle($bundle->getName());
+            $this->assetService->copyAssetsFromBundle($bundle->getName(), $input->getOption('force'));
         }
 
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $io->writeln(sprintf('Copying files for app: %s', $app['name']));
-            $this->assetService->copyAssetsFromApp($app['name'], $app['path']);
+            $this->assetService->copyAssetsFromApp($app['name'], $app['path'], $input->getOption('force'));
         }
 
         $io->writeln('Copying files for bundle: Installer');
-        $this->assetService->copyAssets(new Installer());
+        $this->assetService->copyAssets(new Installer(), $input->getOption('force'));
 
         $publicDir = $this->kernel->getProjectDir() . '/public/';
 

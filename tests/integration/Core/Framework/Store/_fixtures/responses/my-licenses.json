@@ -1,0 +1,207 @@
+[
+  {
+    "name":"SwagApp",
+    "extension":{
+      "id":11,
+      "name":"SwagApp",
+      "type":"app",
+      "isTheme":true,
+      "icon":"",
+      "label":"App",
+      "description": "Description",
+      "shortDescription":"Short Description",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagApp",
+      "privacyPolicyLink":null,
+      "permissions":null
+    },
+    "license":{
+      "id":6,
+      "creationDate":"2020-12-13T00:00:00+00:00",
+      "expirationDate":"2020-12-13T00:00:00+00:00",
+      "variant":"rent",
+      "netPrice":35,
+      "nextBookingDate":"2021-01-13T00:00:00+00:00",
+      "subscription":null,
+      "trialPhaseIncluded":false,
+      "discountInformation":{
+        "discountedPrice":30,
+        "firstDateOfFullCharging":"2021-02-13T00:00:00+00:00"
+      }
+    },
+    "notices":[
+
+    ],
+    "update":{
+      "installedVersion":"1.0.0",
+      "availableVersion":"2.0.0"
+    }
+  },
+  {
+    "name":"SwagSuperPlugin",
+    "extension":{
+      "id":5,
+      "name":"SwagSuperPlugin",
+      "type":"plugin",
+      "isTheme":false,
+      "icon":"",
+      "label":"Shopware Liveshopping",
+      "shortDescription":"",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagSuperPlugin",
+      "privacyPolicyLink":null,
+      "permissions":[
+
+      ]
+    },
+    "license":{
+      "id":5,
+      "creationDate":"2017-04-20T12:00:00+00:00",
+      "expirationDate":"2017-05-20T00:00:00+00:00",
+      "variant":"test",
+      "netPrice":0,
+      "nextBookingDate":null,
+      "subscription":null,
+      "trialPhaseIncluded":false,
+      "discountInformation":null
+    },
+    "notices":[
+
+    ],
+    "update":null
+  },
+  {
+    "name":"SwagCore",
+    "extension":{
+      "id":2,
+      "name":"SwagCore",
+      "type":"plugin",
+      "isTheme":false,
+      "icon":"",
+      "label":"Shopware Professional Edition",
+      "shortDescription":"",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagCore",
+      "privacyPolicyLink":null,
+      "permissions":[
+
+      ]
+    },
+    "license":{
+      "id":4,
+      "creationDate":"2018-08-31T12:00:00+00:00",
+      "expirationDate":null,
+      "variant":"free",
+      "netPrice":0,
+      "nextBookingDate":null,
+      "subscription":null,
+      "trialPhaseIncluded":false,
+      "discountInformation":null
+    },
+    "notices":[
+
+    ],
+    "update":null
+  },
+  {
+    "name":"SwagEnterpriseSearch",
+    "extension":{
+      "id":3,
+      "name":"SwagEnterpriseSearch",
+      "type":"plugin",
+      "isTheme":false,
+      "icon":"",
+      "label":"Shopware Enterprise Suche",
+      "shortDescription":"",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagEnterpriseSearch",
+      "privacyPolicyLink":null,
+      "permissions":[
+
+      ]
+    },
+    "license":{
+      "id":3,
+      "creationDate":"2018-06-30T12:00:00+00:00",
+      "expirationDate":null,
+      "variant":"free",
+      "netPrice":0,
+      "nextBookingDate":null,
+      "subscription":null,
+      "trialPhaseIncluded":false,
+      "discountInformation":null
+    },
+    "notices":[
+
+    ],
+    "update":null
+  },
+  {
+    "name":"SwagCustomProducts",
+    "extension":{
+      "id":1,
+      "name":"SwagCustomProducts",
+      "type":"plugin",
+      "isTheme":false,
+      "icon":"",
+      "label":"Custom Products",
+      "shortDescription":"",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagCustomProducts",
+      "privacyPolicyLink":null,
+      "permissions":[
+
+      ]
+    },
+    "license":{
+      "id":2,
+      "creationDate":"2017-06-30T12:00:00+00:00",
+      "expirationDate":null,
+      "variant":"buy",
+      "netPrice":12,
+      "nextBookingDate":null,
+      "subscription":{
+        "expirationDate":"2017-09-30T23:59:59+00:00"
+      },
+      "trialPhaseIncluded":false,
+      "discountInformation":null
+    },
+    "notices":[
+
+    ],
+    "update":{
+      "installedVersion":"1.0.0",
+      "availableVersion":"2.0.0"
+    }
+  },
+  {
+    "name":"SwagLicense",
+    "extension":{
+      "id":4,
+      "name":"SwagLicense",
+      "type":"plugin",
+      "isTheme":false,
+      "icon":"swaglicense.iconpath.de",
+      "label":"Shopware Lizenz-Manager",
+      "shortDescription":"",
+      "storeUrl":"http:\/\/store.shopware.com:80\/search?sSearch=SwagLicense",
+      "privacyPolicyLink":null,
+      "permissions":[
+
+      ]
+    },
+    "license":{
+      "id":1,
+      "creationDate":"2017-05-31T11:41:20+00:00",
+      "expirationDate":"2017-06-30T00:00:00+00:00",
+      "variant":"rent",
+      "netPrice":35,
+      "nextBookingDate":"2017-06-30T00:00:00+00:00",
+      "subscription":null,
+      "trialPhaseIncluded":false,
+      "discountInformation":{
+        "discountedPrice":30,
+        "firstDateOfFullCharging":"2017-12-30T00:00:00+00:00"
+      }
+    },
+    "notices":[
+
+    ],
+    "update":null
+  }
+]

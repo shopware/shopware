@@ -11,10 +11,15 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class OrderStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderStatus';
+
+    /**
+     * @var array<string>
+     */
+    protected array $salutationIds = [];
 
     /**
      * @internal

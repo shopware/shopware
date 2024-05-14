@@ -9,11 +9,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_modal_sales_channel_selection %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="selectedSalesChannelId"
-        {% else %}
-        v-model="selectedSalesChannelId"
-        {% endif %}
         class="sw-category-entry-point-modal__sales-channel-selection"
         :label="$tc('sw-category.base.entry-point-modal.salesChannelSelection')"
         :options="salesChannelOptions"
@@ -28,11 +24,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="selectedSalesChannel.homeEnabled"
-            {% else %}
-            v-model="selectedSalesChannel.homeEnabled"
-            {% endif %}
             class="sw-category-entry-point-modal__show-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
             :disabled="!acl.can('category.editor')"
@@ -42,11 +34,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_name_in_main_navigation %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="selectedSalesChannel.homeName"
-            {% else %}
-            v-model="selectedSalesChannel.homeName"
-            {% endif %}
             class="sw-category-entry-point-modal__name-in-main-navigation"
             :label="$tc('sw-category.base.entry-point-modal.mainNavigationName')"
             :help-text="$tc('sw-category.base.entry-point-modal.mainNavigationNameHelpText')"
@@ -68,10 +56,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_entry_point_modal_layout_preview %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-category-entry-point-modal__preview"
+                role="button"
+                tabindex="0"
                 @click="openLayoutModal"
+                @keydown.enter="openLayoutModal"
             >
                 <sw-cms-list-item
                     class="sw-category-entry-point-modal__layout-item"
@@ -188,11 +178,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_title %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="selectedSalesChannel.homeMetaTitle"
-            {% else %}
-            v-model="selectedSalesChannel.homeMetaTitle"
-            {% endif %}
             class="sw-category-entry-point-modal__meta-title"
             :label="$tc('sw-category.base.entry-point-modal.metaTitleLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaTitle || $tc('sw-category.base.entry-point-modal.metaTitlePlaceholder')"
@@ -203,11 +189,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_meta_description %}
         <sw-textarea-field
-            {% if VUE3 %}
             v-model:value="selectedSalesChannel.homeMetaDescription"
-            {% else %}
-            v-model="selectedSalesChannel.homeMetaDescription"
-            {% endif %}
             class="sw-category-entry-point-modal__meta-description"
             :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
             :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
@@ -218,11 +200,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_keywords %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="selectedSalesChannel.homeKeywords"
-            {% else %}
-            v-model="selectedSalesChannel.homeKeywords"
-            {% endif %}
             class="sw-category-entry-point-modal__seo-keywords"
             :label="$tc('sw-category.base.entry-point-modal.seoKeywordsLabel')"
             :placeholder="selectedSalesChannel.translated.homeKeywords || $tc('sw-category.base.entry-point-modal.seoKeywordsPlaceholder')"

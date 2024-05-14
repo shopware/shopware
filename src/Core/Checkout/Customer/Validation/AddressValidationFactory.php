@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -11,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AddressValidationFactory implements DataValidationFactoryInterface
 {
     /**
@@ -40,15 +39,10 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         return $definition;
     }
 
-    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext|Context $context): DataValidationDefinition
+    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext $context): DataValidationDefinition
     {
-        if ($context instanceof SalesChannelContext) {
-            $frameworkContext = $context->getContext();
-            $salesChannelId = $context->getSalesChannel()->getId();
-        } else {
-            $frameworkContext = $context;
-            $salesChannelId = null;
-        }
+        $frameworkContext = $context->getContext();
+        $salesChannelId = $context->getSalesChannel()->getId();
 
         $definition
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $frameworkContext]))
@@ -57,7 +51,6 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('street', new NotBlank())
-            ->add('zipcode', new NotBlank())
             ->add('city', new NotBlank())
             ->add('countryId', new NotBlank(), new EntityExists(['entity' => 'country', 'context' => $frameworkContext]));
 

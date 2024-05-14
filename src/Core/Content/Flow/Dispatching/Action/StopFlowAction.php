@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class StopFlowAction extends FlowAction implements DelayableAction
 {
     public static function getName(): string

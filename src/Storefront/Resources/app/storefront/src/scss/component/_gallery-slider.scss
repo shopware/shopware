@@ -213,6 +213,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     align-items: center;
     align-content: center;
     justify-content: center;
+    position: relative;
 }
 
 .gallery-slider-thumbnails-image,
@@ -222,9 +223,106 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     max-width: 100%;
 }
 
+.gallery-slider-thumbnails-play-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+    }
+
+    &::before {
+        transform: translate(-50%, -50%);
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    &::after {
+        transform: translate(-40%, -50%);
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-left: 9px solid $white;
+    }
+}
+
 .gallery-slider-thumbnails-controls {
     display: none;
     margin: 0;
+}
+
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.gallery-slider-canvas-disabled {
+    .spatial-canvas-spinner {
+        display: none;
+    }
+    .gallery-slider-spatial-canvas-wrapper {
+        display: none;
+    }
+}
+
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.spatial-canvas-note {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $gray-600;
+    color: $sw-background-color;
+    padding: 0 8px;
+    border-radius: 8px;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+
+    &.spatial-canvas-note--hidden {
+        opacity: 0;
+    }
+
+    &.spatial-slider-movement-note {
+        bottom: 86px;
+    }
+}
+
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.ar-button {
+    position: absolute;
+    bottom: 10px;
+    right: 9px;
+    padding: 0px;
+    width: 32px;
+    height: 32px;
+    border: 2px solid $gray-300;
+    border-radius: 5px;
+    text-align: center;
+
+    .icon-augmented {
+        margin-top: 1px;
+        height: 18px;
+        width: 18px;
+    }
+
+    &:hover {
+        box-shadow: 0 0 11px $gray-300;
+    }
+}
+
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.gallery-slider-spatial-canvas-wrapper {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    &.spatial-canvas-display  {
+        background-color: $sw-background-color;
+        opacity: 1;
+    }
 }
 
 @include media-breakpoint-down(sm) {

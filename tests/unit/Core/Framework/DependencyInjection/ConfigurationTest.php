@@ -2,18 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\Configuration
  */
+#[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
     public function testGetConfigTreeBuilder(): void
@@ -21,8 +21,71 @@ class ConfigurationTest extends TestCase
         $configuration = new Configuration();
         $tree = $configuration->getConfigTreeBuilder();
 
-        static::assertInstanceOf(TreeBuilder::class, $tree);
         static::assertSame('shopware', $tree->buildTree()->getName());
+    }
+
+    public function testFeatureToggleConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('feature_toggle', $nodes);
+        $node = $nodes['feature_toggle'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $nodes = $node->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('enable', $nodes);
+        $node = $nodes['enable'];
+        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+    }
+
+    public function testFeatureConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('feature', $nodes);
+        $node = $nodes['feature'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $nodes = $node->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('flags', $nodes);
+        $node = $nodes['flags'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $node = array_values($node->getChildNodeDefinitions())[0];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+        $nodes = $node->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('name', $nodes);
+        $node = $nodes['name'];
+        static::assertInstanceOf(ScalarNodeDefinition::class, $node);
+
+        static::assertArrayHasKey('description', $nodes);
+        $node = $nodes['description'];
+        static::assertInstanceOf(ScalarNodeDefinition::class, $node);
+
+        static::assertArrayHasKey('major', $nodes);
+        $node = $nodes['major'];
+        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+
+        static::assertArrayHasKey('toggleable', $nodes);
+        $node = $nodes['toggleable'];
+        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+
+        static::assertArrayHasKey('default', $nodes);
+        $node = $nodes['default'];
+        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
     }
 
     public function testHtmlSanitizerConfigTreeNode(): void

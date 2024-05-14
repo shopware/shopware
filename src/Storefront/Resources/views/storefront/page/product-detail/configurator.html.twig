@@ -1,3 +1,7 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+
+{# Extend `src/Storefront/Resources/views/storefront/component/buy-widget/configurator.html.twig` instead #}
+
 {% block page_product_detail_configurator %}
     <div class="product-detail-configurator">
         {% set config = {
@@ -73,12 +77,12 @@
                                                                             {% sw_thumbnails 'configurator-option-img-thumbnails' with {
                                                                                 media: media,
                                                                                 sizes: {
-                                                                                    'default': '52px'
+                                                                                    default: '52px'
                                                                                 },
                                                                                 attributes: {
-                                                                                    'class': 'product-detail-configurator-option-image',
-                                                                                    'alt': option.translated.name,
-                                                                                    'title': option.translated.name
+                                                                                    class: 'product-detail-configurator-option-image',
+                                                                                    alt: option.translated.name,
+                                                                                    title: option.translated.name
                                                                                 }
                                                                             } %}
                                                                         {% endblock %}

@@ -2,8 +2,8 @@ import template from './sw-first-run-wizard-finish.html.twig';
 import './sw-first-run-wizard-finish.scss';
 
 /**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
+ * @package checkout
+ * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

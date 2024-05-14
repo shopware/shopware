@@ -6,10 +6,12 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -40,7 +42,7 @@ export default {
 
         horizontalAlign() {
             return {
-                'justify-content': this.element.config.horizontalAlign.value || null,
+                'justify-content': this.element.config.horizontalAlign?.value || null,
             };
         },
 
@@ -62,7 +64,7 @@ export default {
 
             if (elemConfig.source === 'default') {
                 // use only the filename
-                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+                const fileName = elemConfig.value?.slice(elemConfig.value.lastIndexOf('/') + 1) ?? '';
                 return this.assetFilter(`/administration/static/img/cms/${fileName}`);
             }
 

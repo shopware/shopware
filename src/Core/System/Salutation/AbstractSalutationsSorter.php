@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Salutation;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 abstract class AbstractSalutationsSorter
 {
     abstract public function getDecorated(): AbstractSalutationsSorter;

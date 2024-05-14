@@ -3,7 +3,7 @@
         {% block layout_header_logo_link %}
             <a class="header-logo-main-link"
                href="{{ path('frontend.home.page') }}"
-               title="{{ "header.logoLink"|trans|striptags }}">
+               title="{{ 'header.logoLink'|trans|striptags }}">
                 {% block layout_header_logo_image %}
                     <picture class="header-logo-picture">
                             {% block layout_header_logo_image_tablet %}
@@ -23,7 +23,7 @@
                         {% block layout_header_logo_image_default %}
                             {% if theme_config('sw-logo-desktop') %}
                                 <img src="{{ theme_config('sw-logo-desktop')|sw_encode_url }}"
-                                     alt="{{ "header.logoLink"|trans|striptags }}"
+                                     alt="{{ 'header.logoLink'|trans|striptags }}"
                                      class="img-fluid header-logo-main-img">
                             {% endif %}
                         {% endblock %}

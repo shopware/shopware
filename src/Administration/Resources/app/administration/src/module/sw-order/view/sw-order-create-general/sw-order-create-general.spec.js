@@ -1,31 +1,30 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import swOrderCreateGeneral from 'src/module/sw-order/view/sw-order-create-general';
 import orderStore from 'src/module/sw-order/state/order.store';
+
 
 /**
  * @package customer-order
  */
 
-Shopware.Component.register('sw-order-create-general', swOrderCreateGeneral);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    return shallowMount(await Shopware.Component.build('sw-order-create-general'), {
-        localVue,
-        stubs: {
-            'sw-card-view': true,
-            'sw-card': {
-                template: `
-                    <div class="sw-card__content">
-                        <slot name="grid"></slot>
-                    </div>
-                `,
+    return mount(await wrapTestComponent('sw-order-create-general', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card-view': true,
+                'sw-card': {
+                    template: `
+                        <div class="sw-card__content">
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
+                },
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
+                'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
+                'sw-order-line-items-grid-sales-channel': true,
+                'sw-extension-component-section': true,
             },
-            'sw-container': true,
-            'sw-card-section': true,
-            'sw-description-list': true,
-            'sw-order-line-items-grid-sales-channel': true,
         },
     });
 }

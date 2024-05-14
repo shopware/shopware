@@ -24,14 +24,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationDefinition;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**
@@ -52,7 +52,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
@@ -90,7 +90,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
         if ($vatIds) {
-            $customerData['vatIds'] = $data->get('vatIds');
+            $vatIds = $data->get('vatIds');
+
+            if ($vatIds instanceof DataBag) {
+                $vatIds = $vatIds->all();
+            }
+
+            $customerData['vatIds'] = $vatIds;
         }
 
         if ($birthday = $this->getBirthday($data)) {
@@ -159,7 +165,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         ));
     }
 
-    private function getDefaultSalutationId(SalesChannelContext $context): string
+    private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -170,6 +176,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
 
-        return $ids[0] ?? '';
+        return $ids[0] ?? null;
     }
 }

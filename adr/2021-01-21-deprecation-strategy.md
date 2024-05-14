@@ -14,7 +14,7 @@ Define a strategy for deprecations.
 ## Decision
 
 ### Dogma
-* Don't do changes without feature-flags (only exception are bugfixes)
+* Don't do changes without feature-flags (only exception is a bugfix)
 * Don't break things without an alternative
 * Don't break things in a minor release
 * Annotate upcoming breaks as soon as possible
@@ -24,31 +24,31 @@ Define a strategy for deprecations.
 
 ### Synopsys
 
-As we decided to work in the trunk based development from now on, there are different kinds of cases we need to consider while implementing changes to not cause any breaks while developing for future features.
-The main difference we have to take in account, is if we break currently behaviour with our changes or not.
-For this difference we have 4 different cases:
+As we decided to work on the trunk-based development from now on, there are different kinds of cases we need to consider while implementing changes to not cause any breaks while developing for future features.
+The main difference we have to take in account is if we break current behaviour with our changes or not.
+For this difference, we have 4 different cases:
 * Minor Changes which don't cause any breaks or deprecations
 * Minor Changes which cause deprecations
 * Minor Changes as part of a major feature which don't cause any breaks
 * Major changes which cause breaks
 
-For a quick overview this is how you have to deal with the different cases. 
+For a quick overview, this is how you have to deal with the different cases. 
 Concrete Examples and further explanation follow below.
 
 #### Only Minor Changes (no breaks)
-Feature and changes tend to be released in a minor release. Don't cause breaks. Simple additions, refactorings, etc
+Features and changes tend to be released in a minor release. Don't cause breaks. Simple additions, refactorings, etc
 * Put all your changes behind a feature flag, to be sure that nothing you have changed is called while developing is in progress.
 * When Development is completed, remove the feature flag and all the old code that is not used anymore
-* Detailed description here [Detailed Rules](DetailedRules)
+* Detailed description here [Detailed Rules](#detailed-rules)
 
 #### Only Minor Changes (with deprecating code)
-Feature and Changes tend to be released in a minor release and are developed in a backward compatible manner, but deprecate old code. For example a class is replaced by a new one.
+Features and Changes tend to be released in a minor release and are developed in a backward compatible manner, but deprecate old code. For example, a class is replaced by a new one.
 * Put all your changes behind a feature flag, to be sure that nothing you have changed is called while developing is in progress.
 * When Development is completed, remove the feature flag and all the old code that is not used anymore
 * Mark old code as deprecated and make sure it is not called anywhere else
 * Make sure everything you removed has a working alternative implemented.
 * Annotate everything in a manner that the removal of the deprecated code will be a no-brainer on the next major release
-* Detailed description here [Detailed Rules](DetailedRules)
+* Detailed description here [Detailed Rules](#detailed-rules)
 
 #### Major Changes (Breaks)
 Parts of a major feature or refactoring which breaks current behaviour. Removal of classes, methods or properties, change of signatures, business logic changes...
@@ -57,14 +57,14 @@ Parts of a major feature or refactoring which breaks current behaviour. Removal 
 * Mark old code as deprecated and make sure it is not called anywhere else
 * Make sure everything you removed has a working alternative implemented.
 * Annotate everything in a manner that the removal of the deprecated code will be a no-brainer on the next major release
-* only difference between the case above is, that you have to take care about the fact, that the whole old behaviour needs to be fully functional until the next major.
+* The only difference between the case above is that you have to take care of the fact that the whole old behaviour needs to be fully functional until the next major.
 * Write specific tests for the major flag which tests the new behaviour.
-* Detailed description here [Detailed Rules](DetailedRules)
+* Detailed description here [Detailed Rules](#detailed-rules)
 
 ## Summary Deprecations:
 
   * The old code [^3] (class/method/property/event...) will be annotated with @feature-deprecated or @major-deprecated depending on the fact if this is a breaking change or not.
-  * There will be parts of the changes which cause breaks and parts which don't cause breaks. Following we will call these parts "breaking code" [^4] and "non breaking code" [^5]
+  * There will be parts of the changes which cause breaks and parts which don't cause breaks. Following, we will call these parts "breaking code" [^4] and "non breaking code" [^5]
   * The breaking code has to be hidden behind a feature flag (major-flag [^6]) until the next major release.
   * The non breaking code only needs to be hidden behind a feature flag (minor-flag [^7]), while developing. As soon as the feature or change is tested, quality ensured and approved the flag can be removed.
   * The breaking code will only be used, if the corresponding major-flag is active.
@@ -80,7 +80,7 @@ Deprecated code and major-deprecated code will not be called anywhere in the cod
 
 As an Example the removal of the class `MySampleClass` and the replacement with `MyNewSampleClass`
 
-Version 6.3.3.0  - While developing
+Version 6.3.3.0 - While developing
 The new class `MyNewSampleClass` is implemented and marked as `@internal (flag:FEATURE_NEXT_22222)`.
 The old class `MySampleClass` is annotated  as `@feature-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_22222)`.
 The code which calls the old class `MySampleClass` gets a feature switch which is annotated as `@major-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_22222)` 
@@ -99,7 +99,7 @@ In these examples we assume the minor flag is called `FEATURE_NEXT_11111` and th
 
 #### Startup examples
 These are some Startup examples. We have some more complex examples below [Complex examples](Complex examples) if you want to know more for a special case.
-In general it is recommended to read the startup examples and come back to the complex examples, if you face a specific question.
+In general, it is recommended to read the startup examples and come back to the complex examples if you face a specific question.
 
 ##### Changelog
 Often there are changes in a major feature which will be released immediately after the removal of the minor flag, because they don't break anything, and other changes which will not be used until the next major release.
@@ -131,12 +131,12 @@ flag: FEATURE_NEXT_22222
 ```
 
 ##### Services
-Services are somehow special, because they are always initiated in the container. So it is ok to change anything in the constructor of a service because it always has to be used from the container instance.
+Services are somehow special because they are always initiated in the container. So it is ok to change anything in the constructor of a service because it always has to be used from the container instance.
 _If someone initiate a service directly with `new ServiceController()` we don't provide compatibility_. 
 
 ###### Declare a new Service
 When a new service is implemented, the tag `shopware.feature` with the minor-flag has to be added in the dependencyInjection.xml.
-The new service should be usable, as soon as the development is finished to allow plugin developers to implement new services early.
+The new service should be usable as soon as the development is finished to allow plugin developers to implement new services early.
 If it is not intended to allow the use beforehand, you can also use the major flag to make the service unavailable until the next major.
 service.xml
 ```xml
@@ -149,7 +149,7 @@ service.xml
 ###### Exchange a service with a new one
 If you want to exchange an old service with a new one, you act for the new service like above.
 If the old service is not used anywhere right now, you can deprecate it with the symfony tag.
-On feature release the service will be deprecated with the symfony tag:
+On feature release, the service will be deprecated with the symfony tag:
 ```xml
         <!-- feature-deprecated flag:FEATURE_NEXT_22222 deprecate service on feature release -->
         <service id="Shopware\Core\Content\MyTest\Service\MyTestClass" public="true">
@@ -172,7 +172,7 @@ If you are implementing a new Feature with many new Services, you could decide t
 This way you don't have to mess with every single new service.
 
 * Create a new xml. As an Example `src/Core/Framework/DependencyInjection/nextLevelShopping.xml`
-* Add the new xml to the relevant bundle.php. In this case it would be the Framework.php
+* Add the new xml to the relevant bundle.php. In this case, it would be the Framework.php
 
 ```php
 class Framework extends Bundle
@@ -195,7 +195,7 @@ class Framework extends Bundle
 
 ##### Unused classes
 Classes which should not be used anymore should marked as deprecated with FEATURE:triggerDeprecated.
-We can not simply remove it directly because a class can always be initiated in a plugin.
+We cannot simply remove it directly because a class can always be initiated in a plugin.
 
 PHP
 ```php
@@ -236,7 +236,7 @@ public function testNewWorkflow(): void
 ```
 
 ##### Add an argument to a public method
-If you want to add an argument to a public method you have to add the new argument as a comment and use func_get_args to get this argument if provided.
+If you want to add an argument to a public method, you have to add the new argument as a comment and use func_get_args to get this argument if provided.
 
 ```php
     /**
@@ -481,9 +481,9 @@ class ProductRoute
 ```
 
 ### Complex examples
-You don't have to read all these examples in one take. It's most likely they will confuse you more than help you, if you don't have a concrete case in mind.
-Come to this section, if you stumble over a case where you don't exactly know that to do.
-If you don't find your answer here, don't be silent. Call us out in slack for that we aware of cases that have to be stated here.
+You don't have to read all these examples in one take. It's most likely they will confuse you more than help you if you don't have a concrete case in mind.
+Come to this section if you stumble over a case where you don't exactly know that to do.
+If you don't find your answer here, don't be silent. Call us out in slack for that we are aware of cases that have to be stated here.
 
 #### Rename or removal of a property
 Should a property of a class be removed, it will be annotated as deprecated and will only be used in code which is also deprecated. Should a property be renamed, it will be deprecated instead and we implement a new property with the new name.
@@ -846,9 +846,9 @@ class MyTestService
 ##### Change return value of method
 There are to ways to do this. 
 If you can be sure that no caller of the method typehinted the return value, you could remove the return type.
-If you can not be sure (and with public methods you bearly can be sure) you have to add a new method.
+If you cannot be sure (and with public methods, you barely can be sure), you have to add a new method.
 
-###### New Method - while develoment:
+###### New Method - while development:
 ```php
 class MyTestClass
 {
@@ -896,7 +896,7 @@ class MyTestClass
 }
 ```
 
-###### Remove Typehint - while develoment:
+###### Remove Typehint - while development:
 You have to be really sure that there is no call that will break if the return type is not defined
 
 ```php
@@ -947,7 +947,7 @@ class MyTestCallerClass
 If an argument of a class constructor or service should be exchanged, the new argument is added and the old one is set to "nullable" if necessary.
 If an argument of a service is removed or exchanged, it has to be annotated in the dependency-xml as well.
 If an argument is added, which is not available without the feature, it has to be marked as `on-invalid="null"`. 
-Also it has to be annotated as @internal in the dependency-xml as well and the comment should explicitly explain that the `on-invalid="null"` should be removed.
+Also, it has to be annotated as @internal in the dependency-xml as well and the comment should explicitly explain that the `on-invalid="null"` should be removed.
 
 PHP class
 ```php
@@ -980,9 +980,9 @@ service.xml
 
 If an interface should be changed in any compatible way, instead you should implement an abstract class.
 the abstract class implements the interface until the next major.
-This only applies in compatible interface changes. If you have to break the interface see below.
+This only applies to compatible interface changes. If you have to break the interface, see below.
 
-In this example the MyTestClass implements MyTestInterface and other classes typehinted MyTestClass with this interface, so you have to make sure that the interface is still present.
+In this example, the MyTestClass implements MyTestInterface and other classes typehinted MyTestClass with this interface, so you have to make sure that the interface is still present.
 ###### Original Class
 ```php
 class MyTestClass implements MyTestInterface
@@ -1076,15 +1076,15 @@ class MyTestClass extends MyTestAbstractClass
 
 ### Detailed Rules
 #### Only Minor Changes (no breaks)
-Feature and changes tend to be released in a minor release. Don't cause breaks. Simple additions, refactorings, etc
+Features and changes tend to be released in a minor release. Don't cause breaks. Simple additions, refactorings, etc
 * While developing
     * New Code
         * The new code should be hidden behind a feature flag and be annotated with @internal (flag:FEATURE_NEXT_11111) for new code public API [^1].
-        * Add new tests for the new code. Put this tests behind the feature flag (FEATURE:skipTestIfInActive('FEATURE_NEXT_11111')).
+        * Add new tests for the new code. Put these tests behind the feature flag (FEATURE:skipTestIfInActive('FEATURE_NEXT_11111')).
     * Changed Code
-        * The changed code should be hidden behind a feature flag. In most cases this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_11111') with an additional expressive comment on what have to be done on feature release.
+        * The changed code should be hidden behind a feature flag. In most cases, this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_11111') with an additional expressive comment on what has to be done on feature release.
     * Removed Code
-        * On this kind of changes there should barely remove code, except for private code. The private code which will be removed should be annotated with @feature-deprecated (flag:FEATURE_NEXT_11111) with an additional expressive comment on what have to be done on feature release.
+        * On this kind of changes there should barely remove code, except for private code. The private code which will be removed should be annotated with @feature-deprecated (flag:FEATURE_NEXT_11111) with an additional expressive comment on what has to be done on feature release.
 * On Feature release
     * New Code
         * Remove the feature flag and @internal annotation.
@@ -1099,9 +1099,9 @@ Feature and Changes tend to be released in a minor release and are developed in 
 * While developing
     * New Code
         * The new code should be hidden behind a feature flag and be annotated with @internal (flag:FEATURE_NEXT_11111) for new code public api [^1].
-        * Add new tests for the new code. Put this tests behind the feature flag (FEATURE:skipTestIfInActive('FEATURE_NEXT_11111')).
+        * Add new tests for the new code. Put these tests behind the feature flag (FEATURE:skipTestIfInActive('FEATURE_NEXT_11111')).
     * Changed Code
-        * The changed code should be hidden behind a feature flag. In most cases this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_11111') with an additional expressive comment on what have to be done on feature release.
+        * The changed code should be hidden behind a feature flag. In most cases, this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_11111') with an additional expressive comment on what have to be done on feature release.
     * Removed Code / Deprecated code
         * The obsolete code has to hidden behind the minor-flag and annotated as @feature-deprecated.
         * The call of the deprecated code has to be hidden behind an extra feature flag, especially for the major version. Also the code has to be annotated with @major-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_22222) [^2].
@@ -1123,7 +1123,7 @@ Feature and Changes tend to be released in a minor release and are developed in 
 
 #### Minor Changes as part of Major Feature (No Breaks)
 Parts of a major feature, which can be changed without breaking anything. New classes, private method changes with unchanged output.
-* Depending on the value of the new changes, the developers should decide, if it is an advantage to release the backward-compatible parts early with a minor version. In that case the previous workflow (Only Minor Changes (with deprecating code)) has to be used. Otherwise the changes stay behind the major feature flag with the other breaking changes and follow the guid below (Major Changes as part of Major Feature (Breaks))
+* Depending on the value of the new changes, the developers should decide if it is an advantage to release the backward-compatible parts early with a minor version. In that case the previous workflow (Only Minor Changes (with deprecating code)) has to be used. Otherwise, the changes stay behind the major feature flag with the other breaking changes and follow the guid below (Major Changes as part of Major Feature (Breaks))
 
 #### Major Changes as part of Major Feature (Breaks)
 Parts of a major feature or refactoring which breaks current behaviour. Removal of classes, methods or properties, change of signatures, business logic changes...
@@ -1133,7 +1133,7 @@ Parts of a major feature or refactoring which breaks current behaviour. Removal 
         * The new code should be hidden behind a major feature flag and be annotated with @internal (flag:FEATURE_NEXT_11111) for new code public api [^1].
         * Add new tests for the new code. Put this tests behind the major feature flag (FEATURE:skipTestIfInActive('FEATURE_NEXT_22222')).
     * Changed Code
-        * The changed code should be hidden behind a major feature flag. In most cases this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_22222') with an additional expressive comment on what have to be done on major release.
+        * The changed code should be hidden behind a major feature flag. In most cases, this will be an if-else clause with FEATURE:isActive('FEATURE_NEXT_22222') with an additional expressive comment on what have to be done on major release.
         * Declare old tests as legacy. https://symfony.com/doc/current/components/phpunit_bridge.html#mark-tests-as-legacy
     * Removed Code / Deprecated code
         * The call of the deprecated code has to be hidden behind the major feature flag. Also the code has to be annotated with @major-deprecated tag:v6.4.0 (flag:FEATURE_NEXT_22222) [^2].
@@ -1144,8 +1144,8 @@ Parts of a major feature or refactoring which breaks current behaviour. Removal 
         * Remove the feature flag and the @internal annotation.
         * Remove the feature flag from the tests.
     * Changed Code
-        * Remove feature flag and keep new solution. In case you had an if-else clause, you will keep the new code and remove the old, according to the comment made before.
-        * Remove parts of the changed code which aren't be called anymore.
+        * Remove the feature flag and keep the new solution. In case you had an if-else clause, you will keep the new code and remove the old, according to the comment made before.
+        * Remove parts of the changed code which aren't called anymore.
     * Removed Code / Deprecated code
         * Remove major-deprecated annotation, and the unused code according to the comment made before.
         * Remove old tests
@@ -1154,12 +1154,12 @@ Parts of a major feature or refactoring which breaks current behaviour. Removal 
 
 [^2]: The version number of the **upcoming** major version, and the feature flag extra created for this issue for the major release.
 
-Glossar:
+Glossary:
 [^3]: **old code**: Code which will be obsolete with the new feature or refactoring.
 [^4]: **breaking code**: Code which is implemented with the change and will break current behaviour.
-[^5]: **non breaking code**: Code which is implemented with the change but will not break any previously behaviour.
+[^5]: **non breaking code**: Code which is implemented with the change but will not break any previous behaviour.
 [^6]: **major-flag**: A feature flag, which hides breaking code, that can only be released with the next major version.
-[^7]: **minor-flag**: A feature flag, which will be used while developing, to secure unfinished code changes. This flag will be removed as soon as the festure or change is completed and approved.
+[^7]: **minor-flag**: A feature flag, which will be used while developing, to secure unfinished code changes. This flag will be removed as soon as the feature or change is completed and approved.
 [^8]: **code-basis**: The whole code of shopware platform, development and production.
-[^9]: **feature flags**: A feature flag is a toggle, which switches code behaviour. Basically there are two kinds of feature flags: minor-flags and major-flags. The flag is build from an  epic- or issue key. If a major-flag is needed because of deprecations in a minor feature, a special ticket should be created for the task to remove the deprecations on major release. ("NEXT-22222 - Remove feature flag for better order view")
+[^9]: **feature flags**: A feature flag is a toggle, which switches code behaviour. Basically, there are two kinds of feature flags: minor-flags and major-flags. The flag is build from an  epic- or issue key. If a major-flag is needed because of deprecations in a minor feature, a special ticket should be created for the task to remove the deprecations on major release. ("NEXT-22222 - Remove feature flag for better order view")
 [^10]: **soft-break**: A soft-break is a break, which doesn't cause any errors, but leads to changes and/or inconsistencies in the business logic. E.g. it would be a soft-break if the calculation of prices gets a rounding that was not there before. This will lead to changing prices.

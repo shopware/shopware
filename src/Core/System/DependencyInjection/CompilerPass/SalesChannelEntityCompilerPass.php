@@ -91,10 +91,12 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $repository = $container->getDefinition($repositoryId);
                 $repository->setPublic(true);
             } catch (ServiceNotFoundException) {
+                $serviceClass = $service->getClass();
+                \assert(\is_string($serviceClass));
                 $repository = new Definition(
                     SalesChannelRepository::class,
                     [
-                        new Reference($service->getClass()),
+                        new Reference($serviceClass),
                         new Reference(EntityReaderInterface::class),
                         new Reference(EntitySearcherInterface::class),
                         new Reference(EntityAggregatorInterface::class),
@@ -126,6 +128,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
     /**
      * @param array<string, array<mixed>> $taggedServiceIds
+     *
+     * @return array<string, array<string, string>>
      */
     private function formatData(
         array $taggedServiceIds,
@@ -151,6 +155,12 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         return $result;
     }
 
+    /**
+     * @param array<string, array<string, string>> $salesChannelDefinitions
+     * @param array<string, array<string, string>> $baseDefinitions
+     *
+     * @return array<string, array<string, string>>
+     */
     private function sortData(array $salesChannelDefinitions, array $baseDefinitions): array
     {
         $sorted = [];

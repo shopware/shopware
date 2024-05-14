@@ -8,9 +8,8 @@ import './acl';
 const { Module } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-shopware-updates', {
     type: 'core',
     name: 'settings-shopware-updates',

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\Context;
@@ -36,9 +37,7 @@ class NaturalSortingTest extends TestCase
         $this->optionRepository = $this->getContainer()->get('property_group_option.repository');
     }
 
-    /**
-     * @dataProvider sortingFixtures
-     */
+    #[DataProvider('sortingFixtures')]
     public function testSorting(array $naturalOrder, array $rawOrder): void
     {
         $groupId = Uuid::randomHex();

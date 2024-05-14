@@ -41,27 +41,27 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('value', $shopConfig);
         $shopId = $shopConfig['value'];
         static::assertIsString($shopId);
-        static::assertEquals($shopId, $signedQuery['shop-id']);
+        static::assertSame($shopId, $signedQuery['shop-id']);
 
         static::assertArrayHasKey('shop-url', $signedQuery);
         static::assertArrayHasKey('app_url', $shopConfig);
         $shopUrl = $shopConfig['app_url'];
         static::assertIsString($shopUrl);
-        static::assertEquals($shopUrl, $signedQuery['shop-url']);
+        static::assertSame($shopUrl, $signedQuery['shop-url']);
 
         static::assertArrayHasKey('timestamp', $signedQuery);
 
         static::assertArrayHasKey('sw-version', $signedQuery);
-        static::assertEquals($this->getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
+        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
 
         static::assertArrayHasKey('sw-context-language', $signedQuery);
-        static::assertEquals(Context::createDefaultContext()->getLanguageId(), $signedQuery['sw-context-language']);
+        static::assertSame(Context::createDefaultContext()->getLanguageId(), $signedQuery['sw-context-language']);
 
         static::assertArrayHasKey('sw-user-language', $signedQuery);
-        static::assertEquals('en-GB', $signedQuery['sw-user-language']);
+        static::assertSame('en-GB', $signedQuery['sw-user-language']);
 
         static::assertArrayHasKey('shopware-shop-signature', $signedQuery);
-        static::assertEquals(
+        static::assertSame(
             hash_hmac('sha256', Uri::withoutQueryValue($signedUri, 'shopware-shop-signature')->getQuery(), $this->secret),
             $signedQuery['shopware-shop-signature']
         );

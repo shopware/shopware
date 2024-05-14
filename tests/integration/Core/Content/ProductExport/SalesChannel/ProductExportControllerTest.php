@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportControllerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -93,7 +92,6 @@ class ProductExportControllerTest extends TestCase
         $salesChannelDomainId = Uuid::randomHex();
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $client = $this->createSalesChannelBrowser(null, false, [
             'id' => $salesChannelId,
@@ -124,7 +122,6 @@ class ProductExportControllerTest extends TestCase
         static::assertNotNull($themeId);
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
@@ -160,7 +157,6 @@ class ProductExportControllerTest extends TestCase
         ]);
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $deSalesChannelId, $context);
         $productExportDe = $this->createCsvExport(
@@ -172,7 +168,7 @@ class ProductExportControllerTest extends TestCase
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
-
+        static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
         static::assertCount(4, $csvRows);
         static::assertEquals('SwagTheme DE Test', $csvRows[1]);
     }

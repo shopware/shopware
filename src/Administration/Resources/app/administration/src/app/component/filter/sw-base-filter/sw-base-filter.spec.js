@@ -1,12 +1,8 @@
-import 'src/app/component/filter/sw-base-filter';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-base-filter'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-base-filter', { sync: true }), {
+        props: {
             title: 'Example Filter',
             showResetButton: false,
             active: true,

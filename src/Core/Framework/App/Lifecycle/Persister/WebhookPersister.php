@@ -9,14 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
-use Shopware\Core\Framework\Webhook\WebhookEntity;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class WebhookPersister
 {
+    /**
+     * @param EntityRepository<WebhookCollection> $webhookRepository
+     */
     public function __construct(private readonly EntityRepository $webhookRepository)
     {
     }
@@ -33,7 +35,6 @@ class WebhookPersister
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 
-            /** @var WebhookEntity|null $existing */
             $existing = $existingWebhooks->filterByProperty('name', $webhook->getName())->first();
             if ($existing) {
                 $payload['id'] = $existing->getId();
@@ -50,13 +51,15 @@ class WebhookPersister
         $this->deleteOldWebhooks($existingWebhooks, $context);
     }
 
+    /**
+     * @param array<array{name: string}> $webhooks
+     */
     public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
     {
         $existingWebhooks = $this->getExistingWebhooks($appId, $context);
         $upserts = [];
 
         foreach ($webhooks as $webhook) {
-            /** @var WebhookEntity|null $existing */
             $existing = $existingWebhooks->filterByProperty('name', $webhook['name'])->first();
 
             if ($existing) {
@@ -76,7 +79,6 @@ class WebhookPersister
 
     private function deleteOldWebhooks(WebhookCollection $toBeRemoved, Context $context): void
     {
-        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (empty($ids)) {
@@ -93,9 +95,6 @@ class WebhookPersister
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        /** @var WebhookCollection $webhooks */
-        $webhooks = $this->webhookRepository->search($criteria, $context)->getEntities();
-
-        return $webhooks;
+        return $this->webhookRepository->search($criteria, $context)->getEntities();
     }
 }

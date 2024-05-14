@@ -33,7 +33,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Absolute discount is 10 => Shippingcosts = 90
  * Percentage discount is 30 => Shippingcosts = 60 (Shippingcosts = 100 - (10 + 100 * 0.3))
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;
@@ -118,7 +118,7 @@ class PromotionDeliveryCalculator
      * that are excluded somehow.
      * The validation which one to take will be done later.
      *
-     * @return array<mixed, boolean>
+     * @return array<mixed, bool>
      */
     private function buildExclusions(LineItemCollection $discountLineItems): array
     {

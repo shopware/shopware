@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;

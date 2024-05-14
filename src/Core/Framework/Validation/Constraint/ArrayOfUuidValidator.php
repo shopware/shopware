@@ -36,7 +36,7 @@ class ArrayOfUuidValidator extends ConstraintValidator
         foreach ($value as $uuid) {
             if (!\is_string($uuid) || !Uuid::isValid($uuid)) {
                 $this->context->buildViolation(ArrayOfUuidConstraint::INVALID_MESSAGE)
-                    ->setCode(ArrayOfUuid::INVALID_TYPE_CODE)
+                    ->setCode(ArrayOfUuidConstraint::INVALID_TYPE_CODE)
                     ->setParameter('{{ string }}', (string) $uuid)
                     ->addViolation();
             }

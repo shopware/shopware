@@ -11,7 +11,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add type to property
         // eslint-disable-next-line vue/require-prop-types
         item: {
             required: true,

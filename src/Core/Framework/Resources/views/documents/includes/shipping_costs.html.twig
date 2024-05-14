@@ -27,7 +27,7 @@ All blocks of this template are available in the template which renders this tem
                 {% endblock %}
 
                 {% block document_line_item_table_shipping_label %}
-                    <td class="line-item-breakable">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }} - {{ order.deliveries.first.shippingMethod.name }}</td>
+                    <td class="line-item-breakable">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }} - {{ order.deliveries.first.shippingMethod.translated.name }}</td>
                 {% endblock %}
 
                 {% block document_line_item_table_shipping_quantity %}

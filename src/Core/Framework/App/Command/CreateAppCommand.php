@@ -87,7 +87,7 @@ class CreateAppCommand extends Command
             $this->appLifecycle->install(
                 Manifest::createFromXmlFile($dir . '/manifest.xml'),
                 true,
-                Context::createDefaultContext()
+                Context::createCLIContext()
             );
 
             $io->success(sprintf('App %s has been successfully installed.', $details['name']));
@@ -248,7 +248,7 @@ class CreateAppCommand extends Command
     {
         return <<<EOL
         <?xml version="1.0" encoding="UTF-8"?>
-        <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+        <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
             <meta>
                 <name>{{name}}</name>
                 <label>{{label}}</label>

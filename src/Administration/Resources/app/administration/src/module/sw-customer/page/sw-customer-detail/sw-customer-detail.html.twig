@@ -11,7 +11,7 @@
             {{ salutation(customer) }}
         </h2>
         <sw-label
-            v-if="customer.createdById"
+            v-if="customer?.createdById"
             appearance="pill"
             size="small"
             class="sw-customer-detail__created-by-admin-label"
@@ -80,11 +80,7 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading"
                 variant="primary"
-                {% if VUE3 %}
-                @update:processSuccess="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
+                @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-customer.detail.buttonSave') }}
@@ -185,6 +181,9 @@
                     {{ $tc('sw-customer.detailBase.labelOrderCard') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_customer_detail_content_tab_after %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
@@ -195,13 +194,18 @@
                 <sw-skeleton />
             </template>
 
-            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <router-view
                 v-if="customer"
-                v-show="!isLoading"
-                :customer="customer"
-                :customer-edit-mode="editMode"
-            />
+                v-slot="{ Component }"
+            >
+                {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+                <component
+                    :is="Component"
+                    v-show="!isLoading"
+                    :customer="customer"
+                    :customer-edit-mode="editMode"
+                />
+            </router-view>
             {% endblock %}
         </sw-card-view>
     </template>

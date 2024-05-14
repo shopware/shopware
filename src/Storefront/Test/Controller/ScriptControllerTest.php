@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -119,9 +121,7 @@ class ScriptControllerTest extends TestCase
         static::assertSame('/detail/' . $ids->get('p1'), $response->headers->get('location'));
     }
 
-    /**
-     * @dataProvider ensureLoginProvider
-     */
+    #[DataProvider('ensureLoginProvider')]
     public function testEnsureLogin(bool $login, bool $isGuest, bool $allowGuest, int $expectedStatus, string $expectedResponse): void
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
@@ -250,7 +250,7 @@ class ScriptControllerTest extends TestCase
 
         if (!$isGuest) {
             $data['createCustomerAccount'] = true;
-            $data['password'] = '12345678';
+            $data['password'] = TestDefaults::HASHED_PASSWORD;
         }
 
         return $data;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cart;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -21,10 +22,9 @@ class ProductCartTest extends TestCase
     use TestShortHands;
 
     /**
-     * @dataProvider priceInCartProvider
-     *
      * @param array<string, mixed> $contextOptions
      */
+    #[DataProvider('priceInCartProvider')]
     public function testPriceInCart(ProductBuilder $builder, float $expected, array $contextOptions = []): void
     {
         // the product builder has a helper function to write the product values to the database, including all dependencies (rules, currencies, properties, etc)

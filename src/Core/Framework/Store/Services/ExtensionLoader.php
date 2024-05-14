@@ -34,7 +34,7 @@ use Symfony\Component\Intl\Locales;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';

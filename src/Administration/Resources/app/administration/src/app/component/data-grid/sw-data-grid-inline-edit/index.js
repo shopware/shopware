@@ -11,6 +11,10 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-inline-edit', {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     props: {
         column: {
             type: Object,
@@ -19,7 +23,6 @@ Component.register('sw-data-grid-inline-edit', {
                 return {};
             },
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -53,7 +56,7 @@ Component.register('sw-data-grid-inline-edit', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -61,15 +64,15 @@ Component.register('sw-data-grid-inline-edit', {
         createdComponent() {
             this.currentValue = this.value;
 
-            this.$parent.$on('inline-edit-assign', this.emitInput);
+            this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
         },
 
         beforeDestroyComponent() {
-            this.$parent.$off('inline-edit-assign', this.emitInput);
+            this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
         },
 
         emitInput() {
-            this.$emit('input', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
     },
 });

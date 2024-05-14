@@ -1,18 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
-import 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-product';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-card-filter';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/data-grid/sw-data-grid-settings';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/base/sw-empty-state';
-import 'src/app/component/structure/sw-page';
+import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const CURRENCY_ID = {
@@ -218,122 +204,126 @@ function getCurrencyData() {
 }
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.filter('currency', (currency) => currency);
-
     return {
-        wrapper: shallowMount(await Shopware.Component.build('sw-advanced-selection-product'), {
-            localVue,
-            provide: {
-                acl: {
-                    can: () => true,
-                },
-                filterFactory: {
-                    create: () => [],
-                },
-                filterService: {
-                    getStoredCriteria: () => {
-                        return Promise.resolve([]);
+        wrapper: mount(await wrapTestComponent('sw-advanced-selection-product', { sync: true }), {
+            global: {
+                provide: {
+                    acl: {
+                        can: () => true,
                     },
-                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
-                },
-                shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
-                },
-                numberRangeService: {},
-                repositoryFactory: {
-                    create: (name) => {
-                        if (name === 'product') {
-                            return { search: (criteria) => {
-                                const productData = getProductData(criteria);
+                    filterFactory: {
+                        create: () => [],
+                    },
+                    filterService: {
+                        getStoredCriteria: () => {
+                            return Promise.resolve([]);
+                        },
+                        mergeWithStoredFilters: (storeKey, criteria) => criteria,
+                    },
+                    shortcutService: {
+                        startEventListener() {
+                        },
+                        stopEventListener() {
+                        },
+                    },
+                    numberRangeService: {},
+                    repositoryFactory: {
+                        create: (name) => {
+                            if (name === 'product') {
+                                return {
+                                    search: (criteria) => {
+                                        const productData = getProductData(criteria);
 
-                                return Promise.resolve(productData);
-                            } };
-                        } if (name === 'user_config') {
-                            return { search: () => Promise.resolve([]) };
-                        }
+                                        return Promise.resolve(productData);
+                                    },
+                                };
+                            }
+                            if (name === 'user_config') {
+                                return { search: () => Promise.resolve([]) };
+                            }
 
-                        return { search: () => Promise.resolve(getCurrencyData()) };
+                            return { search: () => Promise.resolve(getCurrencyData()) };
+                        },
+                    },
+                    searchRankingService: {
+                        getSearchFieldsByEntity: () => {
+                            return Promise.resolve({
+                                name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                            });
+                        },
+                        buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                            return criteria;
+                        },
                     },
                 },
-                searchRankingService: {
-                    getSearchFieldsByEntity: () => {
-                        return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                        });
+                stubs: {
+                    'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-card-filter': await wrapTestComponent('sw-card-filter'),
+                    'sw-simple-search-field': {
+                        template: '<div></div>',
                     },
-                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                        return criteria;
+                    'sw-context-button': {
+                        template: '<div></div>',
                     },
-                },
-            },
-            stubs: {
-                'sw-entity-advanced-selection-modal': await Shopware.Component.build('sw-entity-advanced-selection-modal'),
-                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-                'sw-modal': await Shopware.Component.build('sw-modal'),
-                'sw-card': await Shopware.Component.build('sw-card'),
-                'sw-card-filter': await Shopware.Component.build('sw-card-filter'),
-                'sw-simple-search-field': {
-                    template: '<div></div>',
-                },
-                'sw-context-button': {
-                    template: '<div></div>',
-                },
-                'sw-context-menu-item': {
-                    template: '<div></div>',
-                },
-                'sw-data-grid-settings': {
-                    template: '<div></div>',
-                },
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
-                'sw-pagination': {
-                    template: '<div></div>',
-                },
-                'sw-icon': {
-                    template: '<div></div>',
-                },
-                'router-link': true,
-                'sw-button': {
-                    template: '<div></div>',
-                },
-                'sw-sidebar': {
-                    template: '<div></div>',
-                },
-                'sw-sidebar-item': {
-                    template: '<div></div>',
-                },
-                'sw-language-switch': {
-                    template: '<div></div>',
-                },
-                'sw-notification-center': {
-                    template: '<div></div>',
-                },
-                'sw-search-bar': {
-                    template: '<div></div>',
-                },
-                'sw-loader': {
-                    template: '<div></div>',
-                },
-                'sw-data-grid-skeleton': {
-                    template: '<div class="sw-data-grid-skeleton"></div>',
-                },
-                'sw-checkbox-field': {
-                    template: '<div></div>',
-                },
-                'sw-media-preview-v2': {
-                    template: '<div></div>',
-                },
-                'sw-color-badge': {
-                    template: '<div></div>',
-                },
-                'sw-extension-component-section': {
-                    template: '<div></div>',
-                },
-                'sw-ignore-class': {
-                    template: '<div></div>',
+                    'sw-context-menu-item': {
+                        template: '<div></div>',
+                    },
+                    'sw-data-grid-settings': {
+                        template: '<div></div>',
+                    },
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"></div>',
+                    },
+                    'sw-pagination': {
+                        template: '<div></div>',
+                    },
+                    'sw-icon': {
+                        template: '<div></div>',
+                    },
+                    'router-link': true,
+                    'sw-button': {
+                        template: '<div></div>',
+                    },
+                    'sw-sidebar': {
+                        template: '<div></div>',
+                    },
+                    'sw-sidebar-item': {
+                        template: '<div></div>',
+                    },
+                    'sw-language-switch': {
+                        template: '<div></div>',
+                    },
+                    'sw-notification-center': {
+                        template: '<div></div>',
+                    },
+                    'sw-search-bar': {
+                        template: '<div></div>',
+                    },
+                    'sw-loader': {
+                        template: '<div></div>',
+                    },
+                    'sw-data-grid-skeleton': {
+                        template: '<div class="sw-data-grid-skeleton"></div>',
+                    },
+                    'sw-checkbox-field': {
+                        template: '<div></div>',
+                    },
+                    'sw-media-preview-v2': {
+                        template: '<div></div>',
+                    },
+                    'sw-color-badge': {
+                        template: '<div></div>',
+                    },
+                    'sw-extension-component-section': {
+                        template: '<div></div>',
+                    },
+                    'sw-ignore-class': {
+                        template: '<div></div>',
+                    },
                 },
             },
         }),
@@ -347,11 +337,14 @@ describe('components/sw-advanced-selection-product', () => {
     beforeEach(async () => {
         const data = await createWrapper();
         wrapper = data.wrapper;
-        selectionModal = wrapper.findComponent({ name: 'sw-entity-advanced-selection-modal' });
+
+        await flushPromises();
+
+        selectionModal = wrapper.getComponent({ name: 'sw-entity-advanced-selection-modal__wrapped' });
     });
 
     afterEach(() => {
-        wrapper.destroy();
+        wrapper.unmount();
     });
 
     it('should be a Vue.JS component that wraps the selection modal component', async () => {
@@ -402,5 +395,11 @@ describe('components/sw-advanced-selection-product', () => {
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);
+    });
+
+    it('should return filters from filter registry', () => {
+        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 });

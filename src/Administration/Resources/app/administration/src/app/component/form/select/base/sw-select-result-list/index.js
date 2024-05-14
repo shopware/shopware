@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Base component for rendering result lists.
  * @example-type code-only
@@ -20,6 +19,8 @@ Component.register('sw-select-result-list', {
             setActiveItemIndex: this.setActiveItemIndex,
         };
     },
+
+    inject: ['feature'],
 
     props: {
         options: {
@@ -59,7 +60,6 @@ Component.register('sw-select-result-list', {
         popoverResizeWidth: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -89,7 +89,7 @@ Component.register('sw-select-result-list', {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyedComponent();
     },
 
@@ -135,7 +135,7 @@ Component.register('sw-select-result-list', {
 
             const popoverContentClicked = this.$refs.popoverContent.contains(event.target);
             const componentClicked = this.$el.contains(event.target);
-            const parentClicked = this.$parent.$el.contains(event.target);
+            const parentClicked = this.$parent.$parent.$el.contains(event.target);
 
             if (popoverContentClicked || componentClicked || parentClicked) {
                 return;

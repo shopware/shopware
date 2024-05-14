@@ -85,7 +85,7 @@ interface Extension {
 }
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default class ExtensionStoreActionService extends ApiService {
@@ -185,7 +185,7 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    public async getMyExtensions() {
+    public async getMyExtensions(): Promise<Extension[]> {
         const headers = this.getBasicHeaders();
 
         const { data } = await this.httpClient.get<Extension[]>(
@@ -212,7 +212,7 @@ export default class ExtensionStoreActionService extends ApiService {
     public async refresh(): Promise<unknown> {
         const headers = this.getBasicHeaders();
 
-        const response = await this.httpClient.post(
+        const response = await this.httpClient.post<unknown>(
             `/_action/${this.getApiBasePath()}/refresh`,
             {},
             { params: { }, headers },
@@ -233,7 +233,7 @@ export default class ExtensionStoreActionService extends ApiService {
 }
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {

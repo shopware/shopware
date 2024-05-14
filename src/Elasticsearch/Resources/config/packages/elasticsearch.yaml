@@ -8,6 +8,7 @@ elasticsearch:
     search:
         timeout: 5s
         term_max_length: 300
+        search_type: "query_then_fetch"
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
@@ -16,12 +17,14 @@ elasticsearch:
         search:
             timeout: 5s
             term_max_length: 300
+            search_type: "query_then_fetch"
         index_settings:
             number_of_shards: 3
             number_of_replicas: 3
             'mapping.total_fields.limit': 50000
             'mapping.nested_fields.limit': 500
             'mapping.nested_objects.limit': 1000000
+            max_result_window: 10000
         analysis:
             normalizer:
                 sw_lowercase_normalizer:
@@ -38,6 +41,7 @@ elasticsearch:
                             type: text
     product:
         custom_fields_mapping:
+        exclude_source: "%env(bool:SHOPWARE_ES_EXCLUDE_SOURCE)%"
     ssl:
         verify_server_cert: true
     index_settings:
@@ -46,6 +50,7 @@ elasticsearch:
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
+        max_result_window: 10000
     analysis:
         normalizer:
             sw_lowercase_normalizer:
@@ -103,3 +108,4 @@ parameters:
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100
+    env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"

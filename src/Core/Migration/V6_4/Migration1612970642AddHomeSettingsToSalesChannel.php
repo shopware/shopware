@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1612970642AddHomeSettingsToSalesChannel extends MigrationStep
@@ -33,13 +35,7 @@ SQL;
         $connection->executeStatement($sql);
 
         $sql = <<<'SQL'
-ALTER TABLE `sales_channel`
-    ADD COLUMN `home_cms_page_id` BINARY(16)     NULL                AFTER `navigation_category_depth`,
-    ADD CONSTRAINT `fk.sales_channel.home_cms_page_id`
-            FOREIGN KEY (`home_cms_page_id`)
-            REFERENCES `cms_page` (`id`)
-            ON DELETE RESTRICT
-            ON UPDATE CASCADE;
+ALTER TABLE `sales_channel` ADD COLUMN `home_cms_page_id` BINARY(16)     NULL;
 SQL;
         $connection->executeStatement($sql);
     }

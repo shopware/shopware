@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -385,20 +384,6 @@ class ProductEntity extends Entity implements \Stringable
     protected $coverId;
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @var array<string>|null
-     */
-    protected $blacklistIds;
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @var array<string>|null
-     */
-    protected $whitelistIds;
-
-    /**
      * @var ProductVisibilityCollection|null
      */
     protected $visibilities;
@@ -469,7 +454,7 @@ class ProductEntity extends Entity implements \Stringable
     protected $customSearchKeywords;
 
     /**
-     * @var CustomerWishlistCollection|null
+     * @var CustomerWishlistProductCollection|null
      */
     protected $wishlists;
 
@@ -1151,52 +1136,6 @@ class ProductEntity extends Entity implements \Stringable
         $this->coverId = $coverId;
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @return array<string>|null
-     */
-    public function getBlacklistIds(): ?array
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return $this->blacklistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @param array<string>|null $blacklistIds
-     */
-    public function setBlacklistIds(?array $blacklistIds): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-        $this->blacklistIds = $blacklistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @return array<string>|null
-     */
-    public function getWhitelistIds(): ?array
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return $this->whitelistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @param array<string>|null $whitelistIds
-     */
-    public function setWhitelistIds(?array $whitelistIds): void
-    {
-        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-        $this->whitelistIds = $whitelistIds;
-    }
-
     public function getVisibilities(): ?ProductVisibilityCollection
     {
         return $this->visibilities;
@@ -1451,12 +1390,12 @@ class ProductEntity extends Entity implements \Stringable
         $this->customSearchKeywords = $customSearchKeywords;
     }
 
-    public function getWishlists(): ?CustomerWishlistCollection
+    public function getWishlists(): ?CustomerWishlistProductCollection
     {
         return $this->wishlists;
     }
 
-    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    public function setWishlists(CustomerWishlistProductCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
     }

@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ProductStreamIndexerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -134,6 +134,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $entity->getApiFilter()[1]['type']);
         static::assertSame('OR', $entity->getApiFilter()[1]['operator']);
 
+        /** @var array<int, array<string, string>> $queries */
         $queries = $entity->getApiFilter()[1]['queries'];
         static::assertCount(2, $queries);
 
@@ -239,7 +240,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
         static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
-
+        /** @var array<int, array<string, array<string|mixed>|string>> $childQueries */
         $childQueries = $entity->getApiFilter()[0]['queries'];
         static::assertCount(2, $childQueries);
 
@@ -250,9 +251,9 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $childQueries[1]['type']);
         static::assertSame('OR', $childQueries[1]['operator']);
 
+        /** @var array<int, array<string, string>> $grandchildQueries */
         $grandchildQueries = $childQueries[1]['queries'];
         static::assertCount(2, $grandchildQueries);
-
         static::assertSame('equals', $grandchildQueries[0]['type']);
         static::assertSame('product.id', $grandchildQueries[0]['field']);
         static::assertSame($productId, $grandchildQueries[0]['value']);

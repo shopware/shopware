@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class ContactFormRouteResponse extends StoreApiResponse
 {
     /**

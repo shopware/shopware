@@ -2,7 +2,7 @@ import './sw-order-state-select-v2.scss';
 import template from './sw-order-state-select-v2.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

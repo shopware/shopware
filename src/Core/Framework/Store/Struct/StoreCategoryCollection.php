@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<StoreCategoryStruct>
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreCategoryCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

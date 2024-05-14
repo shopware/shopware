@@ -9,16 +9,24 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal Used for custom entities
+ *
+ * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
 #[Package('core')]
 class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 {
     protected string $root;
 
+    /**
+     * @var list<CustomEntityField>
+     */
     protected array $fieldDefinitions;
 
     protected ContainerInterface $container;
 
+    /**
+     * @param list<CustomEntityField> $fields
+     */
     public static function create(string $root, array $fields, ContainerInterface $container): DynamicTranslationEntityDefinition
     {
         $self = new self();

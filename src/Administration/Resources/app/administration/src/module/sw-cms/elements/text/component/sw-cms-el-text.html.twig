@@ -9,15 +9,16 @@
 
     <sw-text-editor
         v-else
-        v-model="element.config.content.value"
+        v-model:value="element.config.content.value"
         :disabled="disabled"
         :vertical-align="element.config.verticalAlign.value"
         :allow-inline-data-mapping="true"
         :is-inline-edit="true"
         sanitize-input
+        sanitize-field-name="app_cms_block.template"
         enable-transparent-background
         @blur="onBlur"
-        @input="onInput"
+        @update:value="onInput"
     />
 </div>
 {% endblock %}

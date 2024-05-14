@@ -16,7 +16,7 @@ variables:
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_ROOT_PASSWORD: root
     DATABASE_URL: 'mysql://root:root@database:3306/root'
-    APP_SECRET: 'devsecret'
+    APP_SECRET: 'def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48'
     APP_URL: http://localhost:8000
     # cypress
     CYPRESS_baseUrl: http://localhost:8000
@@ -24,9 +24,6 @@ variables:
     CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
-    # percy
-    PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    PERCY_COMMIT: $CI_COMMIT_SHA
     # things themes might want to override
     THEME_NAME:
         value: ${CI_PROJECT_TITLE}
@@ -35,14 +32,14 @@ variables:
         value: trunk
         description: 'The shopware/platform branch that is used'
     DEV_IMAGE:
-        value: shopware/development:8.1-composer-2
+        value: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:latest
         description: 'base docker image used. Can be changed to test other php versions. Example: shopware/development:8.0-composer-2'
     THEME_SOURCE_DIR:
         value: ''
         description: 'Defines the src dir. Use "" (empty string) if it starts in the root dir.'
     MYSQL_IMAGE:
-        value: mysql:8.0.33
-        description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.3", "mariadb:10.4"'
+        value: mysql:8.0
+        description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.11", "mariadb:11.0"'
     MYSQL_CMD:
         value: mysqld
         description: 'Copy from $MYSQL8_CMD for mysql >= 8'
@@ -51,7 +48,7 @@ variables:
         description: 'mysql 8 needs a special auth option to work with shopware/platform'
     BROWSER:
         value: chrome
-        description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+        description: 'Browser to use for cypress tests. Possible values: "chrome", "firefox", "electron"'
     PLUGIN_DEPENDENCIES:
         value: '[]'
         description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
@@ -127,11 +124,11 @@ workflow:
 default:
     image: $DEV_IMAGE
     services:
-        - name: mysql:8.0.33
+        - name: mysql:8.0
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     tags:
-      - shopware
+      - shopware-amd64
     before_script:
         - *base_env_vars
         - zip -rq theme.zip .
@@ -245,7 +242,10 @@ template filled:
         - exit 1
 
 cypress:
+    image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
+    tags:
+      - shopware-amd64
     needs:
         - build zip
     rules:
@@ -265,6 +265,8 @@ cypress:
         - *base_install
         - *theme_install
         - *install_dependencies
+        - composer init:js
+        - composer build:js
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - bin/console e2e:dump-db
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
@@ -293,36 +295,6 @@ cypress:
             - var/log/*
         reports:
             junit: var/log/e2e/*.xml
-
-percy:
-    extends: cypress
-    stage: visual
-    rules:
-        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-            when: never
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
-        -   exists:
-                - Resources/app/storefront/test/e2e/.percy*
-                - src/Resources/app/storefront/test/e2e/.percy*
-            when: manual
-            allow_failure: true
-    variables:
-        GIT_STRATEGY: none
-        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
-        APP_ENV: e2e
-        CYPRESS_usePercy: 1
-    script:
-        - >
-          if [[ -z "$PERCY_SPEC" ]]; then
-              echo "Running visual tests"
-              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
-          else
-              echo "Running specs: $PERCY_SPEC"
-              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$PERCY_SPEC"
-          fi
 
 upload zip to store:
     stage: deploy

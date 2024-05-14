@@ -10,15 +10,19 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_header %}
             <div class="sw-order-general-info__summary-main-header">
-                {{ summaryMainHeader }}
+                {{ order.orderNumber }} -
+                <router-link
+                    class="sw-order-general-info__summary-main-header-link"
+                    :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }">
+                    {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
+                </router-link>
+                ({{ order.orderCustomer.email }})
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
-                {{ order.amountTotal | currency(
-                    order.currency.translated.shortName, order.totalRounding.decimals
-                ) }}
+                {{ currencyFilter(order.amountTotal, order.currency.isoCode, order.totalRounding.decimals) }}
             </div>
             {% endblock %}
         </div>
@@ -31,12 +35,12 @@
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
-                {{ order.orderDateTime | date({
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
+                {{ dateFilter(order.orderDateTime, {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
                 }) }}
                 {{ $tc('sw-order.generalTab.info.summary.with') }}
                 {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
@@ -56,12 +60,12 @@
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ lastChangedDateTime | date({
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
+                    {{ dateFilter(lastChangedDateTime, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
                     }) }}
                 </div>
                 {% endblock %}

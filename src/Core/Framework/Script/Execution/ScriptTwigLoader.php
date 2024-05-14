@@ -30,7 +30,15 @@ class ScriptTwigLoader implements LoaderInterface
 
     public function getCacheKey(string $name): string
     {
-        return $name;
+        $parts = [
+            $name, $this->script->getName(),
+        ];
+
+        if ($this->script->getScriptAppInformation()) {
+            $parts[] = $this->script->getScriptAppInformation()->getAppId();
+        }
+
+        return implode('-', $parts);
     }
 
     public function isFresh(string $name, int $time): bool

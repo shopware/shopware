@@ -2,42 +2,37 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+
 import 'src/app/component/modal/sw-confirm-modal';
-import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';
 
 describe('src/app/component/modal/sw-confirm-modal', () => {
     let wrapper = null;
-    let swModal;
 
-    beforeAll(async () => {
-        swModal = await Shopware.Component.build('sw-modal');
-    });
-
-    async function createWrapper(propsData = {}) {
-        return shallowMount(await Shopware.Component.build('sw-confirm-modal'), {
-            localVue: createLocalVue(),
-            stubs: {
-                'sw-modal': swModal,
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-loader': true,
-                'sw-icon': true,
-            },
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
+    async function createWrapper(props = {}) {
+        return mount(await wrapTestComponent('sw-confirm-modal', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-loader': true,
+                    'sw-icon': true,
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
                 },
             },
-            propsData,
+            props,
         });
     }
 
     afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
+        if (wrapper) wrapper.unmount();
     });
 
     it('emits confirm when confirm button is clicked', async () => {
@@ -61,8 +56,8 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
     it('emits close when modal is closed', async () => {
         wrapper = await createWrapper({});
 
-        wrapper.findComponent(swModal)
-            .vm.$emit('modal-close');
+        await wrapper.find('.sw-modal__close').trigger('click');
+        await flushPromises();
 
         expect(wrapper.emitted('close')).toBeTruthy();
     });

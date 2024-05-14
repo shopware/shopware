@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
@@ -24,9 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @package checkout
  *
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -168,13 +168,13 @@ class ShippingMethodRouteTest extends TestCase
         $request = new Request();
 
         $unselectedPaymentResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
-        $lastPaymentMethodId = $unselectedPaymentResult->getShippingMethods()->last()->getId();
+        $lastPaymentMethodId = $unselectedPaymentResult->getShippingMethods()->last()?->getId() ?? '';
 
         $this->salesChannelContext->getShippingMethod()->setId($lastPaymentMethodId);
         $selectedPaymentMethodResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
 
         static::assertInstanceOf(SortedShippingMethodRoute::class, $shippingMethodRoute);
-        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()->getId());
+        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()?->getId());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
@@ -267,6 +267,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => 1,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule'),
                     'name' => 'asd',
@@ -296,6 +297,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => 5,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test2',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule2'),
                     'name' => 'asd',
@@ -325,6 +327,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => -3,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test3',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule3'),
                     'name' => 'asd',

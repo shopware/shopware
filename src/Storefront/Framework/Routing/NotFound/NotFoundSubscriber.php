@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,44 +14,54 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
-use Shopware\Storefront\Controller\ErrorController;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('storefront')]
-class NotFoundSubscriber implements EventSubscriberInterface
+class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private const ALL_TAG = 'error-page';
     private const SYSTEM_CONFIG_KEY = 'core.basicInformation.http404Page';
 
     /**
+     * Catch the errors only once in a request cycle, otherwise we get an endless loop
+     */
+    private bool $handled = false;
+
+    private string $sessionName;
+
+    /**
      * @internal
      *
      * @param AbstractCacheTracer<Response> $cacheTracer
+     * @param array{name?: string} $sessionOptions
      */
     public function __construct(
-        private readonly ErrorController $controller,
-        private readonly RequestStack $requestStack,
+        private readonly HttpKernelInterface $httpKernel,
         private readonly SalesChannelContextServiceInterface $contextService,
         private bool $kernelDebug,
         private readonly CacheInterface $cache,
         private readonly AbstractCacheTracer $cacheTracer,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        array $sessionOptions = []
     ) {
+        $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
 
     public static function getSubscribedEvents(): array
@@ -65,10 +76,13 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
     public function onError(ExceptionEvent $event): void
     {
-        $request = $event->getRequest();
-        if ($this->kernelDebug) {
+        if ($this->kernelDebug || $this->handled) {
             return;
         }
+
+        $this->handled = true;
+
+        $request = $event->getRequest();
 
         $event->stopPropagation();
 
@@ -81,15 +95,18 @@ class NotFoundSubscriber implements EventSubscriberInterface
             $this->setSalesChannelContext($request);
         }
 
+        // Set missing route scope, so the kernel.response event has it triggered by setResponse.
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE)) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        }
+
         $is404StatusCode = $event->getThrowable() instanceof HttpException && $event->getThrowable()->getStatusCode() === Response::HTTP_NOT_FOUND;
 
         // If the exception is not a 404 status code, we don't need to cache it.
         if (!$is404StatusCode) {
-            $event->setResponse($this->controller->error(
-                $event->getThrowable(),
-                $request,
-                $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
-            ));
+            /** @var Context|null $context */
+            $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+            $event->setResponse($this->renderErrorPage($request, $event->getThrowable(), $context ?? Context::createDefaultContext()));
 
             return;
         }
@@ -100,23 +117,20 @@ class NotFoundSubscriber implements EventSubscriberInterface
         $name = self::buildName($salesChannelId, $domainId, $languageId);
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
-        $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context) {
-            /** @var StorefrontResponse $response */
-            $response = $this->cacheTracer->trace($name, function () use ($event) {
-                /** @var Request $request */
-                $request = $this->requestStack->getMainRequest();
-
-                return $this->controller->error(
-                    $event->getThrowable(),
-                    $request,
-                    $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
-                );
+        $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
+            /** @var Response $response */
+            $response = $this->cacheTracer->trace($name, function () use ($event, $request, $context) {
+                return $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
             });
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            $response->setData([]);
-            $response->setContext(null);
+            // Remove session cookie from 404 pages, injected by the Symfony session listener
+            foreach ($response->headers->getCookies() as $cookie) {
+                if ($cookie->getName() === $this->sessionName) {
+                    $response->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
+                }
+            }
 
             return $response;
         });
@@ -131,6 +145,11 @@ class NotFoundSubscriber implements EventSubscriberInterface
         }
 
         $this->cacheInvalidator->invalidate([self::ALL_TAG]);
+    }
+
+    public function reset(): void
+    {
+        $this->handled = false;
     }
 
     private static function buildName(string $salesChannelId, string $domainId, string $languageId): string
@@ -181,5 +200,24 @@ class NotFoundSubscriber implements EventSubscriberInterface
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    /**
+     * We enable HTTP-Cache for this request, so any external reverse proxy can cache also 404 pages.
+     * So that kind of requests doesn't hit our PHP application.
+     */
+    private function renderErrorPage(Request $request, \Throwable $e, Context $context): Response
+    {
+        $errorRequest = $request->duplicate(null, null, [
+            ...$request->attributes->all(),
+            '_controller' => '\Shopware\Storefront\Controller\ErrorController::error',
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => false,
+            'exception' => $e,
+        ]);
+
+        $this->eventDispatcher->dispatch(new ErrorRedirectRequestEvent($errorRequest, $e, $context));
+
+        return $this->httpKernel->handle($errorRequest, HttpKernelInterface::MAIN_REQUEST);
     }
 }

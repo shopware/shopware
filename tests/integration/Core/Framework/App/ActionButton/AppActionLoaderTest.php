@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppActionLoader;
-use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -27,7 +27,7 @@ class AppActionLoaderTest extends TestCase
     {
         $actionLoader = $this->getContainer()->get(AppActionLoader::class);
 
-        /** @var EntityRepository $actionRepo */
+        /** @var EntityRepository<ActionButtonCollection> $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -36,9 +36,9 @@ class AppActionLoaderTest extends TestCase
             ->addAssociation('app')
             ->addAssociation('app.integration');
 
-        $actionCollection = $actionRepo->search($criteria, Context::createDefaultContext());
-        /** @var ActionButtonEntity $action */
+        $actionCollection = $actionRepo->search($criteria, Context::createDefaultContext())->getEntities();
         $action = $actionCollection->first();
+        static::assertNotNull($action);
 
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
@@ -70,7 +70,7 @@ class AppActionLoaderTest extends TestCase
     {
         $actionLoader = $this->getContainer()->get(AppActionLoader::class);
 
-        /** @var EntityRepository $actionRepo */
+        /** @var EntityRepository<ActionButtonCollection> $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -79,9 +79,9 @@ class AppActionLoaderTest extends TestCase
             ->addAssociation('app')
             ->addAssociation('app.integration');
 
-        $actionCollection = $actionRepo->search($criteria, Context::createDefaultContext());
-        /** @var ActionButtonEntity $action */
+        $actionCollection = $actionRepo->search($criteria, Context::createDefaultContext())->getEntities();
         $action = $actionCollection->first();
+        static::assertNotNull($action);
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
@@ -91,7 +91,7 @@ class AppActionLoaderTest extends TestCase
 
         $ids = [Uuid::randomHex()];
 
-        static::expectException(ActionNotFoundException::class);
+        $this->expectException(ActionNotFoundException::class);
         $actionLoader->loadAppAction($action->getId(), $ids, Context::createDefaultContext());
     }
 }

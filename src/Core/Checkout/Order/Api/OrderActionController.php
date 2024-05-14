@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
-use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -18,10 +18,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderActionController extends AbstractController
 {
     /**
@@ -143,7 +143,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @throws RefundProcessException
+     * @throws PaymentException
      */
     #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
@@ -168,12 +168,12 @@ class OrderActionController extends AbstractController
         }
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(hex(document.document_type_id)) as doc_type',
             'LOWER(hex(document.id)) as doc_id',
             'document.created_at as newest_date',
             'document.sent as sent',
-        ]);
+        );
         $query->from('document', 'document');
         $query->innerJoin('document', 'document_type', 'document_type', 'document.document_type_id = document_type.id');
         $query->where('document.order_id = :orderId');
@@ -199,7 +199,7 @@ class OrderActionController extends AbstractController
         $documents = $query->executeQuery()->fetchAllAssociative();
 
         $documentsGroupByType = FetchModeHelper::group($documents);
-
+        /** @var array<string, array<array{sent: int, doc_id: string}>> $documentsGroupByType */
         $documentIds = [];
         foreach ($documentsGroupByType as $documents) {
             // Latest document of type

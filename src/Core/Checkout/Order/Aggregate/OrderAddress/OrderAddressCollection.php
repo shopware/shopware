@@ -10,11 +10,11 @@ use Shopware\Core\System\Country\CountryCollection;
 /**
  * @extends EntityCollection<OrderAddressEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderAddressCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCountryIds(): array
     {
@@ -27,7 +27,7 @@ class OrderAddressCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCountryStateIds(): array
     {
@@ -40,7 +40,7 @@ class OrderAddressCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getVatIds(): array
     {

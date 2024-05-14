@@ -28,11 +28,7 @@
             columns="1fr 1fr"
         >
             <sw-order-customer-address-select
-                {% if VUE3 %}
                 v-model:value="context.billingAddressId"
-                {% else %}
-                v-model="context.billingAddressId"
-                {% endif %}
                 :label="$tc('sw-order.createBase.labelBillingAddress')"
                 :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
                 :same-address-value="context.shippingAddressId"
@@ -40,11 +36,7 @@
             />
 
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="context.paymentMethodId"
-                {% else %}
-                v-model="context.paymentMethodId"
-                {% endif %}
                 entity="payment_method"
                 label-property="distinguishableName"
                 class="sw_order_create-details__payment-method"
@@ -56,11 +48,7 @@
             />
 
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="context.currencyId"
-                {% else %}
-                v-model="context.currencyId"
-                {% endif %}
                 class="sw_order_create-details__currency"
                 entity="currency"
                 :criteria="currencyCriteria"
@@ -86,11 +74,7 @@
             columns="1fr 1fr"
         >
             <sw-order-customer-address-select
-                {% if VUE3 %}
                 v-model:value="context.shippingAddressId"
-                {% else %}
-                v-model="context.shippingAddressId"
-                {% endif %}
                 :label="$tc('sw-order.createBase.labelShippingAddress')"
                 :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
                 :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
@@ -99,11 +83,7 @@
             />
 
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="context.shippingMethodId"
-                {% else %}
-                v-model="context.shippingMethodId"
-                {% endif %}
                 show-clearable-button
                 class="sw_order_create-details__shipping"
                 entity="shipping_method"
@@ -114,11 +94,7 @@
             />
 
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="shippingCosts"
-                {% else %}
-                v-model="shippingCosts"
-                {% endif %}
                 :label="$tc('sw-order.createBase.labelShippingCosts')"
                 :min="0"
                 fill-digits
@@ -130,11 +106,7 @@
             </sw-number-field>
 
             <sw-datepicker
-                {% if VUE3 %}
                 v-model:value="deliveryDate"
-                {% else %}
-                v-model="deliveryDate"
-                {% endif %}
                 disabled
                 :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
             />
@@ -157,11 +129,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_email %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="email"
-                {% else %}
-                v-model="email"
-                {% endif %}
                 disabled
                 class="sw-order-create-details__email"
                 :label="$tc('sw-order.createBase.labelEmail')"
@@ -173,11 +141,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_phone_number %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="phoneNumber"
-                {% else %}
-                v-model="phoneNumber"
-                {% endif %}
                 disabled
                 class="sw-order-create-details__phone-number"
                 :label="$tc('sw-order.createBase.labelPhoneNumber')"
@@ -189,11 +153,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details__order_sales_channel %}
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="salesChannelId"
-                {% else %}
-                v-model="salesChannelId"
-                {% endif %}
                 disabled
                 entity="sales_channel"
                 class="sw-order-create-options__sales-channel"
@@ -205,11 +165,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_details_order_language %}
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="context.languageId"
-                {% else %}
-                v-model="context.languageId"
-                {% endif %}
                 entity="language"
                 class="sw-order-create-options__order-language"
                 :criteria="languageCriteria"
@@ -224,7 +180,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_voucher_field %}
         <sw-order-promotion-tag-field
-            v-model="promotionCodeTags"
+            v-model:value="promotionCodeTags"
             :disabled="!hasLineItem"
             :currency="currency"
             :label="$tc('sw-order.createBase.labelAddPromotion')"
@@ -240,11 +196,7 @@
             class="sw-order-create-details__disable-auto-promotion"
             :value="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            {% if VUE3 %}
             @update:value="toggleAutomaticPromotions"
-            {% else %}
-            @change="toggleAutomaticPromotions"
-            {% endif %}
         />
         {% endblock %}
     </sw-card>

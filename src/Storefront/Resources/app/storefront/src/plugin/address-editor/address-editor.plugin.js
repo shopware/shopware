@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
+import ButtonLoadingIndicatorUtil from 'src/utility/loading-indicator/button-loading-indicator.util';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
@@ -52,7 +53,13 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _getModal(event) {
         event.preventDefault();
-        PageLoadingIndicatorUtil.create();
+
+        try {
+            this._btnLoader = new ButtonLoadingIndicatorUtil(event.currentTarget);
+            this._btnLoader.create();
+        } catch (error) {
+            console.warn('[AddressEditorPlugin] Unable to create loading indicator on button', error);
+        }
 
         const data = this._getRequestData();
 
@@ -92,8 +99,7 @@ export default class AddressEditorPlugin extends Plugin {
     _openModal(response) {
         const pseudoModal = new PseudoModalUtil(response);
 
-        PageLoadingIndicatorUtil.remove();
-        pseudoModal.open(this._onOpen.bind(this, pseudoModal));
+        pseudoModal.open(this._onOpen.bind(this, pseudoModal), 0);
 
         const modal = pseudoModal.getModal();
 
@@ -108,9 +114,15 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _onOpen(pseudoModal) {
-        window.PluginManager.initializePlugins();
+        try {
+            this._btnLoader.remove();
+        } catch (error) {
+            console.warn('[AddressEditorPlugin] Unable to remove loading indicator from button', error);
+        }
 
-        this._registerModalEvents(pseudoModal);
+        window.PluginManager.initializePlugins().then(() => {
+            this._registerModalEvents(pseudoModal);
+        });
 
         this.$emitter.publish('onOpen', { pseudoModal });
     }
@@ -147,7 +159,7 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
-                const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
+                const parentSelector = DomAccess.getDataAttribute(target, 'data-bs-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
 
                 parent.addEventListener('hidden.bs.collapse', () => {

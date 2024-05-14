@@ -143,11 +143,14 @@
                 {% block sw_order_list_grid_columns_customer_name %}
                 <template #column-orderCustomer.firstName="{ item }">
                     <router-link
-                        v-if="item.orderCustomer"
-                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }
-                        ">
+                        v-if="item.orderCustomer && item.orderCustomer.customerId"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
+                    >
                         {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                     </router-link>
+                    <template v-else-if="item.orderCustomer">
+                        {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
+                    </template>
                 </template>
                 {% endblock %}
 
@@ -161,9 +164,30 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_list_grid_columns_delivery_address %}
+                <template #column-deliveries.id="{ item }">
+                    <template v-if="item.deliveries && item.deliveries[0] && item.deliveries[0].shippingOrderAddress">
+                        <div
+                            v-tooltip="{
+                                showDelay: 300,
+                                width: 400,
+                                disabled: item.deliveries.length <= 1,
+                                message: deliveryTooltip(item.deliveries)
+                            }"
+                            class="sw-order-list__delivery_address">
+                            {{ item.deliveries[0].shippingOrderAddress.street }},
+                            {{ item.deliveries[0].shippingOrderAddress.zipcode }}
+                            {{ item.deliveries[0].shippingOrderAddress.city }}
+                        </div>
+                    </template>
+
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_amount %}
                 <template #column-amountTotal="{ item }">
-                    {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                    {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
                 </template>
                 {% endblock %}
 
@@ -319,11 +343,13 @@
                 <template #bulk>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_list_bulk_selected_actions_content_bulk_edit %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="acl.can('order.editor')"
                         class="link link-primary"
+                        role="link"
+                        tabindex="0"
                         @click="showBulkEditModal = true"
+                        @keydown.enter="showBulkEditModal = true"
                     >
                         {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
                     </a>
@@ -397,7 +423,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_amount %}
                         <template #column-amountTotal="{ item }">
-                            {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                            {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
                         </template>
                         {% endblock %}
 
@@ -442,7 +468,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_order_date %}
                         <template #column-orderDateTime="{ item }">
-                            {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                            {{ dateFilter(item.orderDateTime, { hour: '2-digit', minute: '2-digit' }) }}
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
@@ -460,7 +486,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -482,7 +508,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                             :alt="$tc('sw-order.list.messageEmpty')"
                         >
                     </template>
@@ -509,7 +535,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_list_sidebar_filter %}
             <sw-sidebar-filter-panel
-                entity="customer"
+                entity="order"
                 :store-key="storeKey"
                 :filters="listFilters"
                 :defaults="defaultFilters"

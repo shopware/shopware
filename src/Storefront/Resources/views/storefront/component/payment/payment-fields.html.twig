@@ -1,6 +1,6 @@
 {% set collapseTriggerLabels = {
-    collapseTriggerMoreLabel: "checkout.collapseTriggerMore"|trans|sw_sanitize,
-    collapseTriggerLessLabel: "checkout.collapseTriggerLess"|trans|sw_sanitize
+    collapseTriggerMoreLabel: 'checkout.collapseTriggerMore'|trans|sw_sanitize,
+    collapseTriggerLessLabel: 'checkout.collapseTriggerLess'|trans|sw_sanitize
 } %}
 
 {% block component_payment_methods %}
@@ -21,17 +21,18 @@
                     {% block component_payment_method_collapse_trigger %}
                         <div class="btn btn-link confirm-checkout-collapse-trigger"
                              data-collapse-checkout-confirm-methods="true"
-                             data-collapse-checkout-confirm-methods-options='{{ collapseTriggerLabels|json_encode }}'>
+                             data-collapse-checkout-confirm-methods-options="{{ collapseTriggerLabels|json_encode }}">
                             <span class="confirm-checkout-collapse-trigger-label">
                                 {% block component_payment_method_collapse_trigger_label %}
                                     {{ collapseTriggerLabels.collapseTriggerMoreLabel }}
                                 {% endblock %}
                             </span>
+
                             {% block component_payment_method_collapse_trigger_icon %}
                                 {% sw_icon 'arrow-down' style {
-                                    'class': 'confirm-checkout-chevron',
-                                    'size': 'xs',
-                                    'pack' : 'solid'
+                                    class: 'confirm-checkout-chevron',
+                                    size: 'xs',
+                                    pack : 'solid'
                                 } %}
                             {% endblock %}
                         </div>

@@ -1,74 +1,72 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsNumberRangeList from 'src/module/sw-settings-number-range/page/sw-settings-number-range-list';
-import 'src/app/component/base/sw-card';
-
-Shopware.Component.register('sw-settings-number-range-list', swSettingsNumberRangeList);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-number-range-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-settings-number-range-list', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{
-                        global: true,
-                        id: 'id',
-                        name: 'Orders',
-                        type: {
-                            typeName: 'Orders',
-                        },
-                    }]),
-                }),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([{
+                            global: true,
+                            id: 'id',
+                            name: 'Orders',
+                            type: {
+                                typeName: 'Orders',
+                            },
+                        }]),
+                    }),
+                },
+                acl: {
+                    can: key => (key ? privileges.includes(key) : true),
+                },
+                searchRankingService: {},
             },
-            acl: {
-                can: key => (key ? privileges.includes(key) : true),
-            },
-            searchRankingService: {},
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-card-view': true,
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-entity-listing': {
-                props: ['items'],
-                template: `
+                },
+                'sw-card-view': true,
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-ignore-class': true,
+                'sw-entity-listing': {
+                    props: ['items'],
+                    template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>`,
+                },
+                'sw-language-switch': true,
+                'sw-search-bar': true,
+                'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-loader': true,
+                'sw-empty-state': true,
+                'sw-extension-component-section': true,
             },
-            'sw-language-switch': true,
-            'sw-search-bar': true,
-            'sw-context-menu-item': true,
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-loader': true,
-            'sw-empty-state': true,
-            'sw-extension-component-section': true,
         },
     });
 }
@@ -78,10 +76,6 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

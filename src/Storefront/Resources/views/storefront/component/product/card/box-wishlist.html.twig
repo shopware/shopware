@@ -13,10 +13,9 @@
                 {% block component_product_wishlist_remove_form %}
                     {% set size = size ?? 'md' %}
 
-                    <form action="{{ path('frontend.wishlist.product.delete', {'id': id}) }}"
+                    <form action="{{ path('frontend.wishlist.product.delete', {id: id}) }}"
                           method="post"
                           class="product-wishlist-form">
-
                         {% block component_product_wishlist_remove_redirect %}
                             <input type="hidden"
                                    name="redirectTo"
@@ -25,7 +24,7 @@
 
                         {% block component_product_wishlist_remove_submit %}
                             <button type="submit" class="btn product-wishlist-btn product-wishlist-btn-remove">
-                                {% sw_icon 'x' style { 'class': 'icon-wishlist icon-wishlist-remove', 'size': size, 'pack': 'solid' } %}
+                                {% sw_icon 'x' style { class: 'icon-wishlist icon-wishlist-remove', size: size, pack: 'solid' } %}
                             </button>
                         {% endblock %}
                     </form>
@@ -44,7 +43,7 @@
                 {% block component_product_box_manufacturer %}
                     <div class="product-wishlist-info-item product-wishlist-info-manufacturer">
                         {% if product.manufacturer %}
-                            {{ "wishlist.manufacturerDisplayName"|trans|sw_sanitize }}:
+                            {{ 'wishlist.manufacturerDisplayName'|trans|sw_sanitize }}:
                             <span class="product-wishlist-info-text">{{ product.manufacturer.translated.name }}</span>
                         {% endif %}
                     </div>

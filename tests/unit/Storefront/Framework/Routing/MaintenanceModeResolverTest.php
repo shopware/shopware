@@ -2,33 +2,31 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Routing\MaintenanceModeResolver
  */
+#[CoversClass(MaintenanceModeResolver::class)]
 class MaintenanceModeResolverTest extends TestCase
 {
-    public function testShouldInstantiate(): void
-    {
-        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack()));
-    }
-
     /**
      * Tests whether the resolver redirects requests to the maintenance page correctly.
-     *
-     * @dataProvider maintenanceModeInactiveProvider
-     * @dataProvider maintenanceModeActiveProvider
-     * @dataProvider xmlHttpRequestProvider
-     * @dataProvider maintenancePageRequestProvider
-     * @dataProvider errorControllerRequestProvider
      */
+    #[DataProvider('maintenanceModeInactiveProvider')]
+    #[DataProvider('maintenanceModeActiveProvider')]
+    #[DataProvider('xmlHttpRequestProvider')]
+    #[DataProvider('maintenancePageRequestProvider')]
+    #[DataProvider('errorControllerRequestProvider')]
     public function testShouldRedirect(Request $request, bool $shouldRedirect): void
     {
         /*
@@ -36,7 +34,7 @@ class MaintenanceModeResolverTest extends TestCase
          * we need to be able to set the master-request's config here, since
          * the resolver reads the whitelist from it.
          */
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
 
         if ($shouldRedirect) {
             static::assertTrue(
@@ -53,13 +51,12 @@ class MaintenanceModeResolverTest extends TestCase
 
     /**
      * Tests if the resolver redirects requests from the maintenance page to the shop correctly.
-     *
-     * @dataProvider maintenanceModeInactiveProvider
-     * @dataProvider maintenanceModeActiveProvider
      */
+    #[DataProvider('maintenanceModeInactiveProvider')]
+    #[DataProvider('maintenanceModeActiveProvider')]
     public function testShouldRedirectToShop(Request $request, bool $shouldRedirect): void
     {
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher()));
 
         if ($shouldRedirect) {
             static::assertFalse(
@@ -76,20 +73,19 @@ class MaintenanceModeResolverTest extends TestCase
 
     /**
      * Test if the maintenance mode is active by request.
-     *
-     * @dataProvider maintenanceModeInactiveProvider
-     * @dataProvider maintenanceModeActiveProvider
      */
+    #[DataProvider('maintenanceModeInactiveProvider')]
+    #[DataProvider('maintenanceModeActiveProvider')]
     public function testIsMaintenanceRequest(Request $request, bool $expected): void
     {
         static::assertEquals(
-            (new MaintenanceModeResolver($this->getRequestStack($request)))->isMaintenanceRequest($request),
+            (new MaintenanceModeResolver($this->getRequestStack($request), new CoreMaintenanceModeResolver(new EventDispatcher())))->isMaintenanceRequest($request),
             $expected
         );
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenanceModeInactiveProvider(): array
     {
@@ -114,7 +110,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenanceModeActiveProvider(): array
     {
@@ -159,7 +155,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function xmlHttpRequestProvider(): array
     {
@@ -184,7 +180,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenancePageRequestProvider(): array
     {
@@ -201,7 +197,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function errorControllerRequestProvider(): array
     {
@@ -217,12 +213,12 @@ class MaintenanceModeResolverTest extends TestCase
         ];
     }
 
-    private function getRequestStack(?Request $master = null): RequestStack
+    private function getRequestStack(?Request $main = null): RequestStack
     {
         $requestStack = new RequestStack();
 
-        if ($master !== null) {
-            $requestStack->push($master);
+        if ($main instanceof Request) {
+            $requestStack->push($main);
         }
 
         return $requestStack;
@@ -254,7 +250,7 @@ class MaintenanceModeResolverTest extends TestCase
 
         if ($isMaintenancePageRoute) {
             $request->attributes->set('_route', 'frontend.maintenance');
-            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE, true);
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE, true);
         }
 
         if ($useProxy) {

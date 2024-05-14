@@ -8,9 +8,10 @@
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
-                <div class="breadcrumb cms-breadcrumb container">
+                <div class="cms-breadcrumb container">
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
+                        themeIconConfig: themeIconConfig,
                         category: page.product.seoCategory
                     } only %}
                 </div>
@@ -20,7 +21,7 @@
                 {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
                 <div class="{{ cmsPageClasses }}" itemscope itemtype="https://schema.org/Product">
                     {% block page_content_blocks %}
-                        {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                        {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: page.cmsPage} %}
                     {% endblock %}
                 </div>
             {% endblock %}

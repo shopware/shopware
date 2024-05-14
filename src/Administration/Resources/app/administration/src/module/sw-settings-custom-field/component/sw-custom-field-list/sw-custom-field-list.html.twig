@@ -14,7 +14,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_custom_field_list_toolbar_searchfield %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 :delay="500"
@@ -90,10 +90,12 @@
                 flex="minmax(150px, 1fr)"
                 :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldLabel')"
             >
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <span
                     class="sw-custom-field-list__custom-field-label"
+                    role="textbox"
+                    tabindex="0"
                     @click="onCustomFieldEdit(item)"
+                    @keydown.enter="onCustomFieldEdit(item)"
                 >
                     {{ getInlineSnippet(item.config.label) || item.name }}
                 </span>
@@ -140,11 +142,7 @@
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="item.config.customFieldPosition"
-                        {% else %}
-                        v-model="item.config.customFieldPosition"
-                        {% endif %}
                         number-type="int"
                     />
                 </template>

@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @template TEntityCollection of EntityCollection
+ */
 #[Package('core')]
 class SalesChannelRepositoryIterator
 {
     private readonly Criteria $criteria;
 
+    /**
+     * @param SalesChannelRepository<TEntityCollection> $repository
+     */
     public function __construct(
         private readonly SalesChannelRepository $repository,
         private readonly SalesChannelContext $context,
@@ -34,11 +41,12 @@ class SalesChannelRepositoryIterator
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        $result = $this->repository->searchIds($criteria, $this->context);
-
-        return $result->getTotal();
+        return $this->repository->searchIds($criteria, $this->context)->getTotal();
     }
 
+    /**
+     * @return list<string>|list<array<string, string>>|null
+     */
     public function fetchIds(): ?array
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
@@ -52,6 +60,9 @@ class SalesChannelRepositoryIterator
         return null;
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>|null
+     */
     public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);

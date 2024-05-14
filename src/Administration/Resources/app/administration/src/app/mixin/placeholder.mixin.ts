@@ -8,7 +8,7 @@
 import { defineComponent } from 'vue';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('placeholder', defineComponent({
     methods: {
@@ -26,7 +26,6 @@ export default Shopware.Mixin.register('placeholder', defineComponent({
                 return entity[field];
             }
 
-            // TODO: Refactor with NEXT-3304
             // Return the field from parent translation if set
             const parentLanguageId = Shopware.Context.api.language ? Shopware.Context.api.language.parentId : null;
             // @ts-expect-error - we just check if translations exists

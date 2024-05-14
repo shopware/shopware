@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -10,6 +11,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -19,9 +21,9 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\SalesChannelContext
  */
+#[Package('buyers-experience')]
+#[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
     public function testGetRuleIdsByAreas(): void

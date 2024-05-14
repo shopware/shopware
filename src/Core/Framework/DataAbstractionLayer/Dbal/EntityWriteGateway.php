@@ -12,7 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
@@ -42,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -105,13 +107,21 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
+        $beforeWriteEvent = EntityWriteEvent::create($context, $commands);
+
+        $this->eventDispatcher->dispatch($beforeWriteEvent);
+
         try {
             RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
                 $this->executeCommands($commands, $context);
             });
+
+            $beforeWriteEvent->success();
         } catch (\Throwable $e) {
             $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
             $this->eventDispatcher->dispatch($event);
+
+            $beforeWriteEvent->error();
 
             throw $e;
         }
@@ -122,10 +132,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private function executeCommands(array $commands, WriteContext $context): void
     {
-        $beforeDeleteEvent = BeforeDeleteEvent::create($context, $commands);
-
-        if ($beforeDeleteEvent->filled()) {
-            $this->eventDispatcher->dispatch($beforeDeleteEvent);
+        $entityDeleteEvent = EntityDeleteEvent::create($context, $commands);
+        if ($entityDeleteEvent->filled()) {
+            $this->eventDispatcher->dispatch($entityDeleteEvent);
         }
 
         // throws exception on violation and then aborts/rollbacks this transaction
@@ -153,7 +162,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
                 $command->setFailed(false);
-                $current = $command->getDefinition()->getEntityName();
+                $current = $command->getEntityName();
 
                 if ($current !== $previous) {
                     $executeInserts();
@@ -161,7 +170,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $previous = $current;
 
                 try {
-                    $definition = $command->getDefinition();
+                    $definition = $this->definitionInstanceRegistry->getByEntityName($command->getEntityName());
                     $table = $definition->getEntityName();
 
                     if ($command instanceof DeleteCommand) {
@@ -224,7 +233,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $mappings->execute();
             $inserts->execute();
-            $beforeDeleteEvent->success();
+            $entityDeleteEvent->success();
         } catch (Exception $e) {
             // Match exception without passing a specific command when feature-flag 16640 is active
             $innerException = $this->exceptionHandlerRegistry->matchException($e);
@@ -233,7 +242,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
             $context->getExceptions()->add($e);
 
-            $beforeDeleteEvent->error();
+            $entityDeleteEvent->error();
 
             throw $e;
         }
@@ -251,8 +260,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     {
         $pkFields = [];
         $versionField = null;
-        /** @var StorageAware&Field $field */
         foreach ($definition->getPrimaryKeys() as $field) {
+            /** @var StorageAware&Field $field */
             if ($field instanceof VersionField) {
                 $versionField = $field;
 
@@ -297,7 +306,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             foreach ($pks as $pk) {
                 $newIds = [];
-                /** @var Field&StorageAware $field */
                 foreach ($pkFields as $field) {
                     $id = $pk[$field->getPropertyName()] ?? null;
                     if ($id === null) {
@@ -406,7 +414,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $types = [];
 
         $query = new QueryBuilder($this->connection);
-        $query->update('`' . $command->getDefinition()->getEntityName() . '`');
+        $query->update('`' . $command->getEntityName() . '`');
 
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
@@ -482,7 +490,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function generateChangeSets(array $commands): void
     {
         $primaryKeys = [];
-        $definitions = [];
 
         foreach ($commands as $command) {
             if (!$command instanceof ChangeSetAware || !$command instanceof WriteCommand) {
@@ -493,10 +500,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $entity = $command->getDefinition()->getEntityName();
+            $entity = $command->getEntityName();
 
             $primaryKeys[$entity][] = $command->getPrimaryKey();
-            $definitions[$entity] = $command->getDefinition();
         }
 
         if (empty($primaryKeys)) {
@@ -507,10 +513,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($primaryKeys as $entity => $ids) {
             $query = $this->connection->createQueryBuilder();
 
-            $definition = $definitions[$entity];
-
             $query->addSelect('*');
-            $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
+            $query->from(EntityDefinitionQueryHelper::escape($entity));
 
             $this->addPrimaryCondition($query, $ids);
 
@@ -526,7 +530,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $entity = $command->getDefinition()->getEntityName();
+            $entity = $command->getEntityName();
 
             $command->setChangeSet(
                 $this->calculateChangeSet($command, $states[$entity])
@@ -739,16 +743,17 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             return false;
         }
 
-        /** @var Field&StorageAware $fk */
         $fk = $this->getParentField($definition);
+
+        \assert($fk instanceof FkField);
+
         // foreign key provided, !== null has parent otherwise not
         if (\array_key_exists($fk->getPropertyName(), $data)) {
             return isset($data[$fk->getPropertyName()]);
         }
 
-        /** @var Field $association */
         $association = $definition->getFields()->get('parent');
-        if (isset($data[$association->getPropertyName()])) {
+        if ($association && isset($data[$association->getPropertyName()])) {
             return true;
         }
 

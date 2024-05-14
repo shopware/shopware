@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCaptureEntity extends Entity
 {
     use EntityCustomFieldsTrait;

@@ -2,24 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple
  */
+#[CoversClass(PromotionCodeTuple::class)]
 class PromotionCodeTupleTest extends TestCase
 {
     /**
      * This test verifies that our code is correctly
      * assigned in the tuple and our getter
      * does return that value.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCode(): void
     {
         $promotion1 = new PromotionEntity();
@@ -33,9 +33,8 @@ class PromotionCodeTupleTest extends TestCase
      * This test verifies that our promotion is correctly
      * assigned in the tuple and our getter
      * does return that object.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotion(): void
     {
         $promotion1 = new PromotionEntity();

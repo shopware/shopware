@@ -18,7 +18,7 @@ Shopware.Filter.register('asset', (value: string) => {
 });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export {};
 

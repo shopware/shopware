@@ -27,28 +27,22 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_general_information_name %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="flow.name"
-            {% else %}
-            v-model="flow.name"
-            {% endif %}
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor')"
             :label="$tc('sw-flow.detail.labelGeneralInformationName')"
             :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"
             :error="flowNameError"
+            name="sw-field--flow-name"
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_general_information_description %}
         <sw-textarea-field
-            {% if VUE3 %}
             v-model:value="flow.description"
-            {% else %}
-            v-model="flow.description"
-            {% endif %}
+            name="sw-field--flow-description"
             class="sw-flow-detail-general__general-description"
             :disabled="!acl.can('flow.editor')"
             :label="$tc('sw-flow.detail.labelGeneralInformationDescription')"
@@ -64,14 +58,11 @@
             {% block sw_flow_detail_general_information_priority %}
             <sw-number-field
                 v-if="!isFlowTemplate"
-                {% if VUE3 %}
                 v-model:value="flow.priority"
-                {% else %}
-                v-model="flow.priority"
-                {% endif %}
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor')"
                 :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
+                name="sw-field--flow-priority"
             />
             {% endblock %}
 
@@ -79,11 +70,8 @@
             {% block sw_flow_detail_general_information_active %}
             <sw-switch-field
                 v-if="!isFlowTemplate"
-                {% if VUE3 %}
-                v-modle:value="flow.active"
-                {% else %}
-                v-model="flow.active"
-                {% endif %}
+                v-model:value="flow.active"
+                name="sw-field--flow-active"
                 class="sw-flow-detail-general__general-active"
                 :disabled="!acl.can('flow.editor') || isUnknownTrigger"
                 :label="$tc('sw-flow.detail.labelGeneralInformationActive')"

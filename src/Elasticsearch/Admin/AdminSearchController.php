@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -35,10 +35,10 @@ final class AdminSearchController
             throw ElasticsearchAdminException::esNotEnabled();
         }
 
-        $term = trim((string) $request->get('term', ''));
+        $term = trim($request->request->getString('term'));
         $entities = $request->request->all('entities');
 
-        if (empty($term)) {
+        if ($term === '') {
             throw ElasticsearchAdminException::missingTermParameter();
         }
 

@@ -6,7 +6,7 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-multi-select', {
     template,
@@ -20,11 +20,6 @@ Component.register('sw-entity-multi-select', {
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
 
     props: {
         labelProperty: {
@@ -68,7 +63,6 @@ Component.register('sw-entity-multi-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -91,16 +85,19 @@ Component.register('sw-entity-multi-select', {
                 return Shopware.Context.api;
             },
         },
+
         hideLabels: {
             type: Boolean,
             required: false,
             default: false,
         },
+
         selectionDisablingMethod: {
             type: Function,
             required: false,
             default: () => false,
         },
+
         descriptionPosition: {
             type: String,
             required: false,
@@ -110,6 +107,7 @@ Component.register('sw-entity-multi-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
+
         advancedSelectionComponent: {
             type: String,
             required: false,
@@ -117,6 +115,7 @@ Component.register('sw-entity-multi-select', {
                 return '';
             },
         },
+
         advancedSelectionParameters: {
             type: Object,
             required: false,
@@ -195,7 +194,9 @@ Component.register('sw-entity-multi-select', {
         },
 
         refreshCurrentCollection() {
-            this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
+            if (this.entityCollection) {
+                this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
+            }
         },
 
         createEmptyCollection() {
@@ -290,13 +291,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         emitChanges(newCollection) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newCollection);
-
-                return;
-            }
-
-            this.$emit('change', newCollection);
+            this.$emit('update:entityCollection', newCollection);
         },
 
         addItem(item) {
@@ -411,6 +406,12 @@ Component.register('sw-entity-multi-select', {
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
+        },
+
+        clearSelection() {
+            this.emitChanges(this.createEmptyCollection());
+            this.searchTerm = '';
+            this.$refs.selectionList.blur();
         },
     },
 });

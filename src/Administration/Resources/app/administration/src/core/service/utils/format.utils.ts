@@ -53,8 +53,31 @@ export function currency(
         ...additionalOptions,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
-    return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
+    let result = '';
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument,max-len
+        result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
+    } catch (e) {
+        // Throw the error to the console because this is still a technical error
+        console.error(e);
+
+        const name = (e as Error).name;
+
+        /**
+         * If the error is a RangeError, we try to format the number as a decimal number
+         * so that the user at least sees the number
+         */
+        if (name === 'RangeError') {
+            opts.style = 'decimal';
+            // @ts-expect-error - we need to delete the currency property
+            delete opts.currency;
+            // eslint-disable-next-line max-len
+            result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
+        }
+    }
+
+    return result;
 }
 
 interface DateFilterOptions extends Intl.DateTimeFormatOptions {

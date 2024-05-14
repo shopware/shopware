@@ -31,7 +31,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_search %}
                     <sw-simple-search-field
-                        v-model="term"
+                        v-model:value="term"
                         variant="form"
                         size="small"
                         :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.searchFieldPlaceholder')"
@@ -61,6 +61,8 @@
                         :allow-column-edit="false"
                         :allow-inline-edit="false"
                         @selection-change="onSelect"
+                        @select-item="onSelect"
+                        @select-all-items="onSelect"
                     >
                         <template #bulk>
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -72,10 +74,12 @@
                         <template #delete-action="{ item }">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
-                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                             <span
                                 class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
+                                role="button"
+                                tabindex="0"
                                 @click="onOpen(item)"
+                                @keydown.enter="onOpen(item)"
                             >
                                 {{ $tc('global.default.open') }}
                             </span>
@@ -110,7 +114,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
                             <img
-                                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                                 alt=""
                             >
                             {% endblock %}

@@ -26,6 +26,7 @@
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
       "gridHeaderAssignments": "Zuordnungen",
+      "gridHeaderAssignedPages": "Zugewiesene Seiten",
       "gridHeaderCreated": "Erstellt",
       "gridHeaderUpdated": "Bearbeitungsdatum"
     },
@@ -58,7 +59,7 @@
       "layoutAssignment": {
         "headline": "Verwalte wo dieses Layout zu sehen ist",
         "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
-        "actionAssignLayout": "Layout-Zuweisung fehlgeschlagen"
+        "actionAssignLayout": "Layout zuweisen"
       },
       "layoutSetAsDefault": {
         "headline": "Standardlayouts",
@@ -114,6 +115,8 @@
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
         "blockCategoryForm": "Formular",
+        "blockCategoryApp": "Apps",
+        "blockCategoryHtml": "HTML",
         "buttonElementSettingsConfirm": "Fertig",
         "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
@@ -244,7 +247,8 @@
           "label": {
             "minHeight": "Minimale Höhe",
             "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
-            "linkNewTab": "Link in neuem Tab öffnen"
+            "linkNewTab": "Link in neuem Tab öffnen",
+            "linkTo": "Linkziel"
           },
           "placeholder": {
             "enterMinHeight": "Minimale Höhe eingeben ...",
@@ -314,6 +318,7 @@
             "labelUseCustomSortings": "Eigene Sortierungen verwenden",
             "labelDefaultSorting": "Standard-Sortierung",
             "labelProductSortings": "Produkt-Sortierungen",
+            "placeholderDefaultProductSorting": "Wähle eine Standard-Sortierung ...",
             "placeHolderProductSortings": "Produkt-Sortierungen hinzufügen oder entfernen",
             "helpTextUseCustomSortings": "Sortier-Optionen kannst Du für dieses Produkt-Listing definieren. Aktiviere diese Option um die Sortier-Option für dieses Listing individuell anzupassen.",
             "helpTextDefaultSorting": "Die Standard Sortierung für das Listing, wenn keine andere Sortierung angegeben ist.",
@@ -459,14 +464,14 @@
         },
         "element": {
           "label": {
-            "action": "Aktion",
+            "action": "Aktion*",
             "email": "E-Mail-Adresse*",
             "firstName": "Vorname*",
             "lastName": "Nachname*",
             "message": "Ihre Nachricht*",
             "newsletterSubmit": "Weiter",
-            "phone": "Telefonnummer",
-            "privacy": "Datenschutz",
+            "phone": "Telefonnummer*",
+            "privacy": "Datenschutz*",
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
             "send": "Senden",
@@ -476,7 +481,7 @@
           "placeholder": {
             "firstName": "John",
             "lastName": "Doe",
-            "email": "john@doe.com",
+            "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
@@ -484,6 +489,13 @@
           "helpText": {
             "privacy": "Ich habe die Datenschutzinformationen gelesen.",
             "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "Vorname",
+              "lastName": "Nachname",
+              "salutation": "Anrede"
+            }
           }
         },
         "preview": {
@@ -558,6 +570,12 @@
       },
       "productName": {
         "label": "Produktname"
+      },
+      "html": {
+        "label": "HTML",
+        "config": {
+          "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
+        }
       }
     },
     "blocks": {
@@ -692,6 +710,11 @@
       "form": {
         "form": {
           "label": "Formular"
+        }
+      },
+      "html": {
+        "html": {
+          "label": "HTML"
         }
       },
       "blockDisableState": "Dieser Block ist auf keinem Gerät sichtbar. Sie können den Block bearbeiten, aber die Änderungen werden in Ihrem Shop nicht sichtbar sein. Bearbeiten Sie dieses Layout im Modul Einkaufserlebnisse, um die Sichtbarkeit des Blocks zu ändern."

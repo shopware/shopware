@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
@@ -31,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreClient
 {
     private const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
@@ -127,7 +126,6 @@ class StoreClient
     ): void {
         $indexedExtensions = [];
 
-        /** @var PluginEntity|ExtensionStruct $extension */
         foreach ($extensions as $extension) {
             $name = $extension->getName();
             $indexedExtensions[$name] = [
@@ -139,7 +137,6 @@ class StoreClient
 
         $violations = $this->getLicenseViolations($context, $indexedExtensions, $hostName);
         $indexed = [];
-        /** @var StoreLicenseViolationStruct $violation */
         foreach ($violations as $violation) {
             $indexed[$violation->getName()] = $violation;
         }
@@ -342,7 +339,7 @@ class StoreClient
                 ]
             );
         } catch (ClientException $e) {
-            if ($e->hasResponse() && $e->getResponse() !== null) {
+            if ($e->hasResponse()) {
                 $error = \json_decode((string) $e->getResponse()->getBody(), true, flags: \JSON_THROW_ON_ERROR);
 
                 // It's okay when its already canceled

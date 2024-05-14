@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Content\ImportExport\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('system-settings')]
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use ImportExportException::fileNotReadable instead
+ */
+#[Package('services-settings')]
 class FileNotReadableException extends ShopwareHttpException
 {
     public function __construct(string $path)
@@ -16,11 +20,21 @@ class FileNotReadableException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'ImportExportException::fileNotReadable')
+        );
+
         return 'CONTENT__IMPORT_FILE_IS_NOT_READABLE';
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'ImportExportException::fileNotReadable')
+        );
+
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 }

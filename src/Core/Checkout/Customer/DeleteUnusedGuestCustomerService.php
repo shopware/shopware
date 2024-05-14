@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeleteUnusedGuestCustomerService
 {
     final public const DELETE_CUSTOMERS_BATCH_SIZE = 100;

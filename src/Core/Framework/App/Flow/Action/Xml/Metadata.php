@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -11,27 +12,26 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Metadata extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = [
+    protected const REQUIRED_FIELDS = [
+        'label',
+        'name',
+        'url',
+    ];
+    private const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'headline',
     ];
 
-    final public const REQUIRED_FIELDS = [
-        'label',
-        'name',
-        'url',
-    ];
-
     private const BOOLEAN_FIELD = ['delayable'];
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, string>
      */
     protected array $label;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, string>|null
      */
     protected ?array $description = null;
 
@@ -40,7 +40,7 @@ class Metadata extends XmlElement
     protected string $url;
 
     /**
-     * @var array<string, mixed>
+     * @var list<string>
      */
     protected array $requirements = [];
 
@@ -49,7 +49,7 @@ class Metadata extends XmlElement
     protected ?string $swIcon = null;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, string>|null
      */
     protected ?array $headline = null;
 
@@ -58,19 +58,7 @@ class Metadata extends XmlElement
     protected ?string $badge = null;
 
     /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    /**
-     * @return array<string, mixed>
+     * @return array<string, string>
      */
     public function getLabel(): array
     {
@@ -78,7 +66,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, string>|null
      */
     public function getDescription(): ?array
     {
@@ -96,7 +84,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return list<string>
      */
     public function getRequirements(): array
     {
@@ -114,7 +102,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, string>|null
      */
     public function getHeadline(): ?array
     {
@@ -131,9 +119,9 @@ class Metadata extends XmlElement
         $this->delayable = $delayable;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public function getBadge(): ?string
     {
-        return new self(self::parse($element));
+        return $this->badge;
     }
 
     /**
@@ -143,8 +131,8 @@ class Metadata extends XmlElement
     {
         $data = parent::toArray($defaultLocale);
 
-        foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {
-            $translatableField = self::kebabCaseToCamelCase($TRANSLATABLE_FIELD);
+        foreach (self::TRANSLATABLE_FIELDS as $field) {
+            $translatableField = XmlParserUtils::kebabCaseToCamelCase($field);
 
             $data[$translatableField] = $this->ensureTranslationForDefaultLanguageExist(
                 $data[$translatableField],
@@ -155,10 +143,7 @@ class Metadata extends XmlElement
         return $data;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
@@ -169,7 +154,7 @@ class Metadata extends XmlElement
 
             // translated
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
+                $values = XmlParserUtils::mapTranslatedTag($child, $values);
 
                 continue;
             }

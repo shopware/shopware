@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -73,11 +75,12 @@ class JsonApiEncoderTest extends TestCase
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
                 `product_id` BINARY(16) NULL,
+                `product_version_id` BINARY(16) NOT NULL DEFAULT 0x0fa91ce3e96a4bc2be4bd9ce752c3425,
                 `language_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`),
                 CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
@@ -114,9 +117,8 @@ class JsonApiEncoderTest extends TestCase
 
     /**
      * @param mixed $input
-     *
-     * @dataProvider emptyInputProvider
      */
+    #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput($input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
@@ -141,9 +143,7 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider complexStructsProvider
-     */
+    #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
         /** @var EntityDefinition $definition */
@@ -307,16 +307,17 @@ class JsonApiEncoderTest extends TestCase
     /**
      * @param array<mixed> $input
      * @param array<mixed>|null $output
-     *
-     * @dataProvider customFieldsProvider
      */
+    #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, $output): void
     {
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
 
         $definition = new CustomFieldPlainTestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $struct = new Entity();
+        $struct = new class() extends Entity {
+            use EntityCustomFieldsTrait;
+        };
         $struct->setUniqueIdentifier(Uuid::randomHex());
         $struct->assign($input);
 

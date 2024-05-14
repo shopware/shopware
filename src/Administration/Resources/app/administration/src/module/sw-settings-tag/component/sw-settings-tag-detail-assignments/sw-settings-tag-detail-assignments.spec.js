@@ -1,12 +1,6 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsTagDetailModal from 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
-import swSettingsTagDetailAssignments from 'src/module/sw-settings-tag/component/sw-settings-tag-detail-assignments';
-
-Shopware.Component.register('sw-settings-tag-detail-modal', swSettingsTagDetailModal);
-Shopware.Component.register('sw-settings-tag-detail-assignments', swSettingsTagDetailAssignments);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
     const responseMockAll = [
         {
             id: '0',
@@ -74,35 +68,42 @@ async function createWrapper() {
         },
     };
 
-    const parentComponent = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-modal'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            isNew: () => true,
-                        };
+    const parentComponent = mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                isNew: () => true,
+                            };
+                        },
+                    }),
+                },
+                syncService: {},
+                acl: {
+                    can: () => {
+                        return true;
                     },
-                }),
-            },
-            syncService: {},
-            acl: {
-                can: () => {
-                    return true;
                 },
             },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
+            stubs: {
+                'sw-modal': true,
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
+                'sw-tabs-item': true,
+            },
         },
     }).vm;
 
-    const wrapper = shallowMount(await Shopware.Component.build('sw-settings-tag-detail-assignments'), {
-        localVue,
-        propsData: {
+    const wrapper = mount(await wrapTestComponent('sw-settings-tag-detail-assignments', {
+        sync: true,
+    }), {
+        props: {
             tag: {
                 id: '123',
                 isNew() {
@@ -115,26 +116,29 @@ async function createWrapper() {
                 products: 2,
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: (criteria, context) => {
-                        const response = context && context.inheritance ? responseMockAll : responseMockSelected;
-                        response.aggregations = context && context.inheritance ? aggregationsInherited : aggregations;
-                        response.total = response.length;
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: (criteria, context) => {
+                            const response = context && context.inheritance ? responseMockAll : responseMockSelected;
+                            response.aggregations = context && context.inheritance ? aggregationsInherited : aggregations;
+                            response.total = response.length;
 
-                        return Promise.resolve(response);
-                    },
-                    searchIds: jest.fn(() => Promise.resolve()),
-                }),
+                            return Promise.resolve(response);
+                        },
+                        searchIds: jest.fn(() => Promise.resolve()),
+                    }),
+                },
+                searchRankingService: {},
             },
-            searchRankingService: {},
-        },
-        stubs: {
-            'sw-card': true,
-            'sw-card-section': true,
-            'sw-switch-field': true,
-            'sw-container': true,
+            stubs: {
+                'sw-card': true,
+                'sw-card-section': true,
+                'sw-switch-field': true,
+                'sw-container': true,
+            },
         },
     });
 

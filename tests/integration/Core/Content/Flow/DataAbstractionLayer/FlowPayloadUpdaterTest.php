@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowPayloadUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

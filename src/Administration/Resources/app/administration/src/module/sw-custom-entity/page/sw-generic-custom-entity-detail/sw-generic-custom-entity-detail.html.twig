@@ -15,11 +15,7 @@
             :process-success="isSaveSuccessful"
             variant="primary"
             :disabled="isLoading"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -72,10 +68,10 @@
                 <template #content="{ active }">
                     <template
                         v-for="tab in detailTabs"
+                        :key="`tab-${tab.name}`"
                     >
                         <div
                             v-if="active === tab.name"
-                            :key="`tab-${tab.name}`"
                             class="sw-generic-custom-entity-detail__tab"
                         >
                             <sw-card
@@ -89,11 +85,7 @@
                                     <sw-custom-entity-input-field
                                         v-for="field in card.fields"
                                         :key="field.ref"
-                                        {% if VUE3 %}
                                         v-model:value="customEntityData[field.ref]"
-                                        {% else %}
-                                        v-model="customEntityData[field.ref]"
-                                        {% endif %}
                                         class="sw-generic-custom-entity-detail__field"
                                         :type="getType(field.ref)"
                                         :label="getLabel('fields', field.ref)"

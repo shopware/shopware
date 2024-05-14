@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\OAuth;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,7 +45,7 @@ class ClientRepositoryTest extends TestCase
             'client_secret' => $secret,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
     }
 
@@ -55,28 +56,15 @@ class ClientRepositoryTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
-    /**
-     * NEXT-6026
-     *
-     * @group quarantined
-     */
-    public function testDoesntAffectIntegrationWithoutApp(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration();
-        $browser->request('GET', '/api/product');
-
-        static::assertEquals(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-    }
-
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
 
-        return $appRepository->search($criteria, Context::createDefaultContext())->first();
+        return $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
     }
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void

@@ -2,14 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent
  */
+#[Package('buyers-experience')]
+#[CoversClass(UnusedMediaSearchEvent::class)]
 class UnusedMediaSearchEventTest extends TestCase
 {
     public function testGetIds(): void
@@ -19,11 +22,10 @@ class UnusedMediaSearchEventTest extends TestCase
     }
 
     /**
-     * @dataProvider removeIdsProvider
-     *
      * @param array<string> $idsToRemove
      * @param array<string> $expectedIds
      */
+    #[DataProvider('removeIdsProvider')]
     public function testRemoveIds(array $idsToRemove, array $expectedIds): void
     {
         $event = new UnusedMediaSearchEvent(['1', '2', '3']);
@@ -32,16 +34,16 @@ class UnusedMediaSearchEventTest extends TestCase
     }
 
     /**
-     * @return array<string, array{remove: array<string>, expected: array<string>}>
+     * @return array<string, array{idsToRemove: array<string>, expectedIds: array<string>}>
      */
     public static function removeIdsProvider(): array
     {
         return [
-            'remove-last-id' => ['remove' => ['3'], 'expected' => ['1', '2']],
-            'remove-middle-id' => ['remove' => ['2'], 'expected' => ['1', '3']],
-            'remove-multiple' => ['remove' => ['1', '2'], 'expected' => ['3']],
-            'remove-all' => ['remove' => ['1', '2', '3'], 'expected' => []],
-            'remove-non-existing-elem' => ['remove' => ['4'], 'expected' => ['1', '2', '3']],
+            'remove-last-id' => ['idsToRemove' => ['3'], 'expectedIds' => ['1', '2']],
+            'remove-middle-id' => ['idsToRemove' => ['2'], 'expectedIds' => ['1', '3']],
+            'remove-multiple' => ['idsToRemove' => ['1', '2'], 'expectedIds' => ['3']],
+            'remove-all' => ['idsToRemove' => ['1', '2', '3'], 'expectedIds' => []],
+            'remove-non-existing-elem' => ['idsToRemove' => ['4'], 'expectedIds' => ['1', '2', '3']],
         ];
     }
 }

@@ -85,7 +85,7 @@
       "tooltipDisabledPaymentMethod": "Diese Zahlungsart muss aktiviert werden, damit sie als Standard-Zahlungsart wählbar ist.",
       "tooltipDisabledCountry": "Dieses Land muss aktiviert werden, damit es als Standard-Land wählbar ist.",
       "warningDisabledCountries": "Das Land <b>{name}</b> ist nicht aktiv. | Die Länder <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
-      "warningDisabledPaymentMethod": "Einige der Zahlungsmethoden, die diesem Vertriebskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
+      "warningDisabledPaymentMethod": "Einige der Zahlungsarten, die diesem Verkaufskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
       "warningDisabledShippingMethod": "Die Versandart <b>{name}</b> ist nicht aktiv. | Die Versandarten <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
       "warningDisabledAddition": "{amount} weitere",
       "warningUnservedLanguage": "Die Sprache <b>{list}</b> ist keiner Domain zugewiesen. Um die Sprache in Deinem Verkaufskanal nutzen zu können, musst Du zunächst eine entsprechende Domain anlegen. | Die Sprachen <b>{list}</b> sind keiner Domain zugewiesen. Um diese Sprachen in Deinem Verkaufskanal nutzen zu können, musst Du zunächst die entsprechenden Domains anlegen.",
@@ -104,6 +104,7 @@
       "labelInputLanguage": "Sprache",
       "labelInputSnippet": "Textbaustein-Set",
       "buttonDeleteDomain": "Domain löschen",
+      "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
       "buttonAddDomain": "Domain hinzufügen",
       "deleteDomainModalTitle": "Domain löschen",
       "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
@@ -141,9 +142,9 @@
       "maintenanceModeTitle": "Wartungsmodus",
       "maintenanceModeDescription": "Im Wartungsmodus ist der Verkaufskanal für Besucher unsichtbar. IPs die auf der Whitelist stehen, können jedoch weiterhin auf den Verkaufskanal zugreifen. Auf diese Weise kann sicher mit den Daten des Verkaufskanals gearbeitet werden, während Kunden und Besucher einen Wartungsmodus-Bildschirm angezeigt bekommen.",
       "labelMaintenanceActive": "Wartungsmodus",
-      "ipAddressWhitleListHelpText": "Füge der Whitelist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
+      "ipAddressAllowlistHelpText": "Füge der Allowlist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
       "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
-      "ipAddressWhitleList": "Whitelist für IP-Adressen",
+      "ipAddressAllowlist": "Allowlist für IP-Adressen",
       "columnDomainCurrency": "Währung",
       "products": {
         "titleEmptyState": "Keine weiteren Produkte gefunden",
@@ -254,7 +255,7 @@
           "trackingId": {
             "label": "Tracking-ID",
             "placeHolder": "Tracking-ID eingeben ...",
-            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
+            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen: G-XXXXXXXXXX"
           },
           "active": {
             "label": "Google Analytics aktivieren"

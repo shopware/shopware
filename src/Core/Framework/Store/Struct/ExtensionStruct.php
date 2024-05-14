@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class ExtensionStruct extends Struct
 {
     final public const EXTENSION_TYPE_APP = 'app';
@@ -123,6 +123,9 @@ class ExtensionStruct extends Struct
 
     protected ?\DateTimeInterface $updatedAt = null;
 
+    /**
+     * @var array<string>
+     */
     protected array $notices = [];
 
     /**
@@ -138,6 +141,19 @@ class ExtensionStruct extends Struct
     protected bool $allowDisable = true;
 
     /**
+     * @var array<string>
+     */
+    protected array $domains = [];
+
+    protected string $lastUpdateDate;
+
+    protected string $producerWebsite;
+
+    protected string $storeUrl;
+
+    /**
+     * @param array<string, mixed> $data
+     *
      * @throws \InvalidArgumentException
      */
     public static function fromArray(array $data): ExtensionStruct
@@ -383,6 +399,9 @@ class ExtensionStruct extends Struct
         $this->permissions = $permissions;
     }
 
+    /**
+     * @return array<string, PermissionCollection>
+     */
     public function getCategorizedPermissions(): array
     {
         if ($this->permissions === null) {
@@ -470,11 +489,17 @@ class ExtensionStruct extends Struct
         $this->installedAt = $installedAt;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getNotices(): array
     {
         return $this->notices;
     }
 
+    /**
+     * @param array<string> $notices
+     */
     public function setNotices(array $notices): void
     {
         $this->notices = $notices;
@@ -528,5 +553,51 @@ class ExtensionStruct extends Struct
     public function setAllowDisable(bool $allowDisable): void
     {
         $this->allowDisable = $allowDisable;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getDomains(): array
+    {
+        return $this->domains;
+    }
+
+    /**
+     * @param array<string> $domains
+     */
+    public function setDomains(array $domains): void
+    {
+        $this->domains = $domains;
+    }
+
+    public function getLastUpdateDate(): string
+    {
+        return $this->lastUpdateDate;
+    }
+
+    public function setLastUpdateDate(string $lastUpdateDate): void
+    {
+        $this->lastUpdateDate = $lastUpdateDate;
+    }
+
+    public function getProducerWebsite(): string
+    {
+        return $this->producerWebsite;
+    }
+
+    public function setProducerWebsite(string $producerWebsite): void
+    {
+        $this->producerWebsite = $producerWebsite;
+    }
+
+    public function getStoreUrl(): string
+    {
+        return $this->storeUrl;
+    }
+
+    public function setStoreUrl(string $storeUrl): void
+    {
+        $this->storeUrl = $storeUrl;
     }
 }

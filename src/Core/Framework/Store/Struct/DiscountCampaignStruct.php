@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class DiscountCampaignStruct extends StoreStruct
 {
     /**
@@ -40,6 +40,9 @@ class DiscountCampaignStruct extends StoreStruct
      */
     protected $discountAppliesForMonths;
 
+    /**
+     * @return DiscountCampaignStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

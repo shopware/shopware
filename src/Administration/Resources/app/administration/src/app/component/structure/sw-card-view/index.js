@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Container for the <sw-card> component.
  * @status ready
@@ -33,7 +32,6 @@ Component.register('sw-card-view', {
         showErrorSummary: {
             type: Boolean,
             require: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

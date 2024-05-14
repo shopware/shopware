@@ -3,7 +3,7 @@ import './sw-promotion-v2-rule-select.scss';
 
 /**
  * @private
- * @package business-ops
+ * @package buyers-experience
  */
 export default {
     template,
@@ -13,11 +13,6 @@ export default {
         'ruleConditionDataProviderService',
         'feature',
     ],
-
-    model: {
-        prop: 'collection',
-        event: 'change',
-    },
 
     props: {
         collection: {
@@ -37,7 +32,6 @@ export default {
         localMode: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
@@ -67,13 +61,7 @@ export default {
 
     methods: {
         onChange(collection) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:collection', collection);
-
-                return;
-            }
-
-            this.$emit('change', collection);
+            this.$emit('update:collection', collection);
         },
 
         onSaveRule(ruleId) {
@@ -84,14 +72,7 @@ export default {
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:collection', searchResult);
-                        this.$refs.ruleSelect.sendSearchRequest();
-
-                        return;
-                    }
-
-                    this.$emit('change', searchResult);
+                    this.$emit('update:collection', searchResult);
                     this.$refs.ruleSelect.sendSearchRequest();
                 });
             });

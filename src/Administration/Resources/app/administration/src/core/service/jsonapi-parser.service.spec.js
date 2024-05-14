@@ -85,6 +85,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
             }],
             associations: {},
             aggregations: null,
+            meta: null,
             parsed: true,
         }));
     });

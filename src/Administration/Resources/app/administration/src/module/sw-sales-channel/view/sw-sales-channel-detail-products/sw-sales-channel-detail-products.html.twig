@@ -25,7 +25,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_detail_products_card_section_secondary_input %}
                     <sw-simple-search-field
-                        v-model="searchTerm"
+                        v-model:value="searchTerm"
                         variant="form"
                         size="small"
                         @search-term-change="onChangeSearchTerm"
@@ -75,6 +75,7 @@
                     :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                     :is-record-selectable="isProductRemovable"
+                    @selection-change="onProductSelectionChange"
                 >
                     <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
@@ -89,11 +90,7 @@
                                     }"
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
-                                    {% if VUE3 %}
                                     @update:value="selectItem($event, item)"
-                                    {% else %}
-                                    @change="selectItem($event, item)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>
@@ -153,10 +150,12 @@
                     <template #bulk>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_listing_bulk %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             class="link link-warning"
+                            role="button"
+                            tabindex="0"
                             @click="onDeleteProducts"
+                            @keydown.enter="onDeleteProducts"
                         >
                             {{ $tc('global.default.remove') }}
                         </a>
@@ -176,7 +175,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_detail_products_card_section_primary_image %}
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
                         >
                         {% endblock %}
@@ -193,15 +192,16 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_empty_state %}
     <sw-empty-state
-        v-if="products.length <= 0 && !searchTerm"
+        v-if="products.length <= 0 && !searchTerm && !isLoading"
         :show-description="false"
+        :absolute="false"
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #icon>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_products_empty_state_image %}
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
             >
             {% endblock %}

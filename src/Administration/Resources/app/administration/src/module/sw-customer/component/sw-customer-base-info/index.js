@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -36,6 +36,9 @@ export default {
 
     data() {
         return {
+            /**
+             * @deprecated tag:v6.7.0 - will be removed, use customer.orderTotalValue instead
+             */
             orderAmount: 0,
             orderCount: 0,
             customerLanguage: null,
@@ -71,11 +74,6 @@ export default {
 
         orderCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
-                Criteria.not('AND', [
-                    Criteria.equals('stateMachineState.technicalName', 'cancelled'),
-                ]),
-            ], Criteria.sum('orderAmount', 'amountTotal')));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
 
             return criteria;
@@ -89,6 +87,14 @@ export default {
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
 
     watch: {
@@ -100,6 +106,9 @@ export default {
                 });
             },
         },
+        customer() {
+            this.createdComponent();
+        },
     },
 
     created() {
@@ -110,7 +119,6 @@ export default {
         createdComponent() {
             this.orderRepository.search(this.orderCriteria).then((response) => {
                 this.orderCount = response.total;
-                this.orderAmount = response.aggregations.orderAmount.sum;
             });
         },
     },

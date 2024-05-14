@@ -19,8 +19,8 @@
     "sorting-modal": {
       "modalTitle": "Darstellungsreihenfolge im Bestellprozess",
       "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden.",
-      "saveSuccessful": "Reihenfolge der Zahlungsmethoden wurde aktualisiert.",
-      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsmethoden ist ein Fehler aufgetreten."
+      "saveSuccessful": "Reihenfolge der Zahlungsarten wurde aktualisiert.",
+      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsarten ist ein Fehler aufgetreten."
     },
     "list": {
       "textHeadline": "Zahlungsarten",
@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Zahlungsart \"{name}\" konnte nicht gespeichert werden.",
       "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
       "labelPosition": "Position",
       "labelActive": "Aktiv",
       "labelAfterOrderEnabled": "Zahlartwechsel nach Bestellabschluss erlauben",
@@ -54,11 +55,24 @@
       },
       "topRule": "Verfügbarkeitsregel",
       "placeholderName": "Namen eingeben ...",
+      "placeholderTechnicalName": "Technischen Namen eingeben ...",
       "placeholderPosition": "Position eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
       "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "helpTextTechnicalName": "Der technische Name wird für die einzigartige Identifikation der Zahlungsart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Zahlungsintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
+      "hintTextTechnicalName": "Wird ab Version 6.7.0 erforderlich sein",
+      "delete": {
+        "textHeadline": "Zahlungsart löschen",
+        "textAlert": "Diese Zahlungsart wird in Regeln, Vertriebskanälen oder Bestellungen verwendet und kann daher nicht gelöscht werden.",
+        "textButton": "Zahlungsart löschen",
+        "modal": {
+          "textConfirmation": "Möchtest Du diese Zahlungsart wirklich löschen?",
+          "buttonCancel": "Abbrechen",
+          "buttonDelete": "Löschen"
+        }
+      }
     }
   },
   "sw-plugin-box": {

@@ -1,211 +1,215 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/condition-type/sw-condition-order-custom-field';
-import 'src/app/component/rule/sw-condition-operator-select';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/rule/sw-condition-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/sw-form-field-renderer';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
+import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
+import EntityCollection from '../../../../../core/data/entity-collection.data';
 
-Shopware.Service().register('conditionDataProviderService', () => {
-    return new ConditionDataProviderService();
-});
-
-async function createWrapper(propsData) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {
-        unbind() {
-            return {
-                hasAttribute() {},
-            };
-        },
-    });
-    return shallowMount(await Shopware.Component.build('sw-condition-order-custom-field'), {
-        stubs: {
-            'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
-            'sw-condition-type-select': {
-                template: '<div class="sw-condition-type-select"></div>',
+const mockCustomFields = new EntityCollection(
+    '/custom-field',
+    'custom_field',
+    null,
+    {},
+    [
+        {
+            id: '1',
+            name: '',
+            config: {
+                type: 'text',
+                label: 'foo',
             },
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-loader': true,
-            'sw-highlight-text': true,
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': {
-                props: ['item', 'index'],
-                template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                <slot></slot>
-                           </li>`,
-                methods: {
-                    onClickResult() {
-                        this.$parent.$parent.$emit('item-select', this.item);
+            customFieldSetId: '1',
+            customFieldSet: {
+                name: '',
+                config: {
+                    label: 'bar',
+                },
+            },
+            allowCartExpose: false,
+        },
+        {
+            id: '2',
+            name: '',
+            config: {
+                componentName: 'sw-field',
+                type: 'text',
+                label: 'foo2',
+            },
+            customFieldSetId: '2',
+            customFieldSet: {
+                name: '',
+                config: {
+                    label: 'bar',
+                },
+            },
+            allowCartExpose: true,
+        },
+    ],
+    2,
+    null,
+);
+
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-condition-order-custom-field', { sync: true }), {
+        global: {
+            directives: {
+                popover: Shopware.Directive.getByName('popover'),
+            },
+            stubs: {
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+            },
+            provide: {
+                conditionDataProviderService: new ConditionDataProviderService(),
+                availableTypes: [],
+                availableGroups: [],
+                restrictedConditions: [],
+                childAssociationField: {},
+                validationService: {},
+                insertNodeIntoTree: () => ({}),
+                removeNodeFromTree: () => ({}),
+                createCondition: () => ({}),
+                conditionScopes: [],
+                unwrapAllLineItemsCondition: () => ({}),
+                repositoryFactory: {
+                    create: (param) => {
+                        if (param === 'custom_field') {
+                            return {
+                                search: () => Promise.resolve(mockCustomFields),
+                            };
+                        }
+                        return {
+                            search: () => Promise.resolve(),
+                            get: () => Promise.resolve(),
+                        };
                     },
                 },
             },
-            'sw-condition-operator-select': await Shopware.Component.build('sw-condition-operator-select'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
         },
-
-        propsData: {
-            ...propsData,
-        },
-
-        provide: {
-            validationService: {},
-
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => {
-                            return Promise.resolve({
-                                config: {
-                                    label: null,
-                                    componentName: 'sw-field',
-                                },
-                            });
-                        },
-
-                        search: () => Promise.resolve([
-                            {
-                                id: 'field-set-id-1',
-                                config: {
-                                    label: {
-                                        'en-GB': 'sit quo amet',
-                                    },
-                                    componentName: 'sw-field',
-                                },
-                            },
-                        ]),
-                    };
+        props: {
+            condition: {
+                value: {
+                    renderedField: '',
                 },
             },
-            conditionDataProviderService: Shopware.Service('conditionDataProviderService'),
-            availableTypes: [],
-            childAssociationField: {},
-            availableGroups: [],
         },
     });
 }
 
 describe('src/module/sw-flow/component/sw-flow-sequence', () => {
-    it('should be able to show the elements when trigger', async () => {
-        const condition = {
-            type: 'orderCustomField',
-            value: {
-                renderedField: {
-                    config: {
-                        componentName: 'sw-field',
-                    },
-                },
-                selectedField: '2b9c448cfbdf4f55b256221c66cc73b9',
-                selectedFieldSet: '9b8018573b644e1686e878bb4b7dc688',
-                operator: null,
-                renderedFieldValue: null,
-            },
-        };
-        const wrapper = await createWrapper({ condition });
-        await wrapper.vm.$nextTick();
-        wrapper.vm.$refs = {
-            selectedField: {
-                resultCollection: {
-                    has: () => {
-                        return true;
-                    },
-                    get: () => {
-                        return {
-                            config: {
-                                componentName: 'sw-field',
-                            },
-                        };
-                    },
-                },
-            },
-        };
+    let wrapper;
 
-        // Find and trigger on custom field
-        const orderCustomField = await wrapper.find('.sw-condition-order-custom-field .sw-select__selection');
-        expect(orderCustomField).toBeTruthy();
-        await orderCustomField.trigger('click');
-        const customFieldList = await wrapper.find('.sw-select-result-list__item-list');
-        expect(customFieldList).toBeTruthy();
-        await wrapper.vm.$nextTick();
-        const customItem = await customFieldList.find('li.sw-select-result');
-        await customItem.trigger('click');
-
-        // Find and trigger on condition operator select
-        const conditionOrderCustomField = await wrapper.find('.sw-condition-operator-select .sw-select__selection');
-        expect(conditionOrderCustomField).toBeTruthy();
-        await conditionOrderCustomField.trigger('click');
-
-        const conditionOrderCustomFieldList = await wrapper.find('.sw-select-result-list__item-list');
-        expect(conditionOrderCustomFieldList).toBeTruthy();
-        const conditionOrderItem = await conditionOrderCustomFieldList.findAll('li.sw-select-result').at(0);
-        expect(conditionOrderItem).toBeTruthy();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
     });
 
-    it('should on field change event is invalid', async () => {
-        const condition = {
-            type: 'orderCustomField',
-            value: {
-                renderedField: {
-                    config: {
-                        componentName: 'sw-field',
-                    },
-                },
-                selectedField: '2b9c448cfbdf4f55b256221c66cc73b9',
-                selectedFieldSet: '9b8018573b644e1686e878bb4b7dc688',
-                operator: null,
-                renderedFieldValue: null,
-            },
-        };
-        const wrapper = await createWrapper({ condition });
-        await wrapper.vm.$nextTick();
-        wrapper.vm.$refs = {
-            selectedField: {
-                resultCollection: {
-                    has: () => {
-                        return false;
-                    },
-                    get: () => {
-                        return {
-                            config: {
-                                componentName: 'sw-field',
-                            },
-                        };
-                    },
-                },
-            },
-        };
+    it('should render custom field options', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
 
-        // Find and trigger on custom field
-        const orderCustomField = await wrapper.find('.sw-condition-order-custom-field .sw-select__selection');
-        expect(orderCustomField).toBeTruthy();
-        await orderCustomField.trigger('click');
-        const customFieldList = await wrapper.find('.sw-select-result-list__item-list');
-        expect(customFieldList).toBeTruthy();
-        await wrapper.vm.$nextTick();
-        const customItem = await customFieldList.find('li.sw-select-result');
-        await customItem.trigger('click');
+        const listElements =
+            document.body.querySelector('.sw-select-result-list__item-list').querySelectorAll('li');
+
+        expect(listElements.item(0).querySelector('.sw-select-result__result-item-text').textContent)
+            .toBe(' foo ');
+        expect(listElements.item(0).querySelector('.sw-select-result__result-item-description').textContent)
+            .toBe('bar');
+
+        expect(listElements.item(1).querySelector('.sw-select-result__result-item-text').textContent)
+            .toBe(' foo2 ');
+        expect(listElements.item(1).querySelector('.sw-select-result__result-item-description').textContent)
+            .toBe('bar');
+    });
+
+    it('should set data on field change with known id', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        wrapper.vm.onFieldChange('1');
+
+        expect(wrapper.vm.renderedField).toStrictEqual(
+            {
+                allowCartExpose: false,
+                config: {
+                    label: 'foo',
+                    type: 'text',
+                },
+                customFieldSet: {
+                    config: {
+                        label: 'bar',
+                    },
+                    name: '',
+                },
+                customFieldSetId: '1',
+                id: '1',
+                name: '',
+            },
+        );
+        expect(wrapper.vm.selectedFieldSet).toBe('1');
+    });
+
+    it('should not set data on field change with unknown id', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        wrapper.vm.onFieldChange('3');
+
         expect(wrapper.vm.renderedField).toBeNull();
+        expect(wrapper.vm.selectedFieldSet).toBeUndefined();
+    });
+
+    it('should set custom field value on input', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        document.body.querySelector('li:nth-of-type(2)').click();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('foo2');
+    });
+
+    it('should set operator field value on input', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        document.body.querySelector('li:nth-of-type(2)').click();
+        await flushPromises();
+
+        await wrapper.find('.sw-single-select__selection-input').trigger('click');
+        await flushPromises();
+
+        document.body.querySelector('li').click();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-single-select__selection-text').text())
+            .toBe('global.sw-condition.operator.equals');
+    });
+
+    it('should set form field value on input', async () => {
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        document.body.querySelector('li:nth-of-type(2)').click();
+        await flushPromises();
+
+        await wrapper.find('.sw-single-select__selection-input').trigger('click');
+        await flushPromises();
+
+        document.body.querySelector('li').click();
+        await flushPromises();
+
+        await wrapper.find('.sw-form-field-renderer input').setValue('test123');
+        await flushPromises();
+
+        expect(wrapper.vm.renderedFieldValue).toBe('test123');
     });
 });

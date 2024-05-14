@@ -5,17 +5,14 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_card %}
     <sw-card
-        :key="cardIdentifier"
+        v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
         class="sw-promotion-v2-individual-codes-behavior__card"
         position-identifier="sw-promotion-individual-codes-behavior"
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_toolbar %}
-        <template
-            v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
-            #toolbar
-        >
+        <template #toolbar>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_toolbar_filter %}
@@ -54,21 +51,18 @@
                 </template>
             </sw-card-filter>
             {% endblock %}
-
         </template>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_grid %}
-        <template
-            v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
-            #grid
-        >
+        <template #grid>
             <sw-one-to-many-grid
                 ref="individualCodesGrid"
                 class="sw-promotion-v2-individual-codes-behavior__grid"
                 :is-loading="isGridLoading"
                 :collection="promotion.individualCodes"
+                :data-source="promotion.individualCodes"
                 :columns="codeColumns"
                 :local-mode="false"
                 sort-by="code"
@@ -113,11 +107,13 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer_link %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="item.payload && item.payload.customerId"
                         class="sw-promotion-v2-individual-codes-behavior__redeemed-customer-name"
+                        role="link"
+                        tabindex="0"
                         @click="routeToCustomer(item.payload)"
+                        @keydown.enter="routeToCustomer(item.payload)"
                     >
                         {{ item.payload.customerName }}
                     </a>
@@ -162,10 +158,12 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk_delete %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <span
                         class="sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action link link-danger"
+                        role="button"
+                        tabindex="0"
                         @click="onShowCodeBulkDeleteModal"
+                        @keydown.enter="onShowCodeBulkDeleteModal"
                     >
                         {{ $tc('global.default.delete') }}
                     </span>
@@ -197,11 +195,17 @@
             </sw-one-to-many-grid>
         </template>
         {% endblock %}
+    </sw-card>
+    {% endblock %}
+    <sw-card
+        v-else
+        class="sw-promotion-v2-individual-codes-behavior__card"
+        position-identifier="sw-promotion-individual-codes-behavior-empty-state"
+    >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
         <sw-empty-state
-            v-else
             class="sw-promotion-v2-individual-codes-behavior__empty-state"
             :title="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
             :absolute="false"
@@ -212,7 +216,7 @@
             <template #icon>
                 <img
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
-                    :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/promotion-empty-state.svg')"
                     :alt="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
                 >
             </template>
@@ -234,9 +238,7 @@
 
         </sw-empty-state>
         {% endblock %}
-
     </sw-card>
-    {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_individual_codes_behavior_delete_bulk_modal %}
@@ -285,11 +287,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_code_amount %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="newCodeAmount"
-                {% else %}
-                v-model="newCodeAmount"
-                {% endif %}
                 class="sw-promotion-v2-individual-codes-behavior__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
                 :min="1"

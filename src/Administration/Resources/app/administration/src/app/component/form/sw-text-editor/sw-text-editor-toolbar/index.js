@@ -24,7 +24,6 @@ Component.register('sw-text-editor-toolbar', {
             default: false,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         selection: {
             required: false,
@@ -104,10 +103,6 @@ Component.register('sw-text-editor-toolbar', {
     },
 
     unmounted() {
-        this.beforeUnmountedComponent();
-    },
-
-    destroyed() {
         this.destroyedComponent();
     },
 
@@ -180,11 +175,6 @@ Component.register('sw-text-editor-toolbar', {
             this.$emit('destroyed-el');
         },
 
-        /*
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        beforeUnmountedComponent() {},
-
         onMouseUp(event) {
             const path = [];
             let source = event.target;
@@ -227,7 +217,11 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             this.setSelectionRange();
-            const boundary = this.range.getBoundingClientRect();
+            const boundary = this.range?.getBoundingClientRect?.();
+
+            if (!boundary) {
+                return;
+            }
 
             let offsetTop = window.pageYOffset;
             const arrowHeight = 8;
@@ -305,7 +299,7 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             if (button.type === 'linkRemove') {
-                this.$emit('removeLink');
+                this.$emit('remove-link');
             }
 
             if (button.type === 'foreColor') {

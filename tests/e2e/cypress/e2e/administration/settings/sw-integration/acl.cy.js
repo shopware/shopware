@@ -52,7 +52,7 @@ describe('Integration: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of integration', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can view a list of integration', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -241,7 +241,7 @@ describe('Integration: Test acl privileges', () => {
         cy.contains('another-test-role').should('not.exist');
     });
 
-    it('@settings: can delete a integration', { tags: ['quarantined'] }, () => {
+    it('@settings: can delete a integration', { tags: ['quarantined', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

@@ -1,0 +1,152 @@
+name: Generate Release Info
+
+on:
+  release:
+    types: [published,edited] # edited does not trigger if it's not published yet
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  release:
+      runs-on: ubuntu-latest
+      if: github.repository == 'shopware/shopware'
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - uses: denoland/setup-deno@v1
+          with:
+            deno-version: 1.29.1
+
+        - name: Generate Release Info
+          run: |
+            mkdir generated
+            cd generated
+            deno run --allow-read --allow-write --allow-net --allow-env ../.github/release_info_generator.ts
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: AWS Deploy
+          run: aws s3 sync generated s3://releases.s3.shopware.com/changelog
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.RELEASE_INFO_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
+            AWS_DEFAULT_REGION: eu-west-1
+
+        - name: Invalidate CloudFront
+          run: aws cloudfront create-invalidation --distribution-id ECVXLYHJ64DVV --paths "/changelog/*"
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.RELEASE_INFO_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
+            AWS_DEFAULT_REGION: eu-west-1
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-store-api-reference
+          with:
+            scope: shopware/store-api-reference
+            identity: release
+
+        - name: Trigger Store API schema build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-store-api-reference.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-admin-api-reference
+          with:
+            scope: shopware/admin-api-reference
+            identity: release
+
+        - name: Trigger Admin API schema build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-admin-api-reference.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-production
+          with:
+            scope: shopware/production
+            identity: release
+
+        - name: Trigger shopware/production build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-production.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/production/actions/workflows/update.yml/dispatches \
+            -d '{"ref": "trunk"}'
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-testenv-platform
+          with:
+            scope: shopwareLabs/testenv-platform
+            identity: release
+
+        - name: Trigger shopwareLabs/testenv-platform build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-testenv-platform.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
+            -d '{"ref": "trunk"}'
+  
+  publish-sbp-release:
+    if: github.repository == 'shopware/shopware'
+    strategy:
+      matrix:
+        sbp-environment: [staging, production]
+    env:
+      SBP_API_URL: ${{ secrets[format('sbp_api_url_{0}', matrix.sbp-environment)] }}
+      SBP_TOKEN: ${{ secrets[format('sbp_api_token_{0}', matrix.sbp-environment)] }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Publish sbp release (Dry run)
+        env:
+          DRY_RUN: 1
+        run: |
+          bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
+      - name: Publish sbp release
+        if: github.ref_type == 'tag' && github.ref_protected
+        run: |
+          bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
+
+  post-slack-release-message:
+    if: github.ref_type == 'tag' && github.ref_protected && github.repository == 'shopware/shopware' && github.event.action == 'published'
+    needs: publish-sbp-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post slack message
+        run: |
+            SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
+            echo curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

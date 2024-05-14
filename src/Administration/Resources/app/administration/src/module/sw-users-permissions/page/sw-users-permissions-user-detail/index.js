@@ -1,7 +1,6 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
-import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -9,6 +8,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
+const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,6 +17,7 @@ export default {
     inject: [
         'userService',
         'loginService',
+        'mediaDefaultFolderService',
         'userValidationService',
         'integrationService',
         'repositoryFactory',
@@ -45,7 +46,11 @@ export default {
             mediaItem: null,
             newPassword: '',
             newPasswordConfirm: '',
+            /**
+             * @deprecated tag:v6.7.0 - Will be removed. Use `isEmailAlreadyInUse` instead
+             */
             isEmailUsed: false,
+            isEmailAlreadyInUse: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
             isSaveSuccessful: false,
@@ -55,6 +60,8 @@ export default {
             skeletonItemAmount: 3,
             confirmPasswordModal: false,
             timezoneOptions: [],
+            mediaDefaultFolderId: null,
+            showMediaModal: false,
         };
     },
 
@@ -129,7 +136,7 @@ export default {
         },
 
         isError() {
-            return this.isEmailUsed || this.isUsernameUsed || !this.hasLanguage;
+            return this.isEmailAlreadyInUse || this.isUsernameUsed || !this.hasLanguage;
         },
 
         hasLanguage() {
@@ -157,13 +164,6 @@ export default {
                 property: 'accessKey',
                 label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
             }];
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed.
-         */
-        secretAccessKeyFieldType() {
-            return this.showSecretAccessKey ? 'text' : 'password';
         },
 
         languageId() {
@@ -211,6 +211,14 @@ export default {
                 return;
             }
 
+            this.getMediaDefaultFolderId()
+                .then((id) => {
+                    this.mediaDefaultFolderId = id;
+                })
+                .catch(() => {
+                    this.mediaDefaultFolderId = null;
+                });
+
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
                 Shopware.State.commit('context/setApiLanguageId', this.languageId);
@@ -227,10 +235,6 @@ export default {
             Promise.all(promises).then(() => {
                 this.isLoading = false;
             });
-        },
-
-        // @deprecated tag:v6.6.0 - Unused
-        loadTimezones() {
         },
 
         loadLanguages() {
@@ -252,7 +256,7 @@ export default {
                 this.user = user;
 
                 if (this.user.avatarId) {
-                    this.mediaItem = this.user.avatarMedia;
+                    this.loadMediaItem(this.user.avatarId);
                 }
 
                 this.keyRepository = this.repositoryFactory.create(user.accessKeys.entity, this.user.accessKeys.source);
@@ -289,21 +293,15 @@ export default {
                 return Promise.resolve();
             }
 
-            if (!email(this.user.email)) {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc(
-                        'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage',
-                    ),
-                });
-                return Promise.reject();
-            }
-
             return this.userValidationService.checkUserEmail({
                 email: this.user.email,
                 id: this.user.id,
             }).then(({ emailIsUnique }) => {
+                /**
+                 * @deprecated tag:v6.7.0 - remove this.isEmailUsed assignment
+                 */
                 this.isEmailUsed = !emailIsUnique;
+                this.isEmailAlreadyInUse = !emailIsUnique;
             });
         },
 
@@ -316,18 +314,40 @@ export default {
             });
         },
 
-        setMediaItem({ targetId }) {
+        loadMediaItem(targetId) {
             this.mediaRepository.get(targetId).then((media) => {
                 this.mediaItem = media;
                 this.user.avatarMedia = media;
-                this.user.avatarId = targetId;
             });
+        },
+
+        setMediaItem({ targetId }) {
+            this.user.avatarId = targetId;
+            this.loadMediaItem(targetId);
         },
 
         onUnlinkLogo() {
             this.mediaItem = null;
             this.user.avatarMedia = null;
             this.user.avatarId = null;
+        },
+
+        onDropMedia(mediaItem) {
+            this.setMediaItem({ targetId: mediaItem.id });
+        },
+
+        onOpenMedia() {
+            this.showMediaModal = true;
+        },
+
+        onMediaSelectionChange([mediaEntity]) {
+            this.mediaItem = mediaEntity;
+            this.user.avatarMedia = mediaEntity;
+            this.user.avatarId = mediaEntity.id;
+        },
+
+        getMediaDefaultFolderId() {
+            return this.mediaDefaultFolderService.getDefaultFolderId('user');
         },
 
         onSearch(value) {
@@ -355,43 +375,45 @@ export default {
             return Promise.all(promises).then(
                 this.checkEmail()
                     .then(() => {
-                        if (!this.isEmailUsed) {
-                            this.isLoading = true;
-                            const titleSaveError = this.$tc('global.default.error');
-                            const messageSaveError = this.$tc(
-                                'sw-users-permissions.users.user-detail.notification.saveError.message',
-                                0,
-                                { name: this.fullName },
-                            );
+                        if (this.isEmailAlreadyInUse) {
+                            const expression = `user.${this.user.id}.email`;
+                            const error = new ShopwareError({
+                                code: 'USER_EMAIL_ALREADY_EXISTS',
+                                detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
+                            });
 
-                            return this.userRepository.save(this.user, context).then(() => {
-                                return this.updateCurrentUser();
-                            }).then(() => {
-                                this.createdComponent();
+                            Shopware.State.commit('error/addApiError', { expression, error });
 
-                                this.confirmPasswordModal = false;
-                                this.isSaveSuccessful = true;
-                            }).catch((exception) => {
-                                this.createNotificationError({
-                                    title: titleSaveError,
-                                    message: messageSaveError,
-                                });
-                                warn(this._name, exception.message, exception.response);
-                                this.isLoading = false;
-                                throw exception;
-                            })
-                                .finally(() => {
-                                    this.isLoading = false;
-                                });
+                            return Promise.resolve();
                         }
 
-                        this.createNotificationError({
-                            message: this.$tc(
-                                'sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage',
-                            ),
-                        });
+                        this.isLoading = true;
+                        const titleSaveError = this.$tc('global.default.error');
+                        const messageSaveError = this.$tc(
+                            'sw-users-permissions.users.user-detail.notification.saveError.message',
+                            0,
+                            { name: this.fullName },
+                        );
 
-                        return Promise.resolve();
+                        return this.userRepository.save(this.user, context).then(() => {
+                            return this.updateCurrentUser();
+                        }).then(() => {
+                            this.createdComponent();
+
+                            this.confirmPasswordModal = false;
+                            this.isSaveSuccessful = true;
+                        }).catch((exception) => {
+                            this.createNotificationError({
+                                title: titleSaveError,
+                                message: messageSaveError,
+                            });
+                            warn(this._name, exception.message, exception.response);
+                            this.isLoading = false;
+                            throw exception;
+                        })
+                            .finally(() => {
+                                this.isLoading = false;
+                            });
                     })
                     .catch(() => Promise.reject())
                     .finally(() => {

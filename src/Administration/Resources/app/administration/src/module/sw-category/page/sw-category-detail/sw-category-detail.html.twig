@@ -67,11 +67,7 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('category.editor')"
                 variant="primary"
-                {% if VUE3 %}
-                @update:processSuccess="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
+                @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}
@@ -88,11 +84,7 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading || !acl.can('landing_page.editor')"
                 variant="primary"
-                {% if VUE3 %}
-                @update:processSuccess="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
+                @update:process-success="saveFinish"
                 @click.prevent="onSaveLandingPage"
             >
                 {{ $tc('sw-category.general.buttonSafeCategory') }}
@@ -226,7 +218,7 @@
                     :allow-create="acl.can('landing_page.creator')"
                     :allow-delete="acl.can('landing_page.deleter')"
                     @unsaved-changes="openChangeModal"
-                    @landingPage-checked-elements-count="landingPageCheckedElementsCount"
+                    @landing-page-checked-elements-count="landingPageCheckedElementsCount"
                 />
                 {% endblock %}
 
@@ -292,7 +284,7 @@
             >
                 <template #icon>
                     <img
-                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-category.general.emptyStateHeadline')"
                     >
                 </template>

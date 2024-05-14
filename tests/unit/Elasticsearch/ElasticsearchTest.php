@@ -2,18 +2,19 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Elasticsearch
  */
+#[CoversClass(Elasticsearch::class)]
 class ElasticsearchTest extends TestCase
 {
     public function testTemplatePriority(): void
@@ -33,6 +34,11 @@ class ElasticsearchTest extends TestCase
         static::assertNotNull($frameworkExtension);
         $container->registerExtension($frameworkExtension);
 
+        $monolog = new MonologBundle();
+        $monologExtension = $monolog->getContainerExtension();
+        static::assertNotNull($monologExtension);
+        $container->registerExtension($monologExtension);
+
         $bundle = new Elasticsearch();
         $extension = $bundle->getContainerExtension();
         static::assertInstanceOf(ExtensionInterface::class, $extension);
@@ -40,25 +46,5 @@ class ElasticsearchTest extends TestCase
         $bundle->build($container);
 
         static::assertTrue($container->hasDefinition(ElasticsearchIndexer::class));
-    }
-
-    public function testBundleWithInvalidEnvironment(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setParameter('kernel.environment', 1);
-
-        $framework = new FrameworkBundle();
-        $frameworkExtension = $framework->getContainerExtension();
-        static::assertNotNull($frameworkExtension);
-        $container->registerExtension($frameworkExtension);
-
-        $bundle = new Elasticsearch();
-        $extension = $bundle->getContainerExtension();
-        static::assertInstanceOf(ExtensionInterface::class, $extension);
-        $container->registerExtension($extension);
-
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Container parameter "kernel.environment" needs to be a string');
-        $bundle->build($container);
     }
 }

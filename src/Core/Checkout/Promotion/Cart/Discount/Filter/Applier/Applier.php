@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class Applier
 {
     final public const APPLIER_ALL = 'ALL';

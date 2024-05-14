@@ -6,7 +6,7 @@ const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description
  * Layout-wrapper for sw-card and sw-chart.
  * This component provides specific props for the card configuration and range dropdown.

@@ -2,27 +2,33 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemsFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsAddTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ItemsFacade
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsAddTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait
  */
+#[CoversClass(ItemsFacade::class)]
+#[CoversClass(ItemsAddTrait::class)]
+#[CoversClass(ItemsHasTrait::class)]
+#[CoversClass(ItemsRemoveTrait::class)]
+#[CoversClass(ItemsCountTrait::class)]
+#[CoversClass(ItemsGetTrait::class)]
+#[CoversClass(ItemsIteratorTrait::class)]
 class ItemsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -39,14 +45,13 @@ class ItemsFacadeTest extends TestCase
             $this->item(new LineItem('item-1', 'item', 'reference'))
         );
 
-        static::assertEquals(1, $facade->count());
+        static::assertCount(1, $facade);
         static::assertTrue($facade->has('item-1'));
         static::assertInstanceOf(ItemFacade::class, $facade->get('item-1'));
-        static::assertIsIterable($facade);
 
         $facade->remove('item-1');
 
-        static::assertEquals(0, $facade->count());
+        static::assertCount(0, $facade);
         static::assertFalse($facade->has('item-1'));
         static::assertNull($facade->get('item-1'));
 

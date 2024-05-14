@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore This would be useless as a unit test. It is integration tested here: \Shopware\Tests\Integration\Core\Content\Cms\Subscriber\UnusedMediaSubscriberTest
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class UnusedMediaSubscriber implements EventSubscriberInterface
 {
     public function __construct(

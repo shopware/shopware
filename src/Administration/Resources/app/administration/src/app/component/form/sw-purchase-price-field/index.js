@@ -7,7 +7,7 @@ import template from './sw-purchase-price-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-purchase-price-field', {
     template,
@@ -34,14 +34,12 @@ Component.register('sw-purchase-price-field', {
             default: null,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
@@ -79,7 +77,7 @@ Component.register('sw-purchase-price-field', {
                     this.price.push(newPurchasePrice);
                 }
 
-                this.$emit('input', this.price);
+                this.$emit('update:value', this.price);
             },
         },
     },

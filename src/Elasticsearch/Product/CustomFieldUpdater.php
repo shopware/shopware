@@ -2,12 +2,16 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,29 +22,27 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly ElasticsearchOutdatedIndexDetector $indexDetector,
         private readonly Client $client,
         private readonly ElasticsearchHelper $elasticsearchHelper,
-        private readonly Connection $connection
+        private readonly CustomFieldSetGateway $customFieldSetGateway
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            EntityWrittenContainerEvent::class => 'onNewCustomFieldCreated',
+            EntityWrittenContainerEvent::class => 'indexCustomFields',
         ];
     }
 
-    public function onNewCustomFieldCreated(EntityWrittenContainerEvent $containerEvent): void
+    public function indexCustomFields(EntityWrittenContainerEvent $containerEvent): void
     {
-        $event = $containerEvent->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
+        $customFieldWrittenEvent = $containerEvent->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
+        $customFieldRelationWrittenEvent = $containerEvent->getEventByEntityName(CustomFieldSetRelationDefinition::ENTITY_NAME);
 
-        if ($event === null) {
+        if ($customFieldWrittenEvent === null && $customFieldRelationWrittenEvent === null) {
             return;
         }
 
@@ -48,30 +50,17 @@ class CustomFieldUpdater implements EventSubscriberInterface
             return;
         }
 
-        $newCreatedFields = [];
-
-        foreach ($event->getWriteResults() as $writeResult) {
-            $existence = $writeResult->getExistence();
-
-            if ($existence && $existence->exists()) {
-                continue;
-            }
-
-            /** @var array<mixed> $esType */
-            $esType = self::getTypeFromCustomFieldType($writeResult->getProperty('type'));
-
-            $newCreatedFields[(string) $writeResult->getProperty('name')] = $esType;
+        if ($customFieldRelationWrittenEvent !== null) {
+            $this->customFieldRelationsUpdated($customFieldRelationWrittenEvent);
         }
 
-        if (\count($newCreatedFields) === 0) {
-            return;
+        if ($customFieldWrittenEvent !== null) {
+            $this->customFieldsCreated($customFieldWrittenEvent);
         }
-
-        $this->createNewFieldsInIndices($newCreatedFields);
     }
 
     /**
-     * @return array<mixed>
+     * @return array{type: string}
      */
     public static function getTypeFromCustomFieldType(string $type): array
     {
@@ -94,29 +83,25 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 'type' => 'object',
                 'dynamic' => true,
             ],
-            CustomFieldTypes::HTML, CustomFieldTypes::TEXT => [
-                'type' => 'text',
-            ],
-            default => [
-                'type' => 'keyword',
-            ],
+            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD
         };
     }
 
     /**
+     * A map of field names to their ES types, eg:
+     * ['my_field' => ['type' => 'long']]
+     *
      * @param array<string, array<mixed>> $newCreatedFields
      */
-    private function createNewFieldsInIndices(array $newCreatedFields): void
+    private function createFieldsInIndices(array $newCreatedFields): void
     {
+        if (\count($newCreatedFields) === 0) {
+            return;
+        }
+
         $indices = $this->indexDetector->getAllUsedIndices();
 
-        $enabledMultilingualIndex = $this->elasticsearchHelper->enabledMultilingualIndex();
-        $languageIds = $enabledMultilingualIndex ? $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language') : [];
-
         foreach ($indices as $indexName) {
-            // Check if index is old language based index
-            $isLanguageBasedIndex = true;
-
             $body = [
                 'properties' => [
                     'customFields' => [
@@ -125,27 +110,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 ],
             ];
 
-            // @deprecated tag:v6.6.0 - Remove this check as old language based indexes will be removed
-            foreach ($languageIds as $languageId) {
-                if (str_contains($indexName, $languageId)) {
-                    $isLanguageBasedIndex = true;
-
-                    break;
-                }
-
-                $isLanguageBasedIndex = false;
-            }
-
-            if ($isLanguageBasedIndex) {
-                $body['properties']['customFields']['properties'] = $newCreatedFields;
-            } else {
-                foreach ($languageIds as $languageId) {
-                    $body['properties']['customFields']['properties'][$languageId] = [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => $newCreatedFields,
-                    ];
-                }
+            foreach ($this->customFieldSetGateway->fetchLanguageIds() as $languageId) {
+                $body['properties']['customFields']['properties'][$languageId] = [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => $newCreatedFields,
+                ];
             }
 
             // For some reason, we need to include the includes to prevent merge conflicts.
@@ -158,10 +128,93 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 ];
             }
 
-            $this->client->indices()->putMapping([
-                'index' => $indexName,
-                'body' => $body,
-            ]);
+            try {
+                $this->client->indices()->putMapping([
+                    'index' => $indexName,
+                    'body' => $body,
+                ]);
+            } catch (BadRequest400Exception $exception) {
+                if (str_contains($exception->getMessage(), 'cannot be changed from type')) {
+                    throw ElasticsearchProductException::cannotChangeCustomFieldType($exception);
+                }
+            }
         }
+    }
+
+    private function customFieldRelationsUpdated(EntityWrittenEvent $customFieldRelationWrittenEvent): void
+    {
+        $updatedCustomFieldSetIds = [];
+        foreach ($customFieldRelationWrittenEvent->getWriteResults() as $writeResult) {
+            $existence = $writeResult->getExistence();
+
+            if ($existence && $existence->exists()) {
+                continue;
+            }
+
+            // we only want to index custom fields relating to products
+            if ($writeResult->getProperty('entityName') !== 'product') {
+                continue;
+            }
+
+            $updatedCustomFieldSetIds[] = $writeResult->getProperty('customFieldSetId');
+        }
+
+        $fields = $this->mapCustomFieldsToEsTypes(
+            array_merge([], ...array_values($this->customFieldSetGateway->fetchCustomFieldsForSets($updatedCustomFieldSetIds)))
+        );
+
+        $this->createFieldsInIndices($fields);
+    }
+
+    /**
+     * @param array<array{name: string, type: string}> $customFields
+     *
+     * @return array<string, array{type: string}>
+     */
+    private function mapCustomFieldsToEsTypes(array $customFields): array
+    {
+        $esTypes = [];
+        foreach ($customFields as $customField) {
+            $esType = self::getTypeFromCustomFieldType($customField['type']);
+            $esTypes[$customField['name']] = $esType;
+        }
+
+        return $esTypes;
+    }
+
+    private function customFieldsCreated(EntityWrittenEvent $customFieldWrittenEvent): void
+    {
+        $results = [];
+
+        foreach ($customFieldWrittenEvent->getWriteResults() as $writeResult) {
+            $existence = $writeResult->getExistence();
+
+            if ($existence && $existence->exists()) {
+                continue;
+            }
+
+            $key = $writeResult->getPrimaryKey();
+            \assert(\is_string($key));
+            $results[$key] = $writeResult;
+        }
+
+        $fieldSetIds = $this->customFieldSetGateway->fetchFieldSetIds(array_keys($results));
+        $fieldSetEntityMappings = $this->customFieldSetGateway->fetchFieldSetEntityMappings(array_values($fieldSetIds));
+
+        // we only want to index custom fields relating to products
+        $results = array_filter(
+            $results,
+            static fn (EntityWriteResult $writeResult, string $id) => \in_array('product', $fieldSetEntityMappings[$fieldSetIds[$id]], true),
+            \ARRAY_FILTER_USE_BOTH
+        );
+
+        $newCreatedFields = $this->mapCustomFieldsToEsTypes(
+            array_map(static fn (EntityWriteResult $writeResult) => [
+                'name' => $writeResult->getProperty('name'),
+                'type' => $writeResult->getProperty('type'),
+            ], $results)
+        );
+
+        $this->createFieldsInIndices($newCreatedFields);
     }
 }

@@ -41,7 +41,7 @@ export default {
             },
 
             set(val) {
-                this.$emit('input', val);
+                this.$emit('update:value', val);
             },
         },
 
@@ -71,7 +71,7 @@ export default {
         currentValue: {
             deep: true,
             handler(val) {
-                this.$emit('input', val);
+                this.$emit('update:value', val);
             },
         },
     },

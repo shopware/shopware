@@ -11,7 +11,7 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description
  * The <u>sw-alert</u> component is used to convey important information to the user. It comes in 4 variations,
  * <strong>success</strong>, <strong>info</strong>, <strong>warning</strong> and <strong>error</strong>. These have
@@ -53,7 +53,6 @@ Component.register('sw-alert', {
         showIcon: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

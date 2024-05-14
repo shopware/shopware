@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -54,9 +55,8 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     /**
      * @param array<string, array<int, mixed>> $criteria
      * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
-     *
-     * @dataProvider testCases
      */
+    #[DataProvider('testCases')]
     public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
     {
         $this->ids = $ids;

@@ -3,24 +3,35 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
+use Shopware\Storefront\Theme\Message\CompileThemeMessage;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('storefront')]
-class ThemeService
+class ThemeService implements ResetInterface
 {
+    public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
+    public const STATE_NO_QUEUE = 'state-no-queue';
+
+    private bool $notified = false;
+
     /**
      * @internal
      *
@@ -33,7 +44,10 @@ class ThemeService
         private readonly ThemeCompilerInterface $themeCompiler,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractConfigLoader $configLoader,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly SystemConfigService $configService,
+        private readonly MessageBusInterface $messageBus,
+        private readonly NotificationService $notificationService,
     ) {
     }
 
@@ -48,6 +62,11 @@ class ThemeService
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
     ): void {
+        if ($this->isAsyncCompilation($context)) {
+            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context);
+
+            return;
+        }
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
@@ -70,16 +89,14 @@ class ThemeService
         bool $withAssets = true
     ): array {
         $mappings = $this->getThemeDependencyMapping($themeId);
-
         $compiledThemeIds = [];
         foreach ($mappings as $mapping) {
-            $this->themeCompiler->compileTheme(
+            $this->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
-                $this->configLoader->load($mapping->getThemeId(), $context),
+                $context,
                 $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
-                $withAssets,
-                $context
+                $withAssets
             );
 
             $compiledThemeIds[] = $mapping->getThemeId();
@@ -98,7 +115,7 @@ class ThemeService
         $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
 
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -159,7 +176,7 @@ class ThemeService
         $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
         if (!$theme) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -172,7 +189,7 @@ class ThemeService
 
     /**
      * @throws InvalidThemeConfigException
-     * @throws InvalidThemeException
+     * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      *
      * @return array<string, mixed>
@@ -187,12 +204,12 @@ class ThemeService
         $theme = $themes->get($themeId);
 
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
         if ($baseTheme === null) {
-            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+            throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
         }
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
@@ -333,6 +350,40 @@ class ThemeService
         return $mappings;
     }
 
+    public function reset(): void
+    {
+        $this->notified = false;
+    }
+
+    private function handleAsync(
+        string $salesChannelId,
+        string $themeId,
+        bool $withAssets,
+        Context $context
+    ): void {
+        $this->messageBus->dispatch(
+            new CompileThemeMessage(
+                $salesChannelId,
+                $themeId,
+                $withAssets,
+                $context
+            )
+        );
+
+        if ($this->notified !== true && $context->getScope() === Context::USER_SCOPE) {
+            $this->notificationService->createNotification(
+                [
+                    'id' => Uuid::randomHex(),
+                    'status' => 'info',
+                    'message' => 'The compilation of the changes will be started in the background. You may see the changes with delay (approx. 1 minute). You will receive a notification if the compilation is done.',
+                    'requiredPrivileges' => [],
+                ],
+                $context
+            );
+            $this->notified = true;
+        }
+    }
+
     /**
      * @param array<string, ThemeEntity> $parentThemes
      *
@@ -367,7 +418,7 @@ class ThemeService
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int, string>
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
@@ -377,6 +428,12 @@ class ThemeService
             && !empty($mainTheme->getBaseConfig()['configInheritance'])
         ) {
             return $mainTheme->getBaseConfig()['configInheritance'];
+        }
+
+        if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return [
+                '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
+            ];
         }
 
         return [];
@@ -528,12 +585,12 @@ class ThemeService
     {
         $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
         if ($theme === null) {
-            throw new InvalidThemeException($themeId);
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
         $translations = $theme->getLabels() ?: [];
 
-        if ($theme->getParentThemeId()) {
+        if ($theme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 
@@ -565,5 +622,14 @@ class ThemeService
         }
 
         return false;
+    }
+
+    private function isAsyncCompilation(Context $context): bool
+    {
+        if ($this->configLoader instanceof StaticFileConfigLoader) {
+            return false;
+        }
+
+        return $this->configService->get(self::CONFIG_THEME_COMPILE_ASYNC) && !$context->hasState(self::STATE_NO_QUEUE);
     }
 }

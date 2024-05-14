@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('system-settings')]
 class Migration1673001912AddUserPermissionRolePrivilege extends MigrationStep

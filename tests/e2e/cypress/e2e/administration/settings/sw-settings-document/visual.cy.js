@@ -10,7 +10,7 @@ describe('Documents: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of document module', { tags: ['pa-customers-orders'] }, () => {
+    it('@visual: check appearance of document module', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document-base-config`,
             method: 'POST',

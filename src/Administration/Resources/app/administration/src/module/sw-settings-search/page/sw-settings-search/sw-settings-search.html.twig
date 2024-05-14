@@ -37,11 +37,7 @@
             :disabled="!allowSave"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSaveSearchSettings"
         >
             {{ $tc('global.default.save') }}
@@ -79,6 +75,9 @@
                     {{ $tc('sw-settings-search.page.liveSearchTab') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_search_tabs_after %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
@@ -92,16 +91,21 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <router-view
                 v-show="!isLoading"
-                :is-loading="isLoading"
-                :product-search-configs="productSearchConfigs"
-                :current-sales-channel-id="currentSalesChannelId"
-                :search-terms="searchTerms"
-                :search-results="searchResults"
-                @edit-change="onEditChanged"
-                @sales-channel-change="onSalesChannelChanged"
-                @live-search-results-change="onLiveSearchResultsChanged"
-                @excluded-search-terms-load="getProductSearchConfigs"
-            />
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    :is-loading="isLoading"
+                    :product-search-configs="productSearchConfigs"
+                    :current-sales-channel-id="currentSalesChannelId"
+                    :search-terms="searchTerms"
+                    :search-results="searchResults"
+                    @edit-change="onEditChanged"
+                    @sales-channel-change="onSalesChannelChanged"
+                    @live-search-results-change="onLiveSearchResultsChanged"
+                    @excluded-search-terms-load="getProductSearchConfigs"
+                />
+            </router-view>
             {% endblock %}
         </sw-card-view>
 

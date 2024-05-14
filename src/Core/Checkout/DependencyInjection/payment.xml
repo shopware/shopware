@@ -18,8 +18,9 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodValidator">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\PaymentService">
@@ -63,6 +64,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor" public="true">
@@ -77,16 +79,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>
-
-        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration">
-            <factory class="Shopware\Core\Checkout\Payment\Cart\Token\JWTConfigurationFactory"
-                     method="createJWTConfiguration"/>
-            <argument type="service" id="shopware.jwt_signer"/>
-            <argument type="service" id="shopware.private_key"/>
-            <argument type="service" id="shopware.public_key"/>
+        <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256">
+            <deprecated package="shopware/core" version="6.7.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement</deprecated>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2">

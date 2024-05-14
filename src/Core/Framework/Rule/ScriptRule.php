@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
@@ -26,7 +25,7 @@ use Twig\Extension\DebugExtension;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ScriptRule extends Rule
 {
     final public const RULE_NAME = 'scriptRule';
@@ -104,7 +103,7 @@ class ScriptRule extends Rule
         try {
             return $this->render($twig, $script, $hook, $name, $context);
         } catch (\Throwable $e) {
-            throw new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
+            throw RuleException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
         }
     }
 
@@ -122,6 +121,26 @@ class ScriptRule extends Rule
     public function setConstraints(array $constraints): void
     {
         $this->constraints = $constraints;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return $this
+     */
+    public function assignValues(array $options): ScriptRule
+    {
+        $this->values = $options;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getValues(): array
+    {
+        return $this->values;
     }
 
     /**

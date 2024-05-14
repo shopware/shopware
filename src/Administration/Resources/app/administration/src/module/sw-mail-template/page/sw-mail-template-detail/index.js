@@ -7,6 +7,9 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @package buyers-experience
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -160,6 +163,14 @@ export default {
         hasTemplateData() {
             return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
         },
+
+        lacksEmailSendPermission() {
+            return !this.acl.can('api_send_email');
+        },
+
+        isSendButtonDisabled() {
+            return this.isLoading || !this.testMailRequirementsMet || this.lacksEmailSendPermission;
+        },
     },
 
     watch: {
@@ -236,8 +247,7 @@ export default {
             return this.mailTemplateTypeRepository.get(this.mailTemplate.mailTemplateTypeId).then((item) => {
                 this.mailTemplateType = item;
 
-                this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
-                this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                // Not needed because the autocompletion method is passed as property to editor
             });
         },
 
@@ -411,25 +421,20 @@ export default {
             this.mailPreview = null;
         },
 
-        onCopyVariable(variable) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(variable).catch((error) => {
-                    let errormsg = '';
-                    if (error.response.data.errors.length > 0) {
-                        const errorDetailMsg = error.response.data.errors[0].detail;
-                        errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
-                    }
+        async onCopyVariable(variable) {
+            try {
+                await dom.copyStringToClipboard(variable);
+            } catch (error) {
+                let errormsg = '';
+                if (error.response.data.errors.length > 0) {
+                    const errorDetailMsg = error.response.data.errors[0].detail;
+                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                }
 
-                    this.createNotificationError({
-                        message: errormsg,
-                    });
+                this.createNotificationError({
+                    message: errormsg,
                 });
-
-                return;
             }
-
-            // non-https polyfill
-            dom.copyToClipboard(variable);
         },
 
         async onChangeType(id) {
@@ -445,8 +450,8 @@ export default {
                 this.loadInitialAvailableVariables();
                 this.outerCompleterFunction();
             } catch (e) {
-                let errormsg = '';
-                if (e.response.data.errors.length > 0) {
+                let errormsg = e.message ?? '';
+                if (e.response?.data?.errors?.length > 0) {
                     const errorDetailMsg = e.response.data.errors[0].detail;
                     errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }

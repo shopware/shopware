@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import PromotionCodeApiService from '../service/promotion-code.api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

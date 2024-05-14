@@ -3,7 +3,6 @@
 namespace Shopware\Elasticsearch\Framework;
 
 use OpenSearch\Client;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -15,8 +14,7 @@ class ElasticsearchOutdatedIndexDetector
     public function __construct(
         private readonly Client $client,
         private readonly ElasticsearchRegistry $registry,
-        private readonly ElasticsearchHelper $helper,
-        private readonly ElasticsearchLanguageProvider $languageProvider
+        private readonly ElasticsearchHelper $helper
     ) {
     }
 
@@ -62,20 +60,8 @@ class ElasticsearchOutdatedIndexDetector
 
         $prefixes = [];
 
-        if ($this->helper->enabledMultilingualIndex()) {
-            foreach ($definitions as $definition) {
-                $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
-            }
-
-            return $prefixes;
-        }
-
-        $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
-
-        foreach ($languages as $language) {
-            foreach ($definitions as $definition) {
-                $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId()));
-            }
+        foreach ($definitions as $definition) {
+            $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
         }
 
         return $prefixes;

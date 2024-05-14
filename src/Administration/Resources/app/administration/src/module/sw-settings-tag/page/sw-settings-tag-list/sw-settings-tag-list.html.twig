@@ -128,55 +128,31 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="duplicateFilter"
-                            {% else %}
-                            v-model="duplicateFilter"
-                            {% endif %}
                             :label="$tc('sw-settings-tag.list.filterDuplicate')"
-                            {% if VUE3 %}
                             @update:value="onFilter"
-                            {% else %}
-                            @change="onFilter"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="emptyFilter"
-                            {% else %}
-                            v-model="emptyFilter"
-                            {% endif %}
                             :label="$tc('sw-settings-tag.list.filterEmpty')"
-                            {% if VUE3 %}
                             @update:value="onFilter"
-                            {% else %}
-                            @change="onFilter"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
                         <sw-multi-select
-                            {% if VUE3 %}
                             v-model:value="assignmentFilter"
-                            {% else %}
-                            v-model="assignmentFilter"
-                            {% endif %}
                             class="sw-settings-tag-list__filter-assignment-select"
                             :label="$tc('sw-settings-tag.list.filterAssignemnt')"
                             :placeholder="$tc('sw-settings-tag.list.placeholderFilterAssignemnt')"
                             :options="assignmentFilterOptions"
                             :disabled="emptyFilter"
-                            {% if VUE3 %}
                             @update:value="onFilter"
-                            {% else %}
-                            @change="onFilter"
-                            {% endif %}
                         />
                         {% endblock %}
 
@@ -227,6 +203,8 @@
                             <a
                                 v-if="selectionCount > 1 && acl.can('tag.creator') && acl.can('tag.deleter')"
                                 class="link"
+                                role="button"
+                                tabindex="0"
                                 @click="showBulkMergeModal = true"
                             >
                                 {{ $tc('sw-settings-tag.list.bulkMerge') }}
@@ -289,11 +267,7 @@
                                         class="sw-settings-tag-list__confirm-bulk-merge-name-input"
                                     >
                                         <sw-text-field
-                                            {% if VUE3 %}
                                             v-model:value="duplicateName"
-                                            {% else %}
-                                            v-model="duplicateName"
-                                            {% endif %}
                                             :label="$tc('sw-settings-tag.list.bulkMergeName')"
                                             :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                             maxlength="255"
@@ -358,10 +332,10 @@
                         {% block sw_settings_tag_list_grid_column_assignments %}
                         <template
                             v-for="(propertyName, index) in assignmentProperties"
+                            :key="index"
                             #[`column-${propertyName}`]="{ item }"
                         >
                             <span
-                                :key="index"
                                 class="sw-data-grid__cell-value"
                             >
                                 {{ getPropertyCounting(propertyName, item.id) }}
@@ -467,11 +441,7 @@
                                 {% block sw_settings_tag_list_delete_modal_confirm_duplicate_input %}
                                 <p class="sw-settings-tag-list__confirm-duplicate-input">
                                     <sw-text-field
-                                        {% if VUE3 %}
                                         v-model:value="duplicateName"
-                                        {% else %}
-                                        v-model="duplicateName"
-                                        {% endif %}
                                         :label="$tc('sw-settings-tag.list.columnName')"
                                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
                                         maxlength="255"

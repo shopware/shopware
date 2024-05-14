@@ -1,0 +1,43 @@
+*.xml.twig
+
+# -------------------------------------------
+# Baseline (we should fix these in the future)
+# most of them have twig syntax which slices HTML.
+# this is an antipattern and not supported by ludtwig.
+# ludtwig always needs complete html tags inside twig blocks, ...
+# -------------------------------------------
+/storefront/page/content/single-cms-page.html.twig
+/storefront/page/error/error-maintenance.html.twig
+/storefront/base.html.twig
+/storefront/component/listing/filter/filter-multi-select.html.twig
+/storefront/component/address/address-personal.html.twig
+/storefront/element/cms-element-image-gallery.html.twig
+/storefront/element/cms-element-image-slider.html.twig
+/storefront/element/cms-element-text.html.twig
+/storefront/element/cms-element-product-name.html.twig
+/storefront/element/cms-element-image.html.twig
+/storefront/element/cms-element-product-slider.html.twig
+/storefront/element/cms-element-product-description-reviews.html.twig
+/storefront/element/cms-element-manufacturer-logo.html.twig
+/storefront/element/cms-element-product-box.html.twig
+/storefront/element/cms-element-buy-box.html.twig
+/storefront/page/account/addressbook/address-actions.html.twig
+/storefront/page/account/addressbook/index.html.twig
+/storefront/component/address/address-editor-modal-create-address.html.twig
+/storefront/component/address/address-editor-modal-list.html.twig
+
+# -------------------------------------------
+# Ludtwig related parser errors below.
+# These are ignored until this syntax is supported in ludtwig
+# -------------------------------------------
+
+# PHP clousure support https://github.com/MalteJanz/ludtwig/issues/51
+/storefront/page/product-detail/index.html.twig
+/storefront/page/product-detail/cross-selling/tabs.html.twig
+/storefront/page/account/order-history/order-detail-document.html.twig
+/storefront/component/listing/filter-panel.html.twig
+/storefront/element/cms-element-cross-selling.html.twig
+/storefront/component/product/card/price-unit.html.twig
+
+# Twig whitespace support https://github.com/MalteJanz/ludtwig/issues/56
+/storefront/utilities/icon.html.twig

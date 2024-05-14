@@ -58,11 +58,8 @@
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.groupId"
-                    {% else %}
-                    v-model="customer.groupId"
-                    {% endif %}
+                    name="sw-field--customer-groupId"
                     entity="customer_group"
                     size="small"
                     show-clearable-button
@@ -97,11 +94,8 @@
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.defaultPaymentMethodId"
-                    {% else %}
-                    v-model="customer.defaultPaymentMethodId"
-                    {% endif %}
+                    name="sw-field--customer-defaultPaymentMethodId"
                     class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
@@ -130,7 +124,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-active"
             >
-                {{ $tc('sw-customer.baseInfo.contentActive', customer.active) }}
+                {{ $tc('sw-customer.baseInfo.contentActive', customer.active ? 1 : 2) }}
             </dd>
             {% endblock %}
 
@@ -138,14 +132,47 @@
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="customer.active"
-                    {% else %}
-                    v-model="customer.active"
-                    {% endif %}
+                    name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
                     size="small"
+                />
+            </dd>
+            {% endblock %}
+        </sw-description-list>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_base_metadata_confirmed %}
+        <sw-description-list v-if="customer.doubleOptInRegistration">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_label %}
+            <dt class="sw-customer-base-info__label">
+                {{ $tc('sw-customer.baseInfo.labelConfirmed') }}
+            </dt>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_content %}
+            <dd
+                v-if="!customerEditMode"
+                class="sw-customer-base__label-is-confirmed"
+            >
+                {{ $tc('sw-customer.baseInfo.contentConfirmed', customer.doubleOptInConfirmDate ? 1 : 2) }}
+            </dd>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_editor %}
+            <dd v-else>
+                <sw-checkbox-field
+                    name="sw-field--customer-confirmed"
+                    class="sw-customer-base-info__checkbox-field"
+                    :value="!!customer.doubleOptInConfirmDate"
+                    :label="$tc('sw-customer.baseInfo.contentConfirmed')"
+                    size="small"
+                    @update:value="customer.doubleOptInConfirmDate = $event ? new Date() : null"
                 />
             </dd>
             {% endblock %}
@@ -176,11 +203,8 @@
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.languageId"
-                    {% else %}
-                    v-model="customer.languageId"
-                    {% endif %}
+                    name="sw-field--customer-languageId"
                     class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"
@@ -240,7 +264,7 @@
             {% block sw_customer_base_metadata_bound_saleschannel_content %}
             <dd class="sw-customer-base__label-bound-sales-channel">
                 <template v-if="customer.boundSalesChannelId">
-                    {{ customer.salesChannel.translated.name }}
+                    {{ customer.boundSalesChannel.translated.name }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyBoundSalesChannel') }}
@@ -258,7 +282,7 @@
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
-                    {{ customer.lastLogin | date }}
+                    {{ dateFilter(customer.lastLogin) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
@@ -275,7 +299,7 @@
             </dt>
             {# price aggregations do not support currencies yet, see NEXT-5069 #}
             <dd class="sw-customer-base__label-turnover">
-                {{ orderAmount | currency('EUR') }}
+                {{ currencyFilter(customer.orderTotalAmount, 'EUR') }}
             </dd>
         </sw-description-list>
         {% endblock %}
@@ -307,7 +331,7 @@
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date({ minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
+                    {{ dateFilter(customer.birthday, { minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
@@ -319,11 +343,8 @@
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker
-                    {% if VUE3 %}
                     v-model:value="customer.birthday"
-                    {% else %}
-                    v-model="customer.birthday"
-                    {% endif %}
+                    name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"
                 />

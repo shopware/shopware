@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Confirm;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -9,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -24,16 +26,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\MetaInformation;
-use Shopware\Storefront\Page\Page;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -41,36 +44,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader
  */
+#[CoversClass(CheckoutConfirmPageLoader::class)]
 class CheckoutConfirmPageLoaderTest extends TestCase
 {
-    public function testCheckoutConfirmPageReturned(): void
-    {
-        $pageLoader = $this->createMock(GenericPageLoader::class);
-        $pageLoader
-            ->method('load')
-            ->willReturn(new Page());
-
-        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $this->createMock(ShippingMethodRoute::class),
-            $this->createMock(PaymentMethodRoute::class),
-            $pageLoader,
-            $this->createMock(AddressValidationFactory::class),
-            $this->createMock(DataValidator::class)
-        );
-
-        $page = $checkoutConfirmPageLoader->load(
-            new Request(),
-            $this->getContextWithDummyCustomer()
-        );
-
-        static::assertInstanceOf(CheckoutConfirmPage::class, $page);
-    }
-
     public function testRobotsMetaSetIfGiven(): void
     {
         $page = new CheckoutConfirmPage();
@@ -96,7 +73,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer()
         );
 
-        static::assertInstanceOf(CheckoutConfirmPage::class, $page);
         static::assertNotNull($page->getMetaInformation());
         static::assertSame('noindex,follow', $page->getMetaInformation()->getRobots());
     }
@@ -125,7 +101,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer()
         );
 
-        static::assertInstanceOf(CheckoutConfirmPage::class, $page);
         static::assertNull($page->getMetaInformation());
     }
 
@@ -190,7 +165,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer()
         );
 
-        static::assertInstanceOf(CheckoutConfirmPage::class, $page);
         static::assertSame($paymentMethods, $page->getPaymentMethods());
         static::assertSame($shippingMethods, $page->getShippingMethods());
     }
@@ -257,7 +231,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $page = $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
 
-        static::assertInstanceOf(Cart::class, $page->getCart());
         static::assertCount(1, $page->getCart()->getErrors());
         static::assertArrayHasKey('billing-address-invalid', $page->getCart()->getErrors()->getElements());
 
@@ -271,7 +244,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $violation = $error->getViolations()->get(0);
 
-        static::assertNotNull($violation);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
         static::assertSame('Test error', $violation->getMessage());
         static::assertSame('root', $violation->getRoot());
@@ -319,12 +291,11 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         // different shipping address
         $context->getCustomer()->assign([
-            'activeShippingAddress' => (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex()]),
+            'activeShippingAddress' => (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => Uuid::randomHex()]),
         ]);
 
         $page = $checkoutConfirmPageLoader->load(new Request(), $context);
 
-        static::assertInstanceOf(Cart::class, $page->getCart());
         static::assertCount(2, $page->getCart()->getErrors());
         static::assertArrayHasKey('billing-address-invalid', $page->getCart()->getErrors()->getElements());
         static::assertArrayHasKey('shipping-address-invalid', $page->getCart()->getErrors()->getElements());
@@ -339,7 +310,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $violation = $billingAddressError->getViolations()->get(0);
 
-        static::assertNotNull($violation);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
         static::assertSame('Test error', $violation->getMessage());
         static::assertSame('root', $violation->getRoot());
@@ -355,7 +325,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
         $violation = $shippingAddressError->getViolations()->get(0);
 
-        static::assertNotNull($violation);
         static::assertInstanceOf(ConstraintViolation::class, $violation);
         static::assertSame('Test error', $violation->getMessage());
         static::assertSame('root', $violation->getRoot());
@@ -436,9 +405,57 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
     }
 
-    private function getContextWithDummyCustomer(): SalesChannelContext
+    public function testValidationEventIsDispatchedWithZipcodeDefinition(): void
     {
-        $address = (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex()]);
+        $countryId = Uuid::randomHex();
+
+        $cart = new Cart('test');
+
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('get')
+            ->willReturn($cart);
+
+        $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidation->method('create')->willReturn(new DataValidationDefinition('address.create'));
+
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function ($validationEvent) use ($countryId) {
+            if (!$validationEvent instanceof BuildValidationEvent) {
+                return $validationEvent;
+            }
+
+            $definition = $validationEvent->getDefinition();
+
+            static::assertArrayHasKey('zipcode', $definition->getProperties());
+            static::assertNotNull($definition->getProperties()['zipcode'][0]);
+            static::assertInstanceOf(CustomerZipCode::class, $definition->getProperties()['zipcode'][0]);
+
+            $message = $definition->getProperties()['zipcode'][0]->getMessage();
+
+            static::assertSame($message, (new CustomerZipCode(['countryId' => $countryId]))->getMessage());
+
+            return $validationEvent;
+        });
+
+        $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
+            $dispatcher,
+            $cartService,
+            $this->createMock(ShippingMethodRoute::class),
+            $this->createMock(PaymentMethodRoute::class),
+            $this->createMock(GenericPageLoader::class),
+            $addressValidation,
+            $this->createMock(DataValidator::class),
+        );
+
+        $context = $this->getContextWithDummyCustomer();
+
+        $checkoutConfirmPageLoader->load(new Request(), $context);
+    }
+
+    private function getContextWithDummyCustomer(?string $countryId = null): SalesChannelContext
+    {
+        $address = (new CustomerAddressEntity())->assign(['id' => Uuid::randomHex(), 'countryId' => $countryId ?? Uuid::randomHex()]);
 
         $customer = new CustomerEntity();
         $customer->assign([

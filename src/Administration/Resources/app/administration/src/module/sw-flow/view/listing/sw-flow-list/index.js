@@ -6,7 +6,7 @@ const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -105,6 +105,10 @@ export default {
             return this.$tc('global.default.edit');
         },
 
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         ...mapState('swFlowState', ['triggerEvents']),
     },
 
@@ -148,7 +152,7 @@ export default {
                 },
             };
 
-            this.flowRepository.clone(item.id, Shopware.Context.api, behavior)
+            this.flowRepository.clone(item.id, behavior, Shopware.Context.api)
                 .then((response) => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-flow.flowNotification.messageDuplicateSuccess'),

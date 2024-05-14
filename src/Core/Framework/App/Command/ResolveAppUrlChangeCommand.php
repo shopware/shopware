@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[AsCommand(
     name: 'app:url-change:resolve',
@@ -50,7 +50,7 @@ class ResolveAppUrlChangeCommand extends Command
             );
         }
 
-        $this->appUrlChangeResolver->resolve($strategy, Context::createDefaultContext());
+        $this->appUrlChangeResolver->resolve($strategy, Context::createCLIContext());
 
         $io->success('Strategy "' . $strategy . '" was applied successfully');
 

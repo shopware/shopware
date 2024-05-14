@@ -21,13 +21,12 @@ interface ApiDefinitionGeneratorInterface
 
     /**
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
-     *
-     * @phpstan-param Api     $api
-     * @phpstan-param ApiType $apiType
+     * @param Api $api
+     * @param ApiType $apiType
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType): array;
+    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array;
 
     /**
      * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions

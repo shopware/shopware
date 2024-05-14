@@ -4,7 +4,7 @@ import './sw-extension-my-extensions-listing.scss';
 const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -117,6 +117,10 @@ export default {
             }
 
             return 'extension-apps';
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

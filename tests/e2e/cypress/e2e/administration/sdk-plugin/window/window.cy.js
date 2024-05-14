@@ -26,7 +26,7 @@ describe('SDK Tests: Window', ()=> {
             .should('have.length.least', 3);
     });
 
-    it('@sdk: redirect to another URL', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: redirect to another URL', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -52,7 +52,7 @@ describe('SDK Tests: Window', ()=> {
         cy.get('@Open').should('have.been.calledOnceWith', 'https://www.shopware.com');
     });
 
-    it('@sdk: reload page', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: reload page', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -77,7 +77,7 @@ describe('SDK Tests: Window', ()=> {
         cy.window().should('not.have.prop', 'beforeReload', true);
     });
 
-    it('@sdk: push router', { tags: ['ct-admin'] }, ()=> {
+    it('@sdk: push router', { tags: ['ct-admin', 'VUE3'] }, ()=> {
         cy.log('Go to extension page');
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -93,5 +93,6 @@ describe('SDK Tests: Window', ()=> {
             .contains('Push route')
             .click();
 
+        cy.contains('.sw-card__title', 'Orders');
     });
 });

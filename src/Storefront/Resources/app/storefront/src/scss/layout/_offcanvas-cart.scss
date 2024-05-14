@@ -8,97 +8,6 @@ Extends the basic offcanvas component with additional cart styles.
     .alert {
         margin-top: $spacer;
     }
-
-    .cart-item {
-        padding: $spacer 0;
-        position: relative;
-
-        &.is-empty {
-            padding-top: 0;
-            border-bottom: 0;
-        }
-
-        &.is-nested,
-        &.is-child {
-            padding-left: $spacer;
-        }
-
-        &.is-nested {
-            .cart-item-img {
-                background: none;
-                border: 0;
-            }
-        }
-
-        &.is-discount {
-            .cart-item-price {
-                color: $success;
-            }
-        }
-    }
-
-    .cart-item-img {
-        height: 75px;
-        width: 75px;
-    }
-
-    .cart-item-img-link {
-        align-items: center;
-        display: flex;
-        height: 100%;
-        justify-content: center;
-        width: 100%;
-
-        .cart-item-img-source {
-            flex: 0 0 auto;
-            width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-    }
-
-    .cart-item-details {
-        margin-bottom: $spacer;
-        word-break: break-word;
-    }
-
-    .cart-item-details-container {
-        .cart-item-details {
-            margin-right: 58px;
-        }
-    }
-
-    .cart-item-children {
-        margin-left: 4px;
-        margin-right: 4px;
-        width: 100%;
-    }
-
-    .cart-item-remove {
-        position: absolute;
-        right: 0;
-    }
-
-    .cart-quantity-price {
-        justify-content: space-between;
-        display: flex;
-        align-items: center;
-
-        // add padding to promotion item and remove button
-        min-height: 50px;
-    }
-
-    .cart-item-price {
-        font-weight: $font-weight-bold;
-        margin-left: $spacer;
-        text-align: right;
-
-        .cart-item-reference-price {
-            color: lighten($sw-text-color, 20);
-            display: inline-block;
-            line-height: $spacer * 0.85;
-        }
-    }
 }
 
 .offcanvas-cart-items,
@@ -120,9 +29,13 @@ Extends the basic offcanvas component with additional cart styles.
 
 .offcanvas-summary {
     .js-toggle-shipping-selection {
+        --#{$prefix}btn-font-weight: var(--#{$prefix}body-font-weight);
+        --#{$prefix}btn-padding-y: 0;
+        --#{$prefix}btn-padding-x: 0;
+        --#{$prefix}btn-font-size: 90%;
+        --#{$prefix}btn-color: var(--#{$prefix}body-color);
+        --#{$prefix}btn-line-height: inherit;
         text-decoration: underline;
-        font-size: 90%;
-        cursor: pointer;
     }
 
     .offcanvas-shipping-preference {
@@ -143,13 +56,5 @@ Extends the basic offcanvas component with additional cart styles.
     .summary-value,
     .shipping-value {
         text-align: right;
-    }
-}
-
-@include media-breakpoint-down(sm) {
-    .cart-offcanvas {
-        .cart-item-price {
-            order: 4;
-        }
     }
 }

@@ -24,9 +24,6 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     ) {
     }
 
-    /**
-     * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     */
     public function analyze(ProductEntity $product, Context $context, array $configFields): AnalyzedKeywordCollection
     {
         $keywords = new AnalyzedKeywordCollection();
@@ -70,7 +67,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     /**
      * @param array<int, string> $values
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     private function tokenize(array $values, Context $context): array
     {

@@ -1,0 +1,5 @@
+storefront:
+    theme:
+        file_delete_delay: 900
+        auto_prefix_css: false
+        theme_path_builder_id: Shopware\Storefront\Theme\MD5ThemePathBuilder

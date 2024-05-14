@@ -1,11 +1,13 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_context_button %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     ref="swContextButton"
     class="sw-context-button"
     :class="contextClass"
+    role="button"
+    tabindex="0"
     @click="onClickButton"
+    @keydown.enter="onClickButton"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_context_button_button %}

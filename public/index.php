@@ -1,11 +1,9 @@
 <?php declare(strict_types=1);
 
-use Shopware\Core\HttpKernel;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Installer\InstallerKernel;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\TerminableInterface;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 
 $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
@@ -16,6 +14,7 @@ if (!file_exists(__DIR__ . '/../.env') && !file_exists(__DIR__ . '/../.env.dist'
 }
 
 $_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
+
 
 return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
@@ -50,24 +49,16 @@ return function (array $context) {
         return new InstallerKernel($appEnv, $debug);
     }
 
-    $shopwareHttpKernel = new HttpKernel($appEnv, $debug, $classLoader);
+    $pluginLoader = null;
 
-    return new class($shopwareHttpKernel) implements HttpKernelInterface, TerminableInterface {
-        private HttpKernel $httpKernel;
+    if (EnvironmentHelper::getVariable('COMPOSER_PLUGIN_LOADER', false)) {
+        $pluginLoader = new ComposerPluginLoader($classLoader, null);
+    }
 
-        public function __construct(HttpKernel $httpKernel)
-        {
-            $this->httpKernel = $httpKernel;
-        }
-
-        public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
-        {
-            return $this->httpKernel->handle($request, $type, $catch)->getResponse();
-        }
-
-        public function terminate(Request $request, Response $response): void
-        {
-            $this->httpKernel->terminate($request, $response);
-        }
-    };
+    return KernelFactory::create(
+        environment: $appEnv,
+        debug: $debug,
+        classLoader: $classLoader,
+        pluginLoader: $pluginLoader
+    );
 };

@@ -3,9 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\FloatField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
@@ -17,40 +14,12 @@ class FloatFieldTest extends TestCase
     use CustomFieldTypeTestBehaviour;
     use IntegrationTestBehaviour;
 
-    public function testCreateFromXml(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/float-field.xml');
-
-        static::assertNotNull($manifest->getCustomFields());
-        static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
-
-        /** @var CustomFieldSet $customFieldSet */
-        $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
-
-        static::assertCount(1, $customFieldSet->getFields());
-
-        $floatField = $customFieldSet->getFields()[0];
-        static::assertInstanceOf(FloatField::class, $floatField);
-        static::assertEquals('test_float_field', $floatField->getName());
-        static::assertEquals([
-            'en-GB' => 'Test float field',
-            'de-DE' => 'Test Kommazahlenfeld',
-        ], $floatField->getLabel());
-        static::assertEquals(['en-GB' => 'This is an float field.'], $floatField->getHelpText());
-        static::assertEquals(2, $floatField->getPosition());
-        static::assertEquals(2.2, $floatField->getSteps());
-        static::assertEquals(0.5, $floatField->getMin());
-        static::assertEquals(1.6, $floatField->getMax());
-        static::assertEquals(['en-GB' => 'Enter an float...'], $floatField->getPlaceholder());
-        static::assertFalse($floatField->getRequired());
-    }
-
     public function testToEntityArray(): void
     {
         $floatField = $this->importCustomField(__DIR__ . '/_fixtures/float-field.xml');
 
-        static::assertEquals('test_float_field', $floatField->getName());
-        static::assertEquals('float', $floatField->getType());
+        static::assertSame('test_float_field', $floatField->getName());
+        static::assertSame('float', $floatField->getType());
         static::assertTrue($floatField->isActive());
         static::assertEquals([
             'type' => 'number',

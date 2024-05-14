@@ -9,8 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,6 +33,9 @@ class MailService extends AbstractMailService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
         private readonly DataValidator $dataValidator,
@@ -44,7 +47,6 @@ class MailService extends AbstractMailService
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -55,8 +57,8 @@ class MailService extends AbstractMailService
     }
 
     /**
-     * @param mixed[] $data
-     * @param mixed[] $templateData
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $templateData
      */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
@@ -75,19 +77,18 @@ class MailService extends AbstractMailService
         $recipients = $data['recipients'];
         $salesChannelId = $data['salesChannelId'];
         $salesChannel = null;
+        $containsValidSalesChannel = $this->templateDataContainsSalesChannel($templateData);
 
-        if (($salesChannelId !== null && !isset($templateData['salesChannel'])) || $this->isTestMode($data)) {
+        if (($salesChannelId !== null && !$containsValidSalesChannel) || $this->isTestMode($data)) {
             $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
 
-            /** @var SalesChannelEntity|null $salesChannel */
-            $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
-
+            $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
             if ($salesChannel === null) {
                 throw new SalesChannelNotFoundException($salesChannelId);
             }
 
             $templateData['salesChannel'] = $salesChannel;
-        } elseif ($this->templateDataContainsSalesChannel($templateData)) {
+        } elseif ($containsValidSalesChannel) {
             $salesChannel = $templateData['salesChannel'];
         }
 
@@ -146,7 +147,7 @@ class MailService extends AbstractMailService
 
             return null;
         }
-        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+        if ($this->isTestMode($data)) {
             $this->templateRenderer->disableTestMode();
         }
 
@@ -199,7 +200,7 @@ class MailService extends AbstractMailService
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
     private function getSender(array $data, ?string $salesChannelId): ?string
     {
@@ -227,10 +228,10 @@ class MailService extends AbstractMailService
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return mixed[]
+     * @return array{'text/plain': string, 'text/html': string}
      * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
@@ -277,27 +278,25 @@ class MailService extends AbstractMailService
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      *
-     * @return string[]
+     * @return list<string>
      */
     private function getMediaUrls(array $data, Context $context): array
     {
-        if (!isset($data['mediaIds']) || empty($data['mediaIds'])) {
+        if (empty($data['mediaIds'])) {
             return [];
         }
         $criteria = new Criteria($data['mediaIds']);
         $criteria->setTitle('mail-service::resolve-media-ids');
-        $media = null;
-        $mediaRepository = $this->mediaRepository;
-        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
-            /** @var MediaEntity[] $media */
-            $media = $mediaRepository->search($criteria, $context)->getElements();
+        $media = new MediaCollection();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria, &$media): void {
+            $media = $this->mediaRepository->search($criteria, $context)->getEntities();
         });
 
         $urls = [];
-        foreach ($media ?? [] as $mediaItem) {
-            $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+        foreach ($media as $mediaItem) {
+            $urls[] = $mediaItem->getPath();
         }
 
         return $urls;
@@ -317,15 +316,15 @@ class MailService extends AbstractMailService
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
     private function isTestMode(array $data = []): bool
     {
-        return isset($data['testMode']) && (bool) $data['testMode'] === true;
+        return !empty($data['testMode']);
     }
 
     /**
-     * @param mixed[] $templateData
+     * @param array<string, mixed> $templateData
      */
     private function templateDataContainsSalesChannel(array $templateData): bool
     {

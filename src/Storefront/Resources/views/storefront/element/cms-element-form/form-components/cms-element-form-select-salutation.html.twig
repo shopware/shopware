@@ -2,7 +2,7 @@
     <div class="form-group {{ additionalClass }}">
         {% block cms_form_select_salutation_content_label %}
             <label class="form-label" for="form-Salutation">
-                {{ "account.personalSalutationLabel"|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
+                {{- 'account.personalSalutationLabel'|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}
 
@@ -13,13 +13,13 @@
                     class="form-select contact-select{% if formViolations.getViolations('/salutationId') %} is-invalid{% endif %}">
                 {% if not data.get('salutationId') %}
                     <option disabled="disabled" selected="selected" value="">
-                        {{ "account.personalSalutationPlaceholder"|trans }}
+                        {{ 'account.personalSalutationPlaceholder'|trans }}
                     </option>
                 {% endif %}
 
                 {% for salutation in element.data %}
                     <option value="{{ salutation.id }}">
-                        {{ salutation.displayName }}
+                        {{ salutation.translated.displayName }}
                     </option>
                 {% endfor %}
             </select>

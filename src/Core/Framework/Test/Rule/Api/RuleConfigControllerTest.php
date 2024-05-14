@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleConfigControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -40,8 +40,8 @@ class RuleConfigControllerTest extends TestCase
 
         static::assertCount(1, $customerGroupRouleConfig['fields']);
 
-        static::assertEquals('customerGroupIds', $customerGroupRouleConfig['fields'][0]['name']);
-        static::assertEquals('multi-entity-id-select', $customerGroupRouleConfig['fields'][0]['type']);
-        static::assertEquals(CustomerGroupDefinition::ENTITY_NAME, $customerGroupRouleConfig['fields'][0]['config']['entity']);
+        static::assertEquals('customerGroupIds', $customerGroupRouleConfig['fields']['customerGroupIds']['name']);
+        static::assertEquals('multi-entity-id-select', $customerGroupRouleConfig['fields']['customerGroupIds']['type']);
+        static::assertEquals(CustomerGroupDefinition::ENTITY_NAME, $customerGroupRouleConfig['fields']['customerGroupIds']['config']['entity']);
     }
 }

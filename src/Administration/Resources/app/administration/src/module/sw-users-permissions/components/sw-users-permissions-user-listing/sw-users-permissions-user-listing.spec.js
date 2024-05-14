@@ -1,49 +1,51 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swUsersPermissionsUserListing from 'src/module/sw-users-permissions/components/sw-users-permissions-user-listing';
-
-Shopware.Component.register('sw-users-permissions-user-listing', swUsersPermissionsUserListing);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-user-listing'), {
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+    return mount(await wrapTestComponent('sw-users-permissions-user-listing', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
+                userService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                    }),
+                },
+                loginService: {},
+                searchRankingService: {},
             },
-            userService: {},
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                }),
+            mocks: {
+                $route: { query: '' },
             },
-            loginService: {},
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: { query: '' },
-        },
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-simple-search-field': true,
-            'sw-button': true,
-            'sw-data-grid': {
-                props: ['dataSource', 'columns'],
-                template: `
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-simple-search-field': true,
+                'sw-button': true,
+                'sw-data-grid': {
+                    props: ['dataSource', 'columns'],
+                    template: `
 <div class="sw-data-grid-stub">
   <template v-for="item in dataSource">
       <slot name="actions" v-bind="{ item }"></slot>
   </template>
 </div>
 `,
+                },
+                'sw-context-menu-item': true,
             },
-            'sw-context-menu-item': true,
         },
     });
 }
@@ -55,16 +57,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('the data-grid should show the right columns', async () => {
-        const swDataGrid = wrapper.find('.sw-data-grid-stub');
+        const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
         expect(swDataGrid.props().columns).toStrictEqual([{
             property: 'username',
             label: 'sw-users-permissions.users.user-grid.labelUsername',
@@ -85,7 +83,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     });
 
     it('the data-grid should get the right user data', async () => {
-        const swDataGrid = wrapper.find('.sw-data-grid-stub');
+        const swDataGrid = wrapper.findComponent('.sw-data-grid-stub');
         expect(swDataGrid.props().dataSource).toStrictEqual([]);
 
         await wrapper.setData({
@@ -185,5 +183,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
         expect(contextMenuEdit.attributes().disabled).toBe('true');
         expect(contextMenuDelete.attributes().disabled).toBeUndefined();
+    });
+
+    it('should add avatar media as association', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.userCriteria.associations[1].association).toBe('avatarMedia');
     });
 });

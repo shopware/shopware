@@ -42,7 +42,6 @@ class ErrorResponseFactory
                 $errors[] = $error;
             }
 
-            /** @var array<ShopwareExceptionData> $errors */
             $errors = $this->convert($errors);
 
             return $errors;
@@ -118,18 +117,25 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
-            /** @var list<string> $encodings */
-            $encodings = mb_detect_order();
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             if (\is_string($value)) {
+                $encodings = mb_detect_order();
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
-                } elseif (!mb_detect_encoding($value, $encodings, true)) {
+                } elseif (!\is_bool($encodings) && !mb_detect_encoding($value, $encodings, true)) {
                     $array[$key] = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
                 }
             }
             // @codeCoverageIgnoreEnd
+
+            // fix for passing resources to json encode, see https://www.php.net/manual/en/function.is-resource.php
+            // the exception and consequently trace may contain arguments that are resources, like file handles
+            // these resource values are now converted into a string of "<RESOURCE_TYPE>"
+            $isResource = \is_resource($value) || ($value !== null && !\is_scalar($value) && !\is_array($value) && !\is_object($value));
+            if ($isResource) {
+                $array[$key] = sprintf('<%s>', get_resource_type($value));
+            }
         }
 
         return $array;

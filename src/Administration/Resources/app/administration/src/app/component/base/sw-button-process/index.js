@@ -6,7 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @status ready
  * @description The <u>sw-button-process</u> component extends the sw-button component with visual feedback,
  * indicating loading and success states.
@@ -21,11 +21,6 @@ Component.register('sw-button-process', {
     inheritAttrs: false,
 
     inject: ['feature'],
-
-    model: {
-        prop: 'processSuccess',
-        event: 'process-finish',
-    },
 
     props: {
         processSuccess: {
@@ -55,13 +50,7 @@ Component.register('sw-button-process', {
             }
 
             setTimeout(() => {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:processSuccess', false);
-
-                    return;
-                }
-
-                this.$emit('process-finish', false);
+                this.$emit('update:processSuccess', false);
             }, this.animationTimeout);
         },
     },

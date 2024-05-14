@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Checkout\Shipping;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher
  */
+#[CoversClass(BlockedShippingMethodSwitcher::class)]
 class BlockedShippingMethodSwitcherTest extends TestCase
 {
     private ShippingMethodCollection $shippingMethodCollection;
@@ -196,7 +196,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             static::assertCount(1, $criteria->getFilters());
 
             $nand = $criteria->getFilters()[0];
@@ -232,7 +232,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
     {
         $searchIds = $criteria->getIds();
 
-        if (!$searchIds) {
+        if ($searchIds === []) {
             $collection = new ShippingMethodCollection();
         } else {
             $collection = $this->shippingMethodCollection->filter(

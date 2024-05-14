@@ -3,6 +3,9 @@ import './sw-settings-document-list.scss';
 
 const { Mixin, Data: { Criteria } } = Shopware;
 
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

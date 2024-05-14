@@ -2,7 +2,7 @@ import template from './sw-extension-ratings-card.html.twig';
 import './sw-extension-ratings-card.scss';
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -89,7 +89,9 @@ export default {
                 this.numberOfRatings = this.summary.numberOfRatings;
                 this.reviews = this.reviews.concat(reviews);
             } catch (e) {
-                this.showExtensionErrors(e);
+                if (typeof this.showExtensionErrors === 'function') {
+                    this.showExtensionErrors(e);
+                }
             } finally {
                 this.isLoading = false;
             }

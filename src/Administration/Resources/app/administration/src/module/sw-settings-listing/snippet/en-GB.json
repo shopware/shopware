@@ -71,11 +71,16 @@
       "general": {
         "title": "General",
         "labelName": "Name",
+        "placeholderName": "Enter name...",
+        "labelTechnicalName": "Technical name",
+        "placeholderTechnicalName": "Enter technical name...",
+        "helpTextTechnicalName": "The technical name is used to reference the sorting option. It is unique and required for all sorting options.",
         "labelActive": "Active"
       },
       "notification": {
         "saveSuccess": "Sorting option \"{sortingOptionName}\" saved.",
-        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved."
+        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved.",
+        "saveErrorAlreadyExists": "The sorting option \"{sortingOptionName}\" already exists."
       },
       "criteria": {
         "title": "Sorting criteria",

@@ -17,7 +17,6 @@
 export default function createRouter(Router, View, moduleFactory, LoginService) {
     const allRoutes = [];
     const moduleRoutes = [];
-    const vue3 = !!window._features_?.vue3;
     let instance = null;
 
     return {
@@ -27,6 +26,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         getViewComponent,
         getRouterInstance,
         _setModuleFavicon: setModuleFavicon,
+        getModuleInfo,
     };
 
     /**
@@ -52,19 +52,12 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         // assign to view router options
         const options = { ...opts, routes: mergedRoutes };
-        if (vue3) {
-            options.history = Router.createWebHashHistory();
-        }
 
         // create router
-        let router;
-        if (vue3) {
-            router = Router.createRouter(options);
-        } else {
-            router = new Router(options);
-        }
+        options.history = Router.createWebHashHistory();
+        const router = Router.createRouter(options);
+        addGlobalNavigationGuard(router);
 
-        beforeRouterInterceptor(router);
         instance = router;
 
         return router;
@@ -79,18 +72,10 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         return instance;
     }
 
-    /**
-     * Installs the navigation guard interceptor which provides every route, if possible, with the module definition.
-     * This is useful to generalize the route managing.
-     *
-     * @memberof module:core/factory/router
-     * @param {VueRouter} router
-     * @returns {VueRouter} router
-     */
-    function beforeRouterInterceptor(router) {
+    function addGlobalNavigationGuard(router) {
         const assetPath = getAssetPath();
 
-        router.beforeEach((to, from, next) => {
+        router.beforeEach((to) => {
             const cookieStorage = Shopware.Service('loginService').getStorage();
             cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
 
@@ -102,7 +87,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
-                return next();
+                return true;
             }
 
             // The login route will be called and the user is not logged in, let him see the login.
@@ -111,7 +96,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 to.path.startsWith('/login/user-recovery/') ||
                 to.path.match(/\/inactivity\/login\/[a-z0-9]{32}/))
             ) {
-                return next();
+                return true;
             }
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
@@ -119,7 +104,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
             ) {
-                return next({ name: 'core' });
+                return { name: 'core' };
             }
 
             // User tries to access a protected route, therefore redirect him to the login.
@@ -132,40 +117,32 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
                 if (!tokenHandler.isRefreshing) {
                     return tokenHandler.fireRefreshTokenRequest().then(() => {
-                        return resolveRoute(to, from, next);
+                        return addModuleInfoToTarget(to);
                     }).catch(() => {
-                        return next({
+                        return {
                             name: 'sw.login.index',
-                        });
+                        };
                     });
                 }
             }
 
             // User tries to access a route which needs a special privilege
             if (to.meta.privilege && !Shopware.Service('acl').can(to.meta.privilege)) {
-                return next({ name: 'sw.privilege.error.index' });
+                return { name: 'sw.privilege.error.index' };
             }
 
             // User tries to access store page when store is not installed. Then redirect to landing page.
             if (to.name && to.name.includes('sw.extension.store') && to.matched.length <= 0) {
-                return next({ name: 'sw.extension.store.landing-page' });
+                return { name: 'sw.extension.store.landing-page' };
             }
 
-            return resolveRoute(to, from, next);
+            return addModuleInfoToTarget(to);
         });
 
         return router;
     }
 
-    /**
-     * Resolves the route and provides module additional information.
-     *
-     * @param {Route} to
-     * @param {Route} from
-     * @param {Function} next
-     * @return {*}
-     */
-    function resolveRoute(to, from, next) {
+    function addModuleInfoToTarget(to) {
         const moduleInfo = getModuleInfo(to);
 
         if (moduleInfo !== null) {
@@ -177,13 +154,14 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             to.meta.$current = navigationInfo;
         }
 
-        return next();
+        return true;
     }
 
     /**
      * Fetches module information based on the route the user wants to enter.
      * After the module information got fetched the router navigation guard hook will be resolved.
      *
+     * @private
      * @param {Route} to
      * @returns {Route} to
      */
@@ -376,11 +354,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {
-        if (vue3) {
-            return Shopware.Application.view.getComponentForRoute(componentName);
-        }
-
-        return Shopware.Application.view.getComponent(componentName);
+        return Shopware.Application.view.getComponentForRoute(componentName);
     }
 
     function getAssetPath() {

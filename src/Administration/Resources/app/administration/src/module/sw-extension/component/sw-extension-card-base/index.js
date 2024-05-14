@@ -4,7 +4,7 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -198,7 +198,7 @@ export default {
         },
 
         emitUpdateList() {
-            this.$emit('updateList');
+            this.$emit('update-list');
         },
 
         getHelp() {
@@ -293,11 +293,11 @@ export default {
             }
         },
 
-        openPermissionsModalForInstall() {
+        async openPermissionsModalForInstall() {
             if (!this.permissions) {
                 this.permissionsAccepted = true;
-                this.installExtension();
-
+                this.isLoading = true;
+                await this.installAndActivateExtension();
                 return;
             }
 
@@ -332,6 +332,10 @@ export default {
 
         installExtension() {
             Utils.debug.warn(this._name, 'No implementation of installExtension found');
+        },
+
+        async installAndActivateExtension() {
+            Utils.debug.warn(this._name, 'No implementation of installAndActivateExtension found');
         },
 
         async removeExtension() {

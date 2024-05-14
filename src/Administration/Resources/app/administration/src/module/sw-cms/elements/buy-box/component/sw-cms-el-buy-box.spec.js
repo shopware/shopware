@@ -1,11 +1,8 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElBuyBox from 'src/module/sw-cms/elements/buy-box/component';
-
-Shopware.Component.register('sw-cms-el-buy-box', swCmsElBuyBox);
 
 const productMock = {
     name: 'Lorem Ipsum dolor',
@@ -20,13 +17,11 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.filter('currency', key => key);
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-buy-box'), {
-        localVue,
+    return mount(await wrapTestComponent('sw-cms-el-buy-box', {
+        sync: true,
+    }), {
         sync: false,
-        propsData: {
+        props: {
             element: {
                 data: {},
                 config: {},
@@ -46,17 +41,19 @@ async function createWrapper() {
                 },
             };
         },
-        stubs: {
-            'sw-block-field': true,
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'buy-box': {} };
+        global: {
+            stubs: {
+                'sw-block-field': true,
+                'sw-icon': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'buy-box': {} };
+                    },
                 },
             },
         },
@@ -82,7 +79,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€0.00');
     });
 
     it('should show product data if page type is not product page', async () => {
@@ -98,7 +95,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€100.00');
     });
 
     it('should show current demo data if mapping entity is product', async () => {
@@ -115,7 +112,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('100');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€100.00');
     });
 
     it('should show dummy data initially if mapping entity is not product', async () => {
@@ -132,6 +129,6 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('0');
+        expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€0.00');
     });
 });

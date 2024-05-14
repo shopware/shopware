@@ -29,6 +29,8 @@ class JsonEntityEncoder
 
     /**
      * @param EntityCollection<Entity>|Entity|null $data
+     *
+     * @return ($data is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
     public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl): array
     {
@@ -45,6 +47,8 @@ class JsonEntityEncoder
 
     /**
      * @param EntityCollection<Entity> $collection
+     *
+     * @return list<array<string, mixed>>
      */
     private function getDecodedCollection(Criteria $criteria, EntityCollection $collection, EntityDefinition $definition, string $baseUrl): array
     {
@@ -57,10 +61,13 @@ class JsonEntityEncoder
         return $decoded;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
-        /** @var array<mixed> $decoded */
         $decoded = $this->serializer->normalize($entity);
+        \assert(\is_array($decoded));
 
         $includes = $criteria->getIncludes() ?? [];
         $decoded = $this->filterIncludes($includes, $decoded, $entity);
@@ -76,6 +83,12 @@ class JsonEntityEncoder
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 
+    /**
+     * @param array<string, mixed> $includes
+     * @param array<string, mixed> $decoded
+     *
+     * @return array<string, mixed>
+     */
     private function filterIncludes(array $includes, array $decoded, Struct $struct): array
     {
         $alias = $struct->getApiAlias();
@@ -94,7 +107,6 @@ class JsonEntityEncoder
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
-                /** @var list<Struct> $objects */
                 $objects = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
@@ -114,6 +126,9 @@ class JsonEntityEncoder
         return $decoded;
     }
 
+    /**
+     * @param array<string, mixed> $includes
+     */
     private function propertyAllowed(array $includes, string $alias, string $property): bool
     {
         if (!isset($includes[$alias])) {
@@ -123,6 +138,11 @@ class JsonEntityEncoder
         return \in_array($property, $includes[$alias], true);
     }
 
+    /**
+     * @param array<string, mixed> $decoded
+     *
+     * @return array<string, mixed>
+     */
     private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl): array
     {
         $fields = $definition->getFields();
@@ -140,7 +160,6 @@ class JsonEntityEncoder
                 continue;
             }
 
-            /** @var ApiAware|null $flag */
             $flag = $field->getFlag(ApiAware::class);
 
             if ($flag === null || !$flag->isBaseUrlAllowed($baseUrl)) {

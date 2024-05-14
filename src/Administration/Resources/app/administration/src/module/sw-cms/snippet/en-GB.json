@@ -26,6 +26,7 @@
       "gridHeaderType": "Type",
       "gridHeaderAssignment": "Assigned categories",
       "gridHeaderAssignments": "Assignments",
+      "gridHeaderAssignedPages": "Assigned pages",
       "gridHeaderCreated": "Created",
       "gridHeaderUpdated": "Updated date"
     },
@@ -114,6 +115,8 @@
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
         "blockCategoryForm": "Form",
+        "blockCategoryHtml": "HTML",
+        "blockCategoryApp": "Apps",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
@@ -244,7 +247,8 @@
           "label": {
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
-            "linkNewTab": "Open link in new tab"
+            "linkNewTab": "Open link in new tab",
+            "linkTo": "Link target"
           },
           "placeholder": {
             "enterMinHeight": "Enter a minimum height...",
@@ -314,6 +318,7 @@
             "labelUseCustomSortings": "Use custom sortings",
             "labelDefaultSorting": "Default sorting",
             "labelProductSortings": "Product sortings",
+            "placeholderDefaultProductSorting": "Select a default sorting...",
             "placeHolderProductSortings": "Add or remove product sortings",
             "helpTextUseCustomSortings": "You're able to define custom product sortings for the product listing. To create an individual sorting for this listing enable this switch.",
             "helpTextDefaultSorting": "Default sorting for the listing, if no other sorting is provided.",
@@ -459,14 +464,14 @@
         },
         "element": {
           "label": {
-            "action": "Action",
+            "action": "Action*",
             "email": "Email address*",
             "firstName": "First name*",
             "lastName": "Last name*",
             "message": "Your message*",
             "newsletterSubmit": "Continue",
-            "phone": "Phone number",
-            "privacy": "Privacy",
+            "phone": "Phone number*",
+            "privacy": "Privacy*",
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
             "send": "Send",
@@ -476,7 +481,7 @@
           "placeholder": {
             "firstName": "John",
             "lastName": "Doe",
-            "email": "john@doe.com",
+            "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
@@ -484,6 +489,13 @@
           "helpText": {
             "privacy": "I have read the data protection information.",
             "requiredFields": "Fields marked with * are required"
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "First name",
+              "lastName": "Last name",
+              "salutation": "Salutation"
+            }
           }
         },
         "preview": {
@@ -558,6 +570,12 @@
       },
       "productName": {
         "label": "Product Name"
+      },
+      "html": {
+        "label": "HTML",
+        "config": {
+          "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
+        }
       }
     },
     "blocks": {
@@ -692,6 +710,11 @@
       "form": {
         "form": {
           "label": "Form"
+        }
+      },
+      "html": {
+        "html": {
+          "label": "HTML"
         }
       },
       "blockDisableState": "This block is not visible on any device. You can edit the block but the changes will not be visible in your shop. Edit this layout in shopping experiences module to change the block visibility."

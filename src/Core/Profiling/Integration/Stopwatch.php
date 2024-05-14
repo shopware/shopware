@@ -15,21 +15,18 @@ class Stopwatch implements ProfilerInterface
     {
     }
 
+    /**
+     * @param array<string> $tags
+     */
     public function start(string $title, string $category, array $tags): void
     {
-        if (!class_exists('\\' . SymfonyStopwatch::class) || $this->stopwatch === null) {
-            return;
-        }
-
-        $this->stopwatch->start($title, $category);
+        $this->stopwatch?->start($title, $category);
     }
 
     public function stop(string $title): void
     {
-        if (!class_exists('\\' . SymfonyStopwatch::class) || $this->stopwatch === null) {
-            return;
+        if ($this->stopwatch?->isStarted($title)) {
+            $this->stopwatch->stop($title);
         }
-
-        $this->stopwatch->stop($title);
     }
 }

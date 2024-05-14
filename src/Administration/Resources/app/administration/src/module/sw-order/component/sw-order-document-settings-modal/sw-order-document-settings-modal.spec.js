@@ -1,20 +1,10 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
-import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
-import 'src/app/component/form/sw-file-input';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-group';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
  * @package customer-order
  */
-
-Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
-Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
 
 const orderFixture = {
     id: '1234',
@@ -27,78 +17,84 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-document-settings-modal'), {
-        stubs: {
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(await wrapTestComponent('sw-order-document-settings-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-datepicker': true,
+                'sw-checkbox-field': true,
+                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-file-input': await wrapTestComponent('sw-file-input', { sync: true }),
+                'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                'sw-context-menu-item': {
+                    template: `
+                        <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
+                            <slot></slot>
+                        </div>`,
+                },
+                'sw-upload-listener': true,
+                'sw-textarea-field': true,
+                'sw-field-error': true,
+                'sw-icon': true,
             },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+            provide: {
+                fileValidationService: new FileValidationService(),
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1000 }),
+                },
+                mediaService: {
+                    addListener: () => {},
+                    removeByTag: () => {},
+                    removeListener: () => {},
+                    getDefaultFolderId: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        get: (id) => {
+                            return Promise.resolve(
+                                {
+                                    id,
+                                    fileSize: 10000,
+                                    type: 'application/pdf',
+                                },
+                            );
+                        },
+                        search: () => {
+                            return Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [{}],
+                                1,
+                            ));
+                        },
+                    }),
+                },
+                configService: {
+                    getConfig: () => Promise.resolve({
+                        settings: {
+                            enableUrlFeature: false,
+                        },
+                    }),
+                },
             },
-            'sw-text-field': true,
-            'sw-datepicker': true,
-            'sw-checkbox-field': true,
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-file-input': await Shopware.Component.build('sw-file-input'),
-            'sw-media-upload-v2': await Shopware.Component.build('sw-media-upload-v2'),
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-group': await Shopware.Component.build('sw-button-group'),
-            'sw-context-menu-item': {
-                template: `
-                    <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
-                        <slot></slot>
-                    </div>`,
-            },
-            'sw-upload-listener': true,
-            'sw-textarea-field': true,
-            'sw-field-error': true,
-            'sw-icon': true,
         },
-        provide: {
-            numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1000 }),
-            },
-            mediaService: {
-                addListener: () => {},
-                removeByTag: () => {},
-                removeListener: () => {},
-            },
-            repositoryFactory: {
-                create: () => ({
-                    get: (id) => {
-                        return Promise.resolve(
-                            {
-                                id,
-                                fileSize: 10000,
-                                type: 'application/pdf',
-                            },
-                        );
-                    },
-                    search: () => {
-                        return Promise.resolve(new EntityCollection(
-                            '',
-                            '',
-                            Shopware.Context.api,
-                            null,
-                            [{}],
-                            1,
-                        ));
-                    },
-                }),
-            },
-            configService: {
-                getConfig: () => Promise.resolve({
-                    settings: {
-                        enableUrlFeature: false,
-                    },
-                }),
-            },
-        },
-        propsData: {
+        props: {
             order: orderFixture,
             isLoading: false,
             currentDocumentType: {},
@@ -126,7 +122,6 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
     it('should show file or hide custom document file when toggling Upload custom document', async () => {
         const wrapper = await createWrapper();
         const inputUploadCustomDoc = wrapper.find('input[name="sw-field--uploadDocument"]');
-
         await inputUploadCustomDoc.setChecked(true);
 
         expect(wrapper.find('sw-upload-listener-stub').exists()).toBeTruthy();

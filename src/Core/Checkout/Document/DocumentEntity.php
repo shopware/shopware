@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -32,7 +32,7 @@ class DocumentEntity extends Entity
     protected $documentTypeId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $documentMediaFileId;
 
@@ -47,7 +47,7 @@ class DocumentEntity extends Entity
     protected $order;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $config;
 
@@ -87,9 +87,11 @@ class DocumentEntity extends Entity
     protected $dependentDocuments;
 
     /**
-     * @var MediaEntity
+     * @var MediaEntity|null
      */
     protected $documentMediaFile;
+
+    protected ?string $documentNumber;
 
     public function getFileType(): string
     {
@@ -131,11 +133,17 @@ class DocumentEntity extends Entity
         $this->orderId = $orderId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
@@ -239,5 +247,15 @@ class DocumentEntity extends Entity
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
         $this->documentMediaFileId = $documentMediaFileId;
+    }
+
+    public function setDocumentNumber(?string $documentNumber): void
+    {
+        $this->documentNumber = $documentNumber;
+    }
+
+    public function getDocumentNumber(): ?string
+    {
+        return $this->documentNumber;
     }
 }

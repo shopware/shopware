@@ -8,19 +8,17 @@
                             <div class="card-body">
                                 {% block page_account_overview_billing_address_title %}
                                     <h2 class="card-title">
-                                        {{ "account.overviewBillingHeader"|trans|sw_sanitize }}
+                                        {{ 'account.overviewBillingHeader'|trans|sw_sanitize }}
                                     </h2>
                                 {% endblock %}
 
                                 {% block page_account_overview_billing_address_content %}
-                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': context.customer.defaultBillingAddress} %}
+                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: context.customer.defaultBillingAddress} %}
                                 {% endblock %}
 
                                 {% block page_account_overview_billing_address_actions %}
                                     <div class="card-actions">
                                         {% block page_account_overview_billing_address_actions_content %}{% endblock %}
-                                        {# @deprecated tag:v6.6.0 - Block will be removed. Use `page_account_overview_billing_address_actions_content` instead. The "edit" button is redundant, because address edit can be accessed via the account navigation. #}
-                                        {% block page_account_overview_billing_address_actions_link %}{% endblock %}
                                     </div>
                                 {% endblock %}
                             </div>
@@ -36,23 +34,21 @@
                             <div class="card-body">
                                 {% block page_account_overview_shipping_address_title %}
                                     <h2 class="card-title">
-                                        {{ "account.overviewShippingHeader"|trans|sw_sanitize }}
+                                        {{ 'account.overviewShippingHeader'|trans|sw_sanitize }}
                                     </h2>
                                 {% endblock %}
 
                                 {% block page_account_overview_shipping_address_content %}
                                     {% if context.customer.defaultBillingAddress.id is same as(context.customer.defaultShippingAddress.id) %}
-                                        <p>{{ "account.overviewAddressEqual"|trans|sw_sanitize }}</p>
+                                        <p>{{ 'account.overviewAddressEqual'|trans|sw_sanitize }}</p>
                                     {% else %}
-                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': context.customer.defaultShippingAddress} %}
+                                        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: context.customer.defaultShippingAddress} %}
                                     {% endif %}
                                 {% endblock %}
 
                                 {% block page_account_overview_shipping_address_actions %}
                                     <div class="card-actions">
                                         {% block page_account_overview_shipping_address_actions_content %}{% endblock %}
-                                        {# @deprecated tag:v6.6.0 - Block will be removed. Use `page_account_overview_shipping_address_actions_content` instead. The "edit" button is redundant, because address edit can be accessed via the account navigation. #}
-                                        {% block page_account_overview_shipping_address_actions_link %}{% endblock %}
                                     </div>
                                 {% endblock %}
                             </div>

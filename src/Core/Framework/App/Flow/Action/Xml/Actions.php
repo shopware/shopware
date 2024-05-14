@@ -12,35 +12,25 @@ use Shopware\Core\Framework\Log\Package;
 class Actions extends XmlElement
 {
     /**
-     * @param Action[] $actions
+     * @var list<Action>
      */
-    public function __construct(protected array $actions)
-    {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseFlowActions($element));
-    }
+    protected array $actions;
 
     /**
-     * @return Action[]
+     * @return list<Action>
      */
     public function getActions(): array
     {
         return $this->actions;
     }
 
-    /**
-     * @return array<int, Action>
-     */
-    private static function parseFlowActions(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $actions = [];
         foreach ($element->getElementsByTagName('flow-action') as $flowAction) {
             $actions[] = Action::fromXml($flowAction);
         }
 
-        return $actions;
+        return ['actions' => $actions];
     }
 }

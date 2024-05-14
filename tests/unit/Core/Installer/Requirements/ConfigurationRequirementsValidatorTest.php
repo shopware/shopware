@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator;
@@ -12,9 +14,8 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator
  */
+#[CoversClass(ConfigurationRequirementsValidator::class)]
 class ConfigurationRequirementsValidatorTest extends TestCase
 {
     private MockObject&IniConfigReader $configReader;
@@ -30,9 +31,8 @@ class ConfigurationRequirementsValidatorTest extends TestCase
     /**
      * @param array<string, string> $iniValues
      * @param SystemCheck[] $expectedChecks
-     *
-     * @dataProvider configRequirements
      */
+    #[DataProvider('configRequirements')]
     public function testValidateRequirements(array $iniValues, array $expectedChecks): void
     {
         $this->configReader->method('get')->willReturnCallback(

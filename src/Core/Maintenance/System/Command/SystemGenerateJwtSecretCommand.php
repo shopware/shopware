@@ -14,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
+ *
+ * @deprecated tag:v6.7.0 - reason:remove-command - will be removed without a replacement
  */
 #[AsCommand(
     name: 'system:generate-jwt-secret',
@@ -24,7 +26,8 @@ class SystemGenerateJwtSecretCommand extends Command
 {
     public function __construct(
         private readonly string $projectDir,
-        private readonly JwtCertificateGenerator $jwtCertificateGenerator
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        private readonly bool $useHmacJWT
     ) {
         parent::__construct();
     }
@@ -42,6 +45,15 @@ class SystemGenerateJwtSecretCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        if ($this->useHmacJWT) {
+            $io = new SymfonyStyle($input, $output);
+            $io->info('HMAC JWT is enabled. No need to generate a JWT secret. This command will be deleted with Shopware 6.7.0.0');
+
+            return self::SUCCESS;
+        }
+
+        $io->warning('Using JWT rsa keys are deprecated and will be removed in the next major version. Consider enabling shopware.api.jwt_key.use_app_secret in your shopware.yaml file. This command will be deleted with Shopware 6.7.0.0');
 
         $passphrase = $input->getOption('jwt-passphrase');
 

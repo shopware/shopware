@@ -23,6 +23,8 @@
                     :key="pageType.name"
                     class="sw-cms-create-wizard__page-type"
                     :class="pageType.class"
+                    role="button"
+                    tabindex="0"
                     @click="onPageTypeSelect(pageType.name)"
                     @keyup.enter="onPageTypeSelect(pageType.name)"
                 >
@@ -32,22 +34,6 @@
                     />
                     <p>{{ $tc(pageType.title) }}</p>
                 </div>
-
-                {# @deprecated tag:v6.6.0 - Remove block #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_page %}{% endblock %}
-
-                {# @deprecated tag:v6.6.0 - Remove block #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_landing_page %}{% endblock %}
-
-                {# @deprecated tag:v6.6.0 - Remove block #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_product_list %}{% endblock %}
-
-                {# @deprecated tag:v6.6.0 - Remove block #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_product_detail %}{% endblock %}
                 {% endblock %}
             </div>
             {% endblock %}
@@ -94,10 +80,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_second_step_back %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
                 @click="goToStep('pageType')"
+                @keydown.enter="goToStep('pageType')"
             >
                 <sw-icon
                     name="regular-long-arrow-left"
@@ -138,7 +126,7 @@
                             :name="currentPageType?.icon"
                             size="16"
                         />
-                        <p>{{ $tc(currentPageType?.title) }}</p>
+                        <p>{{ $tc((currentPageType?.title ?? "")) }}</p>
                     </div>
                 </div>
                 {% endblock %}
@@ -150,11 +138,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="page.name"
-                        {% else %}
-                        v-model="page.name"
-                        {% endif %}
                         class="sw-cms-create-wizard__page-completion-name"
                         :label="$tc('sw-cms.detail.label.pageName')"
                         :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"
@@ -164,11 +148,7 @@
 
                     <sw-single-select
                         v-if="isCustomEntityType"
-                        {% if VUE3 %}
                         v-model:value="page.entity"
-                        {% else %}
-                        v-model="page.entity"
-                        {% endif %}
                         class="sw-cms-create-wizard__page-completion-custom-entity"
                         :label="$tc('sw-cms.detail.label.pageEntity')"
                         :placeholder="$tc('sw-cms.detail.label.pageEntityPlaceholder')"
@@ -197,10 +177,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_create_wizard_third_step_back %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-create-wizard__back"
+                role="button"
+                tabindex="0"
                 @click="goToStep('sectionType')"
+                @keydown.enter="goToStep('sectionType')"
             >
                 <sw-icon
                     name="regular-long-arrow-left"

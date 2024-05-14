@@ -2,13 +2,11 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/entity/sw-one-to-many-grid';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-one-to-many-grid'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-one-to-many-grid', { sync: true }), {
+        props: {
             columns: [
                 {
                     property: 'name',
@@ -31,26 +29,27 @@ async function createWrapper() {
             ],
             allowDelete: true,
         },
-
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return Promise.resolve({
-                        total: 0,
-                        criteria: {
-                            page: 1,
-                            limit: 25,
-                        },
-                    });
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return Promise.resolve({
+                            total: 0,
+                            criteria: {
+                                page: 1,
+                                limit: 25,
+                            },
+                        });
+                    },
                 },
             },
-        },
-
-        stubs: {
-            'sw-pagination': true,
-            'sw-checkbox-field': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-pagination': true,
+                'sw-checkbox-field': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+            },
         },
     });
 }

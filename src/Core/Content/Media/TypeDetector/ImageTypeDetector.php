@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\Media\TypeDetector;
 
-use Shopware\Core\Content\Media\Exception\StreamNotReadableException;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class ImageTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [
@@ -18,6 +16,7 @@ class ImageTypeDetector implements TypeDetectorInterface
         'jpeg' => [],
         'png' => [ImageType::TRANSPARENT],
         'webp' => [ImageType::TRANSPARENT],
+        'avif' => [ImageType::TRANSPARENT],
         'gif' => [ImageType::TRANSPARENT],
         'svg' => [ImageType::VECTOR_GRAPHIC],
         'bmp' => [ImageType::TRANSPARENT],
@@ -53,6 +52,10 @@ class ImageTypeDetector implements TypeDetectorInterface
         if ($fileExtension === 'webp' && $this->isWebpAnimated($mediaFile->getFileName())) {
             $rootType->addFlag(ImageType::ANIMATED);
         }
+
+        if ($fileExtension === 'avif' && $this->isAvifAnimated($mediaFile->getFileName())) {
+            $rootType->addFlag(ImageType::ANIMATED);
+        }
     }
 
     /**
@@ -67,7 +70,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      */
     private function isGifAnimated(string $filename): bool
     {
-        if (!($fh = @fopen($filename, 'rb'))) {
+        if (!($fh = @fopen($filename, 'r'))) {
             return false;
         }
         $count = 0;
@@ -75,10 +78,6 @@ class ImageTypeDetector implements TypeDetectorInterface
         while (!feof($fh) && $count < 2) {
             $chunk = fread($fh, 1024 * 100); // read 100kb at a time
             if ($chunk === false) {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    throw new StreamNotReadableException('Animated gif file not readable');
-                }
-
                 throw MediaException::cannotOpenSourceStreamToRead($filename);
             }
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
@@ -99,12 +98,8 @@ class ImageTypeDetector implements TypeDetectorInterface
     private function isWebpAnimated(string $filename): bool
     {
         $result = false;
-        $fh = fopen($filename, 'rb');
+        $fh = fopen($filename, 'r');
         if ($fh === false) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                throw new StreamNotReadableException('Webp File not readable');
-            }
-
             throw MediaException::cannotOpenSourceStreamToRead($filename);
         }
         fread($fh, 12);
@@ -113,10 +108,6 @@ class ImageTypeDetector implements TypeDetectorInterface
             fseek($fh, 20);
             $extendedFlags = fread($fh, 1);
             if ($extendedFlags === false) {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    throw new StreamNotReadableException('Webp File not readable');
-                }
-
                 throw MediaException::cannotOpenSourceStreamToRead($filename);
             }
             // move the bits of $extendedFlags one bit position to the right so that the animation bit flag is on the first position
@@ -126,5 +117,50 @@ class ImageTypeDetector implements TypeDetectorInterface
         fclose($fh);
 
         return $result;
+    }
+
+    /**
+     * An animated avif has an animation type set in the header
+     * non-animated or single-frame files would have the ftypavif header
+     *
+     * We check if the file contains an avis container definition (animated container definition)
+     * non-animated or single-frame files do not have this
+     */
+    private function isAvifAnimated(string $filename): bool
+    {
+        $fh = @fopen($filename, 'r');
+
+        if ($fh === false) {
+            throw MediaException::cannotOpenSourceStreamToRead($filename);
+        }
+
+        $header = (string) fread($fh, 12);
+
+        if (substr($header, 4, 8) !== 'ftypavis') {
+            fclose($fh);
+
+            return false;
+        }
+
+        while (!feof($fh)) {
+            $containerDefinition = fread($fh, 4);
+
+            if ($containerDefinition === 'avis') {
+                fclose($fh);
+
+                return true;
+            }
+
+            // the avis container definition must exist before the meta container definition to be valid, so we already return false here
+            if ($containerDefinition === 'meta') {
+                fclose($fh);
+
+                return false;
+            }
+        }
+
+        fclose($fh);
+
+        return false;
     }
 }

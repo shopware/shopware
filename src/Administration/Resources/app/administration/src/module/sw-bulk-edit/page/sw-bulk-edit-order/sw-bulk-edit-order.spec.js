@@ -1,58 +1,6 @@
-import { config, createLocalVue, mount } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { config, mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/structure/sw-page';
-import 'src/app/component/structure/sw-card-view';
-import 'src/app/component/utils/sw-loader';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-empty-state';
-import 'src/app/component/base/sw-button-process';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-text-editor';
-import 'src/app/component/form/sw-textarea-field';
-import 'src/app/component/form/sw-custom-field-set-renderer';
-import 'src/app/component/form/sw-form-field-renderer';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import swBulkEditOrder from 'src/module/sw-bulk-edit/page/sw-bulk-edit-order';
-import swBulkEditCustomFields from 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
-import swBulkEditChangeTypeFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
-import swBulkEditFormFieldRenderer from 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
-import swBulkEditChangeType from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
-import swBulkEditOrderDocuments from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
-import 'src/app/component/form/sw-select-field';
-import swBulkEditSaveModal from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
-import swBulkEditSaveModalConfirm from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
-import swBulkEditSaveModalProcess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
-import swBulkEditSaveModalSuccess from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
-import swBulkEditSaveModalError from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/utils/sw-inherit-wrapper';
-
-Shopware.Component.register('sw-bulk-edit-order', swBulkEditOrder);
-Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
-Shopware.Component.register('sw-bulk-edit-change-type-field-renderer', swBulkEditChangeTypeFieldRenderer);
-Shopware.Component.extend('sw-bulk-edit-form-field-renderer', 'sw-form-field-renderer', swBulkEditFormFieldRenderer);
-Shopware.Component.register('sw-bulk-edit-change-type', swBulkEditChangeType);
-Shopware.Component.register('sw-bulk-edit-order-documents', swBulkEditOrderDocuments);
-Shopware.Component.register('sw-bulk-edit-save-modal', swBulkEditSaveModal);
-Shopware.Component.register('sw-bulk-edit-save-modal-confirm', swBulkEditSaveModalConfirm);
-Shopware.Component.register('sw-bulk-edit-save-modal-process', swBulkEditSaveModalProcess);
-Shopware.Component.register('sw-bulk-edit-save-modal-success', swBulkEditSaveModalSuccess);
-Shopware.Component.register('sw-bulk-edit-save-modal-error', swBulkEditSaveModalError);
 
 const selectedOrderId = Shopware.Utils.createId();
 
@@ -66,190 +14,203 @@ function createEntityCollection(entities = []) {
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
     let routes;
-    let router;
 
     async function createWrapper(isResponseError = false) {
         // delete global $router and $routes mocks
-        delete config.mocks.$router;
-        delete config.mocks.$route;
+        delete config.global.mocks.$router;
+        delete config.global.mocks.$route;
 
-        const localVue = createLocalVue();
-        localVue.use(VueRouter);
+        const router = createRouter({
+            history: createWebHashHistory(),
+            routes,
+        });
+        router.push('/');
+        await router.isReady();
 
-        return mount(await Shopware.Component.build('sw-bulk-edit-order'), {
-            localVue,
-            router,
-            stubs: {
-                'sw-page': await Shopware.Component.build('sw-page'),
-                'sw-loader': true,
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-select-field': await Shopware.Component.build('sw-select-field'),
-                'sw-bulk-edit-custom-fields': await Shopware.Component.build('sw-bulk-edit-custom-fields'),
-                'sw-bulk-edit-change-type-field-renderer': await Shopware.Component.build('sw-bulk-edit-change-type-field-renderer'),
-                'sw-bulk-edit-form-field-renderer': await Shopware.Component.build('sw-bulk-edit-form-field-renderer'),
-                'sw-bulk-edit-change-type': await Shopware.Component.build('sw-bulk-edit-change-type'),
-                'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
-                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
-                'sw-button-process': await Shopware.Component.build('sw-button-process'),
-                'sw-bulk-edit-order-documents': await Shopware.Component.build('sw-bulk-edit-order-documents'),
-                'sw-card': await Shopware.Component.build('sw-card'),
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-modal': await Shopware.Component.build('sw-modal'),
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-single-select': await Shopware.Component.build('sw-single-select'),
-                'sw-number-field': await Shopware.Component.build('sw-number-field'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-textarea-field': await Shopware.Component.build('sw-textarea-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-container': await Shopware.Component.build('sw-container'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-                'sw-card-view': await Shopware.Component.build('sw-card-view'),
-                'sw-custom-field-set-renderer': true,
-                'sw-text-editor-toolbar': true,
-                'sw-app-actions': true,
-                'sw-search-bar': true,
-                'sw-datepicker': true,
-                'sw-text-editor': true,
-                'sw-language-switch': true,
-                'sw-notification-center': true,
-                'sw-help-center': true,
-                'sw-icon': true,
-                'sw-help-text': true,
-                'sw-alert': true,
-                'sw-label': true,
-                'sw-tabs': await Shopware.Component.build('sw-tabs'),
-                'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-                'sw-ignore-class': true,
-                'sw-extension-component-section': true,
-                'sw-bulk-edit-order-documents-generate-invoice': true,
-                'sw-bulk-edit-order-documents-generate-cancellation-invoice': true,
-                'sw-bulk-edit-order-documents-generate-delivery-note': true,
-                'sw-bulk-edit-order-documents-generate-credit-note': true,
-                'sw-bulk-edit-order-documents-download-documents': true,
-                'sw-entity-tag-select': true,
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-error-summary': true,
+        return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
+            global: {
+                plugins: [
+                    router,
+                ],
+                stubs: {
+                    'sw-page': await wrapTestComponent('sw-page'),
+                    'sw-loader': true,
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-select-field': await wrapTestComponent('sw-select-field'),
+                    'sw-bulk-edit-custom-fields': await wrapTestComponent('sw-bulk-edit-custom-fields'),
+                    'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent('sw-bulk-edit-change-type-field-renderer', { sync: true }),
+                    'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
+                    'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
+                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                    'sw-card-view': await wrapTestComponent('sw-card-view'),
+                    'sw-custom-field-set-renderer': true,
+                    'sw-text-editor-toolbar': true,
+                    'sw-app-actions': true,
+                    'sw-search-bar': true,
+                    'sw-datepicker': true,
+                    'sw-text-editor': true,
+                    'sw-language-switch': true,
+                    'sw-notification-center': true,
+                    'sw-help-center': true,
+                    'sw-icon': true,
+                    'sw-help-text': true,
+                    'sw-alert': true,
+                    'sw-label': true,
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-ignore-class': true,
+                    'sw-extension-component-section': true,
+                    'sw-bulk-edit-order-documents-generate-invoice': true,
+                    'sw-bulk-edit-order-documents-generate-cancellation-invoice': true,
+                    'sw-bulk-edit-order-documents-generate-delivery-note': true,
+                    'sw-bulk-edit-order-documents-generate-credit-note': true,
+                    'sw-bulk-edit-order-documents-download-documents': true,
+                    'sw-entity-tag-select': true,
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-error-summary': true,
+                },
+                provide: {
+                    validationService: {},
+                    repositoryFactory: {
+                        create: (entity) => {
+                            if (entity === 'custom_field_set') {
+                                return {
+                                    search: () => Promise.resolve(createEntityCollection([{
+                                        id: 'field-set-id-1',
+                                        name: 'example',
+                                        customFields: [{
+                                            name: 'customFieldName',
+                                            type: 'text',
+                                            config: {
+                                                label: 'configFieldLabel',
+                                            },
+                                        }],
+                                    }])),
+                                    get: () => Promise.resolve({ id: '' }),
+                                };
+                            }
+
+                            if (entity === 'state_machine_state') {
+                                return {
+                                    searchIds: jest.fn(),
+                                };
+                            }
+
+                            return {
+                                create: () => {
+                                    if (entity === 'custom_field_set') {
+                                        return {
+                                            search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                                            get: () => Promise.resolve({ id: '' }),
+                                        };
+                                    }
+
+                                    return {
+                                        id: '1a2b3c',
+                                        name: 'Test order',
+                                    };
+                                },
+                                search: () => Promise.resolve([
+                                    {
+                                        id: 1,
+                                        name: 'Invoice',
+                                    },
+                                    {
+                                        id: 2,
+                                        name: 'Credit note',
+                                    },
+                                ]),
+                                get: () => Promise.resolve({
+                                    id: 1,
+                                    name: 'Order',
+                                }),
+                                searchIds: () => Promise.resolve([
+                                    {
+                                        data: [1],
+                                        total: 1,
+                                    },
+                                ]),
+                            };
+                        },
+                    },
+                    bulkEditApiFactory: {
+                        getHandler: () => {
+                            return {
+                                bulkEdit: (selectedIds) => {
+                                    if (isResponseError) {
+                                        return Promise.reject(new Error('error occured'));
+                                    }
+
+                                    if (selectedIds.length === 0) {
+                                        return Promise.reject();
+                                    }
+
+                                    return Promise.resolve();
+                                },
+
+                                bulkEditStatus: (selectedIds) => {
+                                    if (isResponseError) {
+                                        return Promise.reject(new Error('error occured'));
+                                    }
+
+                                    if (selectedIds.length === 0) {
+                                        return Promise.reject();
+                                    }
+
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
+                    },
+                    orderDocumentApiService: {
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        download: () => {
+                            return Promise.resolve();
+                        },
+                        extendingDeprecatedService: () => {
+                            return Promise.resolve({
+                                data: {
+                                    showWarning: false,
+                                },
+                            });
+                        },
+                    },
+                    shortcutService: {
+                        startEventListener: () => {
+                        },
+                        stopEventListener: () => {
+                        },
+                    },
+                },
             },
             props: {
                 title: 'Foo bar',
-            },
-            provide: {
-                validationService: {},
-                repositoryFactory: {
-                    create: (entity) => {
-                        if (entity === 'custom_field_set') {
-                            return {
-                                search: () => Promise.resolve(createEntityCollection([{
-                                    id: 'field-set-id-1',
-                                    name: 'example',
-                                    customFields: [{
-                                        name: 'customFieldName',
-                                        type: 'text',
-                                        config: {
-                                            label: 'configFieldLabel',
-                                        },
-                                    }],
-                                }])),
-                                get: () => Promise.resolve({ id: '' }),
-                            };
-                        }
-
-                        if (entity === 'state_machine_state') {
-                            return {
-                                searchIds: jest.fn(),
-                            };
-                        }
-
-                        return {
-                            create: () => {
-                                if (entity === 'custom_field_set') {
-                                    return {
-                                        search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
-                                        get: () => Promise.resolve({ id: '' }),
-                                    };
-                                }
-
-                                return {
-                                    id: '1a2b3c',
-                                    name: 'Test order',
-                                };
-                            },
-                            search: () => Promise.resolve([
-                                {
-                                    id: 1,
-                                    name: 'Invoice',
-                                },
-                                {
-                                    id: 2,
-                                    name: 'Credit note',
-                                },
-                            ]),
-                            get: () => Promise.resolve({
-                                id: 1,
-                                name: 'Order',
-                            }),
-                            searchIds: () => Promise.resolve([
-                                {
-                                    data: [1],
-                                    total: 1,
-                                },
-                            ]),
-                        };
-                    },
-                },
-                bulkEditApiFactory: {
-                    getHandler: () => {
-                        return {
-                            bulkEdit: (selectedIds) => {
-                                if (isResponseError) {
-                                    return Promise.reject(new Error('error occured'));
-                                }
-
-                                if (selectedIds.length === 0) {
-                                    return Promise.reject();
-                                }
-
-                                return Promise.resolve();
-                            },
-
-                            bulkEditStatus: (selectedIds) => {
-                                if (isResponseError) {
-                                    return Promise.reject(new Error('error occured'));
-                                }
-
-                                if (selectedIds.length === 0) {
-                                    return Promise.reject();
-                                }
-
-                                return Promise.resolve();
-                            },
-                        };
-                    },
-                },
-                orderDocumentApiService: {
-                    create: () => {
-                        return Promise.resolve();
-                    },
-                    download: () => {
-                        return Promise.resolve();
-                    },
-                    extendingDeprecatedService: () => {
-                        return Promise.resolve({
-                            data: {
-                                showWarning: false,
-                            },
-                        });
-                    },
-                },
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
-                },
             },
         });
     }
@@ -258,12 +219,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         routes = [
             {
                 name: 'sw.bulk.edit.order',
-                path: 'index',
+                path: '/index/:excludeDelivery?',
             },
             {
                 name: 'sw.bulk.edit.order.save',
                 path: '',
-                component: await Shopware.Component.build('sw-bulk-edit-save-modal'),
+                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
                 meta: { $module: {
                     title: 'sw-bulk-edit-order.general.mainMenuTitle',
                 } },
@@ -273,24 +234,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 children: [
                     {
                         name: 'sw.bulk.edit.order.save.confirm',
-                        path: 'confirm',
-                        component: await Shopware.Component.build('sw-bulk-edit-save-modal-confirm'),
+                        path: '/confirm',
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.process',
-                        path: 'process',
-                        component: await Shopware.Component.build('sw-bulk-edit-save-modal-process'),
+                        path: '/process',
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.success',
-                        path: 'success',
-                        component: await Shopware.Component.build('sw-bulk-edit-save-modal-success'),
+                        path: '/success',
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -298,7 +259,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         name: 'sw.bulk.edit.order.save.error',
                         path: 'error',
-                        component: await Shopware.Component.build('sw-bulk-edit-save-modal-error'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
                         meta: { $module: {
                             title: 'sw-bulk-edit-order.general.mainMenuTitle',
                         } },
@@ -306,13 +267,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ],
             },
         ];
-        router = new VueRouter({
-            routes,
-        });
-        const orgPush = router.push;
-        router.push = (location) => {
-            return orgPush.call(router, location).catch(() => {});
-        };
     });
 
     beforeEach(async () => {
@@ -345,11 +299,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-        wrapper.vm.$router.push({ path: 'confirm' });
-    });
-
     it('should show all form fields', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -362,8 +311,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeTruthy();
-        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeTruthy();
+        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeDefined();
+        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeDefined();
     });
 
     it('should enable status mails when one of the status fields has changed', async () => {
@@ -383,7 +332,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeUndefined();
     });
 
     it('should enable documents when status mails is enabled', async () => {
@@ -403,11 +352,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setChecked();
+        await wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setValue('checked');
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeFalsy();
+        expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeUndefined();
     });
 
     it('should call onCustomFieldsChange when a customField is changed', async () => {
@@ -419,7 +368,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').setChecked();
+        await wrapper.find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change .sw-field__checkbox input').setValue('checked');
 
         await wrapper.vm.$nextTick();
 
@@ -435,9 +384,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        await wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').setChecked();
+        await wrapper.find('.sw-bulk-edit-change-field-invoice .sw-bulk-edit-change-field__change input').setValue('checked');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(spyOnChangeDocument).toHaveBeenCalledTimes(1);
         wrapper.vm.onChangeDocument.mockRestore();
@@ -556,28 +505,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const footerLeft = wrapper.find('.footer-left');
         await footerLeft.find('button').trigger('click');
 
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.$route.path).toBe('index');
+        await flushPromises();
+        expect(wrapper.vm.$route.path).toBe('/index');
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeFalsy();
     });
 
-    it('should open process modal', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-
-        const footerRight = wrapper.find('.footer-right');
-        await footerRight.find('button').trigger('click');
-
-        expect(wrapper.vm.$route.path).toBe('/process');
-    });
-
-    it('should open success modal', async () => {
+    it('should open process and success modal', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
@@ -592,6 +525,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
+        expect(wrapper.vm.$router.options.history.state.back).toBe('/process');
         expect(wrapper.vm.$route.path).toBe('/success');
     });
 
@@ -637,7 +571,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             field1: 'abc',
         };
 
-        await tagsCard.find('.sw-bulk-edit-change-field__change input').setChecked();
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').setValue('checked');
         await wrapper.vm.$nextTick();
 
         const { syncData } = wrapper.vm.onProcessData();
@@ -783,7 +717,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.statusFormFields).toHaveLength(5);
         expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
 
-        wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: '1' } });
+        await wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: '1' } });
 
         await flushPromises();
 

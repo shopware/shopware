@@ -2,13 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/utils/sw-duplicated-media-v2';
-import 'src/app/component/form/sw-radio-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
+import { mount } from '@vue/test-utils';
 
 const uploadTaskMock = {
     running: false,
@@ -29,53 +23,64 @@ describe('components/utils/sw-duplicated-media-v2', () => {
 
     beforeEach(async () => {
         uploads = {};
-        wrapper = shallowMount(await Shopware.Component.build('sw-duplicated-media-v2'), {
-            provide: {
-                shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
-                },
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve([{ id: 'foo' }]),
-                            get: () => Promise.resolve({ id: 'foo', hasFile: true }),
-                            delete: () => Promise.resolve(),
-                        };
+        wrapper = mount(await wrapTestComponent('sw-duplicated-media-v2', { sync: true }), {
+            global: {
+                provide: {
+                    shortcutService: {
+                        startEventListener() {},
+                        stopEventListener() {},
                     },
-                },
-                mediaService: {
-                    addDefaultListener: jest.fn(),
-                    removeDefaultListener: jest.fn(),
-                    runUploads: jest.fn(),
-                    addUpload: (tag, uploadTask) => {
-                        if (!uploads[tag]) uploads[tag] = [];
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve([{ id: 'foo' }]),
+                                get: () => Promise.resolve({ id: 'foo', hasFile: true }),
+                                delete: () => Promise.resolve(),
+                            };
+                        },
+                    },
+                    mediaService: {
+                        addDefaultListener: jest.fn(),
+                        removeDefaultListener: jest.fn(),
+                        runUploads: jest.fn(),
+                        addUpload: (tag, uploadTask) => {
+                            if (!uploads[tag]) uploads[tag] = [];
 
-                        uploads[tag].push(uploadTask);
+                            uploads[tag].push(uploadTask);
+                        },
+                        provideName: async (fileName) => {
+                            return { fileName: `${fileName}_(2)` };
+                        },
+                        keepFile: jest.fn(),
                     },
-                    provideName: async (fileName) => {
-                        return { fileName: `${fileName}_(2)` };
-                    },
-                    keepFile: jest.fn(),
                 },
-            },
-            stubs: {
-                'sw-modal': await Shopware.Component.build('sw-modal'),
-                'sw-container': true,
-                'sw-media-preview-v2': true,
-                'sw-icon': true,
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': true,
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-media-media-item': true,
+                stubs: {
+                    'sw-modal': {
+                        template: `
+                            <div class="sw-modal">
+                                <slot name="modal-header">
+                                    <slot name="modal-title"></slot>
+                                </slot>
+                                <slot name="modal-body">
+                                     <slot></slot>
+                                </slot>
+                                <slot name="modal-footer">
+                                </slot>
+                            </div>
+                        `,
+                    },
+                    'sw-container': true,
+                    'sw-media-preview-v2': true,
+                    'sw-icon': true,
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-media-media-item': true,
+                },
             },
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -108,10 +113,10 @@ describe('components/utils/sw-duplicated-media-v2', () => {
     it('should replace the file on the server with the local file', async () => {
         wrapper.vm.defaultOption = 'Replace';
         await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+        await flushPromises();
 
         const radio = wrapper.find('input[type="radio"]');
-        radio.element.selected = true;
-        await radio.trigger('change');
+        await radio.setValue('checked');
 
         const replaceButton = wrapper.find('.sw-duplicated-media-v2__upload');
         await replaceButton.trigger('click');

@@ -20,13 +20,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('content')]
+#[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
@@ -137,7 +137,10 @@ class NavigationRoute extends AbstractNavigationRoute
             throw CategoryException::categoryNotFound($activeId);
         }
 
-        return FetchModeHelper::groupUnique($result);
+        /** @var array<string, CategoryMetaInformation> $result */
+        $result = FetchModeHelper::groupUnique($result);
+
+        return $result;
     }
 
     /**

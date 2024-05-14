@@ -2,7 +2,7 @@ import template from './sw-order-delivery-metadata.html.twig';
 import './sw-order-delivery-metadata.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -38,6 +38,16 @@ export default {
         return {
             formattingAddress: '',
         };
+    },
+
+    computed: {
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {

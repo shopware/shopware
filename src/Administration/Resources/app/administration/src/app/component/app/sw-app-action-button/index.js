@@ -8,7 +8,7 @@ import './sw-app-action-button.scss';
 const { Component, State, Context } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-app-action-button', {
     template,

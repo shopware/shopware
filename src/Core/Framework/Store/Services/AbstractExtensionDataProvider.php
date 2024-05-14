@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 abstract class AbstractExtensionDataProvider
 {
     abstract public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection;

@@ -1,17 +1,8 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import swSettingsSnippetSetList from 'src/module/sw-settings-snippet/page/sw-settings-snippet-set-list';
-import 'src/app/component/grid/sw-grid';
-import 'src/app/component/grid/sw-grid-column';
-import 'src/app/component/grid/sw-grid-row';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/context-menu/sw-context-menu';
-
-Shopware.Component.register('sw-settings-snippet-set-list', swSettingsSnippetSetList);
 
 function getSnippetSets() {
     return [
@@ -54,69 +45,68 @@ function getSnippetSetData() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.directive('tooltip', {});
-    localVue.filter('date', () => {});
-
     async function createWrapper(privileges = []) {
-        return shallowMount(await Shopware.Component.build('sw-settings-snippet-set-list'), {
-            localVue,
-            mocks: {
-                $route: {
-                    query: 'test',
+        return mount(await wrapTestComponent('sw-settings-snippet-set-list', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        query: 'test',
+                    },
                 },
-            },
-            provide: {
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
+                provide: {
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) { return true; }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
-                },
-                snippetSetService: {
-                    getBaseFiles: () => {
-                        return Promise.resolve({ items: getSnippetSets() });
+                    snippetSetService: {
+                        getBaseFiles: () => {
+                            return Promise.resolve({ items: getSnippetSets() });
+                        },
                     },
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve(getSnippetSetData()),
+                        }),
+                    },
+                    searchRankingService: {},
                 },
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(getSnippetSetData()),
-                    }),
+                stubs: {
+                    'sw-page': {
+                        template: '<div class="sw-page"><slot name="content"></slot></div>',
+                    },
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-card': {
+                        template: '<div><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-card-view': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-button-group': true,
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-context-menu-divider': true,
+                    'sw-card-section': true,
+                    'sw-pagination': true,
+                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-select-field': true,
+                    'sw-checkbox-field': true,
+                    'sw-text-field': true,
+                    'sw-grid-row': await wrapTestComponent('sw-grid-row'),
+                    'sw-grid-column': await wrapTestComponent('sw-grid-column'),
+                    'router-link': true,
+                    'sw-popover': true,
                 },
-                searchRankingService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div class="sw-page"><slot name="content"></slot></div>',
-                },
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-card-view': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-button-group': true,
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-                'sw-context-button': await Shopware.Component.build('sw-context-button'),
-                'sw-context-menu-divider': true,
-                'sw-card-section': true,
-                'sw-pagination': true,
-                'sw-grid': await Shopware.Component.build('sw-grid'),
-                'sw-select-field': true,
-                'sw-checkbox-field': true,
-                'sw-text-field': true,
-                'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
-                'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
-                'router-link': true,
-                'sw-popover': true,
             },
         });
     }
@@ -136,8 +126,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const gridCheckboxes = wrapper.find('.sw-grid .sw-grid__header sw-checkbox-field-stub');
 
@@ -153,8 +142,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createSetButton = wrapper.find('.sw-settings-snippet-set-list__action-add');
 
@@ -170,16 +158,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const contextMenuButton = wrapper.find('.sw-grid__row--0 .sw-context-button');
         await contextMenuButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // open context menu button
-        const contextMenuItems = wrapper.findAll('.sw-context-menu-item').wrappers;
+        const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
         const [,, deleteButton] = contextMenuItems;
 
         if (!state) {
@@ -201,17 +188,16 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const contextMenuButton = wrapper.find('.sw-grid__row--0 .sw-context-button');
 
         // open context menu button
         await contextMenuButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const contextMenuItems = wrapper.findAll('.sw-context-menu-item').wrappers;
+        const contextMenuItems = wrapper.findAll('.sw-context-menu-item');
         const [, duplicateButton] = contextMenuItems;
 
         if (!state) {

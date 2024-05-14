@@ -7,7 +7,7 @@ const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -90,7 +90,7 @@ export default {
             return item[this.entityContext.addContext.column] !== this.ruleId;
         },
 
-        paginate({ page = 1, limit = 25 }) {
+        paginate({ page, limit }) {
             this.page = page;
             this.limit = limit;
 

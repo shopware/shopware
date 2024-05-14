@@ -3,17 +3,21 @@
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
-use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
+use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -24,7 +28,11 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
  */
 class SnippetServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use BasicTestDataBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+
+    private const LONG_SNIPPET = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat. Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto';
 
     protected function tearDown(): void
     {
@@ -33,11 +41,11 @@ class SnippetServiceTest extends TestCase
 
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $snippetSetId = Uuid::randomHex();
+        $this->expectException(SnippetException::class);
+        $this->expectExceptionMessage(sprintf('Snippet set with ID "%s" not found.', $snippetSetId));
 
-        $service = $this->getSnippetService();
-
-        $service->getStorefrontSnippets($this->getCatalog([], 'en-GB'), Uuid::randomHex());
+        $this->getSnippetService()->getStorefrontSnippets($this->getCatalog([], 'en-GB'), $snippetSetId);
     }
 
     public function testGetRegionFilterItems(): void
@@ -133,10 +141,9 @@ json
     }
 
     /**
-     * @dataProvider dataProviderForTestGetStoreFrontSnippets
-     *
      * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
      */
+    #[DataProvider('dataProviderForTestGetStoreFrontSnippets')]
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
         $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
@@ -831,9 +838,9 @@ json
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $service = $this->getSnippetService($snippetFile);
-        $result = $service->getList(1, 25, Context::createDefaultContext(), [], [
+        $result = $this->getSnippetService($snippetFile)->getList(1, 25, Context::createDefaultContext(), [], [
             'sortBy' => Uuid::randomHex(),
+            'sortDirection' => 'ASC',
         ]);
 
         static::assertSame(4, $result['total']);
@@ -916,6 +923,66 @@ json
         static::assertSame(['total' => 0, 'data' => []], $result);
     }
 
+    public function testTermFilterLargeSnippetNoMatch(): void
+    {
+        $snippetFile = new MockSnippetFile('foo');
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => self::LONG_SNIPPET,
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $result = $this->getSnippetService($snippetFile)->getList(1, 25, Context::createDefaultContext(), ['term' => 'asdf'], []);
+
+        static::assertSame(0, $result['total']);
+        static::assertEmpty($result['data']);
+    }
+
+    public function testTermFilterLargeSnippetMatches(): void
+    {
+        $snippetFile = new MockSnippetFile('foo');
+
+        $fooId = Uuid::randomBytes();
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->insert('snippet_set', [
+            'id' => $fooId,
+            'name' => 'foo',
+            'base_file' => 'foo',
+            'iso' => 'foo',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('snippet', [
+            'id' => Uuid::randomBytes(),
+            'translation_key' => 'foo.ab',
+            'value' => self::LONG_SNIPPET,
+            'author' => 'shopware',
+            'snippet_set_id' => $fooId,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $result = $this->getSnippetService($snippetFile)->getList(1, 25, Context::createDefaultContext(), ['term' => 'consetetur'], []);
+
+        static::assertSame(1, $result['total']);
+        static::assertSame(self::LONG_SNIPPET, $result['data']['foo.ab'][0]['value']);
+    }
+
     /**
      * @param array<string> $messages
      */
@@ -935,7 +1002,7 @@ json
         string $originValue,
         string $resetValue
     ): void {
-        foreach ($result['data'][$translationKey] as $snippetSetData) {
+        foreach ($result['data'][$translationKey] ?? [] as $snippetSetData) {
             if ($snippetSetData['setId'] !== Uuid::fromBytesToHex($snippetSetId)) {
                 static::assertEmpty($snippetSetData['value']);
             } else {
@@ -958,10 +1025,9 @@ json
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
-            $this->getContainer()->get('sales_channel_domain.repository'),
             $this->getContainer()->get(SnippetFilterFactory::class),
             $this->getContainer(),
-            $this->getContainer()->has(SalesChannelThemeLoader::class) ? $this->getContainer()->get(SalesChannelThemeLoader::class) : null
+            $this->getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class) : null
         );
     }
 

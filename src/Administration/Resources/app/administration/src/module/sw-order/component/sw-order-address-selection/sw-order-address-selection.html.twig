@@ -15,7 +15,6 @@
             :customer="customer"
         >
             <sw-customer-address-form-options
-                v-if="currentAddress._isNew"
                 :address="currentAddress"
                 :customer="customer"
                 :custom-field-sets="customerAddressCustomFieldSets"
@@ -63,18 +62,16 @@
         :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
         :popover-classes="['sw-order-address-selection__popover']"
         :disabled="disabled"
-        {% if VUE3 %}
         @update:value="onAddressChange"
-        {% else %}
-        @change="onAddressChange"
-        {% endif %}
     >
         <template #before-item-list>
             <ul class="sw-select-result__item-list">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-select-result sw-select-result__add-new-address"
+                    role="button"
+                    tabindex="0"
                     @click="onCreateNewAddress"
+                    @keydown.enter="onCreateNewAddress"
                 >
                     {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
                 </li>
@@ -82,19 +79,22 @@
         </template>
 
         <template #result-item="{ item, index, labelProperty, isSelected }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 :selected="isSelected(item)"
                 v-bind="{ item, index }"
                 :class="{'sw-order-address-selection__order-address': isSelected(item)}"
             >
                 <div class="sw-order-address-selection__information">
+
                     <p>{{ item.firstName }} {{ item.lastName }}</p>
                     <p class="text-gray">
                         {{ item.street }}
                     </p>
                     <p class="text-gray">
                         {{ item.zipcode }} {{ item.city }}
+                    </p>
+                    <p class="text-gray">
+                        {{ item.country.translated.name }}
                     </p>
                 </div>
 
@@ -103,7 +103,7 @@
                         {{ $tc('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>
-            </li>
+            </sw-select-result>
         </template>
     </sw-single-select>
     {% endblock %}

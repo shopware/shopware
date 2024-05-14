@@ -118,7 +118,7 @@
                 v-if="element.config.boxLayout.value === 'standard'"
                 class="sw-cms-el-product-box__description"
             >
-                {{ placeholder(product, 'description', product.description) | truncate(200, true, '...') }}
+                {{ truncateFilter(placeholder(product, 'description', product.description), 200, true, '...') }}
             </div>
             {% endblock %}
 
@@ -139,7 +139,7 @@
                         v-if="product.purchaseUnit && product.referenceUnit && product.purchaseUnit !== product.referenceUnit"
                         class="sw-cms-el-product-box__price-unit-reference"
                     >
-                        ({{ (product.price[0].gross * product.referenceUnit / product.purchaseUnit) | currency('EUR') }}
+                        ({{ currencyFilter(product.price[0].gross * product.referenceUnit / product.purchaseUnit, 'EUR') }}
                         * / {{ product.referenceUnit }} {{ product.packUnit }})
                     </span>
                 </div>
@@ -148,7 +148,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_box_price %}
                 <div class="sw-cms-el-product-box__price">
-                    {{ product.price[0].gross | currency('EUR') }}
+                    {{ currencyFilter(product.price[0].gross, 'EUR') }}
                 </div>
                 {% endblock %}
 

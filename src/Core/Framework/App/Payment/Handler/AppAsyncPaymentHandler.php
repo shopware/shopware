@@ -29,10 +29,8 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
     {
         $this->transactionStateHandler->processUnconfirmed($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
 
-        $requestData = $dataBag->all();
-        unset($requestData['_csrf_token']);
+        $payload = $this->buildPayPayload($transaction, $dataBag->all());
 
-        $payload = $this->buildPayPayload($transaction, $requestData);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
             throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
@@ -57,7 +55,7 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
             throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'Error during payment initialization: ' . $response->getMessage());
         }
 
-        if ($response->getStatus() !== StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED) {
+        if ($response->getStatus() && $response->getStatus() !== StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED) {
             $this->stateMachineRegistry->transition(
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
@@ -104,6 +102,10 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
             throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
+        }
+
+        if (empty($response->getStatus())) {
+            return;
         }
 
         $this->stateMachineRegistry->transition(

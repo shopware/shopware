@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -109,7 +109,7 @@ class AddOrderTagActionTest extends TestCase
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(3, $orderTag);
@@ -206,7 +206,7 @@ class AddOrderTagActionTest extends TestCase
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $orderTag);

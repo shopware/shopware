@@ -8,6 +8,7 @@
         <!-- Theme -->
         <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
@@ -29,10 +30,12 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="tagged" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
             <argument>%storefront.theme.auto_prefix_css%</argument>
         </service>
@@ -60,6 +63,12 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\ThemeScripts">
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ThemeService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="theme.repository"/>
@@ -68,6 +77,9 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
@@ -105,7 +117,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
-            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader">
@@ -122,7 +134,18 @@
 
         <service id="Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler">
             <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Message\CompileThemeHandler">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService"/>
+            <argument type="service" id="sales_channel.repository" />
 
             <tag name="messenger.message_handler" />
         </service>
@@ -273,7 +296,7 @@
         <!-- Twig -->
         <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
-            <argument type="service" id="Shopware\Storefront\Theme\SalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
 
             <tag name="kernel.event_subscriber" />
             <tag name="kernel.reset" method="reset"/>
@@ -315,10 +338,8 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\SalesChannelThemeLoader" public="true">
+        <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">

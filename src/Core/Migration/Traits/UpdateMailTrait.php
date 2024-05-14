@@ -164,7 +164,7 @@ trait UpdateMailTrait
             AND mail_template_translation.updated_at IS NULL
             AND mail_template.updated_at IS NULL',
             ['ids' => Uuid::fromHexToBytesList($languageIds), 'type' => $type],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 }

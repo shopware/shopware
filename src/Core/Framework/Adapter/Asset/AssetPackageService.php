@@ -11,21 +11,20 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 class AssetPackageService
 {
     /**
-     * @internal
+     * @param array<string, string> $bundleMap
      */
-    public function __construct(
-        private readonly Packages $packages,
-        private readonly Package $package,
-        private readonly VersionStrategyInterface $versionStrategy
-    ) {
-    }
-
-    public function addAssetPackage(string $bundleName, string $bundlePath): void
+    public static function create(array $bundleMap, Package $package, VersionStrategyInterface $versionStrategy, mixed ...$args): Packages
     {
-        $path = $this->package->getUrl('/bundles/' . mb_strtolower($bundleName));
-        $this->packages->addPackage(
-            '@' . $bundleName,
-            new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $this->versionStrategy))
-        );
+        $packages = new Packages(...$args);
+
+        foreach ($bundleMap as $bundleName => $bundlePath) {
+            $path = $package->getUrl('/bundles/' . mb_strtolower($bundleName));
+            $packages->addPackage(
+                '@' . $bundleName,
+                new UrlPackage($path, new PrefixVersionStrategy('/bundles/' . mb_strtolower($bundleName), $versionStrategy))
+            );
+        }
+
+        return $packages;
     }
 }

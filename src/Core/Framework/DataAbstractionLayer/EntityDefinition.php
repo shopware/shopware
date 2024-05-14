@@ -282,6 +282,11 @@ abstract class EntityDefinition
         return $this->getField('autoIncrement') instanceof AutoIncrementField;
     }
 
+    final public function hasCreatedAndUpdatedAtFields(): bool
+    {
+        return $this->getField('createdAt') instanceof CreatedAtField && $this->getField('updatedAt') instanceof UpdatedAtField;
+    }
+
     final public function getPrimaryKeys(): CompiledFieldCollection
     {
         if ($this->primaryKeys !== null) {

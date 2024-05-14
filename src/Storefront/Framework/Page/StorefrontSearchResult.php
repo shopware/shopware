@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Page;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
  * @template TEntityCollection of EntityCollection
  *
  * @template-extends EntitySearchResult<TEntityCollection>
+ *
+ * @deprecated tag:v6.7.0 - will be removed without replacement use `EntitySearchResult` instead, all methods are now contained in the `EntitySearchResult` and the sorting was not in use any more
  */
 #[Package('storefront')]
 class StorefrontSearchResult extends EntitySearchResult
@@ -32,6 +33,11 @@ class StorefrontSearchResult extends EntitySearchResult
      */
     public function getSortings(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
+        );
+
         return $this->sortings;
     }
 
@@ -40,47 +46,31 @@ class StorefrontSearchResult extends EntitySearchResult
      */
     public function setSortings(array $sortings): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
+        );
+
         $this->sortings = $sortings;
     }
 
     public function getSorting(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
+        );
+
         return $this->sorting;
     }
 
     public function setSorting(?string $sorting): void
     {
-        $this->sorting = $sorting;
-    }
-
-    public function getPage(): int
-    {
-        if ($this->criteria->getOffset() === 0) {
-            return 1;
-        }
-
-        return (int) ($this->criteria->getOffset() / $this->criteria->getLimit()) + 1;
-    }
-
-    /**
-     * @return float|int
-     *
-     * @deprecated tag:v6.6.0 - Will be removed without replacement as it is not used anymore
-     */
-    public function getPageCount()
-    {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+            'v6.7.0.0',
+            '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
         );
 
-        $total = $this->getTotal();
-
-        // next page mode fetches only the next pages with, not the exact count
-        if ($this->getCriteria()->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
-            $total += $this->getCriteria()->getOffset();
-        }
-
-        return $total / $this->getCriteria()->getLimit();
+        $this->sorting = $sorting;
     }
 }

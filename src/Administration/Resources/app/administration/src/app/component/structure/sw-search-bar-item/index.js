@@ -5,8 +5,7 @@ const { Component, Application } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders the search result items based on the item type.
  * @status ready
@@ -162,13 +161,17 @@ Component.register('sw-search-bar-item', {
         currentUser() {
             return Shopware.State.get('session').currentUser;
         },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
+        },
     },
 
     created() {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 
@@ -186,13 +189,21 @@ Component.register('sw-search-bar-item', {
         },
 
         registerEvents() {
-            this.$parent.$on('active-item-index-select', this.checkActiveState);
-            this.$parent.$on('keyup-enter', this.onEnter);
+            let parent = this.$parent;
+
+            parent = this.$parent.$parent;
+
+            parent.$on('active-item-index-select', this.checkActiveState);
+            parent.$on('keyup-enter', this.onEnter);
         },
 
         removeEvents() {
-            this.$parent.$off('active-item-index-select', this.checkActiveState);
-            this.$parent.$off('keyup-enter', this.onEnter);
+            let parent = this.$parent;
+
+            parent = this.$parent.$parent;
+
+            parent.$off('active-item-index-select', this.checkActiveState);
+            parent.$off('keyup-enter', this.onEnter);
         },
 
         checkActiveState({ index, column }) {
@@ -216,11 +227,16 @@ Component.register('sw-search-bar-item', {
         },
 
         onMouseEnter(originalDomEvent) {
-            this.$parent.$emit('mouse-over', {
+            let parent = this.$parent;
+
+            parent = this.$parent.$parent;
+
+            parent.$emit('mouse-over', {
                 originalDomEvent,
                 index: this.index,
                 column: this.column,
             });
+
             this.isActive = true;
         },
 

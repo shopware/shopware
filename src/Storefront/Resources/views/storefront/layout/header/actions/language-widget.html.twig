@@ -10,7 +10,6 @@
                       action="{{ path('frontend.checkout.switch-language') }}"
                       class="language-form"
                       data-form-auto-submit="true">
-
                     {% block layout_header_actions_language_widget_content %}
                         {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
                         {% set language = isoCode[0] %}
@@ -26,13 +25,13 @@
                                 <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
                                 <span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
                             </button>
+
                             {% block layout_header_actions_languages_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-labelledby="languagesDropdown-{{ position }}">
                                     {% for language in page.header.languages %}
                                         <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
                                              title="{{ language.translated.name }}">
-
                                             {% block layout_header_actions_languages_widget_form_items_flag %}
                                                 {% set isoCode = language.translationCode.code|lower|split('-') %}
                                                 {% set flagLanguage = isoCode[0] %}

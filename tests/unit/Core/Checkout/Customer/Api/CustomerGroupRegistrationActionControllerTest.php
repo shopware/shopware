@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
@@ -23,12 +25,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController
  */
+#[CoversClass(CustomerGroupRegistrationActionController::class)]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
     private CustomerGroupRegistrationActionController $controllerMock;
@@ -57,10 +58,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     /**
      * @param CustomerEntity[] $customers
      *
-     * @dataProvider getRegistrationValues
-     *
      * @throws Exception
      */
+    #[DataProvider('getRegistrationValues')]
     public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
     {
         $context = Context::createDefaultContext();
@@ -83,10 +83,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     /**
      * @param CustomerEntity[] $customers
      *
-     * @dataProvider getRegistrationValues
-     *
      * @throws Exception
      */
+    #[DataProvider('getRegistrationValues')]
     public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
     {
         $context = Context::createDefaultContext();
@@ -155,7 +154,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     private function setSearchReturn(Context $context, ?CustomerCollection $collection = null): void
     {
-        if ($collection === null) {
+        if (!$collection instanceof CustomerCollection) {
             $collection = new CustomerCollection();
         }
         $criteria = new Criteria(array_values($collection->getIds()));

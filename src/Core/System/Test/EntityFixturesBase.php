@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -19,10 +20,7 @@ trait EntityFixturesBase
      */
     private $entityFixtureContext;
 
-    /**
-     * @before
-     * Resets the context before each test
-     */
+    #[Before]
     public function initializeFixtureContext(): void
     {
         $this->entityFixtureContext = Context::createDefaultContext();

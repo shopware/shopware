@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class DateRangeRule extends Rule
 {
     final public const RULE_NAME = 'dateRange';

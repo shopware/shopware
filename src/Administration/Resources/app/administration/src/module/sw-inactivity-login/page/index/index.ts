@@ -1,5 +1,4 @@
 import './sw-inactivity-login.scss';
-import type { MetaInfo } from 'vue-meta';
 import template from './sw-inactivity-login.html.twig';
 
 const { Component } = Shopware;
@@ -12,7 +11,10 @@ const { Component } = Shopware;
 Component.register('sw-inactivity-login', {
     template,
 
-    inject: ['loginService'],
+    inject: [
+        'loginService',
+        'feature',
+    ],
 
     props: {
         hash: {
@@ -27,6 +29,7 @@ Component.register('sw-inactivity-login', {
         password: string,
         passwordError: null | { detail: string },
         sessionChannel: null | BroadcastChannel,
+        rememberMe: boolean,
         } {
         return {
             isLoading: false,
@@ -34,6 +37,7 @@ Component.register('sw-inactivity-login', {
             password: '',
             passwordError: null,
             sessionChannel: null,
+            rememberMe: false,
         };
     },
 
@@ -46,13 +50,15 @@ Component.register('sw-inactivity-login', {
         },
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             title: this.title,
         };
     },
 
     created() {
+        window.processingInactivityLogout = false;
+
         const lastKnownUser = sessionStorage.getItem('lastKnownUser');
 
         if (!lastKnownUser) {
@@ -74,6 +80,10 @@ Component.register('sw-inactivity-login', {
             }
 
             this.forwardLogin();
+
+            // Vue router v4 behaves differently than v3 and does not require a reload
+            return;
+
             window.location.reload();
         };
         this.lastKnownUser = lastKnownUser;
@@ -116,11 +126,22 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
+            this.handleRememberMe();
+
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
+        },
 
-            window.location.reload();
+        handleRememberMe() {
+            if (!this.rememberMe) {
+                return;
+            }
+
+            const duration = new Date();
+            duration.setDate(duration.getDate() + 14);
+
+            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

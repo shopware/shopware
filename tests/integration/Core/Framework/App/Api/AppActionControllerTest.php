@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Api;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,7 +33,7 @@ class AppActionControllerTest extends TestCase
 
         $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
         static::assertEmpty($response['actions']);
     }
@@ -44,7 +44,7 @@ class AppActionControllerTest extends TestCase
         $url = '/api/app-system/action-button/order/detail';
         $this->getBrowser()->request('GET', $url);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
         $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -74,7 +74,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunAction(): void
     {
-        /** @var EntityRepository $actionRepo */
+        /** @var EntityRepository<ActionButtonCollection> $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -83,9 +83,9 @@ class AppActionControllerTest extends TestCase
             ->addAssociation('app')
             ->addAssociation('app.integration');
 
-        $action = $actionRepo->search($criteria, Context::createDefaultContext());
-        /** @var ActionButtonEntity $action */
+        $action = $actionRepo->search($criteria, Context::createDefaultContext())->getEntities();
         $action = $action->first();
+        static::assertNotNull($action);
 
         $url = '/api/app-system/action-button/run/' . $action->getId();
 
@@ -102,14 +102,13 @@ class AppActionControllerTest extends TestCase
 
         $this->getBrowser()->request('POST', $url, [], [], [], $postData);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
-        static::assertNotFalse($body);
         static::assertJson($body);
         $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -137,7 +136,7 @@ class AppActionControllerTest extends TestCase
 
     public function testRunActionEmpty(): void
     {
-        /** @var EntityRepository $actionRepo */
+        /** @var EntityRepository<ActionButtonCollection> $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
 
@@ -145,28 +144,26 @@ class AppActionControllerTest extends TestCase
             ->setLimit(1)
             ->addAssociation('app');
 
-        $action = $actionRepo->search($criteria, Context::createDefaultContext());
-        /** @var ActionButtonEntity $action */
+        $action = $actionRepo->search($criteria, Context::createDefaultContext())->getEntities();
         $action = $action->first();
+        static::assertNotNull($action);
 
         $url = '/api/app-system/action-button/run/' . $action->getId();
 
-        $postData = ['ids' => []];
-        $postData = \json_encode($postData);
+        $postData = \json_encode(['ids' => []]);
         static::assertNotFalse($postData);
         static::assertJson($postData);
 
         $this->appendNewResponse(new Response(200));
         $this->getBrowser()->request('POST', $url, [], [], [], $postData);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
 
-        static::assertEquals('POST', $request->getMethod());
+        static::assertSame('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
-        static::assertNotFalse($body);
         static::assertJson($body);
         $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -183,14 +180,13 @@ class AppActionControllerTest extends TestCase
     {
         $url = '/api/app-system/action-button/run/' . Uuid::randomHex();
 
-        $postData = ['ids' => []];
-        $postData = \json_encode($postData);
+        $postData = \json_encode(['ids' => []]);
         static::assertNotFalse($postData);
         static::assertJson($postData);
 
         $this->getBrowser()->request('POST', $url, [], [], [], $postData);
 
-        static::assertEquals(404, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(404, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testRunActionWithCustomScriptEndpoint(): void
@@ -217,7 +213,7 @@ class AppActionControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
 
         $payload = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -236,7 +232,7 @@ class AppActionControllerTest extends TestCase
         $url = '/api/app-system/modules';
         $this->getBrowser()->request('GET', $url);
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
         $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

@@ -35,11 +35,13 @@
             <template v-if="sideBarEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_sidebar_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon
@@ -63,11 +65,13 @@
                 />
                 {% endblock %}
 
-                <template v-for="(block, index) in sideBarBlocks">
+                <template
+                    v-for="(block, index) in sideBarBlocks"
+                    :key="block.id"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_sidebar_block %}
                     <sw-cms-block
-                        :key="block.id"
                         class="sw-cms-stage-block"
                         :block="block"
                         :disabled="disabled"
@@ -83,10 +87,10 @@
                             {% block sw_cms_section_content_block_slot %}
                             <template
                                 v-for="el in block.slots"
+                                :key="el.id"
                                 #[el.slot]
                             >
                                 <sw-cms-slot
-                                    :key="el.id"
                                     :element="el"
                                     :disabled="disabled"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"
@@ -122,11 +126,13 @@
             <template v-if="mainContentEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_content_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon
@@ -150,11 +156,13 @@
                 />
                 {% endblock %}
 
-                <template v-for="(block, index) in mainContentBlocks">
+                <template
+                    v-for="(block, index) in mainContentBlocks"
+                    :key="block.id"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_content_block %}
                     <sw-cms-block
-                        :key="block.id"
                         class="sw-cms-stage-block"
                         :block="block"
                         :disabled="disabled"
@@ -165,15 +173,17 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_section_content_block_component %}
-                        <component :is="`sw-cms-block-${block.type}`">
+                        <component
+                            :is="`sw-cms-block-${block.type}`"
+                            :block="block">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_component_slot %}
                             <template
                                 v-for="el in block.slots"
+                                :key="el.id"
                                 #[el.slot]
                             >
                                 <sw-cms-slot
-                                    :key="el.id"
                                     :element="el"
                                     :disabled="disabled"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"

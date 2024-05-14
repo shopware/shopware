@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -26,12 +28,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefin
 use Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -51,15 +55,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver
  */
+#[CoversClass(ProductSliderCmsElementResolver::class)]
 class ProductSliderCmsElementResolverTest extends TestCase
 {
     private ProductSliderCmsElementResolver $sliderResolver;
@@ -351,9 +355,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
     }
 
-    /**
-     * @dataProvider enrichDataProvider
-     */
+    #[DataProvider('enrichDataProvider')]
     public function testEnrich(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {
@@ -432,5 +434,101 @@ class ProductSliderCmsElementResolverTest extends TestCase
             [true, true, 1],
             [true, true, 0],
         ];
+    }
+
+    /**
+     * @param string[] $expectedProductIds
+     * @param SalesChannelProductEntity[] $streamProducts
+     */
+    #[DataProvider('streamProductDataProvider')]
+    public function testEnrichVariants(array $expectedProductIds, array $streamProducts): void
+    {
+        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $resolver = new ProductSliderCmsElementResolver($productStreamBuilder, $this->systemConfig);
+
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), new ProductDefinition(), new SalesChannelProductEntity());
+
+        $streamResult = new ProductCollection($streamProducts);
+
+        $entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $entitySearchResult->method('getEntities')->willReturn($streamResult);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'streamId'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('product_id');
+        $slot->setType('');
+        $slot->setFieldConfig($fieldConfig);
+
+        $elementDataCollection = new ElementDataCollection();
+        $elementDataCollection->add('product-slider-entity-fallback_' . $slot->getUniqueIdentifier(), $entitySearchResult);
+
+        $resolver->enrich($slot, $resolverContext, $elementDataCollection);
+
+        /** @var ProductSliderStruct|null $productSlider */
+        $productSlider = $slot->getData();
+        $products = $productSlider?->getProducts();
+
+        if ($products) {
+            static::assertCount(\count($expectedProductIds), $products);
+            foreach ($expectedProductIds as $expectedProductId) {
+                static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
+            }
+        } else {
+            static::fail('ProductSlider or its products are null.');
+        }
+    }
+
+    public static function streamProductDataProvider(): \Generator
+    {
+        $parentId = Uuid::randomHex();
+        $mainVariantId = Uuid::randomHex();
+        $otherVariantId = Uuid::randomHex();
+        $nonExistentId = Uuid::randomHex();
+
+        yield 'Display main product' => [
+            'expectedProductIds' => [$parentId],
+            'streamProducts' => [
+                self::createProduct($parentId, null),
+                self::createProduct($mainVariantId, $parentId, new VariantListingConfig(true, null, [])),
+                self::createProduct($otherVariantId, $parentId, new VariantListingConfig(true, null, [])),
+            ],
+        ];
+
+        yield 'Display main variant' => [
+            'expectedProductIds' => [$mainVariantId],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(false, $mainVariantId, [])),
+                self::createProduct($mainVariantId, $parentId, new VariantListingConfig(false, $mainVariantId, [])),
+                self::createProduct($otherVariantId, $parentId, new VariantListingConfig(false, $mainVariantId, [])),
+            ],
+        ];
+
+        yield 'Null idToFetch' => [
+            'expectedProductIds' => [],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(false, null, [])),
+            ],
+        ];
+
+        yield 'Non-existent productToAdd' => [
+            'expectedProductIds' => [],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(false, $nonExistentId, [])),
+            ],
+        ];
+    }
+
+    private static function createProduct(string $id, ?string $parentId, ?VariantListingConfig $config = null): SalesChannelProductEntity
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId($id);
+        $product->setUniqueIdentifier($id);
+        $product->setParentId($parentId);
+        $product->setVariantListingConfig($config);
+
+        return $product;
     }
 }

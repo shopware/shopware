@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RulePayloadSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -196,7 +196,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertFalse($rule->isInvalid());
 
         $ruleData = $this->connection->createQueryBuilder()
-            ->select(['payload', 'invalid'])
+            ->select('payload', 'invalid')
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))
@@ -235,7 +235,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertTrue($rule->isInvalid());
 
         $ruleData = $this->connection->createQueryBuilder()
-            ->select(['payload', 'invalid'])
+            ->select('payload', 'invalid')
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))

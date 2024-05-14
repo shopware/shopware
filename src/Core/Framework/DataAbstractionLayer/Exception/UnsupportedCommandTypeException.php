@@ -13,7 +13,7 @@ class UnsupportedCommandTypeException extends ShopwareHttpException
     {
         parent::__construct(
             'Command of class {{ command }} is not supported by {{ definition }}',
-            ['command' => $command::class, 'definition' => $command->getDefinition()->getEntityName()]
+            ['command' => $command::class, 'definition' => $command->getEntityName()]
         );
     }
 

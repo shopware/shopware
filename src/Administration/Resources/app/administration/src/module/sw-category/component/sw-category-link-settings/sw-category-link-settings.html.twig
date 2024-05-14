@@ -8,11 +8,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_type_select_main %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="mainType"
-        {% else %}
-        v-model="mainType"
-        {% endif %}
         class="sw-category-link-settings__type"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.mainTypeLabel')"
@@ -26,22 +22,14 @@
     {% block sw_category_detail_link_type_select_entity %}
     <sw-single-select
         v-if="isInternal"
-        {% if VUE3 %}
         v-model:value="category.linkType"
-        {% else %}
-        v-model="category.linkType"
-        {% endif %}
         class="sw-category-link-settings__entity"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.internalTypeLabel')"
         :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
         :options="entityValues"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="changeEntity"
-        {% else %}
-        @change="changeEntity"
-        {% endif %}
     />
     {% endblock %}
 
@@ -65,11 +53,7 @@
     {% block sw_category_detail_link_type_select_entity_product %}
     <sw-entity-single-select
         v-if="category.linkType === 'product'"
-        {% if VUE3 %}
         v-model:value="category.internalLink"
-        {% else %}
-        v-model="category.internalLink"
-        {% endif %}
         class="sw-category-link-settings__selection-product"
         :disabled="!acl.can('category.editor')"
         :label="$tc('global.entities.product')"
@@ -85,11 +69,7 @@
     {% block sw_category_detail_link_type_select_entity_landing_page %}
     <sw-entity-single-select
         v-if="category.linkType === 'landing_page'"
-        {% if VUE3 %}
         v-model:value="category.internalLink"
-        {% else %}
-        v-model="category.internalLink"
-        {% endif %}
         class="sw-category-link-settings__selection-landing-page"
         :disabled="!acl.can('category.editor')"
         :label="$tc('global.entities.landing_page')"
@@ -103,11 +83,7 @@
     {% block sw_category_detail_link_field %}
     <sw-text-field
         v-if="isExternal"
-        {% if VUE3 %}
         v-model:value="category.externalLink"
-        {% else %}
-        v-model="category.externalLink"
-        {% endif %}
         class="sw-category-link-settings__external-link"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.linkLabel')"
@@ -118,11 +94,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_link_new_tab %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="category.linkNewTab"
-        {% else %}
-        v-model="category.linkNewTab"
-        {% endif %}
         class="sw-category-link-settings__link-new-tab"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.link.linkNewTabLabel')"

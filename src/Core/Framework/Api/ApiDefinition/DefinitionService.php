@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @phpstan-type Api DefinitionService::API|DefinitionService::STORE_API
- * @phpstan-type ApiType DefinitionService::TypeJsonApi|DefinitionService::TypeJson
+ * @phpstan-type ApiType DefinitionService::TYPE_JSON_API|DefinitionService::TYPE_JSON
  * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array<mixed>}
  * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
  */
@@ -20,21 +20,7 @@ class DefinitionService
     final public const API = 'api';
     final public const STORE_API = 'store-api';
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON_API instead
-     *
-     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
-     */
-    final public const TypeJsonApi = self::TYPE_JSON_API;
-
     final public const TYPE_JSON_API = 'jsonapi';
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed. Use DefinitionService::TYPE_JSON instead
-     *
-     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
-     */
-    final public const TypeJson = self::TYPE_JSON;
 
     final public const TYPE_JSON = 'json';
 
@@ -60,9 +46,9 @@ class DefinitionService
      *
      * @return OpenApiSpec
      */
-    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TYPE_JSON_API, ?string $bundleName = null): array
     {
-        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType);
+        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType, $bundleName);
     }
 
     /**

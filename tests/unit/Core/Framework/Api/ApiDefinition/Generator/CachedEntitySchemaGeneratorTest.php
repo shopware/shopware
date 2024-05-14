@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
@@ -13,10 +14,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * @package core
  *
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator
- *
  * @internal
  */
+#[CoversClass(CachedEntitySchemaGenerator::class)]
 class CachedEntitySchemaGeneratorTest extends TestCase
 {
     private CachedEntitySchemaGenerator $cachedEntitySchemaGenerator;
@@ -52,7 +52,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ->willThrowException(new \RuntimeException());
 
         static::expectException(\RuntimeException::class);
-        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json');
+        $this->cachedEntitySchemaGenerator->generate([], 'api', 'json', null);
     }
 
     public function testGetSchemaUtilizesCacheIfPresent(): void

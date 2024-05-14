@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeModal(): void {
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -16,6 +16,7 @@ export default function initializeModal(): void {
         Shopware.State.commit('modals/openModal', {
             closable: true,
             showHeader: true,
+            showFooter: true,
             variant: 'default',
             baseUrl: extension.baseUrl,
             ...modalConfig,

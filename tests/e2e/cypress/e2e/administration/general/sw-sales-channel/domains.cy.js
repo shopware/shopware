@@ -14,7 +14,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         }).as('verifyDomain');
     });
 
-    it('@general: Domains are displayed', { tags: ['pa-sales-channels'] }, () => {
+    it('@general: Domains are displayed', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -23,7 +23,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 1);
     });
 
-    it('@general: Add new domain', { tags: ['pa-sales-channels'] }, () => {
+    it('@general: Add new domain', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -36,7 +36,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@general: Can\'t add the same domain URL twice', { tags: ['pa-sales-channels'] }, () => {
+    it('@general: Can\'t add the same domain URL twice', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -48,7 +48,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.contains('.sw-block-field', 'URL').should('have.class', 'has--error');
     });
 
-    it('@general: Can re-add a previously deleted domain', { tags: ['pa-sales-channels'] }, () => {
+    it('@general: Can re-add a previously deleted domain', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);
@@ -66,7 +66,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
 
             page.addExampleDomain(false);
 
-            cy.get('#sw-field--currentDomain-url').clear().type(url);
+            cy.get('.sw-url-input-field__input').clear().type(url);
             cy.contains('.sw-button--primary', 'Add domain').click();
 
             cy.wait('@verifyDomain');

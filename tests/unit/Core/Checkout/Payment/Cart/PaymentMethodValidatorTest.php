@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -19,9 +21,8 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator
  */
+#[CoversClass(PaymentMethodValidator::class)]
 class PaymentMethodValidatorTest extends TestCase
 {
     private PaymentMethodValidator $validator;
@@ -123,15 +124,15 @@ class PaymentMethodValidatorTest extends TestCase
             'token',
             null,
             $salesChannel,
-            $this->createMock(CurrencyEntity::class),
-            $this->createMock(CustomerGroupEntity::class),
-            $this->createMock(TaxCollection::class),
+            new CurrencyEntity(),
+            new CustomerGroupEntity(),
+            new TaxCollection(),
             $paymentMethod,
-            $this->createMock(ShippingMethodEntity::class),
-            $this->createMock(ShippingLocation::class),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
             null,
-            $this->createMock(CashRoundingConfig::class),
-            $this->createMock(CashRoundingConfig::class)
+            new CashRoundingConfig(2, 3, true),
+            new CashRoundingConfig(2, 3, true),
         );
     }
 }

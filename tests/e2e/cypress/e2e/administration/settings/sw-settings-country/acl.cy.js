@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
@@ -10,7 +13,7 @@ describe('Country: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of countries', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can view a list of countries', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -26,7 +29,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(`${page.elements.countryListContent}`).should('be.visible');
     });
 
-    it('@settings: can edit a country', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can edit a country', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -84,7 +87,7 @@ describe('Country: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: can create a country', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can create a country', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -144,7 +147,7 @@ describe('Country: Test acl privileges', () => {
         '000');
     });
 
-    it('@settings: can delete a country', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete a country', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -195,7 +198,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('not.exist');
     });
 
-    it('@settings: can view a list of states', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can view a list of states', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -237,7 +240,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
     });
 
-    it('@settings: can edit a state', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can edit a state', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -334,7 +337,7 @@ describe('Country: Test acl privileges', () => {
         ).should('be.visible').contains('000');
     });
 
-    it('@settings: can create a state', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can create a state', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -414,7 +417,7 @@ describe('Country: Test acl privileges', () => {
             .should('be.visible').contains('000');
     });
 
-    it('@settings: can not create a state', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can not create a state', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -505,7 +508,7 @@ describe('Country: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: can delete multiple countries', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete multiple countries', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

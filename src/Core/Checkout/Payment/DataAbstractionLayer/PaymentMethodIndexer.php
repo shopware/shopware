@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodIndexerEvent;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -33,7 +35,7 @@ class PaymentMethodIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
@@ -67,7 +69,11 @@ class PaymentMethodIndexer extends EntityIndexer
             return;
         }
 
-        $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($message->getContext());
+        // Create a new context with disabled-indexing state, because DAL is used inside to upsert payment methods.
+        $newContext = Context::createFrom($message->getContext());
+        // Apparently the new context loses the states of the old one during creation. So the old states get added back.
+        $newContext->addState(EntityIndexerRegistry::DISABLE_INDEXING, ...$message->getContext()->getStates());
+        $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($newContext);
 
         $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }

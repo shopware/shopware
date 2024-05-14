@@ -19,11 +19,7 @@
             value-property="value"
             label-property="label"
             show-clearable-button
-            {% if VUE3 %}
             @update:value="onAddCriteria"
-            {% else %}
-            @change="onAddCriteria"
-            {% endif %}
         />
         {% endblock %}
     </template>
@@ -55,13 +51,13 @@
             <sw-entity-single-select
                 v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
                 ref="customFieldSelection"
-                v-model="item.name"
+                v-model:value="item.name"
                 :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
                 :criteria="customFieldCriteriaSingleSelect(item)"
                 :label-callback="getCustomFieldName"
                 entity="custom_field"
                 show-clearable-button
-                @change="changeCustomField"
+                @update:value="changeCustomField"
             />
             {% endblock %}
 
@@ -96,15 +92,10 @@
             {% block sw_settings_listing_option_criteria_card_grid_column_order_select %}
             <sw-single-select
                 v-else
-                {% if VUE3 %}
                 v-model:value="item.order"
-                {% else %}
-                v-model="item.order"
-                {% endif %}
                 :options="orderOptions"
                 value-property="value"
                 label-property="label"
-                show-clearable-button
                 :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
             />
             {% endblock %}
@@ -142,7 +133,7 @@
         {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
         <template #icon>
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
         </template>

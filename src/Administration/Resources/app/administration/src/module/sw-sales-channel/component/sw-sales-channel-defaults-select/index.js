@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import './sw-sales-channel-defaults-select.scss';
@@ -48,7 +48,6 @@ export default {
             type: String,
             required: false,
             default: null,
-
         },
 
         helpText: {

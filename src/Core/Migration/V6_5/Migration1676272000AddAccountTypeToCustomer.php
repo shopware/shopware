@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
 {
     private const CHUNK_SIZE = 5000;
@@ -22,20 +22,16 @@ class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $isAdded = $this->columnExists($connection, 'customer', 'account_type');
-        if (!$isAdded) {
-            $connection->executeStatement('
-                ALTER TABLE `customer`
-                ADD COLUMN `account_type` VARCHAR(255) NOT NULL DEFAULT \'private\' AFTER `bound_sales_channel_id`
-            ');
-        }
+        $this->addColumn(
+            connection: $connection,
+            table: 'customer',
+            column: 'account_type',
+            type: 'VARCHAR(255)',
+            nullable: false,
+            default: '\'private\''
+        );
 
         $this->massUpdateAccountType($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 
     private function massUpdateAccountType(Connection $connection): void

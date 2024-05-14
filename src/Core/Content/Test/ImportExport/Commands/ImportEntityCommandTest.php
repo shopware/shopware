@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Commands;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
@@ -16,10 +17,9 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 /**
  * @internal
- *
- * @group slow
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
+#[Group('slow')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

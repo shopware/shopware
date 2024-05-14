@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('SEO: Visual testing', () => {
     beforeEach(() => {
@@ -10,7 +13,7 @@ describe('SEO: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of seo module', { tags: ['pa-sales-channels'] }, () => {
+    it('@visual: check appearance of seo module', { tags: ['pa-sales-channels', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/seo-url-template`,
             method: 'POST',

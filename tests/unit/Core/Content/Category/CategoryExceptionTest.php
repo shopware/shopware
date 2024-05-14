@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -9,9 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Category\CategoryException
  */
+#[CoversClass(CategoryException::class)]
 class CategoryExceptionTest extends TestCase
 {
     public function testCategoryNotFound(): void
@@ -46,5 +46,14 @@ class CategoryExceptionTest extends TestCase
         static::assertEquals(CategoryException::FOOTER_CATEGORY_NOT_FOUND, $exception->getErrorCode());
         static::assertEquals('Footer category, for sales channel sales-channel-name, is not set', $exception->getMessage());
         static::assertEquals(['salesChannelName' => $salesChannelName], $exception->getParameters());
+    }
+
+    public function testAfterCategoryNotFound(): void
+    {
+        $exception = CategoryException::afterCategoryNotFound();
+
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertEquals(CategoryException::AFTER_CATEGORY_NOT_FOUND, $exception->getErrorCode());
+        static::assertEquals('Category to insert after not found.', $exception->getMessage());
     }
 }

@@ -121,10 +121,12 @@
                         {{ $tc('sw-order.addressSelection.currentlySelected') }}<br><br>
                     </span>
                     <sw-address :address="address" />
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-order-create-address-modal__edit-btn"
+                        role="button"
+                        tabindex="0"
                         @click="onEditAddress(address)"
+                        @keydown.enter="onEditAddress(address)"
                     >
                         {{ $tc('sw-customer.detailBase.buttonTitleEditAddress') }}
                     </a>

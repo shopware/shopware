@@ -54,20 +54,22 @@ class RecalculationService
     }
 
     /**
+     * @param array<string, array<string, bool>|string> $salesChannelContextOptions
+     *
      * @throws CustomerNotLoggedInException
      * @throws CartException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      * @throws InconsistentCriteriaIdsException
      */
-    public function recalculateOrder(string $orderId, Context $context): void
+    public function recalculateOrder(string $orderId, Context $context, array $salesChannelContextOptions = []): void
     {
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
         \assert($order instanceof OrderEntity);
 
-        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context, $salesChannelContextOptions);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
@@ -379,16 +381,17 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior($context->getPermissions(), true, true);
+        // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
+        return $context->live(function ($live) use ($cart): Cart {
+            $behavior = new CartBehavior($live->getPermissions(), true, true);
 
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
+            // all prices are now prepared for calculation - starts the cart calculation
+            $cart = $this->processor->process($cart, $live, $behavior);
 
-        // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
+            // validate cart against the context rules
+            $validated = $this->cartRuleLoader->loadByCart($live, $cart, $behavior);
 
-        $cart = $validated->getCart();
-
-        return $cart;
+            return $validated->getCart();
+        });
     }
 }

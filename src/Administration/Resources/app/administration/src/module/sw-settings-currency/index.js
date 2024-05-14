@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import './acl';
 
 const { Module } = Shopware;

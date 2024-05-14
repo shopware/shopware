@@ -4,8 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -21,9 +24,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Util\AssetService
  */
+#[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
@@ -162,7 +164,17 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) {
+                static::assertIsResource($stream);
+                // Some flysystem adapters automatically close the stream e.g. google adapter
+                fclose($stream);
+
+                return true;
+            });
+
+        $filesystem = new Filesystem($adapter);
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -172,15 +184,6 @@ class AssetServiceTest extends TestCase
             $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
-
-        $filesystem->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) {
-                static::assertIsResource($stream);
-                // Some flysystem adapters automatically close the stream e.g. google adapter
-                fclose($stream);
-
-                return true;
-            });
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }
@@ -231,20 +234,20 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expected-writes: array<string, string>, expected-deletes: array<string>}>
+     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
      */
     public static function adminFilesProvider(): array
     {
         return [
             'destination-empty' => [
                 'manifest' => [],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
                     'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
                 ],
-                'expected-deletes' => [],
+                'expectedDeletes' => [],
             ],
             'destination-nothing-changed' => [
                 'manifest' => [
@@ -253,8 +256,8 @@ class AssetServiceTest extends TestCase
                     'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                     'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [],
-                'expected-deletes' => [],
+                'expectedWrites' => [],
+                'expectedDeletes' => [],
             ],
             'destination-new-and-removed' => [
                 'manifest' => [
@@ -263,10 +266,10 @@ class AssetServiceTest extends TestCase
                     'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                     'four.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
                 ],
-                'expected-deletes' => [
+                'expectedDeletes' => [
                     'bundles/administration/four.js',
                 ],
             ],
@@ -277,22 +280,21 @@ class AssetServiceTest extends TestCase
                     'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
                     'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
                     'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
                 ],
-                'expected-deletes' => [],
+                'expectedDeletes' => [],
             ],
         ];
     }
 
     /**
-     * @dataProvider adminFilesProvider
-     *
      * @param array<string, string> $manifest
      * @param array<string, string> $expectedWrites
      * @param array<string> $expectedDeletes
      */
+    #[DataProvider('adminFilesProvider')]
     public function testCopyAssetsFromAdminBundle(array $manifest, array $expectedWrites, array $expectedDeletes): void
     {
         ksort($manifest);
@@ -356,7 +358,7 @@ class AssetServiceTest extends TestCase
         );
     }
 
-    public function testCopyDoesNotWriteManifest(): void
+    public function testCopyDoesNotWriteManifestForLocalFilesystems(): void
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
@@ -390,6 +392,86 @@ class AssetServiceTest extends TestCase
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
         static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+    }
+
+    public function testCopyPerformsFullCopyWithForceFlag(): void
+    {
+        $bundle = new Administration();
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel
+            ->method('getBundle')
+            ->with('AdministrationBundle')
+            ->willReturn($bundle);
+
+        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
+            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
+
+        $filesystem = $this->createMock(FilesystemOperator::class);
+
+        $filesystem
+            ->expects(static::never())
+            ->method('read');
+
+        $expectedWrites = [
+            'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
+            'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+            'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+            'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
+            'bundles/example/test.txt' => 'ExampleBundle/Resources/public/test.txt',
+        ];
+
+        $filesystem
+            ->expects(static::exactly(\count($expectedWrites)))
+            ->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) use ($expectedWrites) {
+                static::assertIsResource($stream);
+                $meta = stream_get_meta_data($stream);
+
+                $local = $expectedWrites[$path];
+                unset($expectedWrites[$path]);
+
+                static::assertEquals(__DIR__ . '/../_fixtures/' . $local, $meta['uri']);
+
+                return true;
+            });
+
+        $privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+
+        $assetService = new AssetService(
+            $filesystem,
+            $privateFilesystem,
+            $kernel,
+            $this->createMock(KernelPluginLoader::class),
+            $this->createMock(CacheInvalidator::class),
+            $appLoader,
+            new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
+        );
+
+        $assetService->copyAssetsFromBundle('AdministrationBundle', true);
+        $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle', true);
+
+        $expectedManifestFiles = [
+            'administration' => [
+                'one.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'static/js/app.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+                'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            ],
+            'examplebundle' => [
+                'test.txt' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
+            ],
+        ];
+
+        ksort($expectedManifestFiles);
+
+        static::assertSame(
+            json_encode($expectedManifestFiles, \JSON_PRETTY_PRINT),
+            $privateFilesystem->read('asset-manifest.json')
+        );
     }
 
     private function getBundle(): ExampleBundle

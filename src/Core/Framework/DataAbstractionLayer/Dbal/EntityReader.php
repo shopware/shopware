@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -679,13 +678,13 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            /** @var ArrayEntity $extension */
+            /** @var ArrayStruct<string, mixed> $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
+            $fks = $extension->get($association->getPropertyName()) ?? [];
+
             // use assign function to avoid setter name building
-            $structData = $data->getList(
-                $extension->get($association->getPropertyName())
-            );
+            $structData = $data->getList($fks);
 
             // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
@@ -924,10 +923,8 @@ class EntityReader implements EntityReaderInterface
         // create a wrapper query which select the root primary key and the grouped reference ids
         $wrapper = $this->connection->createQueryBuilder();
         $wrapper->select(
-            [
-                'LOWER(HEX(' . $root . '.id)) as id',
-                'LOWER(HEX(child.id)) as child_id',
-            ]
+            'LOWER(HEX(' . $root . '.id)) as id',
+            'LOWER(HEX(child.id)) as child_id',
         );
 
         foreach ($sortings as $i => $sorting) {
@@ -960,7 +957,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::STRING);
+        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::BINARY);
 
         $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
         $offset = $fieldCriteria->getOffset() + 1;
@@ -1195,6 +1192,10 @@ class EntityReader implements EntityReaderInterface
 
         foreach ($fields as $association) {
             if (!$association instanceof AssociationField) {
+                continue;
+            }
+
+            if ($partial !== [] && !\array_key_exists($association->getPropertyName(), $partial)) {
                 continue;
             }
 

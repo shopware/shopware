@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[\AllowDynamicProperties]
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentConfiguration extends Struct
 {
     /**
@@ -25,7 +25,7 @@ class DocumentConfiguration extends Struct
     protected $displayPrices;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $logo;
 
@@ -175,7 +175,7 @@ class DocumentConfiguration extends Struct
     protected $executiveDirector;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $custom = [];
 
@@ -196,21 +196,21 @@ class DocumentConfiguration extends Struct
 
     /**
      * @param string                     $name
-     * @param array|bool|int|string|null $value
+     * @param array<array-key, mixed>|bool|int|string|null $value
      */
     public function __set($name, $value): void
     {
-        $this->$name = $value; /* @phpstan-ignore-line */
+        $this->$name = $value;
     }
 
     /**
      * @param string $name
      *
-     * @return array|bool|int|string|null
+     * @return array<array-key, mixed>|bool|int|string|null
      */
     public function __get($name)
     {
-        return $this->$name; /* @phpstan-ignore-line */
+        return $this->$name;
     }
 
     /**
@@ -288,6 +288,9 @@ class DocumentConfiguration extends Struct
         $this->pageSize = $pageSize;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function merge(array $config): self
     {
         return DocumentConfigurationFactory::mergeConfiguration($this, $config);

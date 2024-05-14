@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
@@ -15,14 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator
  */
+#[CoversClass(GrossPriceCalculator::class)]
 class GrossPriceCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider referencePriceCalculationProvider
-     */
+    #[DataProvider('referencePriceCalculationProvider')]
     public function testReferencePriceCalculation(?ReferencePriceDefinition $reference, float $price, ?ReferencePrice $expected): void
     {
         $definition = new QuantityPriceDefinition($price, new TaxRuleCollection(), 1);
@@ -79,9 +78,7 @@ class GrossPriceCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider regulationPriceCalculationProvider
-     */
+    #[DataProvider('regulationPriceCalculationProvider')]
     public function testRegulationPriceCalculation(
         ?float $reference,
         ?RegulationPrice $expected

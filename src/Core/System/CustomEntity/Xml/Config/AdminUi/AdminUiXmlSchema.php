@@ -3,8 +3,8 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -27,7 +27,7 @@ final class AdminUiXmlSchema
         try {
             $doc = XmlUtils::loadFile($xmlFilePath, self::XSD_FILEPATH);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFilePath, $e->getMessage());
+            throw CustomEntityException::xmlParsingException($xmlFilePath, $e->getMessage());
         }
 
         /** @var \DOMElement $domItem */
@@ -36,7 +36,7 @@ final class AdminUiXmlSchema
         return new self(AdminUi::fromXml($domItem));
     }
 
-    public function getAdminUi(): ?AdminUi
+    public function getAdminUi(): AdminUi
     {
         return $this->adminUi;
     }

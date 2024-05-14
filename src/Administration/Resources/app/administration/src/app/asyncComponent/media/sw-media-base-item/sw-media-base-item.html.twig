@@ -1,20 +1,24 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_base_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     class="sw-media-base-item"
     :class="mediaItemClasses"
+    role="button"
+    tabindex="0"
     @click="handleItemClick"
+    @keydown.enter="handleItemClick"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_selected_indicator %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="!isList && allowEdit"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
+        role="button"
+        tabindex="0"
         @click="onClickedItem"
+        @keydown.enter="onClickedItem"
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -39,6 +43,26 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_base_item_slot_media_preview %}{% endblock %}
         </slot>
+
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {% block sw_media_base_spatial_label_indicator %}
+        <div
+            v-if="isSpatial"
+            class="sw-media-base-item__labels">
+            <sw-label
+                variant="neutral-reversed"
+                appearance="pill"
+                size="medium"
+            >
+                <sw-icon
+                    class="sw-product-image__spatial-icon"
+                    :name="getSpatialIconName"
+                    size="14px"
+                />
+                <span class="sw-media-base-item__labels-text">{{ getSpatialSubline }}</span>
+            </sw-label>
+        </div>
+        {% endblock %}
     </div>
     {% endblock %}
 
@@ -95,12 +119,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_list_selected_indicator %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="isList && showSelectionIndicator && allowMultiSelect"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
+        role="button"
+        tabindex="0"
         @click="onClickedItem"
+        @keydown.enter="onClickedItem"
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

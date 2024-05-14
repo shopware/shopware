@@ -41,11 +41,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!acl.can('number_ranges.editor')"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-number-range.detail.buttonSave') }}
@@ -95,11 +91,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="numberRange.name"
-                            {% else %}
-                            v-model="numberRange.name"
-                            {% endif %}
+                            name="sw-field--numberRange-name"
                             :label="$tc('sw-settings-number-range.detail.labelName')"
                             :placeholder="placeholder(numberRange,'name', $tc('sw-settings-number-range.detail.placeholderName'))"
                             validation="required"
@@ -112,11 +105,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_description %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="numberRange.description"
-                            {% else %}
-                            v-model="numberRange.description"
-                            {% endif %}
+                            name="sw-field--numberRange-description"
                             :label="$tc('sw-settings-number-range.detail.labelDescription')"
                             :placeholder="placeholder(numberRange,'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
                             :disabled="!acl.can('number_ranges.editor')"
@@ -131,60 +121,39 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_prefix %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="prefix"
-                            {% else %}
-                            v-model="prefix"
-                            {% endif %}
+                            name="sw-field--prefix"
                             :disabled="advanced || !acl.can('number_ranges.editor')"
                             :label="$tc('sw-settings-number-range.detail.labelPrefix')"
                             :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
-                            {% if VUE3 %}
                             @update:value="onChangePattern()"
-                            {% else %}
-                            @input="onChangePattern()"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_start %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="numberRange.start"
-                            {% else %}
-                            v-model="numberRange.start"
-                            {% endif %}
+                            name="sw-field--numberRange-start"
                             number-type="int"
                             :disabled="!acl.can('number_ranges.editor')"
                             :label="$tc('sw-settings-number-range.detail.labelStart')"
                             :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                             required
                             validation="required"
-                            {% if VUE3 %}
                             @update:value="onChangePattern()"
-                            {% else %}
-                            @change="onChangePattern()"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_suffix %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="suffix"
-                            {% else %}
-                            v-model="suffix"
-                            {% endif %}
+                            name="sw-field--suffix"
                             :disabled="advanced || !acl.can('number_ranges.editor')"
                             :label="$tc('sw-settings-number-range.detail.labelSuffix')"
                             :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
-                            {% if VUE3 %}
                             @update:value="onChangePattern()"
-                            {% else %}
-                            @input="onChangePattern()"
-                            {% endif %}
                         />
                         {% endblock %}
 
@@ -192,19 +161,12 @@
                         {% block sw_settings_number_range_detail_content_field_pattern %}
                         <sw-text-field
                             v-if="advanced"
-                            {% if VUE3 %}
                             v-model:value="numberRange.pattern"
-                            {% else %}
-                            v-model="numberRange.pattern"
-                            {% endif %}
+                            name="sw-field--numberRange-pattern"
                             :label="$tc('sw-settings-number-range.detail.labelPattern')"
                             :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
                             :disabled="!acl.can('number_ranges.editor')"
-                            {% if VUE3 %}
                             @update:value="onChangePattern()"
-                            {% else %}
-                            @input="onChangePattern()"
-                            {% endif %}
                         />
                         <div v-if="!advanced"></div>
                         {% endblock %}
@@ -218,11 +180,8 @@
                         {% block sw_settings_number_range_detail_content_field_default %}
                         <div class="sw-settings-number-range-detail__field_default">
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="advanced"
-                                {% else %}
-                                v-model="advanced"
-                                {% endif %}
+                                name="sw-field--advanced"
                                 bordered
                                 :disabled="!acl.can('number_ranges.editor')"
                                 :label="$tc('sw-settings-number-range.detail.labelAdvanced')"
@@ -243,11 +202,8 @@
                         {% block sw_settings_number_range_detail_content_field_current_number %}
                         <sw-text-field
                             v-if="state"
-                            {% if VUE3 %}
                             v-model:value="state"
-                            {% else %}
-                            v-model="state"
-                            {% endif %}
+                            name="sw-field--state"
                             :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
                             :placeholder="numberRange.start?numberRange.start.toString():''"
@@ -257,11 +213,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_number_range_detail_content_field_preview %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="preview"
-                            {% else %}
-                            v-model="preview"
-                            {% endif %}
+                            name="sw-field--preview"
                             :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelPreview')"
                         />
@@ -307,11 +260,8 @@
                         <sw-entity-single-select
                             v-if="numberRange.type"
                             id="numberRangeTypes"
-                            {% if VUE3 %}
                             v-model:value="numberRange.typeId"
-                            {% else %}
-                            v-model="numberRange.typeId"
-                            {% endif %}
+                            name="sw-field--numberRange-typeId"
                             entity="number_range_type"
                             class="sw-number-range-detail__select-type"
                             :disabled="disableNumberRangeTypeSelect"
@@ -321,7 +271,7 @@
                             :label="$tc('sw-settings-number-range.detail.labelType')"
                             :criteria="numberRange.type.global ? numberRangeTypeCriteriaGlobal : numberRangeTypeCriteria"
                             :error="numberRangeTypeIdError"
-                            @change="onChangeType"
+                            @update:value="onChangeType"
                         />
                         {% endblock %}
 
@@ -334,6 +284,7 @@
                             :disabled="!numberRange.typeId || !acl.can('number_ranges.editor')"
                             :value="selectedNumberRangeSalesChannels"
                             :options="salesChannels"
+                            name="sw-field--selectedNumberRangeSalesChannels"
                             label-property="translated.name"
                             value-property="id"
                             @item-add="addSalesChannel"

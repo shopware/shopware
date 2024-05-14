@@ -12,23 +12,33 @@
                 "description": "Returns blob file of a generated document to download.",
                 "operationId": "download",
                 "parameters": [
-                  {
-                    "name": "documentId",
-                    "in": "path",
-                    "required": true,
-                    "schema": {
-                      "type": "string",
-                      "pattern": "^[0-9a-f]{32}$"
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "deepLinkCode",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
                     }
-                  },
-                  {
-                    "name": "deepLinkCode",
-                    "required": true,
-                    "in": "path",
-                    "schema": {
-                      "type": "string"
-                    }
-                  }
                 ],
                 "requestBody": {
                     "required": false,
@@ -58,7 +68,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

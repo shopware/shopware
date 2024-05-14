@@ -1,12 +1,54 @@
 {
   "sw-settings-usage-data": {
     "general": {
-      "mainMenuItemGeneral": "Usage data",
-      "textHeadline": "Usage data",
-      "description": "Configure to share usage data with us to improve Shopware.",
-      "alertText": "This setting applies to all Shopware Administration users.",
-      "alertTextOnlyAdmins": "Only administrators can change it.",
-      "shareUsageData": "Share usage data"
+      "mainMenuItemGeneral": "Data sharing",
+      "textHeadline": "Data sharing",
+      "description": "Configure to share usage data with us to improve Shopware."
+    }
+  },
+  "sw-settings-usage-data-general": {
+    "tabHeadline": "General"
+  },
+  "sw-usage-data-consent-banner": {
+    "headline": "Shaping the future of ecommerce",
+    "improvingDescription": "We are constantly improving the services we provide to you. To take the next step, we are analyzing your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success. This is the data we are collecting:",
+    "improvingDescriptionNotAccepted": "We are constantly improving the services we provide to you. To take the next step, we would like to analyze your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success. This is the data we will collect:",
+    "fullDetailsDescription": "Full details of this agreement can be found at {link}. {fullDetailsDescriptionNotAccepted}",
+    "fullDetailsDescriptionNotAccepted": "You can opt out of data sharing at any time.",
+    "confirmAuthorization": "By clicking \"Agree\", you confirm that you are authorized to enter into this agreement on behalf of your company.",
+    "privacyPolicy": "shopware.com/en/data-use-details",
+    "privacyPolicyLink": "https://www.shopware.com/en/data-use-details/",
+    "collectionInformation": {
+      "orderData": "Order data",
+      "usageData": "Usage data",
+      "diagnosticData": "Diagnostic data",
+      "storeData": "Store data",
+      "helpText": {
+        "orderDataHelp": "<strong>Order data</strong> within Shopware refers to the detailed information about customer orders placed on the platform. This includes specifics such as products ordered, quantities, prices, origin, payment methods, shipment, etc. We analyze this data to understand trends and patterns that help us to enhance features as well as develop new services designed to improve your business success. We don’t collect personal data from your customers that can be used to identify a single person.",
+        "usageDataHelp": "<strong>Usage data</strong> within Shopware pertains to the information related to how admin users and storefront visitors interact with our platform. This includes details like interactions with different Shopware admin modules, pages viewed, duration of visits, click paths, and user actions within the platform and storefront. By evaluating the usage data, we can identify areas of the platform that are frequently visit or avoid to measure feature adoption, leading to potential improvements in layout, design, and functionality. We don’t collect personal data that can be used to identify an admin or storefront visitors.",
+        "diagnosticDataHelp": "<strong>Diagnostic data</strong> within Shopware refers to the information related to system health, errors and performance metrics of the platform. This includes details such as system logs, error messages, server response times, and other technical indicators. Analysing this data helps us to quickly identify, address and deploy fixes for common issues or vulnerabilities, maintaining the integrity of the platform.",
+        "storeDataHelp": "<strong>Store data</strong> within Shopware pertains to all the information related to your online storefront. Such as products, listings, prices, images, descriptions, etc. and metadata about your shop's setup, such as themes and plugins. We don’t collect personal data that can be used to identify an admin user or a storefront visitor. Using aggregated store data, we can provide insights via machine learning such as emerging market trends, allowing you to adjust product offerings or marketing strategies accordingly."
+      }
+    },
+    "checkListDataSharing": {
+      "title": "We can assure you that:",
+      "gdprCompliant": "We are GDPR compliant",
+      "personalData": "We don’t collect personal data",
+      "securelyProcessed": "Your data is securely processed and stored",
+      "thirdParty": "We don’t share your data with third parties for their own purposes",
+      "helpText": {
+        "shareDataHelpText": "<strong>\"Share\"</strong> refers to disclosure of data for the receiving party’s own purposes; we may disclose data to our service providers."
+      }
+    },
+    "acceptDataCollection": "Agree",
+    "declineDataCollection": "Not at the moment",
+    "togglePath": "Settings",
+    "rejectedMessage": "You can at any time enter into the agreement and thus contribute to and profit from the constant evolution of our services, by allowing data sharing in your {link}",
+    "thankYouMessage": "{thanksForParticipation} You may opt out of this agreement at any time and thus stop contributing to and benefiting from the ongoing development of our services by disabling data sharing in your {link}",
+    "thanksForParticipation": "Thank you for your participation!",
+    "settings": {
+      "deactivateDataCollection": "Disable data sharing",
+      "sharingInformation": "You are sharing data with us"
     }
   }
 }

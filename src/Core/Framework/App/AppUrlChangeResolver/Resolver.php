@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class Resolver
@@ -21,7 +21,6 @@ class Resolver
 
     public function resolve(string $strategyName, Context $context): void
     {
-        /** @var AbstractAppUrlChangeStrategy $strategy */
         foreach ($this->strategies as $strategy) {
             if ($strategy->getName() === $strategyName) {
                 $strategy->resolve($context);
@@ -40,7 +39,6 @@ class Resolver
     {
         $strategies = [];
 
-        /** @var AbstractAppUrlChangeStrategy $strategy */
         foreach ($this->strategies as $strategy) {
             $strategies[$strategy->getName()] = $strategy->getDescription();
         }

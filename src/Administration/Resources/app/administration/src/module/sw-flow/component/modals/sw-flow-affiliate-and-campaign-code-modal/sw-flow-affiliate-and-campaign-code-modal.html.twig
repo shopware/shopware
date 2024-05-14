@@ -12,11 +12,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_affiliate_and_campaign_code_modal_entity %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="entity"
-            {% else %}
-            v-model="entity"
-            {% endif %}
+            name="sw-field--entity"
             class="sw-flow-affiliate-and-campaign-code-modal__entity"
             required
             show-clearable-button
@@ -34,11 +31,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="affiliateCode.value"
-                {% else %}
-                v-model="affiliateCode.value"
-                {% endif %}
+                name="sw-field--affiliateCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
@@ -48,11 +42,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code_overwrite %}
             <sw-switch-field
-                {% if VUE3 %}
-                v-modle:value="affiliateCode.upsert"
-                {% else %}
-                v-model="affiliateCode.upsert"
-                {% endif %}
+                v-model:value="affiliateCode.upsert"
+                name="sw-field--affiliateCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
             />
@@ -66,11 +57,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="campaignCode.value"
-                {% else %}
-                v-model="campaignCode.value"
-                {% endif %}
+                name="sw-field--campaignCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"
@@ -80,11 +68,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code_overwrite %}
             <sw-switch-field
-                {% if VUE3 %}
-                v-modle:value="campaignCode.upsert"
-                {% else %}
-                v-model="campaignCode.upsert"
-                {% endif %}
+                v-model:value="campaignCode.upsert"
+                name="sw-field--campaignCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code-overwrite"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
             />

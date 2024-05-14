@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * This route is used handle the password reset form
  * The required parameters are: "hash" (received from the mail), "newPassword" and "newPasswordConfirm"
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractResetPasswordRoute
 {
     abstract public function getDecorated(): AbstractResetPasswordRoute;

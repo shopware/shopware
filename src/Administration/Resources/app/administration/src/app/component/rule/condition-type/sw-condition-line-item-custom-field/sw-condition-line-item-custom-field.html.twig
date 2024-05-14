@@ -5,29 +5,21 @@
     {% block sw_condition_line_item_custom_field_field %}
     <sw-entity-single-select
         ref="selectedField"
-        {% if VUE3 %}
         v-model:value="selectedField"
-        {% else %}
-        v-model="selectedField"
-        {% endif %}
+        name="sw-field--selectedField"
         entity="custom_field"
         :criteria="customFieldCriteria"
         :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
         :disabled="disabled"
         size="medium"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="onFieldChange"
-        {% else %}
-        @change="onFieldChange"
-        {% endif %}
     >
         <template #selection-label-property="{ item }">
             {{ getInlineSnippet(item.config.label) || item.name }}
         </template>
         <template #result-item="{ item, index, isSelected, setValue }">
-            <li
-                is="sw-select-result"
+            <sw-select-result
                 v-tooltip="getTooltipConfig(item)"
                 :disabled="!item.allowCartExpose"
                 :selected="isSelected(item)"
@@ -42,27 +34,31 @@
                     {{ getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name }}
                     {% endblock %}
                 </template>
-            </li>
+            </sw-select-result>
         </template>
     </sw-entity-single-select>
     {% endblock %}
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_custom_field_operator %}
     <sw-condition-operator-select
         v-if="renderedField"
-        v-model="operator"
+        name="sw-field--operator"
         v-bind="{ operators, condition }"
         :disabled="disabled"
     />
     {% endblock %}
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"
-        v-model="renderedFieldValue"
+        name="sw-field--renderedFieldValue"
+        size="medium"
+        :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
-        size="medium"
+        @update:value="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

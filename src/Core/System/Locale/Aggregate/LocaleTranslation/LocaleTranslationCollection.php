@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<LocaleTranslationEntity>
  */
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class LocaleTranslationCollection extends EntityCollection
 {
     public function getLocaleIds(): array

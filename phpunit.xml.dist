@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
          cacheResult="false"
          executionOrder="random"
-         convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="true">
-        <include >
+         cacheDirectory=".phpunit.cache">
+    <coverage includeUncoveredFiles="true"/>
+    <source>
+        <include>
             <!--
-                DO NOT change this to a more generic structure.
-                The phpunit file traversal is really inefficient for our test structure. A naive definition results in
-                more than 70000 files being traversed, which has to be done for each thread/process.
-            -->
+                      DO NOT change this to a more generic structure.
+                      The phpunit file traversal is really inefficient for our test structure. A naive definition results in
+                      more than 70000 files being traversed, which has to be done for each thread/process.
+                  -->
             <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/Content</directory>
             <directory suffix=".php">src/Core/Checkout</directory>
@@ -20,16 +20,13 @@
             <directory suffix=".php">src/Core/Maintenance</directory>
             <directory suffix=".php">src/Core/System</directory>
             <directory suffix=".php">src/Core/Installer</directory>
-
             <file>src/Core/Defaults.php</file>
             <file>src/Core/HttpKernel.php</file>
             <file>src/Core/HttpKernelResult.php</file>
             <file>src/Core/Kernel.php</file>
             <file>src/Core/PlatformRequest.php</file>
             <file>src/Core/SalesChannelRequest.php</file>
-
             <directory suffix=".php">src/Elasticsearch</directory>
-
             <directory suffix=".php">src/Administration/Controller</directory>
             <directory suffix=".php">src/Administration/DependencyInjection</directory>
             <directory suffix=".php">src/Administration/Events</directory>
@@ -39,7 +36,6 @@
             <directory suffix=".php">src/Administration/Snippet</directory>
             <directory suffix=".php">src/Administration/System</directory>
             <file>src/Administration/Administration.php</file>
-
             <directory suffix=".php">src/Storefront/Checkout</directory>
             <directory suffix=".php">src/Storefront/Controller</directory>
             <directory suffix=".php">src/Storefront/DependencyInjection</directory>
@@ -54,48 +50,51 @@
             <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
+            <file>src/Core/Framework/Adapter/Twig/functions.php</file>
+            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/Checkout/Test</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
-
             <directory suffix=".php">src/Elasticsearch/Test</directory>
-
             <directory suffix=".php">src/Administration/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
             <directory suffix=".php">./vendor</directory>
             <directory suffix=".php">./var</directory>
+            <directory suffix="Definition.php">src/</directory>
+            <directory suffix="Entity.php">src/</directory>
+            <directory suffix="Event.php">src/</directory>
+            <directory suffix="Field.php">src/</directory>
+            <directory suffix="Struct.php">src/</directory>
+            <directory suffix="Collection.php">src/</directory>
         </exclude>
-      </coverage>
+    </source>
     <php>
-        <ini name="error_reporting" value="-1" />
+        <ini name="error_reporting" value="-1"/>
         <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
-        <env name="APP_ENV" value="test" />
-        <env name="APP_DEBUG" value="1" />
-        <env name="APP_SECRET" value="s$cretf0rt3st" />
-        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0" />
-
-        <env name="SHELL_VERBOSITY" value="-1" />
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="APP_SECRET" value="def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"/>
+        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0"/>
+        <env name="SHELL_VERBOSITY" value="-1"/>
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-<!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
-         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
+        <!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
     </php>
     <testsuites>
+        <!-- Legacy -->
         <testsuite name="administration">
             <directory>src/Administration/Test</directory>
         </testsuite>
         <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
-        </testsuite>
-        <testsuite name="checkout">
-            <directory>src/Core/Checkout/Test</directory>
         </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
@@ -113,18 +112,20 @@
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
+        <!-- new Structure -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
-
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
-
+        <testsuite name="devops">
+            <directory>tests/devops</directory>
+        </testsuite>
         <testsuite name="migration-tests">
             <directory>tests/migration</directory>
         </testsuite>
-
+        <!-- Paratest -->
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
@@ -133,22 +134,11 @@
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener">
-            <arguments>
-                <array>
-                    <!-- set this option to 0 to disable the DebugClassLoader integration -->
-                    <element key="debug-class-loader"><integer>0</integer></element>
-                    <element key="time-sensitive"><string>Symfony\Bridge\Doctrine\Middleware\Debug</string></element>
-                </array>
-            </arguments>
-        </listener>
-        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
-        <listener class="Shopware\Core\Test\PHPUnit\Extension\DatadogListener" />
-    </listeners>
     <extensions>
-        <extension class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension" />
-        <!--Enable to see the db sideeffects of the tests. -->
-        <!--<extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension" />-->
+        <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
+        <!-- Enable to see the db side effects of the tests. -->
+<!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
     </extensions>
 </phpunit>

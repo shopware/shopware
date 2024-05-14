@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionDiscountEntity extends Entity
 {
     use EntityIdTrait;
@@ -201,8 +201,6 @@ class PromotionDiscountEntity extends Entity
     /**
      * if a promotionDiscountPrice has a value for a currency this value should be
      * taken for the discount value and not the value of this entity
-     *
-     * @return PromotionDiscountPriceCollection
      */
     public function getPromotionDiscountPrices(): ?PromotionDiscountPriceCollection
     {

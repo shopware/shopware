@@ -1,36 +1,43 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import swSalesChannelProductsAssignmentModal from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-sales-channel-products-assignment-modal', swSalesChannelProductsAssignmentModal);
 
 async function createWrapper(activeTab = 'singleProducts') {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
-        directives: {
-            hide: {},
-        },
-        stubs: {
-            'sw-sales-channel-products-assignment-single-products': true,
-            'sw-sales-channel-product-assignment-categories': true,
-            'sw-sales-channel-products-assignment-dynamic-product-groups': true,
-            'sw-container': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-modal': true,
-            'sw-tabs': {
-                data() {
-                    return { active: activeTab };
-                },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+    return mount(await wrapTestComponent('sw-sales-channel-products-assignment-modal', { sync: true }), {
+        global: {
+            directives: {
+                hide: {},
             },
-            'sw-tabs-item': true,
-            'sw-icon': true,
-            'sw-loader': true,
+            stubs: {
+                'sw-sales-channel-products-assignment-single-products': true,
+                'sw-sales-channel-product-assignment-categories': true,
+                'sw-sales-channel-products-assignment-dynamic-product-groups': true,
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-tabs': {
+                    data() {
+                        return { active: activeTab };
+                    },
+                    template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                },
+                'sw-tabs-item': true,
+                'sw-icon': true,
+                'sw-loader': true,
+            },
         },
-        propsData: {
+        props: {
             salesChannel: {
                 id: 1,
                 name: 'Headless',
@@ -44,7 +51,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     it('should emit modal close event', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.findAll('.sw-button').at(0).trigger('click');
+        await wrapper.get('.sw-sales-channel-products-assignment-modal__close-button').trigger('click');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });

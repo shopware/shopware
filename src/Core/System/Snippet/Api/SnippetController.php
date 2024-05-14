@@ -3,15 +3,15 @@
 namespace Shopware\Core\System\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('system-settings')]
@@ -32,7 +32,15 @@ class SnippetController extends AbstractController
         $limit = $request->request->getInt('limit', 25);
 
         if ($limit < 1) {
-            throw new InvalidLimitQueryException($limit);
+            throw SnippetException::invalidLimitQuery($limit);
+        }
+
+        $filters = $request->request->all('filters');
+
+        foreach (array_keys($filters) as $filterName) {
+            if (!\is_string($filterName)) {
+                throw SnippetException::invalidFilterName();
+            }
         }
 
         return new JsonResponse(
@@ -40,7 +48,7 @@ class SnippetController extends AbstractController
                 $request->request->getInt('page', 1),
                 $limit,
                 $context,
-                $request->request->all('filters'),
+                $filters,
                 $request->request->all('sort')
             )
         );

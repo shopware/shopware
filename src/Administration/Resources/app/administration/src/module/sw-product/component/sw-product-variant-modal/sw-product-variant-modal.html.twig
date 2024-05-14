@@ -24,7 +24,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_label_search %}
             <sw-simple-search-field
-                v-model="searchTerm"
+                v-model:value="searchTerm"
                 class="sw-product-variant-modal__search"
                 size="small"
                 variant="form"
@@ -141,6 +141,8 @@
             <span
                 v-if="acl.can('product.editor')"
                 class="link link-primary sw-product-variant-modal__bulk-edit-action"
+                role="link"
+                tabindex="0"
                 @click="toggleBulkEditModal"
             >
                 {{ $tc('global.default.bulkEdit') }}
@@ -152,6 +154,8 @@
             <span
                 v-if="acl.can('product.deleter')"
                 class="link link-danger sw-product-variant-modal__bulk-delete-action"
+                role="link"
+                tabindex="0"
                 @click="onClickBulkDelete"
             >
                 {{ $tc('global.default.delete') }}
@@ -214,7 +218,7 @@
                         disabled
                     />
                     <sw-price-preview
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="productEntity.price[0]"
                         :tax-rate="productEntity.tax"
                         :currency="currency"
@@ -226,7 +230,7 @@
                 {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
                 <template #column-stock="{ item }">
                     {{ item.stock }}
-                    <sw-color-badge :variant="item.stock | stockColorVariant" />
+                    <sw-color-badge :variant="stockColorVariant(item.stock)" />
                 </template>
                 {% endblock %}
 
@@ -250,7 +254,6 @@
                         key="inherit-icon"
                         name="regular-link-horizontal"
                         size="16"
-                        multicolor
                     />
                 </template>
                 {% endblock %}
@@ -284,11 +287,7 @@
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.name"
-                {% else %}
-                v-model="item.name"
-                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />
@@ -355,7 +354,7 @@
                 />
 
                 <sw-price-field
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="productEntity.price[0]"
                     :tax-rate="productEntity.tax"
                     :label="false"
@@ -374,7 +373,7 @@
                 />
 
                 <sw-price-preview
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="productEntity.price[0]"
                     :tax-rate="productEntity.tax"
                     :currency="currency"
@@ -391,11 +390,7 @@
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.stock"
-                {% else %}
-                v-model="item.stock"
-                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -405,7 +400,7 @@
             {% block sw_product_variant_modal_body_grid_column_stock_content %}
             <template v-else>
                 {{ item.stock }}
-                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
             </template>
             {% endblock %}
         </template>
@@ -419,11 +414,7 @@
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.active"
-                    {% else %}
-                    v-model="item.active"
-                    {% endif %}
                     :disabled="item.active === null"
                 />
 
@@ -463,7 +454,6 @@
                 <sw-icon
                     v-else
                     key="inherit-icon"
-                    :multicolor="true"
                     name="regular-link-horizontal"
                     size="16"
                 />
@@ -613,11 +603,7 @@
                 :process-success="isDeletionOver"
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
-                {% if VUE3 %}
-                @update:processSuccess="closeDeleteModal"
-                {% else %}
-                @process-finish="closeDeleteModal"
-                {% endif %}
+                @update:process-success="closeDeleteModal"
             >
                 {{ $tc('global.default.delete') }}
             </sw-button-process>
@@ -635,6 +621,8 @@
         {% block sw_product_variant_modal_footer_visit_main_product %}
         <div
             class="sw-product-variant-modal__main-product-link"
+            role="button"
+            tabindex="0"
             @click="visitProduct(productEntity.id)"
         >
             {{ openMainProductText }}

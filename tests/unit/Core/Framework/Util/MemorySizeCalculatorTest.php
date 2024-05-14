@@ -2,19 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\MemorySizeCalculator
  */
+#[CoversClass(MemorySizeCalculator::class)]
 class MemorySizeCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider memorySizeDataProvider
-     */
+    public static function setUpBeforeClass(): void
+    {
+        IniMock::register(MemorySizeCalculator::class);
+    }
+
+    #[DataProvider('memorySizeDataProvider')]
     public function testBytesConversion(string $limit, int $bytes): void
     {
         static::assertEquals($bytes, MemorySizeCalculator::convertToBytes($limit));
@@ -49,9 +54,7 @@ class MemorySizeCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider bytesProvider
-     */
+    #[DataProvider('bytesProvider')]
     public function testFormatBytes(int $bytes, string $formatted): void
     {
         static::assertEquals($formatted, MemorySizeCalculator::formatToBytes($bytes));
@@ -71,6 +74,77 @@ class MemorySizeCalculatorTest extends TestCase
             [15768749, '15.04 MB'],
             [7415768749, '6.91 GB'],
             [7369137415768749, '6702.19 TB'],
+        ];
+    }
+
+    #[DataProvider('maxUploadSizeProvider')]
+    public function testGetMaxUploadSize(
+        string $uploadMaxFilesize,
+        string $postMaxSize,
+        ?int $maxSize,
+        int $expected
+    ): void {
+        IniMock::withIniMock([
+            'upload_max_filesize' => $uploadMaxFilesize,
+            'post_max_size' => $postMaxSize,
+        ]);
+
+        $maxUploadSize = MemorySizeCalculator::getMaxUploadSize($maxSize);
+
+        static::assertEquals($expected, $maxUploadSize);
+
+        IniMock::withIniMock([]);
+    }
+
+    public static function maxUploadSizeProvider(): \Generator
+    {
+        yield 'uploadMaxFilesize is 2M, postMaxSize is 4M, maxSize is null' => [
+            'uploadMaxFilesize' => '2M',
+            'postMaxSize' => '4M',
+            'maxSize' => null,
+            'expected' => 2 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 4M, postMaxSize is 2M, maxSize is null' => [
+            'uploadMaxFilesize' => '4M',
+            'postMaxSize' => '2M',
+            'maxSize' => null,
+            'expected' => 2 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 4M, postMaxSize is 4M, maxSize is null' => [
+            'uploadMaxFilesize' => '4M',
+            'postMaxSize' => '4M',
+            'maxSize' => null,
+            'expected' => 4 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 2M, postMaxSize is 4M, maxSize is 8M' => [
+            'uploadMaxFilesize' => '2M',
+            'postMaxSize' => '4M',
+            'maxSize' => 8 * 1024 * 1024,
+            'expected' => 2 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 4M, postMaxSize is 2M, maxSize is 8M' => [
+            'uploadMaxFilesize' => '4M',
+            'postMaxSize' => '2M',
+            'maxSize' => 8 * 1024 * 1024,
+            'expected' => 2 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 4M, postMaxSize is 4M, maxSize is 8M' => [
+            'uploadMaxFilesize' => '4M',
+            'postMaxSize' => '4M',
+            'maxSize' => 8 * 1024 * 1024,
+            'expected' => 4 * 1024 * 1024,
+        ];
+
+        yield 'uploadMaxFilesize is 4M, postMaxSize is 4M, maxSize is 4M' => [
+            'uploadMaxFilesize' => '4M',
+            'postMaxSize' => '4M',
+            'maxSize' => 4 * 1024 * 1024,
+            'expected' => 4 * 1024 * 1024,
         ];
     }
 }

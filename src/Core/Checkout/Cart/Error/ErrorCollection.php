@@ -41,16 +41,25 @@ class ErrorCollection extends Collection
         return false;
     }
 
+    /**
+     * @return array<array-key, Error>
+     */
     public function getErrors(): array
     {
         return $this->filterByErrorLevel(Error::LEVEL_ERROR);
     }
 
+    /**
+     * @return array<array-key, Error>
+     */
     public function getWarnings(): array
     {
         return $this->filterByErrorLevel(Error::LEVEL_WARNING);
     }
 
+    /**
+     * @return array<array-key, Error>
+     */
     public function getNotices(): array
     {
         return $this->filterByErrorLevel(Error::LEVEL_NOTICE);
@@ -61,6 +70,9 @@ class ErrorCollection extends Collection
         return $this->filter(fn (Error $error) => $error->isPersistent());
     }
 
+    /**
+     * @return array<array-key, Error>
+     */
     public function filterByErrorLevel(int $errorLevel): array
     {
         return $this->fmap(static fn (Error $error): ?Error => $errorLevel === $error->getLevel() ? $error : null);

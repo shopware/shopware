@@ -1,14 +1,6 @@
 /**
  * @package admin
  */
-
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
-import type { VNode } from 'vue';
-import Vue from 'vue';
-
-const { Directive } = Shopware;
-const { debug } = Shopware.Utils;
 const utils = Shopware.Utils;
 
 type Placements = 'top'|'right'|'bottom'|'left';
@@ -24,7 +16,7 @@ const availableTooltipPlacements: Placements[] = [
 const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 class Tooltip {
     private _id?: string;
@@ -54,8 +46,6 @@ class Tooltip {
     private _state: boolean;
 
     private _DOMElement: HTMLElement|null;
-
-    private _vue: Vue|null;
 
     private _parentDOMElementWrapper: HTMLElement|null;
 
@@ -104,14 +94,10 @@ class Tooltip {
         this._isShown = false;
         this._state = false;
         this._DOMElement = null;
-        this._vue = null;
         this._parentDOMElementWrapper = null;
         this._actualTooltipPlacement = null;
     }
 
-    /**
-     * @returns {String}
-     */
     get id() {
         return this._id;
     }
@@ -120,8 +106,8 @@ class Tooltip {
      * Initializes the tooltip.
      * Needs to be called after the parent DOM Element is inserted to the DOM.
      */
-    init(node: VNode) {
-        this._DOMElement = this.createDOMElement(node);
+    init() {
+        this._DOMElement = this.createDOMElement();
 
         if (this._showOnDisabledElements) {
             this._parentDOMElementWrapper = this.createParentDOMElementWrapper();
@@ -161,16 +147,6 @@ class Tooltip {
                 this._DOMElement.innerHTML = this._message;
             }
 
-            this._vue?.$destroy();
-            this._vue = new Vue({
-                name: `sw-tooltip-${this._id || 'undefined'}`,
-                el: this._DOMElement!,
-                // @ts-expect-error
-                parent: this._vue?.$parent,
-                template: this._DOMElement?.outerHTML,
-            });
-
-            this._DOMElement = this._vue.$el as HTMLElement;
             this.registerEvents();
         }
 
@@ -227,7 +203,7 @@ class Tooltip {
         return element;
     }
 
-    createDOMElement(node: VNode): HTMLElement {
+    createDOMElement(): HTMLElement {
         const element = document.createElement('div');
         element.innerHTML = this._message;
         element.style.width = `${this._width}px`;
@@ -239,14 +215,7 @@ class Tooltip {
             element.style.zIndex = this._zIndex.toFixed(0);
         }
 
-        this._vue = new Vue({
-            name: `sw-tooltip-${this._id || 'undefined'}`,
-            el: element,
-            parent: node.context,
-            template: element.outerHTML,
-        });
-
-        return this._vue.$el as HTMLElement;
+        return element;
     }
 
     registerEvents() {
@@ -317,7 +286,7 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        this._vue!.$destroy();
+
         this._DOMElement!.remove();
         this._isShown = false;
     }
@@ -404,7 +373,7 @@ class Tooltip {
 
     static validatePlacement<P extends Placements>(placement: P): Placements {
         if (!availableTooltipPlacements.includes(placement)) {
-            debug.warn(
+            utils.debug.warn(
                 'Tooltip Directive',
                 `The modifier has to be one of these "${availableTooltipPlacements.join(',')}"`,
             );
@@ -416,7 +385,7 @@ class Tooltip {
 
     static validateMessage(message?: string): string {
         if (typeof message !== 'string') {
-            debug.warn('Tooltip Directive', 'The tooltip needs a message with type string');
+            utils.debug.warn('Tooltip Directive', 'The tooltip needs a message with type string');
         }
 
         return message ?? '';
@@ -428,7 +397,7 @@ class Tooltip {
         }
 
         if (typeof width !== 'number' || width < 1) {
-            debug.warn('Tooltip Directive', 'The tooltip width has to be a number greater 0');
+            utils.debug.warn('Tooltip Directive', 'The tooltip width has to be a number greater 0');
             return 200;
         }
 
@@ -437,7 +406,7 @@ class Tooltip {
 
     static validateDelay(delay: number): number {
         if (typeof delay !== 'number' || delay < 1) {
-            debug.warn('Tooltip Directive', 'The tooltip delay has to be a number greater 0');
+            utils.debug.warn('Tooltip Directive', 'The tooltip delay has to be a number greater 0');
             return 100;
         }
 
@@ -532,7 +501,8 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  *
  * *Note that the position variable has a higher priority as the modifier
  */
-Directive.register('tooltip', {
+Shopware.Directive.register('tooltip', {
+    // @ts-expect-error
     bind: (el: HTMLElement, binding) => {
         createOrUpdateTooltip(el, binding);
     },
@@ -544,17 +514,20 @@ Directive.register('tooltip', {
         }
     },
 
+    // @ts-expect-error
     update: (el: HTMLElement, binding) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
 
     /**
      * Initialize the tooltip once it has been inserted to the DOM.
      */
-    inserted: (el: HTMLElement, binding, node) => {
+    inserted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
-            tooltip!.init(node);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            tooltip!.init();
         }
     },
 });

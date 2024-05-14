@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemScope extends CheckoutRuleScope
 {
     public function __construct(

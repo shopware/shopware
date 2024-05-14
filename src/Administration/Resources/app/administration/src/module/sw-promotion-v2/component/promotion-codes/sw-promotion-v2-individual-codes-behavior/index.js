@@ -1,8 +1,10 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-individual-codes-behavior.html.twig';
 import './sw-promotion-v2-individual-codes-behavior.scss';
 
 const { Criteria } = Shopware.Data;
-const createId = Shopware.Utils.createId;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,6 +14,7 @@ export default {
         'acl',
         'repositoryFactory',
         'promotionCodeApiService',
+        'feature',
     ],
 
     mixins: [
@@ -35,7 +38,6 @@ export default {
             generateCodesModal: false,
             addCodesModal: false,
             newCodeAmount: 10,
-            cardIdentifier: createId(),
             currentSelection: [],
         };
     },
@@ -50,6 +52,10 @@ export default {
         },
 
         deleteConfirmText() {
+            if (!this.currentSelection) {
+                return '';
+            }
+
             return this.$tc(
                 'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
                 this.currentSelection.length,
@@ -69,11 +75,9 @@ export default {
                 label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
             }];
         },
-    },
 
-    watch: {
-        'promotion.individualCodes'() {
-            this.cardIdentifier = createId();
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -105,8 +109,12 @@ export default {
             });
         },
 
-        onSelectionChange() {
-            this.currentSelection = Object.values(this.$refs.individualCodesGrid.selection);
+        onSelectionChange(selection) {
+            this.currentSelection = Object.values(selection);
+        },
+
+        onCodeSelectionChange(selection) {
+            this.currentSelection = Object.values(selection);
         },
 
         onShowCodeDeleteModal(id) {

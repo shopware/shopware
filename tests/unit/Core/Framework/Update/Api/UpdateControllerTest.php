@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
@@ -24,9 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Api\UpdateController
  */
+#[CoversClass(UpdateController::class)]
 class UpdateControllerTest extends TestCase
 {
     public function testCheckForUpdatesNoUpdate(): void
@@ -221,7 +221,9 @@ class UpdateControllerTest extends TestCase
         $updateController->deactivatePlugins(new Request(), Context::createDefaultContext());
 
         static::assertCount(2, $events);
+        static::assertArrayHasKey(0, $events);
         static::assertInstanceOf(UpdatePrePrepareEvent::class, $events[0]);
+        static::assertArrayHasKey(1, $events);
         static::assertInstanceOf(UpdatePostPrepareEvent::class, $events[1]);
     }
 

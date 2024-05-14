@@ -18,7 +18,7 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should initialized all state modules', () => {
-        expect(Shopware.State.list()).toHaveLength(21);
+        expect(Shopware.State.list()).toHaveLength(23);
 
         expect(Shopware.State.get('notification')).toBeDefined();
         expect(Shopware.State.get('session')).toBeDefined();
@@ -41,5 +41,7 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('actionButtons')).toBeDefined();
         expect(Shopware.State.get('ruleConditionsConfig')).toBeDefined();
         expect(Shopware.State.get('sdkLocation')).toBeDefined();
+        expect(Shopware.State.get('usageData')).toBeDefined();
+        expect(Shopware.State.get('adminHelpCenter')).toBeDefined();
     });
 });

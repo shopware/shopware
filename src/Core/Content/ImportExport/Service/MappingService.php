@@ -3,19 +3,16 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
-use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileContentException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -26,11 +23,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MappingService extends AbstractMappingService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
      */
     public function __construct(
         private readonly AbstractFileService $fileService,
@@ -46,21 +45,19 @@ class MappingService extends AbstractMappingService
 
     public function createTemplate(Context $context, string $profileId): string
     {
-        /** @var ImportExportProfileEntity|null $profile */
-        $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->first();
+        $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->getEntities()->first();
         if ($profile === null) {
-            throw new EntityNotFoundException('import_export_profile', $profileId);
+            throw ImportExportException::profileNotFound($profileId);
         }
         $mappings = $profile->getMapping();
         if (empty($mappings)) {
-            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" has no mappings');
+            throw ImportExportException::profileWithoutMappings($profileId);
         }
 
         $config = new Config($mappings, [], []);
         $headers = [];
         $mappings = MappingCollection::fromIterable($mappings)->sortByPosition();
 
-        /** @var Mapping $mapping */
         foreach ($mappings as $mapping) {
             $headers[$mapping->getMappedKey()] = '';
         }
@@ -95,28 +92,28 @@ class MappingService extends AbstractMappingService
         string $escape = '\\'
     ): MappingCollection {
         if ($this->fileService->detectType($file) !== 'text/csv') {
-            throw new UnexpectedFileTypeException($file->getClientMimeType(), 'text/csv');
+            throw ImportExportException::unexpectedFileType($file->getClientMimeType(), 'text/csv');
         }
 
         if ($file->getSize() < 1) {
-            throw new FileEmptyException($file->getFilename());
+            throw ImportExportException::fileEmpty($file->getFilename());
         }
 
         $filePath = $file->getRealPath();
         if (!$filePath) {
-            throw new \RuntimeException('File does not exists');
+            throw ImportExportException::filePathNotFound();
         }
 
-        $fileHandle = fopen($filePath, 'rb');
+        $fileHandle = fopen($filePath, 'r');
         if (!$fileHandle) {
-            throw new FileNotReadableException($filePath);
+            throw ImportExportException::fileNotReadable($filePath);
         }
 
         // read the first CSV line
         $record = fgetcsv($fileHandle, 0, $delimiter, $enclosure, $escape);
         fclose($fileHandle);
         if (empty($record) || $record[0] === null) {
-            throw new InvalidFileContentException($file->getFilename());
+            throw ImportExportException::invalidFileContent($file->getFilename());
         }
 
         // construct the mapping from the given CSV line data
@@ -125,6 +122,10 @@ class MappingService extends AbstractMappingService
 
         $mappings = new MappingCollection();
         foreach ($record as $index => $column) {
+            if (!\is_string($column)) {
+                continue;
+            }
+
             $mappings->add(new Mapping(
                 $this->guessKeyFromMappedKey($keyLookupTable, $column, $definition),
                 $column,
@@ -138,6 +139,8 @@ class MappingService extends AbstractMappingService
     /**
      * Gather all mapping keys used in all profiles with the same source entity and fill the keyLookupTable.
      * Keys from newer profiles are prioritized.
+     *
+     * @return array<string, string>
      */
     private function getKeyLookupTable(Context $context, string $sourceEntity): array
     {
@@ -152,7 +155,7 @@ class MappingService extends AbstractMappingService
             if ($mappings !== null) {
                 foreach ($mappings as $mapping) {
                     if (!empty($mapping['key']) && !empty($mapping['mappedKey'])) {
-                        $keyLookupTable[$mapping['mappedKey']] = $mapping['key'];
+                        $keyLookupTable[(string) $mapping['mappedKey']] = (string) $mapping['key'];
                     }
                 }
             }
@@ -167,6 +170,8 @@ class MappingService extends AbstractMappingService
      * 2. check if the mappedKey (converted to camelCase) is a field of the translationDefinition (if one exists)
      * 3. check if the mappedKey (converted to camelCase) is a field of the definition itself
      * 4. split the mappedKey in parts and check if the first part is an association -> recursive call this method again.
+     *
+     * @param array<string, string> $keyLookupTable
      */
     private function guessKeyFromMappedKey(array $keyLookupTable, string $mappedKey, EntityDefinition $definition, int $depthLimit = 5): string
     {
@@ -205,7 +210,6 @@ class MappingService extends AbstractMappingService
         }
 
         // try to guess associations
-        /** @var array<string> $mappedKeyParts */
         $mappedKeyParts = explode(
             ' ',
             strtolower(
@@ -224,7 +228,7 @@ class MappingService extends AbstractMappingService
         if (isset($mappedKeyParts[0]) && strcmp($mappedKeyParts[0], $mappedKey) !== 0) {
             $associationField = $definition->getField($mappedKeyParts[0]);
 
-            if ($associationField !== null && $associationField instanceof ManyToOneAssociationField) {
+            if ($associationField instanceof ManyToOneAssociationField) {
                 $fullKey = implode(' ', $mappedKeyParts);
                 array_shift($mappedKeyParts);
                 $leftoverKey = implode(' ', $mappedKeyParts);

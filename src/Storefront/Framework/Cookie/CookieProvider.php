@@ -65,6 +65,19 @@ class CookieProvider implements CookieProviderInterface
         ],
     ];
 
+    private const MARKETING_COOKIES = [
+        'snippet_name' => 'cookie.groupMarketing',
+        'snippet_description' => 'cookie.groupMarketingDescription',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupMarketingAdConsent',
+                'cookie' => 'google-ads-enabled',
+                'expiration' => '30',
+                'value' => '1',
+            ],
+        ],
+    ];
+
     /**
      * A group CAN be a cookie, it's entries MUST be a cookie.
      * If a "group" is a cookie itself, it should not contain "children", because it may lead to unexpected UI behavior.
@@ -100,6 +113,7 @@ class CookieProvider implements CookieProviderInterface
         return [
             $requiredCookies,
             self::STATISTICAL_COOKIES,
+            self::MARKETING_COOKIES,
             self::COMFORT_FEATURES_COOKIES,
         ];
     }

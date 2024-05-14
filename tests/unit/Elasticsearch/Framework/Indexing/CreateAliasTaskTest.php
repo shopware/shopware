@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask
  */
+#[CoversClass(CreateAliasTask::class)]
 class CreateAliasTaskTest extends TestCase
 {
     public function testShouldRun(): void

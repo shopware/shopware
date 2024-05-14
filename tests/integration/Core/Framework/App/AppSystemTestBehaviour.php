@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -22,7 +23,8 @@ trait AppSystemTestBehaviour
         return new AppLoader(
             $appDir,
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigReader::class)
+            $this->getContainer()->get(ConfigReader::class),
+            new NullLogger()
         );
     }
 
@@ -38,7 +40,7 @@ trait AppSystemTestBehaviour
 
         $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
 
-        if (!empty($fails)) {
+        if ($fails !== []) {
             $errors = \array_map(function (array $fail): string {
                 return $fail['exception']->getMessage();
             }, $fails);

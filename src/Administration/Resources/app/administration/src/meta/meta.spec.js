@@ -28,7 +28,7 @@ const rootPath = 'src';
 // @ts-expect-error
 // eslint-disable-next-line no-undef
 const testAbleFiles = getAllFiles(path.join(adminPath, rootPath)).filter(file => {
-    return file.match(/^.*(?<!\.spec)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
+    return file.match(/^.*(?<!\.spec|vue2)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
 });
 
 describe('Administration meta tests', () => {
@@ -48,10 +48,10 @@ describe('Administration meta tests', () => {
                 return whole.includes(filePath);
             });
 
-        const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.${extension}`);
+        const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.js`);
         const specFileExists = fs.existsSync(specFile);
 
-        const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.${extension}`);
+        const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.js`);
         const specFileWithFolderNameExists = fs.existsSync(specFileWithFolderName);
 
         let specFileAlternativeExtension = '';
@@ -89,8 +89,8 @@ describe('Administration meta tests', () => {
         expect(typeof packageJson).toBe('object');
         expect(packageJson.hasOwnProperty('engines')).toBe(true);
         expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
-        expect(packageJson.engines.node).toBe('^18.0.0');
+        expect(packageJson.engines.node).toBe('^20.0.0');
         expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
-        expect(packageJson.engines.npm).toBe('^8.0.0 || ^9.0.0');
+        expect(packageJson.engines.npm).toBe('>=10.0.0');
     });
 });

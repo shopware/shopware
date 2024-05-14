@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailFactory;
@@ -10,9 +11,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailFactory
  */
+#[CoversClass(MailFactory::class)]
 class MailFactoryTest extends TestCase
 {
     public function testCreateWithFeatureFlag(): void

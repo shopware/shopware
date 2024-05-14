@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 abstract class ZipCodeRule extends Rule
 {
     /**

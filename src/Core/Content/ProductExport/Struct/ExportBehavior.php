@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ExportBehavior
 {
     public function __construct(

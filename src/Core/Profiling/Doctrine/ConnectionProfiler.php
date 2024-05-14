@@ -29,7 +29,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     private ?BacktraceDebugDataHolder $dataHolder = null;
 
     /**
-     * @var ?array<string, array<string, SanitizedQueryInfoGroup>>
+     * @var ?array<string, array<int, SanitizedQueryInfoGroup>>
      */
     private ?array $groupedQueries = null;
 
@@ -127,7 +127,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     }
 
     /**
-     * @return array<string, array<string, SanitizedQueryInfoGroup>>
+     * @return array<string, array<int, SanitizedQueryInfoGroup>>
      */
     public function getGroupedQueries(): array
     {
@@ -153,14 +153,13 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
                 $totalExecutionMS += $query['executionMS'];
             }
 
-            usort($connectionGroupedQueries, static fn ($a, $b) => $b['executionMS'] <=> $a['executionMS']);
+            usort($connectionGroupedQueries, static fn (array $a, array $b): int => $b['executionMS'] <=> $a['executionMS']);
             $this->groupedQueries[$connection] = $connectionGroupedQueries;
         }
 
         foreach ($this->groupedQueries as $connection => $queries) {
             foreach ($queries as $i => $query) {
-                $this->groupedQueries[$connection][$i]['executionPercent']
-                    = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
+                $this->groupedQueries[$connection][$i]['executionPercent'] = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
             }
         }
 

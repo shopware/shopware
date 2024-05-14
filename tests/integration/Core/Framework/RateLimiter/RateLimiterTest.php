@@ -5,16 +5,15 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -24,13 +23,14 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -41,11 +41,9 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 
 /**
  * @internal
- *
- * @group slow
- *
- * @covers \Shopware\Core\Framework\RateLimiter\RateLimiter
  */
+#[CoversClass(RateLimiter::class)]
+#[Group('slow')]
 class RateLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -96,7 +94,7 @@ class RateLimiterTest extends TestCase
     {
         $email = Uuid::randomHex() . '@example.com';
         $password = 'wrongPassword';
-        $this->createCustomer('shopware', $email);
+        $this->createCustomer($email);
 
         for ($i = 0; $i <= 10; ++$i) {
             $this->browser
@@ -127,17 +125,14 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('customer.repository'),
-            $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,
             ])
         );
 
-        $this->createCustomer('shopware', 'loginTest@example.com');
+        $this->createCustomer('loginTest@example.com');
 
         $this->getContainer()->get('request_stack')->push(new Request([
             'email' => 'loginTest@example.com',
@@ -222,7 +217,7 @@ class RateLimiterTest extends TestCase
             $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 3) {
-                static::assertArrayHasKey('errors', $response);
+                static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertEquals(429, $response['errors'][0]['status']);
                 static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
             } else {
@@ -246,6 +241,7 @@ class RateLimiterTest extends TestCase
             $response = $this->browser->getResponse()->getContent();
 
             if ($i >= 3) {
+                static::assertJson((string) $response, (string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
                 static::assertIsArray($response);
                 static::assertArrayHasKey('errors', $response);
@@ -327,15 +323,12 @@ class RateLimiterTest extends TestCase
             $response = $this->browser->getResponse()->getContent();
 
             if ($i >= 3) {
+                static::assertJson((string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals(429, $response['errors'][0]['status']);
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
-                } else {
-                    static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
-                }
+                static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
             } else {
                 static::assertEquals(204, $this->browser->getResponse()->getStatusCode());
             }

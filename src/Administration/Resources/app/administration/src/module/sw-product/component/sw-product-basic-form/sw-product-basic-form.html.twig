@@ -4,11 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_title_field %}
     <sw-inherit-wrapper
-        {% if VUE3 %}
         v-model:value="product.name"
-        {% else %}
-        v-model="product.name"
-        {% endif %}
         :has-parent="!!parentProduct.id"
         :inherited-value="getInheritValue('translated', 'name')"
     >
@@ -23,11 +19,7 @@
                 name="sw-field--product-name"
                 :error="productNameError"
                 :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))"
-                {% if VUE3 %}
                 @update:value="props.updateCurrentValue"
-                {% else %}
-                @input="props.updateCurrentValue"
-                {% endif %}
             />
 
         </template>
@@ -41,11 +33,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_manufacturer_field %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.manufacturerId"
-            {% else %}
-            v-model="product.manufacturerId"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.manufacturerId"
             :label="$tc('sw-product.basicForm.labelManufacturer')"
@@ -64,11 +52,7 @@
                     show-clearable-button
                     allow-entity-creation
                     :entity-creation-label="$tc('sw-product.basicForm.labelManufacturerCreation')"
-                    {% if VUE3 %}
                     @update:value="updateCurrentValue"
-                    {% else %}
-                    @change="updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -78,11 +62,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_basic_form_id_field %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="product.productNumber"
-            {% else %}
-            v-model="product.productNumber"
-            {% endif %}
             :error="productProductNumberError"
             :disabled="!allowEdit"
             :label="$tc('sw-product.basicForm.labelProductNumber')"
@@ -94,11 +74,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
-        {% if VUE3 %}
         v-model:value="product.description"
-        {% else %}
-        v-model="product.description"
-        {% endif %}
         class="sw-product-basic-form__inheritance-wrapper-description"
         :has-parent="!!parentProduct.id"
         :inherited-value="getInheritValue('translated', 'description')"
@@ -114,7 +90,7 @@
                 :value="currentValue"
                 sanitize-input
                 sanitize-field-name="product_translation.description"
-                @input="updateCurrentValue"
+                @update:value="updateCurrentValue"
             />
 
         </template>
@@ -127,11 +103,7 @@
         {% block sw_product_settings_form_mark_as_topseller_field %}
         <sw-inherit-wrapper
             v-show="showSettingsInformation"
-            {% if VUE3 %}
             v-model:value="product.markAsTopseller"
-            {% else %}
-            v-model="product.markAsTopseller"
-            {% endif %}
             class="sw-product-basic-form__promotion-switch"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.markAsTopseller"
@@ -145,11 +117,7 @@
                     :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @change="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>

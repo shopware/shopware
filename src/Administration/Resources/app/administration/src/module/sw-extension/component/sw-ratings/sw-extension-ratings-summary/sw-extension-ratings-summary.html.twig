@@ -14,19 +14,20 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_summary_grid_label %}
         <p>
-            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-summary.labelRating',
-                   summary.numberOfRatings, { numberOfRatings: summary.numberOfRatings }) }}
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-summary.labelRating', summary.numberOfRatings, { numberOfRatings: summary.numberOfRatings }) }}
         </p>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_ratings_summary_grid_rating_rows %}
         <div class="sw-extension-ratings-summary__rows">
-            <template v-for="ratingGroup in summary.ratingAssignment">
+            <template
+                v-for="ratingGroup in summary.ratingAssignment"
+                :key="ratingGroup.rating"
+            >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_ratings_summary_grid_rating_rows_content %}
                 <sw-extension-rating-stars
-                    :key="ratingGroup.rating"
                     :rating="Number(ratingGroup.rating)"
                     :size="12"
                 />
@@ -41,10 +42,16 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_ratings_summary_grid_rating_progress_bars_count_rows %}
             <div class="sw-extension-ratings-summary__rows">
-                <template v-for="ratingGroup in summary.ratingAssignment">
+                <template
+                    v-for="ratingGroup in summary.ratingAssignment"
+                    :key="ratingGroup.rating"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count %}
-                    <span :key="ratingGroup.rating">{{ ratingGroup.count }}</span>
+                    <span
+                    >
+                        {{ ratingGroup.count }}
+                    </span>
                     {% endblock %}
                 </template>
             </div>
@@ -53,11 +60,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows %}
             <div class="sw-extension-ratings-summary__rows">
-                <template v-for="ratingGroup in summary.ratingAssignment">
+                <template
+                    v-for="ratingGroup in summary.ratingAssignment"
+                    :key="ratingGroup.rating"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar %}
                     <sw-progress-bar
-                        :key="ratingGroup.rating"
                         :value="ratingGroup.count"
                         :max-value="maxProgressValue"
                     />

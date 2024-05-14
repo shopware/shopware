@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RemoveEventListener;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -9,18 +11,16 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\RemoveEventListener
  */
+#[CoversClass(RemoveEventListener::class)]
 class RemoveEventListenerTest extends TestCase
 {
     /**
      * @param array<array{event:string, method:string}> $listeners
      * @param string[] $remove
      * @param array<array{event:string, method:string}> $expected
-     *
-     * @dataProvider removeProvider
      */
+    #[DataProvider('removeProvider')]
     public function testRemove(
         array $listeners,
         array $remove,
@@ -37,7 +37,7 @@ class RemoveEventListenerTest extends TestCase
 
         RemoveEventListener::remove($builder, 'class-string', [$remove]);
 
-        if (empty($expected)) {
+        if ($expected === []) {
             static::assertFalse($definition->hasTag('kernel.event_listener'));
 
             return;

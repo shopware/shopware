@@ -46,7 +46,7 @@ class PluginRefreshCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
         $io->title('Shopware Plugin Service');
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $composerInput = clone $input;
         $composerInput->setInteractive(false);

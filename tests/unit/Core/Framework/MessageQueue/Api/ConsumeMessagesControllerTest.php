@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
@@ -16,9 +17,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController
  */
+#[CoversClass(ConsumeMessagesController::class)]
 class ConsumeMessagesControllerTest extends TestCase
 {
     public function testInvalidReceiver(): void

@@ -13,6 +13,8 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1626696809AddImportExportCustomerProfile extends MigrationStep

@@ -9,11 +9,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_change_customer_group_modal_select %}
     <sw-entity-single-select
-        {% if VUE3 %}
         v-model:value="customerGroupId"
-        {% else %}
-        v-model="customerGroupId"
-        {% endif %}
+        name="sw-field--customerGroupId"
         required
         class="sw-flow-change-customer-group-modal__type-select"
         entity="customer_group"
@@ -52,9 +49,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id
-                ? $tc('sw-flow.modals.buttonSaveAction')
-                : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
         </sw-button>
         {% endblock %}
     </template>

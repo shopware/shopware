@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
@@ -23,12 +25,10 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider
  */
+#[Package('checkout')]
+#[CoversClass(StoreRequestOptionsProvider::class)]
 class StoreRequestOptionsProviderTest extends TestCase
 {
     public function testGetAuthenticationHeaderContainsShopSecretIfExists(): void

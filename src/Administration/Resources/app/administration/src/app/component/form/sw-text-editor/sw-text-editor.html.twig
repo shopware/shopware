@@ -1,6 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_text_editor %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <div
     class="sw-text-editor"
     :class="classes"
@@ -24,7 +24,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_box_toolbar %}
         <sw-text-editor-toolbar
-            v-if="hasSelection || !isInlineEdit"
+            v-if="(hasSelection && !disabled) || !isInlineEdit"
             ref="text-editor-toolbar"
             :parent-is-active="isActive"
             :is-inline-edit="isInlineEdit"
@@ -35,7 +35,7 @@
             @created-el="onToolbarCreated"
             @destroyed-el="onToolbarDestroyed"
             @on-set-link="onSetLink"
-            @removeLink="onRemoveLink"
+            @remove-link="onRemoveLink"
             @table-edit="onTableEdit"
             @text-style-change="onTextStyleChange"
         />
@@ -59,8 +59,10 @@
             :value="value"
             :sanitize-input="sanitizeInput"
             :sanitize-field-name="sanitizeFieldName"
+            :sanitize-info-warn="sanitizeInfoWarn"
             set-focus
             @blur="emitHtmlContent"
+            @update:value="emitHtmlContent"
         />
 
         <div

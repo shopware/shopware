@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Api;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
@@ -9,15 +10,14 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpExcept
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
@@ -43,7 +43,7 @@ class AppUrlChangeController extends AbstractController
         $strategy = $request->get('strategy');
 
         if (!$strategy) {
-            throw RoutingException::missingRequestParameter('strategy');
+            throw AppException::missingRequestParameter('strategy');
         }
 
         try {

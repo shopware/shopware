@@ -6,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -145,8 +145,6 @@ export default {
             if (this.element.config.products.source === 'product_stream') {
                 this.loadProductStream();
             } else {
-                // We have to fetch the assigned entities again
-                // ToDo: Fix with NEXT-4830
                 const criteria = new Criteria(1, 100);
                 criteria.addAssociation('cover');
                 criteria.addAssociation('options.group');

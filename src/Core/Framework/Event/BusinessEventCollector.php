@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BusinessEventCollector
 {
     /**
@@ -65,12 +65,12 @@ class BusinessEventCollector
             return null;
         }
 
-        $interfaces = class_implements($instance);
+        $interfaces = class_implements($instance) ?: [];
 
         $aware = [];
         foreach ($interfaces as $interface) {
-            if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class) {
+            $reflection = new \ReflectionClass($interface);
+            if ($reflection->getAttributes(IsFlowEventAware::class) !== []) {
                 $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }

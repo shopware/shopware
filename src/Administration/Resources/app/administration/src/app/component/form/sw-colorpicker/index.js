@@ -7,7 +7,7 @@ const debounce = Shopware.Utils.debounce;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description
  * The color picker field allows you to select a custom color.
  * @status ready
@@ -24,6 +24,8 @@ const debounce = Shopware.Utils.debounce;
  */
 Component.register('sw-colorpicker', {
     template,
+
+    emits: ['update:value'],
 
     inject: ['feature'],
 
@@ -54,7 +56,6 @@ Component.register('sw-colorpicker', {
         alpha: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -74,7 +75,6 @@ Component.register('sw-colorpicker', {
         colorLabels: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -338,7 +338,7 @@ Component.register('sw-colorpicker', {
         },
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.componentBeforeDestroy();
     },
 
@@ -348,13 +348,7 @@ Component.register('sw-colorpicker', {
         },
 
         debounceEmitColorValue: debounce(function emitValue() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.colorValue);
-
-                return;
-            }
-
-            this.$emit('input', this.colorValue);
+            this.$emit('update:value', this.colorValue);
         }, 50),
 
         outsideClick(e) {
@@ -397,6 +391,8 @@ Component.register('sw-colorpicker', {
         },
 
         moveSelector(event) {
+            event.preventDefault();
+
             if (!this.isDragging) {
                 return;
             }

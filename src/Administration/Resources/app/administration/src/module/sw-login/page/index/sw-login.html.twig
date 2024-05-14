@@ -62,18 +62,24 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_view %}
-            <transition
-                name="fade"
-                mode="out-in"
+
+            <router-view
+                v-slot="{Component}"
             >
-                <router-view
-                    :hash="hash"
-                    @is-loading="setLoading(true)"
-                    @is-not-loading="setLoading(false)"
-                    @login-error="loginError"
-                    @login-success="loginSuccess"
-                />
-            </transition>
+                <transition
+                    name="fade"
+                    mode="out-in"
+                >
+                    <component
+                        :is="Component"
+                        :hash="hash"
+                        @is-loading="setLoading(true)"
+                        @is-not-loading="setLoading(false)"
+                        @login-error="loginError"
+                        @login-success="loginSuccess"
+                    />
+                </transition>
+            </router-view>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

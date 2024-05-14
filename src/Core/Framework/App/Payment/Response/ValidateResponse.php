@@ -19,6 +19,8 @@ class ValidateResponse extends AbstractResponse
 
     /**
      * This will be sent with the capture call for the app to identify the verified payment
+     *
+     * @var mixed[]
      */
     protected array $preOrderPayment = [];
 
@@ -27,6 +29,9 @@ class ValidateResponse extends AbstractResponse
         return $this->message;
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getPreOrderPayment(): array
     {
         return $this->preOrderPayment;

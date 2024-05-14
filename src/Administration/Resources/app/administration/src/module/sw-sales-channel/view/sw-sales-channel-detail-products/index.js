@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-products.html.twig';
@@ -29,6 +29,7 @@ export default {
     data() {
         return {
             products: [],
+            productSelection: [],
             isLoading: false,
             searchTerm: null,
             page: 1,
@@ -86,6 +87,10 @@ export default {
                     allowResize: true,
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -154,7 +159,7 @@ export default {
         },
 
         onDeleteProducts() {
-            const deleteIds = Object.values(this.$refs.entityListing.selection).map((product) => {
+            const deleteIds = Object.values(this.productSelection).map((product) => {
                 return this.getDeleteId(product);
             });
 
@@ -283,7 +288,11 @@ export default {
                 visibility => visibility.salesChannelId === this.salesChannel.id,
             );
 
-            return product.parentId !== relevantVisibility.productId;
+            return product.parentId !== relevantVisibility?.productId;
+        },
+
+        onProductSelectionChanged(selection) {
+            this.productSelection = selection;
         },
     },
 };

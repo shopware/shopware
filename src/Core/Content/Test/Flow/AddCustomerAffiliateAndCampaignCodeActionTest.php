@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -44,14 +45,12 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
      * @param array<string, mixed> $existedData
      * @param array<string, mixed> $updateData
      * @param array<string, mixed> $expectData
-     *
-     * @dataProvider createDataProvider
      */
+    #[DataProvider('createDataProvider')]
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, $existedData);
+        $this->prepareCustomer($email, $existedData);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -71,7 +70,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */

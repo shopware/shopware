@@ -1,5 +1,6 @@
 import type { SubContainer } from 'src/global.types';
 
+import type { App } from 'vue';
 import ExtensionStoreActionService from './extension-store-action.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ExtensionErrorService from './extension-error.service';
@@ -7,7 +8,7 @@ import ExtensionErrorService from './extension-error.service';
 const { Application } = Shopware;
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'>{
@@ -34,7 +35,7 @@ Application.addServiceProvider('shopwareExtensionService', () => {
 });
 
 Application.addServiceProvider('extensionErrorService', () => {
-    const root = Shopware.Application.getApplicationRoot() as Vue;
+    const root = Shopware.Application.getApplicationRoot() as App<Element>;
 
     return new ExtensionErrorService({
         FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED: {

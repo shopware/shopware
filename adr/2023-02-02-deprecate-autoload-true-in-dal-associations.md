@@ -3,7 +3,7 @@ title: Deprecate autoloading associations in DAL entity definitions
 date: 2023-02-02
 area: core
 tags: [dal, performance, api, core]
---- 
+---
 
 ## Context
 
@@ -22,7 +22,7 @@ We have introduced a new PHPStan rule which will check for any usages of autoloa
 In order to safely migrate core code away from using autoload === true, the following steps should be followed:
 
 1. Document all deprecations in the changelog
-2. All internal API's that rely on data that is autoloaded should now specify the association in the criteria objects.
+2. All internal APIs that rely on data that is autoloaded should now specify the association in the criteria objects.
 3. All entity definitions should be updated to add the association conditionally based on the 6.6 feature flag, see below for an example.
 4. In the run-up to the 6.6 release the feature conditional should be removed.
 
@@ -33,7 +33,7 @@ public function defineFields(): FieldCollection
    $fields = new FieldCollection(...);
 
   if (Feature::isActive('v6.6.0.0') {
-     $fields->add(new ManyToOneAssociationField(..., autoload: false); //or don't specify the autoload flag, the default value is false
+     $fields->add(new ManyToOneAssociationField(..., autoload: false);
   } else {
      $fields->add(new ManyToOneAssociationField(..., autoload: true);
   }

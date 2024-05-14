@@ -6,4 +6,10 @@
     {"mode": "auto"}
   ],
   "jest.rootPath": "src/Administration/Resources/app/administration",
+  "php.problems.exclude": {
+    "vendor-bin/": true,
+    "tests/integration/Storefront/Theme/ThemeTest.php": [
+      "PHP2408"
+    ]
+  }
 }

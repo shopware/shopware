@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
+#[Package('inventory')]
 class Tree extends Struct
 {
     /**
@@ -19,6 +19,9 @@ class Tree extends Struct
      */
     protected $active;
 
+    /**
+     * @param TreeItem[] $tree
+     */
     public function __construct(
         ?CategoryEntity $active,
         array $tree
@@ -46,11 +49,17 @@ class Tree extends Struct
         return \in_array($category->getId(), $ids, true);
     }
 
+    /**
+     * @return TreeItem[]
+     */
     public function getTree(): array
     {
         return $this->tree;
     }
 
+    /**
+     * @param TreeItem[] $tree
+     */
     public function setTree(array $tree): void
     {
         $this->tree = $tree;

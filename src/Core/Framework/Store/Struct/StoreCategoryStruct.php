@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreCategoryStruct extends StoreStruct
 {
     /**
@@ -26,15 +26,16 @@ class StoreCategoryStruct extends StoreStruct
     protected $parent;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $details;
 
+    /**
+     * @return StoreCategoryStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
-        $category = new self();
-
-        return $category->assign($data);
+        return (new self())->assign($data);
     }
 
     public function getId(): int
@@ -52,6 +53,9 @@ class StoreCategoryStruct extends StoreStruct
         return $this->parent;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getDetails(): array
     {
         return $this->details;

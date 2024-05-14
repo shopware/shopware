@@ -20,7 +20,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,11 +44,11 @@ class StoreClientTest extends TestCase
 
     public function testSignPayloadWithAppSecret(): void
     {
-        $this->getRequestHandler()->append(new Response(200, [], '{"signature": "signed"}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"signature": "signed"}'));
 
         static::assertEquals('signed', $this->storeClient->signPayloadWithAppSecret('[this can be anything]', 'testApp'));
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals('/swplatform/generatesignature', $lastRequest->getUri()->getPath());
@@ -70,13 +70,13 @@ class StoreClientTest extends TestCase
         $responseBody = \file_get_contents(__DIR__ . '/../_fixtures/responses/login.json');
         static::assertIsString($responseBody);
 
-        $this->getRequestHandler()->append(
+        $this->getStoreRequestHandler()->append(
             new Response(200, [], $responseBody)
         );
 
         $this->storeClient->loginWithShopwareId('shopwareId', 'password', $this->storeContext);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals([
@@ -115,7 +115,7 @@ class StoreClientTest extends TestCase
             'version' => '1.0.0',
         ]));
 
-        $this->getRequestHandler()->append(new Response(200, [], \json_encode([
+        $this->getStoreRequestHandler()->append(new Response(200, [], \json_encode([
             'data' => [],
         ], \JSON_THROW_ON_ERROR)));
 
@@ -123,7 +123,7 @@ class StoreClientTest extends TestCase
 
         static::assertEquals([], $updateList);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals(
@@ -150,7 +150,7 @@ class StoreClientTest extends TestCase
             'version' => '1.0.0',
         ]));
 
-        $this->getRequestHandler()->append(new Response(200, [], \json_encode([
+        $this->getStoreRequestHandler()->append(new Response(200, [], \json_encode([
             'data' => [
                 [
                     'name' => 'TestExtension',
@@ -165,7 +165,7 @@ class StoreClientTest extends TestCase
         static::assertEquals('TestExtension', $updateList[0]->getName());
         static::assertEquals('1.1.0', $updateList[0]->getVersion());
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertFalse($lastRequest->hasHeader('X-Shopware-Platform-Token'));
@@ -179,11 +179,11 @@ class StoreClientTest extends TestCase
             'avatarUrl' => 'https://avatar.shopware.com/john-doe.png',
         ];
 
-        $this->getRequestHandler()->append(new Response(200, [], \json_encode($userInfo, \JSON_THROW_ON_ERROR)));
+        $this->getStoreRequestHandler()->append(new Response(200, [], \json_encode($userInfo, \JSON_THROW_ON_ERROR)));
 
         $returnedUserInfo = $this->storeClient->userInfo($this->storeContext);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $lastRequest);
 
         static::assertEquals('/swplatform/userinfo', $lastRequest->getUri()->getPath());
@@ -193,7 +193,7 @@ class StoreClientTest extends TestCase
 
     public function testMissingConnectionBecauseYouAreInGermanCellularInternet(): void
     {
-        $this->getRequestHandler()->append(new ConnectException(
+        $this->getStoreRequestHandler()->append(new ConnectException(
             'cURL error 7: Failed to connect to api.shopware.com port 443 after 4102 ms: Network is unreachable (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://api.shopware.com/swplatform/pluginupdates?shopwareVersion=6.4.12.0&language=de-DE&domain=',
             $this->createMock(RequestInterface::class)
         ));

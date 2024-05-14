@@ -15,7 +15,7 @@
                 :criteria="customEntityCriteria"
                 entity="custom_entity"
                 required
-                @change="onEntityChange"
+                @update:value="onEntityChange"
             />
         </sw-card>
 
@@ -29,11 +29,7 @@
             :criteria="sortingCriteria"
             :select-label="$tc('sw-category.base.customEntity.instanceAssignment.label')"
             :placeholder="$tc('sw-category.base.customEntity.instanceAssignment.placeholder')"
-            {% if VUE3 %}
-            @update:entityCollection="onAssignmentChange"
-            {% else %}
-            @change="onAssignmentChange"
-            {% endif %}
+            @update:entity-collection="onAssignmentChange"
         >
             <template #prepend-select>
                 <sw-entity-single-select
@@ -45,7 +41,7 @@
                     :criteria="customEntityCriteria"
                     entity="custom_entity"
                     required
-                    @change="onEntityChange"
+                    @update:value="onEntityChange"
                 />
             </template>
 
@@ -56,7 +52,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             alt="$tc('sw-category.base.customEntity.instanceAssignment.emptyState.title')"
                         >
                     </template>

@@ -2,40 +2,55 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @group slow
  */
 #[Package('core')]
+#[Group('slow')]
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
 
     public function testEverythingIsInstantiatable(): void
     {
-        $separateKernel = KernelLifecycleManager::createKernel(
-            TestKernel::class,
-            true,
-            'h8f3f0ee9c61829627676afd6294bb029',
-            $this->getKernel()->getProjectDir()
+        $excludes = [
+            '_dummy_es_env_usage',
+            'kernel.bundles',
+            'shopware.cache.invalidator.storage.redis', // causes redis connect
+            'shopware.cache.invalidator.storage.redis_adapter',  // causes redis connect
+        ];
+
+        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
+
+        KernelFactory::$kernelClass = TestKernel::class;
+        $separateKernel = KernelFactory::create(
+            environment: 'test',
+            debug: true,
+            classLoader: $classLoader,
+            pluginLoader: new StaticKernelPluginLoader($classLoader)
         );
+        /** @var TestKernel $separateKernel */
         $separateKernel->boot();
 
         $testContainer = $separateKernel->getContainer()->get('test.service_container');
 
-        static::assertIsObject($testContainer);
+        static::assertInstanceOf(TestContainer::class, $testContainer);
 
+        $services = array_filter($testContainer->getServiceIds(), static fn (string $serviceId) => !\in_array($serviceId, $excludes, true));
         $errors = [];
-        foreach ($testContainer->getServiceIds() as $serviceId) {
+        foreach ($services as $serviceId) {
             try {
                 $testContainer->get($serviceId);
             } catch (\Throwable $t) {
@@ -85,6 +100,9 @@ class ServiceDefinitionTest extends TestCase
         );
     }
 
+    /**
+     * @return array<string>
+     */
     private function checkArgumentOrder(string $content): array
     {
         $matches = [];
@@ -102,17 +120,21 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
-
+            /** @var positive-int $position */
+            $position = $fullMatch[1];
             $errors[] = sprintf(
                 '%s:%d - invalid order (type should be first)',
                 (string) ($match['id'][0] ?? $fullMatch[0]),
-                $this->getLineNumber($content, $fullMatch[1])
+                $this->getLineNumber($content, $position)
             );
         }
 
         return $errors;
     }
 
+    /**
+     * @return array<string>
+     */
     private function checkServiceParameterOrder(string $content): array
     {
         $matches = [];
@@ -131,10 +153,12 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
+            /** @var positive-int $position */
+            $position = $fullMatch[1];
             $errors[] = sprintf(
                 '%s:%d - parameter class and id are identical. class parameter should be removed',
                 (string) ($match['class'][0] ?? $fullMatch[0]),
-                $this->getLineNumber($content, $fullMatch[1])
+                $this->getLineNumber($content, $position)
             );
         }
 

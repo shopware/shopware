@@ -2,13 +2,12 @@
 {% block sw_modal %}
 <transition
     name="sw-modal-fade"
-    {% if VUE3 %}
     v-bind="$attrs"
-    {% endif %}
     appear
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_modal_element %}
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
         class="sw-modal"
         :class="modalClasses"
@@ -80,7 +79,10 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_body %}
             <slot name="body">
-                <div class="sw-modal__body">
+                <div
+                    class="sw-modal__body"
+                    :class="modalBodyClasses"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_loader %}
                     <slot name="modal-loader">
@@ -98,7 +100,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_footer %}
             <footer
-                v-if="hasFooterSlot"
+                v-if="showFooter && hasFooterSlot"
                 class="sw-modal__footer"
             >
                 <slot name="modal-footer">

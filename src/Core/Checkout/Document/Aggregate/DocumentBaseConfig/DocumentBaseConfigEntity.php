@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentBaseConfigEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -52,7 +52,7 @@ class DocumentBaseConfigEntity extends Entity
     protected $logoId;
 
     /**
-     * @var array<string>|null
+     * @var array<string, string|bool|array<int, string>>|null
      */
     protected $config;
 
@@ -152,7 +152,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return array<string, string|bool|array<int, string>>|null
      */
     public function getConfig(): ?array
     {
@@ -160,7 +160,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @param array<string>|null $config
+     * @param array<string, string|bool|array<int, string>>|null $config
      */
     public function setConfig(?array $config): void
     {

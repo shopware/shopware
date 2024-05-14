@@ -81,7 +81,6 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_action_actions_item %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <li
                             v-for="(item, key) in sequenceData"
                             :key="item.id"
@@ -91,7 +90,10 @@
                             }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
+                            role="button"
+                            tabindex="0"
                             @click="(event) => onEditAction(item, event.target, key)"
+                            @keydown.enter="(event) => onEditAction(item, event.target, key)"
                         >
                             <sw-flow-sequence-action-error
                                 v-if="!isValidAction(item.actionName)"
@@ -239,11 +241,10 @@
                     :popover-classes="['sw-flow-sequence-action__popover']"
                     :error="fieldError"
                     :disabled="isUnknownTrigger"
-                    @change="openDynamicModal"
+                    @update:value="openDynamicModal"
                 >
                     <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             v-tooltip="{
                                 message: $tc('sw-flow.actions.tooltipActionDisabled'),
                                 disabled: !item.disabled
@@ -278,7 +279,7 @@
                                 {{ getKey(item, labelProperty) }}
                             </template>
                             {% endblock %}
-                        </li>
+                        </sw-select-result>
                     </template>
                 </sw-grouped-single-select>
                 {% endblock %}

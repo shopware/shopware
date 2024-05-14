@@ -23,39 +23,39 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.5.x-dev",
-            "dev-trunk": "6.5.x-dev"
+            "dev-master": "6.6.x-dev",
+            "dev-trunk": "6.6.x-dev"
         }
     },
     "require": {
-        "php": "~8.1.0 || ~8.2.0",
+        "php": "~8.2.0 || ~8.3.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^3.6",
-        "meyfa/php-svg": "^0.13.0",
+        "doctrine/dbal": "^3.7",
+        "meyfa/php-svg": "^0.14.0",
         "padaliyajay/php-autoprefixer": "^1.4",
-        "scssphp/scssphp": "^v1.11.0",
+        "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
-        "symfony/cache": "~6.3.0",
-        "symfony/cache-contracts": "~3.1.0",
-        "symfony/console": "~6.3.0",
-        "symfony/config": "~6.3.0",
-        "symfony/dependency-injection": "~6.3.0",
-        "symfony/event-dispatcher": "~6.3.0",
-        "symfony/event-dispatcher-contracts": "~3.1.0",
-        "symfony/framework-bundle": "~6.3.0",
-        "symfony/http-foundation": "~6.3.0",
-        "symfony/http-kernel": "~6.3.0",
-        "symfony/routing": "~6.3.0",
-        "symfony/service-contracts": "~3.1.0",
-        "symfony/validator": "~6.3.0",
-        "symfony/security-core": "~6.3.0",
-        "symfony/mime": "~6.3.0",
+        "symfony/cache": "~7.0.4",
+        "symfony/cache-contracts": "~3.3.0",
+        "symfony/console": "~7.0.0",
+        "symfony/config": "~7.0.0",
+        "symfony/dependency-injection": "~7.0.0",
+        "symfony/event-dispatcher": "~7.0.0",
+        "symfony/event-dispatcher-contracts": "~3.3.0",
+        "symfony/framework-bundle": "~7.0.0",
+        "symfony/http-foundation": "~7.0.0",
+        "symfony/http-kernel": "~7.0.0",
+        "symfony/routing": "~7.0.0",
+        "symfony/service-contracts": "~3.3.0",
+        "symfony/validator": "~7.0.0",
+        "symfony/security-core": "~7.0.0",
+        "symfony/mime": "~7.0.0",
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3"
+        "twig/twig": "^3.8.0"
     },
     "require-dev": {
-        "symfony/css-selector": "~6.3.0",
-        "phpunit/phpunit": "^9.6"
+        "symfony/css-selector": "~7.0.0",
+        "phpunit/phpunit": "^10.4"
     }
 }

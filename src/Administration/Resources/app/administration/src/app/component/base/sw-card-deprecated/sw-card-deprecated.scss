@@ -1,0 +1,307 @@
+@import "~scss/mixins";
+@import "~scss/variables";
+
+/**
+ * @hotfix fixes a bug in safari which leads to disappearing cards
+ */
+@media not all and (min-resolution: 0.001dpcm) {
+    @supports (-webkit-appearance:none) {
+        .sw-card {
+            transform: translateZ(0);
+        }
+    }
+}
+
+.sw-card {
+    max-width: $content-width;
+    margin: 0 auto 40px;
+    position: relative;
+    color: $color-darkgray-200;
+
+    .sw-ai-copilot-badge {
+        height: 18px;
+    }
+
+    &:not(.sw-card--hero) {
+        border-radius: $border-radius-lg;
+
+        @include drop-shadow-default;
+    }
+
+    &__context-menu {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+    }
+
+    &.sw-card--grid {
+        .sw-card__content {
+            display: grid;
+            padding: 0;
+
+            .sw-grid {
+                border-top: none;
+            }
+        }
+    }
+
+    &.sw-card--hero {
+        .sw-card__content {
+            background: none;
+            border: none;
+            text-align: center;
+
+            h3 {
+                font-size: 30px;
+            }
+        }
+    }
+
+    &.sw-card--large {
+        max-width: 1330px;
+
+        .sw-card__title,
+        .sw-card__subtitle {
+            width: auto;
+            position: relative;
+            top: 0;
+            left: 0;
+            text-align: left;
+        }
+    }
+
+    &.has--tabs {
+        .sw-card__header {
+            padding-bottom: 0;
+
+            .sw-tabs {
+                flex-basis: 100%;
+            }
+
+            .sw-tabs__content::before {
+                all: unset;
+            }
+
+            .sw-tabs-item {
+                margin-right: 17.5px;
+                padding: 10px 0;
+                border-bottom: 0 none;
+            }
+        }
+    }
+
+    .sw-card__header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        background-color: $color-white;
+        padding: 24px;
+        padding-bottom: 20px;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    .sw-card__avatar {
+        overflow: hidden;
+        border-radius: $border-radius-default;
+        width: 40px;
+        height: 40px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .sw-card__title,
+    .sw-card__subtitle {
+        color: $color-darkgray-200;
+    }
+
+    .sw-card__title {
+        color: $color-darkgray-300;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+        line-height: $line-height-xs;
+    }
+
+    .sw-card__subtitle {
+        color: $color-darkgray-50;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
+    }
+
+    .sw-card__titles-right-slot {
+        margin-left: auto;
+    }
+
+    .sw-card__toolbar {
+        flex-basis: 100%;
+        padding: 30px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &.has--header {
+        .sw-card__content {
+            border-top: none;
+            border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        }
+    }
+
+    .sw-card__content {
+        display: flow-root;
+        padding: 30px;
+        background: $color-white;
+        background-clip: padding-box;
+        border-radius: $border-radius-lg;
+        position: relative;
+
+        &.no--padding {
+            padding: 0;
+        }
+
+        @media screen and (max-width: $content-width) {
+            padding: 15px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: normal;
+        }
+
+        h1 {
+            font-size: $font-size-xl;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        h3 {
+            font-size: $font-size-l;
+        }
+
+        h4,
+        h5,
+        h6 {
+            font-size: $font-size-m;
+        }
+
+        a.sw-card__quick-link {
+            display: grid;
+            grid-auto-flow: column;
+            grid-column-gap: 6px;
+            align-items: center;
+            text-decoration: none;
+            color: $color-shopware-brand-500;
+            font-size: $font-size-xs;
+
+            &:hover {
+                color: $color-shopware-brand-600;
+            }
+        }
+
+        .sw-tabs {
+            border-width: 0 0 1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+            margin-bottom: 0;
+
+            .sw-tabs__container {
+                position: relative;
+                top: -5px;
+            }
+        }
+
+        .sw-tabs-item {
+            margin: 0;
+            padding-top: 5px;
+            line-height: 44px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+
+            &:hover {
+                border-bottom-color: $color-gray-300;
+            }
+
+            &:focus {
+                background-color: $color-gray-100;
+                border-bottom-color: $color-gray-300;
+            }
+
+            &:active {
+                border-bottom-color: $color-white;
+                background-color: $color-white;
+            }
+
+            &.router-link-active {
+                background-color: $color-white;
+                border-bottom-color: $color-white;
+            }
+        }
+    }
+}
+
+.sw-card.sw-card--tabs {
+    .sw-card__content {
+        border-radius: 0 0 $border-radius-lg $border-radius-lg;
+        border-top: none;
+    }
+
+    & > .sw-tabs {
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-bottom: none;
+        margin-bottom: 0;
+
+        .sw-tabs__content {
+            background-color: $color-gray-50;
+        }
+
+        .sw-tabs__custom-Content {
+            padding: 0;
+        }
+
+        .sw-tabs__arrow {
+            top: 28px;
+            padding: 0 12px;
+        }
+
+        &.sw-tabs--scrollable {
+            padding: 0 (20px + 12px) 0 (20px + 12px);
+        }
+
+        .sw-tabs-item {
+            padding-top: 19px;
+            padding-bottom: 15px;
+            font-weight: normal;
+
+            &.sw-tabs-item--active {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
+    }
+}
+
+.sw-inherit-wrapper {
+    .sw-card {
+        border: 1px solid transparent;
+    }
+}
+
+.sw-inherit-wrapper.is--inherited {
+    .sw-card {
+        border: 1px solid $color-module-purple-900;
+
+        .sw-card__content {
+            background-color: $color-module-purple-50;
+        }
+    }
+}

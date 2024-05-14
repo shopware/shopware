@@ -91,6 +91,7 @@
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader"/>
+            <argument type="service" id="rule.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">
@@ -119,6 +120,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
@@ -150,6 +152,13 @@
         <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\OrderAddressService">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="order_delivery.repository"/>
         </service>
     </services>
 </container>

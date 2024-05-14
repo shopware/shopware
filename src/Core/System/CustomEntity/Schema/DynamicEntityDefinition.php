@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal The use of this class is reserved for the custom_entity feature
+ *
+ * @phpstan-import-type CustomEntityField from CustomEntitySchemaUpdater
  */
 #[Package('core')]
 class DynamicEntityDefinition extends EntityDefinition
@@ -21,7 +23,7 @@ class DynamicEntityDefinition extends EntityDefinition
     protected string $name;
 
     /**
-     * @var list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}>
+     * @var list<CustomEntityField>
      */
     protected array $fieldDefinitions;
 
@@ -33,7 +35,7 @@ class DynamicEntityDefinition extends EntityDefinition
     protected ContainerInterface $container;
 
     /**
-     * @param list<array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}> $fields
+     * @param list<CustomEntityField> $fields
      * @param list<Flag> $flags
      */
     public static function create(

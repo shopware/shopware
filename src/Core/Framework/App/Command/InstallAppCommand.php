@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,7 +20,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[AsCommand(
     name: 'app:install',
@@ -41,10 +40,9 @@ class InstallAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $io = new ShopwareStyle($input, $output);
 
-        /** @var string|array<string> $names */
         $names = $input->getArgument('name');
 
         if (\is_string($names)) {
@@ -76,7 +74,7 @@ class InstallAppCommand extends Command
             if (!$input->getOption('no-validate')) {
                 try {
                     $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException|XmlParsingException $e) {
+                } catch (AppValidationException $e) {
                     $io->error(sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
 
                     $success = self::FAILURE;
@@ -122,6 +120,11 @@ class InstallAppCommand extends Command
             );
     }
 
+    /**
+     * @param array<string> $requestedApps
+     *
+     * @return array<string, Manifest>
+     */
     private function getMatchingManifests(array $requestedApps): array
     {
         $apps = $this->appLoader->load();
@@ -129,7 +132,7 @@ class InstallAppCommand extends Command
 
         foreach ($requestedApps as $requestedApp) {
             foreach ($apps as $app => $manifest) {
-                if (str_contains($app, (string) $requestedApp)) {
+                if (str_contains($app, $requestedApp)) {
                     $manifests[$app] = $manifest;
                 }
             }

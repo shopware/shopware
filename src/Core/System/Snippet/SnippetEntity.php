@@ -16,26 +16,36 @@ class SnippetEntity extends Entity
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $setId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $translationKey;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $value;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $author;
 
     /**
      * @var SnippetSetEntity|null
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $set;
 
@@ -64,7 +74,7 @@ class SnippetEntity extends Entity
         return $this->value;
     }
 
-    public function setValue(?string $value): void
+    public function setValue(string $value): void
     {
         $this->value = $value;
     }

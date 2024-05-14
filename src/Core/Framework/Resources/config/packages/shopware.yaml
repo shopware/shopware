@@ -5,6 +5,92 @@ parameters:
     env(REDIS_PREFIX): ''
 
 shopware:
+    http_cache:
+        reverse_proxy:
+            enabled: false
+            ban_method: "BAN" # This can defer from used reverse proxy
+            hosts: [ "http://varnish" ]
+            max_parallel_invalidations: 2
+            redis_url: "redis://redis"
+            purge_all:
+            fastly:
+
+        ignored_url_parameters:
+            - 'pk_campaign' # Piwik
+            - 'piwik_campaign'
+            - 'pk_kwd'
+            - 'piwik_kwd'
+            - 'pk_keyword'
+            - 'mtm_campaign' # Matomo
+            - 'matomo_campaign'
+            - 'mtm_cid'
+            - 'matomo_cid'
+            - 'mtm_kwd'
+            - 'matomo_kwd'
+            - 'mtm_keyword'
+            - 'matomo_keyword'
+            - 'mtm_source'
+            - 'matomo_source'
+            - 'mtm_medium'
+            - 'matomo_medium'
+            - 'mtm_content'
+            - 'matomo_content'
+            - 'mtm_group'
+            - 'matomo_group'
+            - 'mtm_placement'
+            - 'matomo_placement'
+            - 'pixelId' # Yahoo
+            - 'kwid'
+            - 'kw'
+            - 'chl'
+            - 'dv'
+            - 'nk'
+            - 'pa'
+            - 'camid'
+            - 'adgid'
+            - 'utm_term' # Google
+            - 'utm_source'
+            - 'utm_medium'
+            - 'utm_campaign'
+            - 'utm_content'
+            - 'gad_source'
+            - 'cx'
+            - 'ie'
+            - 'cof'
+            - 'siteurl'
+            - '_ga'
+            - 'adgroupid'
+            - 'campaignid'
+            - 'adid'
+            - 'gclsrc' # Google DoubleClick
+            - 'gclid'
+            - 'fbclid' # Facebook
+            - 'fb_action_ids'
+            - 'fb_action_types'
+            - 'fb_source'
+            - 'mc_cid' # Mailchimp
+            - 'mc_eid'
+            - '_bta_tid' # Bronto
+            - '_bta_c'
+            - 'trk_contact' # Listrak
+            - 'trk_msg'
+            - 'trk_module'
+            - 'trk_sid'
+            - 'gdfms'  # GodataFeed
+            - 'gdftrk'
+            - 'gdffi'
+            - '_ke'  # Klaviyo
+            - 'redirect_log_mongo_id' # Klaviyo
+            - 'redirect_mongo_id'
+            - 'sb_referer_host'
+            - 'mkwid' # Marin
+            - 'pcrid'
+            - 'ef_id' # Adobe Advertising Cloud
+            - 's_kwcid' # Adobe Analytics
+            - 'msclkid' # Microsoft Advertising
+            - 'dm_i' # dotdigital
+            - 'epik' # Pinterest
+            - 'pp'
     profiler:
         integrations: []
     filesystem:
@@ -23,13 +109,17 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "zip", "rar"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "glb", "zip", "rar"]
         private_local_download_strategy: "php"
 
     cdn:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
+        fastly:
+            api_key: ''
+            soft_purge: false
+            max_parallel_invalidations: 2
 
     increment:
         user_activity:
@@ -51,15 +141,15 @@ shopware:
             #         url: 'redis://localhost'
 
     api:
-        max_limit: 100
+        max_limit: 500
         api_browser:
             auth_required: true
         store:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
+            max_limit: 100
         jwt_key:
-            private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
-            private_key_passphrase: 'shopware'
-            public_key_path: 'file://%kernel.project_dir%/config/jwt/public.pem'
+            # tag:v6.7.0 - delete setting, as it should be always enabled
+            use_app_secret: false
         rate_limiter:
             login:
                 enabled: true
@@ -163,7 +253,7 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async"]
+        transports: ["async", "low_priority"]
 
     auto_update:
         enabled: true
@@ -178,6 +268,7 @@ shopware:
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
+        cluster_setup: false
 
     media:
         enable_url_upload_feature: true
@@ -196,11 +287,17 @@ shopware:
     cart:
         compress: false
         expire_days: 120
-        redis_url: false
+        storage:
+            # supported types: mysql, redis
+            type: "mysql"
+            # config:
+                # dsn: 'redis://localhost'
 
     number_range:
-        increment_storage: "SQL"
-        redis_url: false
+        # supported types: mysql, redis
+        increment_storage: "mysql"
+        # config:
+            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120
@@ -210,6 +307,9 @@ shopware:
         cache_dir: '%kernel.cache_dir%'
         cache_enabled: true
         sets:
+            - name: HTML5
+              tags: ["article", "aside", "audio", "bdi", "canvas", "datalist", "details", "dialog", "embed", "figcaption", "figure", "footer", "header", "main", "mark", "meter", "nav", "progress", "rp", "rt", "ruby", "section", "summary", "time", "wbr", "output", "canvas", "svg", "track", "video", "source", "input"]
+              attributes: ["controls", "open", "min", "max", "datetime", "for", "type", "kind", "srclang", "label", "value", "placeholder", "autoplay", "loop", "muted", "preload", "low", "high", "optimum", "default", "poster", "media", "maxlength", "minlength", "pattern", "required", "autocomplete", "autofocus", "disabled", "readonly", "multiple", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "list", "step", "checked", "accept"]
             - name: basic
               tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var", "img"]
               attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width", "target", "src", "alt"]
@@ -237,23 +337,27 @@ shopware:
               attributes: ["role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
               custom_attributes:
                   - tags: ["a", "span"]
-                    attributes: [ "href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy" ]
+                    attributes: ["href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
+            - name: snippet
+              tags: ["a"]
+              attributes: ["data-url", "data-ajax-modal", "data-prev-url"]
+              custom_attributes:
+                  - tags: ["a"]
+                    attributes: ["data-url", "data-ajax-modal", "data-prev-url"]
 
         fields:
             - name: product_translation.description
-              sets: ["basic", "media"]
+              sets: ["basic", "media", "HTML5"]
             - name: app_cms_block.template
-              sets: ["basic", "media", "tidy"]
+              sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
-              sets: ["basic", "media", "bootstrap"]
+              sets: ["basic", "media", "bootstrap", "snippet", "HTML5"]
 
     logger:
         file_rotation_count: 14
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-            # deprecated tag:v6.6.0 - Exception will be removed
-            - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
             - Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException
         exclude_events:
             - user.recovery.request
@@ -261,6 +365,10 @@ shopware:
         error_code_log_levels:
             PRODUCT__CATEGORY_NOT_FOUND: notice
             PRODUCT_SORTING_NOT_FOUND: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX: notice
+            CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY: notice
+            CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
             CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
@@ -299,6 +407,23 @@ shopware:
             CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND: notice
             CHECKOUT__COUNTRY_NOT_FOUND: notice
             CHECKOUT__COUNTRY_STATE_NOT_FOUND: notice
+            CHECKOUT__ASYNC_PAYMENT_FINALIZE_INTERRUPTED: notice
+            CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED: notice
+            CHECKOUT__CAPTURE_PREPARED_PAYMENT_ERROR: notice
+            CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT: notice
+            CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED: notice
+            CHECKOUT__RECURRING_PROCESS_INTERRUPTED: notice
+            CHECKOUT__REFUND_PROCESS_INTERRUPTED: notice
+            CHECKOUT__PAYMENT_TOKEN_EXPIRED: notice
+            CHECKOUT__PAYMENT_TOKEN_INVALIDATED: notice
+            CHECKOUT__DUPLICATE_SHIPPING_METHOD_TECHNICAL_NAME: notice
+            CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME: notice
+            CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
+            CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE: notice
+            DOCUMENT__INVALID_DOCUMENT_ID: notice
+            DOCUMENT__INVALID_GENERATOR_TYPE: notice
+            DOCUMENT__ORDER_NOT_FOUND: notice
+            CONTENT__AFTER_CATEGORY_NOT_FOUND: notice
             CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
             CONTENT__MEDIA_INVALID_URL: notice
             CONTENT__MEDIA_ILLEGAL_URL: notice
@@ -322,6 +447,8 @@ shopware:
             CONTENT__MEDIA_MISSING_FILE: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND: notice
+            CONTENT__MISSING_EMAIL_PARAMETER: notice
+            CONTENT__PRODUCT_EXPORT_EMPTY: notice
             FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
             FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__TEMPLATE_PARAMETER_IS_MISSING: notice
@@ -334,27 +461,47 @@ shopware:
             FRAMEWORK__API_TYPE_PARAMETER_INVALID: notice
             FRAMEWORK__APP_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
+            FRAMEWORK__APP_WEBHOOK_FAILED: notice
+            FRAMEWORK__APP_INTEGRATION_NOT_FOUND: notice
             FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
             FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY: notice
+            FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER: notice
             FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING: notice
+            FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE: notice
+            FRAMEWORK__CANNOT_CREATE_NEW_VERSION: notice
             FRAMEWORK__KEY_PARAMETER_IS_MISSING: notice
             FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
             FRAMEWORK__INVALID_API_CRITERIA_IDS: notice
+            FRAMEWORK__INVALID_CRITERIA_IDS: notice
             FRAMEWORK__DEFINITION_NOT_FOUND: notice
             FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
             FRAMEWORK__WRITE_TYPE_INTEND_ERROR: notice
+            FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
+            FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__CURRENCY_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION: notice
+            SYSTEM__SNIPPET_INVALID_FILTER_NAME: notice
+            SYSTEM__SNIPPET_INVALID_LIMIT_QUERY: notice
+            SYSTEM__STATE_MACHINE_INVALID_ENTITY_ID: notice
             SYSTEM__NO_CONTEXT_DATA_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_FOOTER_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
             SYSTEM__SCOPE_NOT_FOUND: notice
+            FRAMEWORK__EXTENSION_THEME_STILL_IN_USE: notice
+            PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY: notice
+            FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
+            CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
+            FRAMEWORK__API_INVALID_ASSOCIATION: notice
+            ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
+            FRAMEWORK__INVALID_SYNC_OPERATION: notice
+            FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
@@ -364,7 +511,8 @@ shopware:
             each_theme_config: true
         invalidation:
             delay: 0
-            count: 150
+            delay_options:
+                storage: redis
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []
             product_detail_route: []
@@ -390,3 +538,27 @@ shopware:
     dompdf:
         options:
             isRemoteEnabled: true
+
+    stock:
+        enable_stock_management: true
+
+    usage_data:
+        gateway:
+            dispatch_enabled: true
+            base_uri: 'https://data.shopware.io'
+            batch_size: 50
+
+    feature_toggle:
+        enable: true
+
+    staging:
+        mailing:
+            disable_delivery: true
+        storefront:
+            show_banner: true
+        administration:
+            show_banner: true
+        sales_channel:
+            domain_rewrite: []
+        elasticsearch:
+            check_for_existence: true

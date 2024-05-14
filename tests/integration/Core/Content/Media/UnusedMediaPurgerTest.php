@@ -2,22 +2,24 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media;
 
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
+#[Package('buyers-experience')]
+#[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,6 +42,7 @@ class UnusedMediaPurgerTest extends TestCase
 
         $this->unusedMediaPurger = new UnusedMediaPurger(
             $this->mediaRepo,
+            $this->createMock(Connection::class),
             new EventDispatcher()
         );
     }
@@ -53,16 +56,15 @@ class UnusedMediaPurgerTest extends TestCase
         $withProduct = $this->getMediaWithProduct();
         $withManufacturer = $this->getMediaWithManufacturer();
 
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-        $firstPath = $urlGenerator->getRelativeMediaUrl($txt);
-        $secondPath = $urlGenerator->getRelativeMediaUrl($png);
-        $thirdPath = $urlGenerator->getRelativeMediaUrl($withProduct);
-        $fourthPath = $urlGenerator->getRelativeMediaUrl($withManufacturer);
+        $firstPath = $txt->getPath();
+        $secondPath = $png->getPath();
+        $thirdPath = $withProduct->getPath();
+        $fourthPath = $withManufacturer->getPath();
 
-        $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($thirdPath, \fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->writeStream($fourthPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->writeStream($firstPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($secondPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($thirdPath, \fopen(self::FIXTURE_FILE, 'r'));
+        $this->getPublicFilesystem()->writeStream($fourthPath, \fopen(self::FIXTURE_FILE, 'r'));
 
         $this->unusedMediaPurger->deleteNotUsedMedia();
         $this->runWorker();

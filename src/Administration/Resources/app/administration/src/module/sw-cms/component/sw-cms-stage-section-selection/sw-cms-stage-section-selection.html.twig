@@ -4,10 +4,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_stage_section_selection__sidebar %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-cms-stage-section-selection__sidebar"
+        role="button"
+        tabindex="0"
         @click="selectSection('sidebar')"
+        @keydown.enter="selectSection('sidebar')"
     >
         <div class="sw-cms-stage-section-selection__sidebar-preview">
             <div class="sw-cms-stage-section-selection__sidebar-preview-inner">
@@ -21,10 +23,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_stage_section_selection__fullwidth %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-cms-stage-section-selection__default"
+        role="button"
+        tabindex="0"
         @click="selectSection('default')"
+        @keydown.enter="selectSection('default')"
     >
         <div class="sw-cms-stage-section-selection__default-preview">
             <div class="sw-cms-stage-section-selection__default-preview-inner"></div>

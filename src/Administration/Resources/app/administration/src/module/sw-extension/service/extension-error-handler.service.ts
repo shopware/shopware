@@ -1,13 +1,14 @@
 type MappedError = {
     title: string,
     message: string,
+    details: string|null|undefined,
     parameters?: {
         documentationLink: string,
     }
 }
 
 class StoreError {
-    // eslint-disable-next-line no-useless-constructor
+    // eslint-disable-next-line no-useless-constructor, no-empty-function
     constructor(public readonly title: string, public readonly message: string) {}
 }
 
@@ -55,12 +56,14 @@ function getNotification(error: StoreApiException): MappedError {
         return {
             title: errorCodes[error.code].title,
             message: errorCodes[error.code].message,
+            details: error.detail,
         };
     }
 
     return {
         title: 'global.default.error',
         message: 'sw-extension.errors.messageGenericFailure',
+        details: error.detail,
     };
 }
 
@@ -69,6 +72,7 @@ function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiExceptio
         return {
             title,
             message,
+            details: null,
             parameters: {
                 documentationLink: meta.documentationLink,
             },
@@ -78,6 +82,7 @@ function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiExceptio
     return {
         title,
         message,
+        details: null,
     };
 }
 
@@ -86,7 +91,7 @@ function mapErrors(errors: StoreApiException[]) {
 }
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -94,7 +99,7 @@ export default {
 };
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export type {

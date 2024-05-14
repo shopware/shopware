@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
@@ -21,9 +22,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry
  */
+#[CoversClass(TaskRegistry::class)]
 class TaskRegistryTest extends TestCase
 {
     /**
@@ -54,13 +54,12 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         $registeredTask->setScheduledTaskClass(CleanupCartTask::class);
 
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([
             new ScheduledTaskCollection([$registeredTask]),
         ]);
 
-        $registry = new TaskRegistry($tasks, $staticRepository, $parameterBag);
-
-        $registry->registerTasks();
+        (new TaskRegistry($tasks, $staticRepository, $parameterBag))->registerTasks();
 
         static::assertSame(
             [
@@ -158,7 +157,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $scheduledTaskPayload ] = $data;
+            [$queueTaskPayload, $scheduledTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $scheduledTaskPayload);
@@ -220,7 +219,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $skippedTaskPayload ] = $data;
+            [$queueTaskPayload, $skippedTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $skippedTaskPayload);
@@ -314,5 +313,20 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects(static::never())->method('create');
 
         $registry->registerTasks();
+    }
+
+    public function testListAllTasks(): void
+    {
+        $taskEntity = new ScheduledTaskEntity();
+        $taskEntity->setId('cleanupTask');
+        $taskEntity->setName('foo');
+
+        /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
+        $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
+
+        $tasks = (new TaskRegistry([], $repository, new ParameterBag([])))->getAllTasks(Context::createDefaultContext());
+
+        static::assertCount(1, $tasks);
+        static::assertEquals($taskEntity, $tasks->first());
     }
 }

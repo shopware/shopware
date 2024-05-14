@@ -6,7 +6,7 @@ const { Context, Utils } = Shopware;
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -40,7 +40,6 @@ export default {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -157,7 +156,7 @@ export default {
             });
 
             this.$emit('media-modal-selection-change', selectedMedia);
-            this.$emit('modal-close');
+            this.onEmitModalClosed();
         },
 
         /*

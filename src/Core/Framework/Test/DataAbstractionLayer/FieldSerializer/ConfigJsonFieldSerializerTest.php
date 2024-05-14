@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
@@ -79,9 +80,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider serializerProvider
-     */
+    #[DataProvider('serializerProvider')]
     public function testSerializer($input): void
     {
         $kvPair = new KeyValuePair('password', $input, true);

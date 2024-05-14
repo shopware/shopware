@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
@@ -41,7 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -435,9 +436,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider dataProviderForTestPostEventNullsPayload
-     */
+    #[DataProvider('dataProviderForTestPostEventNullsPayload')]
     public function testPostEventNullsPayload(PluginLifecycleEvent $event): void
     {
         $payload = serialize(new AndRule());
@@ -456,7 +455,7 @@ class RulePayloadIndexerTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $rules = $this->connection->createQueryBuilder()
-            ->select(['id', 'payload', 'invalid'])
+            ->select('id', 'payload', 'invalid')
             ->from('rule')
             ->executeQuery()
             ->fetchAllAssociative();
@@ -497,7 +496,7 @@ class RulePayloadIndexerTest extends TestCase
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RulePlugin extends Plugin
 {
 }

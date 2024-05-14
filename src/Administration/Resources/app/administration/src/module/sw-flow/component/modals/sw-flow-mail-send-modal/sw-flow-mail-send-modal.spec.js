@@ -1,19 +1,5 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swFlowMailSendModal from 'src/module/sw-flow/component/modals/sw-flow-mail-send-modal';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
-
-Shopware.Component.register('sw-flow-mail-send-modal', swFlowMailSendModal);
 
 const recipientEmailInputClass = '.sw-flow-mail-send-modal__recipient-email #sw-field--item-email';
 const recipientNameInputClass = '.sw-flow-mail-send-modal__recipient-name #sw-field--item-name';
@@ -77,78 +63,80 @@ function mockMailTemplateData() {
 }
 
 async function createWrapper(sequence = {}) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-mail-send-modal'), {
-        provide: { repositoryFactory: {
-            create: () => {
-                return {
-                    create: () => Promise.resolve(),
-                    search: () => Promise.resolve(mockMailTemplateData()),
-                    get: () => Promise.resolve(),
-                };
-            },
-        },
-        validationService: {} },
-
-
-        propsData: {
-            sequence,
-        },
-
-        stubs: {
-            'sw-modal': {
-                template: `
+    return mount(await wrapTestComponent('sw-flow-mail-send-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
-            },
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-alert': true,
-            'sw-entity-multi-id-select': true,
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-help-text': true,
-            'sw-icon': true,
-            'sw-field-error': {
-                props: ['error'],
-                template: '<div class="sw-field__error"></div>',
-            },
-            'sw-highlight-text': true,
-            'sw-select-result': {
-                props: ['item', 'index'],
-                template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                <slot></slot>
-                           </li>`,
-                methods: {
-                    onClickResult() {
-                        this.$parent.$parent.$emit('item-select', this.item);
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-alert': true,
+                'sw-entity-multi-id-select': true,
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-help-text': true,
+                'sw-icon': true,
+                'sw-field-error': {
+                    props: ['error'],
+                    template: '<div class="sw-field__error"></div>',
+                },
+                'sw-highlight-text': true,
+                'sw-select-result': {
+                    props: ['item', 'index'],
+                    template: `
+                        <li class="sw-select-result" @click.stop="onClickResult">
+                            <slot></slot>
+                        </li>`,
+                    methods: {
+                        onClickResult() {
+                            this.$parent.$parent.$emit('item-select', this.item);
+                        },
                     },
                 },
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'sw-context-menu-item': {
+                    template: '<div @click="$emit(\'click\')"></div>',
+                },
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-loader': true,
+                'router-link': true,
+                'sw-flow-create-mail-template-modal': true,
             },
-            'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>',
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            create: () => Promise.resolve(),
+                            search: () => Promise.resolve(mockMailTemplateData()),
+                            get: () => Promise.resolve(),
+                        };
+                    },
+                },
+                validationService: {},
             },
-            'sw-context-menu-item': {
-                template: '<div @click="$emit(\'click\')"></div>',
-            },
-            'sw-context-button': true,
-            'sw-loader': true,
-            'router-link': true,
-            'sw-flow-create-mail-template-modal': true,
+        },
+        props: {
+            sequence,
         },
     });
 }
@@ -162,6 +150,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should show and remove error on email template field if value is valid', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const mailTemplate = wrapper.find('.sw-flow-mail-send-modal__mail-template-select');
 
@@ -171,7 +160,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const mailTemplateSelect = wrapper.find('.sw-flow-mail-send-modal__mail-template-select .sw-select__selection');
         await mailTemplateSelect.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const mailOption = wrapper.findAll('.sw-select-result');
         await mailOption.at(1).trigger('click');
@@ -181,19 +170,23 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should show recipient emails grid if the recipient is custom', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
-        const recipientGrid = wrapper.find('.sw-flow-mail-send-modal__recipient-grid');
+        await flushPromises();
 
+        const recipientGrid = wrapper.find('.sw-flow-mail-send-modal__recipient-grid');
         expect(recipientGrid.exists()).toBeTruthy();
     });
 
     it('should show error on fields on recipient emails grid', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-email',
@@ -204,9 +197,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
+        await flushPromises();
 
         const saveButton = wrapper.find(btnEditInline);
         await saveButton.trigger('click');
@@ -218,18 +213,21 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should show and remove email valid message on recipient email field', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
+        await flushPromises();
 
         await wrapper.find(recipientEmailInputClass).setValue('invalid');
         await wrapper.find(recipientEmailInputClass).trigger('input');
 
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.$data.recipients[0].errorMail._code).toBe('INVALID_MAIL');
 
@@ -237,22 +235,25 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.find(recipientEmailInputClass).trigger('input');
 
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.$data.recipients[0].errorMail).toBeNull();
     });
 
     it('should show create mail template modal', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         let createMailTemplateModal = wrapper.find('sw-flow-create-mail-template-modal-stub');
         expect(createMailTemplateModal.exists()).toBeFalsy();
 
         const mailTemplateSelect = wrapper.find('.sw-flow-mail-send-modal__mail-template-select .sw-select__selection');
         await mailTemplateSelect.trigger('click');
+        await flushPromises();
 
         const createMailTemplate = wrapper.find('.sw-select-result__create-new-template');
         await createMailTemplate.trigger('click');
+        await flushPromises();
 
         createMailTemplateModal = wrapper.find('sw-flow-create-mail-template-modal-stub');
         expect(createMailTemplateModal.exists()).toBeTruthy();
@@ -260,12 +261,15 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should add an empty row after adding a custom email', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
+        await flushPromises();
 
         let recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(1);
@@ -277,7 +281,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.find(recipientNameInputClass).trigger('input');
 
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(2);
@@ -285,6 +289,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should show error in recipient grid when clicking on save action button', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-grid',
@@ -294,15 +299,17 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         await customOption.trigger('click');
+        await flushPromises();
 
         const recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(1);
 
         await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         recipientFieldsClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
@@ -311,6 +318,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should render correct recipient grid by sequence config', async () => {
         const wrapper = await createWrapper(sequenceFixture);
+        await flushPromises();
 
         const recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(3);
@@ -330,6 +338,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should able to remove custom recipient', async () => {
         const wrapper = await createWrapper(sequenceFixture);
+        await flushPromises();
 
         let recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(3);
@@ -339,6 +348,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(row1.find('.sw-data-grid__cell--name').text()).toContain('John Doe');
 
         await row1.find('.sw-flow-mail-send-modal__grid-action-delete').trigger('click');
+        await flushPromises();
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(recipientRows).toHaveLength(2);
@@ -365,8 +375,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -392,8 +405,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -421,8 +437,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -445,8 +464,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -469,8 +491,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -493,8 +518,11 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         });
 
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
         await recipientSelect.trigger('click');
+        await flushPromises();
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
@@ -507,6 +535,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     it('should validate reply to field', async () => {
         const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
         const wrapper = await createWrapper(sequence);
+        await flushPromises();
+
         wrapper.vm.onAddAction();
 
         expect(wrapper.vm.showReplyToField).toBeTruthy();
@@ -532,10 +562,16 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     });
 
     it('should validate reply to field with contact form trigger', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            name: 'contact_form.send',
+        });
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             triggerEvent: { name: 'contact_form.send' },
         });
+        await flushPromises();
+
         wrapper.vm.onAddAction();
 
         expect(wrapper.vm.showReplyToField).toBeFalsy();
@@ -544,6 +580,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         wrapper.vm.changeShowReplyToField('foobar');
         await flushPromises();
+
         wrapper.vm.onAddAction();
 
         expect(wrapper.vm.showReplyToField).toBeTruthy();
@@ -563,6 +600,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
     it('should build help text for use different reply-to address switch', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         wrapper.vm.$tc = jest.fn();
         wrapper.vm.$router = {
@@ -582,6 +620,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(cancelButton.isVisible()).toBeTruthy();
 
         await cancelButton.trigger('click');
+        await flushPromises();
         expect(wrapper.emitted()['modal-close']).toBeTruthy();
     });
 

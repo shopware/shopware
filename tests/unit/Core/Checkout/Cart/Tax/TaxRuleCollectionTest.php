@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection
  */
+#[CoversClass(TaxRuleCollection::class)]
 class TaxRuleCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

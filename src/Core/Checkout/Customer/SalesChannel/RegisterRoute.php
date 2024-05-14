@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,7 +47,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -57,7 +56,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterRoute extends AbstractRegisterRoute
 {
     /**
@@ -150,6 +149,15 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['customFields'] = $this->customFieldMapper->map(CustomerDefinition::ENTITY_NAME, $data->get('customFields'));
         }
 
+        // Convert all DataBags to array
+        $customer = array_map(static function (mixed $value) {
+            if ($value instanceof DataBag) {
+                return $value->all();
+            }
+
+            return $value;
+        }, $customer);
+
         $this->customerRepository->create([$customer], $context->getContext());
 
         $criteria = new Criteria([$customer['id']]);
@@ -166,7 +174,15 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl'), $data->get('redirectTo')));
+            $this->eventDispatcher->dispatch(
+                $this->getDoubleOptInEvent(
+                    $customerEntity,
+                    $context,
+                    $data->get('storefrontUrl'),
+                    $data->get('redirectTo'),
+                    $data->get('redirectParameters')
+                )
+            );
 
             // We don't want to leak the hash in store-api
             $customerEntity->setHash('');
@@ -221,12 +237,18 @@ class RegisterRoute extends AbstractRegisterRoute
         return $response;
     }
 
-    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
-    {
+    private function getDoubleOptInEvent(
+        CustomerEntity $customer,
+        SalesChannelContext $context,
+        string $url,
+        ?string $redirectTo,
+        ?string $redirectParameters
+    ): Event {
         $url .= $this->getConfirmUrl($context, $customer);
 
         if ($redirectTo) {
-            $url .= '&redirectTo=' . $redirectTo;
+            $params = \is_string($redirectParameters) ? (\json_decode($redirectParameters, true) ?? []) : [];
+            $url .= '&' . \http_build_query(array_merge(['redirectTo' => $redirectTo], $params));
         }
 
         if ($customer->getGuest()) {
@@ -256,9 +278,6 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $customer['active'] = false;
-        }
         $customer['doubleOptInRegistration'] = true;
         $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
         $customer['hash'] = Uuid::randomHex();
@@ -305,13 +324,15 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $data->get('vatIds') !== null) {
-            if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
-                $definition->add('vatIds', new NotBlank());
-            }
+            if (isset($billingAddress['countryId'])) {
+                if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
+                    $definition->add('vatIds', new NotBlank());
+                }
 
-            $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                ['countryId' => $billingAddress['countryId']]
-            ));
+                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                    ['countryId' => $billingAddress['countryId']]
+                ));
+            }
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
@@ -319,6 +340,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);
+
         if (!$violations->count()) {
             return;
         }
@@ -573,7 +595,7 @@ class RegisterRoute extends AbstractRegisterRoute
         );
     }
 
-    private function getDefaultSalutationId(SalesChannelContext $context): string
+    private function getDefaultSalutationId(SalesChannelContext $context): ?string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -584,6 +606,6 @@ class RegisterRoute extends AbstractRegisterRoute
         /** @var array<string> $ids */
         $ids = $this->salutationRepository->searchIds($criteria, $context->getContext())->getIds();
 
-        return $ids[0] ?? '';
+        return $ids[0] ?? null;
     }
 }

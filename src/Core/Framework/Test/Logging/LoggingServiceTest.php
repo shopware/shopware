@@ -7,6 +7,7 @@ use Doctrine\DBAL\Exception;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
@@ -75,7 +76,7 @@ class LoggingServiceTest extends TestCase
         $service = new LoggingService('test', $logger);
 
         $service->logFlowEvent(
-            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, 400, new Exception()))
+            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, Level::Error, new Exception()))
         );
 
         $records = $handler->getRecords();
@@ -88,9 +89,7 @@ class LoggingServiceTest extends TestCase
         static::assertEquals(Level::Error, $testRecord->level);
     }
 
-    /**
-     * @depends testWriteFlowEvents
-     */
+    #[Depends('testWriteFlowEvents')]
     public function testWriteLogAwareFlowEvent(): void
     {
         $handler = new TestHandler();

@@ -4,7 +4,7 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @public
- * @package business-ops
+ * @package services-settings
  * @description Condition for generic line item rules. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

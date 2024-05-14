@@ -2,8 +2,12 @@
 title: Providing the admin extension SDK
 date: 2022-06-15
 area: administration
-tags: [admin-extension-sdk, vue]
+tags: [meteor-extension-sdk, vue]
 ---
+
+::: warning
+The Admin Extension SDK has been renamed to Meteor Extension SDK.
+:::
 
 ## Context
 The Admin Extension SDK is a toolkit for plugin and app developers to extend or modify the administration via their plugins or apps. The SDK contains easy to use methods which interact with the administration in the background via the PostMessage API for iFrames.

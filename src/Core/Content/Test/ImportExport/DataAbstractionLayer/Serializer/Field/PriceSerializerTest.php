@@ -16,7 +16,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -79,6 +79,8 @@ class PriceSerializerTest extends TestCase
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
         $deserializedPrice = $priceSerializer->deserialize($config, $priceField, $expectedSerialized);
+        static::assertNotNull($deserializedPrice);
+        static::assertArrayHasKey(Defaults::CURRENCY, $deserializedPrice);
         ksort($deserializedPrice[Defaults::CURRENCY]);
         static::assertSame($expectedDeserialized, $deserializedPrice);
     }
@@ -164,12 +166,17 @@ class PriceSerializerTest extends TestCase
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
         $deserializedPrice = $priceSerializer->deserialize($config, $priceField, $expectedSerialized);
+        static::assertNotNull($deserializedPrice);
+        static::assertArrayHasKey(Defaults::CURRENCY, $deserializedPrice);
         ksort($deserializedPrice[Defaults::CURRENCY]);
         ksort($deserializedPrice[Defaults::CURRENCY]['listPrice']);
         static::assertSame($expectedDeserialized, $deserializedPrice);
     }
 
-    private function first(?iterable $iterable)
+    /**
+     * @param iterable<mixed>|null $iterable
+     */
+    private function first(?iterable $iterable): mixed
     {
         if ($iterable === null) {
             return null;
@@ -178,5 +185,7 @@ class PriceSerializerTest extends TestCase
         foreach ($iterable as $value) {
             return $value;
         }
+
+        return null;
     }
 }

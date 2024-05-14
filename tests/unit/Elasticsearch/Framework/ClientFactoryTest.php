@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Elasticsearch\Framework\ClientFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ClientFactory
  */
+#[CoversClass(ClientFactory::class)]
 class ClientFactoryTest extends TestCase
 {
     public function testBuildClient(): void

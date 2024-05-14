@@ -9,7 +9,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.createDefaultFixture('cms-page', {}, 'cms-error-page');
 
         // Request we want to wait for later
@@ -19,9 +19,9 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveData');
 
         // Assign 404 layout to all sales channels
-        cy.get('.sw-card.sw-system-config__card--1').scrollIntoView();
-        cy.get('.sw-card.sw-system-config__card--1').should('be.visible');
-        cy.contains('.sw-card.sw-system-config__card--1 .sw-card__title', 'Shop pages');
+        cy.get('.sw-system-config__card--1').scrollIntoView();
+        cy.get('.sw-system-config__card--1').should('be.visible');
+        cy.contains('.sw-system-config__card--1 .sw-card__title', 'Shop pages');
         cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]').scrollIntoView();
         cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]').should('be.visible');
 
@@ -43,7 +43,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', '404 - Not Found');
     });
 
-    it('@settings: assign maintenance layout and test rollout', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: assign maintenance layout and test rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         cy.createDefaultFixture('cms-page', {}, 'cms-maintenance-page');
@@ -60,9 +60,9 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveSalesChannel');
 
         // Assign Maintenance layout to all sales channels
-        cy.get('.sw-card.sw-system-config__card--1').scrollIntoView();
-        cy.get('.sw-card.sw-system-config__card--1').should('be.visible');
-        cy.contains('.sw-card.sw-system-config__card--1 .sw-card__title', 'Shop pages');
+        cy.get('.sw-system-config__card--1').scrollIntoView();
+        cy.get('.sw-system-config__card--1').should('be.visible');
+        cy.contains('.sw-system-config__card--1 .sw-card__title', 'Shop pages');
         cy.get('.sw-cms-page-select[name="core.basicInformation.maintenancePage"]').scrollIntoView();
         cy.get('.sw-cms-page-select[name="core.basicInformation.maintenancePage"]').should('be.visible');
 
@@ -92,7 +92,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', 'Maintenance');
     });
 
-    it('@settings: test default maintenance layout rollout', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: test default maintenance layout rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -113,16 +113,16 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.content-main h1', 'Maintenance mode');
     });
 
-    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'POST',
         }).as('saveData');
 
-        cy.get('.sw-card.sw-system-config__card--3').scrollIntoView();
-        cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
-        cy.contains('.sw-card.sw-system-config__card--3 .sw-card__title', 'CAPTCHA');
+        cy.get('.sw-system-config__card--3').scrollIntoView();
+        cy.get('.sw-system-config__card--3').should('be.visible');
+        cy.contains('.sw-system-config__card--3 .sw-card__title', 'CAPTCHA');
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2').should('be.visible');
 

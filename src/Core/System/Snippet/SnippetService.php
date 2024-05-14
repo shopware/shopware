@@ -5,75 +5,63 @@ namespace Shopware\Core\System\Snippet;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
+/**
+ * @phpstan-type Snippet array{value: string, origin: string, resetTo: string, translationKey: string, author: string, id: string|null, setId: string}
+ * @phpstan-type SnippetArray array<string, array{snippets: array<string, Snippet>}>
+ * @phpstan-type SnippetFilter array{edited?: true, added?: true, empty?: true, author?: list<string>, namespace?: list<string>, term?: string}
+ * @phpstan-type SnippetSort array{sortBy: string, sortDirection: string}|array{}
+ */
 #[Package('system-settings')]
 class SnippetService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SnippetCollection> $snippetRepository
+     * @param EntityRepository<SnippetSetCollection> $snippetSetRepository
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly SnippetFileCollection $snippetFileCollection,
         private readonly EntityRepository $snippetRepository,
         private readonly EntityRepository $snippetSetRepository,
-        private readonly EntityRepository $salesChannelDomain,
         private readonly SnippetFilterFactory $snippetFilterFactory,
         /**
          * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
          */
         private readonly ContainerInterface $container,
-        private readonly ?SalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
 
     /**
-     * filters: [
-     *      'isCustom' => bool,
-     *      'isEmpty' => bool,
-     *      'term' => string,
-     *      'namespaces' => array,
-     *      'authors' => array,
-     *      'translationKeys' => array,
-     * ]
-     *
-     * sort: [
-     *      'column' => NULL || the string -> 'translationKey' || setId
-     *      'direction' => 'ASC' || 'DESC'
-     * ]
-     *
      * @param int<1, max> $limit
-     * @param array<string, bool|string|array<int, string>> $requestFilters
-     * @param array<string, string> $sort
+     * @param SnippetFilter $requestFilters
+     * @param SnippetSort $sort
      *
-     * @return array{total:int, data: array<string, array<int, array<string, string|null>>>}
+     * @return array{total:int, data: array<string, list<Snippet>>}
      */
     public function getList(int $page, int $limit, Context $context, array $requestFilters, array $sort): array
     {
         --$page;
-        /** @var array<string, array{iso: string, id: string}> $metaData */
-        $metaData = $this->getSetMetaData($context);
-
-        $isoList = $this->createIsoList($metaData);
+        $isoList = $this->createIsoList($context);
         $languageFiles = $this->getSnippetFilesByIso($isoList);
 
         $fileSnippets = $this->getFileSnippets($languageFiles, $isoList);
@@ -109,7 +97,7 @@ class SnippetService
 
         $snippets = [];
 
-        $snippetFileCollection = clone $this->snippetFileCollection;
+        $snippetFileCollection = $this->snippetFileCollection;
 
         $usingThemes = $this->getUsedThemes($salesChannelId);
         $unusedThemes = $this->getUnusedThemes($usingThemes);
@@ -146,9 +134,7 @@ class SnippetService
      */
     public function getRegionFilterItems(Context $context): array
     {
-        /** @var array<string, array{iso: string, id: string}> $metaData */
-        $metaData = $this->getSetMetaData($context);
-        $isoList = $this->createIsoList($metaData);
+        $isoList = $this->createIsoList($context);
         $snippetFiles = $this->getSnippetFilesByIso($isoList);
 
         $criteria = new Criteria();
@@ -166,7 +152,6 @@ class SnippetService
             }
         }
 
-        /** @var SnippetEntity $snippet */
         foreach ($dbSnippets as $snippet) {
             $region = explode('.', $snippet->getTranslationKey())[0];
             if (\in_array($region, $result, true)) {
@@ -190,11 +175,9 @@ class SnippetService
         $criteria = new Criteria();
         $criteria->addAggregation(new TermsAggregation('distinct_author', 'author'));
 
-        /** @var TermsResult|null $aggregation */
-        $aggregation = $this->snippetRepository->aggregate($criteria, $context)
-                ->get('distinct_author');
+        $aggregation = $this->snippetRepository->aggregate($criteria, $context)->get('distinct_author');
 
-        if (!$aggregation || empty($aggregation->getBuckets())) {
+        if (!$aggregation instanceof TermsResult || empty($aggregation->getBuckets())) {
             $result = [];
         } else {
             $result = $aggregation->getKeys();
@@ -208,33 +191,6 @@ class SnippetService
         sort($result);
 
         return $result;
-    }
-
-    /**
-     * @decrecated tag:v6.6.0 - will be removed, use findSnippetSetId instead
-     */
-    public function getSnippetSet(string $salesChannelId, string $languageId, string $locale, Context $context): ?SnippetSetEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('salesChannelId', $salesChannelId),
-            new EqualsFilter('languageId', $languageId)
-        );
-        $criteria->addAssociation('snippetSet');
-
-        /** @var SalesChannelDomainEntity|null $salesChannelDomain */
-        $salesChannelDomain = $this->salesChannelDomain->search($criteria, $context)->first();
-
-        if ($salesChannelDomain === null) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('iso', $locale));
-            /** @var SnippetSetEntity|null $snippetSet */
-            $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
-        } else {
-            $snippetSet = $salesChannelDomain->getSnippetSet();
-        }
-
-        return $snippetSet;
     }
 
     public function findSnippetSetId(string $salesChannelId, string $languageId, string $locale): string
@@ -279,9 +235,9 @@ class SnippetService
             return [];
         }
 
-        $themeRegistry = $this->container->get(StorefrontPluginRegistry::class);
-
-        $unusedThemes = $themeRegistry->getConfigurations()->getThemes()->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
+        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
+            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
+            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
 
         return array_values($unusedThemes);
     }
@@ -312,19 +268,11 @@ class SnippetService
         $snippets = [];
 
         foreach ($files as $file) {
-            $json = json_decode(file_get_contents($file->getPath()) ?: '', true);
-
-            $jsonError = json_last_error();
-            if ($jsonError !== 0) {
-                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $file->getPath(), $jsonError));
-            }
+            $json = $this->decodeSnippetFileJson($file);
 
             $flattenSnippetFileSnippets = $this->flatten($json);
 
-            $snippets = array_replace_recursive(
-                $snippets,
-                $flattenSnippetFileSnippets
-            );
+            $snippets = array_replace_recursive($snippets, $flattenSnippetFileSnippets);
         }
 
         return $snippets;
@@ -343,14 +291,8 @@ class SnippetService
             return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }
 
-        $saleChannelThemes = $this->salesChannelThemeLoader->load($salesChannelId);
+        $usedThemes = $this->salesChannelThemeLoader->load($salesChannelId);
 
-        $usedThemes = array_filter([
-            $saleChannelThemes['themeName'] ?? null,
-            $saleChannelThemes['parentThemeName'] ?? null,
-        ]);
-
-        /** @var list<string> */
         return array_values(array_unique([
             ...$usedThemes,
             StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
@@ -360,7 +302,7 @@ class SnippetService
     /**
      * @param array<string, string> $isoList
      *
-     * @return array<string, array<int, AbstractSnippetFile>>
+     * @return array<string, list<AbstractSnippetFile>>
      */
     private function getSnippetFilesByIso(array $isoList): array
     {
@@ -375,38 +317,29 @@ class SnippetService
     /**
      * @param array<int, AbstractSnippetFile> $languageFiles
      *
-     * @return array<string, array<string, string|null>>
+     * @return array<string, Snippet>
      */
     private function getSnippetsFromFiles(array $languageFiles, string $setId): array
     {
         $result = [];
         foreach ($languageFiles as $snippetFile) {
-            $json = json_decode((string) file_get_contents($snippetFile->getPath()), true);
-
-            $jsonError = json_last_error();
-            if ($jsonError !== 0) {
-                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
-            }
+            $json = $this->decodeSnippetFileJson($snippetFile);
 
             $flattenSnippetFileSnippets = $this->flatten(
                 $json,
-                '',
-                ['author' => $snippetFile->getAuthor(), 'id' => null, 'setId' => $setId]
+                additionalParameters: ['author' => $snippetFile->getAuthor(), 'id' => null, 'setId' => $setId]
             );
 
-            $result = array_replace_recursive(
-                $result,
-                $flattenSnippetFileSnippets
-            );
+            $result = array_replace_recursive($result, $flattenSnippetFileSnippets);
         }
 
         return $result;
     }
 
     /**
-     * @param array<string, array<string, array<string, array<string, string|null>>>> $sets
+     * @param SnippetArray $sets
      *
-     * @return array<string, array<int, array<string, string|null>>>
+     * @return array<string, list<Snippet>>
      */
     private function mergeSnippetsComparison(array $sets): array
     {
@@ -427,17 +360,17 @@ class SnippetService
         ]);
 
         if ($locale === false) {
-            throw new \InvalidArgumentException(sprintf('No snippetSet with id "%s" found', $snippetSetId));
+            throw SnippetException::snippetSetNotFound($snippetSetId);
         }
 
         return (string) $locale;
     }
 
     /**
-     * @param array<string, array<string, array<string, array<string, string|null>>>> $fileSnippets
+     * @param SnippetArray $fileSnippets
      * @param array<string, string> $isoList
      *
-     * @return array<string, array<string, array<string, array<string, string|null>>>>
+     * @return SnippetArray
      */
     private function fillBlankSnippets(array $fileSnippets, array $isoList): array
     {
@@ -469,10 +402,10 @@ class SnippetService
     }
 
     /**
-     * @param array<string, array<int, AbstractSnippetFile>> $languageFiles
+     * @param array<string, list<AbstractSnippetFile>> $languageFiles
      * @param array<string, string> $isoList
      *
-     * @return array<string, array<string, array<string, array<string, string|null>>>>
+     * @return SnippetArray
      */
     private function getFileSnippets(array $languageFiles, array $isoList): array
     {
@@ -486,15 +419,13 @@ class SnippetService
     }
 
     /**
-     * @param array<string, array{iso: string, id: string}> $metaData
-     *
      * @return array<string, string>
      */
-    private function createIsoList(array $metaData): array
+    private function createIsoList(Context $context): array
     {
         $isoList = [];
 
-        foreach ($metaData as $set) {
+        foreach ($this->getSetMetaData($context) as $set) {
             $isoList[$set['id']] = $set['iso'];
         }
 
@@ -502,35 +433,32 @@ class SnippetService
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, array<string, mixed>>
      */
     private function getSetMetaData(Context $context): array
     {
-        $queryResult = $this->findSnippetSetInDatabase(new Criteria(), $context);
-
-        /** @var array<string, array{iso: string, id: string}> $result */
+        $snippetSets = $this->findSnippetSetInDatabase(new Criteria(), $context);
         $result = [];
-        /** @var SnippetSetEntity $value */
-        foreach ($queryResult as $key => $value) {
-            $result[$key] = $value->jsonSerialize();
+        foreach ($snippetSets as $key => $value) {
+            $result[(string) $key] = $value->jsonSerialize();
         }
 
         return $result;
     }
 
     /**
-     * @param array<string, Entity> $queryResult
-     * @param array<string, array<string, array<string, array<string, string|null>>>> $fileSnippets
+     * @param SnippetArray $fileSnippets
      *
-     * @return array<string, array<string, array<string, array<string, string|null>>>>
+     * @return SnippetArray
      */
-    private function databaseSnippetsToArray(array $queryResult, array $fileSnippets): array
+    private function databaseSnippetsToArray(SnippetCollection $snippets, array $fileSnippets): array
     {
         $result = [];
-        /** @var SnippetEntity $snippet */
-        foreach ($queryResult as $snippet) {
+        foreach ($snippets as $snippet) {
+            /** @var array{value: string, translationKey: string, setId: string, id: string, author: string} $snippetArray */
+            $snippetArray = $snippet->jsonSerialize();
             $currentSnippet = array_intersect_key(
-                $snippet->jsonSerialize(),
+                $snippetArray,
                 array_flip([
                     'author',
                     'id',
@@ -548,27 +476,21 @@ class SnippetService
         return $result;
     }
 
-    /**
-     * @return array<string, Entity>
-     */
-    private function findSnippetInDatabase(Criteria $criteria, Context $context): array
+    private function findSnippetInDatabase(Criteria $criteria, Context $context): SnippetCollection
     {
-        return $this->snippetRepository->search($criteria, $context)->getEntities()->getElements();
+        return $this->snippetRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function findSnippetSetInDatabase(Criteria $criteria, Context $context): SnippetSetCollection
+    {
+        return $this->snippetSetRepository->search($criteria, $context)->getEntities();
     }
 
     /**
-     * @return array<string, Entity>
-     */
-    private function findSnippetSetInDatabase(Criteria $criteria, Context $context): array
-    {
-        return $this->snippetSetRepository->search($criteria, $context)->getEntities()->getElements();
-    }
-
-    /**
-     * @param array<string, string> $sort
-     * @param array<string, array<string, array<string, array<string, string|null>>>> $snippets
+     * @param SnippetSort $sort
+     * @param SnippetArray $snippets
      *
-     * @return array<string, array<string, array<string, array<string, string|null>>>>
+     * @return SnippetArray
      */
     private function sortSnippets(array $sort, array $snippets): array
     {
@@ -643,5 +565,19 @@ class SnippetService
         }
 
         return $result;
+    }
+
+    /**
+     * @return array<string, string|array<string, mixed>>
+     */
+    private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
+    {
+        try {
+            $json = json_decode((string) file_get_contents($snippetFile->getPath()), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw SnippetException::invalidSnippetFile($snippetFile->getPath(), $e);
+        }
+
+        return $json;
     }
 }

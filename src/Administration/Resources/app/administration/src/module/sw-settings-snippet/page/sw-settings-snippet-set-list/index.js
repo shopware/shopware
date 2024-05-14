@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
@@ -14,6 +14,7 @@ export default {
         'snippetSetService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -66,6 +67,10 @@ export default {
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {
@@ -98,12 +103,20 @@ export default {
             }
 
             this.$nextTick(() => {
-                const foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
-                    return vueComponent.item !== undefined && vueComponent.item.id === newSnippetSet.id;
+                let foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
+                    if (vueComponent.$options.name === 'AsyncComponentWrapper') {
+                        vueComponent = vueComponent?.$children[0];
+                    }
+
+                    return vueComponent?.item !== undefined && vueComponent.item.id === newSnippetSet.id;
                 });
 
                 if (!foundRow) {
                     return false;
+                }
+
+                if (foundRow.$options.name === 'AsyncComponentWrapper') {
+                    foundRow = foundRow.$children[0];
                 }
 
                 foundRow.isEditingActive = true;

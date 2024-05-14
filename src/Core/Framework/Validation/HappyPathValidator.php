@@ -22,9 +22,11 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('core
-calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
-this validator implements a subset of the functionality and calls into the real validator if needed.')]
+/**
+ * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+ * this validator implements a subset of the functionality and calls into the real validator if needed.
+ */
+#[Package('core')]
 class HappyPathValidator implements ValidatorInterface
 {
     /**
@@ -37,7 +39,7 @@ class HappyPathValidator implements ValidatorInterface
     /**
      * @param Constraint|Constraint[]|null $constraints
      */
-    public function validate(mixed $value, Constraint|array $constraints = null, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validate(mixed $value, Constraint|array|null $constraints = null, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
@@ -65,12 +67,12 @@ class HappyPathValidator implements ValidatorInterface
         return $this->inner->hasMetadataFor($value);
     }
 
-    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
@@ -152,11 +154,11 @@ class HappyPathValidator implements ValidatorInterface
                     $ctypeFunction = 'ctype_' . $type;
 
                     if (\function_exists($isFunction)) {
-                        if (\is_callable($isFunction) && !$isFunction($value)) { /* @phpstan-ignore-line */
+                        if (!$isFunction($value)) {
                             return false;
                         }
                     } elseif (\function_exists($ctypeFunction)) {
-                        if (\is_callable($ctypeFunction) && !$ctypeFunction($value)) { /* @phpstan-ignore-line */
+                        if (!$ctypeFunction($value)) {
                             return false;
                         }
                     } elseif (!$value instanceof $type) {

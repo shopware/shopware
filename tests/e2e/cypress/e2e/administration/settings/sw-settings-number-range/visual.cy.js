@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 describe('Number range: Visual testing', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
@@ -10,7 +12,7 @@ describe('Number range: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of number ranges module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of number ranges module', { tags: ['pa-inventory', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/number-range`,
             method: 'POST',

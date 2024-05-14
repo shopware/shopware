@@ -3,7 +3,7 @@ import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
@@ -259,15 +259,15 @@ export default {
         },
 
         onCloseAddressModal() {
-            if (this.hasOwnProperty('defaultShippingAddressId')) {
+            if (this.defaultShippingAddressId) {
                 this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
             }
 
-            if (this.hasOwnProperty('defaultBillingAddressId')) {
+            if (this.defaultBillingAddressId) {
                 this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
             }
 
-            if (this.$route.query.hasOwnProperty('detailId')) {
+            if (this.$route.query.detailId) {
                 this.$route.query.detailId = null;
             }
 
@@ -327,11 +327,11 @@ export default {
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;

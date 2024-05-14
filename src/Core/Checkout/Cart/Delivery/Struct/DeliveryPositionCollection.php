@@ -49,7 +49,7 @@ class DeliveryPositionCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_map(static fn (DeliveryPosition $position) => $position->getPrice(), $this->elements)
+            $this->map(static fn (DeliveryPosition $position) => $position->getPrice())
         );
     }
 

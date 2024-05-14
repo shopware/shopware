@@ -1,17 +1,13 @@
 <sw-single-select
-    {% if VUE3 %}
     v-model:value="addressId"
-    {% else %}
-    v-model="addressId"
-    {% endif %}
     v-bind="$attrs"
     class="sw-order-customer-address-select"
     value-property="id"
     required
-    disable-search-function
     :is-loading="isLoading"
     :options="customerAddresses"
     :disabled="disabled"
+    :search-function="searchAddressResults"
     @search="searchAddress"
 >
     <template #selection-label-property="{ item }">
@@ -19,8 +15,7 @@
     </template>
 
     <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-        <li
-            is="sw-select-result"
+        <sw-select-result
             :selected="isSelected(item)"
             v-bind="{ item, index }"
             @item-select="setValue"
@@ -34,6 +29,6 @@
             <template v-else>
                 {{ getCustomerAddress(item) }}
             </template>
-        </li>
+        </sw-select-result>
     </template>
 </sw-single-select>

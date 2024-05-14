@@ -4,11 +4,10 @@ namespace Shopware\Core\Checkout\Customer\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('business-ops')]
+#[Package('checkout')]
 /**
  * @final
  */
@@ -22,34 +21,29 @@ class ProductReviewCountService
     }
 
     /**
-     * @param string[] $reviewIds
+     * @param list<string> $reviewIds
      */
-    public function updateReviewCount(array $reviewIds, bool $isDelete = false): void
+    public function updateReviewCount(array $reviewIds): void
     {
-        $reviewIds = \array_map(fn ($id) => Uuid::fromHexToBytes($id), $reviewIds);
+        /** @var list<string> $affectedCustomers */
+        $affectedCustomers = array_filter($this->connection->fetchFirstColumn(
+            'SELECT DISTINCT(`customer_id`) FROM product_review WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($reviewIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        ));
 
-        $results = $this->connection->executeQuery(
-            'SELECT * FROM product_review WHERE id IN (:ids)',
-            ['ids' => $reviewIds],
-            ['ids' => ArrayParameterType::STRING]
-        )->fetchAllAssociative();
-
-        foreach ($results as $result) {
-            if (!isset($result['customer_id'])) {
-                continue;
-            }
-
-            $update = new RetryableQuery(
-                $this->connection,
-                $this->connection->prepare(sprintf(
-                    'UPDATE `customer` SET review_count = review_count %s 1 WHERE id = :id',
-                    $isDelete ? '-' : '+'
-                ))
-            );
-
-            $update->execute([
-                'id' => $result['customer_id'],
-            ]);
+        foreach ($affectedCustomers as $customerId) {
+            $this->updateReviewCountForCustomer($customerId);
         }
+    }
+
+    public function updateReviewCountForCustomer(string $customerId): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE `customer` SET review_count = (
+                  SELECT COUNT(*) FROM `product_review` WHERE `customer_id` = :id AND `status` = 1
+            ) WHERE id = :id',
+            ['id' => $customerId]
+        );
     }
 }

@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  *
  * @phpstan-type App array{name: string, path: string, author: string|null}
  */
@@ -19,7 +19,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ActiveAppsLoader implements ResetInterface
 {
     /**
-     * @var App[]|null
+     * @var array<App>|null
      */
     private ?array $activeApps = null;
 
@@ -31,7 +31,7 @@ class ActiveAppsLoader implements ResetInterface
     }
 
     /**
-     * @return App[]
+     * @return array<App>
      */
     public function getActiveApps(): array
     {
@@ -52,19 +52,17 @@ class ActiveAppsLoader implements ResetInterface
     }
 
     /**
-     * @return App[]
+     * @return array<App>
      */
     private function loadApps(): array
     {
         try {
-            /** @var App[] $apps */
-            $apps = $this->connection->fetchAllAssociative('
+            /** @phpstan-ignore-next-line PHPStan could not recognize the loaded array shape from the database */
+            return $this->connection->fetchAllAssociative('
                 SELECT `name`, `path`, `author`
                 FROM `app`
                 WHERE `active` = 1
             ');
-
-            return $apps;
         } catch (\Throwable $e) {
             if (\defined('\STDERR')) {
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);

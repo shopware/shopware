@@ -1,17 +1,12 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swModalVariantGeneration from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
+/**
+ * @package buyers-experience
+ */
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
-
-Shopware.Component.register('sw-product-modal-variant-generation', swModalVariantGeneration);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-product-modal-variant-generation'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-modal-variant-generation', { sync: true }), {
+        props: {
             groups: [
                 {
                     name: 'Test',
@@ -167,36 +162,41 @@ async function createWrapper() {
                 ),
             },
         },
-        stubs: {
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'sw-button': {
-                template: '<button><slot></slot></button>',
-                props: ['disabled'],
+        global: {
+            stubs: {
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                'sw-product-variants-configurator-selection': true,
+                'sw-icon': true,
+                'sw-progress-bar': true,
+                'sw-alert': true,
+                'sw-upload-listener': true,
+                'sw-media-compact-upload-v2': true,
+                'sw-switch-field': true,
+                'sw-data-grid': true,
+                'sw-card-filter': true,
+                'sw-pagination': true,
             },
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-product-variants-configurator-selection': true,
-            'sw-icon': true,
-            'sw-progress-bar': true,
-            'sw-alert': true,
-            'sw-upload-listener': true,
-            'sw-media-compact-upload-v2': true,
-            'sw-switch-field': true,
-            'sw-data-grid': true,
-            'sw-card-filter': true,
-            'sw-pagination': true,
-        },
-        provide: {
-            shortcutService: {
-                startEventListener() {},
-                stopEventListener() {},
-            },
-            searchRankingService: {
-                getSearchFieldsByEntity() {
-                    return Promise.resolve(null);
+            provide: {
+                shortcutService: {
+                    startEventListener() {},
+                    stopEventListener() {},
                 },
-                buildSearchQueriesForEntity: () => {
-                    return null;
+                searchRankingService: {
+                    getSearchFieldsByEntity() {
+                        return Promise.resolve(null);
+                    },
+                    buildSearchQueriesForEntity: () => {
+                        return null;
+                    },
+                },
+                mediaService: {
+                    getDefaultFolderId: () => {
+                        return Promise.resolve('defaultFolderId');
+                    },
                 },
             },
         },
@@ -216,7 +216,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     return {};
                 },
                 sync() {
-                    return Promise.resolve();
+                    return Promise.resolve({ data: {} });
                 },
             };
         });
@@ -256,9 +256,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 createQueue: [
                     {
                         downloads: [file],
+                        options: [],
                     },
                     {
                         downloads: [file],
+                        options: [],
                     },
                 ],
             },
@@ -279,9 +281,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.variantGenerationQueue.createQueue).toEqual([
             {
                 downloads: [],
+                options: [],
             },
             {
                 downloads: [],
+                options: [],
             },
         ]);
     });
@@ -295,13 +299,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         option: { id: '1', groupId: '1' },
                     },
                     {
-                        option: { id: '2', groupId: '1' },
-                    },
-                    {
-                        option: { id: '3', groupId: '2' },
-                    },
-                    {
-                        option: { id: '4', groupId: '2' },
+                        option: { id: '2', groupId: '2' },
                     },
                 ],
             },
@@ -309,7 +307,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         wrapper.vm.calcVariantsNumber();
 
-        expect(wrapper.vm.variantsNumber).toBe(4);
+        expect(wrapper.vm.variantsNumber).toBe(2);
     });
 
     it('should return an empty array if variantGenerationQueue is empty', async () => {
@@ -331,6 +329,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 createQueue: [
                     {
                         id: '1',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'Book type',
@@ -339,6 +339,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     },
                     {
                         id: '2',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'Book type',
@@ -347,6 +349,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     },
                     {
                         id: '3',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'Book type',
@@ -355,6 +359,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     },
                     {
                         id: '4',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'Book type',
@@ -373,6 +379,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.paginatedVariantArray).toEqual([
             {
                 id: '1',
+                downloads: [],
+                productStates: ['is-download'],
                 options: [{
                     entity: {
                         name: 'Book type',
@@ -381,6 +389,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             {
                 id: '2',
+                downloads: [],
+                productStates: ['is-download'],
                 options: [{
                     entity: {
                         name: 'Book type',
@@ -397,6 +407,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.paginatedVariantArray).toEqual([
             {
                 id: '3',
+                downloads: [],
+                productStates: ['is-download'],
                 options: [{
                     entity: {
                         name: 'Book type',
@@ -405,6 +417,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             {
                 id: '4',
+                downloads: [],
+                productStates: ['is-download'],
                 options: [{
                     entity: {
                         name: 'Book type',
@@ -422,6 +436,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 createQueue: [
                     {
                         id: '1',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'lel',
@@ -430,6 +446,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     },
                     {
                         id: '2',
+                        downloads: [],
+                        productStates: ['is-download'],
                         options: [{
                             entity: {
                                 name: 'Book type',
@@ -445,6 +463,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.paginatedVariantArray).toEqual([
             {
                 id: '1',
+                downloads: [],
+                productStates: ['is-download'],
                 options: [{
                     entity: {
                         name: 'lel',
@@ -464,6 +484,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: 'random-id',
                         productStates: ['is-download'],
                         downloads: [],
+                        options: [],
                     },
                 ],
             },
@@ -494,6 +515,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     fileName: 'example',
                     fileExtension: 'jpg',
                 }],
+                options: [],
             },
         ]);
     });
@@ -530,6 +552,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             fileName: 'example',
                             fileExtension: 'jpg',
                         }],
+                        options: [],
                     },
                 ],
             },
@@ -537,7 +560,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(false);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(false);
     });
 
     it('generate button should be disabled when not every variant has downloadable files', async () => {
@@ -549,6 +572,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: 'random-id',
                         productStates: ['is-download'],
                         downloads: [],
+                        options: [],
                     },
                 ],
             },
@@ -556,7 +580,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             showUploadModal: true,
         });
 
-        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(true);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').classes('sw-button--disabled')).toBe(true);
     });
 
     it('should generate digital variants', async () => {
@@ -572,6 +596,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             id: 'random-id',
                         }],
                         productStates: ['is-download'],
+                        options: [],
                     },
                 ],
                 deleteQueue: [{
@@ -603,6 +628,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             id: 'random-id',
                         }],
                         productStates: ['is-download'],
+                        options: [],
                     },
                 ],
                 deleteQueue: [{
@@ -611,8 +637,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             variantsGenerator: {
                 generateVariants: () => Promise.resolve(),
+                saveVariants: () => Promise.resolve(),
             },
         });
+        await wrapper.vm.$nextTick();
 
         await wrapper.vm.generateVariants();
         await flushPromises();

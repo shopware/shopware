@@ -4,13 +4,13 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
@@ -24,10 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  *
- * @group skip-paratest
- *
  * @package system-settings
  */
+#[Group('skip-paratest')]
 class CustomFieldUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
@@ -37,20 +36,29 @@ class CustomFieldUpdaterTest extends TestCase
 
     private ElasticsearchOutdatedIndexDetector $indexDetector;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->ids = new IdsCollection();
 
         $this->client = $this->getContainer()->get(Client::class);
         $this->indexDetector = $this->getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
     }
 
+    protected function tearDown(): void
+    {
+        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+
+        $customFieldRepository->delete([
+            ['id' => $this->ids->get('custom-field-set-1')],
+        ], Context::createDefaultContext());
+    }
+
     public function testCreateIndices(): void
     {
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
-        }
-
         $this->clearElasticsearch();
 
         $connection = $this->getContainer()->get(Connection::class);
@@ -69,18 +77,14 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }
 
-    /**
-     * @depends testCreateIndices
-     */
+    #[Depends('testCreateIndices')]
     public function testCreateCustomFields(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
-        }
 
         $customFieldRepository->create([
             [
+                'id' => $this->ids->get('custom-field-set-1'),
                 'name' => 'swag_example_set',
                 'config' => [
                     'label' => [
@@ -109,40 +113,24 @@ class CustomFieldUpdaterTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
         $properties = $indices['mappings']['properties']['customFields']['properties'] ?? [];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
-            $properties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
-            static::assertIsArray($properties);
-            static::assertArrayHasKey('test_newly_created_field', $properties);
-            static::assertSame('long', $properties['test_newly_created_field']['type']);
+        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
+        $properties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
+        static::assertIsArray($properties);
+        static::assertArrayHasKey('test_newly_created_field', $properties);
+        static::assertSame('long', $properties['test_newly_created_field']['type']);
 
-            static::assertArrayHasKey('test_newly_created_field_text', $properties);
-            static::assertSame('text', $properties['test_newly_created_field_text']['type']);
-        } else {
-            static::assertArrayHasKey('test_newly_created_field', $properties);
-            static::assertSame('long', $properties['test_newly_created_field']['type']);
-
-            static::assertArrayHasKey('test_newly_created_field_text', $properties);
-            static::assertSame('text', $properties['test_newly_created_field_text']['type']);
-        }
+        static::assertArrayHasKey('test_newly_created_field_text', $properties);
+        static::assertSame('keyword', $properties['test_newly_created_field_text']['type']);
     }
 
-    /**
-     * @depends testCreateCustomFields
-     */
+    #[Depends('testCreateCustomFields')]
     public function testRelationWillBeSetLaterOn(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
 
-        $id = Uuid::randomHex();
-
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
-        }
-
         $customFieldRepository->create([
             [
-                'id' => $id,
+                'id' => $this->ids->get('custom-field-set-1'),
                 'name' => 'swag_example_set',
                 'config' => [
                     'label' => [
@@ -165,7 +153,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldRepository->update([
             [
-                'id' => $id,
+                'id' => $this->ids->get('custom-field-set-1'),
                 'relations' => [[
                     'entityName' => 'product',
                 ]],
@@ -177,22 +165,15 @@ class CustomFieldUpdaterTest extends TestCase
         $indices = array_values($this->client->indices()->getMapping(['index' => $indexName]))[0];
         $properties = $indices['mappings']['properties']['customFields']['properties'];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
-            $properties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
-            static::assertIsArray($properties);
-            static::assertArrayHasKey('test_later_created_field', $properties);
-            static::assertSame('long', $properties['test_later_created_field']['type']);
+        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
+        $properties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
+        static::assertIsArray($properties);
 
-            static::assertArrayHasKey('test_later_created_field_text', $properties);
-            static::assertSame('text', $properties['test_later_created_field_text']['type']);
-        } else {
-            static::assertArrayHasKey('test_later_created_field', $properties);
-            static::assertSame('long', $properties['test_later_created_field']['type']);
+        static::assertArrayHasKey('test_later_created_field', $properties);
+        static::assertSame('long', $properties['test_later_created_field']['type']);
 
-            static::assertArrayHasKey('test_later_created_field_text', $properties);
-            static::assertSame('text', $properties['test_later_created_field_text']['type']);
-        }
+        static::assertArrayHasKey('test_later_created_field_text', $properties);
+        static::assertSame('keyword', $properties['test_later_created_field_text']['type']);
 
         $this->clearElasticsearch();
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');

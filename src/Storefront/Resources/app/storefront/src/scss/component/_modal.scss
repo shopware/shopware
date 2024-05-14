@@ -17,6 +17,10 @@ https://getbootstrap.com/docs/5.2/components/modal
         outline: 0;
     }
 
+    .cms-section-default .boxed {
+        padding: 0;
+    }
+
     &.is-fullscreen {
         .modal-dialog,
         .modal-content {

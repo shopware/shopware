@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -55,15 +56,13 @@ class CartFacadeTest extends TestCase
         $this->script = new Script('test', '', new \DateTimeImmutable());
     }
 
-    /**
-     * @dataProvider addProductProvider
-     */
+    #[DataProvider('addProductProvider')]
     public function testAddProduct(string $input, ?string $expected): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
@@ -89,7 +88,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
@@ -131,7 +130,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(self::createCart(), $context);
+        $hook = new CartHook($this->createCart(), $context);
         $cart = $this->getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
 
         $item = $cart->products()->add($this->ids->get('p1'));
@@ -147,10 +146,9 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @dataProvider scriptProvider
-     *
      * @param array<string, ExpectedPrice|null> $expectations
      */
+    #[DataProvider('scriptProvider')]
     public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
@@ -168,7 +166,7 @@ class CartFacadeTest extends TestCase
 
         $this->assertItems($service, $expectations);
 
-        if ($closure !== null) {
+        if ($closure instanceof \Closure) {
             $closure($service, $this->ids);
         }
     }
@@ -364,7 +362,7 @@ class CartFacadeTest extends TestCase
         ];
     }
 
-    private static function createCart(): Cart
+    private function createCart(): Cart
     {
         $cart = new Cart('test');
         $cart->setBehavior(new CartBehavior());
@@ -418,7 +416,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $cart = self::createCart();
+        $cart = $this->createCart();
 
         $data['ids'] = $ids;
 

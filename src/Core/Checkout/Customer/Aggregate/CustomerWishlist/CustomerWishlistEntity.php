@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerWishlistEntity extends Entity
 {
     use EntityCustomFieldsTrait;

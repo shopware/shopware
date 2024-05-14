@@ -43,6 +43,8 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            showDeleteModal: false,
+            deletionInProcess: false,
         };
     },
 
@@ -53,6 +55,10 @@ export default {
     },
 
     computed: {
+        isNewPaymentMethod() {
+            return this.paymentMethod._isNew;
+        },
+
         identifier() {
             return this.placeholder(this.paymentMethod, 'name');
         },
@@ -112,7 +118,29 @@ export default {
             return this.paymentMethod && this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('paymentMethod', ['name']),
+        paymentMethodCriteria() {
+            const criteria = new Criteria();
+            criteria.setIds([this.paymentMethodId]);
+
+            if (this.acl.can('payment.deleter')) {
+                criteria.getAssociation('customers').setLimit(1);
+                criteria.getAssociation('salesChannels').setLimit(1);
+                criteria.getAssociation('salesChannelDefaultAssignments').setLimit(1);
+                criteria.getAssociation('orderTransactions').setLimit(1);
+            }
+
+            return criteria;
+        },
+
+
+        forbidDelete() {
+            return this.paymentMethod.orderTransactions?.length !== 0
+                || this.paymentMethod.salesChannels?.length !== 0
+                || this.paymentMethod.customers?.length !== 0
+                || this.paymentMethod.salesChannelDefaultAssignments?.length !== 0;
+        },
+
+        ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
     },
 
     watch: {
@@ -129,11 +157,9 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.paymentMethodId = this.$route.params.id;
-                this.loadEntityData();
-                this.loadCustomFieldSets();
-            }
+            this.paymentMethodId = this.$route.params.id;
+            this.loadEntityData();
+            this.loadCustomFieldSets();
         },
 
         onSaveRule(ruleId) {
@@ -159,7 +185,8 @@ export default {
         loadEntityData() {
             this.isLoading = true;
 
-            this.paymentMethodRepository.get(this.paymentMethodId)
+            this.paymentMethodRepository.search(this.paymentMethodCriteria)
+                .then(response => response.first())
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
 
@@ -185,9 +212,6 @@ export default {
         },
 
         onSave() {
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-            );
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
@@ -198,15 +222,29 @@ export default {
                     this.loadEntityData();
                 })
                 .catch((exception) => {
-                    this.createNotificationError({
-                        message: messageSaveError,
-                    });
+                    this.onError(exception);
                     warn(this._name, exception.message, exception.response);
                     throw exception;
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        onError(error) {
+            let errorDetails = null;
+
+            try {
+                errorDetails = error.response.data.errors[0].detail;
+            } catch (e) {
+                errorDetails = '';
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                // eslint-disable-next-line max-len
+                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', 0, { name: this.paymentMethod.name })} ${errorDetails}`,
+            });
         },
 
         onCancel() {
@@ -237,6 +275,15 @@ export default {
 
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
+        },
+
+        async deletePaymentMethod() {
+            if (!this.acl.can('payment.deleter')) return;
+
+            this.deletionInProcess = true;
+
+            await this.paymentMethodRepository.delete(this.paymentMethod.id);
+            await this.$router.replace({ name: 'sw.settings.payment.overview' });
         },
     },
 };

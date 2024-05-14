@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Hook\Pricing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -31,14 +33,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Hook\Pricing\CheapestPriceFacade
  */
+#[CoversClass(CheapestPriceFacade::class)]
 class CheapestPriceFacadeTest extends TestCase
 {
-    /**
-     * @dataProvider providerChange
-     */
+    #[DataProvider('providerChange')]
     public function testChange(string $currencyKey, string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection([
@@ -119,7 +118,9 @@ class CheapestPriceFacadeTest extends TestCase
 
     private function rampUpPriceFacade(IdsCollection $ids, string $currencyKey, string $taxState): CheapestPriceFacade
     {
-        $entity = new Entity();
+        $entity = new class() extends Entity {
+            protected CalculatedPrice $calculatedPrice;
+        };
 
         $quantityCalculator = new QuantityPriceCalculator(
             new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),

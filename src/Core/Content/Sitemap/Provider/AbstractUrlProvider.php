@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 abstract class AbstractUrlProvider
 {
     /**
@@ -47,7 +47,7 @@ abstract class AbstractUrlProvider
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

@@ -30,6 +30,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "http_cache": {
+                    "$ref": "#/definitions/http_cache"
+                },
                 "filesystem": {
                     "$ref": "#/definitions/filesystem"
                 },
@@ -92,6 +95,15 @@
                 },
                 "dompdf": {
                     "$ref": "#/definitions/dompdf"
+                },
+                "stock": {
+                    "$ref": "#/definitions/stock"
+                },
+                "usage_data": {
+                  "$ref": "#/definitions/usage_data"
+                },
+                "staging": {
+                    "$ref": "#/definitions/staging"
                 }
             },
             "title": "Shopware"
@@ -118,6 +130,100 @@
             },
             "title": "Enabled profiler, available since 6.4.11.0"
         },
+        "usage_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "gateway": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enable_dispatch": {
+                            "type": "boolean"
+                        },
+                        "base_uri": {
+                            "type": "string"
+                        },
+                        "batch_size": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "title": "Usage data"
+        },
+        "staging": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "mailing": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "disable_delivery": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "storefront": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "administration": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "sales_channel": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "domain_rewrite": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "match": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["equal", "regex", "prefix"]
+                                    },
+                                    "replace": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "elasticsearch": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "check_for_existence": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "title": "Staging"
+        },
         "twig": {
             "type": "object",
             "additionalProperties": false,
@@ -138,6 +244,16 @@
                 "options": {
                     "type": "object",
                     "additionalProperties": true
+                }
+            }
+        },
+        "stock": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable_stock_management": {
+                    "type": "boolean",
+                    "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
                 }
             }
         },
@@ -182,7 +298,8 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": "integer"
+                    "type": ["integer", "null"],
+                    "default": 100
                 },
                 "access_token_ttl": {
                     "type": "string"
@@ -277,6 +394,10 @@
             "properties": {
                 "context_lifetime": {
                     "type": "string"
+                },
+                "max_limit": {
+                    "type": ["integer", "null"],
+                    "default": 100
                 }
             },
             "title": "API store"
@@ -285,6 +406,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "use_app_secret": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "private_key_path": {
                     "type": "string",
                     "description": "Path to the private key file."
@@ -357,6 +482,24 @@
             "properties": {
                 "delay": {
                     "type": "integer"
+                },
+                "delay_options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "storage": {
+                            "type": "string",
+                            "default": "cache",
+                            "enum": [
+                                "cache",
+                                "redis"
+                            ]
+                        },
+                        "dsn": {
+                            "type": "string",
+                            "default": "redis://localhost"
+                        }
+                    }
                 },
                 "count": {
                     "type": "integer"
@@ -440,9 +583,24 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
-                "redis_url": {
-                    "type": "string",
-                    "description": "The redis url to connect to. All carts will be saved in Redis instead of mysql"
+                "storage": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": ["mysql", "redis"]
+                        },
+                        "config": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "dsn": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "title": "Cart"
@@ -452,21 +610,26 @@
             "additionalProperties": false,
             "properties": {
                 "increment_storage": {
-                    "description": "The storage engine used for the increments. Note that you need to configure a `redis_url` if you want to use the `Redis` storage.",
+                    "description": "The storage engine used for the increments. Note that you need to configure also `config.dsn` if you want to use the `redis` storage.",
                     "anyOf": [
                         {
                             "type": "string",
-                            "enum": ["SQL", "Redis"]
+                            "enum": ["mysql", "redis"]
                         },
                         {
                             "type": "string"
                         }
                     ],
-                    "default": "SQL"
+                    "default": "mysql"
                 },
-                "redis_url": {
-                    "type": "string",
-                    "description": "The redis url to connect to. All number range states will be saved in Redis instead of sql"
+                "config": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "dsn": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Number Range"
@@ -480,6 +643,27 @@
                 },
                 "strategy": {
                     "type": "string"
+                },
+                "fastly": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "api_key": {
+                            "type": "string",
+                            "title": "Fastly API key. Configuring this api key, will lead to purge media urls via fast purge requests"
+                        },
+                        "soft_purge": {
+                            "type": "string",
+                            "enum": ["1", "0"],
+                            "default": "0",
+                            "Title": "Soft purge parameter will be passed to fastly API"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        }
+                    }
                 }
             },
             "title": "CDN"
@@ -511,10 +695,133 @@
             "additionalProperties": false,
             "properties": {
                 "blue_green": {
-                    "type": "string"
+                    "type": "boolean"
+                },
+                "cluster_setup": {
+                    "type": "boolean"
                 }
             },
             "title": "Deployment"
+        },
+        "http_cache": {
+            "title": "Http cache configuration",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ignored_url_parameters": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "stale_while_revalidate": {
+                    "type": ["integer", "null"],
+                    "default": null
+                },
+                "stale_if_error": {
+                    "type": ["integer", "null"],
+                    "default": null
+                },
+                "reverse_proxy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "ban_method": {
+                            "type": "string",
+                            "default": "BAN",
+                            "title": "HTTP method used to purge the cache at the remote server"
+                        },
+                        "ban_headers": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "title": "The headers that should be send on a single purge"
+                        },
+                        "hosts": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "title": "List of reverse proxy servers"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        },
+                        "use_varnish_xkey": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Use the XKey Varnish feature"
+                        },
+                        "redis_url": {
+                            "type": "string",
+                            "title": "Redis URL",
+                            "deprecationMessage": "Using Varnish with Redis is deprecated, consider switching to Varnish with xkeys support"
+                        },
+                        "purge_all": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "ban_method": {
+                                    "type": "string",
+                                    "default": "BAN",
+                                    "title": "HTTP method used to purge the cache at the remote server"
+                                },
+                                "ban_headers": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "title": "The headers that should be send on a single purge"
+                                },
+                                "urls": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "fastly": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "default": false
+                                },
+                                "instance_tag": {
+                                    "type": "string",
+                                    "default": ""
+                                },
+                                "api_key": {
+                                    "type": "string",
+                                    "title": "Fastly API key"
+                                },
+                                "service_id": {
+                                    "type": "string",
+                                    "title": "Fastly service ID"
+                                },
+                                "soft_purge": {
+                                    "type": "string",
+                                    "enum": ["1", "0"],
+                                    "default": "0"
+                                }
+                            }
+                        }
+                    },
+                    "title": "Reverse proxy configuration"
+                }
+            }
         },
         "filesystem": {
             "type": "object",
@@ -798,125 +1105,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "reverse_proxy": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": false
-                        },
-                        "ban_method": {
-                            "type": "string",
-                            "default": "BAN",
-                            "title": "HTTP method used to purge the cache at the remote server"
-                        },
-                        "ban_headers": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "title": "The headers that should be send on a single purge"
-                        },
-                        "hosts": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "title": "List of reverse proxy servers"
-                        },
-                        "max_parallel_invalidations": {
-                            "type": "integer",
-                            "default": 2,
-                            "title": "Max parallel requests to the external server"
-                        },
-                        "use_varnish_xkey": {
-                            "type": "boolean",
-                            "default": false,
-                            "title": "Use the XKey Varnish feature"
-                        },
-                        "redis_url": {
-                            "type": "string",
-                            "title": "Redis URL"
-                        },
-                        "purge_all": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                                "ban_method": {
-                                    "type": "string",
-                                    "default": "BAN",
-                                    "title": "HTTP method used to purge the cache at the remote server"
-                                },
-                                "ban_headers": {
-                                    "type": [
-                                        "object",
-                                        "null"
-                                    ],
-                                    "title": "The headers that should be send on a single purge"
-                                },
-                                "urls": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "fastly": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean",
-                                    "default": false
-                                },
-                                "instance_tag": {
-                                    "type": "string",
-                                    "default": ""
-                                },
-                                "api_key": {
-                                    "type": "string",
-                                    "title": "Fastly API key"
-                                },
-                                "service_id": {
-                                    "type": "string",
-                                    "title": "Fastly service ID"
-                                },
-                                "soft_purge": {
-                                    "type": "string",
-                                    "enum": ["1", "0"],
-                                    "default": "0"
-                                }
-                            }
-                        }
-                    },
-                    "title": "Reverse proxy configuration"
-                },
-                "http_cache": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "ignored_url_parameters": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "stale_while_revalidate": {
-                            "type": ["integer", "null"],
-                            "default": null
-                        },
-                        "stale_if_error": {
-                            "type": ["integer", "null"],
-                            "default": null
-                        }
-                    },
-                    "title": "Http cache configuration"
-                },
                 "theme": {
                     "type": "object",
                     "additionalProperties": false,

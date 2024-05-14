@@ -1,27 +1,26 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSnippetSidebar from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar';
-
-Shopware.Component.register('sw-settings-snippet-sidebar', swSettingsSnippetSidebar);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-snippet-sidebar'), {
-        localVue,
-        stubs: {
-            'sw-sidebar': {
-                template: '<div><slot></slot></div>',
+    return mount(await wrapTestComponent('sw-settings-snippet-sidebar', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-sidebar': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-sidebar-item': {
+                    template: '<div><slot name="headline-content"></slot><slot></slot></div>',
+                },
+                'sw-settings-snippet-filter-switch': true,
+                'sw-sidebar-collapse': true,
             },
-            'sw-sidebar-item': {
-                template: '<div><slot name="headline-content"></slot><slot></slot></div>',
-            },
-            'sw-settings-snippet-filter-switch': true,
-            'sw-sidebar-collapse': true,
         },
-        propsData: {
+        props: {
             filterItems: [],
             authorFilters: [],
         },
@@ -33,10 +32,6 @@ describe('sw-settings-snippet-sidebar', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

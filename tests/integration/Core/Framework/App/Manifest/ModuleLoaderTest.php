@@ -7,18 +7,24 @@ use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type AppModule from ModuleLoader
  */
 class ModuleLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
-    private EntityRepository  $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 
@@ -101,7 +107,7 @@ class ModuleLoaderTest extends TestCase
 
         $loadedModules = $this->getSortedModules();
 
-        static::assertEquals([], $loadedModules);
+        static::assertSame([], $loadedModules);
     }
 
     public function testMainModules(): void
@@ -125,6 +131,7 @@ class ModuleLoaderTest extends TestCase
 
         $loadedModules = $this->getSortedModules();
 
+        static::assertTrue(isset($loadedModules[0]['mainModule']['source']));
         $this->validateSource($loadedModules[0]['mainModule']['source'], 'http://main-module-1', $this->defaultSecret);
         static::assertNull($loadedModules[1]['mainModule']);
     }
@@ -134,7 +141,7 @@ class ModuleLoaderTest extends TestCase
         $this->createApp('App');
 
         $modules = $this->getSortedModules();
-        static::assertEquals([], $modules);
+        static::assertSame([], $modules);
     }
 
     /**
@@ -152,7 +159,6 @@ class ModuleLoaderTest extends TestCase
             'appSecret' => $this->defaultSecret,
             'integration' => [
                 'label' => $name,
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -223,7 +229,7 @@ class ModuleLoaderTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return array<AppModule>
      */
     private function getSortedModules(): array
     {
@@ -235,16 +241,19 @@ class ModuleLoaderTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $loadedModules
+     * @param array<AppModule> $loadedModules
+     *
+     * @param-out array<array{name: string, label: array<string, string|null>, modules: array<int, array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}>, mainModule: array{source: string}|null}> $loadedModules
      */
     private function validateSources(array &$loadedModules): void
     {
-        $this->validateSource($loadedModules[0]['modules'][0]['source'], 'https://first.app.com', $this->defaultSecret);
+        $this->validateSource($loadedModules[0]['modules'][0]['source'] ?? '', 'https://first.app.com', $this->defaultSecret);
         unset($loadedModules[0]['modules'][0]['source']);
 
-        $this->validateSource($loadedModules[0]['modules'][1]['source'], 'https://first.app.com/second', $this->defaultSecret);
+        $this->validateSource($loadedModules[0]['modules'][1]['source'] ?? '', 'https://first.app.com/second', $this->defaultSecret);
         unset($loadedModules[0]['modules'][1]['source']);
 
+        static::assertArrayHasKey('source', $loadedModules[1]['modules'][0]);
         static::assertNull($loadedModules[1]['modules'][0]['source']);
         unset($loadedModules[1]['modules'][0]['source']);
     }
@@ -258,29 +267,27 @@ class ModuleLoaderTest extends TestCase
         unset($url['query']);
 
         $expectedUrl = parse_url($urlPath);
-        static::assertEquals($expectedUrl, $url);
+        static::assertSame($expectedUrl, $url);
 
-        /** @var array{"value": string} $shopId */
         $shopId = $this->getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        static::assertIsArray($shopId);
 
         parse_str($queryString, $query);
-        static::assertEquals($_SERVER['APP_URL'], $query['shop-url']);
+        static::assertSame($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
-        static::assertEquals($shopId['value'], $query['shop-id']);
+        static::assertSame($shopId['value'], $query['shop-id']);
         static::assertArrayHasKey('sw-version', $query);
-        static::assertEquals($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
+        static::assertSame($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
         static::assertArrayHasKey('sw-context-language', $query);
-        static::assertEquals(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
+        static::assertSame(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
         static::assertArrayHasKey('sw-user-language', $query);
-        static::assertEquals('en-GB', $query['sw-user-language']);
+        static::assertSame('en-GB', $query['sw-user-language']);
         static::assertArrayHasKey('shopware-shop-signature', $query);
 
         $signature = $query['shopware-shop-signature'];
-
         static::assertIsString($signature);
-
         $signedQuery = str_replace('&shopware-shop-signature=' . $signature, '', $queryString);
 
-        static::assertEquals(hash_hmac('sha256', $signedQuery, $secret), $signature);
+        static::assertSame(hash_hmac('sha256', $signedQuery, $secret), $signature);
     }
 }

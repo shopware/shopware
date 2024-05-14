@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamFilterEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -65,7 +65,7 @@ class ProductStreamFilterEntity extends Entity
     protected $position;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     protected $parameters;
 
@@ -169,11 +169,17 @@ class ProductStreamFilterEntity extends Entity
         $this->type = $type;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getParameters(): ?array
     {
         return $this->parameters;
     }
 
+    /**
+     * @param array<string>|null $parameters
+     */
     public function setParameters(?array $parameters): void
     {
         $this->parameters = $parameters;

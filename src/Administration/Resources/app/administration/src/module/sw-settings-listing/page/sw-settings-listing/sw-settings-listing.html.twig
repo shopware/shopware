@@ -47,11 +47,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click="onSave"
         >
             {{ $tc('sw-settings-listing.general.buttonSave') }}
@@ -97,20 +93,31 @@
                     @loading-changed="onLoadingChanged"
                 >
 
-                    <template #afterElements="{ config, index }">
+                    <template #afterElements="{ config, index, isNotDefaultSalesChannel, inheritance }">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
-                        <sw-single-select
+                        <sw-inherit-wrapper
                             v-if="config && index === 0"
-                            v-model="config['core.listing.defaultSorting']"
-                            class="sw-settings-listing-index__default-sorting-select"
+                            v-model:value="config['core.listing.defaultSorting']"
                             :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
-                            :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
-                            :options="productSortingOptions"
-                            label-property="label"
-                            value-property="key"
-                            show-clearable-button
-                        />
+                            :has-parent="isNotDefaultSalesChannel"
+                            :inherited-value="inheritance['core.listing.defaultSorting']"
+                            required
+                        >
+                            <template #content="{ isInherited, currentValue, updateCurrentValue }">
+                                <sw-single-select
+                                    class="sw-settings-listing-index__default-sorting-select"
+                                    :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
+                                    :disabled="isInherited"
+                                    :value="currentValue"
+                                    :options="productSortingOptions"
+                                    :error="hasDefaultSortingError ? salesChannelDefaultSortingError : null"
+                                    label-property="label"
+                                    value-property="id"
+                                    @update:value="updateCurrentValue"
+                                />
+                            </template>
+                        </sw-inherit-wrapper>
                         {% endblock %}
                     </template>
 
@@ -141,7 +148,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_search_field %}
                             <sw-simple-search-field
-                                v-model="productSortingOptionsSearchTerm"
+                                v-model:value="productSortingOptionsSearchTerm"
                                 variant="form"
                                 size="small"
                                 class="sw-settings-listing-index__sorting-options-search-field"
@@ -212,7 +219,7 @@
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                             <sw-context-menu-item
                                 variant="danger"
-                                :disabled="item.locked || isItemDefaultSorting(item.key)"
+                                :disabled="item.locked || isItemDefaultSorting(item.id)"
                                 @click="toBeDeletedProductSortingOption = item"
                             >
                                 {{ $tc('global.default.delete') }}
@@ -250,7 +257,7 @@
                         {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
                         <template #icon>
                             <img
-                                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                                 :alt="$tc('sw-settings-listing.index.productSorting.emptyState.title')"
                             >
                         </template>

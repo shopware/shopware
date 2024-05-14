@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 interface TokenizerInterface
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function tokenize(string $string): array;
 }

@@ -8,7 +8,7 @@
                     <nav class="nav main-navigation-menu"
                         itemscope="itemscope"
                         itemtype="http://schema.org/SiteNavigationElement">
-                        {% set homeLabel = context.salesChannel.translated.homeName|default("general.homeLink"|trans) %}
+                        {% set homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans) %}
 
                         {% block layout_main_navigation_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
@@ -80,7 +80,12 @@
                                              data-flyout-menu-id="{{ treeItem.category.id }}">
                                             <div class="container">
                                                 {% block layout_main_navigation_menu_flyout_include %}
-                                                    {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1, page: page} only %}
+                                                    {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                        themeIconConfig: themeIconConfig,
+                                                        navigationTree: treeItem,
+                                                        level: level+1,
+                                                        page: page
+                                                    } only %}
                                                 {% endblock %}
                                             </div>
                                         </div>

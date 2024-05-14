@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class CartBehavior extends Struct
 {
     /**
-     * @param array<mixed> $permissions
+     * @param array<string, bool> $permissions
      */
     public function __construct(
         private readonly array $permissions = [],
@@ -41,7 +41,11 @@ class CartBehavior extends Struct
     /**
      * @internal
      *
-     * @return mixed
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
      */
     public function disableHooks(\Closure $closure)
     {

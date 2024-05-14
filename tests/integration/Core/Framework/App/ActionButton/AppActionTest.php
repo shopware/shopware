@@ -95,7 +95,7 @@ class AppActionTest extends TestCase
             Uuid::randomHex()
         );
 
-        static::assertEquals('/api/script/custom-script', $action->getTargetUrl());
+        static::assertSame('/api/script/custom-script', $action->getTargetUrl());
     }
 
     public function testInvalidShopUrl(): void

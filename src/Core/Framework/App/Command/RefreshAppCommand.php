@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 #[Package('core')]
@@ -59,7 +58,7 @@ class RefreshAppCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $refreshableApps = $this->appService->getRefreshableAppInfo($context);
         $requestedApps = $input->getArgument('name');
@@ -112,7 +111,7 @@ class RefreshAppCommand extends Command
         foreach ($refreshableManifests as $refreshableManifest) {
             try {
                 $this->manifestValidator->validate($refreshableManifest, $context);
-            } catch (AppValidationException|XmlParsingException $e) {
+            } catch (AppValidationException $e) {
                 $invalids[] = $e->getMessage();
             }
         }

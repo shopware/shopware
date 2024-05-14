@@ -15,26 +15,20 @@
             name="toolbar"
             :focus="onFocusSearch"
             :input="onSearchOptions"
+            :search-term="searchTerm"
         >
             <div class="sw-property-search__search-field-container">
                 <slot name="toolbar-search-field">
                     <sw-text-field
                         ref="searchField"
-                        {% if VUE3 %}
                         v-model:value="searchTerm"
-                        {% else %}
-                        v-model="searchTerm"
-                        {% endif %}
+                        name="sw-field--searchTerm"
                         class="sw-property-search__search-field"
                         :disabled="disabled"
                         :placeholder="$tc('sw-property-search.placeholderSearch')"
                         autocomplete="off"
                         @focus="onFocusSearch"
-                        {% if VUE3 %}
                         @update:value="onSearchOptions"
-                        {% else %}
-                        @input="onSearchOptions"
-                        {% endif %}
                     />
                 </slot>
             </div>
@@ -93,7 +87,6 @@
                         <sw-icon
                             name="regular-folder"
                             size="16px"
-                            multicolor
                         />
                         {{ item.translated.name }}
                     </sw-grid-column>
@@ -159,7 +152,8 @@
                         data-index="name"
                         :title="item.translated.name"
                     >
-                        {{ item.translated.name }}
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label :for="`sw-field--${item.id}`">{{ item.translated.name }}</label>
                     </sw-grid-column>
                     {% endblock %}
                 </template>
@@ -251,7 +245,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_property_search_empty_image %}
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-property-search.noPropertiesFound')"
                 >
                 {% endblock %}

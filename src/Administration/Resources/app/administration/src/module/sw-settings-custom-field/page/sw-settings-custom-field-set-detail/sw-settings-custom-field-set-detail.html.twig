@@ -37,11 +37,7 @@
             :process-success="isSaveSuccessful"
             :disabled="set.isLoading || !acl.can('custom_field.editor')"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}

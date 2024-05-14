@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->append($this->createHttpCacheSection())
                 ->append($this->createNumberRangeSection())
                 ->append($this->createProfilerSection())
                 ->append($this->createFilesystemSection())
@@ -40,6 +41,10 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
+                ->append($this->createStockSection())
+                ->append($this->createUsageDataSection())
+                ->append($this->createFeatureToggleNode())
+                ->append($this->createStagingNode())
             ->end();
 
         return $treeBuilder;
@@ -123,6 +128,13 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->arrayNode('fastly')
+                    ->children()
+                        ->scalarNode('api_key')->end()
+                        ->scalarNode('soft_purge')->end()
+                        ->integerNode('max_parallel_invalidations')->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -157,18 +169,29 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('store')
                     ->children()
                     ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                    ->scalarNode('max_limit')->end()
                 ->end()
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->arrayNode('jwt_key')
                 ->children()
-                    ->scalarNode('private_key_path')->end()
-                    ->scalarNode('private_key_passphrase')->defaultValue('shopware')->end()
-                    ->scalarNode('public_key_path')->end()
+                    ->booleanNode('use_app_secret')->defaultFalse()->end()
+                    ->scalarNode('private_key_path')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_path is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('file://%kernel.project_dir%/config/jwt/private.pem')
+                    ->end()
+                    ->scalarNode('private_key_passphrase')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_passphrase is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('shopware')
+                    ->end()
+                    ->scalarNode('public_key_path')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'public_key_path is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('file://%kernel.project_dir%/config/jwt/public.pem')
+                    ->end()
                 ->end()
             ->end()
-            ->integerNode('max_limit')->end()
+            ->scalarNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -280,6 +303,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('blue_green')->end()
+                ->booleanNode('cluster_setup')->end()
             ->end();
 
         return $rootNode;
@@ -311,6 +335,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
                         ->booleanNode('major')->defaultFalse()->end()
+                        ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
                 ->end()
@@ -383,8 +408,15 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('delay')
                             ->defaultValue(0)
                         ->end()
-                        ->integerNode('count')
-                            ->defaultValue(150)
+                        ->arrayNode('delay_options')
+                            ->children()
+                                ->scalarNode('storage')
+                                    ->defaultValue('redis')
+                                ->end()
+                                ->scalarNode('dsn')
+                                    ->defaultValue('redis://localhost')
+                                ->end()
+                            ->end()
                         ->end()
                         ->arrayNode('http_cache')
                             ->performNoDeepMerging()
@@ -504,7 +536,18 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
-                ->scalarNode('redis_url')->end()
+                ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
+                ->arrayNode('storage')
+                    ->children()
+                        ->enumNode('type')
+                            ->values(['mysql', 'redis'])
+                            ->defaultValue('mysql')
+                            ->end()
+                        ->arrayNode('config')
+                            ->children()
+                                ->scalarNode('dsn')->end()
+                            ->end()
+                    ->end()
             ->end();
 
         return $rootNode;
@@ -517,8 +560,15 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->scalarNode('increment_storage')->end()
-            ->scalarNode('redis_url')->end()
+            ->enumNode('increment_storage')
+                ->values(['SQL', 'mysql', 'Redis', 'redis']) // @deprecated tag:v6.7.0 - only "mysql" and "redis" are allowed
+                ->defaultValue('mysql')
+                ->end()
+            ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
+            ->arrayNode('config')
+                ->children()
+                    ->scalarNode('dsn')->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -690,6 +740,146 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createStockSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('stock');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('enable_stock_management')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createUsageDataSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('usage_data');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('gateway')
+                    ->children()
+                        ->scalarNode('dispatch_enabled')->end()
+                        ->scalarNode('base_uri')->end()
+                        ->scalarNode('batch_size')->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFeatureToggleNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('feature_toggle');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->booleanNode('enable')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createStagingNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('staging');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('mailing')
+                    ->children()
+                        ->booleanNode('disable_delivery')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('storefront')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('administration')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sales_channel')
+                    ->children()
+                        ->arrayNode('domain_rewrite')
+                            ->arrayPrototype()
+                                ->children()
+                                    ->scalarNode('match')->end()
+                                    ->scalarNode('type')->defaultValue('equal')->end()
+                                    ->scalarNode('replace')->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('elasticsearch')
+                    ->children()
+                        ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createHttpCacheSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('http_cache');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
+                ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->arrayNode('ignored_url_parameters')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('reverse_proxy')
+                    ->children()
+                        ->booleanNode('enabled')->end()
+                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
+                        ->arrayNode('hosts')->performNoDeepMerging()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
+                        ->scalarNode('redis_url')->end()
+                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                        ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('purge_all')
+                            ->children()
+                                ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                                ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()->end()
+                                ->arrayNode('urls')->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('fastly')
+                            ->children()
+                                ->booleanNode('enabled')->defaultFalse()->end()
+                                ->scalarNode('api_key')->defaultValue('')->end()
+                                ->scalarNode('instance_tag')->defaultValue('')->end()
+                                ->scalarNode('service_id')->defaultValue('')->end()
+                                ->scalarNode('soft_purge')->defaultValue('0')->end()
+                                ->scalarNode('tag_prefix')->defaultValue('')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
 
         return $rootNode;
     }

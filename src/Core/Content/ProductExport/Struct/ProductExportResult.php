@@ -5,11 +5,11 @@ namespace Shopware\Core\Content\ProductExport\Struct;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportResult
 {
     /**
-     * @param Error[] $errors
+     * @param list<Error> $errors
      */
     public function __construct(
         private readonly string $content,
@@ -23,6 +23,9 @@ class ProductExportResult
         return $this->content;
     }
 
+    /**
+     * @return list<Error>
+     */
     public function getErrors(): array
     {
         return $this->errors;

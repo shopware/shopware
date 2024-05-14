@@ -7,7 +7,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentException extends HttpException
 {
     public const INVALID_DOCUMENT_GENERATOR_TYPE_CODE = 'DOCUMENT__INVALID_GENERATOR_TYPE';
@@ -20,7 +20,12 @@ class DocumentException extends HttpException
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
-        return new InvalidDocumentGeneratorTypeException($type);
+        return new InvalidDocumentGeneratorTypeException(
+            Response::HTTP_BAD_REQUEST,
+            DocumentException::INVALID_DOCUMENT_GENERATOR_TYPE_CODE,
+            'Unable to find a document generator with type "{{ type }}"',
+            ['type' => $type]
+        );
     }
 
     public static function orderNotFound(string $orderId, ?\Throwable $e = null): self

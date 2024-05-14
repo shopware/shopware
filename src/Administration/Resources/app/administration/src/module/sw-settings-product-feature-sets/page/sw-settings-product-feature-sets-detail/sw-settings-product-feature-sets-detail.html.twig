@@ -23,21 +23,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_product_feature_set_detail_actions_save %}
         <sw-button-process
-            {% if VUE3 %}
             v-model:processSuccess="isSaveSuccessful"
-            {% else %}
-            v-model="isSaveSuccessful"
-            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-currency-detail__save-action"
             :is-loading="isLoading"
             :disabled="isLoading || !acl.can('product_feature_sets.editor')"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
@@ -74,11 +66,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_detail_content_field_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="productFeatureSet.name"
-                        {% else %}
-                        v-model="productFeatureSet.name"
-                        {% endif %}
                         class="sw-settings-product-feature-sets-detail__name"
                         validation="required"
                         required
@@ -92,11 +80,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_product_feature_set_detail_content_field_description %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="productFeatureSet.description"
-                        {% else %}
-                        v-model="productFeatureSet.description"
-                        {% endif %}
                         :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
                         class="sw-settings-product-feature-sets-detail__description"
                         :error="productFeatureSetDescriptionError"

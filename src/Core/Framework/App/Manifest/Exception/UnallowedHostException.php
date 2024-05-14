@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class UnallowedHostException extends \RuntimeException
 {
+    /**
+     * @param list<string> $allowedHosts
+     */
     public function __construct(
         string $host,
         private readonly array $allowedHosts,
@@ -28,6 +31,9 @@ class UnallowedHostException extends \RuntimeException
         );
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAllowedHosts(): array
     {
         return $this->allowedHosts;

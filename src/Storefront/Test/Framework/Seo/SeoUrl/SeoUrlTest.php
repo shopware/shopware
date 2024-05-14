@@ -2,54 +2,51 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
-use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Package('buyers-experience')]
+#[Group('slow')]
+#[Group('skip-paratest')]
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
+    use SalesChannelApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
     private EntityRepository $productRepository;
 
-    private EntityRepository $seoUrlTemplateRepository;
-
     private EntityRepository $landingPageRepository;
-
-    private SeoUrlGenerator $seoUrlGenerator;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
         $this->landingPageRepository = $this->getContainer()->get('landing_page.repository');
-
-        $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
     }
 
     public function testSearchLandingPage(): void
@@ -107,9 +104,12 @@ class SeoUrlTest extends TestCase
 
         static::assertNotNull($first);
 
+        /** @var SeoUrlCollection $urls */
+        $urls = $first->getSeoUrls();
+
         // Old seo url
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $first->getSeoUrls()->filterByProperty('seoPathInfo', 'coolUrl')->first();
+        $seoUrl = $urls->filterByProperty('seoPathInfo', 'coolUrl')->first();
         static::assertNotNull($seoUrl);
 
         static::assertNull($seoUrl->getIsCanonical());
@@ -118,8 +118,11 @@ class SeoUrlTest extends TestCase
         static::assertEquals('/landingPage/' . $id, $seoUrl->getPathInfo());
         static::assertEquals($id, $seoUrl->getForeignKey());
 
+        /** @var SeoUrlCollection $urls */
+        $urls = $first->getSeoUrls();
+
         // New seo url
-        $seoUrl = $first->getSeoUrls()->filterByProperty('seoPathInfo', 'newUrl')->first();
+        $seoUrl = $urls->filterByProperty('seoPathInfo', 'newUrl')->first();
         static::assertNotNull($seoUrl);
 
         static::assertTrue($seoUrl->getIsCanonical());
@@ -134,7 +137,7 @@ class SeoUrlTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $id = $this->createTestProduct();
+        $id = $this->createTestProduct(salesChannelId: $salesChannelId);
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
@@ -149,6 +152,32 @@ class SeoUrlTest extends TestCase
         $seoUrl = $seoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
         static::assertEquals('foo-bar/P1234', $seoUrl->getSeoPathInfo());
+    }
+
+    public function testSearchProductForHeadlessSalesChannelHasCorrectUrl(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createSalesChannelContext(
+            [
+                'id' => $salesChannelId,
+                'name' => 'test',
+                'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            ]
+        );
+
+        $id = $this->createTestProduct(salesChannelId: $salesChannelId);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getSeoUrls());
+
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $product->getSeoUrls();
+        static::assertCount(0, $seoUrls);
     }
 
     public function testSearchCategory(): void
@@ -531,8 +560,11 @@ class SeoUrlTest extends TestCase
 
         static::assertNotNull($first);
 
+        /** @var SeoUrlCollection $urls */
+        $urls = $first->getSeoUrls();
+
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $first->getSeoUrls()->filterByProperty('id', $seoUrlId)->first();
+        $seoUrl = $urls->filterByProperty('id', $seoUrlId)->first();
         static::assertNotNull($seoUrl);
 
         static::assertTrue($seoUrl->getIsCanonical());
@@ -542,12 +574,16 @@ class SeoUrlTest extends TestCase
         static::assertEquals($id, $seoUrl->getForeignKey());
     }
 
+    /**
+     * @param array<array{expected: string|null, categoryId: string}> $cases
+     */
     private function runChecks(array $cases, EntityRepository $categoryRepository, Context $context, string $salesChannelId): void
     {
         foreach ($cases as $case) {
             $criteria = new Criteria([$case['categoryId']]);
             $criteria->addAssociation('seoUrls');
 
+            /** @var CategoryEntity $category */
             $category = $categoryRepository->search($criteria, $context)->first();
             static::assertEquals($case['categoryId'], $category->getId());
 
@@ -556,7 +592,9 @@ class SeoUrlTest extends TestCase
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
             if ($category->getType() === CategoryDefinition::TYPE_LINK) {
-                static::assertCount(0, $category->getSeoUrls());
+                /** @var SeoUrlCollection $urls */
+                $urls = $category->getSeoUrls();
+                static::assertCount(0, $urls);
 
                 continue;
             }
@@ -579,6 +617,9 @@ class SeoUrlTest extends TestCase
         }
     }
 
+    /**
+     * @param array<string, array<int, array<string, bool|int|string|null>>|string> $data
+     */
     private function upsertProduct(array $data): EntityWrittenContainerEvent
     {
         $defaults = [
@@ -596,7 +637,10 @@ class SeoUrlTest extends TestCase
         return $this->productRepository->upsert([$data], Context::createDefaultContext());
     }
 
-    private function createTestProduct(array $overrides = []): string
+    /**
+     * @param array<string, string|array<string, mixed>> $overrides
+     */
+    private function createTestProduct(array $overrides = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         $id = Uuid::randomHex();
         $insert = [
@@ -619,7 +663,7 @@ class SeoUrlTest extends TestCase
             'stock' => 0,
             'visibilities' => [
                 [
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'salesChannelId' => $salesChannelId,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -632,6 +676,9 @@ class SeoUrlTest extends TestCase
         return $id;
     }
 
+    /**
+     * @param array<string, array<int, array<string, string>>> $overrides
+     */
     private function createTestLandingPage(array $overrides = []): string
     {
         $id = Uuid::randomHex();

@@ -31,12 +31,16 @@
                     <div class="sw-cms-detail__page-info">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_toolbar_back_button %}
-                        <router-link
-                            :to="{ name: 'sw.cms.index' }"
+                        <a
                             class="sw-cms-detail__back-btn"
+                            role="link"
+                            tabindex="0"
+                            :aria-label="$tc('global.default.back')"
+                            @click="onClickBack"
+                            @keyup.enter="onClickBack"
                         >
                             <sw-icon name="regular-times" />
-                        </router-link>
+                        </a>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -52,7 +56,7 @@
                             v-if="page.type"
                             class="sw-cms-detail__page-type"
                         >
-                            {{ $tc(pageType?.title) }}
+                            {{ $tc(pageType?.title ?? '') }}
                         </div>
                         {% endblock %}
 
@@ -126,11 +130,7 @@
                             :process-success="isSaveSuccessful"
                             :disabled="isLoading || page.locked || !acl.can('cms.editor')"
                             variant="primary"
-                            {% if VUE3 %}
-                            @update:processSuccess="saveFinish"
-                            {% else %}
-                            @process-finish="saveFinish"
-                            {% endif %}
+                            @update:process-success="saveFinish"
                             @click="onSave"
                         >
                             {{ $tc('sw-cms.detail.label.buttonSave') }}
@@ -146,6 +146,11 @@
             {% block sw_cms_detail_stage_container %}
             <div class="sw-cms-detail__stage-container">
                 <sw-overlay v-if="page.locked" />
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_loader %}
+                <sw-loader v-if="isLoading" />
+                {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage_form_view %}
@@ -290,12 +295,14 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_detail_stage_content %}
                         <template v-if="!isLoading">
-                            <template v-for="(section, index) in page.sections">
+                            <template
+                                v-for="(section, index) in page.sections"
+                                :key="section.id"
+                            >
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_cms_detail_stage_content_section %}
                                 <sw-cms-section
-                                    :key="section.id"
                                     class="sw-cms-stage-section"
                                     :page="page"
                                     :section="section"
@@ -370,11 +377,6 @@
                     @modal-save="onSaveMissingElementModal"
                     @modal-dont-remind-change="onChangeDontRemindCheckbox"
                 />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_loader %}
-                <sw-loader v-if="isLoading" />
                 {% endblock %}
             </div>
             {% endblock %}

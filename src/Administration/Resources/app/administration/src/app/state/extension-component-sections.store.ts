@@ -4,7 +4,7 @@
 
 import Vue from 'vue';
 import type { Module } from 'vuex';
-import type { uiComponentSectionRenderer } from '@shopware-ag/admin-extension-sdk/es/ui/componentSection';
+import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
 
 type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'>
 
@@ -38,7 +38,7 @@ const ExtensionComponentSectionsStore: Module<ExtensionComponentSectionsState, V
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default ExtensionComponentSectionsStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

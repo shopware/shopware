@@ -1,20 +1,21 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import swCmsStageAddSection from 'src/module/sw-cms/component/sw-cms-stage-add-section';
-
-Shopware.Component.register('sw-cms-stage-add-section', swCmsStageAddSection);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-stage-add-section'), {
-        propsData: {},
-        stubs: {
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {},
+    return mount(await wrapTestComponent('sw-cms-stage-add-section', {
+        sync: true,
+    }), {
+        props: {},
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
+            provide: {
+                cmsService: {},
+            },
         },
     });
 }

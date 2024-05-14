@@ -1,0 +1,306 @@
+@import "~scss/variables";
+
+$sw-button-transition: all 0.15s ease-out;
+
+.sw-button {
+    border: 1px solid $color-gray-400;
+    background: $color-gray-50;
+    color: $color-darkgray-200;
+    transition: $sw-button-transition;
+    display: inline-block;
+    border-radius: $border-radius-default;
+    padding: 2px 24px;
+    font-size: $font-size-xs;
+    line-height: 34px;
+    outline: none;
+    font-weight: $font-weight-semi-bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    position: relative;
+
+    .sw-button__content {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        grid-gap: 0 8px;
+    }
+
+    .sw-button__content.is--hidden {
+        visibility: hidden;
+    }
+
+    &:hover:not(.sw-button--disabled),
+    &:hover:not([disabled]) {
+        background: $color-gray-100;
+    }
+
+    &:active:not(.sw-button--disabled) {
+        background: $color-gray-200;
+        border-color: $color-gray-400;
+    }
+
+    &:disabled,
+    &.sw-button--disabled {
+        color: $color-gray-500;
+        border-color: $color-gray-200;
+        cursor: not-allowed;
+
+        .sw-icon {
+            color: $color-gray-400;
+        }
+    }
+
+    .sw-icon {
+        color: $color-gray-800;
+    }
+
+    .sw-loader .sw-loader-element div {
+        border-color: $color-gray-800 transparent transparent transparent;
+    }
+
+    &.sw-button--primary {
+        background: $color-shopware-brand-500;
+        color: $color-white;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $color-white;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-white transparent transparent transparent;
+        }
+
+        &.sw-button--x-small {
+            line-height: $line-height-sm;
+        }
+
+        &.sw-button--small {
+            line-height: $line-height-lg;
+        }
+
+        &:hover {
+            background: $color-shopware-brand-700;
+        }
+
+        &:active {
+            background: $color-shopware-brand-800;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: $color-shopware-brand-200;
+        }
+
+        &.sw-button--square .sw-icon {
+            color: $color-white;
+        }
+    }
+
+    &.sw-button--contrast {
+        background: $color-module-yellow-500;
+        color: $color-darkgray-200;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $color-darkgray-200;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-darkgray-200 transparent transparent transparent;
+        }
+
+        &.sw-button--x-small {
+            line-height: $line-height-sm;
+        }
+
+        &.sw-button--small {
+            line-height: $line-height-lg;
+        }
+
+        &:hover {
+            background: $color-module-yellow-700;
+        }
+
+        &:active {
+            background: $color-module-yellow-800;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: $color-module-yellow-200;
+            color: $color-gray-800;
+
+            .sw-icon {
+                color: $color-gray-400;
+            }
+        }
+    }
+
+    &.sw-button--danger {
+        background: $color-crimson-500;
+        color: $color-white;
+        line-height: 36px;
+        border: 0 none;
+
+        .sw-icon {
+            color: $color-white;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-white transparent transparent transparent;
+        }
+
+        &.sw-button--x-small {
+            line-height: $line-height-sm;
+        }
+
+        &.sw-button--small {
+            line-height: $line-height-lg;
+        }
+
+        &:hover {
+            background: $color-crimson-700;
+        }
+
+        &:active {
+            background: $color-crimson-800;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background: $color-crimson-200;
+
+            .sw-icon {
+                color: $color-white;
+            }
+        }
+    }
+
+    &.sw-button--ghost {
+        background-color: transparent;
+        border-color: $color-shopware-brand-500;
+        color: $color-shopware-brand-500;
+
+        .sw-icon {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-shopware-brand-500 transparent transparent transparent;
+        }
+
+        &:hover {
+            background-color: $color-shopware-brand-50;
+        }
+
+        &:active {
+            background-color: $color-shopware-brand-100;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: $color-shopware-brand-200;
+            color: $color-shopware-brand-200;
+
+            .sw-icon {
+                color: $color-shopware-brand-200;
+            }
+        }
+    }
+
+    &.sw-button--ghost-danger {
+        background: transparent;
+        border-color: $color-crimson-500;
+        color: $color-crimson-500;
+
+        &:hover {
+            background: $color-crimson-50;
+        }
+
+        &:active {
+            background: $color-crimson-100;
+        }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: $color-crimson-200;
+            color: $color-crimson-200;
+
+            .sw-icon {
+                color: $color-crimson-200;
+            }
+        }
+    }
+
+    &.sw-button--context {
+        border: none;
+        background-color: transparent;
+        color: $color-darkgray-800;
+
+        .sw-icon {
+            color: $color-darkgray-800;
+        }
+
+        .sw-loader .sw-loader-element div {
+            border-color: $color-darkgray-800 transparent transparent transparent;
+        }
+
+        &:hover {
+            background-color: $color-gray-100;
+        }
+    }
+
+    &.sw-button--block {
+        display: block;
+        width: 100%;
+    }
+
+    &.sw-button--x-small {
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: $font-size-xxs;
+        line-height: $line-height-xs;
+
+        &.sw-button--square {
+            width: 24px;
+        }
+    }
+
+    &.sw-button--small {
+        padding-left: 15px;
+        padding-right: 15px;
+        font-size: $font-size-xxs;
+        line-height: 26px;
+
+        &.sw-button--square {
+            width: 32px;
+        }
+    }
+
+    &.sw-button--square {
+        width: 40px;
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+
+        .sw-button__content {
+            display: inline;
+        }
+    }
+
+    .sw-button__loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+    }
+}

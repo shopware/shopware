@@ -18,14 +18,14 @@ describe('Test review function on Product page', () => {
         cy.get('.search-suggest-product-name').contains(product.name);
         cy.get('.search-suggest-product-price').contains(product.price[0].gross);
         cy.get('.search-suggest-product-name').click();
-        cy.get('#review-tab').click();
+        cy.get('.review-tab').click();
 
         cy.get('button.product-detail-review-teaser-btn').contains('Write review').click();
 
         cy.get('.product-detail-review-login .login-form').should('be.visible');
     });
 
-    it('Should paginate and filter reviews', { tags: ['pa-content-management'] }, () => {
+    it('Should paginate and filter reviews', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/product/**/reviews*',
@@ -35,7 +35,7 @@ describe('Test review function on Product page', () => {
         cy.get('.header-search-input').type(product.name);
         cy.get('.search-suggest-product-name').contains(product.name);
         cy.get('.search-suggest-product-name').click();
-        cy.get('#review-tab').click();
+        cy.get('.review-tab').click();
 
         // Ensure 10 reviews on initial page
         cy.get('#review-list').find('.product-detail-review-list-content').should('have.length', 10);

@@ -8,10 +8,17 @@
                 "type": "object",
                 "properties": {
                     "orders": {
-                        "type": "object",
-                        "items": {
-                            "$ref": "#\/components\/schemas\/Order"
-                        }
+                        "allOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            },
+                            {
+                                "$ref": "#/components/schemas/EntitySearchResult"
+                            }
+                        ]
                     },
                     "paymentChangeable": {
                         "type": "object",
@@ -20,7 +27,8 @@
                             "type": "boolean"
                         }
                     }
-                }
+                },
+                "required": ["orders"]
             }
         }
     }

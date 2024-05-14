@@ -4,7 +4,7 @@
     <div class="center">
         <img
             class="sw-first-run-wizard__welcome-image"
-            :src="'/administration/static/img/first-run-wizard/welcome.svg' | asset"
+            :src="assetFilter('/administration/static/img/first-run-wizard/welcome.svg')"
             alt=""
         >
         <h4 class="headline-welcome">
@@ -30,8 +30,7 @@
             v-for="languagePlugin in languagePlugins"
             :key="languagePlugin.name"
             :plugin="languagePlugin"
-            @onPluginInstalled="onPluginInstalled"
-            @onPluginRemoved="onPluginRemoved"
+            @on-plugin-installed="onPluginInstalled"
             @extension-activated="$emit('extension-activated', $event)"
         />
     </sw-container>
@@ -52,11 +51,7 @@
             {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
         </p>
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="user.localeId"
-            {% else %}
-            v-model="user.localeId"
-            {% endif %}
             class="sw-profile__language"
             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
         >
@@ -70,14 +65,9 @@
             </option>
         </sw-select-field>
         <sw-password-field
-            {% if VUE3 %}
             v-model:value="user.pw"
-            {% else %}
-            v-model="user.pw"
-            {% endif %}
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
-            :copy-able="false"
             @keypress.enter="onConfirmLanguageSwitch"
         />
         {% endblock %}

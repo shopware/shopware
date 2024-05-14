@@ -2,45 +2,13 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProductSettingsMode from 'src/module/sw-product/component/sw-product-settings-mode';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
-
-Shopware.Component.register('sw-product-settings-mode', swProductSettingsMode);
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-product/component/sw-product-settings-mode', () => {
     async function createWrapper() {
-        const localVue = createLocalVue();
-        localVue.directive('tooltip', {
-            bind(el, binding) {
-                el.setAttribute('tooltip-message', binding.value.message);
-            },
-        });
-
-        return shallowMount(await Shopware.Component.build('sw-product-settings-mode'), {
-            localVue,
-            mocks: {
-                $route: {
-                    name: 'sw.product.detail.base',
-                },
-            },
-
-            stubs: {
-                'sw-context-button': true,
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-context-menu-divider': true,
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': true,
-                'sw-loader': true,
-            },
-
-            propsData: {
+        return mount(await wrapTestComponent('sw-product-settings-mode', { sync: true }), {
+            attachTo: document.body,
+            props: {
                 modeSettings: {
                     value: {
                         advancedMode: {
@@ -58,8 +26,37 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     },
                 },
             },
-
-            attachTo: document.body,
+            global: {
+                directives: {
+                    tooltip: {
+                        bind(el, binding) {
+                            el.setAttribute('tooltip-message', binding.value.message);
+                        },
+                    },
+                    popover: Shopware.Directive.getByName('popover'),
+                },
+                mocks: {
+                    $route: {
+                        name: 'sw.product.detail.base',
+                    },
+                },
+                stubs: {
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-icon': true,
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-context-menu-divider': await wrapTestComponent('sw-context-menu-divider'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-loader': true,
+                },
+            },
         });
     }
 
@@ -67,10 +64,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
+        await flushPromises();
     });
 
     it('should be a Vue.js component', async () => {
@@ -78,15 +72,11 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
     });
 
     it('should show correct tooltip', async () => {
-        await wrapper.vm.$nextTick();
-
-        const elementModeSettings = wrapper.find('.sw-product-settings-mode');
+        const elementModeSettings = wrapper.get('.sw-product-settings-mode');
         expect(elementModeSettings.attributes()['tooltip-message']).toBe('sw-product.general.tooltipModeSettings');
     });
 
     it('should be able to switch advanced mode', async () => {
-        await wrapper.vm.$nextTick();
-
         await wrapper.setProps({
             modeSettings: {
                 value: {
@@ -105,19 +95,22 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 },
             },
         });
+        await flushPromises();
 
-        const switchElement = wrapper.find('.sw-product-settings-mode__advanced-mode');
-        expect(switchElement.exists()).toBe(true);
+        const button = wrapper.get('.sw-product-settings-mode__trigger');
+        await button.trigger('click');
+        await flushPromises();
 
-        const inputElement = wrapper.find('.sw-product-settings-mode__advanced-mode input[type="checkbox"]');
-        await inputElement.trigger('click');
+        const switchElement = document.body.querySelector('.sw-product-settings-mode__advanced-mode');
+        expect(switchElement).toBeInTheDocument();
 
-        expect(inputElement.element.checked).toBeTruthy();
+        const inputElement = document.body.querySelector('.sw-product-settings-mode__advanced-mode input[type="checkbox"]');
+        await inputElement.click();
+
+        expect(inputElement.value).toBe('on');
     });
 
     it('should be able to check item settings', async () => {
-        await wrapper.vm.$nextTick();
-
         await wrapper.setProps({
             modeSettings: {
                 value: {
@@ -136,19 +129,22 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 },
             },
         });
+        await flushPromises();
 
-        const elementItem = wrapper.find('.sw-product-settings-mode__item');
-        expect(elementItem.exists()).toBe(true);
+        const button = wrapper.get('.sw-product-settings-mode__trigger');
+        await button.trigger('click');
+        await flushPromises();
 
-        const checkboxElement = wrapper.find('.sw-product-settings-mode__item input[type="checkbox"]');
-        await checkboxElement.trigger('click');
+        const elementItem = document.body.querySelector('.sw-product-settings-mode__item');
+        expect(elementItem).toBeInTheDocument();
 
-        expect(checkboxElement.element.checked).toBeTruthy();
+        const checkboxElement = document.body.querySelector('.sw-product-settings-mode__item input[type="checkbox"]');
+        await checkboxElement.click();
+
+        expect(checkboxElement.value).toBe('on');
     });
 
     it('should be disabled the item settings when the advanced mode is disabled', async () => {
-        await wrapper.vm.$nextTick();
-
         await wrapper.setProps({
             modeSettings: {
                 value: {
@@ -167,11 +163,16 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 },
             },
         });
+        await flushPromises();
 
-        const inputElement = wrapper.find('.sw-product-settings-mode__advanced-mode input[type="checkbox"]');
-        await inputElement.trigger('click');
+        const button = wrapper.get('.sw-product-settings-mode__trigger');
+        await button.trigger('click');
+        await flushPromises();
 
-        const checkboxElement = wrapper.find('.sw-product-settings-mode__item input[type="checkbox"]');
-        expect(checkboxElement.attributes().disabled).toBe('disabled');
+        const inputElement = document.body.querySelector('.sw-product-settings-mode__advanced-mode input[type="checkbox"]');
+        await inputElement.click();
+
+        const checkboxElement = document.body.querySelector('.sw-product-settings-mode__item input[type="checkbox"]');
+        expect(checkboxElement.disabled).toBe(true);
     });
 });

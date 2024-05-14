@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Migration\Core;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
- *
- * @coversNothing
  */
+#[CoversNothing]
 class BasicDataUntouchedTest extends TestCase
 {
     public function testBasicDataUntouched(): void
@@ -19,7 +19,7 @@ class BasicDataUntouchedTest extends TestCase
         static::assertIsString($file);
 
         static::assertSame(
-            '9d2aa7d26eccc49e0c5d193f67e6e75088e92238',
+            '803f6b644dc0c3d59b523fa3c02fdbaa28acbbff',
             sha1_file($file),
             'BasicData migration has changed. This is not allowed.'
         );

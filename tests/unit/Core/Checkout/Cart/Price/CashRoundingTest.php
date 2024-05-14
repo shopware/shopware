@@ -2,20 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Price\CashRounding
- *
  * @internal
  */
+#[CoversClass(CashRounding::class)]
 class CashRoundingTest extends TestCase
 {
-    /**
-     * @dataProvider provider_german
-     */
+    #[DataProvider('provider_german')]
     public function testGerman(float $price, float $expected): void
     {
         $service = new CashRounding();
@@ -26,9 +25,7 @@ class CashRoundingTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provider_hong_kong
-     */
+    #[DataProvider('provider_hong_kong')]
     public function testHongKong(float $price, float $expected): void
     {
         $service = new CashRounding();
@@ -39,9 +36,7 @@ class CashRoundingTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provider_denmark
-     */
+    #[DataProvider('provider_denmark')]
     public function testDenmark(float $price, float $expected): void
     {
         $service = new CashRounding();
@@ -52,9 +47,7 @@ class CashRoundingTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provider_italy
-     */
+    #[DataProvider('provider_italy')]
     public function testItaly(float $price, float $expected): void
     {
         $service = new CashRounding();
@@ -65,9 +58,7 @@ class CashRoundingTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provider_sweden
-     */
+    #[DataProvider('provider_sweden')]
     public function testSweden(float $price, float $expected): void
     {
         $service = new CashRounding();

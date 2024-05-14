@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -21,9 +22,8 @@ use Shopware\Storefront\Theme\ThemeService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeLifecycleHandler
  */
+#[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {
     private MockObject&ThemeService $themeServiceMock;

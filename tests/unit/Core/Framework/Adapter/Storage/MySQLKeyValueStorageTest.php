@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Storage;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage
  */
+#[CoversClass(MySQLKeyValueStorage::class)]
 class MySQLKeyValueStorageTest extends TestCase
 {
     /**

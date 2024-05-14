@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('content')]
+#[Package('inventory')]
 class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

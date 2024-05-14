@@ -1,81 +1,89 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProfileIndex from 'src/module/sw-profile/page/sw-profile-index';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
 
-Shopware.Component.register('sw-profile-index', swProfileIndex);
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
+                },
+                'sw-search-bar': true,
+                'sw-notification-center': true,
+                'sw-language-switch': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-card-view': true,
+                'sw-language-info': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'sw-skeleton': true,
+            },
+            provide: {
+                acl: {
+                    can: (key) => {
+                        if (!key) {
+                            return true;
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-profile-index'), {
-        localVue,
-        stubs: {
-            'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
-            },
-            'sw-search-bar': true,
-            'sw-notification-center': true,
-            'sw-language-switch': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-card-view': true,
-            'sw-language-info': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'sw-skeleton': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
+                        return privileges.includes(key);
+                    },
+                },
+                repositoryFactory: {
+                    create: (entityName) => {
+                        if (entityName === 'media') {
+                            return {
+                                get: () => Promise.resolve({ id: '2142' }),
+                            };
+                        }
 
-                    return privileges.includes(key);
+                        return {
+                            get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0,
+                            )),
+                            getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
+                        };
+                    },
                 },
-            },
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
-                    search: () => Promise.resolve(new EntityCollection(
-                        '',
-                        '',
-                        Shopware.Context.api,
-                        null,
-                        [],
-                        0,
-                    )),
-                    getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
-                }),
-            },
-            loginService: {},
-            userService: {
-                getUser: () => Promise.resolve({ data: { id: '87923' } }),
-                updateUser: () => Promise.resolve({}),
-            },
-            mediaDefaultFolderService: {},
-            searchPreferencesService: {
-                getDefaultSearchPreferences: () => {},
-                getUserSearchPreferences: () => {},
-                createUserSearchPreferences: () => {
-                    return {
-                        key: 'search.preferences',
-                        userId: 'userId',
-                    };
+                loginService: {},
+                userService: {
+                    getUser: () => Promise.resolve({ data: { id: '87923' } }),
+                    updateUser: () => Promise.resolve({}),
                 },
-            },
-            searchRankingService: {
-                clearCacheUserSearchConfiguration: () => {},
-            },
-            userConfigService: {
-                upsert: () => {
-                    return Promise.resolve();
+                mediaDefaultFolderService: {},
+                searchPreferencesService: {
+                    getDefaultSearchPreferences: () => {
+                    },
+                    getUserSearchPreferences: () => {
+                    },
+                    createUserSearchPreferences: () => {
+                        return {
+                            key: 'search.preferences',
+                            userId: 'userId',
+                        };
+                    },
                 },
-                search: () => {
-                    return Promise.resolve();
+                searchRankingService: {
+                    clearCacheUserSearchConfiguration: () => {
+                    },
+                },
+                userConfigService: {
+                    upsert: () => {
+                        return Promise.resolve();
+                    },
+                    search: () => {
+                        return Promise.resolve();
+                    },
                 },
             },
         },
@@ -170,7 +178,12 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
     it('should handle user-save errors correctly', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
         wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.$route = {
+            name: 'sw.profile.index.general',
+        };
 
         await wrapper.setData({
             isLoading: true,
@@ -199,5 +212,19 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(true);
 
         expect(saveUserSpyOn).toHaveBeenCalledWith({ foo: 'bar' });
+    });
+
+    it('should handle avatarId and load the media', async () => {
+        const wrapper = await createWrapper();
+        const mediaId = '2142';
+
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        wrapper.vm.setMediaItem({ targetId: mediaId });
+        await flushPromises();
+
+        expect(wrapper.vm.user.avatarId).toBe(mediaId);
+        expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
     });
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Test\Notification\Repository;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
@@ -28,9 +29,7 @@ class NotificationRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    /**
-     * @dataProvider notificationProvider
-     */
+    #[DataProvider('notificationProvider')]
     public function testNotificationCreateNotification(string $scope, string $behavior): void
     {
         $id = Uuid::randomHex();

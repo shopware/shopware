@@ -3,7 +3,7 @@ title: Remove static analysis with psalm
 date: 2022-05-12
 area: core
 tags: [phpstan, psalm, static-analyse]
---- 
+---
 
 ## Context
 Currently, we are running static analysis over the php code with both `phpstan` and `psalm`.

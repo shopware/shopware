@@ -68,7 +68,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_amount %}
             <template #column-amountTotal="{ item }">
-                {{ item.amountTotal | currency(item.currency.shortName) }}
+                {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
             </template>
             {% endblock %}
 
@@ -108,7 +108,7 @@
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                     :alt="emptyTitle"
                 >
             </template>

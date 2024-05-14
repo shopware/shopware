@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Files;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
+use Shopware\Core\System\Snippet\SnippetException;
 
 /**
  * @extends Collection<AbstractSnippetFile>
@@ -13,10 +14,16 @@ use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 class SnippetFileCollection extends Collection
 {
     /**
+     * @var array<string, bool>|null
+     */
+    private ?array $mapping = null;
+
+    /**
      * @param AbstractSnippetFile $snippetFile
      */
     public function add($snippetFile): void
     {
+        $this->mapping = null;
         $this->set(null, $snippetFile);
     }
 
@@ -27,6 +34,24 @@ class SnippetFileCollection extends Collection
         }
 
         return $this->getByName($key);
+    }
+
+    public function set($key, $element): void
+    {
+        $this->mapping = null;
+        parent::set($key, $element);
+    }
+
+    public function clear(): void
+    {
+        $this->mapping = null;
+        parent::clear();
+    }
+
+    public function remove($key): void
+    {
+        $this->mapping = null;
+        parent::remove($key);
     }
 
     public function getByName(string $key): ?AbstractSnippetFile
@@ -49,7 +74,7 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array{author: string, iso: string, isBase: bool, name: string, path: string}>
      */
     public function toArray(): array
     {
@@ -78,7 +103,7 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return array<int, AbstractSnippetFile>
+     * @return list<AbstractSnippetFile>
      */
     public function getSnippetFilesByIso(string $iso): array
     {
@@ -100,7 +125,7 @@ class SnippetFileCollection extends Collection
             return $file;
         }
 
-        throw new InvalidSnippetFileException($iso);
+        throw SnippetException::snippetFileNotRegistered($iso);
     }
 
     public function getApiAlias(): string
@@ -110,13 +135,14 @@ class SnippetFileCollection extends Collection
 
     public function hasFileForPath(string $filePath): bool
     {
-        $filePath = realpath($filePath);
+        if ($this->mapping === null) {
+            $this->mapping = [];
+            foreach ($this->elements as $element) {
+                $this->mapping[(string) realpath($element->getPath())] = true;
+            }
+        }
 
-        $filesWithMatchingPath = $this->filter(
-            static fn (AbstractSnippetFile $file): bool => realpath($file->getPath()) === $filePath
-        );
-
-        return $filesWithMatchingPath->count() > 0;
+        return isset($this->mapping[realpath($filePath)]);
     }
 
     protected function getExpectedClass(): ?string
@@ -125,13 +151,12 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return array<string, array<int, AbstractSnippetFile>>
+     * @return array<string, list<AbstractSnippetFile>>
      */
     private function getListSortedByIso(): array
     {
         $list = [];
 
-        /** @var AbstractSnippetFile $element */
         foreach ($this->getIterator() as $element) {
             $list[$element->getIso()][] = $element;
         }

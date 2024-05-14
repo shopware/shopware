@@ -2,25 +2,28 @@
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
-use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Snippet\SnippetFinder
  */
+#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelWithNoPlugins(),
+            $this->getKernelMock(),
             $this->getConnectionMock('en-GB', [])
         );
 
@@ -31,7 +34,7 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromApp(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelWithNoPlugins(),
+            $this->getKernelMock(),
             $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
         );
 
@@ -42,78 +45,157 @@ class SnippetFinderTest extends TestCase
         static::assertEquals($expectedSnippets[$key], $snippets[$key]);
     }
 
-    /**
-     * @dataProvider validateAppSnippetsExceptionDataProvider
-     *
-     * @param array<string, mixed> $existingSnippets
-     * @param array<string, mixed> $appSnippets
-     * @param list<string> $duplicatedSnippets
-     */
-    public function testValidateSnippets(array $existingSnippets, array $appSnippets, array $duplicatedSnippets): void
+    public function testNoSnippetsFound(): void
     {
-        $exceptionWasThrown = false;
-        $expectedExceptionMessage = 'The following keys on the first level are duplicated and can not be overwritten: ' . implode(', ', $duplicatedSnippets);
-
         $snippetFinder = new SnippetFinder(
-            $this->createMock(Kernel::class),
-            $this->createMock(Connection::class)
+            $this->getKernelMock(),
+            $this->getConnectionMock('fr-FR', [])
         );
 
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('validateAppSnippets');
-        $reflectionMethod->setAccessible(true);
+        static::assertEmpty($snippetFinder->findSnippets('fr-FR'));
+    }
 
-        try {
-            $reflectionMethod->invoke($snippetFinder, $existingSnippets, $appSnippets);
-            /** @phpstan-ignore-next-line does not check that a SnippetException will be thrown */
-        } catch (SnippetException $exception) {
-            static::assertEquals($expectedExceptionMessage, $exception->getMessage());
+    public function testDefaultSnippetFileLoading(): void
+    {
+        $activePluginPaths = [
+            'activePlugin',
+            'invalidPlugin',
+            'nonExistingPlugin',
+        ];
+        $pluginPaths = [
+            'activePlugin',
+            'irrelevantPlugin',
+        ];
+        $bundlePaths = [
+            'existingBundle',
+            'nonExistingBundle',
+        ];
 
-            $exceptionWasThrown = true;
-        } finally {
-            /** @phpstan-ignore-next-line does not check that $exceptionWasThrown might change */
-            static::assertTrue($exceptionWasThrown, 'Expected exception with the following message to be thrown: ' . $expectedExceptionMessage);
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock($pluginPaths, $activePluginPaths, $bundlePaths),
+            $this->getConnectionMock('jp-JP', [])
+        );
+
+        $actualSnippets = $snippetFinder->findSnippets('jp-JP');
+
+        static::assertEquals([
+            'activePlugin' => 'successfully loaded',
+            'existingBundle' => 'successfully loaded as well',
+        ], $actualSnippets);
+    }
+
+    /**
+     * @param array<string, mixed> $appSnippets
+     */
+    #[DataProvider('validAppSnippetsDataProvider')]
+    public function testValidateValidSnippets(array $appSnippets): void
+    {
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(),
+            $this->getConnectionMock('en-GB', $appSnippets)
+        );
+
+        $actualSnippetKeys = $snippetFinder->findSnippets('en-GB');
+        foreach ($appSnippets as $key => $value) {
+            static::assertArrayHasKey($key, $actualSnippetKeys);
         }
     }
 
     /**
-     * @dataProvider sanitizeAppSnippetDataProvider
-     *
+     * @param array<string, mixed> $appSnippets
+     * @param list<string> $duplicateSnippetKeys
+     */
+    #[DataProvider('invalidAppSnippetsDataProvider')]
+    public function testValidateInvalidSnippets(array $appSnippets, array $duplicateSnippetKeys): void
+    {
+        $expectedExceptionMessage = 'The following keys on the first level are duplicated and can not be overwritten: ' . implode(', ', $duplicateSnippetKeys);
+
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelMock(),
+            $this->getConnectionMock('en-GB', $appSnippets)
+        );
+
+        $this->expectException(SnippetException::class);
+        $this->expectExceptionMessage($expectedExceptionMessage);
+        $snippetFinder->findSnippets('en-GB');
+    }
+
+    /**
      * @param array<string, mixed> $before
      * @param array<string, mixed> $after
      */
+    #[DataProvider('sanitizeAppSnippetDataProvider')]
     public function testSanitizeAppSnippets(array $before, array $after): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->createMock(Kernel::class),
-            $this->createMock(Connection::class)
+            $this->getKernelMock(),
+            $this->getConnectionMock('en-GB', $before)
         );
 
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('sanitizeAppSnippets');
-        $reflectionMethod->setAccessible(true);
-        $result = $reflectionMethod->invoke($snippetFinder, $before);
+        $result = $snippetFinder->findSnippets('en-GB');
+        $result = array_intersect_key($result, $before); // filter out all others snippets
 
         static::assertEquals($after, $result);
     }
 
     /**
-     * @return array<string, array{existingSnippets: array<string, mixed>, appSnippets: array<string, mixed>, duplicatedSnippets: list<string>}>
+     * @return array<string, array{appSnippets: array<string, mixed>}>
      */
-    public static function validateAppSnippetsExceptionDataProvider(): iterable
+    public static function validAppSnippetsDataProvider(): iterable
+    {
+        yield 'Everything is valid with no illegal intersections' => [
+            'appSnippets' => [
+                'sw-unique-app-key' => [],
+            ],
+        ];
+
+        /** @var array<string, mixed> $allowedIntersectingFirstLevelSnippets */
+        $allowedIntersectingFirstLevelSnippets = array_reduce(
+            SnippetFinder::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS,
+            static function ($accumulator, $value) {
+                $accumulator[$value] = [];
+
+                return $accumulator;
+            }
+        );
+
+        yield 'Everything is valid with only allowed duplicates' => [
+            'appSnippets' => [
+                ...$allowedIntersectingFirstLevelSnippets,
+                'sw-unique-app-key' => [],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, array{appSnippets: array<string, mixed>, duplicateSnippetKeys: list<string>}>
+     */
+    public static function invalidAppSnippetsDataProvider(): iterable
     {
         yield 'Throw exception if existing snippets will be overwritten' => [
-            'existingSnippets' => [
-                'core' => [],
-            ],
             'appSnippets' => [
-                'my-app-snippets' => [],
-                'core' => [
-                    'foo' => 'this will extend or overwrite the core',
-                ],
+                'sw-category' => [],
+                'sw-cms' => [],
+                'sw-wizard' => [],
             ],
-            'duplicatedSnippets' => [
-                'core',
+            'duplicateSnippetKeys' => [
+                'sw-category',
+                'sw-cms',
+                'sw-wizard',
+            ],
+        ];
+
+        yield 'Throw exception if existing snippets contain legal and illegal duplicates' => [
+            'appSnippets' => [
+                ...array_flip(SnippetFinder::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS),
+                'sw-category' => [],
+                'sw-cms' => [],
+                'sw-wizard' => [],
+            ],
+            'duplicateSnippetKeys' => [
+                'sw-category',
+                'sw-cms',
+                'sw-wizard',
             ],
         ];
     }
@@ -144,7 +226,7 @@ class SnippetFinderTest extends TestCase
     /**
      * @param array<string, mixed> $snippets
      */
-    public function getConnectionMock(string $expectedLocale, array $snippets): Connection
+    private function getConnectionMock(string $expectedLocale, array $snippets): Connection&MockObject
     {
         $connection = $this->createMock(Connection::class);
 
@@ -168,16 +250,58 @@ class SnippetFinderTest extends TestCase
         return $connection;
     }
 
-    private function getKernelWithNoPlugins(): Kernel
-    {
-        $pluginLoader = new StaticKernelPluginLoader(new ClassLoader());
+    /**
+     * @param list<string> $pluginPaths
+     * @param list<string> $activePluginPaths
+     * @param list<string> $bundlePaths
+     */
+    public function getKernelMock(
+        array $pluginPaths = [],
+        array $activePluginPaths = [],
+        array $bundlePaths = []
+    ): Kernel&MockObject {
+        if (empty($pluginPaths) || empty($activePluginPaths)) {
+            return $this->createMock(Kernel::class);
+        }
 
-        return new Kernel(
-            'dev',
-            false,
-            $pluginLoader,
-            'foobar'
-        );
+        $getBundleMockByPath = function (string $path): Plugin&MockObject {
+            $plugin = $this->createMock(Plugin::class);
+            $plugin
+                ->method('getPath')
+                ->willReturn(__DIR__ . '/fixtures/' . $path);
+
+            return $plugin;
+        };
+
+        $plugins = array_map($getBundleMockByPath, $pluginPaths);
+        $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
+        $bundles = [
+            ...array_map($getBundleMockByPath, $bundlePaths),
+            ...$plugins,
+        ];
+
+        $pluginCollectionMock = $this->createMock(KernelPluginCollection::class);
+        $pluginCollectionMock
+            ->method('all')
+            ->willReturn($plugins);
+        $pluginCollectionMock
+            ->method('getActives')
+            ->willReturn($activePlugins);
+
+        $pluginLoaderMock = $this->createMock(KernelPluginLoader::class);
+        $pluginLoaderMock
+            ->method('getPluginInstances')
+            ->willReturn($pluginCollectionMock);
+
+        $kernelMock = $this->createMock(Kernel::class);
+        $kernelMock
+            ->method('getPluginLoader')
+            ->willReturn($pluginLoaderMock);
+        $kernelMock
+            ->method('getBundles')
+            ->willReturn($bundles);
+
+        return $kernelMock;
     }
 
     /**

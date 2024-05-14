@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class PaymentMethodTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPaymentMethodIds(): array
     {
@@ -25,7 +25,7 @@ class PaymentMethodTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

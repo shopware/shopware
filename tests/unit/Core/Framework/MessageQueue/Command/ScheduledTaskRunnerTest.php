@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner;
@@ -10,9 +11,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\Command\ScheduledTaskRunner
  */
+#[CoversClass(ScheduledTaskRunner::class)]
 class ScheduledTaskRunnerTest extends TestCase
 {
     public function testScheduleDirectly(): void

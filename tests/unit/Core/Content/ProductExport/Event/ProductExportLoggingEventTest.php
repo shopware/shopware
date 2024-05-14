@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent
  */
+#[CoversClass(ProductExportLoggingEvent::class)]
 class ProductExportLoggingEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

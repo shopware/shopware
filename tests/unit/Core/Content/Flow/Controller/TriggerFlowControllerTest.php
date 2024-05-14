@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Controller\TriggerFlowController;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
@@ -20,10 +21,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Controller\TriggerFlowController
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(TriggerFlowController::class)]
 class TriggerFlowControllerTest extends TestCase
 {
     private TriggerFlowController $triggerFlowController;

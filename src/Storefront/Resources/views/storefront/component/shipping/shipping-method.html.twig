@@ -20,12 +20,12 @@
                                     {% sw_thumbnails 'shipping-method-image-thumbnails' with {
                                         media: shipping.media,
                                         sizes: {
-                                            'default': '100px'
+                                            default: '100px'
                                         },
                                         attributes: {
-                                            'class': 'shipping-method-image',
-                                            'alt': (shipping.media.translated.alt ?: shipping.translated.name),
-                                            'title': (shipping.media.translated.title ?: shipping.translated.name)
+                                            class: 'shipping-method-image',
+                                            alt: (shipping.media.translated.alt ?: shipping.translated.name),
+                                            title: (shipping.media.translated.title ?: shipping.translated.name)
                                         }
                                     } %}
                                 {% endif %}

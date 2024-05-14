@@ -1,4 +1,3 @@
-import './sw-loader.scss';
 import template from './sw-loader.html.twig';
 
 const { Component } = Shopware;
@@ -6,53 +5,53 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
- * @description Renders a loading indicator for panels, input fields, buttons, etc.
+ * @private
  * @status ready
- * @example-type dynamic
- * @component-example
- * <sw-loader />
+ * @description Wrapper component for sw-loader and mt-loader. Autoswitches between the two components.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-loader', {
     template,
 
     props: {
-        size: {
+        modelValue: {
             type: String,
             required: false,
-            default: '50px',
-            validator(value) {
-                return /^(12|[2-9][0-9]|[1-9][2-9]|[1-9]\d{2,})px$/.test(value);
-            },
+            default: null,
+        },
+
+        value: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 
     computed: {
-        loaderSize() {
-            return {
-                width: `${this.numericSize}px`,
-                height: `${this.numericSize}px`,
+        useMeteorComponent() {
+            // Use new meteor component in major
+            if (Shopware.Feature.isActive('v6.7.0.0')) {
+                return true;
+            }
+
+            // Throw warning when deprecated component is used
+            Shopware.Utils.debug.warn(
+                'sw-loader',
+                // eslint-disable-next-line max-len
+                'The old usage of "sw-loader" is deprecated and will be removed in v6.7.0.0. Please use "mt-loader" instead.',
+            );
+
+            return false;
+        },
+    },
+
+    methods: {
+        getSlots() {
+            const allSlots = {
+                ...this.$slots,
+                ...this.$scopedSlots,
             };
-        },
 
-        numericSize() {
-            const numericSize = parseInt(this.size, 10);
-
-            if (Number.isNaN(numericSize)) {
-                return 50;
-            }
-
-            if (numericSize < 12) {
-                return 50;
-            }
-
-            return numericSize;
-        },
-
-        borderWidth() {
-            return `${Math.floor(this.numericSize / 12)}px`;
+            return allSlots;
         },
     },
 });

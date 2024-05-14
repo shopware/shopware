@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\SearchFieldConfig
  */
+#[CoversClass(SearchFieldConfig::class)]
 class SearchFieldConfigTest extends TestCase
 {
     public function testInit(): void

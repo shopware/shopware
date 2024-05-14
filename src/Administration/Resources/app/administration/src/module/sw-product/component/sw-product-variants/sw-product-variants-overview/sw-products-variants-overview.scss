@@ -203,6 +203,19 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         .sw-media-upload-v2__content {
             width: 330px;
         }
+
+        .sw-product-variants-overview__variation-link-name {
+            display: inline-flex;
+
+            &::after {
+                content: "-";
+                margin: 0 5px;
+            }
+
+            &:last-child::after {
+                display: none;
+            }
+        }
     }
 
     .sw-media-upload-v2__content {

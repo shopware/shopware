@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 variant="form"
                 size="small"
                 @search-term-change="onSearch"
@@ -185,6 +185,7 @@
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
+            :key="`switch-${currency.isoCode}`"
             #[`column-price.${currency.id}.net`]="{ item, compact, isInlineEdit }"
         >
 
@@ -194,7 +195,6 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
                 <sw-inheritance-switch
-                    :key="`switch-${currency.isoCode}`"
                     :is-inherited="isPriceFieldInherited(item, currency)"
                     class="sw-product-detail-context-prices__inherited-icon"
                     @inheritance-restore="onInheritanceRestore(item, currency)"
@@ -205,8 +205,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
                 <sw-price-field
-                    :key="`price-field-${currency.isoCode}`"
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
                     :label="false"
@@ -235,7 +234,7 @@
                 {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
                 <sw-price-preview
                     :key="`else-price-field-${currency.isoCode}`"
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
                     :currency="currency"
@@ -256,11 +255,7 @@
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
             <sw-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
-                {% if VUE3 %}
                 v-model:value="item.stock"
-                {% else %}
-                v-model="item.stock"
-                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -283,11 +278,7 @@
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.productNumber"
-                {% else %}
-                v-model="item.productNumber"
-                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -342,6 +333,7 @@
             />
 
             <sw-media-compact-upload-v2
+                v-if="productDownloadFolderId"
                 :upload-tag="item.productNumber"
                 :disabled="!isInlineEdit"
                 private-filesystem
@@ -352,7 +344,7 @@
                     helpText: $tc('sw-product.list.columnDownloadsTooltip')
                 }"
                 :source-multiselect="getDownloadsSource(item)"
-                default-folder="product_download"
+                :target-folder-id="productDownloadFolderId"
                 file-accept="*/*"
                 @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
             />
@@ -365,7 +357,7 @@
         >
             <template v-if="isInlineEdit">
                 <sw-data-grid-column-boolean
-                    v-model="item.active"
+                    v-model:value="item.active"
                     :is-inline-edit="isInlineEdit"
                     :disabled="isActiveFieldInherited(item)"
                 />
@@ -452,11 +444,12 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_bulk %}
         <template #bulk>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_bulk_edit %}
             <span
                 v-if="acl.can('product.editor')"
                 class="link link-primary"
+                role="link"
+                tabindex="0"
                 @click="toggleBulkEditModal"
             >
                 {{ $tc('global.default.bulkEdit') }}
@@ -468,6 +461,8 @@
             <span
                 v-if="acl.can('product.deleter')"
                 class="link link-danger sw-product-variants-overview__bulk-delete-action"
+                role="link"
+                tabindex="0"
                 @click="onClickBulkDelete"
             >
                 {{ $tc('global.default.delete') }}
@@ -516,6 +511,7 @@
                 {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
                 <template
                     v-for="currency in currencies"
+                    :key="currency.id"
                     #[`column-price.${currency.id}.net`]="{ item }"
                 >
                     <sw-inheritance-switch
@@ -525,7 +521,7 @@
                     />
                     <sw-price-preview
                         :key="`else-price-field-${currency.isoCode}`"
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="getDefaultPriceForVariant(item, currency)"
                         :tax-rate="productTaxRate"
                         :currency="currency"
@@ -559,6 +555,7 @@
                     />
 
                     <sw-media-compact-upload-v2
+                        v-if="productDownloadFolderId"
                         :upload-tag="item.productNumber"
                         :disabled="!isInlineEdit"
                         private-filesystem
@@ -569,7 +566,7 @@
                         }"
                         :add-files-on-multiselect="true"
                         :source-multiselect="getDownloadsSource(item)"
-                        default-folder="product_download"
+                        :target-folder-id="productDownloadFolderId"
                         file-accept="*/*"
                         @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
                     />
@@ -595,7 +592,6 @@
                         key="inherit-icon"
                         name="regular-link-horizontal"
                         size="16"
-                        multicolor
                     />
                 </template>
                 {% endblock %}
@@ -619,10 +615,7 @@
         <p
             class="sw-product-variants-overview__modal--confirm-delete-text"
         >
-            {{ toBeDeletedVariantIds.length > 1
-                ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural')
-                : $tc('sw-product.variations.generatedListDeleteModalMessage')
-            }}
+            {{ toBeDeletedVariantIds.length > 1 ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural') : $tc('sw-product.variations.generatedListDeleteModalMessage') }}
         </p>
 
         <template #modal-footer>

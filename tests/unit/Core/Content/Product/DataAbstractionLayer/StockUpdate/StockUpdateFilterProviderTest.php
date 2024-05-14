@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpdate;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider
  */
+#[CoversClass(StockUpdateFilterProvider::class)]
 class StockUpdateFilterProviderTest extends TestCase
 {
     public function testHandlesFilter(): void

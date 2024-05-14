@@ -7,13 +7,11 @@
     <template #smart-bar-header>
         <h2
             v-if="languageHasName"
-            key="sw-setting-language-header"
         >
             {{ language.name }}
         </h2>
         <h2
             v-else
-            key="sw-setting-language-header"
         >
             {{ $tc('sw-settings-language.detail.textHeadline') }}
         </h2>
@@ -36,11 +34,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_language_detail_actions_save %}
         <sw-button-process
-            {% if VUE3 %}
             v-model:processSuccess="isSaveSuccessful"
-            {% else %}
-            v-model="isSaveSuccessful"
-            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-language-detail__save-action"
             :is-loading="isLoading"
@@ -83,11 +77,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="language.name"
-                            {% else %}
-                            v-model="language.name"
-                            {% endif %}
+                            name="sw-field--language-name"
                             :disabled="!acl.can('language.editor')"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
@@ -101,11 +92,8 @@
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
-                            {% if VUE3 %}
                             v-model:value="language.localeId"
-                            {% else %}
-                            v-model="language.localeId"
-                            {% endif %}
+                            name="sw-field--language-localeId"
                             required
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
@@ -134,67 +122,56 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_iso_code %}
-                        <sw-inherit-wrapper
-                            {% if VUE3 %}
+                        <sw-entity-single-select
+                            id="iso-codes"
                             v-model:value="language.translationCodeId"
-                            {% else %}
-                            v-model="language.translationCodeId"
-                            {% endif %}
-                            :inherited-value="parentTranslationCodeId"
+                            class="sw-settings-language-detail__select-iso-code"
+                            :disabled="isInherited || !acl.can('language.editor')"
+                            label-property="code"
                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                             :required="isIsoCodeRequired"
-                            :error="translationCodeError"
+                            show-clearable-button
+                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                            entity="locale"
                         >
-                            <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error }">
-                                <sw-entity-single-select
-                                    id="iso-codes"
-                                    :value="currentValue"
-                                    class="sw-settings-language-detail__select-iso-code"
-                                    :disabled="isInherited || !acl.can('language.editor')"
-                                    label-property="code"
-                                    show-clearable-button
-                                    :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                    :error="error"
-                                    entity="locale"
-                                    @change="updateCurrentValue"
+                            <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                <sw-select-result
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                        disabled: !isLocaleAlreadyUsed(item?.id)
+                                    }"
+
+                                    :selected="isSelected(item)"
+                                    v-bind="{ item, index }"
+                                    @item-select="setValue"
                                 >
-                                    <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                        <li
-                                            is="sw-select-result"
-                                            v-tooltip="{
-                                                showDelay: 300,
-                                                message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
-                                                disabled: !isLocaleAlreadyUsed(item)
-                                            }"
-                                            :disabled="isLocaleAlreadyUsed(item)"
-                                            :selected="isSelected(item)"
-                                            v-bind="{ item, index }"
-                                            @item-select="setValue"
-                                        >
-                                            <sw-highlight-text
-                                                v-if="highlightSearchTerm"
-                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                :search-term="searchTerm"
-                                            />
-                                            <template v-else>
-                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                            </template>
-                                        </li>
+
+                                    <sw-highlight-text
+                                        v-if="highlightSearchTerm"
+                                        :text="(getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)) + (isLocaleAlreadyUsed(item?.id) ? '*' : '')"
+                                        :search-term="searchTerm"
+                                    />
+                                    <template v-else>
+                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                     </template>
-                                </sw-entity-single-select>
+                                </sw-select-result>
                             </template>
-                        </sw-inherit-wrapper>
+                            <template #hint>
+                                <div v-if="isLocaleAlreadyUsed(language.translationCodeId)">
+                                    {{ $tc('sw-settings-language.detail.textIsoCodeIsInUse') }}
+                                </div>
+                            </template>
+                        </sw-entity-single-select>
+
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_detail_content_field_parentId %}
                         <sw-entity-single-select
                             id="inherit"
-                            {% if VUE3 %}
                             v-model:value="language.parentId"
-                            {% else %}
-                            v-model="language.parentId"
-                            {% endif %}
+                            name="sw-field--language-parentId"
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
                             :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
@@ -203,11 +180,10 @@
                             :help-text="inheritanceTooltipText"
                             entity="language"
                             show-clearable-button
-                            @change="onInputLanguage"
+                            @update:value="onInputLanguage"
                         >
                             <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-language.detail.textLanguageHasParent'),
@@ -226,7 +202,7 @@
                                     <template v-else>
                                         {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                     </template>
-                                </li>
+                                </sw-select-result>
                             </template>
                         </sw-entity-single-select>
                         {% endblock %}

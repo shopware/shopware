@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Update;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +25,9 @@ class DefaultAppUpdaterTest extends TestCase
 
     private AbstractAppUpdater $updater;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepo;
 
     private Context $context;
@@ -49,21 +52,21 @@ class DefaultAppUpdaterTest extends TestCase
         static::assertNotFalse($licensesJson);
         static::assertNotFalse($swagAppJson);
 
-        $this->getRequestHandler()->append(new Response(200, [], '{}'));
-        $this->getRequestHandler()->append(new Response(200, [], $licensesJson));
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], $swagAppJson));
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $licensesJson));
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $swagAppJson));
         $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
 
         try {
             $this->updater->updateApps($this->context);
 
-            $apps = $this->appRepo->search(new Criteria(), $this->context);
+            $apps = $this->appRepo->search(new Criteria(), $this->context)->getEntities();
 
-            static::assertEquals(1, $apps->count());
-            /** @var AppEntity $testApp */
+            static::assertCount(1, $apps);
             $testApp = $apps->first();
-            static::assertEquals('2.0.0', $testApp->getVersion());
+            static::assertNotNull($testApp);
+            static::assertSame('2.0.0', $testApp->getVersion());
         } finally {
             (new Filesystem())->remove($expectedLocation);
         }
@@ -80,20 +83,20 @@ class DefaultAppUpdaterTest extends TestCase
         static::assertNotFalse($licensesJson);
         static::assertNotFalse($swagAppJson);
 
-        $this->getRequestHandler()->append(new Response(200, [], $licensesJson));
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], $swagAppJson));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $licensesJson));
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $swagAppJson));
         $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/SwagApp';
 
         try {
             $this->updater->updateApps($this->context);
 
-            $apps = $this->appRepo->search(new Criteria(), $this->context);
+            $apps = $this->appRepo->search(new Criteria(), $this->context)->getEntities();
 
-            static::assertEquals(1, $apps->count());
-            /** @var AppEntity $testApp */
+            static::assertCount(1, $apps);
             $testApp = $apps->first();
-            static::assertEquals('1.0.0', $testApp->getVersion());
+            static::assertNotNull($testApp);
+            static::assertSame('1.0.0', $testApp->getVersion());
         } finally {
             (new Filesystem())->remove($expectedLocation);
         }

@@ -5,7 +5,7 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -30,7 +30,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -38,7 +37,6 @@ export default {
         allowCreate: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -46,7 +44,6 @@ export default {
         allowDelete: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -405,7 +402,6 @@ export default {
                 return Promise.resolve();
             }
 
-            this.loadedParentIds.push(parentId);
             const criteria = Criteria.fromCriteria(this.criteria);
             criteria.addFilter(Criteria.equals('parentId', parentId));
             // in case the criteria has been altered to search specific ids e.g. by dragndrop position change
@@ -414,10 +410,7 @@ export default {
 
             return this.categoryRepository.search(criteria).then((children) => {
                 this.addCategories(children);
-            }).catch(() => {
-                this.loadedParentIds = this.loadedParentIds.filter((id) => {
-                    return id !== parentId;
-                });
+                this.loadedParentIds.push(parentId);
             });
         },
 

@@ -6,8 +6,10 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -26,7 +28,13 @@ class AppException extends HttpException
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
     public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
     public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
+    public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
+    public const XML_PARSE_ERROR = 'FRAMEWORK_APP__XML_PARSE_ERROR';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
 
+    /**
+     * @internal will be removed once store extensions are installed over composer
+     */
     public static function cannotDeleteManaged(string $pluginName): self
     {
         return new self(
@@ -47,8 +55,16 @@ class AppException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed use AppException::createFromXmlFileFlowError instead
+     */
     public static function errorFlowCreateFromXmlFile(string $xmlFile, string $message): XmlParsingException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'AppException::createFromXmlFileFlowError')
+        );
+
         return new AppFlowException($xmlFile, $message);
     }
 
@@ -66,8 +82,8 @@ class AppException extends HttpException
         return new AppNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::NOT_FOUND,
-            'App with identifier "{{ identifier }}" not found',
-            ['identifier' => $identifier]
+            self::$couldNotFindMessage,
+            ['entity' => 'app', 'field' => 'identifier', 'value' => $identifier]
         );
     }
 
@@ -148,6 +164,56 @@ class AppException extends HttpException
             'The synchronous action (id: {{ actionId }}) process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $message, 'actionId' => $actionId],
             $e
+        );
+    }
+
+    public static function installationFailed(string $appName, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INSTALLATION_FAILED,
+            'App installation for "{{ appName }}" failed: {{ reason }}',
+            ['appName' => $appName, 'reason' => $reason],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function createFromXmlFileFlowError(string $xmlFile, string $message, ?\Throwable $previous = null): self|AppFlowException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new AppFlowException($xmlFile, $message);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::XML_PARSE_ERROR,
+            'Unable to parse file "{{ file }}". Message: {{ message }}',
+            ['file' => $xmlFile, 'message' => $message],
+            $previous
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function xmlParsingException(string $file, string $message): self|XmlParsingException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new XmlParsingException($file, $message);
+        }
+
+        return new AppXmlParsingException($file, $message);
+    }
+
+    public static function missingRequestParameter(string $parameterName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $parameterName]
         );
     }
 }

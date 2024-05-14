@@ -1,3 +1,772 @@
+# 6.5.8.0
+## Cache rework preparation
+With 6.6 we are marking a lot of HTTP Cache and Reverse Proxy classes as @internal and move them to the core. 
+We are preparing a bigger cache rework in the next releases. The cache rework will be done within the v6.6 version lane and and will be released with 6.7.0 major version. 
+The cache rework will be a breaking change and will be announced in the changelog of 6.7.0. We will provide a migration guide for the cache rework, so that you can prepare your project for the cache rework.
+
+You can find more details about the cache rework in the [shopware/shopware discussions](https://github.com/shopware/shopware/discussions/3299)
+
+Since the cache is a critical component for systems, we have taken the liberty of marking almost all classes as @internal for the time being. However, we have left the important events and interfaces public so that you can prepare your systems for the changes now.
+Even though there were a lot of deprecations in this release, 99% of them involved moving the classes to the core domain.
+
+But there is one big change that affects each project and nearly all repositories outside which are using phpstan. 
+
+### Kernel bootstrapping
+We had to refactor the Kernel bootstrapping and the Kernel itself. 
+When you forked our production template, or you boot the kernel somewhere by your own, you have to change the bootstrapping as follows:
+
+```php
+
+#### Before #####
+
+$kernel = new Kernel(
+    environment: $appEnv, 
+    debug: $debug, 
+    pluginLoader: $pluginLoader
+);
+
+#### After #####
+
+$kernel = KernelFactory::create(
+    environment: $appEnv,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+
+
+### In case of static code analysis
+
+KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
+/** @var StaticAnalyzeKernel $kernel */
+$kernel = KernelFactory::create(
+    environment: 'phpstan',
+    debug: true,
+    classLoader: $this->getClassLoader(),
+    pluginLoader: $pluginLoader
+);
+
+```
+
+### Session access in phpunit tests
+The way how you can access the session in unit test has changed.
+The session is no more accessible via the request/response.
+You have to use the `session.factory` service to access it or use the `SessionTestBehaviour` for a shortcut
+
+```php
+##### Before
+
+$this->request(....);
+
+$session = $this->getBrowser()->getRequest()->getSession();
+
+##### After
+
+use SessionTestBehaviour;
+
+$this->request(....);
+
+// shortcut via trait 
+$this->getSession();
+
+// code behind the shortcut
+$this->getContainer()->get('session.factory')->getSession();
+
+```
+
+### Manipulate the http cache
+Since we are moving the cache to the core, you have to change the way you can manipulate the http cache. 
+
+1) If you decorated or replaced the `src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php`, this will be no more possible in the upcoming release. You should use the http cache events
+2) You used one of the http cache events --> They will be moved to the core, so you have to adapt the namespace+name of the event class. The signature is also not 100% the same, so please check the new event classes (public properties, etc.)
+
+```php
+
+#### Before
+
+<?php
+
+namespace Foo;
+
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheGenerateKeyEvent::class => 'onKey',
+            HttpCacheItemWrittenEvent::class => 'onWrite',
+        ];
+    }
+}
+
+#### After
+<?php
+
+namespace Foo;
+
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheKeyEvent::class => 'onKey',
+            HttpCacheStoreEvent::class => 'onWrite',
+        ];
+    }
+}
+
+
+
+```
+
+### Own reverse proxy gateway
+If you implement an own reverse proxy gateway, you have to change the namespace of the gateway and the event.
+
+```php
+#### Before
+
+class RedisReverseProxyGateway extends \Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+
+
+#### After
+
+class RedisReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+```
+
+### Http cache warmer
+
+We deprecated all Http cache warmer, because they will be not usable with the new http kernel anymore. 
+They are also not suitable for the new cache rework or for systems which have a reverse proxy or a load balancer in front of the shopware system.
+Therefore, we marked them as deprecated and will remove them in the next major version.
+You should use instead a real website crawler to warmup your desired sites, which is much more suitable and realistic for your system.
+
+If you are relying on the `sales_channel.analytics` association, please associate the definition directly with the criteria because we will remove autoload from version 6.6.0.0.
+
+# 6.5.7.0
+## New context state scoping feature
+You can now simply adding a context state temporarily for an internal process without saving the previous scope and restore it:
+
+```php
+<?php
+
+namespace Examples;
+
+use Shopware\Core\Framework\Context;
+
+class Before
+{
+    public function foo(Context $context) 
+    {
+        $before = $context->getStates();
+
+        $context->addState('state-1', 'state-2');
+                
+        // do some stuff or call some services which changed the scope
+
+        $context->removeState('state-1');
+        
+        $context->removeState('state-2');
+    }
+}
+
+class After
+{
+    public function foo(Context $context) 
+    {
+        $context->state(function (Context $context) {
+            // do some stuff or call some services which changed the scope
+        }, 'state-1', 'state-2');
+    }
+}
+```
+
+## Stored media path
+Within the v6.5 lane, the media path handling changed in a way, where we store the path in the database instead of generating it always on-demand. 
+They will be generated, when the media is uploaded. The path can also be provided via api to handle external file uploads.
+
+We also removed the dependency to the entity layer and allow much faster and simpler access to the media path via location structs and a new url generator.
+Due to this change, the usage of the `UrlGeneratorInterface` changed. The generator is deprecated and will be removed with v6.6.0. We implemented a new generator `MediaUrlGenerator` which can be used instead.
+
+### Generating a media or thumbnail url
+
+```php
+<?php 
+
+namespace Examples;
+
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;use Shopware\Core\Content\Media\Core\Params\UrlParams;use Shopware\Core\Content\Media\MediaCollection;use Shopware\Core\Content\Media\MediaEntity;use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+
+class BeforeChange
+{
+    private UrlGeneratorInterface $urlGenerator;
+    
+    public function foo(MediaEntity $media) 
+    {
+        $relative = $this->urlGenerator->getRelativeMediaUrl($media);
+        
+        $absolute = $this->urlGenerator->getAbsoluteMediaUrl($media);
+    }
+    
+    public function bar(MediaThumbnailEntity $thumbnail) 
+    {
+        $relative = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail);
+        
+        $absolute = $this->urlGenerator->getAbsoluteThumbnailUrl($thumbnail);
+    }
+}
+
+class AfterChange
+{
+    private AbstractMediaUrlGenerator $generator;
+    
+    public function foo(MediaEntity $media) 
+    {
+        $relative = $media->getPath();
+
+        $urls = $this->generator->generate([UrlParams::fromMedia($media)]);
+        
+        $absolute = $urls[0];
+    }
+    
+    public function bar(MediaThumbnailEntity $thumbnail) 
+    {
+        // relative is directly stored at the entity
+        $relative = $thumbnail->getPath();
+
+        // path generation is no more entity related, you could also use partial entity loading and you can also call it in batch, see below
+        $urls = $this->generator->generate([UrlParams::fromMedia($media)]);
+        
+        $absolute = $urls[0];
+    }
+    
+    public function batch(MediaCollection $collection) 
+    {
+        $params = [];
+        
+        foreach ($collection as $media) {
+            $params[$media->getId()] = UrlParams::fromMedia($media);
+            
+            foreach ($media->getThumbnails() as $thumbnail) {
+                $params[$thumbnail->getId()] = UrlParams::fromThumbnail($thumbnail);
+            }
+        }
+        
+        $urls = $this->generator->generate($paths);
+
+        // urls is a flat list with {id} => {url} for media and also for thumbnails        
+    }
+}
+
+class ForwardCompatible
+{
+    // to have it forward compatible, you can use the Feature::isActive('v6.6.0.0') function
+    public function foo(MediaEntity $entity) 
+    {
+        // we provide an entity loaded subscriber, which assigns the url of
+        // the UrlGeneratorInterface::getRelativeMediaUrl to the path property till 6.6
+        // so that you always have the relative url in the MediaEntity::path proprerty 
+        $path = $entity->getPath();
+        
+        if (Feature::isActive('v6.6.0.0')) {
+            // new generator call
+        } else {
+            // old generator call
+        }
+    }
+}
+```
+
+### Path strategies
+Beside the url generator change, we also had to change the media path strategy. The strategies are no longer working with a `MediaEntity`. They are now working with a `MediaFile` object. This object is a simple struct, which contains the path and the updated at timestamp. The path is the same as the one stored in the database. The updated at timestamp is the timestamp, when the path was generated. This is important for the cache invalidation. The `MediaFile` object is also used for the thumbnail generation. The thumbnail generation is now also working with a `MediaLocation` object instead.
+
+As foundation, we use `\Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy` as base class and dependency injection service id:
+
+```php
+<?php
+
+namespace Examples;
+
+class Before extends AbstractPathNameStrategy
+{
+    public function getName(): string
+    {
+        return 'filename';
+    }
+
+    public function generatePathHash(MediaEntity $media, ?MediaThumbnailEntity $thumbnail = null): ?string
+    {
+        return $this->generateMd5Path($media->getFileName());
+    }
+}
+
+
+class After extends AbstractMediaPathStrategy
+{
+    public function name(): string
+    {
+        return 'file_name';
+    }
+
+    protected function value(MediaLocationStruct|ThumbnailLocationStruct $location): ?string
+    {
+        return $location instanceof ThumbnailLocationStruct ? $location->media->fileName : $location->fileName;
+    }
+
+    protected function blacklist(): array
+    {
+        return ['ad' => 'g0'];
+    }
+}
+```
+
+It is no more necessary to call the path hashing by your own. All cache busting and other logic is done in the abstract implementation. The functions are now seperated and can be reused in your implementation.
+The path is generated by 4 segments:
+
+```php
+$paths[$location->id] = implode('/', \array_filter([
+    $type,
+    $this->md5($this->value($location)),
+    $this->cacheBuster($location),
+    $this->physicalFilename($location),
+]));
+```
+
+### Entity dependency
+If you want, you can overwrite all of this parts by your own. The strategies are now using `MediaLocationStruct`s or `ThumbnailLocationStruct`s. 
+These structs are simple structs, which contains the necessary information to generate the path. We also provide a builder class to simply generate this classes based on entity identifiers:
+
+```php
+<?php
+
+namespace Examples;
+
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
+
+class Consumer
+{
+    private MediaLocationBuilder $builder;
+    private AbstractMediaPathStrategy $strategy;
+    
+    public function foo(array $mediaIds)
+    {
+        $locations = $this->builder->buildLocations($mediaIds);
+        
+        $paths = $this->strategy->generate($locations);        
+    }
+}
+```
+
+If you implement your own strategy, and you require more data, you can add an event listener for the `MediaLocationEvent` or `ThumbnailLocationEvent` which allows data manipulation for the provided structs.
+## Async theme compilation (@experimental)
+
+It is now possible to trigger the compilation of the storefront css and js via the message queue instead of directly 
+inside the call that changes the theme or activates/deactivates an extension.
+
+You can change the compilation type with the system_config key `core.storefrontSettings.asyncThemeCompilation` in the 
+administration (`settings -> system -> storefront`)
+## Add shipping and payment method technical names
+The technical name is only required in the Administration for now, but will be required in the API as well in the future (v6.7.0.0). 
+It is used to identify the payment and shipping method in the API and in the administration.
+
+To prevent issues with the upgrade to v6.7.0.0, please make sure to add a technical name to all payment and shipping methods:
+
+**Merchants** should add a technical name to all custom created payment and shipping methods in the administration.
+
+**Plugin developers** should add a technical name to all payment and shipping methods during plugin installation / update.
+
+**App developers** do not need to do anything, as the technical name is automatically generated based on the app name and the payment or shipping method identifier given in the `manifest.xml`.
+This includes existing app installations.
+## Use new key inside app CMS elements
+change in app iFrame this
+```js
+data.subscribe(
+    'your-cms-element-name__config-element',
+    yourCallback,
+{ selectors: yourSelectors });
+```
+to
+```js
+const elementId = new URLSearchParams(window.location.search).get('elementId');
+
+data.subscribe(
+    // add elementId to data key for identifying the correct element config
+    'your-cms-element-name__config-element' + '__' + elementId,
+    yourCallback,
+{ selectors: yourSelectors });
+```
+## Transport can be overridden on message level
+If you explicitly configure a message to be transported via the `async` (default) queue, even though it implements the `LowPriorityMessageInterface` which would usually be transported via the `low_priority` queue, the transport is overridden for this specific message.
+
+Example:
+```php
+<?php declare(strict_types=1);
+
+namespace Your\Custom;
+
+class LowPriorityMessage implements LowPriorityMessageInterface
+{
+}
+```
+
+```yaml
+framework:
+    messenger:
+        routing:
+            'Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface': low_priority
+            'Your\Custom\LowPriorityMessage': async
+```
+
+## Configure another transport for the "low priority" queue
+The transport defaults to use Doctrine. You can use the `MESSENGER_TRANSPORT_LOW_PRIORITY_DSN` environment variable to change it.
+
+Before:
+```yaml
+parameters:
+    messenger.default_transport_name: 'v65'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+```
+
+After:
+```yaml
+parameters:
+    messenger.default_transport_name: 'v65'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+    env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
+```
+
+For further details on transports with different priorities, please refer to the Symfony Docs: https://symfony.com/doc/current/messenger.html#prioritized-transports
+
+## Lower the priority for async messages
+You might consider using the new `low_priority` queue if you are dispatching messages that do not need to be handled immediately.
+To configure specific messages to be transported via the `low_priority` queue, you need to either adjust the routing or implement the `LowPriorityMessageInterface`:
+
+```yaml
+framework:
+    messenger:
+        routing:
+            'Your\Custom\Message': low_priority
+```
+
+or
+
+```php
+<?php declare(strict_types=1);
+
+namespace Your\Custom;
+
+class Message implements LowPriorityMessageInterface
+{
+}
+```
+## LineItem payload replacement behavior
+
+The method `\Shopware\Core\Checkout\Cart\LineItem\LineItem::replacePayload` does not do a recursive replacement of the payload anymore, but replaces the payload only on a first level.
+
+Therefore, subarrays of the payload may reduce in items instead of being only added to.
+
+# 6.5.6.0
+## Cluster setup configuration
+
+There is a new configuration option `shopware.deployment.cluster_setup` which is set to `false` by default. If you are using a cluster setup, you need to set this option to `true` in your `config/packages/shopware.yaml` file.
+## Deprecation of CacheInvalidatorStorage
+
+We deprecated the default delayed cache invalidation storage, as it is not ideal for multi-server usage.
+Make sure you switch until 6.6 to the new RedisInvalidatorStorage.
+
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay_options:
+                storage: cache
+                dsn: 'redis://localhost'
+```
+
+# 6.5.5.0
+Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
+
+It is disabled by default, but you can opt in to the new system by enabling the `STOCK_HANDLING` feature flag.
+
+When you opt in and Shopware is your main source of truth for stock values, you might want to migrate the available_stock field to the `stock` field so that the `stock` value takes into account open orders.
+
+You can use the following SQL:
+
+```sql
+UPDATE product SET stock = available_stock WHERE stock != available_stock
+```
+
+Bear in mind that this query might take a long time, so you could do it in a loop with a limit. See `\Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock` for inspiration.
+
+## If you have decorated `StockUpdater::update`
+
+If you have previously decorated `\Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater` you must refactor your code. Depending on what you want to accomplish you have two options:
+
+* You have the possibility to decorate the `\Shopware\Core\Content\Product\Stock\AbstractStockStorage::alter` method. This method is called by `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` as orders are created and transitioned through the various states. By decorating you can persist the stock deltas to a different storage. For example, an API.
+* You can disable `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` entirely with the `stock.enable_stock_management` configuration setting, and implement your own subscriber to listen to order events. You can use Shopware's stock storage `\Shopware\Core\Content\Product\Stock\AbstractStockStorage`, or implement your own entirely.
+
+## Decorating `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader::load()` && `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::load()`
+
+If you decorated `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::load()` you should instead decorate `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader::loadCombinations()`. The method does the same, but the signature is slightly modified.
+
+If you extended `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader`, you should implement the new `loadCombinations` instead of `load` method.
+
+Before:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
+use Shopware\Core\Framework\Context;
+
+class AvailableCombinationLoaderDecorator extends AbstractAvailableCombinationLoader
+{
+    public function load(string $productId, Context $context, string $salesChannelId): AvailableCombinationResult
+    {
+    
+    }
+}
+```
+
+After:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class AvailableCombinationLoaderDecorator extends AbstractAvailableCombinationLoader
+{
+    public function loadCombinations(string $productId, SalesChannelContext $salesChannelContext): AvailableCombinationResult
+    {
+        $context = $salesChannelContext->getContext();
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
+    }
+}
+```
+
+Similarly, if you consume `\Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader` then you will need to adjust your code, to pass in `\Shopware\Core\System\SalesChannel\SalesChannelContext`.
+
+Before:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class SomeService
+{
+     public function __construct(private AbstractAvailableCombinationLoader $availableCombinationLoader)
+     {}
+     
+     public function __invoke(SalesChannelContext $salesChannelContext): void
+     {
+        $this->availableCombinationLoader->load('some-product-id', $salesChannelContext->getContext(), $salesChannelContext->getSalesChannelId());
+     }
+}
+```
+
+After:
+
+```php
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class SomeService
+{
+     public function __construct(private AbstractAvailableCombinationLoader $availableCombinationLoader)
+     {}
+     
+     public function __invoke(SalesChannelContext $salesChannelContext): void
+     {
+        $this->availableCombinationLoader->loadCombinations('some-product-id', $salesChannelContext);
+     }
+}
+```
+
+## Loading stock information from a different source
+
+If Shopware is not the source of truth for your stock data, you can decorate `\Shopware\Core\Content\Product\Stock\AbstractStockStorage` and implement the `load` method. When products are loaded in Shopware the `load` method will be invoked with the loaded product ID's. You can return a collection of `\Shopware\Core\Content\Product\Stock\StockData` objects, each representing a products stock level and configuration. This data will be merged with the Shopware stock levels and configuration from the product. Any data specified will override the product's data.
+
+For example, you can use an API to fetch the stock data:
+
+```php
+//<plugin root>/src/Service/StockStorageDecorator.php
+<?php
+
+namespace Swag\Example\Service;
+
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
+use Shopware\Core\Content\Product\Stock\StockData;
+use Shopware\Core\Content\Product\Stock\StockDataCollection;
+use Shopware\Core\Content\Product\Stock\StockLoadRequest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class StockStorageDecorator extends AbstractStockStorage
+{
+    public function __construct(private AbstractStockStorage $decorated)
+    {
+    }
+
+    public function getDecorated(): AbstractStockStorage
+    {
+        return $this->decorated;
+    }
+
+    public function load(StockLoadRequest $stockRequest, SalesChannelContext $context): StockDataCollection
+    {
+        $productsIds = $stockRequest->productIds;
+
+        //use $productIds to make an API request to get stock data
+        //$result would come from the api response
+        $result = ['product-1' => 5, 'product-2' => 10];
+
+        return new StockDataCollection(
+            array_map(function (string $productId, int $stock) {
+                return new StockData($productId, $stock, true);
+            }, array_keys($result), $result)
+        );
+    }
+
+    public function alter(array $changes, Context $context): void
+    {
+        $this->decorated->alter($changes, $context);
+    }
+
+    public function index(array $productIds, Context $context): void
+    {
+        $this->decorated->index($productIds, $context);
+    }
+}
+```
+
+```xml
+<!--<plugin root>/src/Resources/config/services.xml-->
+<services>
+    <service id="Swag\Example\Service\StockStorageDecorator" decorates="Shopware\Core\Content\Product\Stock\StockStorage">
+        <argument type="service" id="Swag\Example\Service\StockStorageDecorator.inner" />
+    </service>
+
+</services>
+```
+
+## Reading and writing the current stock level
+
+The `product.stock` field is now a realtime representation of the product stock. When writing new extensions which need to query the stock of a product, use this field. Not the `product.availableStock` field.
+
+Before:
+
+```php
+/** \Shopware\Core\Content\Product\ProductEntity $product */
+$stock = $product->getAvailableStock();
+```
+
+After:
+
+```php
+/** \Shopware\Core\Content\Product\ProductEntity $product */
+$stock = $product->getStock();
+```
+
+## Writing the current stock level
+
+If you write to the `product.availableStock` field, you should instead write to the `product.stock` field. However, there are no plans to remove the `product.availableStock` field.
+
+Before:
+
+```php
+
+$this->productRepository->update(
+    [
+        [
+            'id' => $productId,
+            'availableStock' => $newStockValue
+        ]
+    ],
+    $context
+);
+```
+
+After:
+
+```php
+
+$this->productRepository->update(
+    [
+        [
+            'id' => $productId,
+            'stock' => $newStockValue
+        ]
+    ],
+    $context
+);
+```
+
+## Disabling Shopware's stock management system
+
+You can disable `\Shopware\Core\Content\Product\Stock\OrderStockSubscriber` entirely with the `stock.enable_stock_management` configuration setting.
+
+## Implementing your own stock storage
+
+Similar to the example above "Loading stock information from a different source" you can update a different database table or service, or implement custom inventory systems such as multi warehouse by decorating the `alter` method. 
+This method is triggered with an array of `StockAlteration`'s. Which contain the Product & Line Item ID's, the old quantity and the new quantity. 
+
+This method is triggered whenever an order is created or transitioned through the various states.
+
+## Listening to entity delete events
+
+The `BeforeDeleteEvent` has been renamed to `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent`. Please update your usages:
+
+Before:
+
+```php
+/**
+ * @return array<string, string>
+ */
+public static function getSubscribedEvents(): array
+{
+    return [
+        \Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent::class => 'onBeforeDelete',
+    ];
+}
+```
+
+After:
+
+```php
+/**
+ * @return array<string, string>
+ */
+public static function getSubscribedEvents(): array
+{
+    return [
+        \Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent::class => 'onBeforeDelete',
+    ];
+}
+```
+The upcoming release includes a crucial breaking change aimed at resolving a major issue in how repository data is handled for the Admin Extension SDK. This change will be introduced in the next minor version.
+
+The change only affects your app if you are utilizing properties within the context. With this modification, an empty context object will be returned within your Entity. You will receive a custom context object containing your specific context changes only when you also send a custom context object to the admin.
+
+The final context will be merged with the default context in the administration. This allows you to use the default context to access all the necessary data.
+
 # 6.5.4.0
 * Update your thumbnails by running command: `media:generate-thumbnails`
 ## Generic type template for EntityRepository
@@ -173,47 +942,7 @@ If you are relying on the association `import_export_log.file`, please associate
 * Renamed error code from `FRAMEWORK__STORE_CANNOT_DOWNLOAD_PLUGIN_MANAGED_BY_SHOPWARE` to `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED`
 
 # 6.5.1.0
-## Changes to data-attribute selector names
 
-We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
-When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
-
-## HTML/Twig example
-
-### Before
-
-```twig
-<div 
-    data-offcanvas-menu="true" {# <<< Did not match options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-### After
-
-```twig
-<div 
-    data-off-canvas-menu="true" {# <<< Now matches options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-_The options attribute is automatically generated using the camelCase JavaScript plugin name._
-
-## Full list of selectors
-
-| old                             | new                              |
-|:--------------------------------|:---------------------------------|
-| `data-search-form`              | `data-search-widget`             |
-| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
-| `data-collapse-footer`          | `data-collapse-footer-columns`   |
-| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
-| `data-offcanvas-account-menu`   | `data-account-menu`              |
-| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
-| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
-| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
 If you are relying on these associations:
  `order.stateMachineState`
  `order_transaction.stateMachineState`
@@ -480,6 +1209,10 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
 ```
 
+## Sync api changes
+We removed the single record behavior in the sync api. This means, that all operations and records are now handled as a collection and validated and written within one transaction.
+The headers `HTTP_Fail-On-Error` and `single-operation` were removed. The `single-operation` header is now always true. 
+
 ## DBAL upgrade
 
 We upgraded DBAL from 2.x to 3.x. Please take a look at the [DBAL upgrade information](https://github.com/doctrine/dbal/blob/3.6.0/UPGRADE.md) itself to see if you need to adjust your code.
@@ -496,7 +1229,7 @@ Since v6.6.0.0, `ContextTokenResponse` class won't return the contextToken value
 ## Changed `HttpCache`, `Entity` and `NoStore` configurations for routes
 
 The Route-level configurations for `HttpCache`, `Entity` and `NoStore` where changed from custom annotations to `@Route` defaults.
-The reasons for those changes are outlined in this [ADR](../../adr/api/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
+The reasons for those changes are outlined in this [ADR](/adr/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
 Now we also change the handling for the last three annotations to be consistent and to allow the removal of the abandoned `sensio/framework-extra-bundle`.
 
 This means the `@HttpCache`, `@Entity`, `@NoStore` annotations are deprecated and have no effect anymore, the configuration no needs to be done as `defaults` in the `@Route` annotation.
@@ -1278,7 +2011,7 @@ This was needed to be able to link the asset in the Storefront as the theme asse
 To improve the performance of `theme:compile` and to reduce the confusion of the usage of assets we copy the files only to `theme/[id]`.
 
 To use the updated asset package,
-replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme'') }}`
+replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme') }}`
 
 ## Moved and changed the `ThemeCompilerEnrichScssVariablesEvent`
 We moved the event `ThemeCompilerEnrichScssVariablesEvent` from `\Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to `\Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent`.
@@ -1422,7 +2155,7 @@ Additionally, the default implementation for `\Shopware\Storefront\Theme\Abstrac
 Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
 The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.

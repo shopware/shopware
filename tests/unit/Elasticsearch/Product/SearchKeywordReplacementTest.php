@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
@@ -10,9 +11,8 @@ use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\SearchKeywordReplacement
  */
+#[CoversClass(SearchKeywordReplacement::class)]
 class SearchKeywordReplacementTest extends TestCase
 {
     public function testSearchKeywordReplacement(): void

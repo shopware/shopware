@@ -4,12 +4,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +44,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
         if (!$fkField) {
-            throw new \RuntimeException(sprintf('Can not find fk field for accessor %s.%s', $reference->getEntityName(), $field->getReferenceField()));
+            throw DataAbstractionLayerException::fkFieldByStorageNameNotFound($reference::class, $field->getReferenceField());
         }
 
         // allows to reset the association for a none cascade delete
@@ -55,7 +53,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         foreach ($value as $keyValue => $subresources) {
             $currentId = $id;
             if (!\is_array($subresources)) {
-                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+                throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $key);
             }
 
             if (\array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
@@ -101,7 +99,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($value)) {
-            throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
+            throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $data->getKey());
         }
 
         $this->map($field, $parameters, $data);
@@ -111,7 +109,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 
     public function decode(Field $field, mixed $value): never
     {
-        throw new DecodeByHydratorException($field);
+        throw DataAbstractionLayerException::decodeHandledByHydrator($field);
     }
 
     private function map(OneToManyAssociationField $field, WriteParameterBag $parameters, KeyValuePair $data): void

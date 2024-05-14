@@ -3,20 +3,21 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[CoversClass(ReferenceInvoiceLoader::class)]
 class ReferenceInvoiceLoaderTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -26,9 +27,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
     }
 
-    /**
-     * @dataProvider invoicesDataProvider
-     */
+    #[DataProvider('invoicesDataProvider')]
     public function testInvoiceLoader(string $orderVersionId, string $versionId, \Closure $expectsClosure): void
     {
         $orderId = Uuid::randomHex();

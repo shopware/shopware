@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1599134496FixImportExportProfilesForGermanLanguage extends MigrationStep
@@ -94,7 +96,7 @@ SQL;
 
     /**
      * @param array<string, mixed> $englishRow
-     * @param list<array<string, mixed>> $germanData
+     * @param array<array<string, mixed>> $germanData
      */
     private function checkIfInGermanData(array $englishRow, array $germanData): bool
     {

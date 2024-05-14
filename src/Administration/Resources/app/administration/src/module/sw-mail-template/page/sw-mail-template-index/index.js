@@ -3,6 +3,9 @@ import './sw-mail-template-index.scss';
 
 const { Mixin } = Shopware;
 
+/**
+ * @package buyers-experience
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

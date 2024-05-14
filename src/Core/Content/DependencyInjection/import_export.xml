@@ -237,6 +237,7 @@
         <service id="Shopware\Core\Content\ImportExport\Message\ImportExportHandler" public="true">
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="messenger.message_handler" />
         </service>
 
@@ -306,6 +307,7 @@
 
         <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
             <tag name="messenger.message_handler"/>
         </service>

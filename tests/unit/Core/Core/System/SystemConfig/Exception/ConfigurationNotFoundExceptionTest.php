@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Core\System\SystemConfig\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException
  */
+#[CoversClass(ConfigurationNotFoundException::class)]
 class ConfigurationNotFoundExceptionTest extends TestCase
 {
     public function testCreation(): void

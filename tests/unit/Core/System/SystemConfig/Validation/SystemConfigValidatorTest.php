@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -16,19 +18,19 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator
  */
+#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     /**
-     * @dataProvider dataProviderTestValidateSuccess
-     *
      * @param array<string, mixed> $inputValues
      * @param array<string, mixed> $formConfigs
      */
+    #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
     {
+        $exceptionThrown = false;
+
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $configurationServiceMock->method('getConfiguration')
             ->willReturn($formConfigs);
@@ -39,17 +41,20 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $systemConfigValidation->validate($inputValues, $contextMock);
+        try {
+            $systemConfigValidation->validate($inputValues, $contextMock);
+        } catch (ConstraintViolationException $exception) {
+            $exceptionThrown = true;
+        }
 
-        static::assertTrue(true);
+        static::assertFalse($exceptionThrown);
     }
 
     /**
-     * @dataProvider dataProviderTestValidateFailure
-     *
      * @param array<string, mixed> $inputValues
      * @param array<string, mixed> $formConfigs
      */
+    #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -72,12 +77,14 @@ class SystemConfigValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestValidateSuccess
-     *
      * @param array<string, mixed> $inputValues
+     * @param array<string, mixed> $formConfigs
      */
-    public function testValidateWithEmptyConfig(array $inputValues): void
+    #[DataProvider('dataProviderTestValidateSuccess')]
+    public function testValidateWithEmptyConfig(array $inputValues, array $formConfigs): void
     {
+        $exceptionThrown = false;
+
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $configurationServiceMock->method('getConfiguration')
             ->willReturn([]);
@@ -88,9 +95,13 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $systemConfigValidation->validate($inputValues, $contextMock);
+        try {
+            $systemConfigValidation->validate($inputValues, $contextMock);
+        } catch (ConstraintViolationException $exception) {
+            $exceptionThrown = true;
+        }
 
-        static::assertTrue(true);
+        static::assertFalse($exceptionThrown);
     }
 
     public function testGetSystemConfigByDomainEmptyDomain(): void
@@ -129,11 +140,10 @@ class SystemConfigValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestGetRuleByKey
-     *
      * @param array<string, mixed> $elementConfig
      * @param array<int, mixed> $expected
      */
+    #[DataProvider('dataProviderTestGetRuleByKey')]
     public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -189,12 +199,12 @@ class SystemConfigValidatorTest extends TestCase
     public static function dataProviderTestValidateSuccess(): \Generator
     {
         yield 'Validate success with required rule' => [
-            'input values' => [
+            'inputValues' => [
                 'null' => [
                     'Dummy Key' => 'Dummy Value',
                 ],
             ],
-            'form configs' => [
+            'formConfigs' => [
                 [
                     'elements' => [
                         [
@@ -210,12 +220,12 @@ class SystemConfigValidatorTest extends TestCase
         ];
 
         yield 'Validate success without required rule' => [
-            'input values' => [
+            'inputValues' => [
                 'null' => [
                     'core.basicInformation.dummyKey' => 'Dummy Value',
                 ],
             ],
-            'form configs' => [
+            'formConfigs' => [
                 [
                     'elements' => [
                         [
@@ -228,12 +238,12 @@ class SystemConfigValidatorTest extends TestCase
         ];
 
         yield 'Validate success with missing field on form input' => [
-            'input values' => [
+            'inputValues' => [
                 'null' => [
                     'core.basicInformation.fieldNotFound' => 'Dummy Value',
                 ],
             ],
-            'form configs' => [
+            'formConfigs' => [
                 [
                     'elements' => [
                         [
@@ -259,12 +269,12 @@ class SystemConfigValidatorTest extends TestCase
     public static function dataProviderTestValidateFailure(): \Generator
     {
         yield 'Validate failure with required rule' => [
-            'input values' => [
+            'inputValues' => [
                 'null' => [
                     'core.basicInformation.dummyField' => null,
                 ],
             ],
-            'form configs' => [
+            'formConfigs' => [
                 [
                     'elements' => [
                         [

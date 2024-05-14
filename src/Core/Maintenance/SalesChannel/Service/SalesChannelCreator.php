@@ -51,9 +51,9 @@ class SalesChannelCreator
 
         $languageId ??= Defaults::LANGUAGE_SYSTEM;
         $currencyId ??= Defaults::CURRENCY;
-        $paymentMethodId ??= $this->getFirstActivePaymentMethodId();
-        $shippingMethodId ??= $this->getFirstActiveShippingMethodId();
-        $countryId ??= $this->getFirstActiveCountryId();
+        $paymentMethodId ??= $this->getFirstActivePaymentMethodId($context);
+        $shippingMethodId ??= $this->getFirstActiveShippingMethodId($context);
+        $countryId ??= $this->getFirstActiveCountryId($context);
 
         $currencies = $this->formatToMany($currencies, $currencyId, 'currency', $context);
         $languages = $this->formatToMany($languages, $languageId, 'language', $context);
@@ -73,8 +73,8 @@ class SalesChannelCreator
             'paymentMethodId' => $paymentMethodId,
             'shippingMethodId' => $shippingMethodId,
             'countryId' => $countryId,
-            'customerGroupId' => $customerGroupId ?? $this->getCustomerGroupId(),
-            'navigationCategoryId' => $navigationCategoryId ?? $this->getRootCategoryId(),
+            'customerGroupId' => $customerGroupId ?? $this->getCustomerGroupId($context),
+            'navigationCategoryId' => $navigationCategoryId ?? $this->getRootCategoryId($context),
 
             // available mappings
             'currencies' => $currencies,
@@ -86,24 +86,24 @@ class SalesChannelCreator
 
         $data = array_replace_recursive($data, $overwrites);
 
-        $this->salesChannelRepository->create([$data], Context::createDefaultContext());
+        $this->salesChannelRepository->create([$data], $context);
 
         return $data['accessKey'];
     }
 
-    private function getFirstActiveShippingMethodId(): string
+    private function getFirstActiveShippingMethodId(Context $context): string
     {
         $criteria = (new Criteria())
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
         /** @var array<string> $ids */
-        $ids = $this->shippingMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $ids = $this->shippingMethodRepository->searchIds($criteria, $context)->getIds();
 
         return $ids[0];
     }
 
-    private function getFirstActivePaymentMethodId(): string
+    private function getFirstActivePaymentMethodId(Context $context): string
     {
         $criteria = (new Criteria())
             ->setLimit(1)
@@ -111,12 +111,12 @@ class SalesChannelCreator
             ->addSorting(new FieldSorting('position'));
 
         /** @var array<string> $ids */
-        $ids = $this->paymentMethodRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $ids = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
         return $ids[0];
     }
 
-    private function getFirstActiveCountryId(): string
+    private function getFirstActiveCountryId(Context $context): string
     {
         $criteria = (new Criteria())
             ->setLimit(1)
@@ -124,12 +124,12 @@ class SalesChannelCreator
             ->addSorting(new FieldSorting('position'));
 
         /** @var array<string> $ids */
-        $ids = $this->countryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $ids = $this->countryRepository->searchIds($criteria, $context)->getIds();
 
         return $ids[0];
     }
 
-    private function getRootCategoryId(): string
+    private function getRootCategoryId(Context $context): string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -137,7 +137,7 @@ class SalesChannelCreator
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
         /** @var array<string> $categories */
-        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $categories = $this->categoryRepository->searchIds($criteria, $context)->getIds();
 
         return $categories[0];
     }
@@ -153,14 +153,14 @@ class SalesChannelCreator
         );
     }
 
-    private function getCustomerGroupId(): string
+    private function getCustomerGroupId(Context $context): string
     {
         $criteria = (new Criteria())
             ->setLimit(1);
 
         $repository = $this->definitionRegistry->getRepository(CustomerGroupDefinition::ENTITY_NAME);
 
-        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $repository->searchIds($criteria, $context)->firstId();
 
         if ($id === null) {
             throw new \RuntimeException('Cannot find a customer group to assign it to the sales channel');

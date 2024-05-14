@@ -3,7 +3,7 @@ import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { State, Utils, Service } = Shopware;
@@ -75,14 +75,14 @@ export default {
                 discountType === DiscountTypes.ABSOLUTE &&
                 Math.abs(totalPrice) < value) {
                 return this.$tc(`${snippet}.absoluteUpto`, 0, {
-                    value: format.currency(Number(value), this.currency.shortName),
-                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.shortName),
+                    value: format.currency(Number(value), this.currency.isoCode),
+                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
                 });
             }
 
             const discountValue = discountType === DiscountTypes.PERCENTAGE
                 ? value
-                : format.currency(Number(value), this.currency.shortName);
+                : format.currency(Number(value), this.currency.isoCode);
 
             return this.$tc(`${snippet}.${discountType}`, 0, { value: discountValue, groupId });
         },

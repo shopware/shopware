@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class BusinessEventEncoder
@@ -151,7 +151,7 @@ class BusinessEventEncoder
      * @param array<string, mixed> $dataType
      * @param Entity|EntityCollection<Entity> $property
      *
-     * @return array<string, mixed>
+     * @return ($property is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
     private function encodeEntity(array $dataType, Entity|EntityCollection $property): array
     {

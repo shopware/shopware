@@ -1,88 +1,34 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_tabs %}
-<div
-    class="sw-tabs"
-    :class="tabClasses"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-tabs component #}
+<template v-if="useMeteorComponent">
+    <mt-tabs
+        v-bind="$attrs"
+        ref="tabComponent"
+        :items="itemsBackwardCompatible"
+        v-on="$listeners"
+        @new-item-active="onNewItemActive"
+    />
+
+    {# Render content slot as fallback #}
+    <slot name="content" v-bind="{ active: activeItem }"></slot>
+</template>
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-tabs-deprecated
+    v-else
+    v-bind="$attrs"
+    ref="tabComponent"
+    v-on="$listeners"
 >
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_tabs_content %}
-    <div
-        ref="swTabContent"
-        class="sw-tabs__content"
-        :style="tabContentStyle"
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_tabs_content_slot %}
-        <slot :active="active"></slot>
-        {% endblock %}
-
-        <sw-tabs-item
-            v-for="tabExtension in tabExtensions"
-            :key="tabExtension.componentSectionId"
-            :name="tabExtension.componentSectionId"
-            :active-tab="active"
-            :route="hasRoutes ? {
-                path: tabExtension.componentSectionId
-            } : ''"
-        >
-            {{ tabExtension.label }}
-        </sw-tabs-item>
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_tabs_slider %}
-        <span
-            class="sw-tabs__slider"
-            :class="sliderClasses"
-            :style="sliderStyle"
-        ></span>
-        {% endblock %}
-    </div>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_tabs_arrow_left %}
-    <button
-        v-if="isScrollable"
-        class="sw-tabs__arrow sw-tabs__arrow--left"
-        :class="arrowClassesLeft"
-        @click="scrollTo('left')"
-    >
-        <sw-icon name="regular-chevron-left-xs" />
-    </button>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_tabs_arrow_right %}
-    <button
-        v-if="isScrollable"
-        class="sw-tabs__arrow sw-tabs__arrow--right"
-        :class="arrowClassesRight"
-        @click="scrollTo('right')"
-    >
-        <sw-icon name="regular-chevron-right-xs" />
-    </button>
-    {% endblock %}
-
-    <div class="sw-tabs__custom-content">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_tabs_custom_content %}
         <slot
-            name="content"
-            :active="active"
-        ></slot>
-        {% endblock %}
-
-        <template v-if="!hasRoutes">
-            <template v-for="tabExtension in tabExtensions">
-                <sw-extension-component-section
-                    v-if="tabExtension.componentSectionId === active"
-                    :key="tabExtension.componentSectionId"
-                    :position-identifier="tabExtension.componentSectionId"
-                />
-            </template>
-        </template>
-    </div>
-
-</div>
-{% endblock %}
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
+    </template>
+</sw-tabs-deprecated>

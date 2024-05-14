@@ -16,8 +16,10 @@ use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\PackageInterface;
 use Symfony\Component\Asset\Packages;
@@ -25,15 +27,15 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
 class InfoController extends AbstractController
 {
     /**
-     * @param array{administration?: string} $cspTemplates
-     *
      * @internal
      */
     public function __construct(
@@ -45,9 +47,9 @@ class InfoController extends AbstractController
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
         private readonly AppUrlVerifier $appUrlVerifier,
-        private readonly ?FlowActionCollector $flowActionCollector = null,
-        private readonly bool $enableUrlFeature = true,
-        private readonly array $cspTemplates = []
+        private readonly RouterInterface $router,
+        private readonly FlowActionCollector $flowActionCollector,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -110,6 +112,9 @@ class InfoController extends AbstractController
     }
 
     #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
+     */
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
@@ -123,7 +128,32 @@ class InfoController extends AbstractController
             ]
         );
 
-        $cspTemplate = $this->cspTemplates['administration'] ?? '';
+        $cspTemplate = $this->params->get('shopware.security.csp_templates')['administration'] ?? '';
+        $cspTemplate = trim($cspTemplate);
+        if ($cspTemplate !== '') {
+            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $response->headers->set('Content-Security-Policy', $csp);
+        }
+
+        return $response;
+    }
+
+    #[Route(path: '/api/_info/stoplightio.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.stoplightio', methods: ['GET'])]
+    public function stoplightIoInfoHtml(Request $request): Response
+    {
+        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
+        $response = $this->render(
+            '@Framework/stoplightio.html.twig',
+            [
+                'schemaUrl' => 'api.info.openapi3',
+                'cspNonce' => $nonce,
+                'apiType' => $apiType,
+            ]
+        );
+
+        $cspTemplate = $this->params->get('shopware.security.csp_templates')['administration'] ?? '';
         $cspTemplate = trim($cspTemplate);
         if ($cspTemplate !== '') {
             $csp = str_replace('%nonce%', $nonce, $cspTemplate);
@@ -148,11 +178,12 @@ class InfoController extends AbstractController
             ],
             'bundles' => $this->getBundles(),
             'settings' => [
-                'enableUrlFeature' => $this->enableUrlFeature,
+                'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
+                'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
             ],
         ]);
     }
@@ -169,13 +200,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/flow-actions.json', name: 'api.info.actions', methods: ['GET'])]
     public function flowActions(Context $context): JsonResponse
     {
-        if (!$this->flowActionCollector) {
-            return $this->json([]);
-        }
-
-        $events = $this->flowActionCollector->collect($context);
-
-        return new JsonResponse($events);
+        return new JsonResponse($this->flowActionCollector->collect($context));
     }
 
     /**
@@ -286,9 +311,18 @@ class InfoController extends AbstractController
             return null;
         }
 
-        $url = 'bundles/' . $bundleDirectoryName . '/' . $defaultEntryFile;
-
-        return $package->getUrl($url);
+        // exception is possible as the administration is an optional dependency
+        try {
+            return $this->router->generate(
+                'administration.plugin.index',
+                [
+                    'pluginName' => \mb_strtolower($bundle->getName()),
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

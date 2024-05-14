@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1591361320ChargebackAndAuthorized extends MigrationStep
@@ -186,7 +188,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
     /**
      * @param list<string> $names
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function getStateIds(Connection $connection, string $machineId, array $names): array
     {

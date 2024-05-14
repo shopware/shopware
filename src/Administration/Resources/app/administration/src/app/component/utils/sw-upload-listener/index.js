@@ -85,7 +85,7 @@ Component.register('sw-upload-listener', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

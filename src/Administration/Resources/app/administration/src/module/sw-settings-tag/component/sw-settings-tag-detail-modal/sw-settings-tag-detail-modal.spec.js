@@ -1,38 +1,39 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsTagDetailModal from 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
-
-Shopware.Component.register('sw-settings-tag-detail-modal', swSettingsTagDetailModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
+    return mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                isNew: () => true,
+                            };
+                        },
 
-    return shallowMount(await Shopware.Component.build('sw-settings-tag-detail-modal'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            isNew: () => true,
-                        };
+                        save: jest.fn(() => Promise.resolve()),
+                    }),
+                },
+                syncService: {
+                    sync: jest.fn(),
+                },
+                acl: {
+                    can: () => {
+                        return true;
                     },
-
-                    save: jest.fn(() => Promise.resolve()),
-                }),
-            },
-            syncService: {
-                sync: jest.fn(),
-            },
-            acl: {
-                can: () => {
-                    return true;
                 },
             },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
+            stubs: {
+                'sw-modal': true,
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
+                'sw-tabs-item': true,
+            },
         },
     });
 }

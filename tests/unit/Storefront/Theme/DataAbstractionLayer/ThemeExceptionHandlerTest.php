@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler
  */
+#[CoversClass(ThemeExceptionHandler::class)]
 class ThemeExceptionHandlerTest extends TestCase
 {
     public function testMatchException(): void

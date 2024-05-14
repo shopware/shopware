@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class AdvancedPackageFilter extends PackageFilter
 {
     final public const APPLIER_ALL = 'ALL';

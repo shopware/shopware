@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
@@ -17,18 +19,15 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator
  */
+#[CoversClass(PercentagePriceCalculator::class)]
 class PercentagePriceCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider grossPriceDataProvider
-     */
+    #[DataProvider('grossPriceDataProvider')]
     public function testCalculatePercentagePriceOfGrossPrices(PercentageCalculation $calculation): void
     {
         $taxCalculator = new TaxCalculator();

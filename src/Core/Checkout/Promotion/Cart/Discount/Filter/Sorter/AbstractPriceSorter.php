@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 abstract class AbstractPriceSorter implements FilterSorterInterface
 {
     public function sort(DiscountPackageCollection $packages): DiscountPackageCollection

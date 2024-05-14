@@ -8,8 +8,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.
  * It also supports hiding columns or scrolling horizontally when many columns are present.
@@ -35,6 +34,7 @@ Component.register('sw-data-grid', {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     props: {
@@ -56,7 +56,6 @@ Component.register('sw-data-grid', {
 
         showSelection: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
@@ -64,7 +63,6 @@ Component.register('sw-data-grid', {
 
         showActions: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
@@ -72,7 +70,6 @@ Component.register('sw-data-grid', {
 
         showHeader: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
@@ -135,7 +132,6 @@ Component.register('sw-data-grid', {
         compactMode: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -149,7 +145,6 @@ Component.register('sw-data-grid', {
         showPreviews: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -303,6 +298,10 @@ Component.register('sw-data-grid', {
 
             const currentVisibleIds = this.records.map(record => record.id);
             return this.selectionCount > 0 && Object.keys(this.selection).some(id => !currentVisibleIds.includes(id));
+        },
+
+        currentVisibleColumns() {
+            return this.currentColumns.filter(column => column.visible);
         },
     },
 
@@ -678,14 +677,17 @@ Component.register('sw-data-grid', {
                 return;
             }
 
-            const selection = this.selection;
-
+            const key = item[this.itemIdentifierProperty];
             if (selected) {
-                this.$set(this.selection, item[this.itemIdentifierProperty], item);
-            } else if (!selected && selection[item[this.itemIdentifierProperty]]) {
-                this.$delete(this.selection, item[this.itemIdentifierProperty]);
+                this.selection = {
+                    ...this.selection,
+                    [key]: item,
+                };
+            } else {
+                this.selection = Object.fromEntries(
+                    Object.entries(this.selection).filter(([selectionKey]) => selectionKey !== key),
+                );
             }
-
             this.$emit('select-item', this.selection, item, selected);
         },
 

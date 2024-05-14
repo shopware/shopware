@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils, State, Service } = Shopware;
@@ -147,6 +147,14 @@ export default {
                 align: 'right',
                 width: '80px',
             }];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 
@@ -300,7 +308,7 @@ export default {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.createBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.currency.shortName),
+                    tax: format.currency(taxItem.tax, this.currency.isoCode),
                 });
             });
 

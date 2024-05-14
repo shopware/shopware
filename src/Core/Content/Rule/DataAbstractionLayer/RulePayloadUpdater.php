@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RulePayloadUpdater implements EventSubscriberInterface
 {
     /**
@@ -41,7 +41,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
      * @return array<string, array{payload: string|null, invalid: bool}>
      */
@@ -54,9 +54,10 @@ class RulePayloadUpdater implements EventSubscriberInterface
             WHERE rc.rule_id IN (:ids)
             ORDER BY rc.rule_id, rc.position',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
+        /** @var array<array<string>> $rules $rules */
         $rules = FetchModeHelper::group($conditions);
 
         $update = new RetryableQuery(
@@ -65,7 +66,6 @@ class RulePayloadUpdater implements EventSubscriberInterface
         );
 
         $updated = [];
-        /** @var string $id */
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
@@ -95,20 +95,21 @@ class RulePayloadUpdater implements EventSubscriberInterface
 
     public function updatePayloads(EntityWrittenEvent $event): void
     {
+        /** @var list<non-empty-string> $ruleIds */
         $ruleIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT rc.rule_id
                 FROM rule_condition rc
                 INNER JOIN app_script_condition rs ON rc.script_id = rs.id
                 WHERE rs.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList(array_values($event->getIds()))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($ruleIds)) {
             return;
         }
 
-        $this->update(Uuid::fromBytesToHexList($ruleIds));
+        $this->update(array_values(Uuid::fromBytesToHexList($ruleIds)));
     }
 
     /**

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1604502151AddThemePreviewMediaConstraint extends MigrationStep
@@ -33,7 +35,7 @@ class Migration1604502151AddThemePreviewMediaConstraint extends MigrationStep
                 'theme_ids' => $themeIdsWithInvalidMediaId,
             ],
             [
-                'theme_ids' => ArrayParameterType::STRING,
+                'theme_ids' => ArrayParameterType::BINARY,
             ]
         );
 

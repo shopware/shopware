@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderService
 {
     final public const CUSTOMER_COMMENT_KEY = 'customerComment';
@@ -95,7 +95,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order', $transition);
         }
 
         return $toPlace;
@@ -155,7 +155,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_delivery', $transition);
         }
 
         return $toPlace;
@@ -163,17 +163,10 @@ class OrderService
 
     public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
     {
-        if ($order->getTransactions() === null) {
+        $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        if (!$state) {
             return true;
         }
-
-        $transaction = $order->getTransactions()->last();
-
-        if ($transaction === null || $transaction->getStateMachineState() === null) {
-            return true;
-        }
-
-        $state = $transaction->getStateMachineState()->getTechnicalName();
 
         if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
             return true;

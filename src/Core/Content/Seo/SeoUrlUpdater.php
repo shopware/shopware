@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
@@ -10,18 +9,24 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlUpdater
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
         private readonly EntityRepository $languageRepository,
@@ -34,137 +39,109 @@ class SeoUrlUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     public function update(string $routeName, array $ids): void
     {
-        $templates = $this->loadTemplates([$routeName]);
+        $templates = $routeName !== '' ? $this->loadUrlTemplate($routeName) : [];
         if (empty($templates)) {
             return;
         }
 
-        $context = Context::createDefaultContext();
-        /** @var list<LanguageEntity> $languages */
-        $languages = $this->languageRepository->search(new Criteria(), $context)->getEntities()->getElements();
-
-        $languageChains = $this->fetchLanguageChains($languages);
-
-        $salesChannels = $this->fetchSalesChannels();
-
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-        if (!$route) {
+        if ($route === null) {
             throw new \RuntimeException(sprintf('Route by name %s not found', $routeName));
         }
 
+        $context = Context::createDefaultContext();
+
+        $languageChains = $this->fetchLanguageChains($context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
+
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
+
         foreach ($templates as $config) {
-            $salesChannelId = $config['salesChannelId'];
-            $languageId = $config['languageId'];
-            $template = $config['template'] ?? '';
-
-            if ($template === '') {
+            $template = $config['template'];
+            $salesChannel = $salesChannels->get($config['salesChannelId']);
+            if ($template === '' || $salesChannel === null) {
                 continue;
             }
 
-            $chain = $languageChains[$languageId];
-            $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-            $context->setConsiderInheritance(true);
-
-            $salesChannel = $salesChannels->get($salesChannelId);
-
-            if ($salesChannel === null) {
-                continue;
-            }
+            $chain = $languageChains[$config['languageId']];
+            $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+            $languageContext->setConsiderInheritance(true);
 
             // generate new seo urls
-            $urls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
+            $urls = $this->seoUrlGenerator->generate($ids, $template, $route, $languageContext, $salesChannel);
 
             // persist seo urls to storage
-            $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids, $urls, $salesChannel);
+            $this->seoUrlPersister->updateSeoUrls($languageContext, $routeName, $ids, $urls, $salesChannel);
         }
     }
 
     /**
-     * @param list<string> $routes
+     * Loads the SEO url templates for the given $routeName for all combinations of languages and sales channels
      *
-     * @return list<array{salesChannelId: string, languageId: string, route: string, template: string|null}>
+     * @param non-empty-string $routeName
+     *
+     * @return list<array{salesChannelId: string, languageId: string, template: string}>
      */
-    private function loadTemplates(array $routes): array
+    private function loadUrlTemplate(string $routeName): array
     {
-        $domains = $this->connection->fetchAllAssociative(
-            'SELECT DISTINCT
+        $query = 'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
                LOWER(HEX(domains.language_id)) as languageId
              FROM sales_channel_domain as domains
              INNER JOIN sales_channel
                ON domains.sales_channel_id = sales_channel.id
-               AND sales_channel.active = 1'
-        );
+               AND sales_channel.active = 1';
+        $parameters = [];
 
-        if ($routes === [] || $domains === []) {
+        $query .= ' AND sales_channel.type_id != :apiTypeId';
+        $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
+
+        $domains = $this->connection->fetchAllAssociative($query, $parameters);
+
+        if ($domains === []) {
             return [];
         }
 
-        $modified = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, route_name, template
+        $salesChannelTemplates = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, template
              FROM seo_url_template
-             WHERE route_name IN (:routes)',
-            ['routes' => $routes],
-            ['routes' => ArrayParameterType::STRING]
+             WHERE route_name LIKE :route',
+            ['route' => $routeName]
         );
 
-        if ($modified === []) {
-            return [];
-        }
-
-        $grouped = [];
-        foreach ($modified as $template) {
-            $grouped[$template['sales_channel_id']][$template['route_name']] = $template['template'];
-        }
-
-        if (!\array_key_exists('', $grouped)) {
+        if (!\array_key_exists('', $salesChannelTemplates)) {
             throw new \RuntimeException('Default templates not configured');
         }
-        $defaults = $grouped[''];
+
+        $default = (string) $salesChannelTemplates[''];
 
         $result = [];
         foreach ($domains as $domain) {
             $salesChannelId = $domain['salesChannelId'];
 
-            foreach ($routes as $route) {
-                $template = $defaults[$route];
-                if (isset($grouped[$salesChannelId][$route])) {
-                    $template = $grouped[$salesChannelId][$route];
-                }
-
-                $result[] = [
-                    'salesChannelId' => $salesChannelId,
-                    'languageId' => $domain['languageId'],
-                    'route' => $route,
-                    'template' => $template,
-                ];
-            }
+            $result[] = [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => $domain['languageId'],
+                'template' => $salesChannelTemplates[$salesChannelId] ?? $default,
+            ];
         }
 
         return $result;
     }
 
-    private function fetchSalesChannels(): SalesChannelCollection
-    {
-        $context = Context::createDefaultContext();
-
-        /** @var SalesChannelCollection $entities */
-        $entities = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
-
-        return $entities;
-    }
-
     /**
-     * @param list<LanguageEntity> $languages
-     *
      * @return array<string, array<string>>
      */
-    private function fetchLanguageChains(array $languages): array
+    private function fetchLanguageChains(Context $context): array
     {
+        $languages = $this->languageRepository->search(new Criteria(), $context)->getEntities()->getElements();
+
         $languageChains = [];
         foreach ($languages as $language) {
             $languageId = $language->getId();

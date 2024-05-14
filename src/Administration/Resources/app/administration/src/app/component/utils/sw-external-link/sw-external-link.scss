@@ -25,3 +25,7 @@
         }
     }
 }
+
+a[target="_blank"].sw-external-link:not(.mt-external-link, .mt-internal-link, .mt-button)::after {
+    content: none;
+}

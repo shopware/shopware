@@ -1,7 +1,7 @@
 import template from './sw-first-run-wizard-paypal-base.html.twig';
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

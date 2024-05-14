@@ -71,7 +71,7 @@ $listings = $connection->fetchFirstColumn(
     [
         'ids' => Uuid::fromHexToBytesList($ids),
     ],
-    ['ids' => ArrayParameterType::STRING]
+    ['ids' => ArrayParameterType::BINARY]
 );
 
 $storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);

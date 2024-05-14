@@ -38,6 +38,23 @@ class SyncServiceTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    public function testSendNoneExistingId(): void
+    {
+        $ids = new IdsCollection();
+
+        $operations = [
+            new SyncOperation('delete-price', 'product_price', 'delete', [['id' => $ids->get('not-existing-price')]]),
+        ];
+
+        $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertEquals([], $result->getDeleted());
+
+        $expected = ['product_price' => [$ids->get('not-existing-price')]];
+
+        static::assertEquals($expected, $result->getNotFound());
+    }
+
     public function testDeleteProductMediaAndUpdateProduct(): void
     {
         $ids = new IdsCollection();
@@ -152,21 +169,21 @@ class SyncServiceTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['m1', 'm2', 'm3', 'm4']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertCount(4, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM tax WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
     }
@@ -281,7 +298,7 @@ class SyncServiceTest extends TestCase
         $existing = $this->connection->fetchFirstColumn(
             'SELECT CONCAT(LOWER(HEX(product_id)), \'-\', LOWER(HEX(category_id))) FROM product_category WHERE product_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['p1', 'p2', 'p3']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(3, $existing);

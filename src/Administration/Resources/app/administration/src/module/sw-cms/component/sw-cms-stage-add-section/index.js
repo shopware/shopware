@@ -3,7 +3,7 @@ import './sw-cms-stage-add-section.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

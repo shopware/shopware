@@ -2,30 +2,29 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Metadata;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\Xml\Metadata
  */
+#[CoversClass(Metadata::class)]
 class MetadataTest extends TestCase
 {
     public function testFromXml(): void
     {
         $document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
+            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
         $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
-
-        /** @var \DOMElement $meta */
+        static::assertNotNull($action);
         $meta = $action->getElementsByTagName('meta')->item(0);
+        static::assertNotNull($meta);
 
         $expected = [
             'label' => [
@@ -50,6 +49,6 @@ class MetadataTest extends TestCase
         ];
 
         $metaData = Metadata::fromXml($meta);
-        static::assertEquals($expected, $metaData->toArray('en-GB'));
+        static::assertSame($expected, $metaData->toArray('en-GB'));
     }
 }

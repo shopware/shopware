@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Store\Service;
 
 use Composer\IO\NullIO;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -25,9 +26,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class ExtensionLoaderTest extends TestCase
 {
     use ExtensionBehaviour;

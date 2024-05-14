@@ -73,7 +73,7 @@ class DemodataCommand extends Command
         $this->addOption('order-attributes', null, InputOption::VALUE_OPTIONAL, 'Order attribute count');
         $this->addOption('customer-attributes', null, InputOption::VALUE_OPTIONAL, 'Customer attribute count');
         $this->addOption('media-attributes', null, InputOption::VALUE_OPTIONAL, 'Media attribute count');
-
+        $this->addOption('multiplier', null, InputOption::VALUE_OPTIONAL, 'Applies to all counts');
         $this->addOption('reset-defaults', null, InputOption::VALUE_NONE, 'Set all counts to 0 unless specified');
     }
 
@@ -90,9 +90,12 @@ class DemodataCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('Demodata Generator');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $request = new DemodataRequest();
+
+        $request->multiplier = (int) ($input->getOption('multiplier') ?? 1);
+        $request->multiplier = max($request->multiplier, 1);
 
         $request->add(TagDefinition::class, $this->getCount($input, 'tags'));
         $request->add(RuleDefinition::class, $this->getCount($input, 'rules'));

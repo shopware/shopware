@@ -43,8 +43,9 @@ class NavigationControllerTest extends TestCase
 
     public function testNavigationPageLoadedHookScriptsAreExecutedForCategory(): void
     {
-        $response = $this->request('GET', '/navigation/' . $this->ids->get('category'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        $response = $this->request('GET', '/my-navigation/', []);
+
+        static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -74,7 +75,7 @@ class NavigationControllerTest extends TestCase
 
         $category = [
             'id' => $this->ids->create('category'),
-            'name' => 'Test',
+            'name' => 'my-navigation',
             'type' => 'landing_page',
             'parentId' => $salesChannel->getNavigationCategoryId(),
         ];

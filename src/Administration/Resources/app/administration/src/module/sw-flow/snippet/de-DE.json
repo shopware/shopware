@@ -9,7 +9,7 @@
       "descriptionTextModule": "Flow Builder",
       "placeholderSearchBar": "Flows durchsuchen ...",
       "tabMyFlows": "Meine Flows",
-      "tabFlowTemplates": "Flow-Templates"
+      "tabFlowTemplates": "Flow Templates"
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -67,7 +67,7 @@
         },
         "labelTrue": "Wahr",
         "labelFalse": "Falsch",
-        "noActions": "Kein Aktionen hinzugefügt",
+        "noActions": "Keine Aktionen hinzugefügt",
         "noRule": "Noch keine Regeln definiert"
       },
       "warningText": "Dieser Flow verwendet Aktionen, die aufgrund einer Änderung der gebuchten Edition bzw. durch Deaktivierung oder Deinstallation der dazugehörigen Erweiterungen, nicht mehr verfügbar sind. Wenn dieser Flow ausgelöst wird, werden nicht verfügbare Aktionen nicht ausgeführt."
@@ -80,14 +80,14 @@
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
-      "messageWarningSave": "Flow-Vorlagen können nicht bearbeitet werden.",
+      "messageWarningSave": "Flow Templates können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
       "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
       "messageDuplicateSuccess": "Flow dupliziert.",
       "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
       "messageCreateSuccess": "Flow erstellt.",
-      "messageUpdateTemplateSuccess": "Flow template updated.",
+      "messageUpdateTemplateSuccess": "Flow Template aktualisiert.",
       "messageCreateError": "Flow konnte nicht erstellt werden.",
       "messageUnknownTriggerWarning": "Dieser Flow wurde deaktiviert, weil er einen Auslöser verwendet, der nicht länger verfügbar ist. Dies ist wahrscheinlich darauf zurückzuführen, dass die Edition geändert wurde oder die Erweiterung, die diesen Auslöser bereitstellt, entweder inaktiv ist oder deinstalliert wurde.",
       "textIntroduce": "Versuche eine der folgenden Lösungen, um den Auslöser wieder verfügbar zu machen:",
@@ -342,7 +342,7 @@
       "shippedPartially": "Teilweise versendet",
       "authorized": "Autorisiert",
       "chargeback": "Rückbuchung",
-      "failed": "Gescheitert",
+      "failed": "Fehlgeschlagen",
       "paid": "Bezahlt",
       "paidPartially": "Teilweise bezahlt",
       "refunded": "Erstattet",

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\File;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaFile
 {
     public function __construct(

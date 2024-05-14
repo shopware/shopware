@@ -59,11 +59,19 @@ export default {
                 this.getConfigValue(formField, 'allowRemove') === true;
         },
 
-        onChangeValue(value, fieldName) {
+        onChangeValue(value, fieldName, valueChange = true) {
+            if (valueChange) {
+                this.entity[fieldName] = value;
+            }
+
             if (!this.bulkEditData[fieldName].isInherited) {
                 this.bulkEditData[fieldName].value = value;
             }
             this.$emit('change-value', fieldName, value);
+        },
+
+        onChangeToggle(value, fieldName) {
+            this.onChangeValue(value, fieldName, false);
         },
 
         onInheritanceRestore(item) {

@@ -6,11 +6,16 @@ yarn-error.log
 test/unit/coverage
 test/e2e/reports
 test/_mocks_/entity-schema.json
+test/_helper_/componentWrapper/component-imports.js
 !test/_mocks_/.gitkeep
 selenium-debug.log
 .eslintcache
 /build/artifacts/jest/
+/build/artifacts/vue3/jest/
+.jestcache_vue3
 .yalc
 yalc.lock
 src/entity-schema-definition.d.ts
 entity-schema-types
+.vscode
+.vue-compat-components-statistics.json

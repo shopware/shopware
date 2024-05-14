@@ -1,3 +1,6 @@
+{% set label = lineItem.label|trans|sw_sanitize %}
+{% set label = label !== '' ? label : lineItem.label %}
+
 {% if displayMode is not defined %}
     {% set displayMode = 'default' %}
 {% endif %}
@@ -19,7 +22,6 @@
 {% block component_line_item_type_discount %}
     <div class="{{ lineItemClasses }}">
         <div class="row line-item-row">
-
             {% block component_line_item_type_discount_col_info %}
                 <div class="line-item-info">
                     <div class="row line-item-row">

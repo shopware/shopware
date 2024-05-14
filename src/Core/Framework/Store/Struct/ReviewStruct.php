@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class ReviewStruct extends StoreStruct
 {
     final public const MAX_RATING = 5;
@@ -57,10 +57,13 @@ class ReviewStruct extends StoreStruct
     protected $acceptGuidelines;
 
     /**
-     * @var array
+     * @var list<array{text: string, creationDate: \DateTimeImmutable}>
      */
     protected $replies = [];
 
+    /**
+     * @return ReviewStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         $review = new self();
@@ -176,11 +179,17 @@ class ReviewStruct extends StoreStruct
         $this->version = $version;
     }
 
+    /**
+     * @return list<array{text: string, creationDate: \DateTimeImmutable}>
+     */
     public function getReplies(): array
     {
         return $this->replies;
     }
 
+    /**
+     * @param list<array{text: string, creationDate: \DateTimeImmutable}> $replies
+     */
     public function setReplies(array $replies): void
     {
         $this->replies = $replies;

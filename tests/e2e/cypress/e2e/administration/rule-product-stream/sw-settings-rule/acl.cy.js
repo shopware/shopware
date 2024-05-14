@@ -12,7 +12,7 @@ describe('Rule builder: Test crud operations', () => {
             });
     });
 
-    it('@base @rule: read rule', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: read rule', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
@@ -52,7 +52,7 @@ describe('Rule builder: Test crud operations', () => {
         });
     });
 
-    it('@base @rule: edit rule', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: edit rule', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
@@ -125,7 +125,7 @@ describe('Rule builder: Test crud operations', () => {
             .should('have.not.class', 'sw-button--disabled');
     });
 
-    it('@base @rule: create and read rule', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: create and read rule', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
@@ -231,7 +231,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-settings-rule-detail__save-duplicate-action').should('not.to.have.class', 'is--disabled');
     });
 
-    it('@base @rule: delete rule', { tags: ['pa-business-ops'] }, () => {
+    it('@base @rule: delete rule', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',

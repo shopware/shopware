@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\InstallController;
+use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
@@ -21,10 +23,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Controller\InstallController
- * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
+#[CoversClass(InstallController::class)]
+#[CoversClass(ProjectComposerJsonUpdater::class)]
 class InstallControllerTest extends TestCase
 {
     public function testStartPage(): void
@@ -35,7 +36,7 @@ class InstallControllerTest extends TestCase
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator->method('runJSON')->willReturn(new StreamedResponse());
 
-        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class));
+        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
         $controller->setContainer($this->getContainer());
 
         $response = $controller->index();
@@ -70,7 +71,7 @@ class InstallControllerTest extends TestCase
             ])
             ->willReturn(new StreamedResponse());
 
-        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class));
+        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
         $controller->setContainer($this->getContainer());
 
         $request = new Request();

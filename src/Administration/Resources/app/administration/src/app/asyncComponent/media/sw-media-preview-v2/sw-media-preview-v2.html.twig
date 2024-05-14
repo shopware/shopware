@@ -5,7 +5,6 @@
     class="sw-media-preview-v2"
     :class="mediaPreviewClasses"
 >
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_preview_v2_no_media %}
     <template v-if="!source">
@@ -27,7 +26,7 @@
         <template v-if="mimeTypeGroup === 'image'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_image %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <img
                 v-if="!imagePreviewFailed"
                 class="sw-media-preview-v2__item"
@@ -42,15 +41,14 @@
             >
             <img
                 v-else
-                class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <sw-icon
                 v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
-                multicolor
             />
             {% endblock %}
         </template>
@@ -60,8 +58,8 @@
             {% block sw_media_preview_v2_file_type_video %}
             <img
                 v-if="mediaIsPrivate"
-                class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -84,15 +82,13 @@
             >
                 <sw-icon
                     class="sw-media-preview-v2__play-icon"
-                    name="multicolor-action-play"
-                    multicolor
+                    name="regular-play"
                 />
             </button>
             <sw-icon
                 v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
-                multicolor
             />
             {% endblock %}
         </template>
@@ -101,8 +97,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_audio %}
             <img
-                class="sw-media-preview-v2__item"
-                :src="placeholderIconPath | asset"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
@@ -125,20 +121,18 @@
             >
                 <sw-icon
                     class="sw-media-preview-v2__play-icon"
-                    name="multicolor-action-play"
-                    multicolor
+                    name="regular-play"
                 />
             </button>
             <sw-icon
                 v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
-                multicolor
             />
             {% endblock %}
         </template>
 
-        <template v-else-if="isUrl && !urlPreviewFailed">
+        <template v-else-if="(isUrl || isRelativePath) && !urlPreviewFailed">
             <img
                 :src="previewUrl"
                 class="sw-media-preview-v2__item"
@@ -153,7 +147,7 @@
             {% block sw_media_preview_v2_file_type_placeholder %}
             <img
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
-                :src="placeholderIconPath | asset"
+                :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
             {% endblock %}
@@ -161,7 +155,6 @@
                 v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
-                multicolor
             />
         </template>
         {% endblock %}

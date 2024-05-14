@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoException extends HttpException
 {
     public const SALES_CHANNEL_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING';
@@ -66,8 +66,8 @@ class SeoException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::SALES_CHANNEL_NOT_FOUND,
-            'Sales channel with id "{{ salesChannelId }}" not found.',
-            ['salesChannelId' => $salesChannelId]
+            self::$couldNotFindMessage,
+            ['entity' => 'sales channel', 'field' => 'id', 'value' => $salesChannelId]
         );
     }
 

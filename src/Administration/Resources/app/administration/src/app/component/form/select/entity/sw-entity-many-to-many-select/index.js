@@ -6,7 +6,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-many-to-many-select', {
     template,
@@ -16,11 +16,6 @@ Component.register('sw-entity-many-to-many-select', {
         'repositoryFactory',
         'feature',
     ],
-
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
 
     props: {
         labelProperty: {
@@ -54,7 +49,6 @@ Component.register('sw-entity-many-to-many-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -318,13 +312,7 @@ Component.register('sw-entity-many-to-many-select', {
                 newEntityCollection.push(deepCopyObject(entity));
             });
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newEntityCollection);
-
-                return;
-            }
-
-            this.$emit('change', newEntityCollection);
+            this.$emit('update:entityCollection', newEntityCollection);
         },
 
         addItem(item) {
@@ -405,7 +393,7 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         resetActiveItem() {
-            this.$refs.swSelectResultList.setActiveItemIndex(0);
+            this.$refs.swSelectResultList?.setActiveItemIndex(0);
         },
 
         debouncedSearch: debounce(function updateSearchTerm() {

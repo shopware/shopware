@@ -57,13 +57,15 @@
         v-if="notification.actions"
         class="sw-notification-center-item__actions"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_item_actions_inner %}
-        <template v-for="action in notificationActions">
+        <template
+            v-for="action in notificationActions"
+            :key="action.label"
+        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_notification_center_item_actions_item_container %}
             <div
-                :key="action.label"
                 class="sw-notification-center-item__actions-item-container"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

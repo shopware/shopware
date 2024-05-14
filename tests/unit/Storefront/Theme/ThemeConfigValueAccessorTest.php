@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -10,9 +11,8 @@ use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeConfigValueAccessor
  */
+#[CoversClass(ThemeConfigValueAccessor::class)]
 class ThemeConfigValueAccessorTest extends TestCase
 {
     public function testBuildName(): void

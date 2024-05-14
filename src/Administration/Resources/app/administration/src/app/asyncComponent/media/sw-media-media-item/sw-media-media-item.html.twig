@@ -10,7 +10,7 @@
     {% block sw_media_media_item_preview %}
     <template #preview="{ item }">
         <sw-media-preview-v2
-            :source="item.id"
+            :source="item"
             :media-is-private="item.private"
             @media-preview-play="emitPlayEvent($event, item)"
         />
@@ -26,21 +26,23 @@
             class="sw-media-base-item__name-field"
             :value="item.fileName"
             name="media-item-name"
-            @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @keyup.esc="endInlineEdit"
             @click.stop
+            @keydown.enter.stop
         />
         <div
             v-else
             ref="itemName"
             class="sw-media-base-item__name"
             :title="`${item.fileName}.${item.fileExtension}`"
+            role="menuitem"
+            tabindex="0"
             @dblclick="startInlineEdit"
         >
 
             <template v-if="item.hasFile">
-                {{ item | mediaName }}
+                {{ mediaNameFilter(item) }}
             </template>
         </div>
     </template>
@@ -50,7 +52,7 @@
     {% block sw_media_media_item_metadata %}
     <template #metadata="{ item }">
         <div class="sw-media-media-item__metadata">
-            {{ item.uploadedAt | date() }}, {{ item.fileSize | fileSize(locale) }}
+            {{ dateFilter(item.uploadedAt) }}, {{ fileSizeFilter(item.fileSize, locale) }}
         </div>
     </template>
     {% endblock %}

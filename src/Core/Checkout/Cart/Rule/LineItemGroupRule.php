@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemGroupRule extends FilterRule
 {
     final public const RULE_NAME = 'cartLineItemInGroup';
@@ -49,9 +49,7 @@ class LineItemGroupRule extends FilterRule
             $this->rules ?? new RuleCollection()
         );
 
-        /** @var LineItemGroupBuilder|null $builder */
         $builder = $scope->getCart()->getData()->get(LineItemGroupBuilder::class);
-
         if (!$builder instanceof LineItemGroupBuilder) {
             return false;
         }

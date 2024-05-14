@@ -13,11 +13,7 @@
         {% block sw_product_price_form_tax_field %}
         <sw-inherit-wrapper
             ref="taxIdInheritation"
-            {% if VUE3 %}
             v-model:value="product.taxId"
-            {% else %}
-            v-model="product.taxId"
-            {% endif %}
             :inherited-value="parentProduct.taxId"
             :has-parent="!!parentProduct.taxId"
             :help-text="taxRateHelpText"
@@ -34,11 +30,7 @@
                     :disabled="isInherited || !allowEdit"
                     :value="currentValue"
                     :error="productTaxIdError"
-                    {% if VUE3 %}
                     @update:value="updateCurrentValue"
-                    {% else %}
-                    @change="updateCurrentValue"
-                    {% endif %}
                 >
                     <option
                         v-for="tax in taxes"
@@ -58,11 +50,7 @@
         {% block sw_product_price_form_price_field %}
         <sw-inherit-wrapper
             v-if="!isLoading"
-            {% if VUE3 %}
             v-model:value="prices"
-            {% else %}
-            v-model="prices"
-            {% endif %}
             label=" "
             class="sw-product-price-form__price-list"
             :has-parent="!!parentProduct.id"
@@ -111,11 +99,13 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_price_form_maintain_currencies_link %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="product.price"
             class="sw-card__quick-link"
+            role="button"
+            tabindex="0"
             @click.prevent="displayMaintainCurrencies = true"
+            @keydown.enter.prevent="displayMaintainCurrencies = true"
         >
             {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon
                 name="regular-long-arrow-right"

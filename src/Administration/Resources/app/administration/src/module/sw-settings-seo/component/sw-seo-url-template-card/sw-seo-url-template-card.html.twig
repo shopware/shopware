@@ -37,14 +37,10 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
-                    {% if VUE3 %}
                     v-model:value="seoUrlTemplate.template"
-                    {% else %}
-                    v-model="seoUrlTemplate.template"
-                    {% endif %}
                     :has-parent="seoUrlTemplate.salesChannelId !== null"
                     :inherited-value="getPlaceholder(seoUrlTemplate)"
-                    @input="onInput(seoUrlTemplate)"
+                    @update:value="onInput(seoUrlTemplate)"
                 >
 
                     <template #content="props">
@@ -58,11 +54,7 @@
                             :name="`sw-field--seo-url-template-${seoUrlTemplate.entity}`"
                             :label="getLabel(seoUrlTemplate)"
                             :placeholder="getPlaceholder(seoUrlTemplate)"
-                            {% if VUE3 %}
                             @update:value="props.updateCurrentValue"
-                            {% else %}
-                            @input="props.updateCurrentValue"
-                            {% endif %}
                         >
 
                             <template #suffix>
@@ -85,7 +77,7 @@
                                     name="regular-exclamation-triangle"
                                 />
                                 <sw-icon
-                                    v-else-if="!seoUrlTemplate.template"
+                                    v-else-if="!props.currentValue"
                                     v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate', 1, {
                                         entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
                                     })"
@@ -115,7 +107,7 @@
                     :options="getVariableOptions(seoUrlTemplate.id)"
                     :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
                     :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')"
-                    @change="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
+                    @update:value="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
                 />
                 {% endblock %}
             </sw-container>
@@ -141,9 +133,7 @@
                         {{ $tc('sw-seo-url-template-card.general.textUrlPreviewNotPossible') }}
                     </span>
                     <span v-if="noEntityError.includes(seoUrlTemplate.id)">
-                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, {
-                            entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0)
-                        }) }}
+                        {{ $tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview', 0, { entity: $tc(`global.entities.${seoUrlTemplate.entityName}`, 0) }) }}
                     </span>
                 </div>
                 {% endblock %}

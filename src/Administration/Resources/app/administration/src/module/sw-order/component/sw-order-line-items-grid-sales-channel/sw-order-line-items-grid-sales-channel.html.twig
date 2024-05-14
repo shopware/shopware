@@ -98,7 +98,7 @@
     >
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                 :alt="$tc('sw-order.createBase.messageEmptyItem')"
             >
         </template>
@@ -200,18 +200,14 @@
                 size="small"
                 :min="getMinItemPrice(item)"
                 :value="item.priceDefinition.price"
-                {% if VUE3 %}
                 @update:value="checkItemPrice($event, item)"
-                {% else %}
-                @change="checkItemPrice($event, item)"
-                {% endif %}
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_content %}
             <template v-else>
-                {{ item.price.unitPrice | currency(currency.shortName) }}
+                {{ currencyFilter(item.price.unitPrice,  currency.isoCode) }}
             </template>
             {% endblock %}
 
@@ -223,7 +219,7 @@
         <template #column-totalPrice="{ item }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_columns_total_price_content %}
-            {{ item.price.totalPrice | currency(currency.shortName) }}
+            {{ currencyFilter(item.price.totalPrice, currency.isoCode) }}
             {% endblock %}
         </template>
         {% endblock %}
@@ -241,11 +237,7 @@
                 size="small"
                 placeholder="0"
                 :value="item.quantity"
-                {% if VUE3 %}
                 @update:value="changeItemQuantity($event, item)"
-                {% else %}
-                @change="changeItemQuantity($event, item)"
-                {% endif %}
             />
             {% endblock %}
 
@@ -273,11 +265,7 @@
                     item.priceDefinition.taxRules &&
                     !isCreditItem(item)"
                 key="order-line-item-tax-edit-default"
-                {% if VUE3 %}
                 v-model:value="item.priceDefinition.taxRules[0].taxRate"
-                {% else %}
-                v-model="item.priceDefinition.taxRules[0].taxRate"
-                {% endif %}
                 size="small"
                 placeholder="0"
                 :min="0"
@@ -331,10 +319,12 @@
         <template #bulk>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="link link-danger"
+                role="link"
+                tabindex="0"
                 @click="onDeleteSelectedItems"
+                @keydown.enter="onDeleteSelectedItems"
             >
                 {{ $tc('global.default.delete') }}
             </a>

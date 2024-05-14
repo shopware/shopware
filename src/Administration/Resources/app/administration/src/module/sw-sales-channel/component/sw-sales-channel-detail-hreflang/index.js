@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-hreflang.html.twig';
@@ -11,7 +11,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add type to salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,

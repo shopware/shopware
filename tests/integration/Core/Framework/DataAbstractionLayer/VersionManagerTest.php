@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
@@ -27,9 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\VersionManager
  */
+#[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -114,8 +115,11 @@ class VersionManagerTest extends TestCase
             new CloneBehavior()
         );
 
-        $clonedProductId = $clonedAffected['product'][0]->getPayload()['id'];
-        $clonedManyToOneId = $clonedAffected['product'][0]->getPayload()['manyToOneId'];
+        $clonedProduct = $clonedAffected['product'][0];
+        static::assertInstanceOf(EntityWriteResult::class, $clonedProduct);
+
+        $clonedProductId = $clonedProduct->getPayload()['id'];
+        $clonedManyToOneId = $clonedProduct->getPayload()['manyToOneId'];
         static::assertNotEmpty($clonedProductId);
         static::assertSame($extendableId, $clonedManyToOneId);
     }
@@ -187,7 +191,9 @@ class VersionManagerTest extends TestCase
             new CloneBehavior()
         );
 
-        $clonedManyToOne = $clonedAffected['product'][0]->getPayload();
+        $clonedProduct = $clonedAffected['product'][0];
+        static::assertInstanceOf(EntityWriteResult::class, $clonedProduct);
+        $clonedManyToOne = $clonedProduct->getPayload();
         static::assertArrayNotHasKey('manyToOneId', $clonedManyToOne);
     }
 

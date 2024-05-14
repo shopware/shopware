@@ -6,7 +6,7 @@
 
         <div class="col-md-4" data-cms-element-id="{{ element.id }}">
             {% block block_text_teaser_section_left_inner %}
-                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
             {% endblock %}
         </div>
     {% endblock %}
@@ -16,7 +16,7 @@
 
         <div class="col-md-8" data-cms-element-id="{{ element.id }}">
             {% block block_text_teaser_section_right_inner %}
-                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
             {% endblock %}
         </div>
     {% endblock %}

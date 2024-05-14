@@ -43,11 +43,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_title %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="element.config.title.value"
-                    {% else %}
-                    v-model="element.config.title.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productSlider.config.label.title')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.title')"
                 />
@@ -56,20 +52,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
                 <sw-single-select
-                    {% if VUE3 %}
                     v-model:value="element.config.products.source"
-                    {% else %}
-                    v-model="element.config.products.source"
-                    {% endif %}
                     class="sw-cms-el-config-product-slider__product-assignment-type-select"
                     :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
                     :options="productAssignmentTypes"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onChangeAssignmentType"
-                    {% else %}
-                    @change="onChangeAssignmentType"
-                    {% endif %}
                 />
                 {% endblock %}
 
@@ -77,21 +65,13 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_slider_config_content_product_stream_select %}
                     <sw-entity-single-select
-                        {% if VUE3 %}
                         v-model:value="element.config.products.value"
-                        {% else %}
-                        v-model="element.config.products.value"
-                        {% endif %}
                         entity="product_stream"
                         class="sw-cms-el-config-product-slider__product-stream-select"
                         :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
                         show-clearable-button
-                        {% if VUE3 %}
                         @update:value="onChangeProductStream"
-                        {% else %}
-                        @change="onChangeProductStream"
-                        {% endif %}
                     />
                     {% endblock %}
 
@@ -142,11 +122,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
                         <sw-single-select
-                            {% if VUE3 %}
                             v-model:value="element.config.productStreamSorting.value"
-                            {% else %}
-                            v-model="element.config.productStreamSorting.value"
-                            {% endif %}
                             :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
                             class="sw-cms-el-config-product-slider__product-stream-sorting"
                             :disabled="!productStream"
@@ -159,11 +135,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="element.config.productStreamLimit.value"
-                            {% else %}
-                            v-model="element.config.productStreamLimit.value"
-                            {% endif %}
                             :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
                             class="sw-cms-el-config-product-slider__product-stream-limit"
                             :disabled="!productStream"
@@ -195,21 +167,13 @@
                 {% block sw_cms_element_product_slider_config_content_products %}
                 <sw-entity-multi-select
                     v-else
-                    {% if VUE3 %}
                     v-model:entityCollection="productCollection"
-                    {% else %}
-                    v-model="productCollection"
-                    {% endif %}
                     class="sw-cms-el-config-product-slider__products"
                     :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"
                     :context="productMultiSelectContext"
                     :criteria="productMediaFilter"
-                    {% if VUE3 %}
-                    @update:entityCollection="onProductsChange"
-                    {% else %}
-                    @change="onProductsChange"
-                    {% endif %}
+                    @update:entity-collection="onProductsChange"
                 >
                     <template #selection-label-property="{ item }">
                         <sw-product-variant-info
@@ -223,8 +187,7 @@
                             name="result-item"
                             v-bind="{ item, index }"
                         >
-                            <li
-                                is="sw-select-result"
+                            <sw-select-result
                                 v-bind="{ item, index, selected: isSelected(item.id)}"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -237,7 +200,7 @@
                                     </sw-product-variant-info>
                                 </span>
                                 {% endblock %}
-                            </li>
+                            </sw-select-result>
                         </slot>
                     </template>
                 </sw-entity-multi-select>
@@ -255,11 +218,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_display_mode %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.displayMode.value"
-                    {% else %}
-                    v-model="element.config.displayMode.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                 >
                     <option value="standard">
@@ -277,11 +236,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_vertical_align %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.verticalAlign.value"
-                    {% else %}
-                    v-model="element.config.verticalAlign.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                     :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                 >
@@ -300,11 +255,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_box_layout %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.boxLayout.value"
-                    {% else %}
-                    v-model="element.config.boxLayout.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <option value="standard">
@@ -322,11 +273,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_navigation %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="element.config.navigation.value"
-                    {% else %}
-                    v-model="element.config.navigation.value"
-                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.navigation')"
                 />
@@ -335,11 +282,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_rotate %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="element.config.rotate.value"
-                    {% else %}
-                    v-model="element.config.rotate.value"
-                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.rotate')"
                 />
@@ -348,11 +291,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_border %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="element.config.border.value"
-                    {% else %}
-                    v-model="element.config.border.value"
-                    {% endif %}
                     bordered
                     :label="$tc('sw-cms.elements.productSlider.config.label.border')"
                 />
@@ -361,11 +300,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_config_settings_min_width %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="element.config.elMinWidth.value"
-                    {% else %}
-                    v-model="element.config.elMinWidth.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productSlider.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.minWidth')"
                 />

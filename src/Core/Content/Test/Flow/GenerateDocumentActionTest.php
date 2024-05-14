@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -52,7 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class GenerateDocumentActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -76,9 +77,7 @@ class GenerateDocumentActionTest extends TestCase
         $this->logger = $this->getContainer()->get('logger');
     }
 
-    /**
-     * @dataProvider genDocumentProvider
-     */
+    #[DataProvider('genDocumentProvider')]
     public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false, bool $multipleDoc = false): void
     {
         $context = Context::createDefaultContext();
@@ -137,9 +136,7 @@ class GenerateDocumentActionTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider genErrorDocumentProvider
-     */
+    #[DataProvider('genErrorDocumentProvider')]
     public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
     {
         $context = Context::createDefaultContext();
@@ -265,7 +262,10 @@ class GenerateDocumentActionTest extends TestCase
         }
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $docConfig->jsonSerialize());
-        $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $context);
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $context);
+
+        $errors = $result->getErrors();
+        static::assertEmpty($errors, 'Invoice generation failed: ' . array_pop($errors)?->getMessage());
     }
 
     /**
@@ -409,9 +409,11 @@ class GenerateDocumentActionTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
 
-        return $order->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        return $order;
     }
 
     private function insertRange(): void
@@ -527,7 +529,7 @@ class GenerateDocumentActionTest extends TestCase
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
     final public const TYPE = 'customDoc';

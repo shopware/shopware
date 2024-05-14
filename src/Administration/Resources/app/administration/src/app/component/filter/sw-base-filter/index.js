@@ -4,7 +4,7 @@ import './sw-base-filter.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-base-filter', {
     template,

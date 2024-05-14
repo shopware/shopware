@@ -5,7 +5,7 @@
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default (): any[] => {
-    const context = require.context('./', false, /(?<!index)(?<!\.spec)\.(js|ts)$/);
+    const context = require.context('./', true, /(?<!index)\.(?<!spec\.)(?<!spec\.vue2\.)(js|ts)$/);
 
     return context.keys().reduce<any[]>((accumulator, item) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment

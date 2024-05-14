@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
@@ -29,11 +31,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader
- *
- * @group slow
  */
+#[CoversClass(ProductListingLoader::class)]
+#[Group('slow')]
 class ProductListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -451,7 +451,7 @@ class ProductListingLoaderTest extends TestCase
      */
     private function fetchListing(?Criteria $criteria = null): EntitySearchResult
     {
-        if (!$criteria) {
+        if (!$criteria instanceof Criteria) {
             $criteria = new Criteria();
         }
 

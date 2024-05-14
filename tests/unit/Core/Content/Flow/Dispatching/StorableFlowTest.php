@@ -2,20 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\StorableFlow
  */
+#[Package('services-settings')]
+#[CoversClass(StorableFlow::class)]
 class StorableFlowTest extends TestCase
 {
     private StorableFlow $storableFlow;
@@ -93,22 +92,6 @@ class StorableFlowTest extends TestCase
         $callback = fn () => 'Order Data';
 
         $this->storableFlow->lazy('order', $callback);
-
-        $reflection = new \ReflectionClass($this->storableFlow);
-        $reflectionProperty = $reflection->getProperty('data');
-        $data = $reflectionProperty->getValue($this->storableFlow)['order'];
-
-        static::assertIsCallable($data);
-        static::assertEquals('Order Data', $this->storableFlow->getData('order'));
-    }
-
-    public function testWithThirdArgs(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $callback = fn () => 'Order Data';
-
-        $this->storableFlow->lazy('order', $callback, ['args' => 'args']);
 
         static::assertEquals('Order Data', $this->storableFlow->getData('order'));
     }

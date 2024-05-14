@@ -1,0 +1,5 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <h1>{{ example }}</h1>
+{% endblock %}

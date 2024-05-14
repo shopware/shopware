@@ -1,5 +1,6 @@
-import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
+import template from './sw-iframe-renderer.html.twig';
+import './sw-iframe-renderer.scss';
 
 /**
  * @package admin
@@ -24,6 +25,11 @@ Shopware.Component.register('sw-iframe-renderer', {
         locationId: {
             type: String,
             required: true,
+        },
+        fullScreen: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -111,9 +117,11 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
+            const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {
-                return ext.baseUrl === this.src;
+                const extensionBaseUrlWithoutSearchParameters = new URL(ext.baseUrl).origin + new URL(ext.baseUrl).pathname;
+                return extensionBaseUrlWithoutSearchParameters === srcWithoutSearchParameters;
             });
         },
 
@@ -123,11 +131,7 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         iFrameSrc(): string {
             const urlObject = new URL(this.src, window.location.origin);
-
             urlObject.searchParams.append('location-id', this.locationId);
-            if (this.extension) {
-                urlObject.searchParams.append('privileges', JSON.stringify(this.extension.permissions));
-            }
 
             return urlObject.toString();
         },
@@ -138,6 +142,13 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
 
             return '100%';
+        },
+
+        classes(): { [key: string]: boolean } {
+            return {
+                'sw-iframe-renderer': true,
+                'sw-iframe-renderer--full-screen': this.fullScreen,
+            };
         },
     },
 

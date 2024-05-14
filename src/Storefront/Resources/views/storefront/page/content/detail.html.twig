@@ -1,4 +1,5 @@
 {# @var cmsPage \Shopware\Core\Content\Cms\CmsPageEntity #}
+
 {# @var landingPage \Shopware\Core\Content\LandingPage\LandingPageEntity #}
 {% block page_content_sections_inner %}
     <div class="cms-sections">
@@ -41,7 +42,7 @@
                 <div class="cms-section {{ sectionClasses|join(' ') }}"
                      style="{% if sectionBgColor %}background-color: {{ sectionBgColor }};{% endif %}{% if sectionBgImg %}background-image: url({{ sectionBgImg }});background-size: {{ section.backgroundMediaMode }};{% endif %}">
 
-                    {% sw_include "@Storefront/storefront/section/cms-section-" ~ section.type ~ ".html.twig" %}
+                    {% sw_include '@Storefront/storefront/section/cms-section-' ~ section.type ~ '.html.twig' %}
                 </div>
             {% endblock %}
         {% endfor %}

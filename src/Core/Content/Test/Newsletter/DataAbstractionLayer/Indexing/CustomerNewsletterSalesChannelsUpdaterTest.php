@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Newsletter\DataAbstractionLayer\Indexing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -24,7 +25,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,7 +35,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer(null, $email);
+        $customerId = $this->createCustomer($email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -94,7 +95,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
         $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer(null, $email);
+        $customerId = $this->createCustomer($email);
 
         /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = $this->getContainer()->get('customer.repository');
@@ -110,7 +111,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer(null, $email);
+        $customerId = $this->createCustomer($email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -152,15 +153,13 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         static::assertNull($customer->getNewsletterSalesChannelIds());
     }
 
-    /**
-     * @dataProvider createDataProvider
-     */
+    #[DataProvider('createDataProvider')]
     public function testUpdateEmailNewsletterRecipientUpdateCustomer(\Closure $newsletterRecipientClosure, \Closure $criteriaClosure): void
     {
         $context = Context::createDefaultContext();
 
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer(null, $email);
+        $customerId = $this->createCustomer($email);
 
         $newsletterRecipientIds = $newsletterRecipientClosure($context, $email, $this);
         $criteria = empty($newsletterRecipientIds) ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);

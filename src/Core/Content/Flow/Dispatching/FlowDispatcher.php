@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Doctrine\DBAL\Connection;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -18,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowDispatcher implements EventDispatcherInterface
 {
     private ContainerInterface $container;
@@ -26,7 +28,8 @@ class FlowDispatcher implements EventDispatcherInterface
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
-        private readonly FlowFactory $flowFactory
+        private readonly FlowFactory $flowFactory,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -70,7 +73,6 @@ class FlowDispatcher implements EventDispatcherInterface
      */
     public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
-        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
 
@@ -81,7 +83,6 @@ class FlowDispatcher implements EventDispatcherInterface
 
     public function removeListener(string $eventName, callable $listener): void
     {
-        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->removeListener($eventName, $listener);
     }
 
@@ -100,7 +101,6 @@ class FlowDispatcher implements EventDispatcherInterface
 
     public function getListenerPriority(string $eventName, callable $listener): ?int
     {
-        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 
@@ -117,7 +117,6 @@ class FlowDispatcher implements EventDispatcherInterface
             return;
         }
 
-        /** @var FlowExecutor|null $flowExecutor */
         $flowExecutor = $this->container->get(FlowExecutor::class);
 
         if ($flowExecutor === null) {
@@ -126,25 +125,36 @@ class FlowDispatcher implements EventDispatcherInterface
 
         foreach ($flows as $flow) {
             try {
-                /** @var Flow $payload */
                 $payload = $flow['payload'];
                 $flowExecutor->execute($payload, $event);
             } catch (ExecuteSequenceException $e) {
-                $this->logger->error(
+                $this->logger->warning(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
                     . 'Flow id: ' . $flow['id'] . "\n"
                     . 'Sequence id: ' . $e->getSequenceId() . "\n"
                     . $e->getMessage() . "\n"
-                    . 'Error Code: ' . $e->getCode() . "\n"
+                    . 'Error Code: ' . $e->getCode() . "\n",
+                    ['exception' => $e]
                 );
+
+                if ($e->getPrevious() && $this->isInNestedTransaction()) {
+                    /**
+                     * If we are already in a nested transaction, that does not have save points enabled, we must inform the caller of the rollback.
+                     * We do this via an exception, so that the outer transaction can also be rolled back.
+                     *
+                     * Otherwise, when it attempts to commit, it would fail.
+                     */
+                    throw $e->getPrevious();
+                }
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
                     . 'Flow name: ' . $flow['name'] . "\n"
                     . 'Flow id: ' . $flow['id'] . "\n"
                     . $e->getMessage() . "\n"
-                    . 'Error Code: ' . $e->getCode() . "\n"
+                    . 'Error Code: ' . $e->getCode() . "\n",
+                    ['exception' => $e]
                 );
             }
         }
@@ -155,7 +165,6 @@ class FlowDispatcher implements EventDispatcherInterface
      */
     private function getFlows(string $eventName): array
     {
-        /** @var AbstractFlowLoader|null $flowLoader */
         $flowLoader = $this->container->get(FlowLoader::class);
 
         if ($flowLoader === null) {
@@ -170,5 +179,10 @@ class FlowDispatcher implements EventDispatcherInterface
         }
 
         return $result;
+    }
+
+    private function isInNestedTransaction(): bool
+    {
+        return $this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints();
     }
 }

@@ -12,7 +12,17 @@
         :class="[displayModeClass, navDotsClass]"
         :style="styles"
     >
+        <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+        <video
+            v-if="activeMedia?.mediaType?.name === 'VIDEO'"
+            class="sw-cms-el-image-slider__video"
+            :src="activeMedia?.url"
+            controls
+        >
+            {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+        </video>
         <img
+            v-else
             class="sw-cms-el-image-slider__image"
             :src="imgSrc"
             alt=""
@@ -32,14 +42,16 @@
                 :class="navDotsClass"
             >
                 <div class="sw-cms-el-image-slider__navigation-buttons">
-                    <template v-if="sliderItems && sliderItems.length > 0">
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <template v-if="sliderItems?.length > 0">
                         <div
                             v-for="(sliderItem, index) in sliderItems"
                             :key="index"
                             :class="activeButtonClass(sliderItem.media.url)"
                             class="sw-cms-el-image-slider__navigation-button"
+                            role="button"
+                            tabindex="0"
                             @click="setSliderItem(sliderItem.media, index)"
+                            @keydown.enter="setSliderItem(sliderItem.media, index)"
                         ></div>
                     </template>
                     <template v-else>

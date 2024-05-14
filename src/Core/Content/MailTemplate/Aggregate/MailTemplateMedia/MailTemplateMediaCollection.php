@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailTemplateMediaEntity>
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class MailTemplateMediaCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMailTemplateIds(): array
     {
@@ -26,7 +26,7 @@ class MailTemplateMediaCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMediaIds(): array
     {

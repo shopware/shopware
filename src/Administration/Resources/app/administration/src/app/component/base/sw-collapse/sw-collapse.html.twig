@@ -3,10 +3,12 @@
 <div class="sw-collapse">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_collapse_panel_header %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-collapse__header"
+        role="button"
+        tabindex="0"
         @click="collapseItem"
+        @keydown.enter="collapseItem"
     >
         <slot
             name="header"

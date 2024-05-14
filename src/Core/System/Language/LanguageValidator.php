@@ -73,7 +73,7 @@ class LanguageValidator implements EventSubscriberInterface
         foreach ($commands as $command) {
             $violations = new ConstraintViolationList();
 
-            if ($command instanceof CascadeDeleteCommand || $command->getDefinition()->getClass() !== LanguageDefinition::class) {
+            if ($command instanceof CascadeDeleteCommand || $command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -125,7 +125,7 @@ class LanguageValidator implements EventSubscriberInterface
              WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
              AND parent.parent_id IS NOT NULL',
             ['ids' => $affectedIds],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         $ids = $statement->fetchFirstColumn();
 
@@ -159,7 +159,7 @@ class LanguageValidator implements EventSubscriberInterface
              AND lang.parent_id IS NULL # root
              AND lang.id IN (:ids)',
             ['ids' => $affectedIds],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         $ids = $statement->fetchFirstColumn();
 
@@ -189,7 +189,7 @@ class LanguageValidator implements EventSubscriberInterface
     {
         $ids = [];
         foreach ($commands as $command) {
-            if ($command->getDefinition()->getClass() !== LanguageDefinition::class) {
+            if ($command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
                 continue;
             }
             if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {

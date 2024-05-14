@@ -314,9 +314,12 @@ class EntityHydrator
         $translatedFields = $this->getTranslatedFields($definition, $fields);
 
         foreach ($translatedFields as $field => $typed) {
-            $entity->addTranslated($field, $typed->getSerializer()->decode($typed, self::value($row, $root, $field)));
+            $fieldValue = self::value($row, $root, $field);
+            $translation = $fieldValue ? $typed->getSerializer()->decode($typed, $fieldValue) : null;
+            $entity->addTranslated($field, $translation);
 
-            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field)); /* @phpstan-ignore-line */
+            $chainFieldValue = self::value($row, $chain[0], $field);
+            $entity->$field = $chainFieldValue ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
         }
     }
 
@@ -419,11 +422,11 @@ class EntityHydrator
                  * We need to join the first two to get the inherited field value of the main translation
                  */
                 $values = [
-                    self::value($row, $chain[0], $propertyName),
                     self::value($row, $chain[1], $propertyName),
+                    self::value($row, $chain[0], $propertyName),
                 ];
 
-                $merged = $this->mergeJson(array_reverse($values, false));
+                $merged = $this->mergeJson($values);
                 $decoded = $customField->getSerializer()->decode($customField, $merged);
                 $entity->assign([$propertyName => $decoded]);
             }

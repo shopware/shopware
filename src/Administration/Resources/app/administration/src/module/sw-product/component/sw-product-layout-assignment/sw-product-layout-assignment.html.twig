@@ -3,10 +3,12 @@
 <div class="sw-product-layout-assignment">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_layout_assignment_firgure %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-product-layout-assignment__figure"
+        role="button"
+        tabindex="0"
         @click="openLayoutModal"
+        @keydown.enter="openLayoutModal"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_layout_assignment_firgure_content %}
@@ -55,10 +57,7 @@
                 :disabled="!acl.can('product.editor')"
                 @click="openLayoutModal"
             >
-                {{ cmsPage
-                    ? $tc('sw-product.layoutAssignment.textChangeLayout')
-                    : $tc('sw-product.layoutAssignment.textAssignLayout')
-                }}
+                {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
             </sw-button>
             {% endblock %}
 
@@ -70,10 +69,7 @@
                 :disabled="!acl.can('product.editor')"
                 @click="openInPageBuilder"
             >
-                {{ cmsPage
-                    ? $tc('sw-product.layoutAssignment.textEditInDesigner')
-                    : $tc('sw-product.layoutAssignment.textCreateNewLayout')
-                }}
+                {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
             </sw-button>
             {% endblock %}
 

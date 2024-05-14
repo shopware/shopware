@@ -10,7 +10,7 @@ const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-category-tree-field', {
     template,
@@ -168,7 +168,7 @@ Component.register('sw-category-tree-field', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

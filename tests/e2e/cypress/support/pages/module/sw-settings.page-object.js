@@ -57,7 +57,7 @@ export default class SettingsPageObject {
                 importExportWizardCsvPage: '.sw-import-export-new-profile-wizard-csv-page',
                 importExportWizardMappingPage: '.sw-import-export-new-profile-wizard-mapping-page',
 
-                importExportProfileNameField: '#sw-field--profile-label',
+                importExportProfileNameField: '.sw-field[label="Profile name"] input',
                 importExportTypeSelect: '.sw-import-export-edit-profile-general__type-select',
                 importExportObjectTypeSelect: '.sw-import-export-edit-profile-general__object-type-select',
                 importExportMappingGrid: '.sw-import-export-edit-profile-modal-mapping__grid',

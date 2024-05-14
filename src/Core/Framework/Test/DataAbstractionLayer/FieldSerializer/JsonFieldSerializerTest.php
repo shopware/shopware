@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -79,9 +80,7 @@ class JsonFieldSerializerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider encodeProvider
-     */
+    #[DataProvider('encodeProvider')]
     public function testEncode(JsonField $field, $input, $expected): void
     {
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
@@ -111,9 +110,7 @@ class JsonFieldSerializerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider decodeProvider
-     */
+    #[DataProvider('decodeProvider')]
     public function testDecode(JsonField $field, $input, $expected): void
     {
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));

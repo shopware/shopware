@@ -3,6 +3,7 @@
 <div
     class="sw-cms-list-item"
     :class="componentClasses"
+    :title="page && page.translated.name"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -12,12 +13,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_list_item_image %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="page"
         class="sw-cms-list-item__image"
         :style="previewMedia"
+        role="button"
+        tabindex="0"
         @click="onItemClick(page)"
+        @keydown.enter="onItemClick(page)"
     >
         <div v-if="isDefault">
             <span
@@ -46,11 +49,13 @@
             class="sw-cms-list-item__status"
             :class="statusClasses"
         ></div>
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-if="page"
             class="sw-cms-list-item__title"
+            role="button"
+            tabindex="0"
             @click="onElementClick"
+            @keydown.enter="onElementClick"
         >
             {{ page.translated.name }}
         </div>

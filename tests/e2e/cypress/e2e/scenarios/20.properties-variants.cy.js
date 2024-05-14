@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ProductPageObject    from '../../support/pages/module/sw-product.page-object';
 
 describe('Create a new property, select value display type and test their appearance in the storefront by creating new variants', () => {
@@ -76,7 +78,7 @@ describe('Create a new property, select value display type and test their appear
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.contains('.sw-button--ghost', 'Variantengenerator starten').click();
+        cy.get('.sw-product-detail-variants__generated-variants-empty-state-button').click();
 
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
         page.generateVariants('Size', [0, 1, 2], 3);

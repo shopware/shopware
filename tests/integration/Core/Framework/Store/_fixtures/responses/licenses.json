@@ -1,0 +1,24 @@
+[
+    {
+        "id": 1,
+        "creationDate": "2020-09-18T13:20:59+02:00",
+        "extension": {
+            "id": 1,
+            "icon": "http://www.toll.de/icon.png",
+            "name": "SEO Professional",
+            "label": "SEO Professional",
+            "shortDescription": "ich bin mind. 150 Zeichen lang......",
+            "storeUrl": "https://store.shopware.com/seo-prefessional.html",
+            "permissions": [
+                {
+                    "entity": "product",
+                    "operation": "create"
+                }
+            ]
+        },
+        "netPrice": 0,
+        "nextBookingDate": "2021-09-18T13:20:59+02:00",
+        "variant": "free",
+        "active": "false"
+    }
+]

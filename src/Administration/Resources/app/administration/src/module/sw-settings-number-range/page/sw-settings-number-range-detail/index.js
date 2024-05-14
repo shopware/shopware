@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package inventory
  */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
@@ -215,6 +215,7 @@ export default {
                 Shopware.Context.api,
                 this.numberRangeCriteria,
             );
+
             this.getState();
             this.splitPattern();
             await this.loadSalesChannels();
@@ -249,6 +250,10 @@ export default {
         },
 
         getPreview() {
+            if (!this.numberRange.type.technicalName) {
+                return Promise.resolve();
+            }
+
             return this.numberRangeService.previewPattern(
                 this.numberRange.type.technicalName,
                 this.numberRange.pattern,
@@ -259,6 +264,10 @@ export default {
         },
 
         getState() {
+            if (!this.numberRange.type.technicalName) {
+                return Promise.resolve();
+            }
+
             return this.numberRangeService.previewPattern(
                 this.numberRange.type.technicalName,
                 '{n}',

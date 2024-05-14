@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
@@ -26,15 +26,12 @@ class UninstallAppsStrategyTest extends TestCase
     use EnvTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private SystemConfigService $systemConfigService;
-
     private ShopIdProvider $shopIdProvider;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->context = Context::createDefaultContext();
     }
@@ -43,7 +40,7 @@ class UninstallAppsStrategyTest extends TestCase
     {
         $uninstallAppsResolver = $this->getContainer()->get(UninstallAppsStrategy::class);
 
-        static::assertEquals(
+        static::assertSame(
             UninstallAppsStrategy::STRATEGY_NAME,
             $uninstallAppsResolver->getName()
         );
@@ -72,7 +69,7 @@ class UninstallAppsStrategyTest extends TestCase
 
         $uninstallAppsResolver = new UninstallAppsStrategy(
             $this->getContainer()->get('app.repository'),
-            $this->systemConfigService,
+            $this->shopIdProvider,
             $themeLifecycleHandler
         );
 
@@ -103,13 +100,12 @@ class UninstallAppsStrategyTest extends TestCase
 
     private function getInstalledApp(Context $context): ?AppEntity
     {
-        /** @var EntityRepository $appRepo */
+        /** @var EntityRepository<AppCollection> $appRepo */
         $appRepo = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        $apps = $appRepo->search($criteria, $context);
 
-        return $apps->first();
+        return $appRepo->search($criteria, $context)->getEntities()->first();
     }
 }

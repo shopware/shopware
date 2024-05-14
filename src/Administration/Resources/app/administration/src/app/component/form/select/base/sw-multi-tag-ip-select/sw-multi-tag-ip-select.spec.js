@@ -1,34 +1,23 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/select/base/sw-multi-tag-select';
-import 'src/app/component/form/select/base/sw-multi-tag-ip-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/utils/sw-popover';
+import { mount } from '@vue/test-utils';
 
-const createMultiDataIpSelect = async (customOptions) => {
-    const options = {
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-icon': {
-                template: '<div></div>',
+const createMultiDataIpSelect = async () => {
+    return mount(await wrapTestComponent('sw-multi-tag-ip-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-icon': {
+                    template: '<div></div>',
+                },
             },
         },
-        propsData: {
+        props: {
             value: [],
         },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-multi-tag-ip-select'), {
-        ...options,
-        ...customOptions,
     });
 };
 
@@ -47,6 +36,8 @@ describe('components/sw-multi-tag-ip-select', () => {
     ].forEach(([value, shouldBeValid]) => {
         it(`should validate IPs correctly: ${value} should be ${shouldBeValid}`, async () => {
             const multiDataIpSelect = await createMultiDataIpSelect();
+            await flushPromises();
+
             const input = multiDataIpSelect.find('.sw-select-selection-list__input');
 
             expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();

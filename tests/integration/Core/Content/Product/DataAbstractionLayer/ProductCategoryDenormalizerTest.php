@@ -4,21 +4,24 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer
  */
+#[Package('inventory')]
+#[CoversClass(ProductCategoryDenormalizer::class)]
 class ProductCategoryDenormalizerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -61,7 +64,7 @@ class ProductCategoryDenormalizerTest extends TestCase
     }
 
     /**
-     * @return list<string>|null
+     * @return array<string>|null
      */
     private function getProductCategoryList(string $productId): ?array
     {
@@ -88,7 +91,7 @@ class ProductCategoryDenormalizerTest extends TestCase
                 'productId' => Uuid::fromHexToBytes($productId),
                 'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
             ],
-            ['categoryIds' => ArrayParameterType::STRING]
+            ['categoryIds' => ArrayParameterType::BINARY]
         );
     }
 

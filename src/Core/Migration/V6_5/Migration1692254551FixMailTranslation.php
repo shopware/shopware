@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('buyers-experience')]
 class Migration1692254551FixMailTranslation extends MigrationStep
 {
     use UpdateMailTrait;
@@ -50,9 +50,5 @@ class Migration1692254551FixMailTranslation extends MigrationStep
             (string) file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/de-html.html.twig'),
         );
         $this->updateMail($updateUnconfirmedMail, $connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

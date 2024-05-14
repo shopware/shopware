@@ -26,7 +26,6 @@
 {% block component_line_item_type_generic %}
     <div class="{{ lineItemClasses }}">
         <div class="row line-item-row">
-
             {% block component_line_item_type_generic_col_info %}
                 <div class="line-item-info">
                     <div class="row line-item-row">
@@ -59,15 +58,15 @@
                                     {% if lineItem.payload.features is not empty %}
                                         {% block component_line_item_type_generic_features %}
                                             {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
-                                                'features': lineItem.payload.features
+                                                features: lineItem.payload.features
                                             } %}
                                         {% endblock %}
                                     {% endif %}
 
                                     {% if lineItem.payload.productNumber %}
-                                        {% block component_line_item_type_generic_order_number %}
-                                            <div class="line-item-ordernumber">
-                                                {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
+                                        {% block component_line_item_type_generic_product_number %}
+                                            <div class="line-item-product-number">
+                                                {{ 'checkout.cartItemInfoId'|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
                                             </div>
                                         {% endblock %}
                                     {% endif %}

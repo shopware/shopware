@@ -35,12 +35,15 @@
             </template>
 
         </sw-alert>
+
+        {% block sw_extension_my_extensions_list_empty_state %}
+
         <sw-meteor-card
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
 
@@ -66,6 +69,8 @@
             </sw-button>
         </sw-meteor-card>
 
+        {% endblock %}
+
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
                 <sw-extension-my-extensions-listing-controls
@@ -78,7 +83,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                         alt=""
                     >
 
@@ -91,12 +96,14 @@
                 </sw-meteor-card>
 
                 <template v-else>
-                    <template v-for="entry in extensionListPaginated">
+                    <template
+                        v-for="entry in extensionListPaginated"
+                        :key="entry.name"
+                    >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                            :key="entry.name"
                             :extension="entry"
-                            @updateList="updateList"
+                            @update-list="updateList"
                         />
                     </template>
 

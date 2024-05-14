@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<FaqStruct>
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class FaqCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

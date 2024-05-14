@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -18,12 +20,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
+ * @package services-settings
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemProductStatesRule
  */
+#[CoversClass(LineItemProductStatesRule::class)]
 class LineItemProductStatesRuleTest extends TestCase
 {
     private LineItemProductStatesRule $rule;
@@ -65,10 +66,9 @@ class LineItemProductStatesRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider caseDataProvider
-     *
      * @param array<int, string> $states
      */
+    #[DataProvider('caseDataProvider')]
     public function testMatchesWithLineItemScope(
         array $states,
         string $operator,
@@ -89,10 +89,9 @@ class LineItemProductStatesRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider caseDataProvider
-     *
      * @param array<int, string> $states
      */
+    #[DataProvider('caseDataProvider')]
     public function testMatchesWithCartRuleScope(
         array $states,
         string $operator,

@@ -16,16 +16,13 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_behaviour_condition %}
     <sw-radio-field
-        {% if VUE3 %}
         v-model:value="searchBehaviourConfigs.andLogic"
-        {% else %}
-        v-model="searchBehaviourConfigs.andLogic"
-        {% endif %}
         v-tooltip="{
             message: $tc('sw-privileges.tooltip.warning'),
             disabled: acl.can('product_search_config.editor'),
             showOnDisabledElements: true
         }"
+        name="sw-field--searchBehaviourConfigs-andLogic"
         class="sw-settings-search__search-behaviour-condition"
         block
         :disabled="!acl.can('product_search_config.editor')"
@@ -36,16 +33,13 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_behaviour_search_term_length %}
     <sw-number-field
-        {% if VUE3 %}
         v-model:value="searchBehaviourConfigs.minSearchLength"
-        {% else %}
-        v-model="searchBehaviourConfigs.minSearchLength"
-        {% endif %}
         v-tooltip="{
             message: $tc('sw-privileges.tooltip.warning'),
             disabled: acl.can('product_search_config.editor'),
             showOnDisabledElements: true
         }"
+        name="sw-field--searchBehaviourConfigs-minSearchLength"
         class="sw-settings-search__search-behaviour-term-length"
         :label="$tc('sw-settings-search.generalTab.labelMinimalSearchTerm')"
         :disabled="!acl.can('product_search_config.editor')"

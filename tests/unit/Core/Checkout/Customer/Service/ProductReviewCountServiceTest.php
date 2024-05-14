@@ -3,18 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Service;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Service\ProductReviewCountService
  */
+#[Package('services-settings')]
+#[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {
     private ProductReviewCountService $productReviewCountService;
@@ -29,26 +28,17 @@ class ProductReviewCountServiceTest extends TestCase
 
     public function testUpdateReviewCountWithInvalidReviewIds(): void
     {
-        $result = $this->createMock(Result::class);
-        $result->method('fetchAllAssociative')->willReturn([]);
+        $this->connection->expects(static::once())->method('fetchFirstColumn')->willReturn([]);
+        $this->connection->expects(static::never())->method('executeStatement');
 
-        $this->connection->expects(static::once())->method('executeQuery')->willReturn($result);
-        $this->connection->expects(static::never())->method('prepare');
-
-        $this->productReviewCountService->updateReviewCount([], true);
+        $this->productReviewCountService->updateReviewCount([]);
     }
 
     public function testUpdateReviewCount(): void
     {
-        $result = $this->createMock(Result::class);
-        $result->method('fetchAllAssociative')->willReturn([
-            ['customer_id' => 'foobar'],
-            ['customer_id' => 'barfoo'],
-        ]);
+        $this->connection->expects(static::once())->method('fetchFirstColumn')->willReturn(['foobar', 'barfoo']);
+        $this->connection->expects(static::exactly(2))->method('executeStatement');
 
-        $this->connection->expects(static::once())->method('executeQuery')->willReturn($result);
-        $this->connection->expects(static::exactly(2))->method('prepare');
-
-        $this->productReviewCountService->updateReviewCount([], true);
+        $this->productReviewCountService->updateReviewCount([]);
     }
 }

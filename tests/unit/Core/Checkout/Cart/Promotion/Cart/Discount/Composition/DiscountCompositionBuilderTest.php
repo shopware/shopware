@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount\Composition;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder
  */
+#[CoversClass(DiscountCompositionBuilder::class)]
 class DiscountCompositionBuilderTest extends TestCase
 {
     /**
@@ -20,9 +21,8 @@ class DiscountCompositionBuilderTest extends TestCase
      * and quantity and discount values will be aggregated.
      * We use this function for the final composition result
      * of the new discount line item.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAtAggregateCompositionItems(): void
     {
         $items = [

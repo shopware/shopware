@@ -1,19 +1,19 @@
 {% block component_head_analytics %}
     {% block component_head_analytics_gtag %}
-        {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
-            {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
+        {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+            {% set trackingId = storefrontAnalytics.getTrackingId() %}
 
             <script>
                 {% block component_head_analytics_gtag_config %}
                     window.gtagActive = true;
-                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}'
+                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}';
                     window.controllerName = '{{ controllerName|lower }}';
                     window.actionName = '{{ controllerAction|lower }}';
-                    window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
+                    window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';
                     window.gtagTrackingId = '{{ trackingId }}';
                     window.dataLayer = window.dataLayer || [];
                     window.gtagConfig = {
-                        'anonymize_ip': '{{ context.salesChannel.analytics.isAnonymizeIp() }}',
+                        'anonymize_ip': '{{ storefrontAnalytics.isAnonymizeIp() }}',
                         'cookie_domain': 'none',
                         'cookie_prefix': '_swag_ga',
                     };
@@ -22,5 +22,25 @@
                 {% endblock %}
             </script>
         {% endif %}
+    {% endblock %}
+
+    {% block component_head_analytics_gtag_consent %}
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+
+            (() => {
+                const analyticsStorageEnabled = document.cookie.split(';').some((item) => item.trim().includes('google-analytics-enabled=1'));
+                const adsEnabled = document.cookie.split(';').some((item) => item.trim().includes('google-ads-enabled=1'));
+
+                // Always set a default consent for consent mode v2
+                gtag('consent', 'default', {
+                    'ad_user_data': adsEnabled ? 'granted' : 'denied',
+                    'ad_storage': adsEnabled ? 'granted' : 'denied',
+                    'ad_personalization': adsEnabled ? 'granted' : 'denied',
+                    'analytics_storage': analyticsStorageEnabled ? 'granted' : 'denied'
+                });
+            })();
+        </script>
     {% endblock %}
 {% endblock %}

@@ -8,7 +8,7 @@ const { DeviceHelper } = Shopware.Helper;
 let pluginInstalled = false;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     install(Vue) {
@@ -28,7 +28,7 @@ export default {
         });
 
         Vue.mixin({
-            destroyed() {
+            unmounted() {
                 this.$device.removeResizeListener(this);
             },
         });

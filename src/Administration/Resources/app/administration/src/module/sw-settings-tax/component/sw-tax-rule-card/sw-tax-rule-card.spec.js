@@ -1,14 +1,13 @@
-import { shallowMount } from '@vue/test-utils';
-import swTaxRuleCard from 'src/module/sw-settings-tax/component/sw-tax-rule-card';
-
-Shopware.Component.register('sw-tax-rule-card', swTaxRuleCard);
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-tax-rule-card'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-tax-rule-card', {
+        sync: true,
+    }), {
+        props: {
             tax: {
                 id: 'id',
                 taxId: 'taxId',
@@ -17,37 +16,39 @@ async function createWrapper(privileges = []) {
             isLoading: false,
             disabled: false,
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: 'id',
-                                taxId: 'taxId',
-                                taxRate: 'taxRate',
-                            },
-                        ]);
-                    },
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: 'id',
+                                    taxId: 'taxId',
+                                    taxRate: 'taxRate',
+                                },
+                            ]);
+                        },
 
-                    delete: () => {
-                        return Promise.resolve();
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+                        delete: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-card': {
-                template: `
+            stubs: {
+                'sw-card': {
+                    template: `
                     <div class="sw-card">
                         <slot name="title"></slot>
                         <slot name="tabs"></slot>
@@ -58,25 +59,25 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-card-section': {
-                template: `
+                },
+                'sw-card-section': {
+                    template: `
                     <div class="sw-card-section">
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-card-filter': {
-                template: `
+                },
+                'sw-card-filter': {
+                    template: `
                     <div class="sw-card-filter">
                         <slot name="filter"></slot>
                     </div>
                 `,
-            },
-            'sw-number-field': true,
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+                },
+                'sw-number-field': true,
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
                     <div class="sw-data-grid">
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
@@ -84,9 +85,10 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `,
+                },
+                'sw-context-menu-item': true,
+                'sw-button': true,
             },
-            'sw-context-menu-item': true,
-            'sw-button': true,
         },
     });
 }
@@ -107,10 +109,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         beforeEach(async () => {
             wrapper = await (await init('tax.editor', [{}])).wrapper;
-        });
-
-        afterEach(() => {
-            wrapper.destroy();
         });
 
         it('should be a Vue.JS component', async () => {
@@ -143,10 +141,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('', [{}])).wrapper;
         });
 
-        afterEach(() => {
-            wrapper.destroy();
-        });
-
         it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
@@ -177,10 +171,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('tax.editor', [])).wrapper;
         });
 
-        afterEach(() => {
-            wrapper.destroy();
-        });
-
         it('should be a Vue.JS component', async () => {
             expect(wrapper.vm).toBeTruthy();
         });
@@ -197,10 +187,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         beforeEach(async () => {
             wrapper = await (await init('', [])).wrapper;
-        });
-
-        afterEach(() => {
-            wrapper.destroy();
         });
 
         it('should be a Vue.JS component', async () => {

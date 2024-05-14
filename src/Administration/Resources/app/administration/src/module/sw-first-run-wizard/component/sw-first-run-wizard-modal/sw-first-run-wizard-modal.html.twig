@@ -54,12 +54,18 @@
             {% block sw_first_run_wizard_modal_content_page %}
             <div class="sw-first-run-wizard-modal-content__page">
                 <router-view
-                    @buttons-update="updateButtons"
-                    @frw-redirect="redirect"
-                    @frw-set-title="setTitle"
-                    @frw-finish="finishFRW"
-                    @extension-activated="onExtensionActivated"
-                />
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        class="sw-first-run-wizard-modal__component"
+                        @buttons-update="updateButtons"
+                        @frw-redirect="redirect"
+                        @frw-set-title="setTitle"
+                        @frw-finish="finishFRW"
+                        @extension-activated="onExtensionActivated"
+                    />
+                </router-view>
             </div>
             {% endblock %}
 

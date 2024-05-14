@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class EqualsFilterStruct extends FilterStruct
 {
     /**

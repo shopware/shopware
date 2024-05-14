@@ -17,7 +17,7 @@ Application.addServiceProvider('flowBuilderService', () => {
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default function flowBuilderService() {
     const $icon = {
@@ -189,6 +189,10 @@ export default function flowBuilderService() {
         const entries = Object.entries(config);
 
         entries.forEach(([key, value]) => {
+            if (!$labelSnippet.hasOwnProperty(key)) {
+                return;
+            }
+
             const snippet = translator.$tc($labelSnippet[key]);
             if (!snippet) {
                 return;

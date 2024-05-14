@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeliveryTimeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'delivery_time';

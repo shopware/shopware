@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Cms\Xml;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 
@@ -18,8 +19,8 @@ class BlockTest extends TestCase
         static::assertCount(2, $cmsExtensions->getBlocks()->getBlocks());
 
         $firstBlock = $cmsExtensions->getBlocks()->getBlocks()[0];
-        static::assertEquals('first-block-name', $firstBlock->getName());
-        static::assertEquals('text-image', $firstBlock->getCategory());
+        static::assertSame('first-block-name', $firstBlock->getName());
+        static::assertSame('text-image', $firstBlock->getCategory());
         static::assertCount(3, $firstBlock->getSlots());
         static::assertCount(6, $firstBlock->getDefaultConfig()->toArray('en-GB'));
         static::assertEquals(
@@ -76,9 +77,8 @@ class BlockTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedEntityArray
-     *
-     * @dataProvider provideEntityArrays
      */
+    #[DataProvider('provideEntityArrays')]
     public function testToEntityArray(int $i, array $expectedEntityArray): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');

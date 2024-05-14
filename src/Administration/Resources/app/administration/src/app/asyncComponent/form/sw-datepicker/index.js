@@ -10,8 +10,7 @@ const { Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
  * <a href="https://flatpickr.js.org/options/">https://flatpickr.js.org/options/</a>.
  * Be careful when changing the config object. To add a parameter to the config at runtime use:
@@ -47,6 +46,8 @@ const allEvents = [
 export default {
     template,
     inheritAttrs: false,
+
+    emits: ['update:value'],
 
     inject: ['feature'],
 
@@ -112,10 +113,6 @@ export default {
     },
 
     computed: {
-        flatpickrInputRef() {
-            return this.$refs.flatpickrInput;
-        },
-
         locale() {
             return Shopware.State.getters.adminLocaleLanguage || 'en';
         },
@@ -195,22 +192,14 @@ export default {
             },
             set(newValue) {
                 if (newValue === null) {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:value', null);
-                        return;
-                    }
+                    this.$emit('update:value', null);
 
-                    this.$emit('input', null);
                     return;
                 }
 
                 if (['time', 'date'].includes(this.dateType)) {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:value', newValue);
-                        return;
-                    }
+                    this.$emit('update:value', newValue);
 
-                    this.$emit('input', newValue);
                     return;
                 }
 
@@ -218,12 +207,7 @@ export default {
                 const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
 
                 // emit the UTC time so that the v-model value always work in UTC time (which is needed for the server)
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', utcDate.toISOString());
-                    return;
-                }
-
-                this.$emit('input', utcDate.toISOString());
+                this.$emit('update:value', utcDate.toISOString());
             },
         },
 
@@ -280,13 +264,6 @@ export default {
         this.mountedComponent();
     },
 
-    /**
-     * Free up memory
-     */
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
             this.createConfig();
@@ -304,10 +281,13 @@ export default {
          * Free up memory
          */
         beforeDestroyComponent() {
-            if (this.flatpickrInstance !== null) {
-                this.flatpickrInstance.destroy();
-                this.flatpickrInstance = null;
-            }
+            // NextTick is needed to avoid patching issue when used in a modal
+            this.$nextTick(() => {
+                if (this.flatpickrInstance !== null) {
+                    this.flatpickrInstance.destroy();
+                    this.flatpickrInstance = null;
+                }
+            });
         },
 
         /**
@@ -403,7 +383,7 @@ export default {
             });
 
             // Init flatpickr only if it is not already loaded.
-            this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, mergedConfig);
+            this.flatpickrInstance = new Flatpickr(this.$refs.flatpickrInput, mergedConfig);
             this.flatpickrInstance.config.onOpen.push(() => {
                 this.isDatepickerOpen = true;
             });

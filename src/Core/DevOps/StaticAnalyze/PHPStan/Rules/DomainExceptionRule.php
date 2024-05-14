@@ -9,10 +9,16 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
+use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Kernel;
 
 /**
  * @internal
@@ -24,20 +30,34 @@ class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;
 
-    private const VALID_EXCEPTION_CLASSES = [
-        DecorationPatternException::class,
-        ConstraintViolationException::class,
-    ];
-
     private const VALID_SUB_DOMAINS = [
         'Cart',
         'Payment',
         'Order',
     ];
 
+    /**
+     * @var array<string, string>
+     */
+    private const REMAPPED_DOMAINS = [
+        Kernel::class => FrameworkException::class,
+        Framework::class => FrameworkException::class,
+        VarnishReverseProxyGateway::class => ReverseProxyException::class,
+        FastlyReverseProxyGateway::class => ReverseProxyException::class,
+        RedisReverseProxyGateway::class => ReverseProxyException::class,
+    ];
+
+    /**
+     * @var array<string>
+     */
+    private array $validExceptionClasses;
+
     public function __construct(
-        private ReflectionProvider $reflectionProvider
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly Configuration $configuration,
     ) {
+        // see src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon for the default config
+        $this->validExceptionClasses = $this->configuration->getAllowedNonDomainExceptions();
     }
 
     public function getNodeType(): string
@@ -66,7 +86,7 @@ class DomainExceptionRule implements Rule
         \assert($node->expr->class instanceof Node\Name);
         $exceptionClass = $node->expr->class->toString();
 
-        if (\in_array($exceptionClass, self::VALID_EXCEPTION_CLASSES, true)) {
+        if (\in_array($exceptionClass, $this->validExceptionClasses, true)) {
             return [];
         }
 
@@ -99,24 +119,46 @@ class DomainExceptionRule implements Rule
         if (!\str_starts_with($reflection->getName(), 'Shopware\\Core\\')) {
             return [];
         }
-        $parts = \explode('\\', $reflection->getName());
 
-        $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);
-
-        if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
-            // Is it in a subdomain?
-            if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
-                $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
-                if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
-                    return [];
-                }
-            }
-
-            return [
-                RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $expected, $exceptionClass))->build(),
-            ];
+        if ($this->isRemapped($reflection->getName(), $exceptionClass)) {
+            return [];
         }
 
-        return [];
+        $parts = \explode('\\', $reflection->getName());
+
+        $domain = $parts[2] ?? '';
+        $sub = $parts[3] ?? '';
+
+        $acceptedClasses = [
+            \sprintf('Shopware\\Core\\%s\\%s\\%sException', $domain, $sub, $sub),
+            \sprintf('Shopware\\Core\\%s\\%sException', $domain, $domain),
+        ];
+
+        foreach ($acceptedClasses as $expected) {
+            if ($exceptionClass === $expected || $exception->isSubclassOf($expected)) {
+                return [];
+            }
+        }
+
+        // Is it in a subdomain?
+        if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
+            $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
+            if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
+                return [];
+            }
+        }
+
+        return [
+            RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $acceptedClasses[0], $exceptionClass))->build(),
+        ];
+    }
+
+    private function isRemapped(string $source, string $exceptionClass): bool
+    {
+        if (!\array_key_exists($source, self::REMAPPED_DOMAINS)) {
+            return false;
+        }
+
+        return self::REMAPPED_DOMAINS[$source] === $exceptionClass;
     }
 }

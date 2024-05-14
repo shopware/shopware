@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
@@ -15,20 +17,17 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator
  */
+#[CoversClass(QuantityPriceCalculator::class)]
 class QuantityPriceCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider priceCalculationWithGrossPricesProvider
-     */
+    #[DataProvider('priceCalculationWithGrossPricesProvider')]
     public function testPriceCalculationWithGrossPrices(
         CashRoundingConfig $config,
         CalculatedPrice $expected,
@@ -50,9 +49,7 @@ class QuantityPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $lineItemPrice);
     }
 
-    /**
-     * @dataProvider netPrices
-     */
+    #[DataProvider('netPrices')]
     public function testNetPrices(
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
@@ -74,9 +71,7 @@ class QuantityPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $lineItemPrice);
     }
 
-    /**
-     * @dataProvider netDeliveryPrices
-     */
+    #[DataProvider('netDeliveryPrices')]
     public function testNetDeliveries(
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition

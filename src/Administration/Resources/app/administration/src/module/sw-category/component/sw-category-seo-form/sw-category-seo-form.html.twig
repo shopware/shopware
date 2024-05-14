@@ -4,11 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_title %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="category.metaTitle"
-        {% else %}
-        v-model="category.metaTitle"
-        {% endif %}
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaTitle')"
@@ -20,11 +16,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_meta_description %}
     <sw-textarea-field
-        {% if VUE3 %}
         v-model:value="category.metaDescription"
-        {% else %}
-        v-model="category.metaDescription"
-        {% endif %}
         maxlength="255"
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelMetaDescription')"
@@ -36,11 +28,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_seo_form_keywords %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="category.keywords"
-        {% else %}
-        v-model="category.keywords"
-        {% endif %}
         :disabled="!acl.can('category.editor')"
         :label="$tc('sw-category.base.seo.labelKeywords')"
         :placeholder="$tc('sw-category.base.seo.placeholderKeywords')"

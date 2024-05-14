@@ -1,5 +1,5 @@
 import type { Module } from 'vuex';
-import type { uiModulePaymentOverviewCard } from '@shopware-ag/admin-extension-sdk/es/ui/module/payment/overviewCard';
+import type { uiModulePaymentOverviewCard } from '@shopware-ag/meteor-admin-sdk/es/ui/module/payment/overview-card';
 
 /**
  * @package checkout

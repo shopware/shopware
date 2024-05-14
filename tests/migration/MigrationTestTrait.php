@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Migration;
 
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
@@ -9,19 +12,28 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
  */
 trait MigrationTestTrait
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function startTransaction(): void
     {
         KernelLifecycleManager::getConnection()->beginTransaction();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function rollbackTransaction(): void
     {
         KernelLifecycleManager::getConnection()->rollBack();
+    }
+
+    protected function fetchLanguageId(Connection $connection, string $code): ?string
+    {
+        return $connection->fetchOne(
+            'SELECT `language`.`id`
+             FROM `language`
+                 INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
+             WHERE `locale`.`code` = :code
+             ORDER BY `language`.`created_at` ASC
+             LIMIT 1',
+            ['code' => $code]
+        ) ?: null;
     }
 }

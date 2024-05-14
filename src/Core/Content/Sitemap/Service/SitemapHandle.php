@@ -3,14 +3,14 @@
 namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;
@@ -169,7 +169,7 @@ class SitemapHandle implements SitemapHandleInterface
     {
         $handle = gzopen($filePath, 'ab');
         if ($handle === false) {
-            throw new FileNotReadableException($filePath);
+            throw SitemapException::fileNotReadable($filePath);
         }
 
         $this->handle = $handle;

@@ -1,42 +1,13 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal/index';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/base/sw-label';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/tree/sw-tree';
-import 'src/app/component/tree/sw-tree-item';
-import 'src/app/component/tree/sw-tree-input-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/utils/sw-vnode-renderer';
-import 'src/app/component/form/field-base/sw-contextual-field';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
 async function createWrapper(customPropsData = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-country-new-snippet-modal'), {
-        localVue,
-
-        mocks: {
-            $tc: key => key,
-            $route: {
-                params: {
-                    id: 'id',
-                },
-            },
-            $device: {
-                getSystemKey: () => {},
-                onResize: () => {},
-            },
-        },
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-country-new-snippet-modal', {
+        sync: true,
+    }), {
+        props: {
             selections: [
                 {
                     id: 'symbol/dash',
@@ -81,52 +52,61 @@ async function createWrapper(customPropsData = {}) {
             ...customPropsData,
         },
 
-        provide: {
-            shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {},
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $tc: key => key,
+                $route: {
+                    params: {
+                        id: 'id',
+                    },
+                },
+                $device: {
+                    getSystemKey: () => {},
+                    onResize: () => {},
+                },
             },
-        },
 
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': true,
-            'sw-tree': await Shopware.Component.build('sw-tree'),
-            'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
-            'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
-            'sw-confirm-field': true,
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
             },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-context-menu-item': {
-                template: `
+
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-label': await wrapTestComponent('sw-label'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-icon': true,
+                'sw-tree': await wrapTestComponent('sw-tree'),
+                'sw-tree-item': await wrapTestComponent('sw-tree-item'),
+                'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
+                'sw-confirm-field': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-context-menu-item': {
+                    template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
                     </div>`,
+                },
+                'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer'),
+                'sw-skeleton': true,
+                'sw-checkbox-field': true,
             },
-            'sw-vnode-renderer': await Shopware.Component.build('sw-vnode-renderer'),
-            'sw-skeleton': true,
-            'sw-checkbox-field': true,
         },
     });
 }
 
 describe('src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal', () => {
-    beforeAll(async () => {
-        Shopware.Utils.debounce = function debounce(fn) {
-            return function execFunction(...args) {
-                fn.apply(this, args);
-            };
-        };
-    });
-
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
 
@@ -135,6 +115,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
 
     it('should be able to remove the snippet', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const button = wrapper.find('.sw-select-selection-list__item-holder--0 > span');
 
@@ -149,6 +130,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
 
     it('should be able to add new snippet', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const treeItemChildren = wrapper.find('.tree-items .sw-tree-item__children');
 
@@ -162,9 +144,12 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
     });
 
     it('should be able to reorder data when user type search term in search field', async () => {
-        const swSettingsCountryNewSnippetModalComponent = await Shopware.Component.build('sw-settings-country-new-snippet-modal');
+        const swSettingsCountryNewSnippetModalComponent = await wrapTestComponent('sw-settings-country-new-snippet-modal', {
+            sync: true,
+        });
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const searchInputField = wrapper.find('.sw-settings-country-new-snippet-modal__input-field');
         let treesItem = wrapper.find('.tree-items .sw-tree-item__children');

@@ -9,9 +9,11 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,8 +23,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductListingRoute $listingRoute)
-    {
+    public function __construct(
+        private readonly AbstractProductListingRoute $listingRoute,
+        private readonly EntityRepository $sortingRepository
+    ) {
     }
 
     public function getType(): string
@@ -47,7 +51,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         if ($this->isCustomSorting($slot)) {
             $this->restrictSortings($request, $slot);
-            $this->addDefaultSorting($request, $slot);
+            $this->addDefaultSorting($request, $slot, $context);
         }
 
         $navigationId = $this->getNavigationId($request, $context);
@@ -88,7 +92,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return false;
     }
 
-    private function addDefaultSorting(Request $request, CmsSlotEntity $slot): void
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, SalesChannelContext $context): void
     {
         if ($request->get('order')) {
             return;
@@ -97,17 +101,48 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $config = $slot->getTranslation('config');
 
         if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
-            $request->request->set('order', $config['defaultSorting']['value']);
+            $defaultSortingValue = $config['defaultSorting']['value'];
+
+            if (!Feature::isActive('v6.7.0.0') && !Uuid::isValid($defaultSortingValue)) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.7.0.0',
+                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
+                );
+
+                $request->request->set('order', $defaultSortingValue);
+
+                return;
+            }
+            $criteria = new Criteria([$defaultSortingValue]);
+
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
 
             return;
         }
 
-        // if we have no specific order given at this point, set the order to be the highest's priority available sorting
+        // if we have no specific order given at this point, set the order to the highest priority available sorting
         if ($request->get('availableSortings')) {
             $availableSortings = $request->get('availableSortings');
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+            $sortingId = array_key_first($availableSortings);
+            if (!\is_string($sortingId)) {
+                return;
+            }
 
-            $request->request->set('order', array_key_first($availableSortings));
+            if (!Feature::isActive('v6.7.0.0') && !Uuid::isValid($sortingId)) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.7.0.0',
+                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
+                );
+
+                $request->request->set('order', $sortingId);
+
+                return;
+            }
+
+            $criteria = new Criteria([$sortingId]);
+
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
         }
     }
 
@@ -124,15 +159,15 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void
     {
-        // setup the default behavior
+        // set up the default behavior
         $defaults = ['manufacturer-filter', 'rating-filter', 'shipping-free-filter', 'price-filter', 'property-filter'];
 
-        $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, null);
+        $request->request->set('property-whitelist', null);
 
         $config = $slot->get('config');
 
         if (isset($config['propertyWhitelist']['value']) && (is_countable($config['propertyWhitelist']['value']) ? \count($config['propertyWhitelist']['value']) : 0) > 0) {
-            $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, $config['propertyWhitelist']['value']);
+            $request->request->set('property-whitelist', $config['propertyWhitelist']['value']);
         }
 
         if (!isset($config['filters']['value'])) {

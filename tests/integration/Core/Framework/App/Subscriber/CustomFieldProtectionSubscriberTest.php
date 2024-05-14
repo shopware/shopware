@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,14 +30,14 @@ class CustomFieldProtectionSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomFieldSetCollection>
      */
-    private $customFieldSetRepo;
+    private EntityRepository $customFieldSetRepo;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<AppCollection>
      */
-    private $appRepo;
+    private EntityRepository $appRepo;
 
     protected function setUp(): void
     {
@@ -46,7 +47,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([PreWriteValidationEvent::class => 'checkWrite'], CustomFieldProtectionSubscriber::getSubscribedEvents());
+        static::assertSame([PreWriteValidationEvent::class => 'checkWrite'], CustomFieldProtectionSubscriber::getSubscribedEvents());
     }
 
     public function testOnlyAppsCanWriteCustomFields(): void
@@ -76,7 +77,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ], $json);
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
     public function testUserCantEditAppCustomFieldSets(): void
@@ -95,7 +96,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $client->request('PATCH', '/api/custom-field-set/' . $id, $data, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
     }
 
     public function testSystemScopeCanAlwaysWrite(): void
@@ -107,15 +108,13 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var CustomFieldSetEntity $fieldSet */
-        $fieldSet = $this->customFieldSetRepo->search($criteria, $context)->first();
-        static::assertTrue($fieldSet->isActive());
+        $fieldSet = $this->customFieldSetRepo->search($criteria, $context)->getEntities()->first();
+        static::assertTrue($fieldSet?->isActive());
 
         $this->customFieldSetRepo->update([['id' => $fieldSet->getId(), 'active' => false]], $context);
 
-        /** @var CustomFieldSetEntity $fieldSet */
-        $fieldSet = $this->customFieldSetRepo->search($criteria, $context)->first();
-        static::assertFalse($fieldSet->isActive());
+        $fieldSet = $this->customFieldSetRepo->search($criteria, $context)->getEntities()->first();
+        static::assertFalse($fieldSet?->isActive());
     }
 
     public function testCustomFieldSetsWithoutAppAreUnaffected(): void
@@ -133,14 +132,16 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ], $json);
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
     public function authorizeBrowserWithIntegrationForApp(KernelBrowser $browser, string $appId): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-        $id = Uuid::fromHexToBytes($this->appRepo->search(new Criteria([$appId]), Context::createDefaultContext())->first()->getIntegrationId());
+        $integrationId = $this->appRepo->search(new Criteria([$appId]), Context::createDefaultContext())->getEntities()->first()?->getIntegrationId();
+        static::assertNotNull($integrationId);
+        $id = Uuid::fromHexToBytes($integrationId);
 
         $connection = $browser->getContainer()->get(Connection::class);
 
@@ -157,7 +158,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             'client_secret' => $secretAccessKey,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($browser->getResponse()->getContent());
 
         $data = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

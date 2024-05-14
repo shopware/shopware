@@ -7,7 +7,7 @@
             "SalesChannelContext": {
                 "allOf": [
                     {
-                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                        "$ref": "#/components/schemas/ArrayStruct"
                     },
                     {
                         "type": "object",
@@ -41,36 +41,7 @@
                                 }
                             },
                             "currency": {
-                                "type": "object",
-                                "description": "Currency associated with the current user",
-                                "properties": {
-                                    "isoCode": {
-                                        "type": "string"
-                                    },
-                                    "factor": {
-                                        "type": "integer"
-                                    },
-                                    "symbol": {
-                                        "type": "string"
-                                    },
-                                    "shortName": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "position": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "decimalPrecision": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "isSystemDefault": {
-                                        "type": "boolean"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/Currency"
                             },
                             "salesChannel": {
                                 "description": "Information about the current sales channel",
@@ -144,7 +115,7 @@
                             },
                             "taxRules": {
                                 "type": "array",
-                                "description": "Currently active tax rules and\/or rates",
+                                "description": "Currently active tax rules and/or rates",
                                 "items": {
                                     "type": "object",
                                     "properties": {
@@ -159,178 +130,30 @@
                                 }
                             },
                             "customer": {
-                                "type": "object",
-                                "description": "Information about the current customer - `null` if the customer is not logged in",
-                                "properties": {
-                                    "groupId": {
-                                        "type": "string"
-                                    },
-                                    "defaultPaymentMethodId": {
-                                        "type": "string"
-                                    },
-                                    "salesChannelId": {
-                                        "type": "string"
-                                    },
-                                    "languageId": {
-                                        "type": "string"
-                                    },
-                                    "lastPaymentMethodId": {
-                                        "type": "string"
-                                    },
-                                    "defaultBillingAddressId": {
-                                        "type": "string"
-                                    },
-                                    "defaultShippingAddressId": {
-                                        "type": "string"
-                                    },
-                                    "customerNumber": {
-                                        "type": "string"
-                                    },
-                                    "salutationId": {
-                                        "type": "string"
-                                    },
-                                    "firstName": {
-                                        "type": "string"
-                                    },
-                                    "lastName": {
-                                        "type": "string"
-                                    },
-                                    "company": {
-                                        "type": "string"
-                                    },
-                                    "password": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "affiliateCode": {
-                                        "type": "string"
-                                    },
-                                    "campaignCode": {
-                                        "type": "string"
-                                    },
-                                    "active": {
-                                        "type": "boolean"
-                                    },
-                                    "doubleOptInRegistration": {
-                                        "type": "boolean"
-                                    },
-                                    "doubleOptInEmailSentDate": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "doubleOptInConfirmDate": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "hash": {
-                                        "type": "string"
-                                    },
-                                    "guest": {
-                                        "type": "boolean"
-                                    },
-                                    "firstLogin": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "lastLogin": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "newsletter": {
-                                        "type": "boolean"
-                                    },
-                                    "birthday": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "lastOrderDate": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    },
-                                    "orderCount": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "legacyEncoder": {
-                                        "type": "string"
-                                    },
-                                    "legacyPassword": {
-                                        "type": "string"
-                                    },
-                                    "autoIncrement": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "remoteAddress": {
-                                        "type": "string"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/Customer"
                             },
                             "paymentMethod": {
+                                "$ref": "#/components/schemas/PaymentMethod"
+                            },
+                            "shippingLocation": {
                                 "type": "object",
-                                "description": "Selected payment method",
                                 "properties": {
-                                    "pluginId": {
-                                        "type": "string"
+                                    "apiAlias": {
+                                        "type": "string",
+                                        "enum": [
+                                            "cart_delivery_shipping_location"
+                                        ]
                                     },
-                                    "handlerIdentifier": {
-                                        "type": "string"
+                                    "country": {
+                                        "$ref": "#/components/schemas/Country"
                                     },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "position": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "active": {
-                                        "type": "boolean"
-                                    },
-                                    "availabilityRuleId": {
-                                        "type": "string"
-                                    },
-                                    "mediaId": {
-                                        "type": "string"
-                                    },
-                                    "formattedHandlerIdentifier": {
-                                        "type": "string"
+                                    "address": {
+                                        "$ref": "#/components/schemas/CustomerAddress"
                                     }
                                 }
                             },
                             "shippingMethod": {
-                                "type": "object",
-                                "description": "Selected shipping method",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "active": {
-                                        "type": "boolean"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "trackingUrl": {
-                                        "type": "string"
-                                    },
-                                    "deliveryTimeId": {
-                                        "type": "string"
-                                    },
-                                    "availabilityRuleId": {
-                                        "type": "string"
-                                    },
-                                    "mediaId": {
-                                        "type": "string"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/ShippingMethod"
                             },
                             "context": {
                                 "description": "Core context with general configuration values and state",
@@ -348,6 +171,12 @@
                                     "currencyPrecision": {
                                         "type": "integer",
                                         "format": "int32"
+                                    },
+                                    "languageIdChain": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     },
                                     "scope": {
                                         "type": "string"

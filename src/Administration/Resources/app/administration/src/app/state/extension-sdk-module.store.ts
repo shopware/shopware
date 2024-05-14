@@ -4,7 +4,7 @@
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type { Module } from 'vuex';
-import type { smartBarButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/mainModule';
+import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ExtensionSdkModule = {
@@ -13,6 +13,7 @@ export type ExtensionSdkModule = {
     baseUrl: string,
     locationId: string,
     displaySearchBar: boolean,
+    displaySmartBar: boolean,
     displayLanguageSwitch: boolean,
 };
 
@@ -33,12 +34,13 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     actions: {
         addModule(
             { state },
-            { heading, locationId, displaySearchBar, displayLanguageSwitch, baseUrl }: ExtensionSdkModule,
+            { heading, locationId, displaySearchBar, displaySmartBar, displayLanguageSwitch, baseUrl }: ExtensionSdkModule,
         ): Promise<string> {
             const staticElements = {
                 heading,
                 locationId,
                 displaySearchBar,
+                displaySmartBar,
                 displayLanguageSwitch,
                 baseUrl,
             };
@@ -71,7 +73,7 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default ExtensionSdkModuleStore;
 

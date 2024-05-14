@@ -10,6 +10,18 @@
                 "summary": "Submit a contact form message",
                 "description": "Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendContactMail",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {

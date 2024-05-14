@@ -2,32 +2,28 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/app/component/form/sw-colorpicker';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/utils/sw-popover';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalProps = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-
-    return shallowMount(await Shopware.Component.build('sw-colorpicker'), {
-        localVue,
-        stubs: {
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
+    const wrapper = mount(await wrapTestComponent('sw-colorpicker', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+            },
         },
         props: {
             value: null,
         },
         ...additionalProps,
     });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('components/form/sw-colorpicker', () => {
@@ -49,11 +45,10 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     afterEach(() => {
-        wrapper.destroy();
-    });
+        if (!wrapper) return;
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+        wrapper.unmount();
+        wrapper = null;
     });
 
     it('the watcher value updates the colorValue', async () => {
@@ -86,33 +81,29 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('colorValid should be true when using hex', async () => {
-        await wrapper.setData({
-            colorValue: '#fff',
-        });
+        wrapper.vm.colorValue = '#fff';
+        await flushPromises();
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
     it('colorValid should be true when using rgb', async () => {
-        await wrapper.setData({
-            colorValue: 'rgb(50, 40, 200)',
-        });
+        wrapper.vm.colorValue = 'rgb(50, 40, 200)';
+        await flushPromises();
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
     it('colorValid should be true when using hsl', async () => {
-        await wrapper.setData({
-            colorValue: 'hsl(40, 50%, 60%)',
-        });
+        wrapper.vm.colorValue = 'hsl(40, 50%, 60%)';
+        await flushPromises();
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
-    it('colorValid should not be true when using unvalid colorValue', async () => {
-        await wrapper.setData({
-            colorValue: 'super random color',
-        });
+    it('colorValid should not be true when using invalid colorValue', async () => {
+        wrapper.vm.colorValue = 'super random color';
+        await flushPromises();
 
         expect(wrapper.vm.isColorValid).toBe(false);
     });
@@ -148,10 +139,8 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('red value setter should function properly', async () => {
-        await wrapper.setData({
-            greenValue: 0,
-            blueValue: 45,
-        });
+        wrapper.vm.blueValue = 45;
+        wrapper.vm.greenValue = 0;
         wrapper.vm.redValue = 25;
 
         expect(wrapper.vm.hueValue).toBe(273.33);
@@ -160,10 +149,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('green value setter should function properly', async () => {
-        await wrapper.setData({
-            redValue: 101,
-            blueValue: 100,
-        });
+        wrapper.vm.blueValue = 100;
         wrapper.vm.redValue = 64;
 
         expect(wrapper.vm.hueValue).toBe(240);
@@ -172,10 +158,7 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('blue value setter should function properly', async () => {
-        await wrapper.setData({
-            redValue: 39,
-            greenValue: 123,
-        });
+        wrapper.vm.greenValue = 123;
         wrapper.vm.redValue = 89;
 
         expect(wrapper.vm.hueValue).toBe(94.58);
@@ -310,8 +293,9 @@ describe('components/form/sw-colorpicker', () => {
             hueValue: 275,
             saturationValue: 55,
             luminanceValue: 89,
-            hexValue: 'qwertz',
         });
+        wrapper.vm.hexValue = 'qwertz';
+        await flushPromises();
 
         expect(wrapper.vm.hexValue).toBe('#e6d4f2');
     });
@@ -444,11 +428,13 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.alpha).toBe(0.8);
     });
 
-    it('should show the colorpicker', async () => {
-        await wrapper.setData({ visible: true });
-        const colorpicker = wrapper.find('.sw-colorpicker__colorpicker');
+    it('should show the color picker', async () => {
+        await wrapper.find('.sw-colorpicker__previewWrapper').trigger('click');
+        await flushPromises();
 
-        expect(colorpicker.exists()).toBe(true);
+        const colorPicker = wrapper.find('.sw-colorpicker__colorpicker');
+
+        expect(colorPicker.exists()).toBe(true);
     });
 
     it('should output in rgb', async () => {
@@ -533,7 +519,7 @@ describe('components/form/sw-colorpicker', () => {
 
     it('should call debounceEmitColorValue when props value changed', async () => {
         wrapper = await createWrapper({
-            propsData: {
+            props: {
                 value: '#94c11f',
             },
         });
@@ -566,7 +552,7 @@ describe('components/form/sw-colorpicker', () => {
 
     it('should show the label from the property', async () => {
         wrapper = await createWrapper({
-            propsData: {
+            props: {
                 label: 'Label from prop',
             },
         });
@@ -576,10 +562,10 @@ describe('components/form/sw-colorpicker', () => {
 
     it('should show the value from the label slot', async () => {
         wrapper = await createWrapper({
-            propsData: {
+            props: {
                 label: 'Label from prop',
             },
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });
@@ -594,6 +580,7 @@ describe('components/form/sw-colorpicker', () => {
         await wrapper.setData({
             visible: true,
         });
+        await flushPromises();
 
         const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
 
@@ -604,11 +591,13 @@ describe('components/form/sw-colorpicker', () => {
 
     it('should call removeDragging on mouseup', async () => {
         wrapper = await createWrapper();
+
         const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
 
         await wrapper.setData({
             visible: true,
         });
+        await flushPromises();
 
         const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
         await colorPicker.trigger('mousedown');
@@ -622,6 +611,7 @@ describe('components/form/sw-colorpicker', () => {
 
     it('should toggleColorPicker on clicking input', async () => {
         wrapper = await createWrapper();
+
         const toggleColorPicker = jest.spyOn(wrapper.vm, 'toggleColorPicker');
 
         await wrapper.setProps({
@@ -671,9 +661,12 @@ describe('components/form/sw-colorpicker', () => {
             visible: true,
             isDragging: true,
         });
+        await flushPromises();
+
         const event = {
             clientX,
             clientY,
+            preventDefault: jest.fn(),
         };
 
         jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
@@ -689,5 +682,19 @@ describe('components/form/sw-colorpicker', () => {
 
         expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
         expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
+    });
+
+    it('should prevent default behavior on moveSelector event argument', async () => {
+        wrapper = await createWrapper();
+
+        const mockEvent = {
+            preventDefault: jest.fn(),
+        };
+
+        expect(mockEvent.preventDefault).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.moveSelector(mockEvent);
+
+        expect(mockEvent.preventDefault).toHaveBeenCalledTimes(1);
     });
 });

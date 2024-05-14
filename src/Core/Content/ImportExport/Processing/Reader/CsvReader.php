@@ -5,13 +5,16 @@ namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
     private int $offset = 0;
 
+    /**
+     * @var array<mixed>
+     */
     private array $header = [];
 
     /**
@@ -25,6 +28,11 @@ class CsvReader extends AbstractReader
     ) {
     }
 
+    /**
+     * @param resource $resource
+     *
+     * @return iterable<array<mixed>>
+     */
     public function read(Config $config, $resource, int $offset): iterable
     {
         if (!\is_resource($resource)) {
@@ -42,7 +50,7 @@ class CsvReader extends AbstractReader
             }
 
             $record = $this->readSingleRecord($resource, $this->offset);
-            $this->setOffset(ftell($resource));
+            $this->setOffset(ftell($resource) ?: 0);
 
             if ($record !== null) {
                 yield $record;
@@ -55,10 +63,7 @@ class CsvReader extends AbstractReader
         return $this->offset;
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:visibility-change - becomes private
-     */
-    public function loadConfig(Config $config): void
+    private function loadConfig(Config $config): void
     {
         $this->delimiter = $config->get('delimiter') ?? $this->delimiter;
         $this->enclosure = $config->get('enclosure') ?? $this->enclosure;
@@ -87,6 +92,8 @@ class CsvReader extends AbstractReader
 
     /**
      * @param resource $resource
+     *
+     * @return array<mixed>|null
      */
     private function readSingleRecord($resource, int $offset): ?array
     {
@@ -113,6 +120,11 @@ class CsvReader extends AbstractReader
         return null;
     }
 
+    /**
+     * @param array<mixed> $record
+     *
+     * @return array<mixed>|null
+     */
     private function mapRecord(array $record): ?array
     {
         if (!$this->withHeader) {

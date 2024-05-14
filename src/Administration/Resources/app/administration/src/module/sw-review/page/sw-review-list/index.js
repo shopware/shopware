@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -75,9 +75,11 @@ export default {
                 },
             ];
         },
+
         repository() {
             return this.repositoryFactory.create('product_review');
         },
+
         criteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -90,6 +92,10 @@ export default {
             criteria.addAssociation('product');
 
             return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

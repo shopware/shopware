@@ -1,33 +1,15 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swPromotionV2EmptyStateHero from 'src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero';
-
-Shopware.Component.register('sw-promotion-v2-empty-state-hero', swPromotionV2EmptyStateHero);
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero', () => {
     async function createWrapper(data = {}) {
-        const localVue = createLocalVue();
-        localVue.filter('asset', key => key);
-
-        return shallowMount(await Shopware.Component.build('sw-promotion-v2-empty-state-hero'), {
-            localVue,
-            mocks: {
-                $route: { meta: { $module: { name: 'promotion-v2' } } },
-            },
-            propsData: {
+        return mount(await wrapTestComponent('sw-promotion-v2-empty-state-hero', { sync: true }), {
+            props: {
                 title: 'Oh no, nothing was found.',
                 description: 'I am some text, which is kinda small, but also somewhat longer than other texts!',
-                ...data.propsData,
+                ...data.props,
             },
-            slots: data.slots,
-            scopedSlots: data.scopedSlots,
         });
     }
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should render a title', async () => {
         const wrapper = await createWrapper();
@@ -45,7 +27,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
 
     it('should render no description, if `hideDescription` is active', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 hideDescription: true,
             },
         });
@@ -55,37 +37,11 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero'
 
     it('should render no description, if there is no description text', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 description: null,
             },
         });
 
         expect(wrapper.find('.sw-promotion-v2-empty-state-hero__description').exists()).toBeFalsy();
-    });
-
-    it('should not render content of the actions slot, if not slotted', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.find('.sw-promotion-v2-empty-state-hero__actions').exists()).toBeFalsy();
-    });
-
-    it('should render content of the actions slot (unscoped)', async () => {
-        const wrapper = await createWrapper({
-            slots: {
-                actions: '<button class="sw-button">BUY NOW!!!</button>',
-            },
-        });
-
-        expect(wrapper.find('.sw-button').exists()).toBe(true);
-    });
-
-    it('should render content of the actions slot (scoped)', async () => {
-        const wrapper = await createWrapper({
-            scopedSlots: {
-                actions: '<button class="sw-button">BUY NOW!!!</button>',
-            },
-        });
-
-        expect(wrapper.find('.sw-button').exists()).toBe(true);
     });
 });

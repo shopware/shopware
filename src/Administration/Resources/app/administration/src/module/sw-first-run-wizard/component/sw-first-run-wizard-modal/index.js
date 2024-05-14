@@ -2,10 +2,9 @@ import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
 /**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
+ * @package checkout
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -45,7 +44,12 @@ export default {
                     navigationIndex: 3,
                 },
                 'mailer.smtp': {
-                    name: 'sw.first.run.wizard.index.mailer.setup',
+                    name: 'sw.first.run.wizard.index.mailer.smtp',
+                    variant: 'large',
+                    navigationIndex: 3,
+                },
+                'mailer.local': {
+                    name: 'sw.first.run.wizard.index.mailer.local',
                     variant: 'large',
                     navigationIndex: 3,
                 },
@@ -165,9 +169,7 @@ export default {
 
     watch: {
         '$route'(to) {
-            const toName = to.name.replace('sw.first.run.wizard.index.', '');
-
-            this.currentStep = this.stepper[toName];
+            this.handleRouteUpdate(to);
         },
     },
 
@@ -182,6 +184,12 @@ export default {
     },
 
     methods: {
+        handleRouteUpdate(to) {
+            const toName = to.name.replace('sw.first.run.wizard.index.', '');
+
+            this.currentStep = this.stepper[toName];
+        },
+
         createdComponent() {
             this.firstRunWizardService.setFRWStart();
         },

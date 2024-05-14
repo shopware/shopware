@@ -5,9 +5,10 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -33,6 +34,9 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly MediaService $mediaService,
@@ -45,7 +49,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
     /**
      * @param array<mixed>|\Traversable<mixed> $entity
      *
-     * @return array<mixed>|\Traversable<mixed>
+     * @return array<mixed>
      */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
@@ -65,16 +69,18 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
             return $deserialized;
         }
 
+        $context = Context::createDefaultContext();
+
         $media = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), Context::createDefaultContext())->first();
+            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), $context)->getEntities()->first();
         }
 
         $isNew = $media === null;
 
         if ($isNew || $media->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
+            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName, $context);
 
             $deserialized['id'] ??= Uuid::randomHex();
 
@@ -94,7 +100,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
             }
 
             if ($isNew && $media->getHash()) {
-                $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash());
+                $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash(), $context);
             }
 
             $this->cacheMediaFiles[(string) $deserialized['id']] = [
@@ -144,13 +150,12 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         $this->cacheMediaFiles = [];
     }
 
-    private function getMediaFolderId(?string $id, string $entity): string
+    private function getMediaFolderId(?string $id, string $entity, Context $context): string
     {
         if ($id !== null) {
-            /** @var MediaFolderEntity|null $folder */
-            $folder = $this->mediaFolderRepository->search(new Criteria([$id]), Context::createDefaultContext())->first();
-            if ($folder !== null) {
-                return $folder->getId();
+            $folderId = $this->mediaFolderRepository->searchIds(new Criteria([$id]), $context)->firstId();
+            if ($folderId !== null) {
+                return $folderId;
             }
         }
 
@@ -158,24 +163,21 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', $entity));
         $criteria->addAssociation('defaultFolder');
 
-        /** @var MediaFolderEntity|null $default */
-        $default = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->first();
-
-        if ($default !== null) {
-            return $default->getId();
+        $defaultFolderId = $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
+        if ($defaultFolderId !== null) {
+            return $defaultFolderId;
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'import_export_profile'));
         $criteria->addAssociation('defaultFolder');
 
-        /** @var MediaFolderEntity|null $fallback */
-        $fallback = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->first();
-        if ($fallback === null) {
+        $fallbackFolderId = $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
+        if ($fallbackFolderId === null) {
             throw new \RuntimeException('Failed to find default media folder for import_export_profile');
         }
 
-        return $fallback->getId();
+        return $fallbackFolderId;
     }
 
     private function fetchFileFromURL(string $url, string $extension): ?MediaFile
@@ -189,7 +191,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         try {
             $file = $this->mediaService->fetchFile($request);
-            if ($file !== null && $file->getFileSize() > 0) {
+            if ($file->getFileSize() > 0) {
                 return $file;
             }
         } catch (\Throwable) {
@@ -203,15 +205,14 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
      *
      * @return array<string, mixed>
      */
-    private function fetchExistingMediaByHash(array $deserialized, string $hash): array
+    private function fetchExistingMediaByHash(array $deserialized, string $hash, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('metaData.hash', $hash));
 
-        $media = $this->mediaRepository->search($criteria, Context::createDefaultContext())->first();
-
-        if ($media) {
-            $deserialized['id'] = $media->getId();
+        $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
+        if ($mediaId !== null) {
+            $deserialized['id'] = $mediaId;
         }
 
         return $deserialized;

@@ -81,12 +81,18 @@
                         <sw-skeleton />
                     </template>
 
-                    <router-view
-                        v-else
-                        :is-loading="isLoading"
-                        :search-term="term"
-                        @on-update-total="onUpdateTotalFlow"
-                    />
+                    <template v-else>
+                        <router-view
+                            v-slot="{ Component }"
+                        >
+                            <component
+                                :is="Component"
+                                :is-loading="isLoading"
+                                :search-term="term"
+                                @on-update-total="onUpdateTotalFlow"
+                            />
+                        </router-view>
+                    </template>
                 </template>
             </sw-tabs>
         </sw-card-view>

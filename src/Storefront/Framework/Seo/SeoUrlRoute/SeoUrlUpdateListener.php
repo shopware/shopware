@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
     final public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
@@ -70,7 +70,11 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge(array_values($event->getIds()), $this->getCategoryChildren($event->getIds()));
+        $ids = array_values($event->getIds());
+
+        if (!$event->isFullIndexing) {
+            $ids = array_merge($ids, $this->getCategoryChildren($ids));
+        }
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
     }
@@ -94,9 +98,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function getCategoryChildren(array $ids): array
     {
@@ -123,7 +127,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return [];
         }
 
-        /** @var list<string> $ids */
         $ids = Uuid::fromBytesToHexList($children);
 
         return $ids;

@@ -1,12 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swFlowEventChangeConfirmModal from 'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal';
-
-import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-Shopware.Component.register('sw-flow-event-change-confirm-modal', swFlowEventChangeConfirmModal);
+import { mount } from '@vue/test-utils';
 
 const fieldClasses = [
     '.sw-flow-event-change-confirm-modal__title',
@@ -18,30 +14,21 @@ const fieldClasses = [
 const btnConfirmClass = '.sw-flow-event-change-confirm-modal__confirm-button';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-event-change-confirm-modal'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-flow-event-change-confirm-modal', {
+        sync: true,
+    }), {
+        props: {
             item: {
                 id: 'action-name',
             },
         },
-
-        stubs: {
-            'sw-modal': {
-                template: `
-                    <div class="sw-modal">
-                      <slot name="modal-header"></slot>
-                      <slot></slot>
-                      <slot name="modal-footer"></slot>
-                    </div>
-                `,
+        global: {
+            stubs: {
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-icon': true,
             },
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-icon': true,
         },
     });
 }
@@ -61,6 +48,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
 
     it('should reset flow sequence when clicking on confirm button', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         Shopware.State.commit('swFlowState/setSequences', new EntityCollection(
             '/flow_sequence',
@@ -89,6 +77,7 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
 
         const buttonConfirm = wrapper.find(btnConfirmClass);
         await buttonConfirm.trigger('click');
+        await flushPromises();
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(0);

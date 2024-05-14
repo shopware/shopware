@@ -1,18 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsListingOptionCriteriaGrid from 'src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/utils/sw-popover';
-
-Shopware.Component.register('sw-settings-listing-option-criteria-grid', swSettingsListingOptionCriteriaGrid);
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-criteria-grid', () => {
     const customFieldRelations = [];
@@ -22,55 +8,63 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             label: { 'en-GB': 'asperiores sint dolore' },
         },
     }];
-    const localVue = createLocalVue();
-
-    localVue.directive('popover', {});
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-criteria-grid'), {
-            localVue,
-            provide: {
-                repositoryFactory: {
-                    create: repository => {
-                        if (repository === 'custom_field_set_relation') {
-                            return { search: () => Promise.resolve(customFieldRelations) };
-                        }
+        return mount(await wrapTestComponent('sw-settings-listing-option-criteria-grid', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: repository => {
+                            if (repository === 'custom_field_set_relation') {
+                                return { search: () => Promise.resolve(customFieldRelations) };
+                            }
 
-                        if (repository === 'custom_field') {
-                            return {
-                                search: () => Promise.resolve(customFields),
-                                get: () => Promise.resolve(),
-                            };
-                        }
+                            if (repository === 'custom_field') {
+                                return {
+                                    search: () => Promise.resolve(customFields),
+                                    get: () => Promise.resolve(),
+                                };
+                            }
 
-                        return { search: () => Promise.resolve() };
+                            return { search: () => Promise.resolve() };
+                        },
                     },
                 },
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-empty-state': {
+                        template: '<div class="sw-empty-state"></div>',
+                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-icon': {
+                        template: '<i></i>',
+                    },
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-popover': {
+                        props: ['popoverClass'],
+                        template: `
+                    <div class="sw-popover" :class="popoverClass">
+                        <slot></slot>
+                    </div>`,
+                    },
+                    'sw-loader': true,
+                },
             },
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-icon': {
-                    template: '<i></i>',
-                },
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-context-button': await Shopware.Component.build('sw-context-button'),
-                'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-popover': await Shopware.Component.build('sw-popover'),
-                'sw-loader': true,
-            },
-            propsData: {
+            props: {
                 productSortingEntity: {
                     label: 'Price descending',
                     fields: [
@@ -102,6 +96,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('should be a Vue.js Component', async () => {
@@ -220,12 +215,14 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 }] },
             },
         });
+        await flushPromises();
 
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result').at(0);
+        const results = wrapper.findAll('.sw-select-result')[0];
         await results.trigger('click');
+        await flushPromises();
 
         expect(wrapper.vm.productSortingEntity.fields).toEqual([
             {

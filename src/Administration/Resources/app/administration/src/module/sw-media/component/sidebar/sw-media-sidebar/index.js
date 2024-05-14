@@ -4,12 +4,13 @@ import './sw-media-sidebar.scss';
 const { Filter, Context } = Shopware;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
     inject: ['repositoryFactory'],
+    mixins: [Shopware.Mixin.getByName('notification')],
     props: {
         items: {
             required: true,
@@ -42,6 +43,10 @@ export default {
     },
 
     computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
         },
@@ -90,6 +95,10 @@ export default {
         firstEntity() {
             return this.items[0];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -118,6 +127,28 @@ export default {
 
         onMediaFolderRenamed() {
             this.$emit('media-sidebar-folder-renamed');
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        async onFirstItemUpdated(newItem) {
+            const firstItem = this.items[0];
+
+            try {
+                firstItem.isLoading = true;
+                Object.assign(this.items[0], newItem);
+                await this.mediaRepository.save(firstItem, Context.api);
+                this.createNotificationSuccess({
+                    message: this.$tc('global.sw-media-media-item.notification.settingsSuccess.message'),
+                });
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
+            } finally {
+                firstItem.isLoading = false;
+            }
         },
     },
 };

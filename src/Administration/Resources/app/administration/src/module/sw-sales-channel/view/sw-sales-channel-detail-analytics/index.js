@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-analytics.html.twig';
@@ -9,10 +9,9 @@ import './sw-sales-channel-detail-analytics.scss';
 const { Context } = Shopware;
 
 /**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
+ * @package buyers-experience
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -27,7 +26,6 @@ export default {
             default: false,
         },
 
-        // FIXME: add type to salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,

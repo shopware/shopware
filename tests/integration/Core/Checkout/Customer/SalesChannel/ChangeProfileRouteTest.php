@@ -3,30 +3,33 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
+#[Group('store-api')]
 class ChangeProfileRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -183,6 +186,56 @@ class ChangeProfileRouteTest extends TestCase
         static::assertEquals($changeData['lastName'], $customer->getLastName());
     }
 
+    public function testChangeProfileWithExistingNotSpecifiedSalutation(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                [
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+    }
+
+    public function testChangeProfileToNotSpecifiedWithoutExistingSalutation(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->executeStatement(
+            'DELETE FROM salutation WHERE salutation_key = :salutationKey',
+            ['salutationKey' => SalutationDefinition::NOT_SPECIFIED]
+        );
+
+        $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
+        static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                [
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
+    }
+
     public static function dataProviderVatIds(): \Generator
     {
         yield 'Error when vatIds is require but no validate format, and has value is empty' => [
@@ -297,12 +350,11 @@ class ChangeProfileRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderVatIds
-     *
-     * @param array<string, boolean> $constraint
+     * @param array<string, bool> $constraint
      * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */
+    #[DataProvider('dataProviderVatIds')]
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {
         if (isset($constraint['required']) && $constraint['required']) {
@@ -572,7 +624,6 @@ class ChangeProfileRouteTest extends TestCase
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
 
         $customerDefinition = new CustomerDefinition();
-        static::assertIsArray($customerDefinition->getDefaults());
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $customer->getAccountType());
     }
@@ -600,6 +651,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment'),
                 'name' => $this->ids->get('payment'),
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -611,6 +663,7 @@ class ChangeProfileRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment2'),
                 'name' => $this->ids->get('payment2'),
+                'technicalName' => 'payment_test2',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -655,6 +708,7 @@ class ChangeProfileRouteTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test_invoice',
                     'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,

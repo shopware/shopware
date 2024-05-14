@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\Api;
 
+use Shopware\Core\Content\Seo\ConfiguredSeoUrlRoute;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -28,10 +29,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoActionController extends AbstractController
 {
     /**
@@ -155,6 +156,10 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelNotFound($salesChannelId);
         }
 
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
+
         $this->seoUrlPersister->updateSeoUrls(
             $context,
             $seoUrlData['routeName'],
@@ -197,14 +202,20 @@ class SeoActionController extends AbstractController
         }
 
         foreach ($writeData as $salesChannelId => $writeRows) {
-            $salesChannelEntity = null;
-
             if ($salesChannelId === '') {
                 throw SeoException::salesChannelIdParameterIsMissing();
             }
 
             /** @var SalesChannelEntity $salesChannelEntity */
             $salesChannelEntity = $salesChannels->get($salesChannelId);
+
+            if ($salesChannelEntity === null) {
+                throw SeoException::salesChannelNotFound((string) $salesChannelId);
+            }
+
+            if ($salesChannelEntity->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+                continue;
+            }
 
             $this->seoUrlPersister->updateSeoUrls(
                 $context,
@@ -302,7 +313,7 @@ class SeoActionController extends AbstractController
             throw SeoException::salesChannelIdParameterIsMissing();
         }
 
-        $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);
+        $result = $this->seoUrlGenerator->generate($ids, $template, new ConfiguredSeoUrlRoute($seoUrlRoute, $config), $context, $salesChannel);
         if (\is_array($result)) {
             return $result;
         }

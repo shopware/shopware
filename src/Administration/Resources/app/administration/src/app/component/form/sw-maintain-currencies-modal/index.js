@@ -9,7 +9,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-maintain-currencies-modal', {
     template,
@@ -39,7 +39,6 @@ Component.register('sw-maintain-currencies-modal', {
             required: true,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,

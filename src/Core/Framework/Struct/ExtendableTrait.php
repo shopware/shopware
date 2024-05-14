@@ -53,10 +53,20 @@ trait ExtendableTrait
         return $this->extensions[$name] ?? null;
     }
 
+    /**
+     * @template T of Struct
+     *
+     * @param class-string<T> $type
+     *
+     * @return T|null
+     */
     public function getExtensionOfType(string $name, string $type): ?Struct
     {
         if ($this->hasExtensionOfType($name, $type)) {
-            return $this->getExtension($name);
+            /** @var T $extension */
+            $extension = $this->getExtension($name);
+
+            return $extension;
         }
 
         return null;

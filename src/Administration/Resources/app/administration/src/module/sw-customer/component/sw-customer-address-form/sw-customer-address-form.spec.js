@@ -1,20 +1,12 @@
-import { shallowMount } from '@vue/test-utils';
-import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
+import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
 
 // eslint-disable-next-line import/named
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
-
-Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);
 
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
@@ -35,8 +27,8 @@ async function createWrapper() {
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-customer-address-form'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-customer-address-form', { sync: true }), {
+        props: {
             customer: {},
             address: {
                 _isNew: true,
@@ -44,47 +36,50 @@ async function createWrapper() {
                 getEntityName: () => { return 'customer_address'; },
             },
         },
-        stubs: {
-            'sw-container': true,
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-entity-single-select': true,
-            'sw-icon': true,
-        },
-        provide: {
-            validationService: {},
-            repositoryFactory: {
-                create: (entity) => {
-                    if (entity === 'country') {
-                        return {
-                            get: (id) => {
-                                if (id) {
-                                    return Promise.resolve({
-                                        id,
-                                        name: 'Germany',
-                                    });
-                                }
+        global: {
+            stubs: {
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-entity-single-select': true,
+                'sw-icon': true,
+            },
+            provide: {
+                validationService: {},
+                repositoryFactory: {
+                    create: (entity) => {
+                        if (entity === 'country') {
+                            return {
+                                get: (id) => {
+                                    if (id) {
+                                        return Promise.resolve({
+                                            id,
+                                            name: 'Germany',
+                                        });
+                                    }
 
-                                return Promise.resolve({});
+                                    return Promise.resolve({});
+                                },
+                            };
+                        }
+
+                        return {
+                            search: (criteria = {}) => {
+                                const countryIdFilter = criteria?.filters.find(item => item.field === 'countryId');
+
+                                if (countryIdFilter?.value === '1') {
+                                    return Promise.resolve([{
+                                        id: 'state1',
+                                    }]);
+                                }
+                                return Promise.resolve([]);
                             },
                         };
-                    }
-
-                    return {
-                        search: (criteria = {}) => {
-                            const countryIdFilter = criteria?.filters.find(item => item.field === 'countryId');
-
-                            if (countryIdFilter?.value === '1') {
-                                return Promise.resolve([{
-                                    id: 'state1',
-                                }]);
-                            }
-                            return Promise.resolve([]);
-                        },
-                    };
+                    },
                 },
             },
         },
@@ -106,10 +101,11 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '2',
+                getEntityName: () => { return 'customer_address'; },
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const stateSelect = wrapper.find('.sw-customer-address-form__state-select');
         expect(stateSelect.exists()).toBeFalsy();
@@ -121,6 +117,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         await wrapper.setProps({
             address: {
                 countryId: '1',
+                getEntityName: () => { return 'customer_address'; },
             },
         });
 
@@ -139,8 +136,10 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             address: {},
         });
 
-        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeTruthy();
+        await flushPromises();
+
+        expect(wrapper.find('input[label="sw-customer.addressForm.labelCompany"]')
+            .attributes('required')).toBeDefined();
     });
 
     it('should not mark company as required when switching to private type', async () => {
@@ -151,8 +150,10 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             },
         });
 
+        await flushPromises();
+
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]')
-            .attributes('required')).toBeFalsy();
+            .attributes('required')).toBeUndefined();
     });
 
     it('should display company, department and vat fields by default when account type is empty', async () => {
@@ -182,7 +183,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const firstName = wrapper.findAll('.sw-field').at(3);
 
@@ -191,7 +192,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(firstName.find('.sw-field__error').text()).toBe('This value should not be blank.');
 
         await wrapper.setProps({ disabled: true });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.disabled).toBe(true);
         expect(firstName.classes()).not.toContain('has--error');

@@ -1,95 +1,56 @@
-split repository:
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+.split-base:
   stage: split
   tags:
-    - shopware
+    - shopware-multi-arch
   image:
-    name: alpine
-  needs: [ ]
-  rules:
-    - !reference [ .rules, skip-in-merge-train ]
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, run ]
-    - if: '$CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)'
+    name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   variables:
-    SPLITSH_ARCHIVE_URL: 'https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz'
     GIT_DEPTH: '0'
-  before_script: []
-  script:
-    - apk add git git-subtree
-    - >
-        for package in Administration Storefront Core Elasticsearch; do
-          .gitlab/bin/split.sh split_repo "${package}"
-        done
+    GIT_STRATEGY: 'clone'
+  needs: [ ]
+  before_script: [ ]
   artifacts:
     when: on_success
     paths:
       - '${CI_PROJECT_DIR}/repos'
 
+.finalize:
+  extends: .split-base
+  variables:
+    GIT_AUTHOR_EMAIL: 'shopwarebot@shopware.com'
+    GIT_AUTHOR_NAME: 'shopwareBot'
+    GIT_COMMITTER_EMAIL: 'shopwarebot@shopware.com'
+    GIT_COMMITTER_NAME: 'shopwareBot'
+  needs:
+    - job: 'add assets to split repositories'
+
+split repository:
+  extends: .split-base
+  rules:
+    - !reference [ .rules, split, rules-label-or-scheduled-or-tag ]
+  parallel:
+    matrix:
+      - PACKAGE: [ 'Administration', 'Storefront', 'Core', 'Elasticsearch' ]
+  script:
+    - .github/bin/split.bash split_repo "${PACKAGE}"
+
 add assets to split repositories:
-  stage: split
-  tags:
-    - shopware
-  image:
-    name: bitnami/git:2
+  extends: .split-base
   needs:
     - job: 'Build'
     - job: 'split repository'
-  rules: &rules-tag
-    - !reference [ .rules, skip-in-merge-train ]
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, run ]
-    - if: '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_TAG != null'
-  variables:
-    GIT_AUTHOR_EMAIL: 'shopwarebot@shopware.com'
-    GIT_AUTHOR_NAME: 'shopwareBot'
-    GIT_COMMITTER_EMAIL: 'shopwarebot@shopware.com'
-    GIT_COMMITTER_NAME: 'shopwareBot'
-  before_script: [ ]
-  script:
+  before_script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh copy_assets "${package}"
-      done
-    - .gitlab/bin/split.sh check_assets
-    - .gitlab/bin/split.sh include_admin_assets
-    - .gitlab/bin/split.sh include_storefront_assets
-  artifacts:
-    when: on_success
-    paths:
-      - '${CI_PROJECT_DIR}/repos'
-
-require core version:
-  stage: split
-  tags:
-    - shopware
-  image:
-    name: composer:2.5
-  needs:
-    - job: 'add assets to split repositories'
+      if [ -r "${CI_PROJECT_DIR}/context.tar.gz" ]; then
+        tar -xzf "${CI_PROJECT_DIR}/context.tar.gz"
+      else
+        printf 'No context.tar.gz found. Make sure the build artifacts are present.\n'
+        exit 1
+      fi
   rules:
-    - *rules-tag
-  script:
-    - >
-      for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh require_core_version "${package}" "${CI_COMMIT_TAG:-dev-tmp-${CI_COMMIT_SHORT_SHA}}"
-      done
-  artifacts:
-    when: on_success
-    paths:
-      - '${CI_PROJECT_DIR}/repos'
-
-tag split repositories:
-  stage: split
-  tags:
-    - shopware
-  image:
-    name: bitnami/git:2
-  needs:
-    - job: 'require core version'
-  rules:
-    - !reference [ .rules, skip-in-merge-train ]
-    - !reference [ .rules, skip ]
-    - if: '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_TAG != null'
+    - !reference [ .rules, split, rules-label-or-scheduled-or-tag ]
   variables:
     GIT_AUTHOR_EMAIL: 'shopwarebot@shopware.com'
     GIT_AUTHOR_NAME: 'shopwareBot'
@@ -97,32 +58,59 @@ tag split repositories:
     GIT_COMMITTER_NAME: 'shopwareBot'
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
+      for package in Administration Storefront; do
+        .github/bin/split.bash copy_assets "${package}"
       done
-    - >
-      for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh tag "${package}" "${CI_COMMIT_TAG}"
-      done
-  artifacts:
-    when: on_success
-    paths:
-      - '${CI_PROJECT_DIR}/repos'
+    - .github/bin/split.bash check_assets
+    - .github/bin/split.bash include_admin_assets
+    - .github/bin/split.bash include_storefront_assets
 
-branch split repositories:
-  extends: 'tag split repositories'
+finalize split repos (tag):
+  extends: .finalize
   rules:
-    - !reference [ .rules, skip-in-merge-train ]
-    - !reference [ .rules, skip ]
-    - if: '$CI_COMMIT_TAG != null'
-      when: never
-    - !reference [ .rules, run ]
+    - !reference [ .rules, split, rules-tag ]
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "tmp-${CI_COMMIT_SHORT_SHA} (+ assets)"
+      for package in Administration Storefront Elasticsearch; do
+        .github/bin/split.bash require_core_version "${package}" "${CI_COMMIT_TAG}"
+      done
+    - >
+      for package in Administration Storefront Elasticsearch; do
+        .github/bin/split.bash commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
       done
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh branch "${package}" "tmp-${CI_COMMIT_SHORT_SHA}"
+        .github/bin/split.bash tag "${package}" "${CI_COMMIT_TAG}"
+      done
+
+finalize split repos (protected branch):
+  extends: .finalize
+  rules:
+    - !reference [ .rules, split, rules-scheduled ]
+  script:
+    - >
+      for package in Administration Storefront Elasticsearch; do
+        .github/bin/split.bash require_core_version "${package}" "dev-${CI_COMMIT_REF_NAME}"
+      done
+    - >
+      for package in Administration Storefront Elasticsearch; do
+        .github/bin/split.bash commit "${package}" "${CI_COMMIT_REF_NAME} (+ assets)"
+      done
+
+finalize split repos (merge request):
+  extends: .finalize
+  rules:
+    - !reference [ .rules, split, rules-label ]
+  script:
+    - >
+      for package in Administration Storefront Elasticsearch; do
+          .github/bin/split.bash require_core_version "${package}" "dev-tmp-${CI_COMMIT_SHORT_SHA}"
+      done
+    - >
+      for package in Administration Storefront Elasticsearch; do
+        .github/bin/split.bash commit "${package}" "tmp-${CI_COMMIT_SHORT_SHA} (+ assets)"
+      done
+    - >
+      for package in Administration Storefront Core Elasticsearch; do
+        .github/bin/split.bash branch "${package}" "tmp-${CI_COMMIT_SHORT_SHA}"
       done

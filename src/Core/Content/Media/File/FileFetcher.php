@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
@@ -43,7 +43,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
             hash_file('md5', $fileName) ?: null
@@ -76,7 +76,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $writtenBytes,
             hash_file('md5', $fileName) ?: null
@@ -86,7 +86,7 @@ class FileFetcher
     public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
     {
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $fh = @fopen($tempFile, 'wb');
+        $fh = @fopen($tempFile, 'w');
         \assert($fh !== false);
 
         $blobSize = (int) @fwrite($fh, $blob);
@@ -99,6 +99,13 @@ class FileFetcher
             $blobSize,
             $fileHash ?: null
         );
+    }
+
+    public function cleanUpTempFile(MediaFile $mediaFile): void
+    {
+        if ($mediaFile->getFileName() !== '') {
+            unlink($mediaFile->getFileName());
+        }
     }
 
     /**
@@ -147,7 +154,7 @@ class FileFetcher
         ]);
 
         try {
-            $inputStream = @fopen($url, 'rb', false, $streamContext);
+            $inputStream = @fopen($url, 'r', false, $streamContext);
         } catch (\Throwable) {
             throw MediaException::cannotOpenSourceStreamToRead($url);
         }
@@ -167,7 +174,7 @@ class FileFetcher
     private function openDestinationStream(string $filename)
     {
         try {
-            $inputStream = @fopen($filename, 'wb');
+            $inputStream = @fopen($filename, 'w');
         } catch (\Throwable) {
             throw MediaException::cannotOpenSourceStreamToWrite($filename);
         }

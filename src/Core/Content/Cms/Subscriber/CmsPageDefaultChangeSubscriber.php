@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
@@ -19,7 +19,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
     /**
@@ -41,7 +41,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
     {
         return [
             BeforeSystemConfigChangedEvent::class => 'validateChangeOfDefaultCmsPage',
-            BeforeDeleteEvent::class => 'beforeDeletion',
+            EntityDeleteEvent::class => 'beforeDeletion',
         ];
     }
 
@@ -49,7 +49,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
      * @throws CmsException
      * @throws \JsonException
      */
-    public function beforeDeletion(BeforeDeleteEvent $event): void
+    public function beforeDeletion(EntityDeleteEvent $event): void
     {
         /** @var array<string> $cmsPageIds */
         $cmsPageIds = $event->getIds(CmsPageDefinition::ENTITY_NAME);

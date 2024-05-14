@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -12,9 +14,8 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Service\ShopConfigurator
  */
+#[CoversClass(ShopConfigurator::class)]
 class ShopConfiguratorTest extends TestCase
 {
     private ShopConfigurator $shopConfigurator;
@@ -158,9 +159,8 @@ class ShopConfiguratorTest extends TestCase
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
      * @param callable(string, array<string, string>): void $insertCallback
-     *
-     * @dataProvider countryStateTranslationsProvider
      */
+    #[DataProvider('countryStateTranslationsProvider')]
     public function testSetDefaultLanguageShouldAddMissingCountryStatesTranslations(
         array $expectedStateTranslations,
         array $expectedMissingTranslations,
@@ -188,7 +188,7 @@ class ShopConfiguratorTest extends TestCase
 
         $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => !empty($item)));
+        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => $item !== []));
 
         $methodCalls = \count($methodReturns);
 
@@ -216,50 +216,50 @@ class ShopConfiguratorTest extends TestCase
         };
 
         yield 'empty country state translations' => [
-            'country state translations' => [],
-            'missing translations' => [],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedStateTranslations' => [],
+            'expectedMissingTranslations' => [],
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'none missing default translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedMissingTranslations' => [],
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'missing default translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_vna' => 'VNA',
             ],
-            'expected insert call' => 1,
-            'expected insert callback' => $insertCallback,
+            'expectedInsertCall' => 1,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'correcting german translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'DE-TH' => 'Thuringia',
                 'DE-NW' => 'North Rhine-Westphalia',
                 'DE-RP' => 'Rhineland-Palatinate',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_de_th' => 'DE-TH',
                 'id_de_nw' => 'DE-NW',
                 'id_de_rp' => 'DE-RP',
             ],
-            'expected insert call' => 3,
+            'expectedInsertCall' => 3,
             /**
              * @param array<string, string> $parameters
              */
-            'expected insert callback' => function (string $table, array $parameters): void {
+            'insertCallback' => function (string $table, array $parameters): void {
                 static::assertEquals('country_state_translation', $table);
                 static::assertArrayHasKey('language_id', $parameters);
                 static::assertArrayHasKey('name', $parameters);
@@ -290,15 +290,15 @@ class ShopConfiguratorTest extends TestCase
         ];
 
         yield 'missing default translations but not available' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_jpn' => 'JPN',
             ],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
     }
 }

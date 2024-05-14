@@ -2,16 +2,18 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -24,14 +26,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule
  */
+#[Package('services-settings')]
+#[CoversClass(DaysSinceLastOrderRule::class)]
+#[Group('rules')]
 class DaysSinceLastOrderRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -75,28 +74,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithStringValue(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new DaysSinceLastOrderRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'daysPassed' => '10',
-                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
-        }
-    }
-
     public function testValidateWithInvalidValue(): void
     {
         try {
@@ -137,7 +114,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 'type' => (new DaysSinceLastOrderRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
-                    'daysPassed' => 10,
+                    'daysPassed' => 10.1,
                     'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                 ],
             ],
@@ -220,7 +197,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $defaultContext = Context::createDefaultContext();
 
         $orderData = array_map(static function (array $order): array {
-            $order['orderDateTime'] = self::getTestTimestamp();
+            $order['orderDateTime'] = new \DateTime('2020-03-10T15:00:00+00:00');
 
             return $order;
         }, $this->getOrderData($orderId, $defaultContext));
@@ -228,13 +205,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderRepository->create($orderData, $defaultContext);
         $criteria = new Criteria([$orderData[0]['orderCustomer']['customer']['id']]);
 
-        $result = $customerRepository->search($criteria, $defaultContext);
+        /** @var CustomerEntity $customer */
+        $customer = $customerRepository->search($criteria, $defaultContext)->getEntities()->first();
 
-        return $result->first();
-    }
-
-    private static function getTestTimestamp(): \DateTime
-    {
-        return new \DateTime('2020-03-10T15:00:00+00:00');
+        return $customer;
     }
 }

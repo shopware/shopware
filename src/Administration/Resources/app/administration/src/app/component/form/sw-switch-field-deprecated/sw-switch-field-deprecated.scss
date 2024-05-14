@@ -1,0 +1,215 @@
+@import "~scss/variables";
+
+$sw-field--switch-color-border: $color-gray-300;
+$sw-field--switch-color-background: $color-white;
+$sw-field--switch-color-text: $color-darkgray-200;
+$sw-field--switch-color-focus: $color-shopware-brand-500;
+$sw-field--switch-color-error: $color-crimson-500;
+
+.sw-field--switch {
+    margin-top: 24px;
+    margin-bottom: 22px;
+
+    &.sw-field--switch-no-margin-top {
+        margin-top: 0;
+    }
+
+    .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-field__label {
+        margin-bottom: 0;
+
+        label {
+            cursor: pointer;
+            flex-grow: initial;
+            margin-right: auto;
+            padding: 15px 10px;
+        }
+    }
+
+    .sw-field__hint {
+        padding: 0 10px 15px;
+    }
+
+    .sw-field--switch__content {
+        display: grid;
+        grid-template-columns: 24px 1fr auto;
+        align-items: center;
+        color: $sw-field--switch-color-text;
+    }
+
+    &.sw-field--switch-bordered .sw-field--switch__content {
+        border-radius: 4px;
+        border: 1px solid $sw-field--switch-color-border;
+        padding: 0 16px;
+    }
+
+    &.sw-field--switch-padded .sw-field--switch__content {
+        margin-top: 24px;
+        padding: 0 16px;
+    }
+
+    .sw-field--switch__input {
+        position: relative;
+        width: 24px;
+        height: 16px;
+
+        input[type="checkbox"] {
+            opacity: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 0 none;
+            background: none;
+            -webkit-appearance: none;
+            z-index: 2;
+            cursor: pointer;
+
+            &:disabled {
+                cursor: not-allowed;
+            }
+
+            &:disabled ~ .sw-field__switch-state {
+                background: $color-gray-100;
+
+                .sw-field__switch-state-knob {
+                    background: $sw-field--switch-color-border;
+                }
+            }
+
+            &:checked ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-focus;
+
+                .sw-field__switch-state-knob {
+                    left: 10px;
+                }
+            }
+
+            &:checked:disabled ~ .sw-field__switch-state {
+                background: $color-gray-100;
+            }
+        }
+
+        .sw-field__switch-state {
+            position: absolute;
+            width: 100%;
+            height: 16px;
+            z-index: 1;
+            text-align: center;
+            background: $sw-field--switch-color-border;
+            border-radius: 8px;
+
+            .sw-field__switch-state-knob {
+                transition: all 0.3s ease-in-out;
+                width: 10px;
+                height: 10px;
+                position: absolute;
+                top: 3px;
+                left: 3px;
+                background: $sw-field--switch-color-background;
+                border-radius: 7px;
+            }
+        }
+    }
+
+    .sw-field__inheritance-icon {
+        display: flex;
+        align-items: center;
+        margin-left: 8px;
+        margin-right: 0;
+    }
+
+    &.sw-field--small.sw-field--switch-bordered {
+        label {
+            padding: 8px 10px;
+        }
+    }
+
+    &.sw-field--small {
+        label {
+            padding: 8px 10px;
+        }
+
+        .sw-field__hint {
+            padding-bottom: 8px;
+        }
+    }
+
+    &.sw-field--medium.sw-field--switch-bordered {
+        label {
+            padding: 11px 10px;
+        }
+
+        .sw-field__hint {
+            padding-bottom: 11px;
+        }
+    }
+
+    &.has--error {
+        .sw-field__switch-state {
+            background: $sw-field--switch-color-error;
+        }
+
+        input[type="checkbox"] {
+            &:disabled ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-error;
+
+                .sw-field__switch-state-knob {
+                    background: darken($sw-field--switch-color-error, 5%);
+                }
+            }
+
+            &:checked ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-error;
+            }
+
+            &:checked:disabled ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-error;
+            }
+        }
+    }
+
+    .sw-field.has--hint {
+        label {
+            padding-bottom: 0;
+        }
+    }
+
+    &.is--disabled {
+        .sw-field__label {
+            label {
+                cursor: not-allowed;
+            }
+        }
+
+        .sw-field__hint {
+            cursor: not-allowed;
+        }
+    }
+
+    &.is--inherited {
+        input[type="checkbox"] {
+            &:checked ~ .sw-field__switch-state {
+                background: $sw-field--switch-color-border;
+            }
+        }
+    }
+
+    &:focus-within {
+        .sw-field__switch-state {
+            border-color: $color-shopware-brand-500;
+            box-shadow: 0 0 4px $color-shopware-brand-500;
+        }
+    }
+
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    &.ar-ready-toggle {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}

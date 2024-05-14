@@ -30,4 +30,8 @@
     .sw-multi-tag-select-invalid {
         background: $color-gray-50;
     }
+
+    &.sw-popover__wrapper.--placement-bottom-outside {
+        transform: none;
+    }
 }

@@ -1,18 +1,12 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionReviewReply from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-reply';
-
-Shopware.Component.register('sw-extension-review-reply', swExtensionReviewReply);
+import { mount } from '@vue/test-utils';
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-extension-review-reply'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-extension-review-reply', { sync: true }), {
+            props: {
                 producerName: 'Howard Wolowitz',
                 reply: {
                     text: 'Lorem ipsum dolor sit amet.',
@@ -26,24 +20,15 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the extension creator name', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const creatorName = await wrapper.find('.sw-extension-review-reply__producer-name');
 
         expect(creatorName.text()).toBe('Howard Wolowitz');
     });
 
     it('should display the actual content of the reply', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const replyContent = await wrapper.find('.sw-extension-review-reply__text');
 
         expect(replyContent.text()).toBe('Lorem ipsum dolor sit amet.');

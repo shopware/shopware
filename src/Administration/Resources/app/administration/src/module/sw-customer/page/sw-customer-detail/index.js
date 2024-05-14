@@ -4,7 +4,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -170,7 +170,7 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
+        async loadCustomer() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
             Shopware.ExtensionAPI.publishData({
@@ -200,6 +200,10 @@ export default {
 
                 this.isLoading = false;
             });
+        },
+
+        async createdComponent() {
+            await this.loadCustomer();
         },
 
         saveFinish() {
@@ -303,9 +307,10 @@ export default {
             });
         },
 
-        onAbortButtonClick() {
+        async onAbortButtonClick() {
             this.discardChanges();
             this.editMode = false;
+            await this.loadCustomer();
         },
 
         onActivateCustomerEditMode() {

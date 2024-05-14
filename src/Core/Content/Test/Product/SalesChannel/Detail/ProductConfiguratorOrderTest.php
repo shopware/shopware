@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -170,7 +171,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'name' => 'Test product',
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => UUid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
+                'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
                 'stock' => 10,
                 'active' => true,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
@@ -199,6 +200,7 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $data[0]['tax']);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
+        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
 
         // get ordered PropertyGroupCollection

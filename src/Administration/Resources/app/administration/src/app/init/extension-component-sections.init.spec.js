@@ -1,5 +1,5 @@
 import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
-import { send } from '@shopware-ag/admin-extension-sdk/es/channel';
+import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
 describe('src/app/init/extension-component-sections.init.ts', () => {
     initializeExtensionComponentSections();

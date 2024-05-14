@@ -26,7 +26,7 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 });
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;
@@ -141,7 +141,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
             await shopwareExtensionService.checkLogin();
 
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toBe(loginResponse.userInfo);
+            expect(Shopware.State.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
         });
 
         it('sets login status to false if checkLogin request fails', async () => {

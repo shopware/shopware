@@ -58,6 +58,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        $paymentMethodIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM payment_method');
         $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
         $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
         $customerIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
@@ -76,7 +77,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             function ($promotionCode) {
                 $uniqueKey = 'promotion-' . $promotionCode;
 
-                return (new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE))
+                return (new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE))
                     ->setLabel($uniqueKey)
                     ->setGood(false)
                     ->setReferencedId($promotionCode)
@@ -90,7 +91,7 @@ class OrderGenerator implements DemodataGeneratorInterface
         for ($i = 1; $i <= $numberOfItems; ++$i) {
             $customerId = $context->getFaker()->randomElement($customerIds);
 
-            $salesChannelContext = $this->getContext($customerId, $salesChannelIds);
+            $salesChannelContext = $this->getContext($customerId, $salesChannelIds, $paymentMethodIds);
 
             $cart = $this->cartService->createNew($salesChannelContext->getToken());
             foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
@@ -103,7 +104,9 @@ class OrderGenerator implements DemodataGeneratorInterface
             $cart = $this->cartCalculator->calculate($cart, $salesChannelContext);
             $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
-            $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $randomDate = $context->getFaker()->dateTimeBetween('-2 years');
+
+            $tempOrder['orderDateTime'] = $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $tempOrder['tags'] = $this->getTags($tags);
 
             $orders[] = $tempOrder;
@@ -123,9 +126,9 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
-     * @return list<array{id: string}>
+     * @return array<array{id: string}>
      */
     private function getTags(array $tags): array
     {
@@ -146,7 +149,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {
@@ -155,8 +158,9 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     /**
      * @param array<string> $salesChannelIds
+     * @param array<string> $paymentMethodIds
      */
-    private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
+    private function getContext(string $customerId, array $salesChannelIds, array $paymentMethodIds = []): SalesChannelContext
     {
         if (isset($this->contexts[$customerId])) {
             return $this->contexts[$customerId];
@@ -165,6 +169,10 @@ class OrderGenerator implements DemodataGeneratorInterface
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ];
+
+        if (!empty($paymentMethodIds)) {
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $this->faker->randomElement($paymentMethodIds);
+        }
 
         $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 

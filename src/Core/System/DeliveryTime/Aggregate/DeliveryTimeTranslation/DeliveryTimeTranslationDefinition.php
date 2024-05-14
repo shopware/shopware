@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'delivery_time_translation';

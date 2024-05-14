@@ -1,0 +1,635 @@
+openapi: 3.0.3
+info:
+  title: Catalog import API
+  version: 6.5.0
+paths:
+  /api/import/catalog/start:
+    post:
+      summary: Start a new product import
+      description: Start a new product import
+      requestBody:
+        description: Specify the configuration for the import
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportConfig'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '400':
+          $ref: '#/components/responses/InvalidImport'
+
+  /api/import/{id}/record/delete:
+    post:
+      summary: Add entity deletes
+      requestBody:
+        description: Entities to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportDeleteBatch'
+      responses:
+        '200':
+          description: A list of Ids with markers for malformed batch items, Ids and errors are assigned by batch index
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/ImportPush'
+        '422':
+          $ref: '#/components/responses/InvalidRecords'
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+        '400':
+          $ref: '#/components/responses/ImportAlreadyCommitted'
+
+  /api/import/{id}/record:
+    post:
+      summary: Add entity inserts and updates
+      requestBody:
+        description: Entities to updates and creations
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ImportProductBatch'
+                - $ref: '#/components/schemas/ImportCategoryBatch'
+                - $ref: '#/components/schemas/ImportMediaBatch'
+      responses:
+        '200':
+          description:  A list of Ids with markers for malformed batch items, Ids and errors are assigned by batch index
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/ImportPush'
+
+              examples:
+                error list:
+                  description: A problem occurred on the 2nd data set
+                  value:
+                    containsErrors: true
+                    records:
+                      - 'c642f3515aff4783991e361f381e77ca'
+                      - 'error'
+                      - 'c642f3515aff4783991e361f381e77ca'
+                      - 'c642f3515aff4783991e361f381e77ca'
+                successful push:
+                  description: A successful batch
+                  value:
+                    containsErrors: false
+                    records:
+                      - 'c642f3515aff4783991e361f381e77ca'
+                      - 'c642f3515aff4783991e361f381e77ca'
+                      - 'c642f3515aff4783991e361f381e77ca'
+                      - 'c642f3515aff4783991e361f381e77ca'
+        '422':
+          $ref: '#/components/responses/InvalidRecords'
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+        '400':
+          $ref: '#/components/responses/ImportAlreadyCommitted'
+
+  /api/import/{id}/record/unassign:
+    post:
+      summary: Unassign nested entity
+      requestBody:
+        description: Config for the request
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ImportProductUnassignBatch'
+      responses:
+        '200':
+          description: A list of Ids with markers for malformed batch items, Ids and errors are assigned by batch index
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/ImportPush'
+        '422':
+          $ref: '#/components/responses/InvalidRecords'
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+        '400':
+          $ref: '#/components/responses/ImportAlreadyCommitted'
+
+
+  /api/import/{id}/commit:
+    post:
+      summary: Commit the import to commence updating entities
+      requestBody:
+        description: Config for the request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommitRequest'
+      responses:
+        '204':
+          description: The import has been committed
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+        '400':
+          $ref: '#/components/responses/ImportAlreadyCommitted'
+
+  /api/import/{id}/cancel:
+    post:
+      summary: Cancel an uncommitted import, deleting all pushed records
+      responses:
+        '204':
+          description: The import has been cancelled
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+        '400':
+          $ref: '#/components/responses/ImportAlreadyCommitted'
+
+  /api/import/{id}/status:
+    get:
+      summary: Receive the status of the import and clean up data
+      responses:
+        '200':
+          description: status of the import
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '404':
+          $ref: '#/components/responses/ImportNotFound'
+
+components:
+  responses:
+    ImportAlreadyCommitted:
+      description: The import has already been committed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ImportNotFound:
+      description: The import could not be found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidImport:
+      description: The import configuration was invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InvalidRecords:
+      description: The import records are not valid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ImportPush:
+      description: Shopware Ids in the same order as the import batch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ImportPushResult'
+
+  schemas:
+    ImportConfig:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          example:
+            - "product-import-202307012"
+        indexMode:
+          type: string
+          enum: [ disable, sync, async ]
+          default: async
+        skipIndexers:
+          type: array
+          items:
+            type: string
+            enum: [ category.seo-url, landing_page.indexer ]
+        errorWebhookUrl:
+          type: string
+
+    Import:
+      required:
+        - id
+        - name
+        - startTime
+        - shopwareVersion
+      type: object
+      properties:
+        id:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        shopwareVersion:
+          type: string
+        name:
+          type: string
+          example:
+            - "product-import-202307012"
+
+    ImportPushResult:
+      required:
+        - items
+        - containsErrors
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ImportPushRecordSuccess'
+              - $ref: '#/components/schemas/ImportPushRecordError'
+        containsErrors:
+          type: boolean
+
+    ImportPushRecordSuccess:
+      required: id
+      type: object
+      properties:
+        id:
+          type: string
+      example:
+        id: c642f3515aff4783991e361f381e77ca
+
+    ImportPushRecordError:
+      type: object
+      required: errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              path:
+                type: string
+      example:
+        errors:
+          - message: ID prod1d1 not found
+            path: categories.0.products.1
+          - message: ID prod1d2 not found
+            path: categories.0.products.2
+
+    ImportDeleteBatch:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            type: string
+        media:
+          type: array
+          items:
+            type: string
+
+    ImportProductBatch:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductRecord'
+      required:
+        - products
+
+    ImportVariantBatch:
+      type: object
+      properties:
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantRecord'
+      required:
+        - variants
+
+    ImportCategoryBatch:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+      required:
+        - categories
+
+    ImportMediaBatch:
+      type: object
+      properties:
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+      required:
+        - media
+
+    ProductData:
+      type: object
+      properties:
+        name:
+          type: string
+        productNumber:
+          type: string
+        tax:
+          oneOf:
+            - $ref: '#/components/schemas/TaxName'
+            - $ref: '#/components/schemas/TaxId'
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPrice'
+        stock:
+          type: integer
+        categories:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/CategoryPath'
+              - $ref: '#/components/schemas/CategoryId'
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+
+    ProductRecord:
+      type: object
+
+      allOf:
+        - $ref: '#/components/schemas/ProductId'
+        - $ref: '#/components/schemas/ProductData'
+        - $ref: '#/components/schemas/VariantList'
+
+    VariantRecord:
+      type: object
+
+      allOf:
+        - $ref: '#/components/schemas/VariantId'
+        - $ref: '#/components/schemas/ProductData'
+
+    VariantList:
+      type: object
+      properties:
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+
+    Media:
+      type: object
+      required:
+        - url
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        tags:
+          type: array
+        alt:
+          type: string
+        title:
+          type: string
+        filename:
+          type: string
+        folder:
+          oneOf:
+            - $ref: '#/components/schemas/FolderId'
+            - $ref: '#/components/schemas/FolderPath'
+
+    ProductId:
+      type: object
+      properties:
+        id:
+          type: string
+
+    VariantId:
+      type: object
+      required:
+        - parentId
+        - properties
+      properties:
+        parentId:
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+
+    Variant:
+      type: object
+      required:
+        - property
+        - value
+      properties:
+        property:
+          type: string
+        value:
+          type: string
+
+
+    FolderPath:
+      type: object
+      properties:
+        path:
+          type: array
+          items:
+            type: string
+
+    FolderId:
+      type: object
+      properties:
+        id:
+          type: string
+
+    TaxName:
+      description: A human readable tax name
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    TaxId:
+      description: A tax entity ID
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+
+    CategoryId:
+      description: A category entity Id
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+
+    CategoryPath:
+      description: A path in a category tree
+      type: object
+      properties:
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryName'
+      required:
+        - path
+
+    Category:
+      description: A category Entity
+      type: object
+      required:
+        - id
+        - type
+        - productAssignmentType
+        - displayNestedProducts
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/CategoryId'
+        type:
+          type: string
+        productAssignmentType:
+          type: string
+        displayNestedProducts:
+          type: boolean
+        name:
+          type: string
+
+    CategoryName:
+      description: A human readable category name
+      type: string
+
+    ProductPrice:
+      description: A product price
+      type: object
+      required:
+        - currency
+        - gross
+        - net
+        - linked
+      properties:
+        currency:
+          type: string
+        gross:
+          type: number
+        net:
+          type: number
+        linked:
+          type: boolean
+
+    ImportProductUnassignBatch:
+      type: object
+      required:
+        products
+      properties:
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              media:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  filename:
+                    type: string
+
+    CommitRequest:
+      type: object
+
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [started, importing, cancelled, done]
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: number
+        totals:
+          type: object
+          properties:
+            product:
+              type: integer
+              example: 2
+            media:
+              type: integer
+              example: 5
+            total:
+              type: integer
+              example: 7
+            failures:
+              type: integer
+              example: 2
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Failure'
+      required:
+        - status
+        - startTime
+        - duration
+        - totals
+        - failures
+
+    Failure:
+      type: object
+      required:
+        - entity
+        - path
+      properties:
+        entity:
+          type: string
+        path:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            required:
+              - severity
+              - entity
+              - path
+              - message
+            properties:
+              severity:
+                type: string
+              entity:
+                type: string
+              path:
+                type: string
+              message:
+                type: string
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+

@@ -19,10 +19,10 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_search_field %}
                 <sw-simple-search-field
-                    v-model="searchTerm"
-                    variant="form"
-                    :delay="750"
                     class="sw-product-stream-modal-preview__search-field"
+                    variant="form"
+                    :value="searchTerm"
+                    :delay="750"
                     @search-term-change="onSearchTermChange"
                 />
                 {% endblock %}
@@ -34,20 +34,14 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_sales_channel_field %}
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="selectedSalesChannel"
-                    {% else %}
-                    v-model="selectedSalesChannel"
-                    {% endif %}
-                    :disabled="isLoading"
                     entity="sales_channel"
                     class="sw-product-stream-modal-preview__sales-channel-field"
+                    name="sw-field--selectedSalesChannel"
+                    :criteria="previewSelectionCriteria"
+                    :disabled="isLoading"
                     :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
-                    {% if VUE3 %}
                     @update:value="onSalesChannelChange"
-                    {% else %}
-                    @change="onSalesChannelChange"
-                    {% endif %}
                 />
                 {% endblock %}
             </sw-label>
@@ -92,7 +86,7 @@
             <template #column-price="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_price %}
-                {{ getPriceForDefaultCurrency(item).unitPrice | currency('EUR') }}
+                {{ currencyFilter(getPriceForDefaultCurrency(item).unitPrice, 'EUR') }}
                 {% endblock %}
             </template>
 
@@ -100,7 +94,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_modal_preview_grid_column_stock %}
                 {{ item.stock }}
-                <sw-color-badge :variant="item.stock | stockColorVariant" />
+                <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 {% endblock %}
             </template>
 

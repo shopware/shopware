@@ -6,25 +6,22 @@ The header contains the shop logo, the search form and various actions like the 
 */
 
 .header-search-btn {
-    background: $input-bg;
-    border: $input-border-width solid $input-border-color;
-    border-left: 0;
+    --#{$prefix}btn-focus-box-shadow:  #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-border-color: #{$input-border-color};
+    --#{$prefix}btn-hover-color: #{$primary};
+    --#{$prefix}btn-hover-border-color: #{$input-border-color};
+    --#{$prefix}btn-active-border-color: #{$input-border-color};
+    --#{$prefix}btn-disabled-bg: #{$input-bg};
+    --#{$prefix}btn-disabled-border-color: #{$border-color};
+    border-left: 0 none;
 
     &:hover {
-        border-color: $input-border-color;
-
         .icon {
             color: $primary;
         }
     }
 
-    &:focus {
-        box-shadow: none;
-    }
-
     &.btn:disabled {
-        background: $input-bg;
-        border-color: $border-color;
         display: flex;
         align-items: center;
     }
@@ -42,22 +39,18 @@ The header contains the shop logo, the search form and various actions like the 
 }
 
 .header-actions-btn {
-    &,
-    &:active,
-    &:hover {
-        background: none;
-        border: 0 none;
-    }
+    --#{$prefix}btn-focus-box-shadow:  #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-active-border-color: transparent;
+    --#{$prefix}btn-active-bg: transparent;
+    --#{$prefix}btn-hover-color: transparent;
+    --#{$prefix}btn-hover-border-color: transparent;
+    --#{$prefix}btn-hover-bg: transparent;
 
     &:hover {
         &,
         .icon {
             color: $primary;
         }
-    }
-
-    &:focus {
-        box-shadow: none;
     }
 }
 

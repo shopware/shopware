@@ -5,12 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="shopware_http_cache_enabled_default">1</parameter>
-        <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
-
-        <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
-        <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
-
         <parameter key="shopware.twig.app_variable.allowed_server_params" type="collection">
             <parameter>server_name</parameter>
             <parameter>request_uri</parameter>
@@ -84,6 +78,7 @@
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
@@ -92,12 +87,15 @@
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
+            <argument>%shopware.staging.storefront.show_banner%</argument>
+
             <tag name="twig.extension"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateConfigAccessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
@@ -111,7 +109,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\IconExtension">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <tag name="twig.extension"/>
         </service>
 
@@ -172,8 +169,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
-            <argument type="service" id="request_stack"/>
+            <argument type="service" id="http_kernel"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>
@@ -181,8 +177,10 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%session.storage.options%</argument>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
@@ -261,14 +259,13 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">
@@ -286,6 +283,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
@@ -296,6 +294,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
@@ -305,6 +304,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">
@@ -319,11 +319,13 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">
@@ -332,6 +334,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
@@ -339,6 +342,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader">
@@ -355,6 +359,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
@@ -363,6 +368,7 @@
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader">
@@ -384,6 +390,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
@@ -407,6 +414,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">
@@ -416,12 +424,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-        </service>
-
-        <service id="Shopware\Storefront\Page\Contact\ContactPageLoader">
-            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
@@ -435,136 +438,9 @@
             <argument type="service" id="assets.packages"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
-            <argument type="service" id="cache.http"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
-            <argument>%session.storage.options%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator">
-            <argument>%kernel.cache.hash%</argument>
-            <argument type="service" id="event_dispatcher"/>
-            <argument>%storefront.http_cache.ignored_url_parameters%</argument>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Cache\CacheTracer" decorates="Shopware\Core\Framework\Adapter\Cache\CacheTracer">
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer.inner"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator">
-            <argument>%shopware.cache.invalidation.http_cache%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheResponseSubscriber">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument>%shopware.http.cache.default_ttl%</argument>
-            <argument>%shopware.http.cache.enabled%</argument>
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
-            <argument>%storefront.reverse_proxy.enabled%</argument>
-            <argument>%storefront.http_cache.stale_while_revalidate%</argument>
-            <argument>%storefront.http_cache.stale_if_error%</argument>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="shopware.cache.reverse_proxy.redis" class="Redis">
-            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-            <argument>%storefront.reverse_proxy.redis_url%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTracer"/>
-            <argument>%shopware.cache.invalidation.http_cache%</argument>
-            <tag name="kernel.event_listener"/>
-        </service>
-
-        <service id="shopware.storefront.framework.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
-
-        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway">
-            <argument>%storefront.reverse_proxy.hosts%</argument>
-            <argument type="collection">
-                <argument key="method">%storefront.reverse_proxy.ban_method%</argument>
-                <argument key="headers">%storefront.reverse_proxy.ban_headers%</argument>
-            </argument>
-            <argument type="collection">
-                <argument key="method">%storefront.reverse_proxy.purge_all.ban_method%</argument>
-                <argument key="headers">%storefront.reverse_proxy.purge_all.ban_headers%</argument>
-                <argument key="urls">%storefront.reverse_proxy.purge_all.urls%</argument>
-            </argument>
-            <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
-            <argument type="service" id="shopware.cache.reverse_proxy.redis"/>
-            <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway">
-            <argument>%storefront.reverse_proxy.hosts%</argument>
-            <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
-            <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway">
-            <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
-            <argument>%storefront.reverse_proxy.fastly.service_id%</argument>
-            <argument>%storefront.reverse_proxy.fastly.api_key%</argument>
-            <argument>%storefront.reverse_proxy.fastly.soft_purge%</argument>
-            <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
-            <argument>%storefront.reverse_proxy.fastly.tag_prefix%</argument>
-            <argument>%storefront.reverse_proxy.fastly.instance_tag%</argument>
-            <argument>%env(APP_URL)%</argument>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
-            <tag name="kernel.cache_clearer"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer">
-            <argument type="service" id="sales_channel_domain.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerTaskHandler">
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry">
-            <argument type="tagged" tag="http_cache.route_warmer"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteWarmer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-
-            <tag name="http_cache.route_warmer"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteWarmer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
-
-            <tag name="http_cache.route_warmer"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Command\HttpCacheWarmUpCommand">
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer"/>
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">

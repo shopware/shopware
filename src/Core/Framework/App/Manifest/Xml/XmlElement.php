@@ -8,12 +8,40 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
+ *
+ * @phpstan-consistent-constructor
  */
 #[Package('core')]
-class XmlElement extends Struct
+abstract class XmlElement extends Struct
 {
+    protected const REQUIRED_FIELDS = [];
     private const FALLBACK_LOCALE = 'en-GB';
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function __construct(array $data)
+    {
+        $this->validateRequiredElements($data, static::REQUIRED_FIELDS);
+
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
+    public static function fromXml(\DOMElement $element): static
+    {
+        return new static(static::parse($element));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): static
+    {
+        return new static($data);
+    }
 
     /**
      * @return array<string, mixed>
@@ -28,48 +56,9 @@ class XmlElement extends Struct
     }
 
     /**
-     * @param array<int|string, mixed> $values
-     *
-     * @return array<int|string, mixed>
+     * @return array<string, mixed>
      */
-    protected static function mapTranslatedTag(\DOMElement $child, array $values): array
-    {
-        if (!\array_key_exists(self::kebabCaseToCamelCase($child->tagName), $values)) {
-            $values[self::kebabCaseToCamelCase($child->tagName)] = [];
-        }
-
-        // psalm would fail if it can't infer type from nested array
-        /** @var array<string, string> $tagValues */
-        $tagValues = $values[self::kebabCaseToCamelCase($child->tagName)];
-        $tagValues[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue ?? '');
-        $values[self::kebabCaseToCamelCase($child->tagName)] = $tagValues;
-
-        return $values;
-    }
-
-    /**
-     * @param callable(\DOMElement): (XmlElement|string) $transformer
-     *
-     * @return array<mixed>
-     */
-    protected static function parseChildNodes(\DOMElement $child, callable $transformer): array
-    {
-        $values = [];
-        foreach ($child->childNodes as $field) {
-            if (!$field instanceof \DOMElement) {
-                continue;
-            }
-
-            $values[] = $transformer($field);
-        }
-
-        return $values;
-    }
-
-    protected static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
-    }
+    abstract protected static function parse(\DOMElement $element): array;
 
     /**
      * if translations for system default language are not provided it tries to use the english translation as the default,
@@ -93,8 +82,8 @@ class XmlElement extends Struct
     }
 
     /**
-     * @param array<int|string, mixed> $data
-     * @param array<int|string, string> $requiredFields
+     * @param array<string, mixed> $data
+     * @param list<string> $requiredFields
      */
     protected function validateRequiredElements(array $data, array $requiredFields): void
     {
@@ -105,9 +94,9 @@ class XmlElement extends Struct
         }
     }
 
-    private static function getLocaleCodeFromElement(\DOMElement $element): string
+    public static function kebabCaseToCamelCase(string $string): string
     {
-        return $element->getAttribute('lang') ?: self::FALLBACK_LOCALE;
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 
     /**

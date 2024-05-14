@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1625304609UpdateRolePrivileges extends MigrationStep
@@ -42,11 +44,10 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getAllApps(Connection $connection): array
     {
@@ -54,7 +55,7 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
     }
 
     /**
-     * @param list<string> $appNames
+     * @param array<string> $appNames
      *
      * @return list<string>
      */

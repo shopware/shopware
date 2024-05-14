@@ -1,20 +1,18 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/utils/sw-shortcut-overview';
+import { mount } from '@vue/test-utils';
 
 describe('app/component/utils/sw-shortcut-overview', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-shortcut-overview'), {
-            stubs: {
-                'sw-modal': true,
-                'sw-shortcut-overview-item': true,
+        wrapper = mount(await wrapTestComponent('sw-shortcut-overview', { sync: true }), {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-modal': true,
+                    'sw-shortcut-overview-item': true,
+                },
             },
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

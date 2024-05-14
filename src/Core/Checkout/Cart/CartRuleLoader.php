@@ -7,8 +7,9 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
@@ -43,7 +44,7 @@ class CartRuleLoader implements ResetInterface
         private readonly LoggerInterface $logger,
         private readonly CacheInterface $cache,
         private readonly AbstractRuleLoader $ruleLoader,
-        private readonly TaxDetector $taxDetector,
+        private readonly AbstractTaxDetector $taxDetector,
         private readonly Connection $connection,
         private readonly CartFactory $cartFactory,
     ) {
@@ -86,10 +87,16 @@ class CartRuleLoader implements ResetInterface
             // save all rules for later usage
             $all = $rules;
 
-            $ids = $new ? $rules->getIds() : $cart->getRuleIds();
+            // For existing carts filter rules to only contain the rules from the current cart
+            if ($new === false) {
+                $rules = $rules->filter(
+                    fn (RuleEntity $rule) => \in_array($rule->getId(), $cart->getRuleIds(), true)
+                );
+            }
 
             // update rules in current context
-            $context->setRuleIds($ids);
+            $context->setRuleIds($rules->getIds());
+            $context->setAreaRuleIds($rules->getIdsByArea());
 
             $iteration = 1;
 
@@ -116,6 +123,7 @@ class CartRuleLoader implements ResetInterface
 
                 // update matching rules in context
                 $context->setRuleIds($rules->getIds());
+                $context->setAreaRuleIds($rules->getIdsByArea());
 
                 // calculate cart again
                 $cart = $this->processor->process($cart, $context, $behaviorContext);
@@ -191,6 +199,7 @@ class CartRuleLoader implements ResetInterface
 
         $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
         $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+
         if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
             return CartPrice::TAX_STATE_FREE;
         }
@@ -276,7 +285,7 @@ class CartRuleLoader implements ResetInterface
     {
         $totalCartNetAmount = $cart->getPrice()->getPositionPrice();
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            $totalCartNetAmount = $totalCartNetAmount - $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
+            $totalCartNetAmount -= $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
         }
         $taxState = $this->detectTaxType($context, $totalCartNetAmount);
         $previous = $context->getTaxState();

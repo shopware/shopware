@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-shopware-account.html.twig';
 import './sw-first-run-wizard-shopware-account.scss';
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,6 +16,12 @@ export default {
             password: '',
             accountError: false,
         };
+    },
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {

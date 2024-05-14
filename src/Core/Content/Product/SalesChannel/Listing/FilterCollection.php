@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter as DALFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -52,6 +53,9 @@ class FilterCollection extends Collection
         return $this->filter(fn (Filter $filter) => $filter->isFiltered() ? $filter : null);
     }
 
+    /**
+     * @return array<DALFilter>
+     */
     public function getFilters(): array
     {
         return $this->fmap(fn (Filter $filter) => $filter->getFilter());

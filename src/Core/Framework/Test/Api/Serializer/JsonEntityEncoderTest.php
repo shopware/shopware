@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
@@ -40,6 +42,9 @@ class JsonEntityEncoderTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @return array<array<mixed>>
+     */
     public static function emptyInputProvider(): array
     {
         return [
@@ -52,16 +57,17 @@ class JsonEntityEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider emptyInputProvider
-     */
-    public function testEncodeWithEmptyInput($input): void
+    #[DataProvider('emptyInputProvider')]
+    public function testEncodeWithEmptyInput(mixed $input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
+    /**
+     * @return list<array{0: class-string, 1: SerializationFixture}>
+     */
     public static function complexStructsProvider(): array
     {
         return [
@@ -75,9 +81,7 @@ class JsonEntityEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider complexStructsProvider
-     */
+    #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
         /** @var EntityDefinition $definition */
@@ -131,15 +135,19 @@ class JsonEntityEncoderTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldsProvider
+     * @param array{customFields: mixed}|array{translated: array{customFields: mixed}} $input
+     * @param array{customFields: mixed}|array{translated: array{customFields: mixed}} $output
      */
+    #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, array $output): void
     {
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
 
         $definition = new CustomFieldTestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $struct = new Entity();
+        $struct = new class() extends Entity {
+            use EntityCustomFieldsTrait;
+        };
         $struct->assign($input);
 
         $actual = $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL);
@@ -147,7 +155,10 @@ class JsonEntityEncoderTest extends TestCase
         static::assertEquals($output, array_intersect_key($output, $actual));
     }
 
-    public static function customFieldsProvider(): iterable
+    /**
+     * @return \Generator<string, array{0: array{customFields: mixed}, 1: array{customFields: mixed}}|array{0: array{translated: array{customFields: mixed}}, 1: array{translated: array{customFields: mixed}}}>
+     */
+    public static function customFieldsProvider(): \Generator
     {
         yield 'Custom field null' => [
             [

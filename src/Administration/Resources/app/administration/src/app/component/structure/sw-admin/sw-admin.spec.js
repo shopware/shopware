@@ -1,39 +1,45 @@
 import 'src/app/component/structure/sw-admin';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
+import { toast } from '@shopware-ag/meteor-admin-sdk';
+import { MtToast } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
-    return shallowMount(await Shopware.Component.build('sw-admin'), {
-        stubs: {
-            'sw-notifications': true,
-            'sw-duplicated-media-v2': true,
-            'sw-settings-cache-modal': true,
-            'sw-license-violation': true,
-            'sw-hidden-iframes': true,
-            'sw-modals-renderer': true,
-            'sw-app-wrong-app-url-modal': true,
-            'sw-settings-usage-data-modal': true,
-            'router-view': true,
-        },
-        mocks: {
-            $router: {
-                currentRoute: {
-                    name: route,
+    return mount(await wrapTestComponent('sw-admin', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-notifications': true,
+                'sw-duplicated-media-v2': true,
+                'sw-settings-cache-modal': true,
+                'sw-license-violation': true,
+                'sw-hidden-iframes': true,
+                'sw-modals-renderer': true,
+                'sw-app-wrong-app-url-modal': true,
+                'router-view': true,
+                'mt-toast': MtToast,
+            },
+            mocks: {
+                $router: {
+                    currentRoute: {
+                        value: {
+                            name: route,
+                        },
+                    },
                 },
             },
-        },
-        provide: {
-            cacheApiService: {},
-            extensionStoreActionService: {},
-            licenseViolationService: {},
-            userActivityService: {
-                updateLastUserActivity: () => {
-                    localStorage.setItem('lastActivity', 'foo');
+            provide: {
+                cacheApiService: {},
+                extensionStoreActionService: {},
+                licenseViolationService: {},
+                userActivityService: {
+                    updateLastUserActivity: () => {
+                        localStorage.setItem('lastActivity', 'foo');
+                    },
                 },
-            },
-            loginService: {
-                isLoggedIn: () => isLoggedIn,
-                forwardLogout,
+                loginService: {
+                    isLoggedIn: () => isLoggedIn,
+                    forwardLogout,
+                },
             },
         },
         attachTo: document.body,
@@ -49,7 +55,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();
@@ -137,15 +143,34 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         channel.close();
     });
 
-    it('should not include the usage data modal if the user is not logged in', async () => {
-        wrapper = await createWrapper(false);
-
-        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(false);
-    });
-
-    it('should include the usage data modal if the user is logged in', async () => {
+    it('should add toast notification', async () => {
         wrapper = await createWrapper(true);
 
-        expect(wrapper.find('sw-settings-usage-data-modal-stub').exists()).toBe(true);
+        await toast.dispatch({
+            msg: 'Jest toast',
+            type: 'informal',
+            dismissible: false,
+        });
+
+        const toastNotification = wrapper.find('.mt-toast-notification');
+        expect(toastNotification.element).toBeVisible();
+        expect(toastNotification.text()).toContain('Jest toast');
+    });
+
+    it('should remove toast notification', async () => {
+        wrapper = await createWrapper(false);
+
+        await toast.dispatch({
+            msg: 'Jest toast',
+            type: 'informal',
+            dismissible: true,
+        });
+
+        expect(wrapper.find('.mt-toast-notification').element).toBeVisible();
+
+        await wrapper.find('.mt-toast-notification__close-action').trigger('click');
+
+        expect(wrapper.find('.mt-toast-notification').exists()).toBe(false);
+        expect(wrapper.findComponent('.mt-toast').emitted('remove-toast')).toHaveLength(1);
     });
 });

@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
- * @package business-ops
+ * @package services-settings
  * @description Condition for the BillingZipCodeRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

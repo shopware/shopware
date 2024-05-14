@@ -63,7 +63,7 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 
         $salesChannelId = $event->getSalesChannelId();
 
-        $this->cacheInvalidator->invalidate(['translation.catalog.' . $salesChannelId], true);
+        $this->cacheInvalidator->invalidate(['translation.catalog.' . $salesChannelId]);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

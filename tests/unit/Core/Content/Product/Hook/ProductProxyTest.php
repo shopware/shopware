@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Hook;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -18,9 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
  */
+#[CoversClass(ProductProxy::class)]
 class ProductProxyTest extends TestCase
 {
     public function testProxyPropertyAccess(): void
@@ -57,7 +57,6 @@ class ProductProxyTest extends TestCase
         // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertArrayHasKey('stock', $proxy, 'Proxy should be able to check if a property exists');
     }
 

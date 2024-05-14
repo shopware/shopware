@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowAction;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,26 +20,25 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'app_flow_action.loaded' => 'unserialize',
         ], AppFlowActionLoadedSubscriber::getSubscribedEvents());
     }
 
     public function testUnserialize(): void
     {
-        /** @var EntityRepository $appFlowActionRepository */
+        /** @var EntityRepository<AppFlowActionCollection> $appFlowActionRepository */
         $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
 
         $idFlowAction = $this->registerFlowAction();
 
-        /** @var AppFlowActionEntity $appFlowAction */
-        $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->get($idFlowAction);
+        $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->getEntities()->get($idFlowAction);
         static::assertNotNull($appFlowAction);
 
         $icon = \file_get_contents(__DIR__ . '/../../Manifest/_fixtures/test/icon.png');
         static::assertNotFalse($icon);
 
-        static::assertEquals(
+        static::assertSame(
             base64_encode($icon),
             $appFlowAction->getIcon()
         );
@@ -47,7 +46,6 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 
     private function registerFlowAction(): string
     {
-        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $idFlowAction = Uuid::randomHex();
@@ -62,7 +60,6 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

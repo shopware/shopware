@@ -3,35 +3,9 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Framework\Store\StoreException;
 
-#[Package('merchant-services')]
-class ExtensionNotFoundException extends ShopwareHttpException
+#[Package('checkout')]
+class ExtensionNotFoundException extends StoreException
 {
-    public static function fromTechnicalName(string $technicalName): self
-    {
-        return new self(
-            'Could not find extension with technical name "{{technicalName}}".',
-            ['technicalName' => $technicalName]
-        );
-    }
-
-    public static function fromId(string $id): self
-    {
-        return new self(
-            'Could not find extension with id "{{id}}".',
-            ['id' => $id]
-        );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__EXTENSION_NOT_FOUND';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
-    }
 }

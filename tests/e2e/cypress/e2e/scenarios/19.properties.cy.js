@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package inventory
+ */
 import PropertyPageObject from '../../support/pages/module/sw-property.page-object';
 
 describe('Create a new property and select value display type', () => {

@@ -32,16 +32,14 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_meta_data_date %}
         <span class="sw-extension-review__comma">
-            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate',
-                   0, { lastChangeDate: lastChangeDate, author: review.authorName }) }}
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelLastChangeDate', 0, { lastChangeDate: lastChangeDate, author: review.authorName }) }}
         </span>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_meta_data_version %}
         <span v-if="review.version">
-            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion',
-                   0, { extensionVersion: review.version }) }}
+            {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review.labelExtensionVersion', 0, { extensionVersion: review.version }) }}
         </span>
         {% endblock %}
     </p>

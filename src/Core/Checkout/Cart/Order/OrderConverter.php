@@ -19,10 +19,9 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
@@ -32,6 +31,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -70,6 +70,10 @@ class OrderConverter
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<RuleCollection> $ruleRepository
      */
     public function __construct(
         protected EntityRepository $customerRepository,
@@ -79,7 +83,8 @@ class OrderConverter
         private readonly OrderDefinition $orderDefinition,
         private readonly EntityRepository $orderAddressRepository,
         private readonly InitialStateIdLoader $initialStateIdLoader,
-        private readonly LineItemDownloadLoader $downloadLoader
+        private readonly LineItemDownloadLoader $downloadLoader,
+        private readonly EntityRepository $ruleRepository,
     ) {
     }
 
@@ -90,13 +95,16 @@ class OrderConverter
      */
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
-        foreach ($cart->getDeliveries() as $delivery) {
-            if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
-                continue;
-            }
+        if ($conversionContext->shouldIncludeDeliveries()) {
+            foreach ($cart->getDeliveries() as $delivery) {
+                if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
+                    continue;
+                }
 
-            throw new DeliveryWithoutAddressException();
+                throw new DeliveryWithoutAddressException();
+            }
         }
+
         $data = CartTransformer::transform(
             $cart,
             $context,
@@ -169,11 +177,9 @@ class OrderConverter
             $data['lineItems'][$key]['downloads'] = $downloads;
         }
 
-        /** @var IdStruct|null $idStruct */
         $idStruct = $cart->getExtensionOfType(self::ORIGINAL_ID, IdStruct::class);
         $data['id'] = $idStruct ? $idStruct->getId() : Uuid::randomHex();
 
-        /** @var IdStruct|null $orderNumberStruct */
         $orderNumberStruct = $cart->getExtensionOfType(self::ORIGINAL_ORDER_NUMBER, IdStruct::class);
         if ($orderNumberStruct !== null) {
             $data['orderNumber'] = $orderNumberStruct->getId();
@@ -254,16 +260,15 @@ class OrderConverter
         $customerGroupId = null;
 
         if ($customerId) {
-            /** @var CustomerEntity|null $customer */
-            $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
+            $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->getEntities()->get($customerId);
             if ($customer !== null) {
                 $customerGroupId = $customer->getGroupId();
             }
         }
 
         $billingAddressId = $order->getBillingAddressId();
-        $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->get($billingAddressId);
-        if (!$billingAddress instanceof OrderAddressEntity) {
+        $billingAddress = $this->orderAddressRepository->search(new Criteria([$billingAddressId]), $context)->getEntities()->get($billingAddressId);
+        if ($billingAddress === null) {
             throw CartException::addressNotFound($billingAddressId);
         }
 
@@ -277,7 +282,6 @@ class OrderConverter
             SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
-        /** @var OrderDeliveryEntity|null $delivery */
         $delivery = $order->getDeliveries()?->first();
         if ($delivery !== null) {
             $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $delivery->getShippingMethodId();
@@ -316,6 +320,7 @@ class OrderConverter
 
         if ($order->getRuleIds() !== null) {
             $salesChannelContext->setRuleIds($order->getRuleIds());
+            $salesChannelContext->setAreaRuleIds($this->fetchRuleAreas($order->getRuleIds(), $context));
         }
 
         $event = new SalesChannelContextAssembledEvent($order, $salesChannelContext);
@@ -392,5 +397,22 @@ class OrderConverter
         }
 
         return $cartDeliveries;
+    }
+
+    /**
+     * @param string[] $ruleIds
+     *
+     * @return array<string, string[]>
+     */
+    private function fetchRuleAreas(array $ruleIds, Context $context): array
+    {
+        if (!$ruleIds) {
+            return [];
+        }
+
+        $criteria = new Criteria($ruleIds);
+        $rules = $this->ruleRepository->search($criteria, $context)->getEntities();
+
+        return $rules->getIdsByArea();
     }
 }

@@ -154,8 +154,7 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
                                 <p>
-                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
-                                           { name: getInlineSnippet(item.config.label) || item.name }) }}
+                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) || item.name }) }}
                                 </p>
                                 {% endblock %}
 

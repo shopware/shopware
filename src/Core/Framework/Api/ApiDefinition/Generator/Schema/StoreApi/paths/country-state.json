@@ -12,15 +12,25 @@
                 "description": "Perform a filtered search the states for a country",
                 "operationId": "readCountryState",
                 "parameters": [
-                  {
-                    "name": "countryId",
-                    "in": "path",
-                    "required": true,
-                    "schema": {
-                      "type": "string",
-                      "pattern": "^[0-9a-f]{32}$"
+                    {
+                        "name": "countryId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
                     }
-                  }
                 ],
                 "requestBody": {
                     "required": false,
@@ -42,7 +52,6 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
                                     "allOf": [
                                         {
                                             "properties": {

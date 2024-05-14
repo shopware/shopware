@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -12,9 +13,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass
  */
+#[CoversClass(RateLimiterCompilerPass::class)]
 class RateLimiterCompilerPassTest extends TestCase
 {
     private Definition $rateLimiterDef;

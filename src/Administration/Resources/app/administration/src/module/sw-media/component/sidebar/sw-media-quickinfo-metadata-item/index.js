@@ -1,42 +1,38 @@
 import './sw-media-quickinfo-metadata-item.scss';
+import { h } from 'vue';
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     functional: true,
 
     render(createElement, context) {
-        const title = createElement(
+        const title = h(
             'dt',
             {
                 class: [
-                    context.data.staticClass,
+                    context.data.class,
                     {
                         'sw-media-quickinfo-metadata-item__term': true,
-                        ...context.data.class,
                     },
                 ],
             },
-            [
-                `${context.props.labelName}:`,
-            ],
+            `${context.props.labelName}:`,
         );
 
-        const description = createElement(
+        const description = h(
             'dd',
             {
                 class: [
-                    context.data.staticClass,
+                    context.data.class,
                     {
                         'sw-media-quickinfo-metadata-item__description': true,
                     },
                 ],
             },
-            [
-                context.children,
-            ],
+            context.children.default(),
         );
 
         return [title, description];

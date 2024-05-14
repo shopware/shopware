@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
@@ -149,7 +149,7 @@ class SitemapExporter implements SitemapExporterInterface
 
             foreach ($result->getUrls() as $url) {
                 $newUrl = clone $url;
-                $newUrl->setLoc(empty($newUrl->getLoc()) ? $host : $host . '/' . $newUrl->getLoc());
+                $newUrl->setLoc(rtrim($host, '/') . '/' . $newUrl->getLoc());
                 $urls[] = $newUrl;
             }
 

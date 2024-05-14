@@ -10,10 +10,12 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_duplicate %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction"
+            role="button"
+            tabindex="0"
             @click="onBlockDuplicate"
+            @keydown.enter="onBlockDuplicate"
         >
             <sw-icon
                 name="regular-duplicate"
@@ -25,10 +27,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config__quickaction_delete %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction is--danger"
+            role="button"
+            tabindex="0"
             @click="onBlockDelete"
+            @keydown.enter="onBlockDelete"
         >
             <sw-icon
                 name="regular-trash"
@@ -51,22 +55,14 @@
             :label="$tc('sw-cms.detail.label.blockNameField')"
             :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
             :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
-            {% if VUE3 %}
             @update:value="onBlockNameChange"
-            {% else %}
-            @input="onBlockNameChange"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_color_field %}
         <sw-colorpicker
-            {% if VUE3 %}
             v-model:value="block.backgroundColor"
-            {% else %}
-            v-model="block.backgroundColor"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />
@@ -92,11 +88,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_block_config_background_image_position_field %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="block.backgroundMediaMode"
-            {% else %}
-            v-model="block.backgroundMediaMode"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!block.backgroundMediaId"
         >

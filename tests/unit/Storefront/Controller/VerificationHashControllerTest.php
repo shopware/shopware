@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\VerificationHashController;
@@ -9,9 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\VerificationHashController
  */
+#[CoversClass(VerificationHashController::class)]
 class VerificationHashControllerTest extends TestCase
 {
     public function testGetVerificationHash(): void
@@ -22,14 +22,9 @@ class VerificationHashControllerTest extends TestCase
         $controller = new VerificationHashController($systemConfigMock);
         $response = $controller->load();
 
-        static::assertEquals(
-            new Response(
-                'TheVerificationHash123',
-                Response::HTTP_OK,
-                ['Content-Type' => 'text/plain']
-            ),
-            $response
-        );
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals('TheVerificationHash123', $response->getContent());
+        static::assertEquals('text/plain', $response->headers->get('Content-Type'));
     }
 
     public function testGetVerificationHashEmpty(): void
@@ -40,13 +35,8 @@ class VerificationHashControllerTest extends TestCase
         $controller = new VerificationHashController($systemConfigMock);
         $response = $controller->load();
 
-        static::assertEquals(
-            new Response(
-                '',
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'text/plain']
-            ),
-            $response
-        );
+        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertEquals('', $response->getContent());
+        static::assertEquals('text/plain', $response->headers->get('Content-Type'));
     }
 }

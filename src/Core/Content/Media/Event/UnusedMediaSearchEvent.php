@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class UnusedMediaSearchEvent extends Event
 {
     /**

@@ -1,7 +1,7 @@
 import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -43,6 +43,23 @@ export default {
             }
 
             await this.deactivateExtension();
+        },
+
+        async installAndActivateExtension() {
+            this.isLoading = true;
+
+            try {
+                await this.shopwareExtensionService.installAndActivateExtension(
+                    this.extension.name,
+                    this.extension.type,
+                );
+
+                await this.clearCacheAndReloadPage();
+            } catch (e) {
+                this.showExtensionErrors(e);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         async installExtension() {

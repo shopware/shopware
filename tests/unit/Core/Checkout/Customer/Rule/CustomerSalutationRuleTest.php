@@ -2,12 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerSalutationRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -17,14 +21,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerSalutationRule
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerSalutationRule::class)]
+#[Group('rules')]
 class CustomerSalutationRuleTest extends TestCase
 {
     private CustomerSalutationRule $rule;
@@ -51,10 +52,9 @@ class CustomerSalutationRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchCustomerSalutationValues
-     *
      * @param list<string> $salutationIds
      */
+    #[DataProvider('getMatchCustomerSalutationValues')]
     public function testCustomerSalutationRuleMatching(bool $expected, ?string $customerSalutationId, array $salutationIds, string $operator): void
     {
         $customer = new CustomerEntity();
@@ -97,7 +97,7 @@ class CustomerSalutationRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($scope));
     }
 
@@ -109,7 +109,7 @@ class CustomerSalutationRuleTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($this->rule->match($scope));
     }
@@ -117,12 +117,12 @@ class CustomerSalutationRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
     /**
-     * @return array<string, array{boolean, string|null, list<string>, string}>
+     * @return array<string, array{bool, string|null, list<string>, string}>
      */
     public static function getMatchCustomerSalutationValues(): array
     {

@@ -2,10 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/data-grid/sw-data-grid-settings';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/entity/sw-entity-listing';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
@@ -23,22 +20,8 @@ async function createWrapper(propsData = {}) {
         limit: null,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-entity-listing'), {
-        stubs: {
-            'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
-            'sw-button': true,
-            'sw-context-button': true,
-            'sw-icon': true,
-            'sw-field': true,
-            'sw-switch-field': true,
-            'sw-context-menu-divider': true,
-            'sw-pagination': true,
-            'sw-checkbox-field': true,
-            'sw-context-menu-item': true,
-            'sw-data-grid-skeleton': true,
-        },
-        provide: {},
-        propsData: {
+    return mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
+        props: {
             columns: [
                 { property: 'name', label: 'Name' },
             ],
@@ -51,6 +34,22 @@ async function createWrapper(propsData = {}) {
             },
             detailRoute: 'sw.manufacturer.detail',
             ...propsData,
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings'),
+                'sw-button': true,
+                'sw-context-button': true,
+                'sw-icon': true,
+                'sw-field': true,
+                'sw-switch-field': true,
+                'sw-context-menu-divider': true,
+                'sw-pagination': true,
+                'sw-checkbox-field': true,
+                'sw-context-menu-item': true,
+                'sw-data-grid-skeleton': true,
+            },
         },
     });
 }
@@ -125,9 +124,8 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        expect(elements.exists()).toBeTruthy();
-        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        expect(elements.wrappers).toHaveLength(3);
+        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        expect(elements).toHaveLength(3);
     });
 
     it('should have context menu with view entry', async () => {
@@ -143,9 +141,8 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        expect(elements.exists()).toBeTruthy();
-        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.view'));
-        expect(elements.wrappers).toHaveLength(3);
+        elements.forEach(el => expect(el.text()).toBe('global.default.view'));
+        expect(elements).toHaveLength(3);
     });
 
     it('should have context menu with disabled edit entry', async () => {
@@ -158,13 +155,13 @@ describe('src/app/component/entity/sw-entity-listing', () => {
                 { id: 'id3', name: 'item3' },
             ]),
         });
+        await flushPromises();
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
-        expect(elements.exists()).toBeTruthy();
-        expect(elements.wrappers).toHaveLength(3);
-        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
+        expect(elements).toHaveLength(3);
+        elements.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        elements.forEach(el => expect(el.attributes().disabled).toBe('true'));
     });
 
     it('should show delete id', async () => {
@@ -199,19 +196,17 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
     it('should call emit when user click bulk edit button', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.$emit = jest.fn();
         wrapper.vm.onClickBulkEdit();
 
         await flushPromises();
-        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-open');
+        expect(wrapper.emitted('bulk-edit-modal-open')).toStrictEqual([[]]);
     });
 
     it('should call emit when user close bulk edit modal', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.$emit = jest.fn();
         wrapper.vm.onCloseBulkEditModal();
 
         await flushPromises();
-        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-close');
+        expect(wrapper.emitted('bulk-edit-modal-close')).toStrictEqual([[]]);
     });
 });

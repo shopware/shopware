@@ -1,34 +1,32 @@
-import 'src/app/component/filter/sw-number-filter';
-import 'src/app/component/filter/sw-base-filter';
-import 'src/app/component/filter/sw-range-filter';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
 import { shallowMount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-number-filter'), {
-        stubs: {
-            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
-            'sw-range-filter': await Shopware.Component.build('sw-range-filter'),
-            'sw-number-field': await Shopware.Component.build('sw-number-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+    return shallowMount(await wrapTestComponent('sw-number-filter', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-range-filter': await wrapTestComponent('sw-range-filter', { sync: true }),
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-icon': true,
+                'sw-field-error': {
+                    template: '<div></div>',
+                },
             },
-            'sw-icon': true,
-            'sw-field-error': {
-                template: '<div></div>',
+            provide: {
+                validationService: {},
             },
         },
-        propsData: {
+        props: {
             filter: {
                 property: 'stock',
                 name: 'stock',
@@ -38,9 +36,6 @@ async function createWrapper() {
                 numberMin: 0,
             },
             active: true,
-        },
-        provide: {
-            validationService: {},
         },
     });
 }

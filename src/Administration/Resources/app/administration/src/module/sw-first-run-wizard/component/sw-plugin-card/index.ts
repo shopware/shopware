@@ -19,10 +19,9 @@ type RecommendedPlugin = {
 }
 
 /**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
+ * @package checkout
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -41,7 +40,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
         showDescription: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
@@ -59,6 +57,10 @@ export default Shopware.Component.wrapComponentConfig({
         pluginIsNotActive(): boolean {
             return !this.plugin.active;
         },
+
+        truncateFilter() {
+            return Shopware.Filter.getByName('truncate');
+        },
     },
 
     methods: {
@@ -75,8 +77,6 @@ export default Shopware.Component.wrapComponentConfig({
                 this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
-                // ts can not recognize functions from mixins
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.showExtensionErrors(error);
             } finally {
@@ -91,7 +91,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await this.shopwareExtensionService.updateExtensionData();
 
-                this.$emit('onPluginInstalled', this.plugin.name);
+                this.$emit('on-plugin-installed', this.plugin.name);
             }
         },
     },

@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
@@ -52,10 +52,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $violationList = new ConstraintViolationList();
 
         foreach ($event->getCommands() as $command) {
-            if (
-                !($command->getDefinition() instanceof CustomFieldSetDefinition)
-                || $command instanceof InsertCommand
-            ) {
+            if ($command->getEntityName() !== CustomFieldSetDefinition::ENTITY_NAME || $command instanceof InsertCommand) {
                 continue;
             }
 
@@ -106,7 +103,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
             $this->buildViolation(
                 'No permissions to %privilege%".',
                 ['%privilege%' => 'write:custom_field_set'],
-                '/' . $command->getDefinition()->getEntityName(),
+                '/' . $command->getEntityName(),
                 self::VIOLATION_NO_PERMISSION
             )
         );

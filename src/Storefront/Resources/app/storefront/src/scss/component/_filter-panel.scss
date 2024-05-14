@@ -33,15 +33,16 @@ This file contains the generic styling for all filter items.
     margin-bottom: 12px;
 
     .filter-panel-item-toggle {
-        border: 1px solid $border-color;
-        font-weight: $font-weight-normal;
+        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+        --#{$prefix}btn-border-color: #{$input-border-color};
+        --#{$prefix}btn-hover-border-color: #{$input-border-color};
+        --#{$prefix}btn-active-border-color: #{$primary};
+        --#{$prefix}btn-active-color: #{$primary};
+        --#{$prefix}btn-font-weight: #{$font-weight-normal};
     }
 }
 
 .filter-panel-item-toggle.show {
-    color: $primary;
-    border-color: $primary;
-
     .icon-filter-panel-item-toggle svg {
         color: $primary;
         transform: rotate(180deg);
@@ -110,8 +111,10 @@ This file contains the generic styling for all filter items.
     width: 35px;
     text-align: left;
 
-    &:focus {
+    &:focus-visible {
         outline: none;
+        color: $primary;
+        box-shadow: inset $input-btn-focus-box-shadow;
     }
 
     &:hover {

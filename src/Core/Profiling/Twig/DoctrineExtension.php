@@ -10,8 +10,10 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-#[Package('core
-This class contains the needed functions in order to do the query highlighting')]
+/**
+ * This class contains the needed functions in order to do the query highlighting
+ */
+#[Package('core')]
 class DoctrineExtension extends AbstractExtension
 {
     private SqlFormatter $sqlFormatter;

@@ -1,59 +1,59 @@
 import template from './sw-switch-field.html.twig';
-import './sw-switch-field.scss';
 
 const { Component } = Shopware;
 
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
- * @description Boolean input field based on checkbox.
+ * @private
  * @status ready
- * @example-type static
- * @component-example
- * <sw-switch-field v-model="aBooleanProperty" label="Name"></sw-switch-field>
+ * @description Wrapper component for sw-switch-field and mt-switch. Autoswitches between the two components.
  */
-Component.extend('sw-switch-field', 'sw-checkbox-field', {
+Component.register('sw-switch-field', {
     template,
 
-    inheritAttrs: false,
-
     props: {
-        noMarginTop: {
+        value: {
             type: Boolean,
             required: false,
-            default: false,
         },
 
-        size: {
-            type: String,
+        checked: {
+            type: Boolean,
             required: false,
-            default: 'default',
-            validValues: ['small', 'medium', 'default'],
-            validator(val) {
-                return ['small', 'medium', 'default'].includes(val);
-            },
         },
     },
 
     computed: {
-        swSwitchFieldClasses() {
-            return [
-                {
-                    'sw-field--switch-bordered': this.bordered,
-                    'sw-field--switch-padded': this.padded,
-                    'sw-field--switch-no-margin-top': this.noMarginTop,
-                    ...this.swCheckboxFieldClasses,
-                },
-                `sw-field--${this.size}`,
-            ];
+        checkedValue() {
+            if (typeof this.checked === 'boolean') {
+                return this.checked;
+            }
+
+            return this.value;
+        },
+
+        useMeteorComponent() {
+            // Use new meteor component in major
+            if (Shopware.Feature.isActive('v6.7.0.0')) {
+                return true;
+            }
+
+            // Throw warning when deprecated component is used
+            Shopware.Utils.debug.warn(
+                'sw-switch-field',
+                // eslint-disable-next-line max-len
+                'The old usage of "sw-switch-field" is deprecated and will be removed in v6.7.0.0. Please use "mt-switch" instead.',
+            );
+
+            return false;
         },
     },
 
     methods: {
-        onInheritanceRestore(event) {
-            this.$emit('inheritance-restore', event);
+        onChangeHandler(value) {
+            // For backwards compatibility
+            this.$emit('update:value', value);
         },
     },
 });

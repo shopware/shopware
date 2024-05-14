@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\System\Country;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
-use Shopware\Core\System\Country\Exception\CountryStateNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class CountryException extends HttpException
 {
     public const COUNTRY_NOT_FOUND = 'CHECKOUT__COUNTRY_NOT_FOUND';
@@ -17,29 +14,21 @@ class CountryException extends HttpException
 
     public static function countryNotFound(string $id): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CountryNotFoundException($id);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_NOT_FOUND,
-            'Country with id "{{ countryId }}" not found.',
-            ['countryId' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'country', 'field' => 'id', 'value' => $id]
         );
     }
 
     public static function countryStateNotFound(string $id): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CountryStateNotFoundException($id);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_STATE_NOT_FOUND,
-            'Country state with id "{{ stateId }}" not found.',
-            ['stateId' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'country state', 'field' => 'id', 'value' => $id]
         );
     }
 }

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionIndividualCodeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'promotion_individual_code';

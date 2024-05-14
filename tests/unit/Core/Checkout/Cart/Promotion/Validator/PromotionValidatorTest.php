@@ -2,15 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Validator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -18,12 +21,14 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Validator\PromotionValidator
  */
+#[CoversClass(PromotionValidator::class)]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -36,8 +41,20 @@ class PromotionValidatorTest extends TestCase
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $this->promotionDefinition = new PromotionDefinition();
-        $this->discountDefinition = new PromotionDiscountDefinition();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [PromotionDefinition::class, PromotionDiscountDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        /** @var PromotionDefinition $promotionDefinition */
+        $promotionDefinition = $registry->get(PromotionDefinition::class);
+
+        /** @var PromotionDiscountDefinition $discountDefinition */
+        $discountDefinition = $registry->get(PromotionDiscountDefinition::class);
+
+        $this->promotionDefinition = $promotionDefinition;
+        $this->discountDefinition = $discountDefinition;
     }
 
     /**
@@ -45,9 +62,8 @@ class PromotionValidatorTest extends TestCase
      * been configured to use a code, but the code is empty.
      * So we set useCodes to TRUE, provide an empty code and expect
      * a corresponding exception.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionCodeRequired(): void
     {
         $commands = [];
@@ -60,7 +76,7 @@ class PromotionValidatorTest extends TestCase
                 'use_individual_codes' => false,
                 'code' => ' ',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -75,8 +91,14 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
-            static::assertEquals('/0/code', $e->getExceptions()[0]->getViolations()[0]->getPropertyPath());
+            static::assertCount(1, $e->getExceptions());
+
+            $firstException = $e->getExceptions()[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $firstException);
+
+            $violation = $firstException->getViolations()->get(0);
+
+            static::assertEquals('/0/code', $violation->getPropertyPath());
 
             throw $e;
         }
@@ -85,9 +107,8 @@ class PromotionValidatorTest extends TestCase
     /**
      * This test verifies that we get a correct exception if our
      * validUntil date is before the validFrom date.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionValidUntilAfterFrom(): void
     {
         $commands = [];
@@ -99,7 +120,7 @@ class PromotionValidatorTest extends TestCase
                 'valid_from' => '2019-02-25 12:00:00',
                 'valid_until' => '2019-02-25 11:59:59',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -123,9 +144,8 @@ class PromotionValidatorTest extends TestCase
     /**
      * This test verifies that we do not require a global code
      * if we have individual codes turned on.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionIndividualDoesNotRequireCode(): void
     {
         $commands = [];
@@ -136,7 +156,7 @@ class PromotionValidatorTest extends TestCase
                 'use_individual_codes' => true,
                 'code' => ' ',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -148,22 +168,20 @@ class PromotionValidatorTest extends TestCase
         $validator = new PromotionValidator($fakeConnection);
         $validator->preValidate($event);
 
-        static::assertTrue(true);
+        static::expectNotToPerformAssertions();
     }
 
     /**
      * This test verifies that we get a correct exception when
      * sending invalid discount values to our validator.
      *
-     * @group promotions
-     *
-     * @dataProvider invalidProvider
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
+    #[DataProvider('invalidProvider')]
+    #[Group('promotions')]
     public function testDiscountValueInvalid(string $type, float $value): void
     {
         $commands = [];
@@ -175,7 +193,7 @@ class PromotionValidatorTest extends TestCase
                 'type' => ($type === 'percentage') ? PromotionDiscountEntity::TYPE_PERCENTAGE : PromotionDiscountEntity::TYPE_ABSOLUTE,
                 'value' => $value,
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -216,15 +234,13 @@ class PromotionValidatorTest extends TestCase
      * use fixed prices of 0,00...and thus percentage and
      * absolute do also get that minValue (to make things easier).
      *
-     * @group promotions
-     *
-     * @dataProvider validProvider
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
+    #[DataProvider('validProvider')]
+    #[Group('promotions')]
     public function testDiscountValueValid(string $type, float $value): void
     {
         $commands = [];
@@ -234,7 +250,7 @@ class PromotionValidatorTest extends TestCase
                 'type' => ($type === 'percentage') ? PromotionDiscountEntity::TYPE_PERCENTAGE : PromotionDiscountEntity::TYPE_ABSOLUTE,
                 'value' => $value,
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -246,7 +262,7 @@ class PromotionValidatorTest extends TestCase
         $validator->preValidate($event);
         $event->getExceptions()->tryToThrow();
 
-        static::assertTrue(true);
+        static::expectNotToPerformAssertions();
     }
 
     /**

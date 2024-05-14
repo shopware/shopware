@@ -14,9 +14,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_layout_modal_header_search %}
         <sw-simple-search-field
+            v-model:value="term"
             class="sw-cms-layout-modal__header-search"
             :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-            :search-term="term"
             @search-term-change="onSearch"
         />
         {% endblock %}
@@ -37,10 +37,12 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_layout_modal_header_view_toggle %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-cms-layout-modal__actions-mode"
+                role="button"
+                tabindex="0"
                 @click="toggleListMode"
+                @keydown.enter="toggleListMode"
             >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -102,18 +104,13 @@
                     <sw-checkbox-field
                         :value="cmsPage.id === selectedPageObject?.id"
                         class="sw-cms-layout-modal__content-checkbox"
-                        {% if VUE3 %}
                         @update:value="selectItem(cmsPage)"
-                        {% else %}
-                        @change="selectItem(cmsPage)"
-                        {% endif %}
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
                     <sw-cms-list-item
-                        :key="cmsPage.id"
                         :page="cmsPage"
                         :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
                         @item-click="selectItem(cmsPage)"
@@ -164,8 +161,12 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                <div @click="selectItem(item)">
+                <div
+                    role="button"
+                    tabindex="0"
+                    @click="selectItem(item)"
+                    @keydown.enter="selectItem(item)"
+                >
                     {{ item.translated.name }}
                 </div>
             </template>
@@ -181,14 +182,14 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_created %}
             <template #column-createdAt="{ item }">
-                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
             </template>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_list_listing_list_data_grid_column_updated %}
             <template #column-updatedAt="{ item }">
-                {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
             </template>
             {% endblock %}
 

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -44,11 +44,11 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
         foreach ($ids as $id) {
             $lineItem = $cart->get($id);
-            $lineItems[] = $lineItem;
 
             if (!$lineItem) {
                 throw CartException::lineItemNotFound($id);
             }
+            $lineItems[] = $lineItem;
 
             $cart->remove($id);
 

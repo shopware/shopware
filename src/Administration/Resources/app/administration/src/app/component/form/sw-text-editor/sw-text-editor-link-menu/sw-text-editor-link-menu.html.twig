@@ -10,11 +10,7 @@
             :value="linkCategory"
             :label="$tc('sw-text-editor-toolbar.link.labelType')"
             require
-            {% if VUE3 %}
             @update:value="onSelectFieldChange"
-            {% else %}
-            @change="onSelectFieldChange"
-            {% endif %}
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
@@ -43,13 +39,10 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_link %}
         <sw-text-field
             v-if="linkCategory === 'link'"
-            {% if VUE3 %}
             v-model:value="linkTarget"
-            {% else %}
-            v-model="linkTarget"
-            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+            name="sw-field--linkTarget"
         />
         {% endblock %}
 
@@ -57,13 +50,10 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone %}
         <sw-text-field
             v-else-if="linkCategory === 'phone'"
-            {% if VUE3 %}
             v-model:value="linkTarget"
-            {% else %}
-            v-model="linkTarget"
-            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            name="sw-field--linkTarget"
         />
         {% endblock %}
 
@@ -71,13 +61,10 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
         <sw-email-field
             v-else-if="linkCategory === 'email'"
-            {% if VUE3 %}
             v-model:value="linkTarget"
-            {% else %}
-            v-model="linkTarget"
-            {% endif %}
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+            name="sw-field--linkTarget"
         />
         {% endblock %}
 
@@ -85,11 +72,7 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
-            {% if VUE3 %}
             v-model:value="linkTarget"
-            {% else %}
-            v-model="linkTarget"
-            {% endif %}
             class="sw-text-editor-link-menu__entity-single-select"
             entity="product"
             should-show-active-state
@@ -106,7 +89,7 @@
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :criteria="entityFilter"
+            :category-criteria="entityFilter"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
             single-select
@@ -120,11 +103,7 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab %}
         <sw-switch-field
             v-if="!['phone', 'email'].includes(linkCategory)"
-            {% if VUE3 %}
             v-model:value="opensNewTab"
-            {% else %}
-            v-model="opensNewTab"
-            {% endif %}
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
             no-margin-top
@@ -134,11 +113,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_text_editor_toolbar_button_link_menu_content_type_display_as_button %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="displayAsButton"
-            {% else %}
-            v-model="displayAsButton"
-            {% endif %}
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
             no-margin-top
@@ -149,11 +124,7 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_button_type %}
         <sw-select-field
             v-if="displayAsButton"
-            {% if VUE3 %}
             v-model:value="buttonVariant"
-            {% else %}
-            v-model="buttonVariant"
-            {% endif %}
             class="sw-text-editor-link-menu__button-variant"
             :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
             :options="buttonVariantList"

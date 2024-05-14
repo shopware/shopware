@@ -31,11 +31,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="onSaveFinish"
-            {% else %}
-            @process-finish="onSaveFinish"
-            {% endif %}
+            @update:process-success="onSaveFinish"
             @click="saveMailerSettings"
         >
             {{ $tc('sw-settings-mailer.general.buttonSave') }}
@@ -91,7 +87,9 @@
                 <div class="sw-settings-mailer__radio-selection">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_agent_options %}
-                    <sw-select-field v-model="mailerSettings['core.mailerSettings.emailAgent']">
+                    <sw-select-field
+                        v-model:value="mailerSettings['core.mailerSettings.emailAgent']"
+                    >
                         <option value="local">
                             {{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}
                         </option>
@@ -105,11 +103,7 @@
 
                     <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
-                        {% if VUE3 %}
                         v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        {% else %}
-                        v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        {% endif %}
                         :options="emailSendmailOptions"
                     />
                     {% endblock %}
@@ -118,11 +112,7 @@
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                 <sw-switch-field
                     v-if="!isSmtpMode"
-                    {% if VUE3 %}
                     v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-                    {% else %}
-                    v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-                    {% endif %}
                     size="small"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />

@@ -36,16 +36,57 @@ class ThemeCompileCommand extends Command
     {
         $this
             ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them')
-            ->addOption('active-only', 'a', InputOption::VALUE_NONE, 'Compile themes only for active  sales channels');
+            ->addOption('active-only', 'a', InputOption::VALUE_NONE, 'Compile themes only for active sales channels')
+            ->addOption('only', 'o', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile themes only for given sales channels ids')
+            ->addOption('skip', 's', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given sales channels ids')
+            ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
+            ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
+            ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
+        if ($input->getOption('sync')) {
+            $context->addState(ThemeService::STATE_NO_QUEUE);
+        }
+
         $this->io->writeln('Start theme compilation');
 
+        $onlySalesChannel = ((array) $input->getOption('only')) ?: null;
+        $skipSalesChannel = ((array) $input->getOption('skip')) ?: null;
+        if ($onlySalesChannel !== null && $skipSalesChannel !== null
+            && \count(array_intersect($onlySalesChannel, $skipSalesChannel)) > 0) {
+            $this->io->error('The sales channel includes and skips contain contradicting entries:' . implode(
+                ', ',
+                array_intersect($onlySalesChannel, $skipSalesChannel)
+            ));
+
+            return self::FAILURE;
+        }
+
+        $onlyThemes = ((array) $input->getOption('only-themes')) ?: null;
+        $skipThemes = ((array) $input->getOption('skip-themes')) ?: null;
+        if ($onlyThemes !== null && $skipThemes !== null
+            && \count(array_intersect($onlyThemes, $skipThemes)) > 0) {
+            $this->io->error('The theme includes and skips contain contradicting entries:' . implode(
+                ', ',
+                array_intersect($onlyThemes, $skipThemes)
+            ));
+
+            return self::FAILURE;
+        }
+
         foreach ($this->themeProvider->load($context, $input->getOption('active-only')) as $salesChannelId => $themeId) {
+            if ($onlySalesChannel !== null && !\in_array($salesChannelId, $onlySalesChannel, true)
+                || $skipSalesChannel !== null && \in_array($salesChannelId, $skipSalesChannel, true)
+                || $onlyThemes !== null && !\in_array($themeId, $onlyThemes, true)
+                || $skipThemes !== null && \in_array($themeId, $skipThemes, true)) {
+                continue;
+            }
+
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
             $start = microtime(true);

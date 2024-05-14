@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -17,9 +18,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\DownloadController
  */
+#[CoversClass(DownloadController::class)]
 class DownloadControllerTest extends TestCase
 {
     private MockObject&DownloadRoute $downloadRouteMock;

@@ -16,12 +16,18 @@ class ShippingMethodCollection extends EntityCollection
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         return $this->filter(
-            fn (ShippingMethodEntity $shippingMethod) => \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true)
+            function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
+                if ($shippingMethod->getAvailabilityRuleId() === null) {
+                    return true;
+                }
+
+                return \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
+            }
         );
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPriceIds(): array
     {

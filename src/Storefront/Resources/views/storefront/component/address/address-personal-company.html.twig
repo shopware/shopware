@@ -1,32 +1,33 @@
 {% block component_account_register_company_fields %}
     {% set accountTypeRequired = config('core.loginRegistration.showAccountTypeSelection') %}
 
-    {% if accountTypeRequired or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
-        <div class="{% if hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} d-none{% endif %}">
+    {% if accountTypeRequired or prefix == 'address' or prefix == 'shippingAddress' or hasSelectedBusiness %}
+        <div class="{% if hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} d-none{% endif %}">
             {% block component_address_form_company_fields %}
                 <div class="row g-2">
                     {% block component_address_form_company_name %}
                         <div class="form-group col-12">
-                            {% if formViolations.getViolations("/company") is not empty %}
-                                {% set violationPath = "/company" %}
+                            {% if formViolations.getViolations('/company') is not empty %}
+                                {% set violationPath = '/company' %}
                             {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                                 {% set violationPath = "/#{prefix}/company" %}
                             {% else %}
-                                {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
+                                {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.companyNameLabel'|trans|sw_sanitize }) %}
                             {% endif %}
 
                             {% block component_address_form_company_name_label %}
                                 <label class="form-label"
                                        for="{{ idPrefix ~ prefix }}company">
-                                    {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+                                    {{ 'address.companyNameLabel'|trans|sw_sanitize }}{% if accountTypeRequired %}{{ 'general.required'|trans|sw_sanitize }}{% endif %}
                                 </label>
                             {% endblock %}
 
                             {% block component_address_form_company_name_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                       autocomplete="organization"
                                        id="{{ idPrefix ~ prefix }}company"
-                                       placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
+                                       placeholder="{{ 'address.companyNamePlaceholder'|trans|striptags }}"
                                        name="{{ prefix }}[company]"
                                        value="{{ address.get('company') }}"
                                        data-form-validation-required
@@ -45,8 +46,8 @@
                 <div class="row g-2">
                     {% block component_address_form_company_department %}
                         <div class="form-group col-md-6">
-                            {% if formViolations.getViolations("/department") is not empty %}
-                                {% set violationPath = "/department" %}
+                            {% if formViolations.getViolations('/department') is not empty %}
+                                {% set violationPath = '/department' %}
                             {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
                                 {% set violationPath = "/#{prefix}/department" %}
                             {% endif %}
@@ -54,7 +55,7 @@
                             {% block component_address_form_company_department_label %}
                                 <label class="form-label"
                                        for="{{ idPrefix ~ prefix }}department">
-                                    {{ "address.companyDepartmentLabel"|trans|sw_sanitize }}
+                                    {{ 'address.companyDepartmentLabel'|trans|sw_sanitize }}
                                 </label>
                             {% endblock %}
 
@@ -62,7 +63,7 @@
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
                                        id="{{ idPrefix ~ prefix }}department"
-                                       placeholder="{{ "address.companyDepartmentPlaceholder"|trans|striptags }}"
+                                       placeholder="{{ 'address.companyDepartmentPlaceholder'|trans|striptags }}"
                                        name="{{ prefix }}[department]"
                                        value="{{ address.get('department') }}">
                             {% endblock %}
@@ -75,11 +76,12 @@
                         </div>
                     {% endblock %}
 
+                    {# ludtwig-ignore twig-block-name-snake-case #}
                     {% block component_address_form_company_vatId %}
                         {% if prefix != 'shippingAddress' %}
                             <div class="form-group col-md-6">
                                 {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
-                                    'vatIds': data.get('vatIds')
+                                    vatIds: data.get('vatIds')
                                 } %}
                             </div>
                         {% endif %}

@@ -1,24 +1,51 @@
-<div class="js-pseudo-modal-template">
-    <div class="modal fade"
-         tabindex="-1"
-         role="dialog">
-        <div class="modal-dialog"
-             role="document">
-            <div class="modal-content">
-                <div class="modal-header only-close">
-                    <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+{% block component_pseudo_modal %}
+    <div class="js-pseudo-modal-template">
+        <div class="modal modal-lg fade"
+             tabindex="-1"
+             role="dialog">
+            <div class="modal-dialog"
+                 role="document">
+                <div class="modal-content">
+                    {% block component_pseudo_modal_header %}
+                        <div class="modal-header only-close">
+                            {% block component_pseudo_modal_title %}
+                                <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                            {% endblock %}
 
-                    <button type="button"
-                            class="btn-close close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
-                        {% block product_detail_zoom_modal_close_button_content %}
-                        {% endblock %}
-                    </button>
-                </div>
-                <div class="modal-body js-pseudo-modal-template-content-element">
+                            {% block component_pseudo_modal_close_btn %}
+                                <button type="button"
+                                        class="btn-close close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close">
+                                    {% block component_pseudo_modal_close_btn_content %}
+                                        {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_pseudo_modal_close_btn_content` instead. #}
+                                        {% block product_detail_zoom_modal_close_button_content %}{% endblock %}
+                                    {% endblock %}
+                                </button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block component_pseudo_modal_body %}
+                        <div class="modal-body js-pseudo-modal-template-content-element">
+                        </div>
+                    {% endblock %}
                 </div>
             </div>
+
+            <template class="js-pseudo-modal-back-btn-template">
+                {# Back button will be rendered by `AjaxModalPlugin` if a `data-prev-url` is given in order to toggle between modals. #}
+
+                {# Attributes `data-url` and `href` will be set automatically by `AjaxModalPlugin`. #}
+                {% block component_pseudo_modal_back_btn %}
+                    <button class="js-pseudo-modal-back-btn btn btn-outline-primary" data-ajax-modal="true" data-url="#" href="#">
+                        {% block component_pseudo_modal_back_btn_content %}
+                            {% sw_icon 'arrow-left' style { size: 'sm', class: 'me-1' } %}
+                            {{ 'general.back'|trans }}
+                        {% endblock %}
+                    </button>
+                {% endblock %}
+            </template>
         </div>
     </div>
-</div>
+{% endblock %}

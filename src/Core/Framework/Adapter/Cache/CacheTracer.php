@@ -28,9 +28,6 @@ class CacheTracer extends AbstractCacheTracer
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return mixed|null All kind of data could be cached
-     */
     public function trace(string $key, \Closure $param)
     {
         return $this->collection->trace($key, fn () => $this->translator->trace($key, fn () => $this->config->trace($key, $param)));

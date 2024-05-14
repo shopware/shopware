@@ -14,6 +14,7 @@ class ProductException extends HttpException
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
+    public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -30,8 +31,8 @@ class ProductException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::SORTING_NOT_FOUND,
-            'Sorting with key "{{ key }}" not found.',
-            ['key' => $key]
+            self::$couldNotFindMessage,
+            ['entity' => 'sorting', 'field' => 'key', 'value' => $key]
         );
     }
 
@@ -59,8 +60,17 @@ class ProductException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CATEGORY_NOT_FOUND,
-            'Category "{{ categoryId }}" not found.',
-            ['categoryId' => $categoryId]
+            self::$couldNotFindMessage,
+            ['entity' => 'category', 'field' => 'id', 'value' => $categoryId]
+        );
+    }
+
+    public static function configurationOptionAlreadyExists(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS,
+            'Configuration option already exists'
         );
     }
 }

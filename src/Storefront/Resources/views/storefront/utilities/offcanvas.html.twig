@@ -19,11 +19,11 @@
             {% block utilities_offcanvas_close %}
                 <button class="btn btn-light offcanvas-close js-offcanvas-close">
                     {% block utilities_offcanvas_close_icon %}
-                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                        {% sw_icon 'x' style { size: 'sm' } %}
                     {% endblock %}
 
                     {% block utilities_offcanvas_close_text %}
-                        {{ "general.offcanvasCloseMenu"|trans|sw_sanitize }}
+                        {{ 'general.offcanvasCloseMenu'|trans|sw_sanitize }}
                     {% endblock %}
                 </button>
             {% endblock %}

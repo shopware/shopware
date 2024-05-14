@@ -28,7 +28,7 @@ class ProductSortingEntity extends Entity
     protected $active;
 
     /**
-     * @var array
+     * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
      */
     protected $fields;
 
@@ -47,11 +47,18 @@ class ProductSortingEntity extends Entity
      */
     protected $locked;
 
+    /**
+     * @return array<FieldSorting>
+     */
     public function createDalSorting(): array
     {
         $sorting = [];
 
         $fields = $this->fields;
+
+        if (!\is_array($fields)) {
+            $fields = [];
+        }
 
         usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
@@ -66,6 +73,17 @@ class ProductSortingEntity extends Entity
                 (bool) ($field['naturalSorting'] ?? false)
             );
         }
+
+        $flat = array_column($fields, 'field');
+
+        if (\in_array('id', $flat, true)) {
+            return $sorting;
+        }
+        if (\in_array('product.id', $flat, true)) {
+            return $sorting;
+        }
+
+        $sorting[] = new FieldSorting('id', FieldSorting::ASCENDING);
 
         return $sorting;
     }
@@ -100,11 +118,17 @@ class ProductSortingEntity extends Entity
         $this->active = $active;
     }
 
+    /**
+     * @return array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
+     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
+    /**
+     * @param array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}> $fields
+     */
     public function setFields(array $fields): void
     {
         $this->fields = $fields;

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
@@ -11,9 +13,8 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator
  */
+#[CoversClass(CustomEntityXmlSchemaValidator::class)]
 class CustomEntityXmlSchemaValidatorTest extends TestCase
 {
     public function testValidateThrowsExceptionIfEntitiesNotDefined(): void
@@ -30,18 +31,17 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
 
     /**
      * @param class-string<\Throwable> $exceptionClass
-     *
-     * @dataProvider xmlProvider
      */
+    #[DataProvider('xmlProvider')]
     public function testValidate(string $xml, string $exceptionClass, string $expectedMessage): void
     {
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
-        $entities = new Entities([
-            Entity::fromXml($dom->documentElement),
+        $entities = Entities::fromArray([
+            'entities' => [Entity::fromXml($dom->documentElement)],
         ]);
         $schema = new CustomEntityXmlSchema(__DIR__, $entities);
 

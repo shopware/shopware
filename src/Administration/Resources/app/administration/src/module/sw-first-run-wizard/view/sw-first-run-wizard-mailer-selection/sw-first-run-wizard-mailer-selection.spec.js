@@ -1,29 +1,20 @@
 /**
- * @package system-settings
+ * @package checkout
  */
-import { shallowMount } from '@vue/test-utils';
-import swFirstRunWizardMailerSelection from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-first-run-wizard-mailer-selection', swFirstRunWizardMailerSelection);
-
-/**
- * @package merchant-services
- */
-describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
-    const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
-    const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
-
-    const CreateFirstRunWizardMailerSettings = async function CreateFirstRunWizardMailerSettings() {
-        return shallowMount(await Shopware.Component.build('sw-first-run-wizard-mailer-selection'), {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-first-run-wizard-mailer-selection', { sync: true }), {
+        global: {
             stubs: {
                 'sw-help-text': {
-                    template: '<div />',
+                    template: '<div class="sw-help-text"></div>',
                 },
                 'sw-icon': {
-                    template: '<div />',
+                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-loader': {
-                    template: '<div />',
+                    template: '<div class="sw-loader"></div>',
                 },
             },
             provide: {
@@ -33,67 +24,60 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
                     },
                 },
             },
-        });
-    };
-
-    it('should be a vue js component', async () => {
-        const frwMailerSettings = await new CreateFirstRunWizardMailerSettings();
-
-        expect(frwMailerSettings.vm).toBeTruthy();
+        },
     });
+}
+
+describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
+    const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
+    const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     it('should emit the button config and the title on creation', async () => {
-        const frwMailerSettings = await new CreateFirstRunWizardMailerSettings();
-        const buttonConfig = frwMailerSettings.vm.buttonConfig;
+        const wrapper = await createWrapper();
+
+        const buttonConfig = wrapper.vm.buttonConfig;
         const title = 'sw-first-run-wizard.mailerSelection.modalTitle';
 
-        const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-set-title', title);
-
-        frwMailerSettings.vm.createdComponent();
-
-        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('frw-set-title', title);
+        expect(wrapper.emitted('buttons-update')).toHaveLength(1);
+        expect(wrapper.emitted('buttons-update').at(0).at(0)).toBe(buttonConfig);
+        expect(wrapper.emitted('frw-set-title')).toHaveLength(1);
+        expect(wrapper.emitted('frw-set-title').at(0).at(0)).toBe(title);
     });
 
     it('handleSelection: should not emit an redirect when user has not select an mailAgent', async () => {
-        const frwMailerSettings = await new CreateFirstRunWizardMailerSettings();
-        const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        await frwMailerSettings.setData({ mailAgent: '' });
+        const wrapper = await createWrapper();
+        await wrapper.setData({ mailAgent: '' });
 
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 
-        await frwMailerSettings.vm.handleSelection();
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        await wrapper.vm.handleSelection();
+
+        expect(wrapper.emitted('frw-redirect')).toBeUndefined();
     });
 
     it('handleSelection: should emit redirect to mailer settings when user has select an smtp mailAgent', async () => {
-        const frwMailerSettings = await new CreateFirstRunWizardMailerSettings();
-        const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        await frwMailerSettings.setData({ mailAgent: 'smtp' });
+        const wrapper = await createWrapper();
+        await wrapper.setData({ mailAgent: 'smtp' });
 
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 
-        await frwMailerSettings.vm.handleSelection();
-        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        await wrapper.vm.handleSelection();
+
+        expect(wrapper.emitted('frw-redirect')).toHaveLength(1);
+        expect(wrapper.emitted('frw-redirect').at(0)).toContain(frwRedirectSmtp);
+        expect(wrapper.emitted('frw-redirect').at(0)).not.toContain(frwRedirectLocal);
     });
 
     it('handleSelection: should emit redirect to paypal when user has select an local mailAgent', async () => {
-        const frwMailerSettings = await new CreateFirstRunWizardMailerSettings();
-        const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        await frwMailerSettings.setData({ mailAgent: 'local' });
+        const wrapper = await createWrapper();
+        await wrapper.setData({ mailAgent: 'local' });
 
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 
-        await frwMailerSettings.vm.handleSelection();
-        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-redirect', frwRedirectSmtp);
-        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('frw-redirect', frwRedirectLocal);
+        await wrapper.vm.handleSelection();
+
+        expect(wrapper.emitted('frw-redirect')).toHaveLength(1);
+        expect(wrapper.emitted('frw-redirect').at(0)).not.toContain(frwRedirectSmtp);
+        expect(wrapper.emitted('frw-redirect').at(0)).toContain(frwRedirectLocal);
     });
 });

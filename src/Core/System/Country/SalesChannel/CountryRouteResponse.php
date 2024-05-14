@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryRouteResponse extends StoreApiResponse
 {
     /**

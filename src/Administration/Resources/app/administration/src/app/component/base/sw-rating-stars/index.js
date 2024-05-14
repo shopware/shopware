@@ -8,7 +8,7 @@ import './sw-rating-stars.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description Renders rating stars
  * @status ready
  * @example-type static

@@ -3,22 +3,22 @@ title: Move controller level annotation into Symfony route annotation
 date: 2022-02-09
 area: core
 tags: [annotations, controller, route, defaults]
---- 
+---
 
 ## Context
 
 Annotations are used to configure controllers in the core currently. 
-The configuration can contain following as example:
+The configuration can contain the following as example:
 
 - @LoginRequired
-    - Customer needs to be loggedin
+    - Customer needs to be logged in
 - @Acl
     - Protects the controller with special acl privileges
 - @RouteScope
     - Defines the scope of the route
 - and many more
 
-As Annotations are bound to the implementing class, all decorators have to copy and be update to date with the target class
+As Annotations are bound to the implementing class, all decorators have to copy and be updated to date with the target class
 
 ## Decision
 
@@ -41,9 +41,9 @@ public function myAction()
 public function myAction()
 ```
 
-Symfony passes then the defaults to the attribute bag of the Request object and we can check the attributes in the request cycle of the http kernel.
+Symfony passes the defaults to the attribute bag of the Request object, and we can check the attributes in the request cycle of the http kernel.
 
-Following annotations will be replaced:
+The following annotations will be replaced:
 - `@Captcha` -> `_captcha`
 - `@LoginRequired` -> `_loginRequired`
 - `@Acl` -> `_acl`

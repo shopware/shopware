@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -21,6 +22,7 @@ class TaskRegistry
      * @internal
      *
      * @param iterable<int, ScheduledTask> $tasks
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
         private readonly iterable $tasks,
@@ -29,16 +31,25 @@ class TaskRegistry
     ) {
     }
 
+    public function getAllTasks(Context $context): ScheduledTaskCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('createdAt'));
+
+        return $this->scheduledTaskRepository
+            ->search($criteria, $context)
+            ->getEntities();
+    }
+
     public function registerTasks(): void
     {
         $context = Context::createDefaultContext();
 
-        /** @var ScheduledTaskCollection $alreadyRegisteredTasks */
         $alreadyRegisteredTasks = $this->scheduledTaskRepository
             ->search(new Criteria(), $context)
             ->getEntities();
 
-        $this->upsertTasks($alreadyRegisteredTasks);
+        $this->upsertTasks($alreadyRegisteredTasks, $context);
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
@@ -47,7 +58,7 @@ class TaskRegistry
         }
     }
 
-    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
+    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks, Context $context): void
     {
         $updates = [];
         foreach ($this->tasks as $task) {
@@ -65,12 +76,12 @@ class TaskRegistry
                 continue;
             }
 
-            $this->insertTask($task);
+            $this->insertTask($task, $context);
         }
 
         $updates = array_values(array_filter($updates));
         if (\count($updates) > 0) {
-            $this->scheduledTaskRepository->update($updates, Context::createDefaultContext());
+            $this->scheduledTaskRepository->update($updates, $context);
         }
     }
 
@@ -129,7 +140,7 @@ class TaskRegistry
         return $newNextExecutionTime;
     }
 
-    private function insertTask(ScheduledTask $task): void
+    private function insertTask(ScheduledTask $task, Context $context): void
     {
         $validTask = $task->shouldRun($this->parameterBag);
 
@@ -142,7 +153,7 @@ class TaskRegistry
                     'defaultRunInterval' => $task->getDefaultInterval(),
                     'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
                 ],
-            ], Context::createDefaultContext());
+            ], $context);
         } catch (UniqueConstraintViolationException) {
             // this can happen if the function runs multiple times simultaneously
             // we just care that the task is registered afterward so we can safely ignore the error

@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 /**
- * @package business-ops
+ * @package services-settings
  */
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base-line-item', {
     template,

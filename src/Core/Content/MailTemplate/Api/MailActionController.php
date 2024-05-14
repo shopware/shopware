@@ -13,10 +13,10 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class MailActionController extends AbstractController
 {
     /**
@@ -28,7 +28,12 @@ class MailActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/mail-template/send', name: 'api.action.mail_template.send', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/send',
+        name: 'api.action.mail_template.send',
+        methods: ['POST'],
+        defaults: ['_acl' => ['api_send_email']]
+    )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
         /** @var array{id: string} $data */

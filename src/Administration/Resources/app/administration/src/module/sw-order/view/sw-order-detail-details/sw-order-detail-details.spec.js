@@ -1,6 +1,4 @@
-import Vuex from 'vuex';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swOrderDetailDetails from 'src/module/sw-order/view/sw-order-detail-details';
+import { mount } from '@vue/test-utils';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 const orderMock = {
@@ -13,7 +11,7 @@ const orderMock = {
     },
     currency: {
         translated: {
-            shortName: 'EUR',
+            isoCode: 'EUR',
         },
     },
     transactions: [
@@ -68,14 +66,7 @@ const orderMock = {
     ],
 };
 
-Shopware.Component.register('sw-order-detail-details', swOrderDetailDetails);
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.filter('currency', Shopware.Filter.getByName('currency'));
-
+async function createWrapper() {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
@@ -86,56 +77,51 @@ async function createWrapper(privileges = []) {
 
     orderMock.addresses.get = () => ({});
 
-    return shallowMount(await Shopware.Component.build('sw-order-detail-details'), {
-        localVue,
-        stubs: {
-            'sw-card-view': true,
-            'sw-order-user-card': true,
-            'sw-container': true,
-            'sw-order-state-select': true,
-            'sw-card': true,
-            'sw-order-line-items-grid': true,
-            'sw-card-section': true,
-            'sw-description-list': true,
-            'sw-order-saveable-field': true,
-            'sw-order-state-history-card': true,
-            'sw-order-delivery-metadata': true,
-            'sw-order-document-card': true,
-            'sw-text-field': true,
-            'sw-order-details-state-card': {
-                template: `
-                    <div class="sw-order-details-state-card"><slot></slot></div>
-                `,
-            },
-            'sw-order-address-selection': true,
-            'sw-entity-single-select': true,
-            'sw-number-field': {
-                template: '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
-                props: {
-                    value: 0,
+    return mount(await wrapTestComponent('sw-order-detail-details', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card-view': true,
+                'sw-order-user-card': true,
+                'sw-container': true,
+                'sw-order-state-select': true,
+                'sw-card': true,
+                'sw-order-line-items-grid': true,
+                'sw-card-section': true,
+                'sw-description-list': true,
+                'sw-order-saveable-field': true,
+                'sw-order-state-history-card': true,
+                'sw-order-delivery-metadata': true,
+                'sw-order-document-card': true,
+                'sw-text-field': true,
+                'sw-order-details-state-card': {
+                    template: `
+                        <div class="sw-order-details-state-card"><slot></slot></div>
+                    `,
                 },
-            },
-            'sw-datepicker': true,
-            'sw-multi-tag-select': true,
-            'sw-textarea-field': true,
-            'sw-order-promotion-field': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+                'sw-order-address-selection': true,
+                'sw-entity-single-select': true,
+                'sw-number-field': {
+                    template: '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
+                    props: {
+                        value: 0,
+                    },
                 },
+                'sw-datepicker': true,
+                'sw-multi-tag-select': true,
+                'sw-textarea-field': true,
+                'sw-order-promotion-field': true,
+                'sw-extension-component-section': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                }),
-            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                    }),
+                },
 
+            },
         },
-        propsData: {
+        props: {
             orderId: '1a2b3c',
             isSaveSuccessful: false,
         },
@@ -156,19 +142,15 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         });
     });
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        await wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled on transaction card', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"]');
         const addressSelection = wrapper.find('.sw-order-detail-details__billing-address');
 
@@ -177,7 +159,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should not have an disabled on transaction card', async () => {
-        wrapper = await createWrapper(['order.editor']);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineTransactionState"');
         const addressSelection = wrapper.find('.sw-order-detail-details__billing-address');
 
@@ -186,6 +169,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should have a disabled on delivery card', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"');
         const addressSelection = wrapper.find('.sw-order-detail-details__shipping-address');
         const trackingCodeField = wrapper.find('.sw-order-user-card__tracking-code-select');
@@ -196,7 +181,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should not have a disabled on detail card', async () => {
-        wrapper = await createWrapper(['order.editor']);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
 
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"');
         const addressSelection = wrapper.find('.sw-order-detail-details__shipping-address');
@@ -208,6 +194,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should have a disabled on order card', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineOrderState"');
         const emailField = wrapper.find('.sw-order-detail-details__email');
         const phoneNumberField = wrapper.find('.sw-order-detail-details__phone-number');
@@ -222,7 +210,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should not have a disabled on order card', async () => {
-        wrapper = await createWrapper(['order.editor']);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
 
         const stateCard = wrapper.find('.sw-order-details-state-card[state-label="sw-order.stateCard.headlineOrderState"');
         const emailField = wrapper.find('.sw-order-detail-details__email');
@@ -238,10 +227,10 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should able to edit shipping cost', async () => {
-        wrapper = await createWrapper(['order.editor']);
-        const shippingCostField = wrapper.find('.sw-order-detail-details__shipping-cost');
-        await shippingCostField.setValue(20);
-        await shippingCostField.trigger('input');
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+        const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
+        await shippingCostField.vm.$emit('update:value', 20);
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);

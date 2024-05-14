@@ -3,12 +3,12 @@ title: Mocking repositories
 date: 2023-01-04
 area: core
 tags: [testing, core, repository]
---- 
+---
 
 ## Context
-Right now it is complicated to test classes which has a dependency on a repository. This is because mocking a repository `search` or `searchIds` call requires creating empty `EntitySearchResults` or `IdSearchResults`. This leads to much boilerplate code when writing tests and faking database results. For this reason we should provide a way to mock the `search` and `searchIds` calls in a much easier way. 
+Right now it is complicated to test classes which have a dependency on a repository. This is because mocking a repository `search` or `searchIds` call requires creating empty `EntitySearchResults` or `IdSearchResults`. This leads to much boilerplate code when writing tests and faking database results. For this reason we should provide a way to mock the `search` and `searchIds` calls in a much easier way. 
 
-Faking a search results of a repository looks like this at the moment:
+Faking a search result of a repository looks like this at the moment:
 
 ```php
 $result = new EntitySearchResult(

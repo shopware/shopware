@@ -1,7 +1,7 @@
 import template from './sw-order-state-history-card.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -92,7 +92,7 @@ export default {
 
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'state_machine_history.entityId.id',
+                    'state_machine_history.referencedId',
                     entityIds,
                 ),
             );
@@ -174,7 +174,7 @@ export default {
             }
 
             return allEntries.filter((entry) => {
-                return ids.includes(entry.entityId.id);
+                return ids.includes(entry.referencedId);
             });
         },
 

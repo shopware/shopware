@@ -110,10 +110,8 @@
                 <template
                     #column-options="{ item }"
                 >
-                    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                     <span
-                        v-for="(option, index) in item.options"
-                        v-if="index < 4"
+                        v-for="(option, index) in item.options.slice(0, 4)"
                         :key="option.id"
                     >
                         {{ (index > 0) ? `, ${option.translated.name}` : option.translated.name }}
@@ -131,11 +129,7 @@
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.filterable"
-                            {% else %}
-                            v-model="item.filterable"
-                            {% endif %}
                         />
                     </template>
                     {% endblock %}

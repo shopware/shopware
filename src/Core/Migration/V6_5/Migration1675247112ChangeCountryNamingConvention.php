@@ -20,7 +20,7 @@ class Migration1675247112ChangeCountryNamingConvention extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $getCountrySql = <<<SQL
+        $getCountrySql = <<<'SQL'
             SELECT `id`
             FROM country
             WHERE `iso` = :iso
@@ -34,7 +34,7 @@ class Migration1675247112ChangeCountryNamingConvention extends MigrationStep
         }
 
         // Update for EN
-        $getEnLanguageSql = <<<SQL
+        $getEnLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -55,7 +55,7 @@ class Migration1675247112ChangeCountryNamingConvention extends MigrationStep
         }
 
         // Update for DE
-        $getDeLanguageSql = <<<SQL
+        $getDeLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -74,9 +74,5 @@ class Migration1675247112ChangeCountryNamingConvention extends MigrationStep
                 'country_id' => $countryId,
             ]);
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

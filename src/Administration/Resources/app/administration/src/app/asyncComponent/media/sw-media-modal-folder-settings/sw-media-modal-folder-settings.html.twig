@@ -56,11 +56,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_modal_folder_settings_name_field %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="mediaFolder.name"
-                    {% else %}
-                    v-model="mediaFolder.name"
-                    {% endif %}
                     :disabled="disabled"
                     :error="mediaFolderNameError"
                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
@@ -77,7 +73,7 @@
                     :value="mediaFolder.defaultFolderId ? mediaFolder.defaultFolderId : ''"
                     :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
                     show-clearable-button
-                    @change="onInputDefaultFolder"
+                    @update:value="onInputDefaultFolder"
                 >
 
                     <template #selection-label-property="{ item: item }">
@@ -85,8 +81,7 @@
                     </template>
 
                     <template #result-item="{ isSelected, setValue, item, index, searchTerm, highlightSearchTerm }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             :selected="isSelected(item)"
                             v-bind="{ item, index }"
                             @item-select="setValue"
@@ -99,7 +94,7 @@
                             <template v-else>
                                 {{ getItemName(item) }}
                             </template>
-                        </li>
+                        </sw-select-result>
                     </template>
                 </sw-entity-single-select>
                 {% endblock %}
@@ -121,30 +116,18 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_inherit_settings_field %}
                     <sw-field
-                        {% if VUE3 %}
                         v-model:value="mediaFolder.useParentConfiguration"
-                        {% else %}
-                        v-model="mediaFolder.useParentConfiguration"
-                        {% endif %}
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelInheritSettings')"
                         :disabled="mediaFolder.parentId === null"
-                        {% if VUE3 %}
                         @update:value="onChangeInheritance"
-                        {% else %}
-                        @change="onChangeInheritance"
-                        {% endif %}
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
                     <sw-field
-                        {% if VUE3 %}
                         v-model:value="configuration.createThumbnails"
-                        {% else %}
-                        v-model="configuration.createThumbnails"
-                        {% endif %}
                         type="switch"
                         :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
                         :disabled="mediaFolder.useParentConfiguration || disabled"
@@ -154,11 +137,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_keep_proportions_field %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="configuration.keepAspectRatio"
-                        {% else %}
-                        v-model="configuration.keepAspectRatio"
-                        {% endif %}
                         :label="$tc('global.sw-media-modal-folder-settings.labelKeepProportions')"
                         :disabled="notEditable"
                     />
@@ -167,11 +146,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_thumbnails_quality_field %}
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="configuration.thumbnailQuality"
-                        {% else %}
-                        v-model="configuration.thumbnailQuality"
-                        {% endif %}
                         number-type="int"
                         :label="$tc('global.sw-media-modal-folder-settings.labelThumbnailQuality')"
                         :min="0"
@@ -193,15 +168,9 @@
                         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                         <label>{{ $tc('global.sw-media-modal-folder-settings.labelThumbnailSize') }}</label>
 
+                        {# @deprecated tag:v6.7.0 - Remove the block #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_folder_settings_edit_thumbnail_list_button %}
-                        <sw-button
-                            class="sw-media-modal-folder-settings__switch-mode"
-                            :disabled="notEditable"
-                            @click="toggleEditThumbnails"
-                        >
-                            {{ labelToggleButton }}
-                        </sw-button>
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -209,12 +178,16 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_folder_settings_thumbnail_list_container %}
                     <div class="sw-media-modal-folder-settings__thumbnails-list-container">
+                        <sw-media-add-thumbnail-form
+                            v-if="!notEditable"
+                            :disabled="disabled"
+                            @on-input="checkIfThumbnailExists"
+                            @thumbnail-form-size-add="addThumbnail"
+                        />
+
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_folder_settings_thumbnail_list %}
-                        <ul
-                            class="sw-media-modal-folder-settings__thumbnails-list"
-                            :class="thumbnailListClass"
-                        >
+                        <ul class="sw-media-modal-folder-settings__thumbnails-list">
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_folder_settings_thumbnail_size %}
@@ -230,23 +203,24 @@
                                 <sw-switch-field
                                     :value="isThumbnailSizeActive(size)"
                                     :name="thumbnailSizeCheckboxName(size)"
-                                    :label="size | thumbnailSize"
+                                    :label="thumbnailSizeFilter(size)"
                                     :disabled="notEditable"
-                                    {% if VUE3 %}
                                     @update:value="onChangeThumbnailSize($event, size)"
-                                    {% else %}
-                                    @change="onChangeThumbnailSize($event, size)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
                                 <button
-                                    v-if="isEditThumbnails"
+                                    v-tooltip="{
+                                        message: $tc('global.sw-media-modal-folder-settings.tooltipCanNotDeleteThumbnailSize'),
+                                        disabled: size.deletable,
+                                        showOnDisabledElements: true
+                                    }"
                                     class="sw-media-modal-folder-settings__delete-thumbnail"
                                     :title="$tc('global.default.delete')"
                                     :aria-label="$tc('global.default.delete')"
+                                    :disabled="!size.deletable"
                                     @click="deleteThumbnail(size)"
                                 >
                                     <sw-icon
@@ -261,14 +235,9 @@
                         </ul>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Remove the block #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_modal_folder_settings_add_thumbnail_size_form %}
-                        <sw-media-add-thumbnail-form
-                            v-if="!notEditable && isEditThumbnails"
-                            :disabled="disabled"
-                            @on-input="checkIfThumbnailExists"
-                            @thumbnail-form-size-add="addThumbnail"
-                        />
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -304,7 +273,7 @@
             }"
             class="sw-media-modal-folder-settings__confirm"
             size="small"
-            :disabled="disabled || isEditThumbnails"
+            :disabled="disabled"
             variant="primary"
             @click="onClickSave"
         >

@@ -631,8 +631,12 @@ export default {
                 this.productId || this.product.id,
                 Shopware.Context.api,
                 this.productCriteria,
-            ).then((product) => {
+            ).then(async (product) => {
                 if (!product.purchasePrices?.length > 0 && !product.parentId) {
+                    if (!this.defaultCurrency?.id) {
+                        await this.loadCurrencies();
+                    }
+
                     product.purchasePrices = this.getDefaultPurchasePrices();
                 }
 

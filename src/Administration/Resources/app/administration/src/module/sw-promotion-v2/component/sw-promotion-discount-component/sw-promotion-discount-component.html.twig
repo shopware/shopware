@@ -32,20 +32,13 @@
         {% block sw_promotion_discount_component_scope %}
         <sw-select-field
             ref="selectFieldScope"
-            {% if VUE3 %}
             v-model:value="discount.scope"
-            {% else %}
-            v-model="discount.scope"
-            {% endif %}
             required
             validation="required"
             :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
-            {% if VUE3 %}
+            :is-loading="isLoading"
             @update:value="onDiscountScopeChanged"
-            {% else %}
-            @change="onDiscountScopeChanged"
-            {% endif %}
         >
             <option
                 v-for="scope in scopes"
@@ -61,11 +54,7 @@
         {% block sw_promotion_discount_condition_consider_product_rules_field %}
         <template v-if="displayAdvancedRuleOption">
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="discount.considerAdvancedRules"
-                {% else %}
-                v-model="discount.considerAdvancedRules"
-                {% endif %}
                 bordered
                 :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                 :disabled="isEditingDisabled"
@@ -79,11 +68,7 @@
     <template v-if="!shippingScope && discount.considerAdvancedRules === true">
         <div v-if="!isSetGroup">
             <sw-promotion-v2-rule-select
-                {% if VUE3 %}
                 v-model:collection="discount.discountRules"
-                {% else %}
-                v-model="discount.discountRules"
-                {% endif %}
                 class="sw-promotion-discount-component__select-discount-rules"
                 :local-mode="discount.isNew()"
                 :criteria="ruleFilter"
@@ -104,11 +89,7 @@
             {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
             <sw-select-field
                 v-if="!isSet"
-                {% if VUE3 %}
                 v-model:value="discount.applierKey"
-                {% else %}
-                v-model="discount.applierKey"
-                {% endif %}
                 :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
                 :disabled="isEditingDisabled"
             >
@@ -125,11 +106,7 @@
             {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
             <sw-select-field
                 v-if="isMaxUsageVisible"
-                {% if VUE3 %}
                 v-model:value="discount.usageKey"
-                {% else %}
-                v-model="discount.usageKey"
-                {% endif %}
                 :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
                 :disabled="isEditingDisabled"
             >
@@ -153,11 +130,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="discount.sorterKey"
-                    {% else %}
-                    v-model="discount.sorterKey"
-                    {% endif %}
                     :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
                     :disabled="isEditingDisabled"
                 >
@@ -174,11 +147,7 @@
                 {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
                 <sw-select-field
                     v-if="isPickingModeVisible"
-                    {% if VUE3 %}
                     v-model:value="discount.pickerKey"
-                    {% else %}
-                    v-model="discount.pickerKey"
-                    {% endif %}
                     :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
                     :disabled="isEditingDisabled"
                 >
@@ -204,18 +173,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_component_type %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="discount.type"
-            {% else %}
-            v-model="discount.type"
-            {% endif %}
+            class="sw-promotion-discount-component__type-select"
             :label="$tc('sw-promotion.detail.main.discounts.labelType')"
             :disabled="isEditingDisabled"
-            {% if VUE3 %}
             @update:value="onDiscountTypeChanged"
-            {% else %}
-            @change="onDiscountTypeChanged"
-            {% endif %}
         >
             <option
                 v-for="type in types"
@@ -237,11 +199,7 @@
             :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
             :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
             :disabled="isEditingDisabled"
-            {% if VUE3 %}
             @update:value="onDiscountValueChanged"
-            {% else %}
-            @change="onDiscountValueChanged"
-            {% endif %}
         >
             <template #suffix>
                 {{ valueSuffix }}
@@ -261,19 +219,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_field %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="discount.maxValue"
-            {% else %}
-            v-model="discount.maxValue"
-            {% endif %}
             :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
             :help-text="maxValueAdvancedPricesTooltip"
             :disabled="isEditingDisabled"
-            {% if VUE3 %}
             @update:value="onMaxValueChanged"
-            {% else %}
-            @change="onMaxValueChanged"
-            {% endif %}
         >
             <template #suffix>
                 {{ maxValueSuffix }}
@@ -282,11 +232,13 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_discount_max_value_advanced_prices %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="showMaxValueAdvancedPrices"
             class="sw-card__quick-link advanced-prices"
+            role="button"
+            tabindex="0"
             @click="onClickAdvancedPrices"
+            @keydown.enter="onClickAdvancedPrices"
         >
             {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <sw-icon
@@ -306,10 +258,12 @@
         columns="1fr"
         justify="end"
     >
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link advanced-prices"
+            role="button"
+            tabindex="0"
             @click="onClickAdvancedPrices"
+            @keydown.enter="onClickAdvancedPrices"
         >
             {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
             <sw-icon
@@ -344,11 +298,7 @@
 
             <template #column-price="{ item }">
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="item.price"
-                    {% else %}
-                    v-model="item.price"
-                    {% endif %}
                     type="text"
                     size="small"
                     :disabled="isEditingDisabled"

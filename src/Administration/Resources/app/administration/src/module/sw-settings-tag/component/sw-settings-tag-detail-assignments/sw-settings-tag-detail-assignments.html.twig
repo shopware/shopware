@@ -28,11 +28,7 @@
                 divider="bottom"
             >
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="showSelected"
-                    {% else %}
-                    v-model="showSelected"
-                    {% endif %}
                     :disabled="isLoading"
                     :label="$tc('sw-settings-tag.detail.assignments.showSelected')"
                 />
@@ -81,13 +77,11 @@
                                 <sw-icon
                                     v-if="item.entity === selectedEntity"
                                     name="regular-folder-open"
-                                    multicolor
                                     small
                                 />
                                 <sw-icon
                                     v-else
                                     name="regular-folder"
-                                    multicolor
                                     small
                                 />
                                 <span>
@@ -147,11 +141,7 @@
                                     v-else
                                     :key="itemIdentifierProperty"
                                     :value="isSelected(item[itemIdentifierProperty])"
-                                    {% if VUE3 %}
                                     @update:value="selectItem($event, item)"
-                                    {% else %}
-                                    @change="selectItem($event, item)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>

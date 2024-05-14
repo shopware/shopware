@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Acl;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -36,9 +37,7 @@ class AclCriteriaValidatorTest extends TestCase
         $this->validator = $this->getContainer()->get(AclCriteriaValidator::class);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testValidateCriteria(array $privileges, Criteria $criteria, bool $pass): void
     {
         $source = new AdminApiSource(null, null);

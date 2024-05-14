@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\DependencyInjection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\DependencyInjection\Configuration
  */
+#[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
     public function testConfigTree(): void

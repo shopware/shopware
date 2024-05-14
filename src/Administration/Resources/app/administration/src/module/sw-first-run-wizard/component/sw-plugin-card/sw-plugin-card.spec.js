@@ -1,37 +1,39 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import SwPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
-import 'src/app/component/base/sw-button-process';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/utils/sw-loader';
 
-Shopware.Component.register('sw-plugin-card', SwPluginCard);
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
 async function createWrapper(plugin, showDescription) {
-    return shallowMount(await Shopware.Component.build('sw-plugin-card'), {
+    return mount(await wrapTestComponent('sw-plugin-card', { sync: true }), {
         propsData: {
             plugin,
             showDescription,
         },
-        provide: {
-            cacheApiService: {
-                clear: () => { return Promise.resolve(); },
+        global: {
+            provide: {
+                cacheApiService: {
+                    clear: () => {
+                        return Promise.resolve();
+                    },
+                },
+                extensionHelperService: {
+                    downloadAndActivateExtension: jest.fn().mockResolvedValue(),
+                },
+                shopwareExtensionService: {
+                    updateExtensionData: () => {
+                        return Promise.resolve();
+                    },
+                },
             },
-            extensionHelperService: {
-                downloadAndActivateExtension: () => { return Promise.resolve(); },
+            stubs: {
+                'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
+                'sw-icon': true,
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-loader': await wrapTestComponent('sw-loader'),
             },
-            shopwareExtensionService: {
-                updateExtensionData: () => { return Promise.resolve(); },
-            },
-        },
-        stubs: {
-            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
-            'sw-icon': true,
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
         },
     });
 }
@@ -48,8 +50,9 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         };
 
         const wrapper = await createWrapper(pluginConfig, true);
+        await flushPromises();
 
-        const extensionIcon = wrapper.get('.sw-extension-icon');
+        const extensionIcon = wrapper.getComponent('.sw-extension-icon');
 
         expect(extensionIcon.vm).toBeDefined();
         expect(extensionIcon.props('src')).toBe(pluginConfig.iconPath);
@@ -134,8 +137,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(downloadSpy).toHaveBeenCalledWith('SwExamplePlugin', 'plugin');
         expect(cacheApiSpy).toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
-
-        expect(wrapper.emitted('onPluginInstalled')).toEqual([['SwExamplePlugin']]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 
     it('can install an app', async () => {
@@ -161,7 +163,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(cacheApiSpy).not.toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('onPluginInstalled')).toEqual([['SwExampleApp']]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExampleApp']]);
     });
 
     it('displays errors on failed installation', async () => {
@@ -197,6 +199,6 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(showExtensionErrorsSpy).toHaveBeenCalledWith(downloadError);
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('onPluginInstalled')).toEqual([['SwExamplePlugin']]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 });

@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @description <p>A simple text editor which uses the browsers api.
@@ -37,6 +36,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-text-editor', {
     template,
+
+    inject: ['feature'],
 
     props: {
         value: {
@@ -94,6 +95,17 @@ Component.register('sw-text-editor', {
             type: String,
             required: false,
             default: null,
+        },
+
+        /**
+         * @description:
+         * If set to true, the component will show warning below the editor the content might be sanitized
+         * but does not call the sanitize API, the sanitization is done by the backend on saving
+         */
+        sanitizeInfoWarn: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         enableTransparentBackground: {
@@ -379,7 +391,7 @@ Component.register('sw-text-editor', {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 
@@ -417,7 +429,7 @@ Component.register('sw-text-editor', {
                     const dataMappingButton = {
                         type: 'data-mapping',
                         title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
-                        icon: 'default-text-editor-variables',
+                        icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
                         tooltipShowDelay: 500,
@@ -900,12 +912,12 @@ Component.register('sw-text-editor', {
         },
 
         emitContent() {
-            this.$emit('input', this.getContentValue());
+            this.$emit('update:value', this.getContentValue());
         },
 
         emitHtmlContent(value) {
             this.content = value;
-            this.$emit('input', value);
+            this.$emit('update:value', value);
 
             this.isEmpty = this.emptyCheck(this.content);
             this.placeholderVisible = this.isEmpty;

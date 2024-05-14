@@ -2,13 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,14 +21,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderTagRule
  */
+#[Package('services-settings')]
+#[CoversClass(OrderTagRule::class)]
+#[Group('rules')]
 class OrderTagRuleTest extends TestCase
 {
     private OrderTagRule $rule;
@@ -52,7 +52,7 @@ class OrderTagRuleTest extends TestCase
                 'isMatchAny' => 1,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [
@@ -84,11 +84,10 @@ class OrderTagRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param array<string>|string|null $givenIdentifier
      * @param array<string> $ruleIdentifiers
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, $givenIdentifier): void
     {
         $order = new OrderEntity();
@@ -101,7 +100,12 @@ class OrderTagRuleTest extends TestCase
         }
         $order->setTags($tagCollection);
 
-        $scope = $this->createScope($order);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
+
         $this->rule->assign(['identifiers' => $ruleIdentifiers, 'operator' => $operator]);
 
         $match = $this->rule->match($scope);
@@ -128,13 +132,5 @@ class OrderTagRuleTest extends TestCase
         $scope = $this->createMock(CartRuleScope::class);
 
         static::assertFalse($this->rule->match($scope));
-    }
-
-    private function createScope(OrderEntity $order): CheckoutRuleScope
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $cart = $this->createMock(Cart::class);
-
-        return new FlowRuleScope($order, $cart, $context);
     }
 }

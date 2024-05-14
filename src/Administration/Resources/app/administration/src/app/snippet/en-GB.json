@@ -4,14 +4,17 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions.",
       "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
+      "PARENT_MUST_NOT_BE_EMPTY": "This field's inheritor must not be empty.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",
       "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
+      "SHOPWARE_INVALID_IP_CIDR": "Please enter a valid IP address or a valid IP-address with CIDR mask.",
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
+      "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator."
     },
@@ -41,6 +44,7 @@
       "from": "From",
       "to": "To",
       "bulkEdit": "Bulk edit",
+      "back": "Back",
       "discard": "Discard"
     },
     "notification": {
@@ -53,6 +57,9 @@
       "noTitle": "Title is not defined",
       "noMessage": "Message is not defined",
       "notificationLoadingDataErrorMessage": "Error loading data"
+    },
+    "sw-desktop": {
+      "stagingBarText": "The Shop is in staging mode."
     },
     "notification-center": {
       "title": "Notifications",
@@ -74,10 +81,6 @@
         "dalIndexing": {
           "message": "All data indexed. | Indexing data.",
           "messageSuccess": "Indexing has finished."
-        },
-        "warmupIndexing": {
-          "message": "Cache warming up. | One page remaining... | Approximately {n} pages remaining...",
-          "messageSuccess": "Cache has been warmed up."
         },
         "productStream": {
           "title": "Indexing dynamic product groups",
@@ -289,6 +292,12 @@
         },
         "renamingError": {
           "message": "Error saving file."
+        },
+        "fileNameTooLong": {
+          "message": "Provided file name is too long. The maximum length is {length} characters."
+        },
+        "settingsSuccess": {
+          "message": "Settings have been saved."
         }
       },
       "labelUploading": "Uploading..."
@@ -383,13 +392,16 @@
           "message": "Folder \"{mediaName}\" has been moved."
         },
         "errorSingle": {
-          "message": "Error moving \"{mediaName}\"."
+          "message": "Could not move \"{mediaName}\"."
         },
         "successOverall": {
           "message": "Media items have been moved."
         },
         "errorOverall": {
-          "message": "Error moving items."
+          "message": "Could not move items."
+        },
+        "errorFetchNavigation": {
+          "message": "Could not fetch folder navigation."
         }
       }
     },
@@ -482,19 +494,19 @@
       "labelGenerateThumbnails": "Generate thumbnails for this folder",
       "labelThumbnailQuality": "Thumbnail quality",
       "labelThumbnailSize": "Thumbnail size",
-      "labelEditList": "Edit list",
-      "labelStopEdit": "Stop editing",
       "labelKeepProportions": "Keep aspect ratio",
       "notification": {
         "success": {
           "message": "Settings have been saved."
         },
         "error": {
-          "message": "Error while saving settings."
+          "message": "Error while saving settings.",
+          "messageThumbnailSizeExisted": "The thumbnail size already exists."
         }
       },
       "labelDefaultFolder": "Default media location for",
-      "placeholderDefaultFolder": "Select entity..."
+      "placeholderDefaultFolder": "Select entity...",
+      "tooltipCanNotDeleteThumbnailSize": "This thumbnail size cannot be deleted because it is currently in use."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"
@@ -538,7 +550,9 @@
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
       "addIpAddress": "Add IP address",
       "knownIps": {
-        "you": "You"
+        "you": "You",
+        "youIPv6Block56": "You and others (same endsite)",
+        "youIPv6Block64": "You and others (home network)"
       }
     },
     "sw-entity-advanced-selection-modal": {
@@ -587,23 +601,23 @@
       "addNewEntity": "Add new {entity}",
       "shortcuts": {
         "product": "G P | A P",
-        "category": "G C | ",
+        "category": "G C | &nbsp;",
         "customers": "G U | A U",
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
         "sales-channel": " | A S",
         "cms": "G E | A E",
-        "dashboard": "G H | ",
-        "product-stream": "G D | ",
-        "order": "G O | ",
-        "media": "G M E | ",
-        "promotion-v2": "G P O | ",
-        "settings": "G S | ",
-        "newsletter-recipient": "G N | ",
-        "settings-snippet": "G S | ",
-        "settings-payment": "G S P | ",
-        "settings-shipping": "G S S | "
+        "dashboard": "G H | &nbsp;",
+        "product-stream": "G D | &nbsp;",
+        "order": "G O | &nbsp;",
+        "media": "G M E | &nbsp;",
+        "promotion-v2": "G P O | &nbsp;",
+        "settings": "G S | &nbsp;",
+        "newsletter-recipient": "G N | &nbsp;",
+        "settings-snippet": "G S | &nbsp;",
+        "settings-payment": "G S P | &nbsp;",
+        "settings-shipping": "G S S | &nbsp;"
       }
     },
     "sw-search-more-results": {
@@ -654,7 +668,6 @@
           "label": "Customer email address",
           "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character..."
         },
-        "isNewCustomerRule": "New customer",
         "lastNameRule": "Customer surname",
         "isCompanyRule": "Commercial customer",
         "cartTaxDisplay": {
@@ -664,7 +677,7 @@
         },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
-        "daysSinceLastOrderRule": "Days since last order",
+        "daysSinceLastOrderRule": "Time since last order",
         "shippingCountryRule": "Shipping address: Country",
         "shippingCityRule": "Shipping address: City",
         "shippingStreetRule": "Shipping address: Street",
@@ -672,8 +685,8 @@
         "shippingZipCodeRule": "Shipping address: Postal code",
         "customerLoggedInRule": "Customer logged in",
         "customerAgeRule": "Customer age",
-        "customerDaysSinceLastLogin": "Days since last login",
-        "customerDaysSinceFirstLogin": "Days since first login",
+        "customerDaysSinceLastLogin": "Time since last login",
+        "customerDaysSinceFirstLogin": "Time since first login",
         "customerAffiliateCodeRule": "Affiliate code",
         "customerCampaignCodeRule": "Campaign code",
         "cartAmountRule": "Grand total",
@@ -700,6 +713,7 @@
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
+        "orderDocumentTypeSentRule": "Order with sent document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -757,7 +771,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
-        "numberOfReviews": "Number of submitted reviews",
+        "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total quantity of all products",
@@ -773,7 +787,7 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Select fieldset..."
+              "placeholder": "Select field set..."
             },
             "customFieldSelect": {
               "placeholder": "Select custom field...",
@@ -792,6 +806,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
@@ -842,7 +871,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
@@ -1565,19 +1594,23 @@
   "sw-ai-copilot-warning": {
     "text": "AI responses can be inaccurate or misleading."
   },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Usage data",
-      "headline": "Improving Shopware collectively",
-      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
-      "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com/en/privacy/"
-    },
-    "sw-settings-usage-data-modal": {
-      "alertText": "This setting will affect all Shopware Administration users. You can change it at any time in {settings-path}",
-      "alertTextSettingsPath": "Settings -> System -> Usage data",
-      "decline": "Decline",
-      "accept": "Accept"
+  "help-center": {
+    "sidebar": {
+      "title": "Help",
+      "ariaLabelButtonOpen": "Open help",
+      "ariaLabelButtonClose": "Close help",
+      "ariaLabelButtonShortcut": "Open keyboard shortcuts",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Documentation",
+          "href": "https://docs.shopware.com/en"
+        },
+        "createSupportRequest": {
+          "text": "Create support request",
+          "href": "https://account.shopware.com/"
+        }
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-url-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -13,46 +13,38 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/filter/unicode-uri';
 
 async function createWrapper(additionalOptions = {}) {
-    const localVue = createLocalVue();
-    localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
-
-    return shallowMount(await Shopware.Component.build('sw-url-field'), {
-        localVue,
-        stubs: {
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
-            'icons-regular-lock': true,
-            'icons-regular-lock-open': true,
-            'icons-solid-exclamation-circle': true,
-        },
-        provide: {
-            validationService: {},
+    return mount(await wrapTestComponent('sw-url-field', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-icon': await wrapTestComponent('sw-icon'),
+                'icons-regular-lock': true,
+                'icons-regular-lock-open': true,
+                'icons-solid-exclamation-circle': true,
+            },
+            provide: {
+                validationService: {},
+            },
         },
         ...additionalOptions,
     });
 }
 
 describe('components/form/sw-url-field', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        await wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should validate the url correctly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
@@ -79,40 +71,52 @@ describe('components/form/sw-url-field', () => {
     });
 
     it('should set the urlPrefix correctly', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.text()).toBe('https://');
         await wrapper.find('.sw-field__url-input__prefix').trigger('click');
         expect(wrapper.text()).toBe('http://');
     });
 
     it('should display unicode format', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/blä');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/blä');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/bl%C3%A4');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/bl%C3%A4');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/😋');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/😋');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/%F0%9F%98%8B');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/%F0%9F%98%8B');
     });
 
     it('should keep a URL hash', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/#a-hash');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/#a-hash');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/#a-hash');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/#a-hash');
     });
 
     it('should ignore URL hashes', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         // switch prop to omit hash
         await wrapper.setProps({ omitUrlHash: true });
 
@@ -120,21 +124,27 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
-        expect(wrapper.vm.currentValue).toBe('www.example.org');
+        expect(wrapper.vm.currentUrlValue).toBe('www.example.org');
 
         // reset component state
         await wrapper.setProps({ omitUrlHash: false });
     });
 
     it('should keep a URL search', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/?a=search');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/?a=search');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/?a=search');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/?a=search');
     });
 
     it('should ignore a URL search', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         // switch prop to omit hash
         await wrapper.setProps({ omitUrlSearch: true });
 
@@ -142,31 +152,33 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
-        expect(wrapper.vm.currentValue).toBe('www.example.org');
+        expect(wrapper.vm.currentUrlValue).toBe('www.example.org');
 
         // reset component state
         await wrapper.setProps({ omitUrlSearch: false });
     });
 
     it('should show the label from the property', async () => {
-        wrapper = await createWrapper({
-            propsData: {
+        const wrapper = await createWrapper({
+            props: {
                 label: 'Label from prop',
             },
         });
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
-        wrapper = await createWrapper({
-            propsData: {
+        const wrapper = await createWrapper({
+            props: {
                 label: 'Label from prop',
             },
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
@@ -176,7 +188,7 @@ describe('components/form/sw-url-field', () => {
         const NON_SSL_URL = 'http://shopware.com';
         const URL_WITHOUT_PROTOCOL = 'shopware.com';
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.vm.getSSLMode(SSL_URL)).toBeTruthy();
         expect(wrapper.vm.getSSLMode(NON_SSL_URL)).toBeFalsy();
@@ -189,16 +201,17 @@ describe('components/form/sw-url-field', () => {
         const FILE_URL = 'file://shopware.com';
         const EXPECTED_URL = 'shopware.com';
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         wrapper.vm.checkInput(HTTP_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
 
         wrapper.vm.checkInput(HTTPS_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
 
         wrapper.vm.checkInput(FILE_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
     });
 
     it('allows empty values', async () => {
@@ -206,18 +219,30 @@ describe('components/form/sw-url-field', () => {
         const URL_WITHOUT_PROTOCOL = 'shopware.com';
         const EXPECTED_URL = '';
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.find('.sw-url-input-field__input').setValue(INITIAL_URL);
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
 
-        expect(wrapper.vm.currentValue).toBe(URL_WITHOUT_PROTOCOL);
+        expect(wrapper.vm.currentUrlValue).toBe(URL_WITHOUT_PROTOCOL);
         expect(wrapper.vm.errorUrl).toBeNull();
 
         await wrapper.find('.sw-url-input-field__input').setValue('');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
 
-        expect(wrapper.vm.currentValue).toBe(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toBe(EXPECTED_URL);
         expect(wrapper.vm.errorUrl).toBeNull();
+    });
+
+    it('should evaluate ssl protocol correctly at start', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                value: 'http://shopware.com',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.sslActive).toBe(false);
     });
 });

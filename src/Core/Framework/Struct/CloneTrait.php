@@ -12,10 +12,10 @@ trait CloneTrait
         /** @var array<string, object|array<mixed>> $variables */
         $variables = get_object_vars($this);
         foreach ($variables as $key => $value) {
-            if (\is_object($value)) {
-                $this->$key = clone $this->$key; /* @phpstan-ignore-line */
+            if (\is_object($value) && !$value instanceof \UnitEnum) {
+                $this->$key = clone $this->$key;
             } elseif (\is_array($value)) {
-                $this->$key = $this->cloneArray($value); /* @phpstan-ignore-line */
+                $this->$key = $this->cloneArray($value);
             }
         }
     }
@@ -30,7 +30,7 @@ trait CloneTrait
         $newValue = [];
 
         foreach ($array as $index => $value) {
-            if (\is_object($value)) {
+            if (\is_object($value) && !$value instanceof \UnitEnum) {
                 $newValue[$index] = clone $value;
             } elseif (\is_array($value)) {
                 $newValue[$index] = $this->cloneArray($value);

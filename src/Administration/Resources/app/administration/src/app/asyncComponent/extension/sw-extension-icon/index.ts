@@ -2,7 +2,7 @@ import template from './sw-extension-icon.html.twig';
 import './sw-extension-icon.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

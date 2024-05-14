@@ -14,8 +14,7 @@
               method="post"
               data-form-validation="true"
               data-form-ajax-submit="true"
-              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-
+              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
             {% block component_review_form_forward %}
                 <input type="hidden"
                        name="forwardTo"
@@ -27,7 +26,7 @@
 
                 <input type="hidden"
                        name="forwardParameters"
-                       value='{"productId": "{{ reviews.productId }}"}'>
+                       value="{{ {productId: reviews.productId}|json_encode }}">
             {% endblock %}
 
             {% if reviews.customerReview %}
@@ -39,7 +38,7 @@
                     {% block component_review_form_rating %}
                         <div class="form-group col-md-4 product-detail-review-form-rating">
                             <label for="#review-form-rating">
-                                {{ "detail.reviewFormRatingLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                {{ 'detail.reviewFormRatingLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                             </label>
 
                             <div id="review-form-rating"
@@ -81,7 +80,7 @@
                         <div class="form-group col-12 product-detail-review-form-title">
                             {% block component_review_form_title_label %}
                                 <label class="form-label" for="reviewTitle">
-                                    {{ "detail.reviewFormTitleLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                    {{ 'detail.reviewFormTitleLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                 </label>
                             {% endblock %}
 
@@ -89,11 +88,12 @@
                                 <input type="text"
                                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
                                        id="reviewTitle"
-                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                       placeholder="{{ 'detail.reviewFormTitlePlaceholder'|trans|striptags }}{{ 'general.required'|trans|striptags }}"
                                        name="title"
                                        value="{{ data.get('title') }}"
                                        required="required"
-                                       minlength="5">
+                                       minlength="5"
+                                       maxlength="255">
                             {% endblock %}
 
                             {% block component_review_form_title_violation %}
@@ -112,7 +112,7 @@
                 <div class="form-group product-detail-review-form-content">
                     {% block component_review_form_content_label %}
                         <label for="reviewContent">
-                            {{ "detail.reviewFormContentLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ 'detail.reviewFormContentLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -139,7 +139,7 @@
                 <div class="product-detail-review-form-footer">
                     {% block component_review_form_required %}
                         <p class="required-fields">
-                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                            {{ 'general.requiredFields'|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -151,14 +151,14 @@
                                data-bs-target=".multi-collapse"
                                aria-expanded="false"
                                aria-controls="review-form review-list">
-                                {{ "detail.reviewFormCancelText"|trans|sw_sanitize }}
+                                {{ 'detail.reviewFormCancelText'|trans|sw_sanitize }}
                             </a>
                         {% endblock %}
 
                         {% block component_review_form_submit %}
                             <button type="submit"
                                     class="btn btn-primary btn-review-submit">
-                                {{ "detail.reviewFormSubmitText"|trans|sw_sanitize }}
+                                {{ 'detail.reviewFormSubmitText'|trans|sw_sanitize }}
                             </button>
                         {% endblock %}
                     </div>

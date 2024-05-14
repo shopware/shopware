@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -10,13 +11,14 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
@@ -35,9 +37,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\RegisterController
  */
+#[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
     private RegisterControllerTestClass $controller;
@@ -224,6 +225,26 @@ class RegisterControllerTest extends TestCase
         $response = $this->controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithAffiliateTracking(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'affiliate-code');
+        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'affiliate-campaign');
+        $request->setSession($session);
+
+        $dataBag = new RequestDataBag();
+
+        $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
+        static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
     }
 
     private function createRegisterRequest(): Request

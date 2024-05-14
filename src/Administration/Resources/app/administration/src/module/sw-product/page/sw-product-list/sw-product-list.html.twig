@@ -163,11 +163,7 @@
                     {% block sw_product_list_grid_columns_name_inline_edit %}
                     <sw-text-field
                         v-if="isInlineEdit"
-                        {% if VUE3 %}
                         v-model:value="item.name"
-                        {% else %}
-                        v-model="item.name"
-                        {% endif %}
                         size="small"
                     />
                     {% endblock %}
@@ -216,11 +212,7 @@
                     {% block sw_product_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.active"
-                            {% else %}
-                            v-model="item.active"
-                            {% endif %}
                         />
                     </template>
                     {% endblock %}
@@ -266,7 +258,7 @@
                     v-for="currency in currencies"
                     #[`column-price-${currency.isoCode}`]="{ item }"
                 >
-                    {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+                    {{ currencyFilter(getCurrencyPriceByCurrencyId(currency.id, item.price).gross, currency.isoCode) }}
                 </template>
                 {% endblock %}
 
@@ -277,11 +269,7 @@
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="item.stock"
-                            {% else %}
-                            v-model="item.stock"
-                            {% endif %}
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>
@@ -291,18 +279,18 @@
                     {% block sw_product_list_grid_columns_stock_content %}
                     <template v-else>
                         {{ item.stock }}
-                        <sw-color-badge :variant="item.stock | stockColorVariant" />
+                        <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                     </template>
                     {% endblock %}
                 </template>
                 {% endblock %}
 
                 <template #column-createdAt="{ item }">
-                    {{ item.createdAt|date }}
+                    {{ dateFilter(item.createdAt) }}
                 </template>
 
                 <template #column-updatedAt="{ item }">
-                    {{ item.updatedAt|date }}
+                    {{ dateFilter(item.updatedAt) }}
                 </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -373,7 +361,7 @@
                             v-for="currency in currencies"
                             #[`column-price-${currency.isoCode}`]="{ item }"
                         >
-                            {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+                            {{ currencyFilter(getCurrencyPriceByCurrencyId(currency.id, item.price).gross, currency.isoCode) }}
                         </template>
                         {% endblock %}
 
@@ -381,7 +369,7 @@
                         {% block sw_product_list_bulk_edit_grid_columns_stock %}
                         <template #column-stock="{ item }">
                             {{ item.stock }}
-                            <sw-color-badge :variant="item.stock | stockColorVariant" />
+                            <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
@@ -400,7 +388,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -422,7 +410,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             :alt="$tc('sw-product.list.messageEmpty')"
                         >
                     </template>

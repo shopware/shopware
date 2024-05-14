@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -12,10 +13,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  *
  * Resolver used when shop is moved from one URL to another
  * and the shopId (and the data in the app backends associated with it) should be kept
@@ -33,7 +33,7 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
         AbstractAppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        private readonly SystemConfigService $systemConfigService
+        private readonly ShopIdProvider $shopIdProvider
     ) {
         parent::__construct($appLoader, $appRepository, $registrationService);
     }
@@ -56,13 +56,14 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
 
     public function resolve(Context $context): void
     {
-        $shopIdConfig = (array) $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
-        $shopId = $shopIdConfig['value'];
+        try {
+            $this->shopIdProvider->getShopId();
 
-        $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => EnvironmentHelper::getVariable('APP_URL'),
-            'value' => $shopId,
-        ]);
+            // no resolution needed
+            return;
+        } catch (AppUrlChangeDetectedException $e) {
+            $this->shopIdProvider->setShopId($e->getShopId(), (string) EnvironmentHelper::getVariable('APP_URL'));
+        }
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
             $this->reRegisterApp($manifest, $app, $context);

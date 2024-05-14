@@ -72,6 +72,7 @@ class MailerTransportDecorator implements TransportInterface, \Stringable
         $sentMessage = $this->decorated->send($message, $envelope);
 
         $this->setDocumentsSent($attachments, $config->getExtension(), $config->getContext());
+        $config->getExtension()->setDocumentIds([]);
 
         return $sentMessage;
     }

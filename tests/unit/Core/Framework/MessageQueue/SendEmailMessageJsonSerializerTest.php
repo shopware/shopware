@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
@@ -12,9 +14,8 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer
  */
+#[CoversClass(SendEmailMessageJsonSerializer::class)]
 class SendEmailMessageJsonSerializerTest extends TestCase
 {
     public function testSerialize(): void
@@ -40,9 +41,7 @@ class SendEmailMessageJsonSerializerTest extends TestCase
         static::assertNotEquals($our, $their);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testNormalizeRawBytes(): void
     {
         $serializer = new Serializer(
@@ -79,28 +78,6 @@ class SendEmailMessageJsonSerializerTest extends TestCase
         );
 
         $data = $serializer->serialize($sendMail, 'json');
-
-        $restored = $serializer->deserialize($data, SendEmailMessage::class, 'json');
-        static::assertEquals($sendMail, $restored);
-    }
-
-    public function testDeserializeOldFormat(): void
-    {
-        $serializer = new Serializer(
-            [
-                new SendEmailMessageJsonSerializer(),
-            ],
-            [
-                new JsonEncoder(null),
-            ]
-        );
-
-        $sendMail = new SendEmailMessage(
-            new RawMessage('test'),
-            null
-        );
-
-        $data = json_encode([SendEmailMessageJsonSerializer::class => addslashes(serialize($sendMail))], \JSON_THROW_ON_ERROR);
 
         $restored = $serializer->deserialize($data, SendEmailMessage::class, 'json');
         static::assertEquals($sendMail, $restored);

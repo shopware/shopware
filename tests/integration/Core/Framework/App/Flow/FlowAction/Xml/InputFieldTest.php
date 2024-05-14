@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowAction\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -13,7 +12,7 @@ class InputFieldTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/../_fixtures/valid/major/flow.xml' : '/../_fixtures/valid/minor/flow-action.xml';
+        $flowActionsFile = '/../_fixtures/valid/major/flow.xml';
         $flowActions = Action::createFromXmlFile(__DIR__ . $flowActionsFile);
         static::assertNotNull($flowActions->getActions());
         static::assertCount(1, $flowActions->getActions()->getActions());
@@ -22,8 +21,8 @@ class InputFieldTest extends TestCase
 
         $firstInputField = $config[0];
 
-        static::assertEquals('textField', $firstInputField->getName());
-        static::assertEquals('text', $firstInputField->getType());
+        static::assertSame('textField', $firstInputField->getName());
+        static::assertSame('text', $firstInputField->getType());
         static::assertEquals([
             'en-GB' => 'To',
             'de-DE' => 'To DE',
@@ -38,6 +37,6 @@ class InputFieldTest extends TestCase
         ], $firstInputField->getHelpText());
 
         static::assertTrue($firstInputField->getRequired());
-        static::assertEquals('Shopware 6', $firstInputField->getDefaultValue());
+        static::assertSame('Shopware 6', $firstInputField->getDefaultValue());
     }
 }

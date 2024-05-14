@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -20,13 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService
  */
 #[Package('core')]
+#[CoversClass(AppRegistrationService::class)]
 class AppRegistrationServiceTest extends TestCase
 {
     public function testDoesNotRegisterAtAppServerIfManifestHasNoSetup(): void
@@ -34,10 +35,9 @@ class AppRegistrationServiceTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest_no_setup.xml');
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
-        $handshakeFactory->expects(static::never())
-            ->method('create');
+        $handshakeFactory->expects(static::never())->method('create');
 
-        $appRegistrationService = $this->createAppRegistrationService();
+        $appRegistrationService = $this->createAppRegistrationService($handshakeFactory);
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
@@ -57,8 +57,7 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $handshake->assembleRequest();
 
         $handshakeMock = $this->createMock(StoreHandshake::class);
-        $handshakeMock->method('assembleRequest')
-            ->willReturn($registrationRequest);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
         $handshakeFactory->expects(static::once())
@@ -71,8 +70,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Unknown app');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -93,8 +92,7 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $handshake->assembleRequest();
 
         $handshakeMock = $this->createMock(PrivateHandshake::class);
-        $handshakeMock->method('assembleRequest')
-            ->willReturn($registrationRequest);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
         $handshakeFactory->expects(static::once())
@@ -106,7 +104,7 @@ class AppRegistrationServiceTest extends TestCase
                 '',
                 $registrationRequest,
                 new Response(
-                    400,
+                    SymfonyResponse::HTTP_BAD_REQUEST,
                     body: json_encode(['error' => 'Database error on app server'], \JSON_THROW_ON_ERROR)
                 )
             ),
@@ -114,8 +112,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -136,8 +134,7 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $handshake->assembleRequest();
 
         $handshakeMock = $this->createMock(PrivateHandshake::class);
-        $handshakeMock->method('assembleRequest')
-            ->willReturn($registrationRequest);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
         $handshakeFactory->expects(static::once())
@@ -146,15 +143,48 @@ class AppRegistrationServiceTest extends TestCase
 
         $httpClient = $this->createHttpClient([
             new Response(
-                400,
+                SymfonyResponse::HTTP_BAD_REQUEST,
                 body: json_encode(['error' => 'Database error on app server'], \JSON_THROW_ON_ERROR)
             ),
         ]);
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+
+        $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    public function testThrowsAppRegistrationExceptionIfAppServerProvidesInvalidJson(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $handshake = new PrivateHandshake(
+            'https://shopware.swag',
+            's3cr3t',
+            'https://app.server/register',
+            'test',
+            'shop-id',
+            '6.5.2.0',
+        );
+
+        $registrationRequest = $handshake->assembleRequest();
+
+        $handshakeMock = $this->createMock(PrivateHandshake::class);
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+
+        $handshakeFactory = $this->createMock(HandshakeFactory::class);
+        $handshakeFactory->expects(static::once())
+            ->method('create')
+            ->willReturn($handshakeMock);
+
+        $httpClient = $this->createHttpClient([new Response(body: '{invalid-json: test,}')]);
+
+        $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
+
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: JSON response could not be decoded');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -175,10 +205,8 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $handshake->assembleRequest();
 
         $handshakeMock = $this->createMock(PrivateHandshake::class);
-        $handshakeMock->method('assembleRequest')
-            ->willReturn($registrationRequest);
-        $handshakeMock->method('fetchAppProof')
-            ->willReturn(Uuid::randomHex());
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
         $handshakeFactory->expects(static::once())
@@ -187,7 +215,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $httpClient = $this->createHttpClient([
             new Response(
-                400,
+                SymfonyResponse::HTTP_BAD_REQUEST,
                 body: json_encode([
                     'proof' => 1337,
                     'secret' => '4pp-s3cr3t',
@@ -198,8 +226,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -220,10 +248,8 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $handshake->assembleRequest();
 
         $handshakeMock = $this->createMock(PrivateHandshake::class);
-        $handshakeMock->method('assembleRequest')
-            ->willReturn($registrationRequest);
-        $handshakeMock->method('fetchAppProof')
-            ->willReturn(Uuid::randomHex());
+        $handshakeMock->method('assembleRequest')->willReturn($registrationRequest);
+        $handshakeMock->method('fetchAppProof')->willReturn(Uuid::randomHex());
 
         $handshakeFactory = $this->createMock(HandshakeFactory::class);
         $handshakeFactory->expects(static::once())
@@ -232,7 +258,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $httpClient = $this->createHttpClient([
             new Response(
-                400,
+                SymfonyResponse::HTTP_BAD_REQUEST,
                 body: json_encode([
                     'proof' => Uuid::randomHex(),
                     'secret' => '4pp-s3cr3t',
@@ -243,29 +269,25 @@ class AppRegistrationServiceTest extends TestCase
 
         $appRegistrationService = $this->createAppRegistrationService($handshakeFactory, $httpClient);
 
-        static::expectException(AppRegistrationException::class);
-        static::expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
+        $this->expectException(AppRegistrationException::class);
+        $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
 
         $appRegistrationService->registerApp($manifest, 'id', 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     /**
      * @param (HandshakeFactory&MockObject)|null $handshakeFactory
-     * @param (EntityRepository&MockObject)|null $appRepository
-     * @param (ShopIdProvider&MockObject)|null $shopIdProvider
      */
     private function createAppRegistrationService(
         ?HandshakeFactory $handshakeFactory = null,
         ?Client $httpClient = null,
-        ?EntityRepository $appRepository = null,
-        ?ShopIdProvider $shopIdProvider = null,
     ): AppRegistrationService {
         return new AppRegistrationService(
             $handshakeFactory ?? $this->createMock(HandshakeFactory::class),
             $httpClient ?? new Client(),
-            $appRepository ?? $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             'https://shopware.swag',
-            $shopIdProvider ?? $this->createMock(ShopIdProvider::class),
+            $this->createMock(ShopIdProvider::class),
             '6.5.2.0'
         );
     }

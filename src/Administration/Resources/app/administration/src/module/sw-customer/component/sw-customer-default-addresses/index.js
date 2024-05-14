@@ -2,7 +2,7 @@ import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -61,6 +61,12 @@ export default {
 
     created() {
         this.createdComponent();
+    },
+
+    watch: {
+        customer() {
+            this.createdComponent();
+        },
     },
 
     methods: {

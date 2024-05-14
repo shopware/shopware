@@ -1,11 +1,8 @@
 <?php declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
 use Rector\Config\RectorConfig;
-use Rector\Core\ValueObject\Visibility;
-use Rector\Visibility\Rector\ClassMethod\ChangeMethodVisibilityRector;
-use Rector\Visibility\ValueObject\ChangeMethodVisibility;
-use Shopware\Core\DevOps\StaticAnalyze\Rector\ClassPackageRector;
+use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
+use Rector\Php80\ValueObject\AnnotationToAttribute;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->symfonyContainerXml(__DIR__ . '/var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml');
@@ -31,12 +28,8 @@ return static function (RectorConfig $rectorConfig): void {
         '**/Resources/*',
     ]);
 
-//    $rectorConfig->rule(ClassPackageRector::class);
-//    $rectorConfig->ruleWithConfiguration(
-//        ChangeMethodVisibilityRector::class,
-//        [
-//            new ChangeMethodVisibility(TestCase::class, 'setUp', Visibility::PROTECTED),
-//            new ChangeMethodVisibility(TestCase::class, 'tearDown', Visibility::PROTECTED),
-//        ]
-//    );
+    $rectorConfig->ruleWithConfiguration(AnnotationToAttributeRector::class, [
+            new AnnotationToAttribute('Shopware\Commercial\Test\Annotation\ActiveFeatureToggles'),
+        ]
+    );
 };

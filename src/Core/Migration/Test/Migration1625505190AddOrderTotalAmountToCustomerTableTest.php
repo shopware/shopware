@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,14 +17,14 @@ use Shopware\Core\Migration\V6_4\Migration1625505190AddOrderTotalAmountToCustome
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 
 /**
  * @internal
  * NEXT-21735
- *
- * @group not-deterministic
  */
 #[Package('core')]
+#[Group('not-deterministic')]
 class Migration1625505190AddOrderTotalAmountToCustomerTableTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

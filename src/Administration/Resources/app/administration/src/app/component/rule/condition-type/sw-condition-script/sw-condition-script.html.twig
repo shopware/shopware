@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-for-template-key -->
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div
@@ -6,10 +7,9 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_script_fields %}
-    <sw-arrow-field
+    <template
         v-for="(field, index) in config"
         :key="index"
-        :disabled="disabled"
     >
         <sw-form-field-renderer
             v-bind="getBind(field)"
@@ -17,10 +17,9 @@
             :value="values[field.name]"
             size="medium"
             show-clearable-button
-            @input="updateFieldValue(field.name, $event)"
-            @change="updateFieldValue(field.name, $event)"
+            @update:value="updateFieldValue(field.name, $event)"
         />
-    </sw-arrow-field>
+    </template>
     {% endblock %}
 </div>
 {% endblock %}

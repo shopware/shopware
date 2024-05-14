@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @final
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentGenerationResult extends Struct
 {
     private readonly DocumentIdCollection $success;

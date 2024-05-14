@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initMenuItems(): void {
     Shopware.ExtensionAPI.handle('menuItemAdd', async (menuItemConfig, additionalInformation) => {
@@ -16,6 +16,7 @@ export default function initMenuItems(): void {
             heading: menuItemConfig.label,
             locationId: menuItemConfig.locationId,
             displaySearchBar: menuItemConfig.displaySearchBar,
+            displaySmartBar: menuItemConfig.displaySmartBar,
             baseUrl: extension.baseUrl,
         }).then((moduleId) => {
             if (typeof moduleId !== 'string') {
@@ -27,5 +28,13 @@ export default function initMenuItems(): void {
                 moduleId,
             });
         });
+    });
+
+    Shopware.ExtensionAPI.handle('menuCollapse', () => {
+        Shopware.State.commit('adminMenu/collapseSidebar');
+    });
+
+    Shopware.ExtensionAPI.handle('menuExpand', () => {
+        Shopware.State.commit('adminMenu/expandSidebar');
     });
 }

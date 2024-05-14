@@ -57,11 +57,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="rule.name"
-                            {% else %}
-                            v-model="rule.name"
-                            {% endif %}
+                            name="sw-field--rule-name"
                             class="sw-flow-rule-modal__name"
                             required
                             :label="$tc('sw-flow.modals.rule.labelName')"
@@ -73,11 +70,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_rule_modal_detail_priority %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="rule.priority"
-                            {% else %}
-                            v-model="rule.priority"
-                            {% endif %}
+                            name="sw-field--rule-priority"
                             class="sw-flow-rule-modal__priority"
                             required
                             :label="$tc('sw-flow.modals.rule.labelPriority')"
@@ -90,11 +84,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_description %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="rule.description"
-                        {% else %}
-                        v-model="rule.description"
-                        {% endif %}
+                        name="sw-field--rule-description"
                         class="sw-flow-rule-modal__description"
                         :label="$tc('sw-flow.modals.rule.labelDescription')"
                         :placeholder="$tc('sw-flow.modals.rule.placeholderDescription')"
@@ -104,11 +95,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_rule_modal_detail_type %}
                     <sw-multi-select
-                        {% if VUE3 %}
                         v-model:value="moduleTypes"
-                        {% else %}
-                        v-model="moduleTypes"
-                        {% endif %}
+                        name="sw-field--moduleTypes"
                         class="sw-flow-rule-modal__type"
                         value-property="id"
                         label-property="name"

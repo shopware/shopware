@@ -83,7 +83,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block  sw_order_detail_base_info_summary_entries %}
                         <div class="sw-order-user-card__metadata-price">
-                            {{ currentOrder.amountTotal | currency(currentOrder.currency.translated.shortName) }}
+                            {{ currencyFilter(currentOrder.amountTotal, currentOrder.currency.isoCode) }}
                         </div>
 
                         <div class="sw-order-user-card__metadata-item">
@@ -121,12 +121,11 @@
                         <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                         <dd>
                             <sw-order-inline-field
-                                v-model="currentOrder.orderCustomer.email"
+                                v-model:value="currentOrder.orderCustomer.email"
                                 :display-value="currentOrder.orderCustomer.email ? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
                                 required
-                                :value="currentOrder.orderCustomer.email"
                                 :editable="isEditing"
-                                @input="$emit('order-change')"
+                                @update:value="$emit('order-change')"
                             />
                         </dd>
                         {% endblock %}
@@ -144,8 +143,11 @@
                                 {{ $tc('sw-order.detailBase.buttonEditAddress') }}
                             </sw-button>
                         </dt>
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                        <dd @click="onEditBillingAddress">
+                        <dd
+                            role="button"
+                            tabindex="0"
+                            @click="onEditBillingAddress"
+                            @keydown.enter="onEditBillingAddress">
                             <sw-address
                                 :address="billingAddress"
                                 :formatting-address="formattingAddress"
@@ -183,12 +185,11 @@
                         </dt>
                         <dd>
                             <sw-order-inline-field
-                                v-model="billingAddress.phoneNumber"
+                                v-model:value="billingAddress.phoneNumber"
                                 :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
-                                :value="billingAddress.phoneNumber"
                                 :editable="isEditing"
                                 class="sw-order-inline-field__truncateable"
-                                @input="$emit('order-change')"
+                                @update:value="$emit('order-change')"
                             />
                         </dd>
                         {% endblock %}
@@ -222,10 +223,12 @@
                             </sw-button>
                         </dd>
 
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <dd
                             v-else-if="hasDeliveries"
+                            role="button"
+                            tabindex="0"
                             @click="$emit('onEditDeliveryAddress',$event)"
+                            @keydown.enter="$emit('onEditDeliveryAddress',$event)"
                         >
                             <sw-address
                                 :address="delivery.shippingOrderAddress"
@@ -347,18 +350,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
                                 <sw-multi-tag-select
-                                    {% if VUE3 %}
                                     v-model:value="delivery.trackingCodes"
-                                    {% else %}
-                                    v-model="delivery.trackingCodes"
-                                    {% endif %}
                                     class="sw-order-user-card__tracking-code-select"
                                     :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
-                                    {% if VUE3 %}
                                     @update:value="emitChange"
-                                    {% else %}
-                                    @change="emitChange"
-                                    {% endif %}
                                 >
                                     <template #message-add-data>
                                         <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>

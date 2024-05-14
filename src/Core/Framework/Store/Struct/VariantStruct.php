@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class VariantStruct extends StoreStruct
 {
     final public const TYPE_RENT = 'rent';
@@ -39,11 +39,12 @@ class VariantStruct extends StoreStruct
      */
     protected $discountCampaign;
 
+    /**
+     * @return VariantStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
-        $variant = new self();
-
-        return $variant->assign($data);
+        return (new self())->assign($data);
     }
 
     public function getId(): int

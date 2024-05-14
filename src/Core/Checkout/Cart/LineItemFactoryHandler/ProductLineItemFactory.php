@@ -30,7 +30,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        $lineItem = new LineItem($data['id'], LineItem::PRODUCT_LINE_ITEM_TYPE, $data['referencedId'] ?? null, $data['quantity'] ?? 1);
+        $lineItem = new LineItem($data['id'], LineItem::PRODUCT_LINE_ITEM_TYPE, $data['referencedId'] ?? $data['id'], $data['quantity'] ?? 1);
         $lineItem->markModified();
 
         $lineItem->setRemovable(true);

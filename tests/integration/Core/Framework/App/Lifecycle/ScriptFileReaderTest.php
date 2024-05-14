@@ -55,7 +55,7 @@ class ScriptFileReaderTest extends TestCase
 
     public function testGetScriptPathsForAppWhenScriptDirDoesntExist(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [],
             $this->scriptReader->getScriptPathsForApp(__DIR__ . '/../Manifest/_fixtures/minimal')
         );

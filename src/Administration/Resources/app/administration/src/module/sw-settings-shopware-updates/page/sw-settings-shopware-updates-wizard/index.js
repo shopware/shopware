@@ -4,10 +4,9 @@ import './sw-settings-shopware-updates-wizard.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package system-settings
- * @deprecated tag:v6.6.0 - Will be private
+ * @package services-settings
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-wizard', {
     template,
 
@@ -44,13 +43,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
         updatePossible() {
             // Check if the result of every requirement is true. If it's the case, return true, otherwise return false.
             return this.requirements.every(requirement => requirement.result === true);
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        changelog() {
-            return this.updateInfo.changelog;
         },
 
         updateButtonTooltip() {
@@ -152,20 +144,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.createNotificationInfo({
                 message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped'),
             });
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        downloadUpdate(offset) {
-            return this.downloadRecovery(offset);
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        unpackUpdate() {
-
         },
 
         downloadRecovery(offset) {

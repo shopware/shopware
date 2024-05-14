@@ -1,0 +1,57 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_checkbox_field %}
+<div
+    class="sw-field--checkbox"
+    :class="swCheckboxFieldClasses"
+>
+    <div
+        class="sw-field--checkbox__content"
+        :class="swCheckboxFieldContentClasses"
+    >
+        <div class="sw-field__checkbox">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input
+                :id="formFieldName || identification"
+                type="checkbox"
+                :name="formFieldName || identification"
+                :checked="inputState"
+                :disabled="disabled"
+                :indeterminate.prop="partlyChecked"
+                @change="onChange"
+            >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
+            <div class="sw-field__checkbox-state">
+                <sw-icon
+                    :name="iconName"
+                />
+            </div>
+        </div>
+
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
+        <sw-base-field
+            v-bind="{
+                ...$attrs,
+                ...inheritanceAttrs
+            }"
+            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
+            :is-inherited="inheritanceAttrs.isInherited"
+            :disabled="disabled"
+            :name="formFieldName || identification"
+            :label="label"
+            @inheritance-restore="$emit('inheritance-restore', $event)"
+            @inheritance-remove="$emit('inheritance-remove', $event)"
+        >
+            <template #label>
+                <slot name="label"></slot>
+            </template>
+
+            <template #hint>
+                <slot name="hint"></slot>
+            </template>
+        </sw-base-field>
+    </div>
+
+    <sw-field-error :error="error" />
+</div>
+{% endblock %}

@@ -1,12 +1,20 @@
 import template from './sw-cms-el-config-product-listing-config-sorting-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
+const { Criteria } = Shopware.Data;
+
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
+
+    inject: ['repositoryFactory'],
+
+    mixins: [
+        'sw-inline-snippet',
+    ],
 
     props: {
         productSortings: {
@@ -23,6 +31,7 @@ export default {
         return {
             limit: 10,
             page: 1,
+            customFields: [],
         };
     },
 
@@ -33,6 +42,14 @@ export default {
 
         paginationVisible() {
             return this.total > this.limit;
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        },
+
+        customFieldCriteria() {
+            return new Criteria(1, 25);
         },
 
         total() {
@@ -59,13 +76,68 @@ export default {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.fetchCustomFields();
+        },
+
+        fetchCustomFields() {
+            this.customFieldRepository.search(this.customFieldCriteria).then(response => {
+                this.customFields = response;
+            });
+        },
+
         formatProductSortingFields(fields) {
-            const fieldNames = fields.map(currentField => {
-                return currentField.field;
+            if (!Array.isArray(fields)) {
+                return '';
+            }
+
+            const labels = fields.map(currentField => {
+                if (this.isItemACustomField(currentField.field)) {
+                    return this.getCustomFieldLabelByCriteriaName(currentField.field);
+                }
+
+                return this.$tc(
+                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
+                );
             });
 
-            return fieldNames.join(', ');
+            return labels.join(', ');
+        },
+
+        isItemACustomField(fieldName) {
+            const strippedFieldName = this.stripCustomFieldPath(fieldName);
+
+            return this.customFields.some(currentCustomField => {
+                return currentCustomField.name === strippedFieldName;
+            });
+        },
+
+        stripCustomFieldPath(fieldName) {
+            return fieldName.replace(/customFields\./, '');
+        },
+
+        getCustomFieldLabelByCriteriaName(criteriaName) {
+            const technicalName = this.stripCustomFieldPath(criteriaName);
+            const customField = this.getCustomFieldByName(technicalName);
+
+            const inlineSnippet = this.getInlineSnippet(customField.config.label);
+
+            if (inlineSnippet === null) {
+                return technicalName;
+            }
+
+            return inlineSnippet;
+        },
+
+        getCustomFieldByName(technicalName) {
+            return this.customFields.find(currentCustomField => {
+                return currentCustomField.name === technicalName;
+            });
         },
 
         onDelete(productSorting) {

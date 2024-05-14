@@ -15,11 +15,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_activation_switch_switch %}
         <sw-switch-field
-            {% if VUE3 %}
-            v-modle:value="isActive"
-            {% else %}
-            v-model="isActive"
-            {% endif %}
+            v-model:value="isActive"
             v-tooltip="{
                 showDelay: 300,
                 message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
@@ -119,11 +115,13 @@
     <div class="sw-extension-card-base__main-action">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_card_base_main_action_content %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <span
             v-if="!isInstalled"
             class="sw-extension-card-base__open-extension"
+            role="button"
+            tabindex="0"
             @click="openPermissionsModalForInstall"
+            @keydown.enter="openPermissionsModalForInstall"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>

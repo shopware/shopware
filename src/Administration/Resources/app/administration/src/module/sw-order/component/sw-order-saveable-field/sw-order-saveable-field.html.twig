@@ -48,10 +48,12 @@
     {%  endblock %}
     {% endblock %}
 </sw-container>
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     v-else
+    role="button"
+    tabindex="0"
     @click="onClick"
+    @keydown.enter="onClick"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_content %}

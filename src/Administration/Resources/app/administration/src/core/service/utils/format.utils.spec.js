@@ -162,6 +162,20 @@ describe('src/core/service/utils/format.utils.js', () => {
 
             Shopware.Context.app.systemCurrencyISOCode = 'EUR';
         });
+
+        it('should fallback to decimal when the currency ISO code is invalid', async () => {
+            Shopware.Context.app.systemCurrencyISOCode = 'INVALID_EXAMPLE_CURRENCY_CODE';
+
+            jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+
+            expect(currencyFilter(42.31415, undefined, 2)).toBe('42.31');
+
+            expect(console.error).toHaveBeenCalledWith(
+                new RangeError('Invalid currency code : INVALID_EXAMPLE_CURRENCY_CODE'),
+            );
+
+            Shopware.Context.app.systemCurrencyISOCode = 'EUR';
+        });
     });
 
     describe('toISODate', () => {

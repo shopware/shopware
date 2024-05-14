@@ -15,11 +15,12 @@
 
     <div class="row g-2 basic-captcha"
          data-basic-captcha="true"
-         data-basic-captcha-options='{{ basicCaptchaOptions|json_encode }}'>
+         data-basic-captcha-options="{{ basicCaptchaOptions|json_encode }}">
         <div class="form-group {% if additionalClass %} {{ additionalClass }}{% else %}col-md-6{% endif %} basic-captcha-content">
             {% block component_basic_captcha_image %}
                 <div class="basic-captcha-content-code">
                     <div class="basic-captcha-content-image" id="{{ formId }}-basic-captcha-content-image"></div>
+
                     {% block component_basic_captcha_refresh_icon %}
                         <a class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
                             {% sw_icon 'arrow-switch' %}
@@ -27,9 +28,10 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+
             {% block component_basic_captcha_fields_title_label %}
                 <label class="form-label">
-                    {{ "captcha.basicCaptchaLabel"|trans|sw_sanitize }}
+                    {{ 'captcha.basicCaptchaLabel'|trans|sw_sanitize }}
                 </label>
             {% endblock %}
 

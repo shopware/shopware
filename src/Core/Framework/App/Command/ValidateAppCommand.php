@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Exception\ManifestNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -34,22 +35,25 @@ class ValidateAppCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:visibility-change - will be private in v6.7.0
+     *
+     * @return array<int, string>
+     */
     public function validate(string $appDir): array
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $invalids = [];
 
         try {
-            $manifests = $this->getManifestsFromDir($appDir);
-
-            foreach ($manifests as $manifest) {
+            foreach ($this->getManifestsFromDir($appDir) as $manifest) {
                 try {
                     $this->manifestValidator->validate($manifest, $context);
                 } catch (AppValidationException $e) {
                     $invalids[] = $e->getMessage();
                 }
             }
-        } catch (XmlParsingException $e) {
+        } catch (XmlParsingException|AppXmlParsingException $e) {
             $invalids[] = $e->getMessage();
         }
 

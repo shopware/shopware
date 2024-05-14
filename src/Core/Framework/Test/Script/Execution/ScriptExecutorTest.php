@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
-use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,9 +35,8 @@ class ScriptExecutorTest extends TestCase
     /**
      * @param array<string> $hooks
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider executeProvider
      */
+    #[DataProvider('executeProvider')]
     public function testExecute(array $hooks, array $expected): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
@@ -57,6 +56,14 @@ class ScriptExecutorTest extends TestCase
         }
     }
 
+    public function testExecuteGetShopwareVersion(): void
+    {
+        $this->testExecute(
+            ['shopware-version-case'],
+            ['version' => $this->getContainer()->getParameter('kernel.shopware_version'), 'version_compare' => true]
+        );
+    }
+
     public function testNoneExistingServicesRequired(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
@@ -72,7 +79,7 @@ class ScriptExecutorTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
         $this->expectException(ScriptExecutionFailedException::class);
-        $innerException = new NoHookServiceFactoryException('product.repository');
+        $innerException = ScriptException::noHookServiceFactory('product.repository');
 
         $this->expectExceptionMessage($innerException->getMessage());
 
@@ -202,13 +209,6 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
-        ];
-        yield 'Test get shopware version' => [
-            ['shopware-version-case'],
-            [
-                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-                'version_compare' => true,
-            ],
         ];
     }
 }

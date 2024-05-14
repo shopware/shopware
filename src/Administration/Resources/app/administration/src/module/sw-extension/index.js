@@ -32,7 +32,7 @@ Shopware.Component.register('sw-extension-review', () => import('./component/sw-
 Shopware.Component.register('sw-extension-review-creation', () => import('./component/sw-ratings/sw-extension-review-creation'));
 Shopware.Component.register('sw-extension-review-creation-inputs', () => import('./component/sw-ratings/sw-extension-review-creation-inputs'));
 Shopware.Component.register('sw-extension-review-reply', () => import('./component/sw-ratings/sw-extension-review-reply'));
-Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', () => import('./component/sw-ratings/sw-extension-select-rating'));
+Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field-deprecated', () => import('./component/sw-ratings/sw-extension-select-rating'));
 Shopware.Component.extend('sw-extension-rating-modal', 'sw-extension-review-creation', () => import('./component/sw-ratings/sw-extension-rating-modal'));
 Shopware.Component.register('sw-extension-adding-failed', () => import('./component/sw-extension-adding-failed'));
 Shopware.Component.register('sw-extension-adding-success', () => import('./component/sw-extension-adding-success'));
@@ -41,7 +41,7 @@ Shopware.Component.register('sw-extension-app-module-page', () => import('./page
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 Shopware.Module.register('sw-extension', {

@@ -2,24 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -40,8 +36,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertInstanceOf(ArrayStruct::class, $returnValue);
         static::assertSame(['test' => 'response'], $returnValue->all());
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -55,6 +51,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($content);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -98,9 +95,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(ValidatePreparedPaymentException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
         $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
@@ -119,9 +113,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(ValidatePreparedPaymentException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
@@ -140,9 +131,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(ValidatePreparedPaymentException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
@@ -157,9 +145,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(ValidatePreparedPaymentException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
@@ -178,8 +163,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct(['test' => 'test']));
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -193,6 +178,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($content);
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
@@ -267,10 +253,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed.');
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
-
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
 
@@ -289,11 +271,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . sprintf('%s', self::ERROR_MESSAGE));
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
+        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
 
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
@@ -312,11 +290,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . sprintf('%s', self::ERROR_MESSAGE));
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
+        $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
 
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
@@ -338,10 +312,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
-
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
 
@@ -362,10 +332,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
-
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
 
@@ -381,10 +347,6 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'Invalid app response');
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
 
         $this->preparedPaymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, new ArrayStruct());
     }
@@ -403,8 +365,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             ->addAssociation('addresses.country')
             ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         static::assertNotNull($order);
 
         return $order;

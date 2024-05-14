@@ -50,11 +50,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click="onSave"
         >
             {{ $tc('sw-settings-address.general.buttonSave') }}
@@ -79,7 +75,7 @@
             />
 
             <sw-alert
-                v-show="!isLoading"
+                v-show="!isLoading && addressFormatSettingsLink"
                 variant="warning"
                 class="sw-settings-address__text-warning"
             >

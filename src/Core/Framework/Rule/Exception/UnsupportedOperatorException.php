@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class UnsupportedOperatorException extends ShopwareHttpException
 {
     /**

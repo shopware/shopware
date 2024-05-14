@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Presentation": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "parentId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "parentVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "createdById": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "createdBy": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "updatedById": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "updatedBy": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "translations": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "appointment": {
+                        "$ref": "#/components/schemas/Appointment"
+                    },
+                    "cmsPages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresentationCmsPage"
+                        }
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    }
+}

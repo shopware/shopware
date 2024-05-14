@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 import template from './sw-sales-channel-switch.html.twig';
 
@@ -7,8 +7,7 @@ const { Component } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders a sales channel switcher.
  * @status ready
@@ -26,13 +25,11 @@ Component.register('sw-sales-channel-switch', {
             required: false,
             default: false,
         },
-        // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false,
         },
-        // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,

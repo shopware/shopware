@@ -101,10 +101,12 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_list_listing_actions_mode %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <div
                             class="sw-cms-list__actions-mode"
+                            role="button"
+                            tabindex="0"
                             @click="onListModeChange"
+                            @keydown.enter="onListModeChange"
                         >
                             <sw-icon
                                 v-if="listMode === 'grid'"
@@ -163,22 +165,12 @@
                                                 {% endblock %}
 
                                                 <sw-context-menu-item
-                                                    v-if="cmsPage.type === 'product_list' && !(defaultCategoryId === cmsPage.id)"
+                                                    v-if="cmsPage.type === 'product_list' && defaultCategoryId !== cmsPage.id"
                                                     class="sw-cms-list-item__option-set-as-default"
                                                     :disabled="!acl.can('system_config.editor')"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
                                                     {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                                </sw-context-menu-item>
-
-                                                <!-- @deprecated tag:v6.6.0 default layouts for products will be enabled -->
-                                                <sw-context-menu-item
-                                                    v-else-if="feature.isActive('v6.6.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
-                                                    class="sw-cms-list-item__option-set-as-default"
-                                                    :disabled="!acl.can('cms.editor')"
-                                                    @click="onOpenLayoutSetAsDefault(cmsPage)"
-                                                >
-                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                                 </sw-context-menu-item>
 
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -208,7 +200,7 @@
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_delete %}
                                                 <sw-context-menu-item
-                                                    v-if="!cmsPage.locked && !(defaultProductId === cmsPage.id || defaultCategoryId === cmsPage.id)"
+                                                    v-if="!cmsPage.locked && defaultProductId !== cmsPage.id && defaultCategoryId !== cmsPage.id"
                                                     v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                     class="sw-cms-list-item__option-delete"
                                                     variant="danger"
@@ -305,16 +297,25 @@
                                     {% endblock %}
 
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_cms_list_listing_list_data_grid_column_assignment_list %}
+                                    <template #column-assignedPages="{ item }">
+                                        <div v-tooltip="getPagesTooltip(item)">
+                                            {{ getPagesString(item) }}
+                                        </div>
+                                    </template>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_created %}
                                     <template #column-createdAt="{ item }">
-                                        {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                        {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_updated %}
                                     <template #column-updatedAt="{ item }">
-                                        {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                        {{ dateFilter(item.updatedAt, { hour: '2-digit', minute: '2-digit' }) }}
                                     </template>
                                     {% endblock %}
 
@@ -333,21 +334,12 @@
                                         {% endblock %}
 
                                         <sw-context-menu-item
-                                            v-if="item.type === 'product_list' && !(defaultCategoryId === item.id)"
+                                            v-if="item.type === 'product_list' && defaultCategoryId !== item.id"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('system_config.editor')"
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                        </sw-context-menu-item>
-
-                                        <sw-context-menu-item
-                                            v-else-if="item.type === 'product_detail' && !(defaultProductId === item.id)"
-                                            class="sw-cms-list-item__option-set-as-default"
-                                            :disabled="!acl.can('cms.editor')"
-                                            @click="onOpenLayoutSetAsDefault(item)"
-                                        >
-                                            {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                         </sw-context-menu-item>
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -376,7 +368,7 @@
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                         <sw-context-menu-item
-                                            v-if="!item.locked && !(defaultProductId === item.id || defaultCategoryId === item.id)"
+                                            v-if="!item.locked && defaultProductId !== item.id && defaultCategoryId !== item.id"
                                             v-tooltip="deleteDisabledToolTip(item)"
                                             variant="danger"
                                             class="sw-cms-list__context-menu-item-delete"
@@ -439,7 +431,6 @@
             {% block sw_cms_list_media_modal %}
             <sw-media-modal-v2
                 v-if="showMediaModal"
-                variant="regular"
                 :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
                 :entity-context="'cms_page'"
                 :allow-multi-select="false"
@@ -473,11 +464,7 @@
                     {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
                 </div>
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="newName"
-                    {% else %}
-                    v-model="newName"
-                    {% endif %}
                     class="sw_tree__confirm-rename-text-field"
                     size="medium"
                 />
@@ -523,8 +510,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_list_delete_modal_confirm_delete_text %}
                 <div class="sw_tree__confirm-delete-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0,
-                           { pageName: currentPage.translated.name || currentPage.name }) }}
+                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', 0, { pageName: currentPage.translated.name || currentPage.name }) }}
                 </div>
                 {% endblock %}
 

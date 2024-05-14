@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -13,19 +15,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeAssetPackage
  */
+#[CoversClass(ThemeAssetPackage::class)]
 class ThemeAssetPackageTest extends TestCase
 {
-    /**
-     * @dataProvider urlCases
-     */
+    #[DataProvider('urlCases')]
     public function testGetUrl(string $inputUrl, ?Request $request, string $expectedUrl): void
     {
         $requestStack = new RequestStack();
 
-        if ($request !== null) {
+        if ($request instanceof Request) {
             $requestStack->push($request);
         }
 

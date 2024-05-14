@@ -2,12 +2,17 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
 #[Package('core')]
 class OrderSerializer extends EntitySerializer
@@ -29,8 +34,7 @@ class OrderSerializer extends EntitySerializer
 
         yield from parent::serialize($config, $definition, $entity);
 
-        if (isset($entity['lineItems'])) {
-            /** @var OrderLineItemCollection $lineItems */
+        if (isset($entity['lineItems']) && $entity['lineItems'] instanceof OrderLineItemCollection) {
             $lineItems = $entity['lineItems']->getElements();
             $modifiedLineItems = [];
 
@@ -43,15 +47,36 @@ class OrderSerializer extends EntitySerializer
             $entity['lineItems'] = implode('|', $modifiedLineItems);
         }
 
-        if (isset($entity['deliveries']) && (is_countable($entity['deliveries']) ? \count($entity['deliveries']) : 0) > 0) {
-            $entity['deliveries'] = $entity['deliveries']->first()->jsonSerialize();
+        if (isset($entity['deliveries']) && $entity['deliveries'] instanceof OrderDeliveryCollection && $entity['deliveries']->count() > 0) {
+            $entity['deliveries'] = $entity['deliveries']->first()?->jsonSerialize();
+
             if (!empty($entity['deliveries']['trackingCodes'])) {
                 $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
             }
 
-            if (!empty($entity['deliveries']['shippingOrderAddress'])) {
+            if (!empty($entity['deliveries']['shippingOrderAddress']) && $entity['deliveries']['shippingOrderAddress'] instanceof OrderAddressEntity) {
                 $entity['deliveries']['shippingOrderAddress'] = $entity['deliveries']['shippingOrderAddress']->jsonSerialize();
             }
+
+            if (!empty($entity['deliveries']['stateMachineState']) && $entity['deliveries']['stateMachineState'] instanceof StateMachineStateEntity) {
+                $entity['deliveries']['stateMachineState'] = $entity['deliveries']['stateMachineState']->jsonSerialize();
+            }
+        }
+
+        if (isset($entity['transactions']) && $entity['transactions'] instanceof OrderTransactionCollection && $entity['transactions']->count() > 0) {
+            $entity['transactions'] = $entity['transactions']->first()?->jsonSerialize();
+
+            if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
+                $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
+            }
+        }
+
+        if (isset($entity['itemRounding']) && $entity['itemRounding'] instanceof CashRoundingConfig) {
+            $entity['itemRounding'] = $entity['itemRounding']->jsonSerialize();
+        }
+
+        if (isset($entity['totalRounding']) && $entity['totalRounding'] instanceof CashRoundingConfig) {
+            $entity['totalRounding'] = $entity['totalRounding']->jsonSerialize();
         }
 
         yield from $entity;

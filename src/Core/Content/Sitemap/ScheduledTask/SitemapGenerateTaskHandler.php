@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Defaults;
@@ -23,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[AsMessageHandler(handles: SitemapGenerateTask::class)]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -31,12 +32,13 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void
@@ -56,7 +58,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         $criteria->addAssociation('type');
         $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $this->eventDispatcher->dispatch(
             new SitemapSalesChannelCriteriaEvent($criteria, $context)

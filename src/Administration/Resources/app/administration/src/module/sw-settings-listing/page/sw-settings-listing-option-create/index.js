@@ -1,7 +1,10 @@
-import { kebabCase } from 'lodash';
+/**
+ * @package inventory
+ */
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
 
+const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,6 +18,12 @@ export default {
 
         isNewProductSorting() {
             return !this.productSortingEntity || this.productSortingEntity._isNew;
+        },
+
+        urlKeyCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.equals('key', this.productSortingEntity.key));
+            return criteria;
         },
     },
 
@@ -39,20 +48,27 @@ export default {
             return productSortingEntity;
         },
 
-        onSave() {
+        async onSave() {
+            this.sortingOptionTechnicalNameError = null;
+            this.sortingOptionLabelError = null;
+
             this.transformCustomFieldCriterias();
 
             this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
                 return field.field !== 'customField';
             });
 
-            this.productSortingEntity.key = kebabCase(this.productSortingEntity.label);
-
-            return this.productSortingRepository.save(this.productSortingEntity)
+            return this.saveProductSorting()
                 .then(response => {
                     const encodedResponse = JSON.parse(response.config.data);
 
                     this.$router.push({ name: 'sw.settings.listing.edit', params: { id: encodedResponse.id } });
+
+                    const sortingOptionName = this.productSortingEntity.label;
+
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-settings-listing.base.notification.saveSuccess', { sortingOptionName }),
+                    });
                 })
                 .catch(() => {
                     const sortingOptionName = this.productSortingEntity.label;

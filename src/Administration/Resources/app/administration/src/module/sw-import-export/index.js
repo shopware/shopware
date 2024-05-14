@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import ImportExportService from './service/importExport.service';
 import ImportExportProfileMappingService from './service/importExportProfileMapping.service';

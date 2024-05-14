@@ -8,7 +8,7 @@ describe('Flow builder: Add remove tag testing', () => {
         });
     });
 
-    it('@settings: add and remove tag action flow', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: add and remove tag action flow', { tags: ['pa-services-settings'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

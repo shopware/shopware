@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
@@ -33,10 +36,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedProductReviewRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -52,18 +54,14 @@ class CachedProductReviewRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')
             ->invalidateTags([CachedProductReviewRoute::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -107,9 +105,7 @@ class CachedProductReviewRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(IdsCollection $ids, \Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')
@@ -119,7 +115,7 @@ class CachedProductReviewRouteTest extends TestCase
             (new ProductBuilder($ids, 'product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!', 3, TestDefaults::SALES_CHANNEL, DEFAULTS::LANGUAGE_SYSTEM, false)
+                ->review('Super', 'Amazing product!!!!', 3, TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, false)
                 ->build(),
 
             (new ProductBuilder($ids, 'other-product'))

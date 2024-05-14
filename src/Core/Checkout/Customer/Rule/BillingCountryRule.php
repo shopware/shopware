@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BillingCountryRule extends Rule
 {
     final public const RULE_NAME = 'customerBillingCountry';

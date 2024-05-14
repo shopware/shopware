@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,9 +20,9 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber
  */
+#[Package('core')]
+#[CoversClass(CustomFieldsUnusedMediaSubscriber::class)]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +53,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
 
@@ -65,7 +67,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         $mediaIds = $this->createContent();
         $event = new UnusedMediaSearchEvent($mediaIds);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);
@@ -81,7 +83,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 
         $event = new UnusedMediaSearchEvent([...$mediaIds, ...$unusedMediaIds]);
         $listener = new CustomFieldsUnusedMediaSubscriber(
-            $this->getContainer()->get(\Doctrine\DBAL\Connection::class),
+            $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
         $listener->removeUsedMedia($event);

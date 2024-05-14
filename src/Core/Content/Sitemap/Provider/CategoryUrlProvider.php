@@ -16,10 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
@@ -62,16 +61,13 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
 
+        /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
 
         $urls = [];
         $url = new Url();
 
         foreach ($categories as $category) {
-            if (!isset($seoUrls[$category['id']])) {
-                continue;
-            }
-
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -81,7 +77,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category->getId()], UrlGeneratorInterface::ABSOLUTE_PATH));
+                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));
@@ -99,6 +95,9 @@ class CategoryUrlProvider extends AbstractUrlProvider
         return new UrlResult($urls, $nextOffset);
     }
 
+    /**
+     * @return list<array{id: string, created_at: string, updated_at: string}>
+     */
     private function getCategories(SalesChannelContext $context, int $limit, ?int $offset): array
     {
         $lastId = null;
@@ -134,15 +133,21 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
-            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::STRING);
+            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::BINARY);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
 
-        return $query->executeQuery()->fetchAllAssociative();
+        /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
+        $result = $query->executeQuery()->fetchAllAssociative();
+
+        return $result;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array
     {
         $salesChannelId = $salesChannelContext->getSalesChannel()->getId();

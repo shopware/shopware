@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
@@ -7,8 +7,10 @@ import './sw-settings-search-search-index.scss';
 const PRODUCT_INDEXER_INTERVAL = 3000;
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { format } = Shopware.Utils;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -30,7 +32,7 @@ export default {
             offset: 0,
             syncPolling: null,
             totalProduct: 0,
-            latestProductIndexed: {},
+            latestIndex: null,
         };
     },
 
@@ -51,18 +53,9 @@ export default {
 
         productSearchKeywordsCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addSorting(Criteria.sort('id', 'DESC', true));
+            criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
+            criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
-        },
-
-        latestBuild() {
-            if (!this.latestProductIndexed) {
-                return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
-            }
-
-            const latestBuildDate = new Date(this.latestProductIndexed.createdAt);
-            const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-            return format.date(latestBuildDate, options);
         },
     },
 
@@ -88,8 +81,11 @@ export default {
         getLatestProductKeywordIndexed() {
             this.isLoading = true;
             this.productSearchKeywordRepository.search(this.productSearchKeywordsCriteria, Context.api)
-                .then((items) => {
-                    this.latestProductIndexed = items[0];
+                .then((result) => {
+                    this.latestIndex = {
+                        firstDate: result.aggregations.firstDate.min,
+                        lastDate: result.aggregations.lastDate.max,
+                    };
                 })
                 .catch((err) => {
                     this.createNotificationError({

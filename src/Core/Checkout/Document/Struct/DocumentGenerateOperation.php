@@ -7,13 +7,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 final class DocumentGenerateOperation extends Struct
 {
     protected ?string $documentId = null;
 
     protected string $orderVersionId = Defaults::LIVE_VERSION;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
         protected string $orderId,
         protected string $fileType = FileTypes::PDF,
@@ -34,6 +37,9 @@ final class DocumentGenerateOperation extends Struct
         return $this->fileType;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;

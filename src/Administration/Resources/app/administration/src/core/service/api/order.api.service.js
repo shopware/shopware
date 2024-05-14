@@ -3,7 +3,7 @@ import utils from 'src/core/service/util.service';
 import ApiService from '../api.service';
 
 /**
- * @package customer-order
+ * @package checkout
  * Gateway for the API end point "order"
  * @class
  * @extends ApiService
@@ -127,6 +127,23 @@ class OrderApiService extends ApiService {
                 params,
                 headers,
             });
+    }
+
+    updateOrderAddresses(orderId, mapping, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/order-address`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(
+                route,
+                {
+                    mapping: mapping,
+                },
+                {
+                    additionalParams,
+                    headers,
+                },
+            );
     }
 }
 

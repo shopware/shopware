@@ -15,8 +15,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
@@ -31,12 +33,9 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999.9999999-dev';
 
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     /**
      * @var KernelPluginLoader
@@ -53,14 +52,11 @@ class Kernel extends HttpKernel
      */
     protected $shopwareVersionRevision;
 
-    /**
-     * @var string|null
-     */
-    protected $projectDir;
-
     private bool $rebooting = false;
 
     /**
+     * @internal
+     *
      * {@inheritdoc}
      */
     public function __construct(
@@ -68,9 +64,9 @@ class Kernel extends HttpKernel
         bool $debug,
         KernelPluginLoader $pluginLoader,
         private string $cacheId,
-        ?string $version = self::SHOPWARE_FALLBACK_VERSION,
-        ?Connection $connection = null,
-        ?string $projectDir = null
+        string $version,
+        Connection $connection,
+        protected string $projectDir
     ) {
         date_default_timezone_set('UTC');
 
@@ -82,7 +78,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -108,29 +103,16 @@ class Kernel extends HttpKernel
 
     public function getProjectDir(): string
     {
-        if ($this->projectDir === null) {
-            if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
-                return $this->projectDir = $dir;
-            }
+        return $this->projectDir;
+    }
 
-            $r = new \ReflectionObject($this);
-
-            $dir = (string) $r->getFileName();
-            if (!file_exists($dir)) {
-                throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
-            }
-
-            $dir = $rootDir = \dirname($dir);
-            while (!file_exists($dir . '/vendor')) {
-                if ($dir === \dirname($dir)) {
-                    return $this->projectDir = $rootDir;
-                }
-                $dir = \dirname($dir);
-            }
-            $this->projectDir = $dir;
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
+    {
+        if (!$this->booted) {
+            $this->boot();
         }
 
-        return $this->projectDir;
+        return $this->getHttpKernel()->handle($request, $type, $catch);
     }
 
     public function boot(): void
@@ -148,9 +130,9 @@ class Kernel extends HttpKernel
         }
 
         if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=3');
-            $_ENV['SHELL_VERBOSITY'] = 3;
-            $_SERVER['SHELL_VERBOSITY'] = 3;
+            putenv('SHELL_VERBOSITY=1');
+            $_ENV['SHELL_VERBOSITY'] = 1;
+            $_SERVER['SHELL_VERBOSITY'] = 1;
         }
 
         try {
@@ -207,7 +189,7 @@ class Kernel extends HttpKernel
     {
         return sprintf(
             '%s/var/cache/%s_h%s%s',
-            $this->getProjectDir(),
+            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
@@ -252,8 +234,7 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('.container.dumper.inline_class_loader', true);
-        $container->setParameter('.container.dumper.inline_factories', true);
+        $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';
 
@@ -336,7 +317,6 @@ class Kernel extends HttpKernel
             $this->cacheId,
             substr((string) $this->shopwareVersionRevision, 0, 8),
             substr($pluginHash, 0, 8),
-            EnvironmentHelper::getVariable('DATABASE_URL', ''),
         ], \JSON_THROW_ON_ERROR));
     }
 
@@ -381,6 +361,8 @@ class Kernel extends HttpKernel
         $cacheDir = $this->getCacheDir();
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
+
+        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
 

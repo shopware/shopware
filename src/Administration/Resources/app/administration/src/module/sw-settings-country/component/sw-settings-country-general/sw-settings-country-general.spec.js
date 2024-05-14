@@ -1,34 +1,13 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsCountryGeneral from 'src/module/sw-settings-country/component/sw-settings-country-general';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-container';
-
-Shopware.Component.register('sw-settings-country-general', swSettingsCountryGeneral);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], customPropsData = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-country-general'), {
-        localVue,
-
-        mocks: {
-            $tc: key => key,
-            $route: {
-                params: {
-                    id: 'id',
-                },
-            },
-            $device: {
-                getSystemKey: () => {},
-                onResize: () => {},
-            },
-        },
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-country-general', {
+        sync: true,
+    }), {
+        props: {
             country: {
                 isNew: () => false,
                 customerTax: {
@@ -44,44 +23,60 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             isLoading: false,
         },
 
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: () => {
-                        return Promise.resolve({});
+        global: {
+            mocks: {
+                $tc: key => key,
+                $route: {
+                    params: {
+                        id: 'id',
                     },
-                    search: () => {
-                        return Promise.resolve({
-                            userConfigs: {
-                                first: () => ({}),
-                            },
-                        });
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+                },
+                $device: {
+                    getSystemKey: () => {},
+                    onResize: () => {},
                 },
             },
-            feature: {
-                isActive: () => true,
-            },
-        },
 
-        stubs: {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-text-field': true,
-            'sw-switch-field': true,
-            'sw-icon': true,
-            'sw-number-field': true,
-            'sw-settings-country-currency-dependent-modal': true,
-            'sw-entity-single-select': true,
-            'sw-extension-component-section': true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => {
+                            return Promise.resolve({});
+                        },
+                        search: () => {
+                            return Promise.resolve({
+                                userConfigs: {
+                                    first: () => ({}),
+                                },
+                            });
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                feature: {
+                    isActive: () => true,
+                },
+            },
+
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-ignore-class': true,
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-text-field': true,
+                'sw-switch-field': true,
+                'sw-icon': true,
+                'sw-number-field': true,
+                'sw-settings-country-currency-dependent-modal': true,
+                'sw-entity-single-select': true,
+                'sw-extension-component-section': true,
+            },
         },
     });
 }

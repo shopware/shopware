@@ -8,17 +8,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
-use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,11 +32,15 @@ use Symfony\Component\Filesystem\Filesystem;
     name: 'store:download',
     description: 'Downloads a plugin from the store',
 )]
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreDownloadCommand extends Command
 {
     private readonly string $relativePluginDir;
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly EntityRepository $pluginRepo,
@@ -62,7 +65,7 @@ class StoreDownloadCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $pluginName = (string) $input->getOption('pluginName');
         $user = $input->getOption('user');
@@ -101,14 +104,12 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $userName));
 
-        /** @var UserEntity|null $userEntity */
-        $userEntity = $this->userRepository->search($criteria, $context)->first();
-
+        $userEntity = $this->userRepository->search($criteria, $context)->getEntities()->first();
         if ($userEntity === null) {
             return $context;
         }
 
-        return Context::createDefaultContext(new AdminApiSource($userEntity->getId()));
+        return Context::createCLIContext(new AdminApiSource($userEntity->getId()));
     }
 
     private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void
@@ -121,11 +122,7 @@ class StoreDownloadCommand extends Command
         }
 
         if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw StoreException::cannotDeleteManaged($pluginName);
-            }
-
-            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
+            throw StoreException::cannotDeleteManaged($pluginName);
         }
     }
 
@@ -134,9 +131,7 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
 
-        /** @var PluginEntity|null $plugin */
-        $plugin = $this->pluginRepo->search($criteria, $context)->first();
-
+        $plugin = $this->pluginRepo->search($criteria, $context)->getEntities()->first();
         if ($plugin === null) {
             throw new PluginNotFoundException($pluginName);
         }

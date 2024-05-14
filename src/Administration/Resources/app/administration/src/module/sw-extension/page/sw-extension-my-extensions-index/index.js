@@ -1,7 +1,7 @@
 import template from './sw-extension-my-extensions-index.html.twig';
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {

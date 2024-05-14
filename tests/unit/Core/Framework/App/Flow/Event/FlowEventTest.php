@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Event\Event;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Event\Event
  */
+#[CoversClass(Event::class)]
 class FlowEventTest extends TestCase
 {
     public function testCreateFromXmlFile(): void
@@ -22,9 +22,11 @@ class FlowEventTest extends TestCase
         static::assertDirectoryExists($result->getPath());
     }
 
-    public function testCreateFromXmlFileFaild(): void
+    public function testCreateFromXmlFileFailed(): void
     {
-        static::expectException(XmlParsingException::class);
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessageMatches('/Unable to parse file \".*flow-1-0.xml"\. Message: Resource \".*flow-1-0.xml\" is not a file./');
+
         $xmlFile = \dirname(__FILE__, 3) . '/_fixtures/flow-1-0.xml';
         Event::createFromXmlFile($xmlFile);
     }

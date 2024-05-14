@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowAction;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,22 +19,21 @@ class FlowActionTranslationTest extends TestCase
 
     public function testHeadlineAndDescriptionTranslation(): void
     {
-        /** @var EntityRepository $appFlowActionRepository */
+        /** @var EntityRepository<AppFlowActionCollection> $appFlowActionRepository */
         $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
 
         $idFlowAction = $this->registerFlowAction();
 
-        /** @var AppFlowActionEntity $appFlowAction */
-        $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->get($idFlowAction);
+        $appFlowAction = $appFlowActionRepository->search(new Criteria([$idFlowAction]), Context::createDefaultContext())->getEntities()->get($idFlowAction);
+        static::assertNotNull($appFlowAction);
 
-        static::assertEquals('Description for action', $appFlowAction->getDescription());
-        static::assertEquals('Headline for action', $appFlowAction->getHeadline());
-        static::assertEquals('Label for action', $appFlowAction->getLabel());
+        static::assertSame('Description for action', $appFlowAction->getDescription());
+        static::assertSame('Headline for action', $appFlowAction->getHeadline());
+        static::assertSame('Label for action', $appFlowAction->getLabel());
     }
 
     private function registerFlowAction(): string
     {
-        /** @var EntityRepository $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $idFlowAction = Uuid::randomHex();
@@ -49,7 +48,6 @@ class FlowActionTranslationTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

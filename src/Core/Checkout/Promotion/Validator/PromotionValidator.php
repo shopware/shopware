@@ -23,7 +23,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionValidator implements EventSubscriberInterface
 {
     /**
@@ -39,12 +39,12 @@ class PromotionValidator implements EventSubscriberInterface
     private const DISCOUNT_PERCENTAGE_MAX_VALUE = 100.0;
 
     /**
-     * @var list<array<string, mixed>>
+     * @var array<array<string, mixed>>
      */
     private array $databasePromotions;
 
     /**
-     * @var list<array<string, mixed>>
+     * @var array<array<string, mixed>>
      */
     private array $databaseDiscounts;
 
@@ -74,16 +74,13 @@ class PromotionValidator implements EventSubscriberInterface
         $this->collect($event->getCommands());
 
         $violationList = new ConstraintViolationList();
-        $writeCommands = $event->getCommands();
-
-        foreach ($writeCommands as $index => $command) {
+        foreach ($event->getCommands() as $index => $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }
 
-            switch ($command->getDefinition()::class) {
-                case PromotionDefinition::class:
-                    /** @var string $promotionId */
+            switch ($command->getEntityName()) {
+                case PromotionDefinition::ENTITY_NAME:
                     $promotionId = $command->getPrimaryKey()['id'];
 
                     try {
@@ -101,8 +98,7 @@ class PromotionValidator implements EventSubscriberInterface
 
                     break;
 
-                case PromotionDiscountDefinition::class:
-                    /** @var string $discountId */
+                case PromotionDiscountDefinition::ENTITY_NAME:
                     $discountId = $command->getPrimaryKey()['id'];
 
                     try {
@@ -146,13 +142,13 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch ($command->getDefinition()::class) {
-                case PromotionDefinition::class:
+            switch ($command->getEntityName()) {
+                case PromotionDefinition::ENTITY_NAME:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
 
                     break;
 
-                case PromotionDiscountDefinition::class:
+                case PromotionDiscountDefinition::ENTITY_NAME:
                     $discountIds[] = $command->getPrimaryKey()['id'];
 
                     break;
@@ -168,7 +164,7 @@ class PromotionValidator implements EventSubscriberInterface
             $promotionQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
                 ['ids' => $promotionIds],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databasePromotions = $promotionQuery->fetchAllAssociative();
@@ -179,7 +175,7 @@ class PromotionValidator implements EventSubscriberInterface
             $discountQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
                 ['ids' => $discountIds],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databaseDiscounts = $discountQuery->fetchAllAssociative();
@@ -199,25 +195,18 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private function validatePromotion(array $promotion, array $payload, ConstraintViolationList $violationList, int $index): void
     {
-        /** @var string|null $validFrom */
         $validFrom = $this->getValue($payload, 'valid_from', $promotion);
 
-        /** @var string|null $validUntil */
         $validUntil = $this->getValue($payload, 'valid_until', $promotion);
 
-        /** @var bool $useCodes */
         $useCodes = $this->getValue($payload, 'use_codes', $promotion);
 
-        /** @var bool $useCodesIndividual */
         $useCodesIndividual = $this->getValue($payload, 'use_individual_codes', $promotion);
 
-        /** @var string|null $pattern */
         $pattern = $this->getValue($payload, 'individual_code_pattern', $promotion);
 
-        /** @var string|null $promotionId */
         $promotionId = $this->getValue($payload, 'id', $promotion);
 
-        /** @var string|null $code */
         $code = $this->getValue($payload, 'code', $promotion);
 
         if ($code === null) {
@@ -306,10 +295,8 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private function validateDiscount(array $discount, array $payload, ConstraintViolationList $violationList, int $index): void
     {
-        /** @var string $type */
         $type = $this->getValue($payload, 'type', $discount);
 
-        /** @var float|null $value */
         $value = $this->getValue($payload, 'value', $discount);
 
         if ($value === null) {
@@ -326,19 +313,14 @@ class PromotionValidator implements EventSubscriberInterface
             ));
         }
 
-        switch ($type) {
-            case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                if ($value > self::DISCOUNT_PERCENTAGE_MAX_VALUE) {
-                    $violationList->add($this->buildViolation(
-                        'Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE,
-                        $value,
-                        'value',
-                        'PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION',
-                        $index
-                    ));
-                }
-
-                break;
+        if (($type === PromotionDiscountEntity::TYPE_PERCENTAGE) && $value > self::DISCOUNT_PERCENTAGE_MAX_VALUE) {
+            $violationList->add($this->buildViolation(
+                'Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE,
+                $value,
+                'value',
+                'PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION',
+                $index
+            ));
         }
     }
 
@@ -354,18 +336,7 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private function getValue(array $data, string $key, array $dbRow)
     {
-        // try in our actual data set
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        // try in our db row fallback
-        if (isset($dbRow[$key])) {
-            return $dbRow[$key];
-        }
-
-        // use default
-        return null;
+        return $data[$key] ?? $dbRow[$key] ?? null;
     }
 
     /**
@@ -443,10 +414,7 @@ class PromotionValidator implements EventSubscriberInterface
             ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
             ->setParameter('pattern', $pattern);
 
-        $promotions = $query->executeQuery()->fetchFirstColumn();
-
-        /** @var string $id */
-        foreach ($promotions as $id) {
+        foreach ($query->executeQuery()->fetchFirstColumn() as $id) {
             // if we have a promotion id to verify
             // and a promotion with another id exists, then return that is used
             if ($promotionId !== null && $id !== $promotionId) {
@@ -466,9 +434,9 @@ class PromotionValidator implements EventSubscriberInterface
         $qb = $this->connection->createQueryBuilder();
 
         // check if individual code.
-        // if we dont have a promotion Id only
+        // if we don't have a promotion ID only
         // check if its existing somewhere,
-        // if we have an Id, verify if it's existing in another promotion
+        // if we have an ID, verify if it's existing in another promotion
         $query = $qb
             ->select('COUNT(*)')
             ->from('promotion_individual_code')
@@ -480,9 +448,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter('promotion_id', $promotionId);
         }
 
-        $existingIndividual = ((int) $query->executeQuery()->fetchOne()) > 0;
-
-        if ($existingIndividual) {
+        if (((int) $query->executeQuery()->fetchOne()) > 0) {
             return true;
         }
 

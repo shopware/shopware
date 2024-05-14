@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 
 /**
  * @internal
@@ -32,6 +34,8 @@ class OrderSerializerTest extends TestCase
 
     private EntityRepository $orderRepository;
 
+    private Context $context;
+
     protected function setUp(): void
     {
         $this->orderRepository = $this->getContainer()->get('order.repository');
@@ -40,6 +44,8 @@ class OrderSerializerTest extends TestCase
         $this->serializer = new OrderSerializer();
 
         $this->serializer->setRegistry($serializerRegistry);
+
+        $this->context = Context::createDefaultContext();
     }
 
     public function testSerializeOrder(): void
@@ -78,6 +84,8 @@ class OrderSerializerTest extends TestCase
         static::assertNotNull($delivery = $deliveries->first());
         $shippingAddress = $delivery->getShippingOrderAddress();
 
+        static::assertNotNull($shippingAddress);
+
         static::assertNotEmpty($serialized['deliveries']);
         static::assertNotEmpty($serialized['deliveries']['shippingOrderAddress']);
         static::assertSame($serialized['deliveries']['trackingCodes'], implode('|', $delivery->getTrackingCodes()));
@@ -88,6 +96,20 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['deliveries']['shippingOrderAddress']['department'], $shippingAddress->getDepartment());
         static::assertSame($serialized['deliveries']['shippingOrderAddress']['countryId'], $shippingAddress->getCountryId());
         static::assertSame($serialized['deliveries']['shippingOrderAddress']['countryStateId'], $shippingAddress->getCountryStateId());
+        static::assertSame($serialized['deliveries']['stateMachineState'], $delivery->getStateMachineState()?->jsonSerialize());
+
+        static::assertNotNull($transactions = $order->getTransactions());
+        static::assertNotNull($transaction = $transactions->first());
+
+        static::assertSame($serialized['transactions']['_uniqueIdentifier'], $transaction->getUniqueIdentifier());
+        static::assertSame($serialized['transactions']['id'], $transaction->getId());
+        static::assertSame($serialized['transactions']['versionId'], $transaction->getVersionId());
+        static::assertSame($serialized['transactions']['orderId'], $transaction->getOrderId());
+        static::assertSame($serialized['transactions']['orderVersionId'], $transaction->getOrderVersionId());
+        static::assertSame($serialized['transactions']['paymentMethodId'], $transaction->getPaymentMethodId());
+        static::assertSame($serialized['transactions']['amount'], $transaction->getAmount());
+        static::assertSame($serialized['transactions']['stateId'], $transaction->getStateId());
+        static::assertSame($serialized['transactions']['stateMachineState'], $transaction->getStateMachineState()?->jsonSerialize());
 
         static::assertNotNull($lineItems = $order->getLineItems());
         static::assertNotNull($lineItem = $lineItems->first());
@@ -97,6 +119,12 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['amountTotal'], $order->getAmountTotal());
         static::assertSame($serialized['stateId'], $order->getStateId());
         static::assertSame($serialized['orderDateTime'], $order->getOrderDateTime()->format('Y-m-d\Th:i:s.vP'));
+
+        static::assertNotNull($itemRounding = $order->getItemRounding());
+        static::assertSame($serialized['itemRounding'], $itemRounding->jsonSerialize());
+
+        static::assertNotNull($totalRounding = $order->getTotalRounding());
+        static::assertSame($serialized['totalRounding'], $totalRounding->jsonSerialize());
     }
 
     private function createOrder(): OrderEntity
@@ -107,14 +135,18 @@ class OrderSerializerTest extends TestCase
 
         /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
-        $productRepository->create([$product], Context::createDefaultContext());
+        $productRepository->create([$product], $this->context);
 
         $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, Context::createDefaultContext())[0];
+        $orderData = $this->getOrderData($orderId, $this->context)[0];
 
         $orderData['lineItems'][0]['productId'] = $productId;
 
-        $this->orderRepository->create([$orderData], Context::createDefaultContext());
+        $orderData['transactions'] = [
+            $this->getTransactionData($orderData),
+        ];
+
+        $this->orderRepository->create([$orderData], $this->context);
 
         $criteria = new Criteria();
 
@@ -123,9 +155,17 @@ class OrderSerializerTest extends TestCase
             'billingAddress',
             'deliveries.stateMachineState',
             'deliveries.shippingOrderAddress',
+            'deliveries.stateMachineState',
+            'transactions.stateMachineState',
+            'transactions.shippingMethod',
         ]);
 
-        return $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, $this->context)->first();
+
+        static::assertNotNull($order);
+
+        return $order;
     }
 
     /**
@@ -161,6 +201,44 @@ class OrderSerializerTest extends TestCase
                     ],
                 ],
             ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $orderData
+     *
+     * @return array<string, mixed>
+     */
+    private function getTransactionData(array $orderData): array
+    {
+        $paymentMethod = $this->getContainer()->get('payment_method.repository')->search(new Criteria(), $this->context)->first();
+        $paymentMethodId = null;
+        if ($paymentMethod instanceof PaymentMethodEntity) {
+            $paymentMethodId = $paymentMethod->getId();
+        }
+
+        $stateMachineState = $this->getContainer()->get('state_machine_state.repository')->search(new Criteria(), $this->context)->first();
+        $stateMachineStateId = null;
+        if ($stateMachineState instanceof StateMachineStateEntity) {
+            $stateMachineStateId = $stateMachineState->getId();
+        }
+
+        return [
+            'id' => Uuid::randomHex(),
+            'orderId' => $orderData['id'],
+            'orderVersionId' => $orderData['versionId'],
+            'paymentMethodId' => $paymentMethodId,
+            'amount' => [
+                'quantity' => 1,
+                'taxRules' => [],
+                'listPrice' => null,
+                'unitPrice' => 20.02,
+                'totalPrice' => 20.02,
+                'referencePrice' => null,
+                'calculatedTaxes' => [],
+                'regulationPrice' => null,
+            ],
+            'stateId' => $stateMachineStateId,
         ];
     }
 }

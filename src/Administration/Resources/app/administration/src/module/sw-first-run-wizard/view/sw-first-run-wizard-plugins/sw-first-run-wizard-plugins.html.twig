@@ -57,7 +57,7 @@
 
     <h3
         v-show="showCategoryLead"
-        class="recommended-plugins__headline is--capitalized"
+        class="recommended-plugins__headline"
     >
         {{ $tc('sw-first-run-wizard.recommendedPlugins.topRecommendations') }}
     </h3>
@@ -70,8 +70,7 @@
             v-for="plugin in categoryLead"
             :key="plugin.name"
             :plugin="plugin"
-            @onPluginInstalled="reloadRecommendations"
-            @onPluginRemoved="reloadRecommendations"
+            @on-plugin-installed="reloadRecommendations"
             @extension-activated="$emit('extension-activated', $event)"
         />
     </div>
@@ -83,7 +82,7 @@
 
     <h3
         v-show="showNotCategoryLead"
-        class="recommended-plugins__headline is--capitalized"
+        class="recommended-plugins__headline"
     >
         {{ $tc('sw-first-run-wizard.recommendedPlugins.otherRecommendations') }}
     </h3>
@@ -102,8 +101,7 @@
                 :key="plugin.name"
                 :plugin="plugin"
                 :show-description="false"
-                @onPluginInstalled="reloadRecommendations"
-                @onPluginRemoved="reloadRecommendations"
+                @on-plugin-installed="reloadRecommendations"
                 @extension-activated="$emit('extension-activated', $event)"
             />
         </sw-container>

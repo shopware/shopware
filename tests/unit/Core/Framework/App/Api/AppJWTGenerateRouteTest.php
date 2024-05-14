@@ -3,17 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Api;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Api\AppJWTGenerateRoute
  */
+#[CoversClass(AppJWTGenerateRoute::class)]
 class AppJWTGenerateRouteTest extends TestCase
 {
     public function testNotLoggedIn(): void
@@ -26,8 +26,8 @@ class AppJWTGenerateRouteTest extends TestCase
         $context = Generator::createSalesChannelContext();
         $context->assign(['customer' => null]);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('JWT generation requires customer to be logged in');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('JWT generation requires customer to be logged in');
         $appJWTGenerateRoute->generate('test', $context);
     }
 
@@ -40,8 +40,8 @@ class AppJWTGenerateRouteTest extends TestCase
 
         $context = Generator::createSalesChannelContext();
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App with identifier "test" not found');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Could not find app with identifier "test"');
         $appJWTGenerateRoute->generate('test', $context);
     }
 
@@ -81,6 +81,6 @@ class AppJWTGenerateRouteTest extends TestCase
 
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
-        static::assertEquals($context->getSalesChannel()->getId(), $payload['salesChannelId']);
+        static::assertSame($context->getSalesChannel()->getId(), $payload['salesChannelId']);
     }
 }

@@ -1,8 +1,11 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+/**
+ * @package buyers-experience
+*/
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElImageSlider from 'src/module/sw-cms/elements/image-slider/component';
 
-Shopware.Component.register('sw-cms-el-image-slider', swCmsElImageSlider);
+const MOCK_ASSET_PATH = '/ASSET-PATH/';
+Shopware.Context.api.assetsPath = MOCK_ASSET_PATH;
 
 const sliderItemsConfigMock = [
     {
@@ -41,25 +44,26 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-image-slider'), {
-        localVue,
-        sync: false,
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-slider': {} };
+    return mount(await wrapTestComponent('sw-cms-el-image-slider', {
+        sync: true,
+    }), {
+        global: {
+            sync: false,
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'image-slider': {} };
+                    },
                 },
             },
+            stubs: {
+                'sw-icon': true,
+            },
         },
-        stubs: {
-            'sw-icon': true,
-        },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},
@@ -91,6 +95,14 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {
+    it('should render a fallback image if config is not resolved to data', async () => {
+        const wrapper = await createWrapper();
+
+        const image = wrapper.get('.sw-cms-el-image-slider__image');
+
+        expect(image.attributes('src')).toBe(`${MOCK_ASSET_PATH}administration/static/img/cms/preview_mountain_large.jpg`);
+    });
+
     it('setSliderArrowItem should work correctly', async () => {
         const wrapper = await createWrapper();
 

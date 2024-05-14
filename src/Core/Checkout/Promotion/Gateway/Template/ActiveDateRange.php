@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @final
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class ActiveDateRange extends MultiFilter
 {
     /**

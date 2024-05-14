@@ -1,87 +1,78 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionReviewCreation from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation';
-import swExtensionReviewCreationInputs from 'src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-process';
-import 'src/app/component/form/sw-gtc-checkbox';
-import swExtensionSelectRating from 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
-import swExtensionRatingStars from 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/utils/sw-external-link';
-
-Shopware.Component.register('sw-extension-review-creation', swExtensionReviewCreation);
-Shopware.Component.register('sw-extension-review-creation-inputs', swExtensionReviewCreationInputs);
-Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExtensionSelectRating);
-Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
+import { mount } from '@vue/test-utils';
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
-    /** @type Wrapper */
-    let wrapper;
+    beforeAll(() => {
+        if (Shopware.State.get('shopwareExtensions')) {
+            Shopware.State.unregisterModule('shopwareExtensions');
+        }
+
+        Shopware.State.registerModule('shopwareExtensions', {
+            namespaced: true,
+            state: {
+                myExtensions: {
+                    data: [
+                        {
+                            name: 'Test',
+                            installedAt: null,
+                            version: '1.0.0',
+                        },
+                    ],
+                },
+            },
+        });
+    });
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-extension-review-creation'), {
-            propsData: {
-                extension: {},
-            },
-            provide: {
-                validationService: {},
-                extensionStoreActionService: {
-                    rateExtension: jest.fn(),
+        return mount(await wrapTestComponent('sw-extension-review-creation', { sync: true }), {
+            global: {
+                provide: {
+                    validationService: {},
+                    extensionStoreActionService: {
+                        rateExtension: jest.fn(),
+                    },
+                },
+                stubs: {
+                    'sw-extension-review-creation-inputs': await wrapTestComponent('sw-extension-review-creation-inputs', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                    'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
+                    'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-icon': true,
+                    'sw-textarea-field': {
+                        template: '<textarea></textarea>',
+                    },
+                    'sw-gtc-checkbox': await wrapTestComponent('sw-gtc-checkbox', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+                    'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
+                    'sw-loader': true,
                 },
             },
-            computed: {
-                installedVersion() {
-                    return '1.0.0';
+            props: {
+                extension: {
+                    name: 'Test',
                 },
-            },
-            stubs: {
-                'sw-extension-review-creation-inputs': await Shopware.Component.build('sw-extension-review-creation-inputs'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-extension-select-rating': await Shopware.Component.build('sw-extension-select-rating'),
-                'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-icon': true,
-                'sw-textarea-field': {
-                    template: '<textarea></textarea>',
-                },
-                'sw-gtc-checkbox': await Shopware.Component.build('sw-gtc-checkbox'),
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-button-process': await Shopware.Component.build('sw-button-process'),
-                'sw-external-link': await Shopware.Component.build('sw-external-link'),
-                'sw-loader': true,
             },
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should enable the button when the gtc are accepted', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
-        const submitButton = wrapper.find('.sw-button.sw-button--primary');
-        expect(submitButton.attributes('disabled')).toBe('disabled');
+        const submitButton = wrapper.get('.sw-extension-review-creation__submit');
+        expect(submitButton.attributes('disabled')).toBeDefined();
 
-        const gtcCheckbox = wrapper.find('input[type="checkbox"]');
-
+        const gtcCheckbox = wrapper.get('input[type="checkbox"]');
         await gtcCheckbox.setChecked();
         expect(gtcCheckbox.element.checked).toBe(true);
 
@@ -89,9 +80,9 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
     });
 
     it('should make an api request', async () => {
-        wrapper = await createWrapper();
-        const gtcCheckbox = wrapper.find('input[type="checkbox"]');
+        const wrapper = await createWrapper();
 
+        const gtcCheckbox = wrapper.get('input[type="checkbox"]');
         await gtcCheckbox.setChecked();
         expect(gtcCheckbox.element.checked).toBe(true);
 

@@ -11,7 +11,7 @@
 
         {% block component_customer_overview_personal_vat_id %}
             {% if customer.vatIds and customer.vatIds|length > 0 and customer.vatIds[0] != '' %}
-                {{ "address.companyVatLabel"|trans|sw_sanitize }}: {{ customer.vatIds|join(', ') }}
+                {{ 'address.companyVatLabel'|trans|sw_sanitize }}: {{ customer.vatIds|join(', ') }}
             {% endif %}
         {% endblock %}
     </p>

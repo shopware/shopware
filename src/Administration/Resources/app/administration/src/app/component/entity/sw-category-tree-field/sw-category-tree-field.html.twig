@@ -163,7 +163,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_category_tree_field_input_results_search_results_item %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                     <li
                         v-for="item in searchResult"
                         :key="item.id"
@@ -190,7 +190,6 @@
                             {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
                             <sw-icon
                                 name="regular-folder"
-                                multicolor
                                 small
                             />
                             {% endblock %}

@@ -18,39 +18,33 @@
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_snippet_field_edit_modal_snippet_fields %}
-    <sw-text-field
-        v-if="textField"
-        v-for="(snippet, index) in editableSnippets"
-        :key="snippet.setId"
-        {% if VUE3 %}
-        v-model:value="snippet.value"
-        {% else %}
-        v-model="snippet.value"
-        {% endif %}
-        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-        class="sw-snippet-field-edit-modal__translation-field"
-        :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
-        :disabled="!acl.can('snippet.editor')"
-        :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
-        :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
-    />
+    <template v-if="textField">
+        <sw-text-field
+            v-for="(snippet, index) in editableSnippets"
+            :key="snippet.setId"
+            v-model:value="snippet.value"
+            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+            class="sw-snippet-field-edit-modal__translation-field"
+            :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
+            :disabled="!acl.can('snippet.editor')"
+            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+        />
+    </template>
 
-    <sw-textarea-field
-        v-else-if="textArea"
-        v-for="(snippet, index) in editableSnippets"
-        :key="snippet.setId"
-        {% if VUE3 %}
-        v-model:value="snippet.value"
-        {% else %}
-        v-model="snippet.value"
-        {% endif %}
-        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-        class="sw-snippet-field-edit-modal__translation-field"
-        :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
-        :disabled="!acl.can('snippet.editor')"
-        :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
-        :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
-    />
+    <template v-else-if="textArea">
+        <sw-textarea-field
+            v-for="(snippet, index) in editableSnippets"
+            :key="snippet.setId"
+            v-model:value="snippet.value"
+            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+            class="sw-snippet-field-edit-modal__translation-field"
+            :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
+            :disabled="!acl.can('snippet.editor')"
+            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+        />
+    </template>
     {% endblock %}
     {% endblock %}
 

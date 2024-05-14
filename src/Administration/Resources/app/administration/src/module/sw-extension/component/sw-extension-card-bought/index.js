@@ -3,7 +3,7 @@ import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -183,6 +183,43 @@ export default {
                 }
 
                 await this.shopwareExtensionService.installExtension(
+                    this.extension.name,
+                    this.extension.type,
+                );
+                await this.clearCacheAndReloadPage();
+            } catch (e) {
+                this.showExtensionErrors(e);
+                const error = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
+
+                if (error.parameters) {
+                    this.installationFailedError = error;
+                } else {
+                    this.installationFailedError = {
+                        title: this.$tc(error.title),
+                        message: this.$tc(error.message),
+                    };
+                }
+                this.showExtensionInstallationFailedModal = true;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async installAndActivateExtension() {
+            this.isLoading = true;
+
+            try {
+                if (this.extension.source === 'store') {
+                    await this.extensionStoreActionService.downloadExtension(
+                        this.extension.name,
+                    );
+                }
+
+                await this.shopwareExtensionService.installExtension(
+                    this.extension.name,
+                    this.extension.type,
+                );
+                await this.shopwareExtensionService.activateExtension(
                     this.extension.name,
                     this.extension.type,
                 );

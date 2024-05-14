@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class OpenApiPathBuilder
 {
+    private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
+
     /**
      * @return PathItem[]
      */
@@ -28,7 +30,10 @@ class OpenApiPathBuilder
             'path' => $path,
         ]);
         $paths[$path]->get = $this->getListingPath($definition, $path);
-
+        $paths['/search' . $path] = new PathItem([
+            'path' => '/search' . $path,
+        ]);
+        $paths['/search' . $path]->post = $this->getSearchPath($definition);
         $paths[$path . '/{id}'] = new PathItem([
             'path' => $path . '/{id}',
         ]);
@@ -283,6 +288,44 @@ class OpenApiPathBuilder
         ]);
     }
 
+    private function getSearchPath(EntityDefinition $definition): Post
+    {
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($experimental = $this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
+        return new Post([
+            'summary' => 'Search for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
+            'tags' => $tags,
+            'operationId' => 'search' . $this->convertToOperationId($definition->getEntityName()),
+            'requestBody' => [
+                'required' => true,
+                'content' => [
+                    'application/vnd.api+json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Criteria',
+                        ],
+                    ],
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Criteria',
+                        ],
+                    ],
+                ],
+            ],
+            'responses' => [
+                Response::HTTP_OK => $this->getListResponse($schemaName),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+            ],
+        ]);
+    }
+
     private function convertToHumanReadable(string $name): string
     {
         $nameParts = array_map('ucfirst', explode('_', $name));
@@ -353,7 +396,55 @@ class OpenApiPathBuilder
                 ],
                 'application/json' => [
                     'schema' => [
-                        '$ref' => '#/components/schemas/' . $schemaName,
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                '$ref' => '#/components/schemas/' . $schemaName,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    private function getListResponse(string $schemaName): OpenApiResponse
+    {
+        return new OpenApiResponse([
+            'response' => Response::HTTP_OK,
+            'description' => 'List of ' . $schemaName,
+            'content' => [
+                'application/vnd.api+json' => [
+                    'schema' => [
+                        'allOf' => [
+                            ['$ref' => '#/components/schemas/success'],
+                            [
+                                'type' => 'object',
+                                'properties' => [
+                                    'data' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/' . $schemaName,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'total' => ['type' => 'integer'],
+                            'data' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => '#/components/schemas/' . $schemaName,
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -405,6 +496,6 @@ class OpenApiPathBuilder
     {
         $reflection = new \ReflectionClass($definition);
 
-        return str_contains($reflection->getDocComment() ?: '', '@experimental');
+        return str_contains($reflection->getDocComment() ?: '', '@' . self::EXPERIMENTAL_ANNOTATION_NAME);
     }
 }

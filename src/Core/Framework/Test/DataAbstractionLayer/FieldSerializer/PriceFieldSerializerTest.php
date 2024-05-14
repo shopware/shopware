@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -61,6 +63,7 @@ class PriceFieldSerializerTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertCount(1, $e->getViolations());
             static::assertSame('No price for default currency defined', $e->getViolations()->get(0)->getMessage());
+            static::assertSame('/test', $e->getViolations()->get(0)->getPropertyPath());
         }
 
         static::assertNotNull($e);
@@ -281,6 +284,28 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame($json, $data);
     }
 
+    public function testSerializeWithWrongPayloadThrows(): void
+    {
+        static::expectException(WriteConstraintViolationException::class);
+
+        $this->encode([
+            Defaults::CURRENCY => [
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+            ],
+        ]);
+    }
+
+    public function testSerializeWithWrongTypeThrows(): void
+    {
+        static::expectException(WriteConstraintViolationException::class);
+
+        $this->encode([
+            Defaults::CURRENCY => 'foo',
+        ]);
+    }
+
     public function testDecodeIsBackwardCompatible(): void
     {
         $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"regulationPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
@@ -289,18 +314,25 @@ class PriceFieldSerializerTest extends TestCase
 
         $decoded = $this->serializer->decode($field, $json);
 
+        static::assertInstanceOf(PriceCollection::class, $decoded);
         $price = $decoded->get(Defaults::CURRENCY);
 
+        static::assertInstanceOf(Price::class, $price);
         static::assertSame(5.0, $price->getNet());
         static::assertSame(5.0, $price->getGross());
+        static::assertInstanceOf(Price::class, $price->getListPrice());
         static::assertSame(10.0, $price->getListPrice()->getNet());
         static::assertSame(10.0, $price->getListPrice()->getGross());
+        static::assertInstanceOf(Price::class, $price->getRegulationPrice());
         static::assertSame(10.0, $price->getRegulationPrice()->getNet());
         static::assertSame(10.0, $price->getRegulationPrice()->getGross());
 
         static::assertNull($price->getPercentage());
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function encode(array $data): string
     {
         $field = new PriceField('test', 'test');

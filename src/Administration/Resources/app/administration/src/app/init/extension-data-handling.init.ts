@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type EntityCollection from '../../core/data/entity-collection.data';
 import type Repository from '../../core/data/repository.data';
 
@@ -36,6 +36,11 @@ function rejectRepositoryCreation(entityName: string): unknown {
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
+/**
+ * This method mutates the result object and removes the filter properties
+ * @param result
+ * @param customContext
+ */
 // eslint-disable-next-line max-len
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 function filterContext(result: any, customContext: any) {
@@ -62,7 +67,7 @@ function filterContext(result: any, customContext: any) {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeExtensionDataLoader(): void {
     Shopware.ExtensionAPI.handle('repositorySearch', async (
@@ -151,7 +156,7 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        const result = repository.clone(entityId, mergedContext, behavior as $TSDangerUnknownObject);
+        const result = repository.clone(entityId, behavior as $TSDangerUnknownObject, mergedContext);
         filterContext(result, context);
         return result;
     });

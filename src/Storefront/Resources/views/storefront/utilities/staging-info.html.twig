@@ -1,0 +1,11 @@
+{% block staging_info %}
+    {% if showStagingBanner and config('core.staging') %}
+        <div class="storefront-staging-info bg-secondary text-white sticky-top z-index-1000 d-flex justify-content-center align-items-center p-3">
+            {% sw_icon 'eye-open' style { class : 'flex-shrink-0 me-2'} %}
+
+            <p class="m-0 fw-bold">
+                {{ 'general.stagingModeDescription'|trans }}
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

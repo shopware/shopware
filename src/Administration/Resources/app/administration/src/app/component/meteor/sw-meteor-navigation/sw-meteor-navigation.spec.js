@@ -2,29 +2,28 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/meteor/sw-meteor-navigation';
 
-
 async function createWrapper(customRoute, fromLink = null) {
-    return shallowMount(await Shopware.Component.build('sw-meteor-navigation'), {
-        propsData: { fromLink },
-        stubs: {
-            'router-link': {
-                template: '<div class="sw-router-link"><slot></slot></div>',
-                props: ['to'],
+    return mount(await wrapTestComponent('sw-meteor-navigation', { sync: true }), {
+        props: { fromLink },
+        global: {
+            stubs: {
+                'router-link': {
+                    template: '<div class="sw-router-link"><slot></slot></div>',
+                    props: ['to'],
+                },
+                'sw-icon': true,
             },
-            'sw-icon': true,
-        },
-        mocks: {
-            $route: customRoute,
+            mocks: {
+                $route: customRoute,
+            },
         },
     });
 }
 
 describe('src/app/component/meteor/sw-meteor-navigation', () => {
-    let wrapper;
-
     const testRoute = {
         name: 'some.test.route',
         path: '/path/to/test/route',
@@ -38,14 +37,11 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
         matched: [],
     };
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should display the back link', async () => {
-        wrapper = await createWrapper(testRoute);
+        const wrapper = await createWrapper(testRoute);
+        await flushPromises();
 
-        const routerLink = wrapper.get('.sw-meteor-navigation__link');
+        const routerLink = wrapper.getComponent('.sw-meteor-navigation__link');
 
         expect(routerLink.props('to')).toEqual({
             name: testRoute.meta.parentPath,
@@ -58,7 +54,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
         const testRouteWithoutMeta = { ...testRoute };
         testRouteWithoutMeta.meta = {};
 
-        wrapper = await createWrapper(testRouteWithoutMeta);
+        const wrapper = await createWrapper(testRouteWithoutMeta);
 
         const routerLink = wrapper.find('.sw-meteor-navigation__link');
 
@@ -77,9 +73,9 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
             matched: [],
         };
 
-        wrapper = await createWrapper(testRoute, fromLink);
+        const wrapper = await createWrapper(testRoute, fromLink);
 
-        const routerLink = wrapper.get('.sw-meteor-navigation__link');
+        const routerLink = wrapper.getComponent('.sw-meteor-navigation__link');
 
         expect(routerLink.props('to')).toEqual(fromLink);
     });

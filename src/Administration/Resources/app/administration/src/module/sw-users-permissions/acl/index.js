@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
@@ -24,7 +24,6 @@ Shopware.Service('privileges')
             },
             editor: {
                 privileges: [
-                    // TODO: Add `Shopware.Service('privileges').getPrivileges('media.editor')` in NEXT-8922
                     'user:update',
                     'acl_role:update',
                     'user_access_key:create',

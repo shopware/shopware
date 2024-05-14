@@ -6,8 +6,7 @@ const { debounce, get } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Renders a multi select field with a defined list of options. This component uses the sw-field base
  * components. This adds the base properties such as <code>helpText</code>, <code>error</code>, <code>disabled</code> etc.
@@ -29,16 +28,19 @@ Component.register('sw-multi-select', {
     template,
     inheritAttrs: false,
 
+    emits: [
+        'update:value',
+        'item-add',
+        'item-remove',
+        'search-term-change',
+        'display-values-expand',
+    ],
+
     inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         options: {
@@ -79,7 +81,6 @@ Component.register('sw-multi-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -143,13 +144,7 @@ Component.register('sw-multi-select', {
                 return this.value;
             },
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 

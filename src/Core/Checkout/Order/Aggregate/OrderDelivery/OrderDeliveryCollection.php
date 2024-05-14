@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<OrderDeliveryEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderDeliveryCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getOrderIds(): array
     {
@@ -27,7 +27,7 @@ class OrderDeliveryCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getShippingAddressIds(): array
     {
@@ -40,7 +40,7 @@ class OrderDeliveryCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getShippingMethodIds(): array
     {

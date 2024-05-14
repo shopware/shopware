@@ -18,8 +18,8 @@ class BlocksTest extends TestCase
         static::assertCount(2, $cmsExtensions->getBlocks()->getBlocks());
 
         $firstBlock = $cmsExtensions->getBlocks()->getBlocks()[0];
-        static::assertEquals('first-block-name', $firstBlock->getName());
-        static::assertEquals('text-image', $firstBlock->getCategory());
+        static::assertSame('first-block-name', $firstBlock->getName());
+        static::assertSame('text-image', $firstBlock->getCategory());
         static::assertEquals(
             [
                 'en-GB' => 'First block from app',

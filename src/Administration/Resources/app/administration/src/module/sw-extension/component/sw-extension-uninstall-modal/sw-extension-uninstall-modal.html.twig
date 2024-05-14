@@ -21,11 +21,7 @@
 
         <p>
             <sw-switch-field
-                {% if VUE3 %}
-                v-modle:value="removePluginData"
-                {% else %}
-                v-model="removePluginData"
-                {% endif %}
+                v-model:value="removePluginData"
                 :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
                 :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
             />

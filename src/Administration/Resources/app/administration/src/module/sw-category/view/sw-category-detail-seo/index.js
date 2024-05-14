@@ -2,7 +2,7 @@ import template from './sw-category-detail-seo.html.twig';
 import './sw-category-detail-seo.scss';
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

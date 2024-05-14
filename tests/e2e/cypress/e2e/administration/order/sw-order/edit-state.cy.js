@@ -24,7 +24,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
+    it('@base @order: edit order state', { tags: ['quarantined', 'pa-customers-orders'/*, 'VUE3'*/] }, () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -154,7 +154,7 @@ describe('Order: Test order state', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Done');
     });
 
-    it('@order: edit order state on details tab', { tags: ['pa-customers-orders'] }, () => {
+    it('@order: edit order state on details tab', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -218,7 +218,7 @@ describe('Order: Test order state', () => {
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`, 'Cancelled');
     });
 
-    it('@order: check order history', { tags: ['pa-customers-orders'] }, () => {
+    it('@order: check order history', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later

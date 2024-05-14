@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ShippingMethodPriceCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getShippingMethodIds(): array
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -10,7 +11,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class HookableEntityWrittenEvent implements Hookable
@@ -31,9 +32,9 @@ class HookableEntityWrittenEvent implements Hookable
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
      */
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->getPayloadFromEvent($this->event);
     }
@@ -44,7 +45,7 @@ class HookableEntityWrittenEvent implements Hookable
     }
 
     /**
-     * @return array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: array<string>}[]
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
      */
     public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
@@ -59,6 +60,10 @@ class HookableEntityWrittenEvent implements Hookable
 
             if (!$event instanceof EntityDeletedEvent) {
                 $result['updatedFields'] = array_keys($writeResult->getPayload());
+            }
+
+            if (\array_key_exists('versionId', $writeResult->getPayload())) {
+                $result['versionId'] = $writeResult->getPayload()['versionId'];
             }
 
             $payload[] = $result;

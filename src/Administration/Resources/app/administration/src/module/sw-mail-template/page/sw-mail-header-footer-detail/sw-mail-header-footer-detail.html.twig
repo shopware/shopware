@@ -35,11 +35,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-mail-header-footer.detail.buttonSave') }}
@@ -84,11 +80,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_name_field %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="mailHeaderFooter.name"
-                        {% else %}
-                        v-model="mailHeaderFooter.name"
-                        {% endif %}
+                        name="sw-field--mailHeaderFooter-name"
                         validation="required"
                         required
                         :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
@@ -101,11 +94,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_description_field %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="mailHeaderFooter.description"
-                        {% else %}
-                        v-model="mailHeaderFooter.description"
-                        {% endif %}
+                        name="sw-field--mailHeaderFooter-description"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
                         :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -116,11 +106,7 @@
                     {% block sw_mail_header_footer_basic_form_sales_channels_field %}
                     <sw-entity-multi-select
                         id="salesChannels"
-                        {% if VUE3 %}
                         v-model:entityCollection="mailHeaderFooter.salesChannels"
-                        {% else %}
-                        v-model="mailHeaderFooter.salesChannels"
-                        {% endif %}
                         class="sw-mail-header-footer-detail__sales-channel"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
@@ -139,7 +125,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_plain_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.headerPlain"
+                        v-model:value="mailHeaderFooter.headerPlain"
                         identifier="header_plain"
                         name="header_plain"
                         completion-mode="entity"
@@ -154,7 +140,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_html_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.headerHtml"
+                        v-model:value="mailHeaderFooter.headerHtml"
                         identifier="header_html"
                         name="header_html"
                         completion-mode="entity"
@@ -177,7 +163,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.footerPlain"
+                        v-model:value="mailHeaderFooter.footerPlain"
                         identifier="footer_plain"
                         name="footer_plain"
                         completion-mode="entity"
@@ -192,7 +178,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_html_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.footerHtml"
+                        v-model:value="mailHeaderFooter.footerHtml"
                         identifier="footer_html"
                         name="footer_html"
                         completion-mode="entity"

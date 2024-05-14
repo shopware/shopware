@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-paypal-info.html.twig';
 import './sw-first-run-wizard-paypal-info.scss';
 
 /**
- * @package merchant-services
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -18,6 +18,12 @@ export default {
             pluginName: 'SwagPayPal',
             installPromise: Promise.resolve(),
         };
+    },
+
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {
@@ -77,12 +83,11 @@ export default {
             this.isInstallingPlugin = true;
             this.installPromise.then(() => {
                 return this.extensionStoreActionService.activateExtension(this.pluginName, 'plugin');
-            }).then(() => {
-                // need a force reload, after plugin was activated
-                const { origin, pathname } = document.location;
-                const url = `${origin}${pathname}/#/sw/first/run/wizard/index/paypal/credentials`;
+            }).then(async () => {
+                await this.$router.push({ name: 'sw.first.run.wizard.index.paypal.credentials' });
 
-                document.location.href = url;
+                // need a force reload, after plugin was activated
+                window.location.reload();
 
                 return Promise.resolve(true);
             }).catch((error) => {

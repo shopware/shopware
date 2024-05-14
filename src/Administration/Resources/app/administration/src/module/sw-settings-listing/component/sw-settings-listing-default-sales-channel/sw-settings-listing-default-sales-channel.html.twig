@@ -17,19 +17,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
-            {% if VUE3 %}
-            v-model:ids="configData[null]['core.defaultSalesChannel.salesChannel']"
-            {% else %}
-            v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
-            {% endif %}
+            v-model:value="configData[null]['core.defaultSalesChannel.salesChannel']"
             :repository="salesChannelRepository"
             :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
             :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-            {% if VUE3 %}
-            @update:ids="updateSalesChannel"
-            {% else %}
-            @change="updateSalesChannel"
-            {% endif %}
+            @update:value="updateSalesChannel"
         />
         {% endblock %}
 
@@ -39,11 +31,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_default_sales_channel_setting_active %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="configData[null]['core.defaultSalesChannel.active']"
-                {% else %}
-                v-model="configData[null]['core.defaultSalesChannel.active']"
-                {% endif %}
                 class="sw-settings-listing-default-sales-channel__active-switch"
                 :label="$tc('sw-product.settingsForm.labelActive')"
             />
@@ -51,11 +39,13 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_default_sales_channel_setting_visibility %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 v-if="salesChannel.length > 0"
                 class="sw-settings-listing-default-sales-channel__quick-link"
+                role="button"
+                tabindex="0"
                 @click="displayAdvancedVisibility"
+                @keydown.enter="displayAdvancedVisibility"
             >
                 {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
                 <sw-icon
@@ -72,6 +62,7 @@
         {% block sw_settings_listing_default_sales_channel_select_visibiliy_modal %}
         <sw-modal
             v-if="displayVisibilityDetail"
+            variant="large"
             class="sw-settings-listing-default-sales-channel__visibility-modal"
             :title="$tc('sw-product.visibility.textHeadline')"
             @modal-close="closeAdvancedVisibility"

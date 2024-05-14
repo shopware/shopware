@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<TaxRuleEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class TaxRuleCollection extends EntityCollection
 {
     public function sortByTypePosition(): void

@@ -72,11 +72,7 @@
                 <template #column-taxRate="{ item, isInlineEdit, compact }">
                     <template v-if="isInlineEdit">
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="item.taxRate"
-                            {% else %}
-                            v-model="item.taxRate"
-                            {% endif %}
                             :digits="3"
                             :size="compact ? 'small' : 'default'"
                         >
@@ -109,15 +105,15 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rule_active_from %}
-                    <template #column-activeFrom="{ item }">
-                        {{ item.activeFrom | date({
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                        }) }}
-                    </template>
+                <template #column-activeFrom="{ item }">
+                    {{ dateFilter(item.activeFrom, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                    }) }}
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -229,7 +225,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tax_rule_card_empty_state_image %}
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 alt=""
             >
             {% endblock %}

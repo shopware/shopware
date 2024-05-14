@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOverviewPage extends Page
 {
     /**

@@ -6,12 +6,16 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Component.register('sw-condition-modal', {
     template,
 
     inject: ['repositoryFactory'],
+
+    emits: [
+        'modal-close',
+    ],
 
     props: {
         conditionDataProviderService: {

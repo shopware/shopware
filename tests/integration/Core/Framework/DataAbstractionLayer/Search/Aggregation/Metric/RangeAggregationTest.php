@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -15,9 +17,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation
  */
+#[CoversClass(RangeAggregation::class)]
 class RangeAggregationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,9 +43,7 @@ class RangeAggregationTest extends TestCase
         yield 'from and empty to' => [10, null, '10-*'];
     }
 
-    /**
-     * @dataProvider buildRangeKeyDataProvider
-     */
+    #[DataProvider('buildRangeKeyDataProvider')]
     public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
     {
         $method = ReflectionHelper::getMethod(RangeAggregation::class, 'buildRangeKey');
@@ -82,11 +81,10 @@ class RangeAggregationTest extends TestCase
     }
 
     /**
-     * @dataProvider rangeAggregationDataProvider
-     *
      * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     * @param array<string, int> $rangesExpectedResult
      */
+    #[DataProvider('rangeAggregationDataProvider')]
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult): void
     {
         $ids = new TestDataCollection();
@@ -118,8 +116,6 @@ class RangeAggregationTest extends TestCase
         static::assertInstanceOf(RangeResult::class, $aggregationCollection->get('test-range-aggregation'));
 
         $rangesResult = $aggregationCollection->get('test-range-aggregation')->getRanges();
-
-        static::assertCount(\count($rangesDefinition), $rangesResult);
 
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {

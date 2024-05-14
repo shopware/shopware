@@ -13,10 +13,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,6 +31,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
+use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -38,7 +39,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('core')]
 class SalesChannelContextRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -270,7 +271,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -282,29 +283,6 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertIsString($id);
 
         return $id;
-    }
-
-    private function createProduct(Context $context): string
-    {
-        $productId = Uuid::randomHex();
-
-        $productNumber = Uuid::randomHex();
-        $data = [
-            'id' => $productId,
-            'productNumber' => $productNumber,
-            'stock' => 1,
-            'name' => 'Test Product',
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.99, 'net' => 11.99, 'linked' => false]],
-            'manufacturer' => ['name' => 'create'],
-            'taxId' => $this->getValidTaxId(),
-            'active' => true,
-            'visibilities' => [
-                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-            ],
-        ];
-        $this->getContainer()->get('product.repository')->create([$data], $context);
-
-        return $productId;
     }
 
     private function createCustomer(): CustomerEntity
@@ -330,7 +308,7 @@ class SalesChannelContextRestorerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
-                'password' => 'password',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -338,10 +316,16 @@ class SalesChannelContextRestorerTest extends TestCase
             ],
         ];
 
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        /** @var CustomerEntity|null $customer */
+        $customer = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 }

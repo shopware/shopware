@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -10,8 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
-use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -20,15 +19,15 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use SwagTest\SwagTest;
+use Shopware\Core\System\Locale\LocaleEntity;
 use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
+use SwagTestPlugin\SwagTestPlugin;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +46,7 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagTest/src/SwagTest.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once __DIR__ . '/_fixture/plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = $this->getContainer()->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
@@ -71,14 +70,29 @@ class PluginServiceTest extends TestCase
         static::assertSame('English description', $plugin->getDescription());
         static::assertSame('https://www.test.com/', $plugin->getManufacturerLink());
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
-        static::assertSame($this->getValidEnglishChangelog(), $plugin->getChangelog());
+    }
+
+    public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
+    {
+        $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            __DIR__ . '/_fixture/root-plugin',
+            $this->pluginRepo,
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get(PluginFinder::class)
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $plugin = $this->fetchSwagTestPluginEntity(baseClass: 'Swag\RootTest\RootPlugin');
+
+        static::assertSame('Root test plugin', $plugin->getTranslated()['label']);
     }
 
     public function testRefreshPluginWithoutExtraLabelProperty(): void
     {
         $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
 
-        static::assertInstanceOf(ExceptionCollection::class, $errors);
         static::assertTrue($errors->count() > 0);
 
         $composerJsonException = $errors->filter(fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
@@ -114,7 +128,6 @@ class PluginServiceTest extends TestCase
         static::assertSame('English description', $plugin->getTranslated()['description']);
         static::assertSame('https://www.test.com/', $plugin->getTranslated()['manufacturerLink']);
         static::assertSame('https://www.test.com/support', $plugin->getTranslated()['supportLink']);
-        static::assertSame($this->getValidDutchChangelog(), $plugin->getChangelog());
     }
 
     public function testRefreshPluginsWithDifferentDefaultLanguage(): void
@@ -130,7 +143,6 @@ class PluginServiceTest extends TestCase
         static::assertSame('Dutch Beschrijving', $plugin->getTranslated()['description']);
         static::assertSame('https://www.test.nl/', $plugin->getTranslated()['manufacturerLink']);
         static::assertSame('https://www.test.nl/support', $plugin->getTranslated()['supportLink']);
-        static::assertSame($this->getValidDutchChangelog(), $plugin->getChangelog());
     }
 
     public function testRefreshPluginsWithGermanContext(): void
@@ -148,28 +160,28 @@ class PluginServiceTest extends TestCase
     public function testRefreshPluginsExistingWithPluginUpdate(): void
     {
         $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION, $installedAt);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTestPlugin::PLUGIN_OLD_VERSION, $installedAt);
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         $plugin = $this->fetchSwagTestPluginEntity();
 
-        static::assertSame(SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getLabel());
-        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getUpgradeVersion());
+        static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
+        static::assertSame(SwagTestPlugin::PLUGIN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $plugin->getUpgradeVersion());
     }
 
     public function testRefreshPluginsExistingNotInstalledWithPluginUpdate(): void
     {
-        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTestPlugin::PLUGIN_OLD_VERSION);
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         $plugin = $this->fetchSwagTestPluginEntity();
 
-        static::assertSame(SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getLabel());
-        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+        static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
+        static::assertSame(SwagTestPlugin::PLUGIN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $plugin->getVersion());
     }
 
     public function testRefreshPluginsExistingWithoutPluginUpdate(): void
@@ -208,35 +220,17 @@ class PluginServiceTest extends TestCase
 
         static::assertNull($pluginCollection->filterByProperty('baseClass', $nonExistentPluginBaseClass)->first());
         /** @var PluginEntity $plugin */
-        $plugin = $pluginCollection->filterByProperty('baseClass', SwagTest::class)->first();
+        $plugin = $pluginCollection->filterByProperty('baseClass', SwagTestPlugin::class)->first();
 
         $this->assertDefaultPlugin($plugin);
         static::assertNull($plugin->getUpgradeVersion());
-    }
-
-    public function testRefreshWithPluginErrors(): void
-    {
-        $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
-        static::assertNotEmpty($errors);
-
-        $changeLogErrors = $errors->filter(fn ($error) => $error instanceof PluginChangelogInvalidException);
-
-        static::assertCount(1, $changeLogErrors);
-
-        $changeLogError = $changeLogErrors->first();
-
-        static::assertNotNull($changeLogError);
-        static::assertStringContainsString(
-            'Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
-            $changeLogError->getMessage()
-        );
     }
 
     public function testGetPluginByName(): void
     {
         $this->createPlugin($this->pluginRepo, $this->context);
 
-        $plugin = $this->pluginService->getPluginByName('SwagTest', $this->context);
+        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
 
         $this->assertDefaultPlugin($plugin);
     }
@@ -252,9 +246,9 @@ class PluginServiceTest extends TestCase
 
     private function assertDefaultPlugin(PluginEntity $plugin): void
     {
-        static::assertSame(SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(SwagTest::PLUGIN_LABEL, $plugin->getTranslated()['label']);
-        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+        static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
+        static::assertSame(SwagTestPlugin::PLUGIN_LABEL, $plugin->getTranslated()['label']);
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $plugin->getVersion());
     }
 
     private function assertNoDefaultPlugin(PluginEntity $plugin): void
@@ -266,13 +260,12 @@ class PluginServiceTest extends TestCase
 
     private function assertGermanPlugin(PluginEntity $plugin): void
     {
-        static::assertSame(SwagTest::class, $plugin->getBaseClass());
-        static::assertSame(SwagTest::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
-        static::assertSame(SwagTest::PLUGIN_VERSION, $plugin->getVersion());
+        static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
+        static::assertSame(SwagTestPlugin::PLUGIN_GERMAN_LABEL, $plugin->getLabel());
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $plugin->getVersion());
         static::assertSame('Deutsche Beschreibung', $plugin->getDescription());
         static::assertSame('https://www.test.de/', $plugin->getManufacturerLink());
         static::assertSame('https://www.test.de/support', $plugin->getSupportLink());
-        static::assertSame($this->getValidGermanChangelog(), $plugin->getChangelog());
     }
 
     private function assertPluginMetaInformation(PluginEntity $plugin): void
@@ -288,68 +281,22 @@ class PluginServiceTest extends TestCase
         static::assertSame('MIT', $plugin->getLicense());
     }
 
-    /**
-     * @return array<string, array<int, string>>
-     */
-    private function getValidEnglishChangelog(): array
-    {
-        return [
-            '1.0.0' => [
-                0 => 'initialized SwagTest',
-                1 => 'refactored composer.json',
-            ],
-            '1.0.1' => [
-                0 => 'added migrations',
-                1 => 'done nothing',
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, array<int, string>>
-     */
-    private function getValidGermanChangelog(): array
-    {
-        return [
-            '1.0.0' => [
-                0 => 'SwagTest initialisiert',
-                1 => 'composer.json angepasst',
-            ],
-            '1.0.1' => [
-                0 => 'Migrationen hinzugefügt',
-                1 => 'nichts gemacht',
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, array<int, string>>
-     */
-    private function getValidDutchChangelog(): array
-    {
-        return [
-            '1.0.0' => [
-                0 => 'SwagTest geïnitialiseerd',
-                1 => 'composer.json aangepast',
-            ],
-            '1.0.1' => [
-                0 => 'Migraties toegevoegd',
-                1 => 'ongefabriceerde',
-            ],
-        ];
-    }
-
-    private function fetchSwagTestPluginEntity(?Context $context = null): PluginEntity
+    private function fetchSwagTestPluginEntity(?Context $context = null, string $baseClass = SwagTestPlugin::class): PluginEntity
     {
         if ($context === null) {
             $context = $this->context;
         }
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTest::class));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', $baseClass));
 
-        return $this->pluginRepo
+        /** @var PluginEntity|null $first */
+        $first = $this->pluginRepo
             ->search($criteria, $context)
             ->first();
+
+        static::assertNotNull($first);
+
+        return $first;
     }
 
     private function fetchSwagTestNoDefaultLangPluginEntity(?Context $context = null): PluginEntity
@@ -360,9 +307,14 @@ class PluginServiceTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTestNoDefaultLang::class));
 
-        return $this->pluginRepo
+        /** @var PluginEntity|null $first */
+        $first = $this->pluginRepo
             ->search($criteria, $context)
             ->first();
+
+        static::assertNotNull($first);
+
+        return $first;
     }
 
     private function getValidIconAsBase64(): string
@@ -418,8 +370,11 @@ class PluginServiceTest extends TestCase
 
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        $isoId = $localeRepository->search($criteria, Context::createDefaultContext())->first()->getId();
+        /** @var LocaleEntity|null $locale */
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
 
-        return $isoId;
+        static::assertNotNull($locale, sprintf('Locale with code %s not found', $iso));
+
+        return $locale->getId();
     }
 }

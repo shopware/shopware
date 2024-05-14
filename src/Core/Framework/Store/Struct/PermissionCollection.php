@@ -8,21 +8,33 @@ use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<PermissionStruct>
+ *
+ * @phpstan-type PermissionArray array{entity: string, operation: AclRoleDefinition::PRIVILEGE_READ|AclRoleDefinition::PRIVILEGE_CREATE|AclRoleDefinition::PRIVILEGE_UPDATE|AclRoleDefinition::PRIVILEGE_DELETE}
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class PermissionCollection extends StoreCollection
 {
+    /**
+     * @param list<PermissionStruct>|list<PermissionArray> $elements
+     */
     public function __construct(iterable $elements = [])
     {
-        if (!empty($elements) && $this->hasNoPermissionStructElements((array) $elements)) {
-            $elements = $this->generatePrivileges((array) $elements);
+        $elements = (array) $elements;
+        if (!empty($elements) && $this->hasNoPermissionStructElements($elements)) {
+            /** @phpstan-ignore-next-line PHPStan does not recognize, that $elements does not contain "PermissionStruct" instances at this point, which is checked by "hasNoPermissionStructElements" method */
+            $elements = $this->generatePrivileges($elements);
         }
 
-        $elements = array_unique((array) $elements, \SORT_REGULAR);
+        $elements = array_unique($elements, \SORT_REGULAR);
 
         parent::__construct($elements);
     }
 
+    /**
+     * @return array<string, PermissionCollection>
+     */
     public function getCategorizedPermissions(): array
     {
         $permissionCollections = [];
@@ -45,6 +57,9 @@ class PermissionCollection extends StoreCollection
         return PermissionStruct::class;
     }
 
+    /**
+     * @param PermissionArray $element
+     */
     protected function getElementFromArray(array $element): StoreStruct
     {
         return PermissionStruct::fromArray($element);
@@ -55,6 +70,11 @@ class PermissionCollection extends StoreCollection
         return $this->filter(static fn (PermissionStruct $element) => PermissionCategorization::isInCategory($element->getEntity(), $category));
     }
 
+    /**
+     * @param array<PermissionArray> $permissions
+     *
+     * @return array<PermissionArray>
+     */
     private function generatePrivileges(array $permissions): array
     {
         foreach ($permissions as $permission) {
@@ -79,6 +99,9 @@ class PermissionCollection extends StoreCollection
         return $permissions;
     }
 
+    /**
+     * @param list<PermissionStruct>|list<PermissionArray> $elements
+     */
     private function hasNoPermissionStructElements(array $elements): bool
     {
         return empty(array_filter($elements, static fn ($element) => $element instanceof PermissionStruct));

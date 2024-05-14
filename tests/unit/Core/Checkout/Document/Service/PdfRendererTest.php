@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -9,12 +10,11 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Document\Service\PdfRenderer
  */
+#[CoversClass(PdfRenderer::class)]
 class PdfRendererTest extends TestCase
 {
     public function testRender(): void

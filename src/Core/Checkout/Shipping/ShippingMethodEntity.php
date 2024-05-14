@@ -7,9 +7,11 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -88,10 +90,7 @@ class ShippingMethodEntity extends Entity
      */
     protected $availabilityRule;
 
-    /**
-     * @var string
-     */
-    protected $availabilityRuleId;
+    protected ?string $availabilityRuleId = null;
 
     /**
      * @var ShippingMethodPriceCollection
@@ -124,9 +123,16 @@ class ShippingMethodEntity extends Entity
     protected $taxType;
 
     /**
+     * @deprecated tag:v6.7.0 - will not be nullable
+     */
+    protected ?string $technicalName = null;
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
+
+    protected ?AppShippingMethodEntity $appShippingMethod = null;
 
     public function __construct()
     {
@@ -263,12 +269,12 @@ class ShippingMethodEntity extends Entity
         $this->availabilityRule = $availabilityRule;
     }
 
-    public function getAvailabilityRuleId(): string
+    public function getAvailabilityRuleId(): ?string
     {
         return $this->availabilityRuleId;
     }
 
-    public function setAvailabilityRuleId(string $availabilityRuleId): void
+    public function setAvailabilityRuleId(?string $availabilityRuleId): void
     {
         $this->availabilityRuleId = $availabilityRuleId;
     }
@@ -323,6 +329,30 @@ class ShippingMethodEntity extends Entity
         $this->taxType = $taxType;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
+    {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        return $this->technicalName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
+    {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        $this->technicalName = $technicalName;
+    }
+
     public function getTax(): ?TaxEntity
     {
         return $this->tax;
@@ -331,5 +361,15 @@ class ShippingMethodEntity extends Entity
     public function setTax(TaxEntity $tax): void
     {
         $this->tax = $tax;
+    }
+
+    public function getAppShippingMethod(): ?AppShippingMethodEntity
+    {
+        return $this->appShippingMethod;
+    }
+
+    public function setAppShippingMethod(?AppShippingMethodEntity $appShippingMethod): void
+    {
+        $this->appShippingMethod = $appShippingMethod;
     }
 }

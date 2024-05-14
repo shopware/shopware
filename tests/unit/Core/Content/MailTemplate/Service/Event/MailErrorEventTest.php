@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent
  */
+#[CoversClass(MailErrorEvent::class)]
 class MailErrorEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -53,7 +53,7 @@ class MailErrorEventTest extends TestCase
         );
 
         static::assertSame('Test', $event->getMessage());
-        static::assertSame(Level::Error->value, $event->getLogLevel());
+        static::assertSame(Level::Error, $event->getLogLevel());
         static::assertSame([
             'exception' => (string) $exception,
             'message' => 'Test',

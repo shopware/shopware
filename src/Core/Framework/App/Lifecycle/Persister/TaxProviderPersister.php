@@ -10,13 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
-use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 
 #[Package('checkout')]
 class TaxProviderPersister
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<TaxProviderCollection> $taxProviderRepository
      */
     public function __construct(private readonly EntityRepository $taxProviderRepository)
     {
@@ -49,7 +50,6 @@ class TaxProviderPersister
                 $taxProvider->getIdentifier()
             );
 
-            /** @var TaxProviderEntity|null $existing */
             $existing = $existingTaxProviders->filterByProperty('identifier', $payload['identifier'])->first();
 
             if ($existing) {
@@ -74,10 +74,7 @@ class TaxProviderPersister
         ]));
 
         return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
-            /** @var TaxProviderCollection $taxProviders */
-            $taxProviders = $this->taxProviderRepository->search($criteria, $context)->getEntities();
-
-            return $taxProviders;
+            return $this->taxProviderRepository->search($criteria, $context)->getEntities();
         });
     }
 }

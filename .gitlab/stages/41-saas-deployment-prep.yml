@@ -1,53 +1,52 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 ---
 
-.rules_deployment_preparation: &rules_deployment_preparation
-  - !reference [ .rules, skip-in-merge-train ]
-  - !reference [ .rules, skip ]
-  - if: '$CI_PREPARE_SAAS_DEPLOYMENT == "true"'
+variables:
+  CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES:
+    value: 'true'
+    description: 'Whether to include extension updates in the SaaS deployment preparation MR.'
+  DEPLOYMENT_BRANCH_BASE_REF:
+    value: 'trunk'
+    description: 'The base branch from which the deployment branch should be split off of. This also determines, which branch is checked for successful scheduled pipeline runs.'
 
-compile deployment info:
-  extends: .base-no-setup
-  stage: downstream
-  image: 'debian:11-slim'
-  needs: [ ]
-  rules:
-    - *rules_deployment_preparation
-  script:
-    - export DEPLOYMENT_BRANCH_NAME=$(date --utc +'saas/%Y/%W') # FIXME: Use `-d ${CI_PIPELINE_CREATED_AT}` here, to have a more direct relation between branch name and schedule.
-    - |
-      cat <<EOF > deployment.env
-      DEPLOYMENT_BRANCH_NAME=${DEPLOYMENT_BRANCH_NAME}
-      CI_UPDATE_DEPENDENCY=1
-      CUSTOM_VERSION=shopware/platform:dev-${DEPLOYMENT_BRANCH_NAME} as 6.5.x-dev;shopware/commercial:dev-${DEPLOYMENT_BRANCH_NAME};swag/saas-rufus:dev-${DEPLOYMENT_BRANCH_NAME}
-      GITLAB_MR_TITLE=Deployment - ${DEPLOYMENT_BRANCH_NAME}
-      GITLAB_MR_DESCRIPTION_TEXT=This MR has been created automatically to facilitate the deployment \`${DEPLOYMENT_BRANCH_NAME}\`.
-      GITLAB_MR_LABELS=workflow::development,pipeline:integration
-      GITLAB_MR_ASSIGNEES=shopwarebot
-      EOF
-  artifacts:
-    paths:
-      - deployment.env
-    reports:
-      dotenv: deployment.env
+.rules_deployment_preparation: &rules_deployment_preparation
+  - if: '$CI_PREPARE_SAAS_DEPLOYMENT == "true"'
 
 create downstream deployment branch:
   extends: .base-no-setup
   stage: downstream
-  image: 'curlimages/curl:7.72.0'
-  needs:
-    - job: 'compile deployment info'
-      artifacts: true
+  needs: [ ]
   rules:
     - *rules_deployment_preparation
   script:
-    - export DEPLOYMENT_BRANCH_NAME=$(date --utc +'saas/%Y/%W') # FIXME: $DEPLOYMENT_BRANCH_NAME should be set already, but it's not. This is likely a bug in Gitlab-CI.
-    - .gitlab/bin/branch.sh create_deployment_branch "${PROJECT_PATH}" "${DEPLOYMENT_BRANCH_NAME}"
+    - export DEPLOYMENT_BRANCH_NAME=$(.gitlab/bin/compile_deployment_info.sh deployment_branch_name) # FIXME: $DEPLOYMENT_BRANCH_NAME should be set already, but it's not. This is likely a bug in Gitlab-CI.
+    - .gitlab/bin/branch.sh create_deployment_branch "${PROJECT_PATH}" "${DEPLOYMENT_BRANCH_NAME}" "${DEPLOYMENT_BRANCH_BASE_REF}"
   parallel:
     matrix:
       - PROJECT_PATH:
           - 'shopware%2F6%2Fproduct%2Fcommercial'
           - 'shopware%2F6%2Fproduct%2Frufus'
           - 'shopware%2F6%2Fproduct%2Fplatform'
+
+compile deployment info:
+  extends: .base-no-setup
+  stage: downstream
+  needs:
+    - job: 'create downstream deployment branch'
+      artifacts: false
+  rules:
+    - *rules_deployment_preparation
+  variables:
+    CI_CURRENT_MAJOR_ALIAS: '6.6.x-dev'
+    GITLAB_HOST: 'gitlab.shopware.com'
+    GITLAB_TOKEN: '${CI_GITLAB_API_TOKEN}'
+  script:
+    - .gitlab/bin/compile_deployment_info.sh deployment_env "${CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES}" | tee deployment.env
+  artifacts:
+    paths:
+      - deployment.env
+    reports:
+      dotenv: deployment.env
 
 create deployment merge request:
   stage: downstream

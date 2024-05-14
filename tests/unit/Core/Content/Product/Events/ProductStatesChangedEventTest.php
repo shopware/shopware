@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Events;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Events\ProductStatesChangedEvent
  */
+#[CoversClass(ProductStatesChangedEvent::class)]
 class ProductStatesChangedEventTest extends TestCase
 {
     public function testProductStatesChangedEvent(): void

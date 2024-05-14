@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeConnection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\DefaultFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BlobFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -75,28 +77,30 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             IdFieldSerializer::class => new IdFieldSerializer($this->validator, $this),
             FkFieldSerializer::class => new FkFieldSerializer($this->validator, $this),
             StringFieldSerializer::class => new StringFieldSerializer($this->validator, $this, new HtmlSanitizer()),
+            LongTextFieldSerializer::class => new LongTextFieldSerializer($this->validator, $this, new HtmlSanitizer()),
             IntFieldSerializer::class => new IntFieldSerializer($this->validator, $this),
             FloatFieldSerializer::class => new FloatFieldSerializer($this->validator, $this),
             BoolFieldSerializer::class => new BoolFieldSerializer($this->validator, $this),
             JsonFieldSerializer::class => new JsonFieldSerializer($this->validator, $this),
             CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this),
             UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this),
+            BlobFieldSerializer::class => new BlobFieldSerializer(),
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,
                 $this->validator,
                 new CustomFieldService(new FakeConnection([['foo', 'int']]))
             ),
             ManyToManyAssociationFieldSerializer::class => new ManyToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             ManyToOneAssociationFieldSerializer::class => new ManyToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             OneToManyAssociationFieldSerializer::class => new OneToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             OneToOneAssociationFieldSerializer::class => new OneToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
         ];
     }

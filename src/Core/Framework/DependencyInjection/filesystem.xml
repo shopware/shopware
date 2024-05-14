@@ -52,11 +52,6 @@
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service id="League\Flysystem\PathPrefixing\PathPrefixedAdapter">
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument>media</argument>
-        </service>
-
         <service id="console.command.assets_install" class="Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
@@ -70,6 +65,7 @@
                 <argument>%shopware.filesystem.public.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="public"/>
         </service>
 
@@ -90,6 +86,7 @@
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
             <argument type="service" id="shopware.asset.asset.version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="asset"/>
         </service>
 
@@ -98,6 +95,7 @@
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
         </service>
 
         <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
@@ -105,6 +103,7 @@
                 <argument>%shopware.filesystem.sitemap.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="sitemap"/>
         </service>
     </services>

@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block utilities_offcanvas_close_text %}
-    {{ "checkout.continueShopping"|trans|sw_sanitize }}
+    {{ 'checkout.continueShopping'|trans|sw_sanitize }}
 {% endblock %}
 
 {% block utilities_offcanvas_close_icon %}
-    {% sw_icon 'arrow-head-left' style { 'size': 'sm' } %}
+    {% sw_icon 'arrow-head-left' style { size: 'sm' } %}
 {% endblock %}
 
 {% block utilities_offcanvas_content %}
@@ -22,7 +22,7 @@
             {% block component_offcanvas_cart_header %}
                 <div class="row align-items-center h4 offcanvas-cart-header">
                     <div class="col">
-                        {{ "checkout.cartHeader"|trans|sw_sanitize }}
+                        {{ 'checkout.cartHeader'|trans|sw_sanitize }}
                     </div>
 
                     {% set checkoutItemCounter = page.cart.lineItems|length %}
@@ -31,7 +31,7 @@
                         {% if isCartNotEmpty %}
                             <div class="col-auto">
                                 <small class="offcanvas-cart-header-count">
-                                    {{ "checkout.itemCounter"|trans({'%count%': checkoutItemCounter})|sw_sanitize }}
+                                    {{ 'checkout.itemCounter'|trans({'%count%': checkoutItemCounter})|sw_sanitize }}
                                 </small>
                             </div>
                         {% endif %}
@@ -66,8 +66,8 @@
             {% else %}
                 {% block component_offcanvas_cart_empty %}
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                        type: "info",
-                        content: "checkout.emptyCart"|trans|sw_sanitize
+                        type: 'info',
+                        content: 'checkout.emptyCart'|trans|sw_sanitize
                     } %}
                 {% endblock %}
             {% endif %}
@@ -87,7 +87,6 @@
                                     <form action="{{ path('frontend.checkout.promotion.add') }}"
                                           class="offcanvas-cart-promotion-form js-offcanvas-cart-add-promotion"
                                           method="post">
-
                                         {% block component_offcanvas_cart_actions_promotion_redirect %}
                                             <input type="hidden"
                                                    name="redirectTo"
@@ -98,7 +97,7 @@
                                             <div class="input-group">
                                                 {% block component_offcanvas_cart_actions_promotion_label %}
                                                     <label class="visually-hidden" for="addPromotionOffcanvasCartInput">
-                                                        {{ "checkout.addPromotionLabel"|trans|sw_sanitize }}
+                                                        {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -107,8 +106,8 @@
                                                            name="code"
                                                            class="form-control"
                                                            id="addPromotionOffcanvasCartInput"
-                                                           placeholder="{{ "checkout.addPromotionPlaceholder"|trans|striptags }}"
-                                                           aria-label="{{ "checkout.addPromotionLabel"|trans|striptags }}"
+                                                           placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                                           aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
                                                            aria-describedby="addPromotionOffcanvasCart"
                                                            required="required">
                                                 {% endblock %}
@@ -132,8 +131,8 @@
                         <div class="d-grid">
                             <a href="{{ path('frontend.checkout.confirm.page') }}"
                                class="btn begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
-                               title="{{ "checkout.proceedToCheckout"|trans|striptags }}">
-                                {{ "checkout.proceedToCheckout"|trans|sw_sanitize }}
+                               title="{{ 'checkout.proceedToCheckout'|trans|striptags }}">
+                                {{ 'checkout.proceedToCheckout'|trans|sw_sanitize }}
                             </a>
                         </div>
                     {% endblock %}
@@ -142,8 +141,8 @@
                         <div class="d-grid">
                             <a href="{{ path('frontend.checkout.cart.page') }}"
                                class="btn btn-link"
-                               title="{{ "checkout.proceedToCart"|trans|striptags }}">
-                                {{ "checkout.proceedToCart"|trans|sw_sanitize }}
+                               title="{{ 'checkout.proceedToCart'|trans|striptags }}">
+                                {{ 'checkout.proceedToCart'|trans|sw_sanitize }}
                             </a>
                         </div>
                     {% endblock %}

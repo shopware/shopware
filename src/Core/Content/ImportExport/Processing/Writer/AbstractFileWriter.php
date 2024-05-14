@@ -3,10 +3,11 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractFileWriter extends AbstractWriter
 {
     protected FilesystemOperator $filesystem;
@@ -34,9 +35,17 @@ abstract class AbstractFileWriter extends AbstractWriter
     {
         rewind($this->buffer);
 
+        if (!\is_resource($this->tempFile)) {
+            $file = fopen($this->tempPath, 'a+');
+            if (!\is_resource($file)) {
+                throw ImportExportException::couldNotOpenFile($this->tempPath);
+            }
+            $this->tempFile = $file;
+        }
+
         $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);
         if ($bytesCopied === false) {
-            throw new \RuntimeException(sprintf('Could not copy stream to %s', $this->tempPath));
+            throw ImportExportException::couldNotCopyFile($this->tempPath);
         }
 
         if (ftell($this->tempFile) > 0) {
@@ -58,8 +67,17 @@ abstract class AbstractFileWriter extends AbstractWriter
 
     private function initTempFile(): void
     {
-        $this->tempPath = tempnam(sys_get_temp_dir(), '');
-        $this->tempFile = fopen($this->tempPath, 'a+b');
+        $tempDir = sys_get_temp_dir();
+        $tempFilePath = tempnam($tempDir, '');
+        if (!\is_string($tempFilePath)) {
+            throw ImportExportException::couldNotCreateFile($tempDir);
+        }
+        $this->tempPath = $tempFilePath;
+        $file = fopen($this->tempPath, 'a+');
+        if (!\is_resource($file)) {
+            throw ImportExportException::couldNotOpenFile($this->tempPath);
+        }
+        $this->tempFile = $file;
     }
 
     private function initBuffer(): void
@@ -67,6 +85,11 @@ abstract class AbstractFileWriter extends AbstractWriter
         if (\is_resource($this->buffer)) {
             fclose($this->buffer);
         }
-        $this->buffer = fopen('php://memory', 'r+b');
+        $bufferPath = 'php://memory';
+        $buffer = fopen($bufferPath, 'r+');
+        if (!\is_resource($buffer)) {
+            throw ImportExportException::couldNotOpenFile($bufferPath);
+        }
+        $this->buffer = $buffer;
     }
 }

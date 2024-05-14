@@ -8,20 +8,32 @@
                 {% block component_product_quickview_minimal_img %}
                     <div class="col-12 col-md-6 quickview-minimal-image">
                         {% if page.product.media %}
-                            {% sw_thumbnails 'minimal-image-thumbnails' with {
-                                media: page.product.cover.media,
-                                sizes: {
-                                    'default': '360px'
-                                },
-                                attributes: {
-                                    'class': 'img-fluid quickview-minimal-img',
-                                    'alt': ( page.product.cover.translated.alt ?: ''),
-                                    'title': (page.product.cover.translated.title ?: '')
-                                }
+                            {% set attributes = {
+                                class: 'img-fluid quickview-minimal-img',
+                                title: (page.product.cover.translated.title ?: '')
                             } %}
+
+                            {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
+                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                    media: page.product.cover.media,
+                                    attributes: attributes
+                                } %}
+                            {% else %}
+                                {% set attributes = attributes|merge({
+                                    alt: ( page.product.cover.translated.alt ?: '')
+                                }) %}
+
+                                {% sw_thumbnails 'minimal-image-thumbnails' with {
+                                    media: page.product.cover.media,
+                                    sizes: {
+                                        default: '360px'
+                                    },
+                                    attributes: attributes
+                                } %}
+                            {% endif %}
                         {% else %}
                             {% sw_icon 'placeholder' style {
-                                'size': 'fluid'
+                                size: 'fluid'
                             } %}
                         {% endif %}
                     </div>
@@ -30,7 +42,7 @@
                 {% block component_product_quickview_minimal_product %}
                     <div class="col-12 col-md-6 quickview-minimal-product">
                         {% block component_product_quickview_minimal_product_name %}
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': page.product.id}) }}"
+                            <a href="{{ seoUrl('frontend.detail.page', {productId: page.product.id}) }}"
                                target="_blank"
                                rel="noopener"
                                title="{{ name }}"
@@ -41,7 +53,7 @@
 
                         {% block component_product_quickview_minimal_product_number %}
                             <p class="quickview-minimal-product-number">
-                                {{ "detail.productNumberLabel"|trans|sw_sanitize }} {{ page.product.productNumber }}
+                                {{ 'detail.productNumberLabel'|trans|sw_sanitize }} {{ page.product.productNumber }}
                             </p>
                         {% endblock %}
 
@@ -56,11 +68,11 @@
                                         {% sw_thumbnails 'quickview-minimal-product-manufacturer-logo' with {
                                             media: manufacturer.media,
                                             sizes: {
-                                                'default': '360px'
+                                                default: '360px'
                                             },
                                             attributes: {
-                                                'class': 'quickview-minimal-product-manufacturer-logo',
-                                                'alt': ( manufacturer.translated.name ?: '')
+                                                class: 'quickview-minimal-product-manufacturer-logo',
+                                                alt: ( manufacturer.translated.name ?: '')
                                             }
                                         } %}
                                     {% else %}
@@ -79,7 +91,7 @@
                 <div class="quickview-minimal-footer">
                     {% block component_product_quickview_minimal_footer_heading %}
                         <p class="h5 quickview-minimal-footer-heading">
-                            {{ "detail.tabsDescription"|trans|sw_sanitize }}
+                            {{ 'detail.tabsDescription'|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 

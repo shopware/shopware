@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @phpstan-type MappingArray array{key: string, mappedKey?: string, position?: int, default?: mixed, mappedDefault?: mixed, requiredByUser?: bool, useDefaultValue?: bool, defaultValue?: mixed}
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class Mapping extends Struct
 {
     protected string $mappedKey;

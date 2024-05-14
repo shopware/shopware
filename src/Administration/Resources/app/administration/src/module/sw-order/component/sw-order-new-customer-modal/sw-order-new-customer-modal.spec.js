@@ -1,8 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swOrderNewCustomerModal from 'src/module/sw-order/component/sw-order-new-customer-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
+import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
@@ -12,76 +8,84 @@ import ShopwareError from 'src/core/data/ShopwareError';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-Shopware.Component.register('sw-order-new-customer-modal', swOrderNewCustomerModal);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-order-new-customer-modal'), {
-        localVue,
-        stubs: {
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-customer-address-form': true,
+                'sw-customer-base-form': true,
+                'sw-icon': true,
+                'sw-switch-field': true,
             },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-customer-address-form': true,
-            'sw-customer-base-form': true,
-            'sw-icon': true,
-            'sw-switch-field': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: (entity) => {
-                    if (entity === 'customer') {
-                        return {
-                            create: () => {
-                                return {
-                                    id: '1',
-                                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                                };
-                            },
-                        };
-                    }
+            provide: {
+                repositoryFactory: {
+                    create: (entity) => {
+                        if (entity === 'customer') {
+                            return {
+                                create: () => {
+                                    return {
+                                        id: '1',
 
-                    if (entity === 'language') {
-                        return {
-                            searchIds: () => Promise.resolve({
-                                total: 1,
-                                data: ['1'],
-                            }),
-                        };
-                    }
+                                        addresses: new EntityCollection(
+                                            '/customer_address',
+                                            'customer_address',
+                                            Context.api,
+                                            null,
+                                            [],
+                                        ),
+                                    };
+                                },
+                            };
+                        }
 
-                    if (entity === 'salutation') {
-                        return {
-                            searchIds: () => Promise.resolve({
-                                total: 1,
-                                data: ['salutationId'],
-                            }),
-                        };
-                    }
+                        if (entity === 'language') {
+                            return {
+                                searchIds: () => Promise.resolve({
+                                    total: 1,
+                                    data: ['1'],
+                                }),
+                            };
+                        }
 
-                    return {
-                        create: () => Promise.resolve(),
-                    };
+                        if (entity === 'salutation') {
+                            return {
+                                searchIds: () => Promise.resolve({
+                                    total: 1,
+                                    data: ['salutationId'],
+                                }),
+                            };
+                        }
+
+                        return {
+                            create: () => Promise.resolve(),
+                        };
+                    },
+                },
+                numberRangeService: {
+                    reverse: () => Promise.resolve(),
+                },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.loginRegistration.passwordMinLength': 8,
+                        });
+                    },
+                },
+                customerValidationService: {
+                    checkCustomerEmail: () => Promise.resolve(),
                 },
             },
-            numberRangeService: {
-                reverse: () => Promise.resolve(),
-            },
-            systemConfigApiService: {
-                getValues: () => {
-                    return Promise.resolve({
-                        'core.loginRegistration.passwordMinLength': 8,
-                    });
-                },
-            },
-            customerValidationService: {
-                checkCustomerEmail: () => Promise.resolve(),
-            },
         },
+
     });
 }
 
@@ -90,10 +94,6 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

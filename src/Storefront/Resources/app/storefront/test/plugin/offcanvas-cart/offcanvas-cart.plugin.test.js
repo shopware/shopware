@@ -78,6 +78,10 @@ describe('OffCanvasCartPlugin tests', () => {
                     get: () => [],
                 };
             },
+
+            getPluginInstances: () => {
+                return [];
+            },
         };
 
         const el = document.querySelector('.header-cart');

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ActionButton;
 
-use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -12,11 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class AppActionLoader
 {
+    /**
+     * @param EntityRepository<ActionButtonCollection> $actionButtonRepo
+     */
     public function __construct(
         private readonly string $url,
         private readonly EntityRepository $actionButtonRepo,
@@ -32,8 +35,7 @@ class AppActionLoader
         $criteria = new Criteria([$actionId]);
         $criteria->addAssociation('app.integration');
 
-        /** @var ActionButtonEntity|null $actionButton */
-        $actionButton = $this->actionButtonRepo->search($criteria, $context)->first();
+        $actionButton = $this->actionButtonRepo->search($criteria, $context)->getEntities()->first();
 
         if ($actionButton === null) {
             throw new ActionNotFoundException();
@@ -45,13 +47,14 @@ class AppActionLoader
             throw new ActionNotFoundException();
         }
 
-        /** @var string $secret */
-        $secret = $actionButton->getApp()->getAppSecret();
+        $app = $actionButton->getApp();
+        \assert($app !== null);
+        $secret = $app->getAppSecret();
 
         return new AppAction(
             $actionButton->getUrl(),
             $this->url,
-            $actionButton->getApp()->getVersion(),
+            $app->getVersion(),
             $actionButton->getEntity(),
             $actionButton->getAction(),
             $ids,

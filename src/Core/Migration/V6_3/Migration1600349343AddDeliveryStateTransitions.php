@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
@@ -60,7 +62,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function fetchMissingOrderDeliveryStates(Connection $connection, string $stateMachineId): array
     {

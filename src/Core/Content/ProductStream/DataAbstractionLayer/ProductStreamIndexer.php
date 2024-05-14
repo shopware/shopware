@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamIndexer extends EntityIndexer
 {
     /**
@@ -45,7 +45,7 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
@@ -88,11 +88,11 @@ class ProductStreamIndexer extends EntityIndexer
              WHERE product_stream_id IN (:ids)
              ORDER BY product_stream_id',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $filters = FetchModeHelper::group($filters);
-
+        /** @var array<string, array<string, array<string, mixed>>> $filters */
         $update = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE product_stream SET api_filter = :serialized, invalid = :invalid WHERE id = :id')
@@ -154,9 +154,9 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, array<string, mixed>> $entities
+     * @param list<array<string, mixed>> $entities
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function buildNested(array $entities, ?string $parentId): array
     {

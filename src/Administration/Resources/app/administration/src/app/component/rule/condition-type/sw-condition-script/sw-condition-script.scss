@@ -7,12 +7,6 @@
         grid-template-columns: minmax(128px, max-content) repeat(auto-fit, minmax(0, 1fr)) !important;
     }
 
-    .sw-arrow-field:last-child {
-        .sw-arrow-field__arrow {
-            display: none;
-        }
-    }
-
     .sw-field--checkbox {
         margin: 12px 0 0 14px;
     }

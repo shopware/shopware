@@ -1,18 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swProductDeliverabilityDownloadForm from 'src/module/sw-product/component/sw-product-deliverability-downloadable-form';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
+/* eslint-disable max-len */
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-Shopware.Component.register('sw-product-deliverability-downloadable-form', swProductDeliverabilityDownloadForm);
 
 const { Utils } = Shopware;
 describe('module/sw-product/component/sw-product-deliverability-downloadable-form', () => {
@@ -30,72 +20,77 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             ...parentProductOverride,
         };
 
-        return shallowMount(await Shopware.Component.build('sw-product-deliverability-downloadable-form'), {
-            mocks: {
-                $route: {
-                    name: 'sw.product.detail.base',
-                    params: {
-                        id: 1,
-                    },
-                },
-                $store: new Vuex.Store({
-                    modules: {
-                        swProductDetail: {
-                            ...productStore,
-                            state: {
-                                ...productStore.state,
-                                product: productEntity,
-                                parentProduct,
-                                loading: {
-                                    product: false,
-                                    media: false,
-                                },
-                                advancedModeSetting: {
-                                    value: {
-                                        settings: [
-                                            {
-                                                key: 'deliverability',
-                                                label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
-                                                enabled: true,
-                                                name: 'general',
-                                            },
-                                        ],
-                                        advancedMode: {
-                                            enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode',
-                                        },
-                                    },
-                                },
-                                creationStates: 'is-physical',
-                            },
-                            getters: {
-                                ...productStore.getters,
-                                isLoading: () => false,
-                            },
+        return mount(await wrapTestComponent('sw-product-deliverability-downloadable-form', { sync: true }), {
+            global: {
+                mocks: {
+                    $route: {
+                        name: 'sw.product.detail.base',
+                        params: {
+                            id: 1,
                         },
                     },
-                }),
-            },
-            provide: {
-                validationService: {},
-            },
-            stubs: {
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
+                    $store: createStore({
+                        modules: {
+                            swProductDetail: {
+                                ...productStore,
+                                state: {
+                                    ...productStore.state,
+                                    product: productEntity,
+                                    parentProduct,
+                                    loading: {
+                                        product: false,
+                                        media: false,
+                                    },
+                                    advancedModeSetting: {
+                                        value: {
+                                            settings: [
+                                                {
+                                                    key: 'deliverability',
+                                                    label: 'sw-product.detailBase.cardTitleDeliverabilityInfo',
+                                                    enabled: true,
+                                                    name: 'general',
+                                                },
+                                            ],
+                                            advancedMode: {
+                                                enabled: true,
+                                                label: 'sw-product.general.textAdvancedMode',
+                                            },
+                                        },
+                                    },
+                                    creationStates: 'is-physical',
+                                },
+                                getters: {
+                                    ...productStore.getters,
+                                    isLoading: () => false,
+                                },
+                            },
+                        },
+                    }),
                 },
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-entity-single-select': true,
-                'sw-inheritance-switch': true,
-                'sw-field-error': true,
-                'sw-number-field': await Shopware.Component.build('sw-number-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-help-text': true,
+                provide: {
+                    validationService: {},
+                },
+                stubs: {
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-entity-single-select': true,
+                    'sw-inheritance-switch': true,
+                    'sw-field-error': true,
+                    'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-help-text': true,
+                },
             },
         });
     }
@@ -104,6 +99,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
 
     it('should show Deliverability item fields when advanced mode is on', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const deliveryFieldsClassName = [
             '.product-deliverability-downloadable-form__delivery-time',
@@ -116,6 +112,8 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
 
     it('should hide Deliverability item fields when advanced mode is off', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {
@@ -139,12 +137,14 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
 
     it('should pre-fill stock value', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.find('input[name="sw-field--product-stock"]').element.value).toBe('0');
     });
 
     it('should set stock to before value if stock was not saved and isCloseout is set to false', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
         await isCloseoutSwitch.setChecked(true);
@@ -162,10 +162,12 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         wrapper = await createWrapper({
             stock: 10,
         });
+        await flushPromises();
 
         const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
-        const stockElement = wrapper.find('input[name="sw-field--product-stock"]');
+        await isCloseoutSwitch.setChecked(true);
 
+        const stockElement = wrapper.find('input[name="sw-field--product-stock"]');
         expect(stockElement.element.value).toBe('10');
 
         await stockElement.setValue('20');

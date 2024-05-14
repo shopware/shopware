@@ -4,8 +4,7 @@ import './sw-progress-bar.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders a progressbar to indicate progress
  * @status ready
  * @example-type dynamic

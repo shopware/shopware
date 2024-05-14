@@ -25,7 +25,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_search_field %}
                 <sw-simple-search-field
-                    v-model="searchTerm"
+                    :value="searchTerm"
                     variant="form"
                     size="small"
                     :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
@@ -108,12 +108,15 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_product_assignment_categories_search_results_item %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-for="item in searchResult"
                     :key="item.id"
                     class="sw-sales-channel-product-assignment-categories__search-result"
+                    role="option"
+                    tabindex="0"
+                    :aria-selected="isSearchItemChecked(item.id)"
                     @click.stop="onCheckSearchItem(item)"
+                    @keydown.enter="onCheckSearchItem(item)"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -134,7 +137,6 @@
                         {% block sw_sales_channel_product_assignment_categories_search_results_item_folder_icon %}
                         <sw-icon
                             name="regular-folder"
-                            multicolor
                             small
                         />
                         {% endblock %}

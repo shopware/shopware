@@ -9,7 +9,7 @@
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tagged_field_inner %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
             class="sw-tagged-field__tag-list"
             @click="setFocus(true)"

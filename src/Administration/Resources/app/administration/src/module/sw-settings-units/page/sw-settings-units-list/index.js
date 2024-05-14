@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -24,9 +25,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Controller\ShopConfigurationController
  */
+#[CoversClass(ShopConfigurationController::class)]
 class ShopConfigurationControllerTest extends TestCase
 {
     use EnvTestBehaviour;

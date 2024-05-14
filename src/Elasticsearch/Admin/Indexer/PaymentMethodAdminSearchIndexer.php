@@ -4,13 +4,10 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -51,11 +48,6 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param array<string, mixed> $result
-     *
-     * @return array{total:int, data:EntityCollection<Entity>}
-     */
     public function globalData(array $result, Context $context): array
     {
         $ids = array_column($result['hits'], 'id');
@@ -66,19 +58,12 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
-    /**
-     * @param array<string>|array<int, array<string>> $ids
-     *
-     * @throws Exception
-     *
-     * @return array<int|string, array<string, mixed>>
-     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(payment_method.id)) as id,
-                   GROUP_CONCAT(DISTINCT payment_method_translation.name) as name
+                   GROUP_CONCAT(DISTINCT payment_method_translation.name SEPARATOR " ") as name
             FROM payment_method
                 INNER JOIN payment_method_translation
                     ON payment_method.id = payment_method_translation.payment_method_id
@@ -89,13 +74,13 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 
         $mapped = [];
         foreach ($data as $row) {
-            $id = $row['id'];
+            $id = (string) $row['id'];
             $text = \implode(' ', array_filter($row));
             $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
         }

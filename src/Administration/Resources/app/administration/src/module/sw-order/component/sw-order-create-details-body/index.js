@@ -1,7 +1,7 @@
 import template from './sw-order-create-details-body.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -9,7 +9,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         customer: {
             type: Object,

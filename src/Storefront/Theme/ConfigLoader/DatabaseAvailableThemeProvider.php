@@ -3,16 +3,12 @@ declare(strict_types=1);
 
 namespace Shopware\Storefront\Theme\ConfigLoader;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Storefront\Theme\ThemeCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('storefront')]
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
@@ -20,7 +16,7 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $salesChannelRepository)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -29,46 +25,22 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Second parameter $activeOnly will be required in future versions.
-     */
-    public function load(Context $context, bool $activeOnly = false): array
+    public function load(Context $context, bool $activeOnly): array
     {
-        if (\count(\func_get_args()) === 1) {
-            Feature::triggerDeprecationOrThrow(
-                'v6_6_0_0',
-                sprintf(
-                    'Method %s::%s is deprecated. Second parameter $activeOnly will be required in future versions.',
-                    __CLASS__,
-                    __METHOD__,
-                )
-            );
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $qb = $this->connection->createQueryBuilder()
+            ->from('theme_sales_channel')
+            ->select(['LOWER(HEX(sales_channel_id))', 'LOWER(HEX(theme_id))'])
+            ->leftJoin('theme_sales_channel', 'sales_channel', 'sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
+            ->where('sales_channel.type_id = :typeId')
+            ->setParameter('typeId', Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
         if ($activeOnly) {
-            $criteria->addFilter(new EqualsFilter('active', 1));
+            $qb->andWhere('sales_channel.active = 1');
         }
 
-        $criteria->addAssociation('themes');
+        /** @var array<string, string> $keyValue */
+        $keyValue = $qb->executeQuery()->fetchAllKeyValue();
 
-        /** @var SalesChannelCollection $result */
-        $result = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-
-        $list = [];
-
-        foreach ($result->getElements() as $salesChannel) {
-            /** @var ThemeCollection|null $themes */
-            $themes = $salesChannel->getExtensionOfType('themes', ThemeCollection::class);
-            if (!$themes || !$theme = $themes->first()) {
-                continue;
-            }
-
-            $list[$salesChannel->getId()] = $theme->getId();
-        }
-
-        return $list;
+        return $keyValue;
     }
 }

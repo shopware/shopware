@@ -27,7 +27,7 @@ describe('Dashboard:  Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic dashboard workflow', { tags: ['pa-merchant-services'] }, () => {
+    it('@visual: check appearance of basic dashboard workflow', { tags: ['pa-services-settings'] }, () => {
         // Change color of the element to ensure consistent snapshots
         cy.get('.sw-dashboard-index__welcome-title')
             .invoke('prop', 'innerText', 'Oh, hello Cypress.');
@@ -38,6 +38,7 @@ describe('Dashboard:  Visual tests', () => {
             cy.wrap(item).contains(/Orders|Turnover/g);
         });
 
+        cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').scrollIntoView();
         cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
         //select command again to reload data within the card
         cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');

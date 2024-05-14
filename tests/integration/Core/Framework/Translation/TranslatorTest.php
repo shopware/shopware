@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -19,10 +20,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\SnippetFile_UnitTest;
+use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -53,7 +54,7 @@ class TranslatorTest extends TestCase
 
     public function testPassthru(): void
     {
-        $snippetFile = new SnippetFile_UnitTest();
+        $snippetFile = new UnitTest_SnippetFile();
         $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $stack = $this->getContainer()->get(RequestStack::class);
@@ -308,7 +309,7 @@ class TranslatorTest extends TestCase
         $translator = $this->getContainer()->get(Translator::class);
         $themeService = $this->getContainer()->get(ThemeService::class);
         $themeRepo = $this->getContainer()->get('theme.repository');
-        $themeLoader = $this->getContainer()->get(SalesChannelThemeLoader::class);
+        $themeLoader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
@@ -332,7 +333,6 @@ class TranslatorTest extends TestCase
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
 
         $translator->reset();
-        $themeLoader->reset();
 
         // Assign the SwagTheme and assert that the snippet is overwritten
         $criteria = new Criteria();
@@ -363,7 +363,6 @@ class TranslatorTest extends TestCase
         $themeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
         static::assertNotNull($themeId);
 
-        $themeLoader->reset();
         $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
 
         $translator->reset();
@@ -378,9 +377,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
-    /**
-     * @dataProvider pluralTranslationProvider
-     */
+    #[DataProvider('pluralTranslationProvider')]
     public function testPluralRules(string $expected, string $id, int $number, string $locale): void
     {
         static::assertEquals($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));

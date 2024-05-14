@@ -28,7 +28,6 @@ Component.register('sw-grid-column', {
             type: String,
             default: 'left',
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
@@ -56,25 +55,21 @@ Component.register('sw-grid-column', {
         },
     },
 
+    computed: {
+        parentGrid() {
+            return this.$parent.$parent.$parent.$parent;
+        },
+    },
+
     watch: {
         label(newLabel, oldLabel) {
-            let index = -1;
-            if (this.feature.isActive('VUE3')) {
-                index = this.$parent.$parent.$parent.columns.findIndex((col) => col.label === oldLabel);
-            } else {
-                index = this.$parent.columns.findIndex((col) => col.label === oldLabel);
-            }
+            const index = this.parentGrid.columns.findIndex((col) => col.label === oldLabel);
 
             if (index === -1 || !newLabel) {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.columns[index].label = newLabel;
-                return;
-            }
-
-            this.$parent.columns[index].label = newLabel;
+            this.parentGrid.columns[index].label = newLabel;
         },
     },
 
@@ -88,19 +83,12 @@ Component.register('sw-grid-column', {
         },
 
         registerColumn() {
-            let hasColumn = false;
-            if (this.feature.isActive('VUE3')) {
-                hasColumn = this.$parent.$parent.$parent.$parent.columns.findIndex((column) => column.label === this.label);
-            } else {
-                hasColumn = this.$parent.columns.findIndex((col) => col.label === this.label);
-            }
+            const hasColumn = this.parentGrid.columns.some(column => {
+                return column.label === this.label;
+            });
 
-            if (hasColumn !== -1 && this.label) {
-                return;
-            }
-
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$parent.columns.push({
+            if (!hasColumn && this.label) {
+                this.parentGrid.columns.push({
                     label: this.label,
                     iconLabel: this.iconLabel,
                     flex: this.flex,
@@ -110,19 +98,7 @@ Component.register('sw-grid-column', {
                     editable: this.editable,
                     truncate: this.truncate,
                 });
-                return;
             }
-
-            this.$parent.columns.push({
-                label: this.label,
-                iconLabel: this.iconLabel,
-                flex: this.flex,
-                sortable: this.sortable,
-                dataIndex: this.dataIndex,
-                align: this.align,
-                editable: this.editable,
-                truncate: this.truncate,
-            });
         },
     },
 });

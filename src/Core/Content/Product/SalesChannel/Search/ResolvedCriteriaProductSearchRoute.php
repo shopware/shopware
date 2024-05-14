@@ -6,15 +6,13 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -49,9 +47,6 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         }
 
         $criteria->addState(self::STATE);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $context->getContext()->addState(ProductListingFeaturesSubscriber::HANDLED_STATE);
-        }
 
         $criteria = $this->criteriaBuilder->handleRequest(
             $request,
@@ -59,6 +54,9 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $this->registry->getByEntityName('product'),
             $context->getContext()
         );
+
+        // will be handled via processor in next line
+        $criteria->setLimit(null);
 
         $this->processor->prepare($request, $criteria, $context);
 

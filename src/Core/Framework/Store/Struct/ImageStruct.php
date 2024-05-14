@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class ImageStruct extends StoreStruct
 {
     /**
@@ -20,6 +20,9 @@ class ImageStruct extends StoreStruct
      */
     protected $raw;
 
+    /**
+     * @return ImageStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

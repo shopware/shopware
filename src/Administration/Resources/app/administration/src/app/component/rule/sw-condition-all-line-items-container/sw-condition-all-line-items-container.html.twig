@@ -4,9 +4,11 @@
     class="condition-all-line-items-container"
     :class="containerRowClass"
 >
-    <template v-for="(child, index) in condition[childAssociationField]">
+    <template
+        v-for="(child, index) in condition[childAssociationField]"
+        :key="`condition-all-line-items-child--${index}`"
+    >
         <sw-condition-tree-node
-            :key="`condition-all-line-items-child--${index}`"
             :parent-condition="condition"
             :condition="child"
             :disabled="disabled"

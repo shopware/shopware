@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 describe('Scale units: Visual testing', () => {
     beforeEach(() => {
         cy.createDefaultFixture('unit')
@@ -10,7 +12,7 @@ describe('Scale units: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of scale unit module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of scale unit module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/unit`,
             method: 'POST',

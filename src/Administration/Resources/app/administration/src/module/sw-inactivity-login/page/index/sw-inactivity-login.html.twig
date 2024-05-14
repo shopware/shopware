@@ -7,11 +7,7 @@
         :closable="false"
     >
         <sw-password-field
-            {% if VUE3 %}
             v-model:value="password"
-            {% else %}
-            v-model="password"
-            {% endif %}
             v-autofocus
             :label="$tc('sw-login.index.labelPassword')"
             :disabled="isLoading"
@@ -19,8 +15,15 @@
             @keydown.enter="loginUserWithPassword"
         />
 
+        <sw-checkbox-field
+            v-model:value="rememberMe"
+            :label="$tc('sw-login.index.labelKeepLoggedIn')"
+        />
+
         <template #modal-footer>
             <a
+                role="link"
+                tabindex="0"
                 @click="onBackToLogin"
                 @keydown.enter="onBackToLogin"
             >

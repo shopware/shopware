@@ -9,5 +9,5 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class GizmoBundle extends Bundle
 {
-    protected $name = 'GizmoBundleName';
+    protected string $name = 'GizmoBundleName';
 }

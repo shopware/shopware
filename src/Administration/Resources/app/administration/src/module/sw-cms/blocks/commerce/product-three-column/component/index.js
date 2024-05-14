@@ -3,7 +3,7 @@ import './sw-cms-block-product-three-column.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

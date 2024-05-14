@@ -4,30 +4,31 @@ namespace Shopware\Tests\Unit\Core\Content\Cms\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 
 /**
  * @internal
- *
- * @package content
- *
- * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
+#[Package('buyers-experience')]
+#[CoversClass(CmsPageDefaultChangeSubscriber::class)]
 class CmsPageDefaultChangeSubscriberTest extends TestCase
 {
     public function testHasEvents(): void
     {
         $expectedEvents = [
             BeforeSystemConfigChangedEvent::class => 'validateChangeOfDefaultCmsPage',
-            BeforeDeleteEvent::class => 'beforeDeletion',
+            EntityDeleteEvent::class => 'beforeDeletion',
         ];
 
         static::assertEquals($expectedEvents, CmsPageDefaultChangeSubscriber::getSubscribedEvents());
@@ -36,9 +37,8 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     /**
      * @param list<string> $event
      * @param array<mixed> $connectionData
-     *
-     * @dataProvider beforeDeletionEventDataProvider
      */
+    #[DataProvider('beforeDeletionEventDataProvider')]
     public function testBeforeDeletionEvent(array $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
         $connection = $this->getConnectionMock($connectionData);
@@ -59,14 +59,13 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
         }
 
         // assert no exception was thrown if not expected
-        static::assertTrue(true);
+        static::assertTrue(true); // @phpstan-ignore-line
     }
 
     /**
      * @param array<mixed> $connectionData
-     *
-     * @dataProvider beforeSystemConfigChangedEventDataProvider
      */
+    #[DataProvider('beforeSystemConfigChangedEventDataProvider')]
     public function testBeforeSystemConfigChangedEvent(BeforeSystemConfigChangedEvent $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
         $connection = $this->getConnectionMock($connectionData);
@@ -87,7 +86,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
         }
 
         // assert no exception was thrown if not expected
-        static::assertTrue(true);
+        static::assertTrue(true); // @phpstan-ignore-line
     }
 
     /**
@@ -219,9 +218,9 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     /**
      * @param list<string> $cmsPageIds
      */
-    private function getBeforeDeleteEvent(array $cmsPageIds = []): BeforeDeleteEvent
+    private function getBeforeDeleteEvent(array $cmsPageIds = []): EntityDeleteEvent
     {
-        $event = $this->createMock(BeforeDeleteEvent::class);
+        $event = $this->createMock(EntityDeleteEvent::class);
         $event
             ->method('getIds')
             ->with(CmsPageDefinition::ENTITY_NAME)

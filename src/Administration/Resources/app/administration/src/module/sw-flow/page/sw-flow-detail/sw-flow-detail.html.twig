@@ -25,11 +25,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!acl.can('flow.editor')"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -92,13 +88,19 @@
                 <sw-skeleton />
             </template>
 
-            <router-view
-                v-else
-                :is-loading="isLoading"
-                :is-new-flow="isNewFlow"
-                :is-template="isTemplate"
-                :is-unknown-trigger="isUnknownTrigger"
-            />
+            <template v-else>
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        :is-loading="isLoading"
+                        :is-new-flow="isNewFlow"
+                        :is-template="isTemplate"
+                        :is-unknown-trigger="isUnknownTrigger"
+                    />
+                </router-view>
+            </template>
             {% endblock %}
         </sw-card-view>
 

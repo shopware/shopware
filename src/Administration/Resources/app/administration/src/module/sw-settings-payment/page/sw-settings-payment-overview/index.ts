@@ -1,8 +1,7 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import type { MetaInfo } from 'vue-meta';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
@@ -47,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             title: this.$createTitle(),
         };
@@ -134,7 +133,7 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
-            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
+            void this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
                 this.paymentMethods = items;
             }).finally(() => {
                 this.isLoading = false;
@@ -166,7 +165,7 @@ export default Shopware.Component.wrapComponentConfig({
             }).catch(() => {
                 // @ts-expect-error - can be undefined
                 this.showActivationErrorNotification(paymentMethodEntity.translated?.name ?? '', paymentMethodEntity.active);
-                this.$nextTick(() => {
+                void this.$nextTick(() => {
                     paymentMethodEntity.active = !paymentMethodEntity.active;
                 });
             });

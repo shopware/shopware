@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -54,10 +55,10 @@ class ProductIndexer extends EntityIndexer
         private readonly SearchKeywordUpdater $searchKeywordUpdater,
         private readonly ChildCountUpdater $childCountUpdater,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        private readonly StockUpdater $stockUpdater,
+        private readonly AbstractStockStorage $stockStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
-        private readonly ProductStreamUpdater $streamUpdater,
+        private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly StatesUpdater $statesUpdater,
         private readonly MessageBusInterface $messageBus
     ) {
@@ -98,7 +99,7 @@ class ProductIndexer extends EntityIndexer
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
-            $this->stockUpdater->update(array_values($stocks), $event->getContext());
+            $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
@@ -150,7 +151,7 @@ class ProductIndexer extends EntityIndexer
 
         if ($message->allow(self::STOCK_UPDATER)) {
             Profiler::trace('product:indexer:stock', function () use ($ids, $context): void {
-                $this->stockUpdater->update($ids, $context);
+                $this->stockStorage->index($ids, $context);
             });
         }
 
@@ -212,7 +213,7 @@ class ProductIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -250,7 +251,7 @@ class ProductIndexer extends EntityIndexer
         $childrenIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($childrenIds));
@@ -266,7 +267,7 @@ class ProductIndexer extends EntityIndexer
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(product.parent_id)) as id FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($parentIds));
@@ -285,7 +286,7 @@ class ProductIndexer extends EntityIndexer
              WHERE `id` IN (:ids)
              AND `parent_id` IS NULL',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 

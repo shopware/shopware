@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Defaults;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -14,8 +15,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class CacheInvalidator
 {
-    private const CACHE_KEY = 'invalidation';
-
     /**
      * @internal
      *
@@ -23,15 +22,15 @@ class CacheInvalidator
      */
     public function __construct(
         private readonly int $delay,
-        private readonly int $count,
         private readonly array $adapters,
-        private readonly TagAwareAdapterInterface $cache,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly AbstractInvalidatorStorage $cache,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly LoggerInterface $logger
     ) {
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      */
     public function invalidate(array $tags, bool $force = false): void
     {
@@ -42,7 +41,7 @@ class CacheInvalidator
         }
 
         if ($this->delay > 0 && !$force) {
-            $this->log($tags);
+            $this->cache->store($tags);
 
             return;
         }
@@ -50,64 +49,24 @@ class CacheInvalidator
         $this->purge($tags);
     }
 
-    public function invalidateExpired(?\DateTime $time): void
+    public function invalidateExpired(): void
     {
-        $item = $this->cache->getItem(self::CACHE_KEY);
+        $tags = $this->cache->loadAndDelete();
 
-        $values = CacheCompressor::uncompress($item) ?? [];
-
-        $invalidate = [];
-        foreach ($values as $key => $timestamp) {
-            $timestamp = new \DateTime($timestamp);
-
-            if ($time !== null && $timestamp > $time) {
-                continue;
-            }
-
-            $invalidate[] = $key;
-            unset($values[$key]);
-
-            if (\count($invalidate) > $this->count) {
-                break;
-            }
-        }
-
-        $item = CacheCompressor::compress($item, $values);
-
-        $this->cache->save($item);
-        $this->purge($invalidate);
-    }
-
-    /**
-     * @param list<string> $logs
-     */
-    private function log(array $logs): void
-    {
-        $item = $this->cache->getItem(self::CACHE_KEY);
-
-        $values = CacheCompressor::uncompress($item) ?? [];
-
-        $time = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        foreach ($logs as $log) {
-            $values[$log] = $time;
-        }
-
-        $item = CacheCompressor::compress($item, $values);
-
-        $this->cache->save($item);
-    }
-
-    /**
-     * @param list<string> $keys
-     */
-    private function purge(array $keys): void
-    {
-        $keys = array_unique(array_filter($keys));
-
-        if (empty($keys)) {
+        if (empty($tags)) {
             return;
         }
 
+        $this->logger->debug(sprintf('Purged %d tags', \count($tags)));
+
+        $this->purge($tags);
+    }
+
+    /**
+     * @param array<string> $keys
+     */
+    private function purge(array $keys): void
+    {
         foreach ($this->adapters as $adapter) {
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);

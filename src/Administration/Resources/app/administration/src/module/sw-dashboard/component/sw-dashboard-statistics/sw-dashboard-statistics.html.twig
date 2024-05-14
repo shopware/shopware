@@ -51,7 +51,7 @@
                         <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
                             <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
                             {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
+                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ currencyFilter(orderSumToday, systemCurrencyISOCode, 2) }}</span>
                         </div>
                         {% endblock %}
                     </div>
@@ -78,12 +78,12 @@
                         <template
                             #column-orderDateTime="{ item }"
                         >
-                            {{ item.orderDateTime | date({
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                year: undefined,
-                                month: undefined,
-                                day: undefined
+                            {{ dateFilter(item.orderDateTime, {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            year: undefined,
+                            month: undefined,
+                            day: undefined
                             }) }}
                         </template>
                         {% endblock %}
@@ -105,7 +105,7 @@
                         <template
                             #column-amountTotal="{ item }"
                         >
-                            {{ item.amountTotal | currency(item.currency.shortName) }}
+                            {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
                         </template>
                         {% endblock %}
 
@@ -116,7 +116,7 @@
                                 :variant="getVariantFromOrderState(item)"
                                 appearance="pill"
                             >
-                                {{ item.stateMachineState.translated.name }}
+                                {{ item?.stateMachineState?.translated?.name }}
                             </sw-label>
                         </template>
                         {% endblock %}

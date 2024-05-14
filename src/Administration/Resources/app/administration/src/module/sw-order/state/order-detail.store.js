@@ -1,5 +1,5 @@
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -66,19 +66,18 @@ export default {
                 return;
             }
 
-            const { orderAddressId, customerAddressId } = value;
+            const { orderAddressId, customerAddressId, type } = value;
 
-            if (!state.orderAddressIds.some(ids => ids.orderAddressId === orderAddressId)) {
+            if (!state.orderAddressIds.some(ids => ids.orderAddressId === orderAddressId && ids.type === type)) {
                 state.orderAddressIds.push(value);
+
                 return;
             }
 
             state.orderAddressIds.forEach(ids => {
-                if (ids.orderAddressId !== orderAddressId) {
-                    return;
+                if (ids.orderAddressId === orderAddressId && ids.type === type) {
+                    ids.customerAddressId = customerAddressId;
                 }
-
-                ids.customerAddressId = customerAddressId;
             });
         },
     },

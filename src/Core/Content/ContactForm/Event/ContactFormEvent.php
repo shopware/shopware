@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ContactForm\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -16,11 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContactFormDataAware is deprecated and will be removed in v6.6.0
- */
-#[Package('content')]
-final class ContactFormEvent extends Event implements SalesChannelAware, MailAware, ContactFormDataAware, ScalarValuesAware, FlowEventAware
+#[Package('buyers-experience')]
+final class ContactFormEvent extends Event implements SalesChannelAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'contact_form.send';
 

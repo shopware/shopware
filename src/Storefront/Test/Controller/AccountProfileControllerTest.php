@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -12,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
@@ -21,7 +22,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountProfileControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -36,7 +37,6 @@ class AccountProfileControllerTest extends TestCase
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/account/profile/delete');
 
-        /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
 
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
@@ -85,7 +85,7 @@ class AccountProfileControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'test12345',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
@@ -117,7 +117,7 @@ class AccountProfileControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test12345',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -125,11 +125,16 @@ class AccountProfileControllerTest extends TestCase
             ],
         ];
 
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
         $repo->create($data, $context);
 
-        return $repo->search(new Criteria([$customerId]), $context)->first();
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     private function getFlashBag(): FlashBagInterface

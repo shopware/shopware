@@ -1,65 +1,61 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swSettingsShippingList from 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
-import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
  * @package checkout
  */
 
-Shopware.Component.register('sw-settings-shipping-list', swSettingsShippingList);
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.use(Vuex);
-
     const shippingMethod = {};
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
 
-    return shallowMount(await Shopware.Component.build('sw-settings-shipping-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                query: '',
+    return mount(await wrapTestComponent('sw-settings-shipping-list', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    query: '',
+                },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: jest.fn(() => {
-                        return Promise.resolve([]);
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: jest.fn(() => {
+                            return Promise.resolve([]);
+                        }),
                     }),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
                 },
             },
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
+            stubs: {
+                'sw-page': {
+                    template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                 },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
-                },
+                'sw-button': true,
+                'sw-entity-listing': true,
+                'sw-empty-state': true,
+                'router-link': true,
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
-            },
-            'sw-button': true,
-            'sw-entity-listing': true,
-            'sw-empty-state': true,
-            'router-link': true,
         },
     });
 }

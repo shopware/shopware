@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Webhook;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -33,9 +34,7 @@ class BusinessEventEncoderTest extends TestCase
         $this->businessEventEncoder = $this->getContainer()->get(BusinessEventEncoder::class);
     }
 
-    /**
-     * @dataProvider getEvents
-     */
+    #[DataProvider('getEvents')]
     public function testScalarEvents(FlowEventAware $event): void
     {
         $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');

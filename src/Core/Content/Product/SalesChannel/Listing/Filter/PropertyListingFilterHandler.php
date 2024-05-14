@@ -76,7 +76,6 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $repositoryIterator = new RepositoryIterator($this->repository, $context->getContext(), $criteria);
         while (($loop = $repositoryIterator->fetch()) !== null) {
-            /** @var PropertyGroupOptionCollection $entities */
             $entities = $loop->getEntities();
 
             $mergedOptions->merge($entities);
@@ -133,15 +132,13 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
              FROM property_group_option
              WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
-        $grouped = FetchModeHelper::group($grouped);
+        $grouped = FetchModeHelper::group($grouped, static fn ($row) => $row['id']);
 
         $filters = [];
         foreach ($grouped as $options) {
-            $options = array_column($options, 'id');
-
             $filters[] = new OrFilter([
                 new EqualsAnyFilter('product.optionIds', $options),
                 new EqualsAnyFilter('product.propertyIds', $options),
@@ -158,11 +155,11 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $aggregations = $result->getAggregations();
 
-        /** @var TermsResult|null $properties */
         $properties = $aggregations->get('properties');
+        \assert($properties instanceof TermsResult || $properties === null);
 
-        /** @var TermsResult|null $options */
         $options = $aggregations->get('options');
+        \assert($options instanceof TermsResult || $options === null);
 
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];

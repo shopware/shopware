@@ -1,5 +1,6 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
 const selector = {
     footerLinkContact: '.footer-contact-form a[data-ajax-modal="true"]',

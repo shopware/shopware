@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ProductStreamEntity>
  */
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamCollection extends EntityCollection
 {
     public function getApiAlias(): string

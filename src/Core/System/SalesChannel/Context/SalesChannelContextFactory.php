@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -22,14 +22,13 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\BaseContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     /**
@@ -42,7 +41,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $addressRepository,
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly TaxDetector $taxDetector,
+        private readonly AbstractTaxDetector $taxDetector,
         private readonly iterable $taxRuleTypeFilter,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
@@ -197,12 +196,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
+        $criteria->addFilter(new EqualsFilter('active', 1));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->get($id);
 
         if (!$paymentMethod) {
-            throw SalesChannelException::unknownPaymentMethod($id);
+            return $context->getPaymentMethod();
         }
 
         return $paymentMethod;
@@ -253,10 +254,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addresses = $this->addressRepository->search($criteria, $context);
 
         /** @var CustomerAddressEntity $activeBillingAddress */
-        $activeBillingAddress = $addresses->get($activeBillingAddressId);
+        $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
         $customer->setActiveBillingAddress($activeBillingAddress);
         /** @var CustomerAddressEntity $activeShippingAddress */
-        $activeShippingAddress = $addresses->get($activeShippingAddressId);
+        $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
         $customer->setActiveShippingAddress($activeShippingAddress);
         /** @var CustomerAddressEntity $defaultBillingAddress */
         $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());

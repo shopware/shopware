@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class KernelLifecycleManagerTest extends TestCase
 {
     public function testIfTheKernelClassIsShopware(): void

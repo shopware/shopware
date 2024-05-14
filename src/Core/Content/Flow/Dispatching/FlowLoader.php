@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal not intended for decoration or replacement
+ *
+ * @phpstan-type TFlows array<string, array<array{id: string, name: string, payload: array<mixed>}>>
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowLoader extends AbstractFlowLoader
 {
     public function __construct(
@@ -19,6 +21,9 @@ class FlowLoader extends AbstractFlowLoader
     ) {
     }
 
+    /**
+     * @return TFlows
+     */
     public function load(): array
     {
         $flows = $this->connection->fetchAllAssociative(
@@ -49,6 +54,10 @@ class FlowLoader extends AbstractFlowLoader
             $flows[$key]['payload'] = $payload;
         }
 
-        return FetchModeHelper::group($flows);
+        /** @var list<array{id: string, name: string, payload: string}> $flows */
+        $result = FetchModeHelper::group($flows);
+
+        /** @var TFlows $result */
+        return $result;
     }
 }

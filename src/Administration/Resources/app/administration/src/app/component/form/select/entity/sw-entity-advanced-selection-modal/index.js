@@ -41,7 +41,6 @@ Component.register('sw-entity-advanced-selection-modal', {
         // The same uniquely configured modal for a single entity can have the same key.
         // It is passed to the sw-filter-panel and sw-entity-listing to retrieve user configured data
         // like visible columns, column order and the last filters that were applied.
-        // TODO - NEXT-20791 : filters should not be stored somewhere
         storeKey: {
             type: String,
             required: true,
@@ -253,6 +252,10 @@ Component.register('sw-entity-advanced-selection-modal', {
 
             return this.entityColumns;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     created() {
@@ -267,7 +270,6 @@ Component.register('sw-entity-advanced-selection-modal', {
                 this.currentSelection[selection.id] = selection;
             });
 
-            // TODO - NEXT-20791 : filters should not be stored somewhere
             this.filterService.getStoredCriteria(this.storeKey).then((criteria) => {
                 this.filterCriteria.push(...criteria);
                 this.isLoading = false;

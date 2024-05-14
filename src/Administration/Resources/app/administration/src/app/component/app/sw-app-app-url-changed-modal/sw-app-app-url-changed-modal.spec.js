@@ -2,11 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/app/component/app/sw-app-app-url-changed-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/utils/sw-loader';
+import { mount } from '@vue/test-utils';
 
 const strategies = [
     {
@@ -28,26 +24,24 @@ describe('sw-app-app-url-changed-modal', () => {
     let stubs;
 
     async function createWrapper() {
-        const localVue = createLocalVue();
-        localVue.directive('tooltip', {});
-
-        return mount(await Shopware.Component.build('sw-app-app-url-changed-modal'), {
-            localVue,
-            stubs,
-            propsData: {
+        return mount(await wrapTestComponent('sw-app-app-url-changed-modal', { sync: true }), {
+            props: {
                 urlDiff: {
                     oldUrl: 'https://old-url',
                     newUrl: 'https://new-url',
                 },
             },
-            provide: {
-                appUrlChangeService: {
-                    fetchResolverStrategies: () => Promise.resolve(strategies),
-                    resolveUrlChange: jest.fn(() => Promise.resolve()),
-                },
-                shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
+            global: {
+                stubs,
+                provide: {
+                    appUrlChangeService: {
+                        fetchResolverStrategies: () => Promise.resolve(strategies),
+                        resolveUrlChange: jest.fn(() => Promise.resolve()),
+                    },
+                    shortcutService: {
+                        startEventListener() {},
+                        stopEventListener() {},
+                    },
                 },
             },
         });
@@ -55,9 +49,23 @@ describe('sw-app-app-url-changed-modal', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal">
+                        <slot name="modal-header">
+                            <slot name="modal-title"></slot>
+                        </slot>
+                        <slot name="modal-body">
+                             <slot></slot>
+                        </slot>
+                        <slot name="modal-footer>
+                        </slot>
+                    </div>
+                `,
+            },
+            'sw-button': await wrapTestComponent('sw-button'),
+            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+            'sw-loader': await wrapTestComponent('sw-loader'),
             'sw-icon': true,
             'icons-default-basic-shape-circle-filled': {
                 template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>',
@@ -73,13 +81,6 @@ describe('sw-app-app-url-changed-modal', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-            wrapper = null;
-        }
     });
 
     it('should be a Vue.js component', async () => {
@@ -108,15 +109,15 @@ describe('sw-app-app-url-changed-modal', () => {
 
         await strategyButtons.at(1).trigger('click');
 
-        expect(wrapper.vm.selectedStrategy).toBe(strategies[1]);
+        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[1]);
 
         await strategyButtons.at(2).trigger('click');
 
-        expect(wrapper.vm.selectedStrategy).toBe(strategies[2]);
+        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[2]);
 
         await strategyButtons.at(0).trigger('click');
 
-        expect(wrapper.vm.selectedStrategy).toBe(strategies[0]);
+        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[0]);
     });
 
     it('should send the selected strategy', async () => {

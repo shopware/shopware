@@ -1,0 +1,19 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "LandingPage": {
+                "required": ["apiAlias"],
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["landing_page"]
+                    }
+                }
+            }
+        }
+    }
+}

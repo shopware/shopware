@@ -1,5 +1,12 @@
+parameters:
+    '.container.dumper.inline_class_loader': false
+    '.container.dumper.inline_factories': false
+
 framework:
     test: true
+    http_cache:
+        enabled: true
+        debug: true
     session:
         storage_factory_id: session.storage.factory.mock_file
     profiler:

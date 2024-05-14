@@ -8,7 +8,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
     template,
@@ -22,11 +22,9 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
         localMode: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
-        // FIXME: add default value to this property
         // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [Array, Object],
@@ -35,7 +33,6 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         allowDelete: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

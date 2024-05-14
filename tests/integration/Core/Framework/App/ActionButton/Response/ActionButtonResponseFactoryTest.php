@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton\Response;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
@@ -44,9 +45,8 @@ class ActionButtonResponseFactoryTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      * @param class-string $response
-     *
-     * @dataProvider provideActionTypes
      */
+    #[DataProvider('provideActionTypes')]
     public function testFactoryCreatesCorrespondingResponse(string $actionType, array $payload, string $response): void
     {
         $notificationResponse = $this->actionButtonResponseFactory->createFromResponse(

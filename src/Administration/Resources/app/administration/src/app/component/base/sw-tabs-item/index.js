@@ -31,6 +31,8 @@ Component.register('sw-tabs-item', {
 
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     props: {
         route: {
             type: [String, Object],
@@ -159,15 +161,22 @@ Component.register('sw-tabs-item', {
             this.$nextTick().then(() => {
                 /**
                  * Prevent endless loop with checking if the route exists. Because a router-link with a
-                 * non existing route has always the class 'router-link-active'
+                 * non-existing route has always the class 'router-link-active'
                  */
-                const resolvedRoute = this.$router.resolve(this.route);
-                let routeExists = false;
-                if (Shopware.Service('feature').isActive('VUE3')) {
-                    routeExists = resolvedRoute.matched.length > 0;
-                } else {
-                    routeExists = resolvedRoute.resolved.matched.length > 0;
+                let resolvedRoute;
+
+                try {
+                    resolvedRoute = this.$router.resolve(this.route);
+                } catch {
+                    return;
                 }
+
+                if (resolvedRoute === undefined) {
+                    return;
+                }
+
+                let routeExists = false;
+                routeExists = resolvedRoute.matched.length > 0;
 
                 if (!routeExists) {
                     return;

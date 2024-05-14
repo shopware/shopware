@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Event\StorefrontRedirectEvent
  */
 #[Package('storefront')]
+#[CoversClass(StorefrontRedirectEvent::class)]
 class StorefrontRedirectEventTest extends TestCase
 {
     public function testMinimalConstructor(): void

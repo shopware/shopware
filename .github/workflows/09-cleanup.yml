@@ -1,0 +1,22 @@
+name: Delete old container images
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # every day at 01:00
+  workflow_dispatch:
+
+jobs:
+  clean-ghcr:
+    name: Delete old unused container images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old images
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: ${{ github.event.repository.name }}/ci-e2e
+          skip-tags: latest, trunk, main, master, v*
+          cut-off: two days ago UTC
+          keep-at-least: 1
+          account-type: personal
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token

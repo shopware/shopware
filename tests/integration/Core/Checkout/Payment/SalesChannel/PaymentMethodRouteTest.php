@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @package checkout
  *
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -163,6 +163,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment'),
                 'name' => 'Payment 1',
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -184,6 +185,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment2'),
                 'name' => 'Payment 2',
+                'technicalName' => 'payment_test2',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
@@ -205,6 +207,7 @@ class PaymentMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('payment3'),
                 'name' => 'Payment 3',
+                'technicalName' => 'payment_test3',
                 'active' => true,
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [

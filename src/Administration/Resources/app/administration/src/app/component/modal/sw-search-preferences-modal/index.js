@@ -9,7 +9,7 @@ import './sw-search-preferences-modal.scss';
 const { Component, Mixin, Module } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-search-preferences-modal', {
     template,
@@ -77,7 +77,7 @@ Component.register('sw-search-preferences-modal', {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

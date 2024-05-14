@@ -8,8 +8,7 @@ const { warn } = Shopware.Utils.debug;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders information text about the current language
  * @status ready
@@ -39,7 +38,6 @@ Component.register('sw-language-info', {
         changeLanguageOnParentClick: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

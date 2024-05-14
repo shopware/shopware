@@ -1,0 +1,58 @@
+version: '3.7'
+
+x-service: &service
+    environment:
+        APP_ENV: prod
+        APP_DEBUG: 1
+        PROJECT_ROOT: /var/www/html
+        MYSQL_ROOT_PASSWORD: app
+        MYSQL_DATABASE: root
+        ADMINER_DEFAULT_SERVER: database
+        SHOPWARE_HTTP_CACHE_ENABLED: 0
+        DATABASE_URL: mysql://root:app@database:3306/install_test
+        APP_SECRET: secret
+        APP_URL: http://localhost:8000
+        # TEST_WEB_INSTALLER: 1
+        # SHOPWARE_SKIP_WEBINSTALLER: 0
+        # SHOPWARE_DISABLE_UPDATE_CHECK: '0'
+        # SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
+        # SW_RECOVERY_NEXT_BRANCH: dev-trunk
+        SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
+    networks:
+        - local
+
+services:
+    database:
+        <<: *service
+        image: mysql:8
+        entrypoint:
+            [
+                "sh",
+                "-c",
+                "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
+            ]
+
+        ports:
+            - '3306:3306'
+        tmpfs:
+            - /var/lib/mysql:uid=999,gid=999
+
+    adminer:
+        <<: *service
+        image: adminer:latest
+        depends_on: [ database ]
+        ports:
+            - '8080:8080'
+
+    shopware:
+        <<: *service
+        image: gitlab.shopware.com:5005/shopware/6/product/platform/ci-e2e:trunk
+        depends_on: [ database ]
+        ports:
+            - '8000:8000'
+        # mount platform
+        # volumes:
+        # - ../../:/var/www/html/custom/platform
+
+networks:
+    local:

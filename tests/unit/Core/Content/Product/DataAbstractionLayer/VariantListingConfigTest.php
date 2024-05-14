@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig
  */
+#[CoversClass(VariantListingConfig::class)]
 class VariantListingConfigTest extends TestCase
 {
     public function testInstantiate(): void

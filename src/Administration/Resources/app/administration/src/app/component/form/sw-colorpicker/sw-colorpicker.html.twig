@@ -4,7 +4,10 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_contextual_field %}
     <sw-contextual-field
-        v-bind="$attrs"
+        v-bind="{
+            ...$attrs,
+            ...inheritanceAttrs
+        }"
         :name="formFieldName"
         :disabled="disabled"
         @inheritance-restore="$emit('inheritance-restore', $event)"
@@ -13,7 +16,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_colorpicker_input_prefix %}
         <template #sw-contextual-field-prefix>
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
                 class="sw-colorpicker__previewWrapper"
                 @click="toggleColorPicker"
@@ -64,6 +67,7 @@
         <div class="sw-colorpicker__colorpicker">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_colorpicker_selection %}
+            <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
             <div
                 ref="colorPicker"
                 class="sw-colorpicker__colorpicker-selection"

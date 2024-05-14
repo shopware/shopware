@@ -13,7 +13,7 @@ describe('Flow builder: generate document testing', () => {
             });
     });
 
-    it('@settings: generate document flow', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: generate document flow', { tags: ['pa-services-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
             method: 'POST',

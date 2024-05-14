@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderRouteResponse extends StoreApiResponse
 {
     /**

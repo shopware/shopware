@@ -1,18 +1,10 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import swCmsBlockConfig from './index';
-import 'src/app/component/form/sw-colorpicker';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-text-field';
 
-const { Component, State } = Shopware;
-
-Component.register('sw-cms-block-config', swCmsBlockConfig);
+const { State } = Shopware;
 
 const block = {
     name: 'Block name',
@@ -25,42 +17,45 @@ const block = {
 jest.useFakeTimers();
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    return shallowMount(await Component.build('sw-cms-block-config'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-block-config', {
+        sync: true,
+    }), {
+        attachTo: document.body,
+        props: {
             block,
         },
-        provide: {
-            validationService: {},
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return Promise.resolve();
-                },
-            },
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
+        global: {
+            provide: {
+                validationService: {},
+                cmsService: {
+                    getCmsBlockRegistry: () => {
                         return Promise.resolve();
                     },
-                }),
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
             },
-        },
-        stubs: {
-            'sw-base-field': await Component.build('sw-base-field'),
-            'sw-colorpicker': await Component.build('sw-colorpicker'),
-            'sw-contextual-field': await Component.build('sw-contextual-field'),
-            'sw-block-field': await Component.build('sw-block-field'),
-            'sw-field-error': true,
-            'sw-icon': true,
-            'sw-text-field': {
-                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value'],
+            stubs: {
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-field-error': true,
+                'sw-icon': true,
+                'sw-text-field': {
+                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                    props: ['value'],
+                },
+                'sw-media-compact-upload-v2': true,
+                'sw-upload-listener': true,
+                'sw-select-field': true,
+                'sw-help-text': true,
             },
-            'sw-media-compact-upload-v2': true,
-            'sw-upload-listener': true,
-            'sw-select-field': true,
-            'sw-help-text': true,
         },
     });
 }
@@ -90,6 +85,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         await blockNameField.trigger('input');
 
         jest.runAllTimers();
+
         expect(wrapper.vm.block.name).toBe('test');
     });
 

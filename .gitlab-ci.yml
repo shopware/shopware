@@ -13,13 +13,17 @@ stages:
     - split
     # deploy artifacts build in the `build` stage
     - deploy
-    # percy
+    # visual testing (not in use at the moment)
     - visual
 
 workflow:
     rules:
         # do not run on push, except on protected branches
         -   if: '$CI_PIPELINE_SOURCE != "push" || ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true")'
+
+default:
+  tags:
+    - shopware-multi-arch
 
 include:
     # include library files

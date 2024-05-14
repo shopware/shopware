@@ -3,8 +3,11 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
@@ -14,7 +17,6 @@ use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -22,10 +24,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -41,10 +42,7 @@ class PluginManagementServiceTest extends TestCase
     private const PLUGIN_FASHION_THEME_PATH = self::PLUGINS_PATH . '/SwagFashionTheme';
     private const PLUGIN_FASHION_THEME_BASE_CLASS_PATH = self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php';
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     private string $cacheDir;
 
@@ -136,17 +134,21 @@ class PluginManagementServiceTest extends TestCase
 
     private function createTestCacheDirectory(): string
     {
-        $kernelClass = KernelLifecycleManager::getKernelClass();
+        $previousKernelClass = KernelFactory::$kernelClass;
+
+        // We need a new fixed cache dir, therefore we reuse the StaticAnalyzeKernel class
+        KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
         /** @var Kernel $newTestKernel */
-        $newTestKernel = new $kernelClass(
+        $newTestKernel = KernelFactory::create(
             'test',
             true,
+            KernelLifecycleManager::getClassLoader(),
             new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
-            Uuid::randomHex(),
-            '2.2.2',
             $this->getContainer()->get(Connection::class)
         );
-
+        // reset kernel class for further tests
+        KernelFactory::$kernelClass = $previousKernelClass;
         $newTestKernel->boot();
         $cacheDir = $newTestKernel->getCacheDir();
         $newTestKernel->shutdown();
@@ -194,6 +196,7 @@ class PluginManagementServiceTest extends TestCase
             $this->filesystem,
             $this->cacheDir,
             'test',
+            false,
             $this->getContainer()->get('messenger.bus.shopware')
         );
     }

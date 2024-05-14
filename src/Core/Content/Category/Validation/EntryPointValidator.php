@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('inventory')]
 class EntryPointValidator implements EventSubscriberInterface
 {
     private const ERROR_CODE = 'CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT';
@@ -51,7 +51,7 @@ class EntryPointValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command->getDefinition()->getClass() !== CategoryDefinition::class) {
+            if ($command->getEntityName() !== CategoryDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class EntryPointValidator implements EventSubscriberInterface
     private function isCategoryEntryPoint(string $categoryId, PostWriteValidationEvent $event): bool
     {
         foreach ($event->getCommands() as $salesChannelCommand) {
-            if ($salesChannelCommand->getDefinition()->getClass() !== SalesChannelDefinition::class) {
+            if ($salesChannelCommand->getEntityName() !== SalesChannelDefinition::ENTITY_NAME) {
                 continue;
             }
 

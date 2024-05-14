@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
@@ -75,7 +75,7 @@ export default {
         },
 
         isDisabled() {
-            return true; // TODO use ACL here with NEXT-1653
+            return true;
         },
 
         userRepository() {
@@ -92,17 +92,6 @@ export default {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        userMediaCriteria() {
-            if (this.user.id) {
-                // ???
-                // ToDo: If SwSidebarMedia has the new data handling, change this too
-                // return CriteriaFactory.equals('userId', this.user.id);
-                return null;
-            }
-
-            return null;
         },
 
         languageId() {
@@ -188,6 +177,10 @@ export default {
         beforeMountComponent() {
             this.userPromise.then((user) => {
                 this.user = user;
+
+                if (this.user.avatarId) {
+                    this.loadMediaItem(this.user.avatarId);
+                }
             });
         },
 
@@ -224,10 +217,6 @@ export default {
 
                 return this.languages;
             });
-        },
-
-        // @deprecated tag:v6.6.0 - Unused
-        loadTimezones() {
         },
 
         async getUserData() {
@@ -328,14 +317,6 @@ export default {
                 return;
             }
 
-            /**
-             * @deprecated tag:v6.6.0 - the "if" block will be removed
-             */
-            if (typeof context === 'string') {
-                context = { ...Shopware.Context.api };
-                context.authToken.access = context;
-            }
-
             this.userRepository.save(this.user, context).then(async () => {
                 await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
@@ -373,19 +354,19 @@ export default {
             });
         },
 
-        setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId).then((response) => {
-                this.avatarMediaItem = response;
+        loadMediaItem(targetId) {
+            this.mediaRepository.get(targetId).then((media) => {
+                this.avatarMediaItem = media;
             });
+        },
+
+        setMediaItem({ targetId }) {
             this.user.avatarId = targetId;
+            this.loadMediaItem(targetId);
         },
 
         onDropMedia(mediaItem) {
             this.setMediaItem({ targetId: mediaItem.id });
-        },
-
-        // @deprecated tag:v6.6.0 - Unused
-        onSubmitConfirmPassword() {
         },
 
         onCloseConfirmPasswordModal() {

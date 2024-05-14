@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class AndRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

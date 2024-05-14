@@ -3,7 +3,7 @@
 {% block buy_widget_buy_form_inner %}
     <form
         id="productDetailPageBuyProductForm"
-        action="{% block buy_widget_buy_form_action %}{# @deprecated tag:v6.6.0 - block will be removed, overwrite `formAction` instead #}{{ formAction }}{% endblock %}"
+        action="{{ formAction }}"
         method="post"
         class="buy-widget"
         data-add-to-cart="true">
@@ -11,39 +11,43 @@
         {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
         {% set showQuantitySelect = not product.states is defined or DOWNLOAD_STATE not in product.states or (DOWNLOAD_STATE in product.states and product.maxPurchase !== 1) %}
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
+
         {% block buy_widget_buy_container %}
             {% if buyable %}
                 <div class="row g-2 buy-widget-container">
                     {% block buy_widget_buy_quantity_container %}
                         {% if showQuantitySelect %}
                             <div class="col-4 d-flex justify-content-end">
+                                {# @deprecated tag:v6.7.0 - Unused variable selectQuantityThreshold will be removed without replacement #}
                                 {% set selectQuantityThreshold = 100 %}
+
                                 {% block buy_widget_buy_quantity_input_group %}
                                     <div class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                            <button type="button" class="btn btn-outline-light btn-minus js-btn-minus">
-                                                {% sw_icon 'minus' style {'size': 'xs'} %}
-                                            </button>
-                                            <input
-                                                type="number"
-                                                name="lineItems[{{ product.id }}][quantity]"
-                                                class="form-control js-quantity-selector quantity-selector-group-input"
-                                                min="{{ product.minPurchase }}"
-                                                max="{{ product.calculatedMaxPurchase }}"
-                                                step="{{ product.purchaseSteps }}"
-                                                value="{{ product.minPurchase }}"
-                                            />
-                                            <button type="button" class="btn btn-outline-light btn-plus js-btn-plus">
-                                                    {% sw_icon 'plus' style {'size': 'xs'} %}
-                                            </button>
-                                            {% if product.translated.packUnit %}
-                                                <span class="input-group-text">
-                                                    {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
-                                                        {{ product.translated.packUnitPlural }}
-                                                    {% elseif product.translated.packUnit %}
-                                                        {{ product.translated.packUnit }}
-                                                    {% endif %}
-                                                </span>
-                                            {% endif %}
+                                        <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}">
+                                            {% sw_icon 'minus' style {size: 'xs'} %}
+                                        </button>
+                                        <input
+                                            type="number"
+                                            name="lineItems[{{ product.id }}][quantity]"
+                                            class="form-control js-quantity-selector quantity-selector-group-input"
+                                            min="{{ product.minPurchase }}"
+                                            max="{{ product.calculatedMaxPurchase }}"
+                                            step="{{ product.purchaseSteps }}"
+                                            value="{{ product.minPurchase }}"
+                                            aria-label="{{ 'component.product.quantitySelect.label'|trans|striptags }}"
+                                        />
+                                        <button type="button" class="btn btn-outline-light btn-plus js-btn-plus" aria-label="{{ 'component.product.quantitySelect.increase'|trans|striptags }}">
+                                            {% sw_icon 'plus' style {size: 'xs'} %}
+                                        </button>
+                                        {% if product.translated.packUnit %}
+                                            <span class="input-group-text">
+                                                {% if product.minPurchase > 1 and product.translated.packUnitPlural %}
+                                                    {{ product.translated.packUnitPlural }}
+                                                {% elseif product.translated.packUnit %}
+                                                    {{ product.translated.packUnit }}
+                                                {% endif %}
+                                            </span>
+                                        {% endif %}
                                     </div>
                                 {% endblock %}
                             </div>
@@ -59,7 +63,7 @@
                         <input type="hidden"
                                name="redirectParameters"
                                data-redirect-parameters="true"
-                               value='{"productId": "{{ product.id }}"}'>
+                               value="{{ {productId: product.id}|json_encode }}">
                     {% endblock %}
 
                     {% block buy_widget_buy_product_buy_info %}
@@ -94,9 +98,9 @@
                             {% block buy_widget_buy_button %}
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-buy"
-                                            title="{{ "detail.addProduct"|trans|striptags }}"
-                                            aria-label="{{ "detail.addProduct"|trans|striptags }}">
-                                        {{ "detail.addProduct"|trans|sw_sanitize }}
+                                            title="{{ 'detail.addProduct'|trans|striptags }}"
+                                            aria-label="{{ 'detail.addProduct'|trans|striptags }}">
+                                        {{ 'detail.addProduct'|trans|sw_sanitize }}
                                     </button>
                                 </div>
                             {% endblock %}

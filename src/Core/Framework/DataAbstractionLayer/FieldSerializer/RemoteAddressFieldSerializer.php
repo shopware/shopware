@@ -53,7 +53,7 @@ class RemoteAddressFieldSerializer extends AbstractFieldSerializer
             return;
         }
 
-        yield $field->getStorageName() => IPUtils::anonymize($data->getValue());
+        yield $field->getStorageName() => IpUtils::anonymize($data->getValue());
     }
 
     public function decode(Field $field, mixed $value): ?string

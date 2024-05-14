@@ -1,6 +1,5 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
@@ -25,6 +24,8 @@ export default class AjaxModalPlugin extends Plugin {
         modalBackdrop: true,
 
         urlAttribute: 'data-url',
+
+        prevUrlAttribute: 'data-prev-url',
 
         modalClassAttribute: 'data-modal-class',
 
@@ -81,7 +82,7 @@ export default class AjaxModalPlugin extends Plugin {
      */
     _openModal(pseudoModalUtil) {
         const modalClasses = [DomAccess.getAttribute(this.el, this.options.modalClassAttribute, false), this.options.modalClass];
-        pseudoModalUtil.open(this._onModalOpen.bind(this, pseudoModalUtil, modalClasses));
+        pseudoModalUtil.open(this._onModalOpen.bind(this, pseudoModalUtil, modalClasses), 0);
     }
 
     /**
@@ -117,9 +118,43 @@ export default class AjaxModalPlugin extends Plugin {
      */
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
-        pseudoModalUtil.updateContent(response);
-        PluginManager.initializePlugins();
+        pseudoModalUtil.updateContent(response, this._renderBackButton.bind(this, pseudoModalUtil));
+        window.PluginManager.initializePlugins();
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
+    }
+
+    /**
+     * Renders a back button into the modal if the `data-prev-url` attribute is set.
+     * The `data-prev-url` attribute can be set if an AJAX modal link (`data-ajax-modal="true"`) is inside an already opened AJAX modal.
+     * When the new AJAX modal is opened, the back button will then re-open the previous modal.
+     *
+     * @see https://getbootstrap.com/docs/5.3/components/modal/#toggle-between-modals
+     * @param pseudoModalUtil
+     * @private
+     */
+    _renderBackButton(pseudoModalUtil) {
+        const prevUrl = DomAccess.getAttribute(this.el, this.options.prevUrlAttribute, false);
+
+        if (!prevUrl) {
+            return;
+        }
+
+        const buttonTemplate = DomAccess.querySelector(document, '.js-pseudo-modal-back-btn-template', false);
+        if (!buttonTemplate) {
+            return;
+        }
+
+        const backButton = buttonTemplate.content.cloneNode(true);
+        if (!backButton.children.length) {
+            return;
+        }
+
+        backButton.children[0].setAttribute('href', prevUrl);
+        backButton.children[0].setAttribute('data-url', prevUrl);
+        backButton.children[0].style.marginLeft = '20px';
+
+        const modalBodyEl = DomAccess.querySelector(pseudoModalUtil._modal, `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
+        modalBodyEl.prepend(backButton);
     }
 
     /**
@@ -132,7 +167,7 @@ export default class AjaxModalPlugin extends Plugin {
     _onModalOpen(pseudoModalUtil, classes) {
         const modal = pseudoModalUtil.getModal();
         modal.classList.add(...classes);
-        PluginManager.initializePlugins();
+        window.PluginManager.initializePlugins();
         this.$emitter.publish('ajaxModalOpen', { modal });
     }
 }

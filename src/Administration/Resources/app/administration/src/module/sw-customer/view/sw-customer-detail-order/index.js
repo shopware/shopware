@@ -2,7 +2,7 @@ import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -26,8 +26,8 @@ export default {
             activeCustomer: this.customer,
             orders: null,
             term: '',
-            // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
-            orderIcon: 'regular-shopping-bag',
+            sortBy: 'orderDateTime',
+            sortDirection: 'DESC',
         };
     },
 
@@ -45,6 +45,20 @@ export default {
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
                 this.$tc('sw-customer.detailOrder.emptyTitle');
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
+    watch: {
+        customer() {
+            this.createdComponent();
+        },
     },
 
     created() {
@@ -54,6 +68,10 @@ export default {
     methods: {
         createdComponent() {
             this.isLoading = true;
+
+            if (this.orders?.criteria) {
+                this.orders.criteria = null;
+            }
 
             this.refreshList();
         },
@@ -94,6 +112,8 @@ export default {
             }
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
+
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             this.orderRepository.search(criteria).then((orders) => {
                 this.orders = orders;

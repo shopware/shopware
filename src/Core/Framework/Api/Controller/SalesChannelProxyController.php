@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -15,7 +14,6 @@ use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -48,7 +45,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -82,7 +79,6 @@ class SalesChannelProxyController extends AbstractController
         private readonly ApiOrderCartService $adminOrderCartService,
         private readonly AbstractCartOrderRoute $orderRoute,
         private readonly CartService $cartService,
-        private readonly Connection $connection,
         private readonly RequestStack $requestStack,
         private readonly LoginAsCustomerTokenGenerator $loginAsCustomerTokenGenerator
     ) {
@@ -108,17 +104,6 @@ class SalesChannelProxyController extends AbstractController
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
         $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
-
-        $orderId = $order->getId();
-        $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
-        $userId = $userId ? Uuid::fromHexToBytes($userId) : null;
-
-        $context->scope(Context::SYSTEM_SCOPE, function () use ($orderId, $userId): void {
-            $this->connection->executeStatement(
-                'UPDATE `order` SET `created_by_id` = :createdById WHERE `id` = :id',
-                ['createdById' => $userId, 'id' => Uuid::fromHexToBytes($orderId)]
-            );
-        });
 
         return new JsonResponse($order);
     }

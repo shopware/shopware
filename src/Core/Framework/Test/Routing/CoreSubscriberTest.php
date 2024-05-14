@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Routing;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -25,7 +26,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
@@ -40,16 +41,14 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
         static::assertTrue($response->headers->has('Strict-Transport-Security'));
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testStorefrontNoCsp(): void
     {
         if (!$this->getContainer()->has(ProductController::class)) {
@@ -60,9 +59,9 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL']);
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertFalse($response->headers->has('Content-Security-Policy'));
     }
@@ -77,23 +76,24 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL'] . '/admin');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
-        $request = $browser->getRequest();
-        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $nonce = $this->getNonceFromCsp($response);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
-            $response->headers->get('Content-Security-Policy'),
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
-        static::assertStringNotContainsString("\n", $response->headers->get('Content-Security-Policy'));
-        static::assertStringNotContainsString("\r", $response->headers->get('Content-Security-Policy'));
+        static::assertStringNotContainsString("\n", (string) $response->headers->get('Content-Security-Policy'));
+        static::assertStringNotContainsString("\r", (string) $response->headers->get('Content-Security-Policy'));
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.
+     */
     public function testSwaggerHasCsp(): void
     {
         $browser = $this->getBrowser();
@@ -101,22 +101,43 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/_info/swagger.html');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
-        $request = $browser->getRequest();
-        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $nonce = $this->getNonceFromCsp($response);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
-            $response->headers->get('Content-Security-Policy'),
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
     }
 
-    public function testOptionsRequestWorks(): void
+    public function testStoplightIoHasCsp(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('GET', '/api/_info/stoplightio.html');
+        $response = $browser->getResponse();
+
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
+        static::assertTrue($response->headers->has('X-Content-Type-Options'));
+        static::assertTrue($response->headers->has('Content-Security-Policy'));
+
+        $nonce = $this->getNonceFromCsp($response);
+
+        static::assertMatchesRegularExpression(
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
+            'CSP should contain the nonce'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.
+     */
+    public function testSwaggerOptionsRequestWorks(): void
     {
         $browser = $this->getBrowser();
 
@@ -125,5 +146,26 @@ class CoreSubscriberTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->headers->has('Content-Security-Policy'));
+    }
+
+    public function testStoplightIoOptionsRequestWorks(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('OPTIONS', '/api/_info/stoplightio.html');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertFalse($response->headers->has('Content-Security-Policy'));
+    }
+
+    public function getNonceFromCsp(Response $response): string
+    {
+        $csp = (string) $response->headers->get('Content-Security-Policy');
+        preg_match('/nonce-([\w+-=]*)/m', $csp, $matches);
+
+        static::assertArrayHasKey(1, $matches);
+
+        return $matches[1];
     }
 }

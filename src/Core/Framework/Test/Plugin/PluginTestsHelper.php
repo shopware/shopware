@@ -5,14 +5,12 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
-use SwagTest\SwagTest;
+use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait PluginTestsHelper
@@ -29,7 +27,6 @@ trait PluginTestsHelper
             $projectDir,
             $pluginRepo,
             $languageRepo,
-            new ChangelogService(new ChangelogParser()),
             $pluginFinder,
             new VersionSanitizer()
         );
@@ -38,16 +35,16 @@ trait PluginTestsHelper
     protected function createPlugin(
         EntityRepository $pluginRepo,
         Context $context,
-        string $version = SwagTest::PLUGIN_VERSION,
+        string $version = SwagTestPlugin::PLUGIN_VERSION,
         ?string $installedAt = null
     ): void {
         $pluginRepo->create(
             [
                 [
-                    'baseClass' => SwagTest::class,
-                    'name' => 'SwagTest',
+                    'baseClass' => SwagTestPlugin::class,
+                    'name' => 'SwagTestPlugin',
                     'version' => $version,
-                    'label' => SwagTest::PLUGIN_LABEL,
+                    'label' => SwagTestPlugin::PLUGIN_LABEL,
                     'installedAt' => $installedAt,
                     'active' => false,
                     'autoload' => [],

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\EventLog;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -45,6 +46,13 @@ class WebhookEventLogDefinition extends EntityDefinition
         return WebhookEventLogCollection::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'onlyLiveVersion' => false,
+        ];
+    }
+
     public function since(): ?string
     {
         return '6.4.1.0';
@@ -66,6 +74,7 @@ class WebhookEventLogDefinition extends EntityDefinition
             new IntField('response_status_code', 'responseStatusCode'),
             new StringField('response_reason_phrase', 'responseReasonPhrase'),
             (new StringField('url', 'url', 500))->addFlags(new Required()),
+            new BoolField('only_live_version', 'onlyLiveVersion'),
             (new BlobField('serialized_webhook_message', 'serializedWebhookMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             new CustomFields(),
         ]);

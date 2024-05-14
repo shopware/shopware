@@ -1,13 +1,10 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swOrderNestedLineItemsModal from 'src/module/sw-order/component/sw-order-nested-line-items-modal';
-import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-nested-line-items-row';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
 
-Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);
-Shopware.Component.register('sw-order-nested-line-items-row', swOrderNestedLineItemsRow);
+const localCurrency = 'EUR';
 
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');
@@ -65,47 +62,51 @@ const mockChildrenCollection = [
 ];
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    localVue.filter('currency', value => value);
-
-    return shallowMount(await Shopware.Component.build('sw-order-nested-line-items-modal'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-nested-line-items-modal', { sync: true }), {
+        props: {
             order: {
                 currency: {
-                    shortName: 'EUR',
+                    isoCode: localCurrency,
                 },
             },
             lineItem: mockParent,
             context: {},
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: (criteria) => {
-                        const parentIds = criteria.filters.find(filter => filter.field === 'parentId')
-                            .value.split('|');
-                        const entities = mockChildrenCollection.filter(entity => parentIds.includes(entity.parentId));
-
-                        // children association mock
-                        entities.forEach((entity) => {
-                            entity.children = mockChildrenCollection.filter(child => child.parentId === entity.id);
-                        });
-
-                        return Promise.resolve(entities);
+        global: {
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {
                     },
-                }),
+                    stopEventListener: () => {
+                    },
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        search: (criteria) => {
+                            const parentIds = criteria.filters.find(filter => filter.field === 'parentId')
+                                .value.split('|');
+                            const entities = mockChildrenCollection.filter(entity => parentIds.includes(entity.parentId));
+
+                            // children association mock
+                            entities.forEach((entity) => {
+                                entity.children = mockChildrenCollection.filter(child => child.parentId === entity.id);
+                            });
+
+                            return Promise.resolve(entities);
+                        },
+                    }),
+                },
             },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-loader': true,
-            'sw-button': true,
-            'sw-order-nested-line-items-row': await Shopware.Component.build('sw-order-nested-line-items-row'),
-        },
-        mocks: {
-            $tc: snippet => snippet,
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', { sync: true }),
+            },
+            mocks: {
+                $tc: snippet => snippet,
+            },
         },
     });
 }
@@ -136,6 +137,7 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
     });
 
     it('should render the items in the correct order with correct indentation class and properties', async () => {
+        const currencyFilter = Shopware.Filter.getByName('currency');
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -227,10 +229,11 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
             expect(currentNestingLevels).toHaveLength(data.nestingLevel - 1);
             expect(currentLabel.text()).toContain(data.label);
-            expect(currentUnitPrice.text()).toContain(`${data.unitPrice}`);
+            expect(currentUnitPrice.text()).toContain(`${currencyFilter(data.unitPrice, localCurrency)}`);
             expect(currentQuantity.text()).toContain(`${data.quantity}`);
-            expect(currentTotalPrice.text()).toContain(`${data.totalPrice}`);
+            expect(currentTotalPrice.text()).toContain(`${currencyFilter(data.totalPrice, localCurrency)}`);
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });
+    resetFilters();
 });

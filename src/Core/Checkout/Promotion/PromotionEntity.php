@@ -15,12 +15,13 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -91,7 +92,9 @@ class PromotionEntity extends Entity
     protected $useIndividualCodes;
 
     /**
-     * @var string
+     * @var string|null
+     *
+     * @deprecated tag:v6.7.0 - will be changed to native type
      */
     protected $individualCodePattern;
 
@@ -300,11 +303,17 @@ class PromotionEntity extends Entity
      * Gets the placeholder pattern that will be used
      * to generate new individual codes.
      *
-     * @return string the pattern for individual code generation
+     * @return string|null the pattern for individual code generation
+     *
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will be changed to nullable string
      */
-    public function getIndividualCodePattern(): string
+    public function getIndividualCodePattern(): ?string
     {
-        return $this->individualCodePattern;
+        if (Feature::isActive('v6.7.0.0')) {
+            return $this->individualCodePattern;
+        }
+
+        return (string) $this->individualCodePattern;
     }
 
     /**
@@ -610,7 +619,7 @@ class PromotionEntity extends Entity
 
         // verify if we are in SetGroup mode and build
         // a custom setgroup rule for all groups
-        if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
+        if ($this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
             // if we have groups, then all groups
             // must match now to fulfill the new group definition in shopware promotions
             $groupsRootRule = new AndRule();

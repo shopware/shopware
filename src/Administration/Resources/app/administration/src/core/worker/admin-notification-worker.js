@@ -6,7 +6,7 @@ const { Service } = Shopware;
 const READ_NOTIFICATION = 'notification.lastReadAt';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class AdminNotificationWorker {
     constructor() {

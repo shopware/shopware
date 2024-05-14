@@ -2,24 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
-use Shopware\Core\Checkout\Cart\Facade\ItemsFacade;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ItemFacade
  */
+#[CoversClass(ItemFacade::class)]
 class ItemFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -50,7 +48,6 @@ class ItemFacadeTest extends TestCase
         static::assertEquals(10, $facade->getPrice()->getUnit());
         static::assertEquals(10, $facade->getPrice()->getTotal());
 
-        static::assertInstanceOf(ArrayFacade::class, $facade->getPayload());
         static::assertEquals('bar', $facade->getPayload()->offsetGet('foo'));
         // @phpstan-ignore-next-line
         static::assertEquals('bar', $facade->getPayload()['foo']);
@@ -59,7 +56,7 @@ class ItemFacadeTest extends TestCase
         // @phpstan-ignore-next-line
         static::assertEquals('nested', $facade->getPayload()['nested']['foo']);
 
-        static::assertInstanceOf(ItemsFacade::class, $facade->getChildren());
+        static::assertCount(0, $facade->getChildren());
     }
 
     public function testICanTakeItems(): void

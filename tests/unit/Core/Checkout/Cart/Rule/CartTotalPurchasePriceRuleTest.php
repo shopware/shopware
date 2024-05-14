@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -9,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -19,12 +22,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule
  */
+#[Package('services-settings')]
+#[CoversClass(CartTotalPurchasePriceRule::class)]
 class CartTotalPurchasePriceRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
@@ -41,9 +42,8 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 
     /**
      * @param float[] $prices
-     *
-     * @dataProvider provideLineItemTestCases
      */
+    #[DataProvider('provideLineItemTestCases')]
     public function testMatchWithCartRuleScope(string $operator, array $prices, float $total, bool $matches): void
     {
         $cart = new Cart('test-token');
@@ -129,18 +129,19 @@ class CartTotalPurchasePriceRuleTest extends TestCase
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(2, $configData['fields']);
         static::assertEquals([
-            [
+            'type' => [
                 'name' => 'type',
                 'type' => 'single-select',
                 'config' => [
                     'options' => ['gross', 'net'],
-                    'class' => 'is--max-content',
                 ],
             ],
-            [
+            'amount' => [
                 'name' => 'amount',
                 'type' => 'float',
-                'config' => [],
+                'config' => [
+                    'digits' => RuleConfig::DEFAULT_DIGITS,
+                ],
             ],
         ], $configData['fields']);
     }

@@ -5,7 +5,7 @@ const { Mixin, Filter } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -44,12 +44,15 @@ export default {
         },
 
         sliderItems() {
-            if (this.element?.config?.sliderItems?.source === 'mapped') {
-                return this.getDemoValue(this.element.config.sliderItems.value) || [];
+            const sliderItemsConfig = this.element?.config?.sliderItems;
+            const sliderItemsData = this.element?.data?.sliderItems;
+
+            if (sliderItemsConfig?.source === 'mapped') {
+                return this.getDemoValue(sliderItemsConfig.value) || [];
             }
 
-            if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
-                return this.element.data.sliderItems;
+            if (sliderItemsData?.length > 0) {
+                return sliderItemsData;
             }
 
             return [];
@@ -65,7 +68,6 @@ export default {
 
         styles() {
             if (this.element.config.displayMode.value === 'cover' &&
-                this.element.config.minHeight.value &&
                 this.element.config.minHeight.value !== 0) {
                 return {
                     'min-height': this.element.config.minHeight.value,
@@ -114,10 +116,10 @@ export default {
 
     watch: {
         sliderItems: {
-            handler() {
-                if (this.sliderItems && this.sliderItems.length > 0) {
-                    this.imgSrc = this.sliderItems[0].media.url;
-                    this.$emit('active-image-change', this.sliderItems[0].media);
+            handler(sliderItems) {
+                if (sliderItems?.length > 0) {
+                    this.imgSrc = sliderItems[0].media.url;
+                    this.$emit('active-image-change', sliderItems[0].media);
                 } else {
                     this.imgSrc = this.assetFilter(this.imgPath);
                 }
@@ -140,7 +142,7 @@ export default {
             this.initElementConfig('image-slider');
             this.initElementData('image-slider');
 
-            if (this.sliderItems && this.sliderItems.length > 0) {
+            if (this.sliderItems?.length > 0) {
                 this.imgSrc = this.sliderItems[0].media.url;
                 this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
             } else {

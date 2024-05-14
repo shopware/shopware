@@ -41,6 +41,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -157,6 +161,23 @@
             <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <argument>%shopware.stock.enable_stock_management%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber">
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -191,6 +212,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
+            <argument type="service" id="product_sorting.repository" />
             <tag name="shopware.cms.data_resolver" />
         </service>
 
@@ -278,37 +300,39 @@
             <tag name="shopware.listing.processor"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
-        </service>
-
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
         </service>
-
-        <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" public="true">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSuggestRoute"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"
+                 decoration-priority="-2000" public="true">
+
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSuggestRoute.inner"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" decoration-priority="-1000" public="true">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"
+                 decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_suggest_route%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" public="true">
@@ -371,7 +395,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
@@ -425,11 +449,9 @@
             <argument type="tagged_iterator" tag="shopware.product.stock_filter"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
+        <service id="Shopware\Core\Content\Product\Stock\StockStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">
@@ -443,6 +465,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
@@ -479,6 +502,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" decoration-priority="-1000" public="true">
@@ -536,6 +560,7 @@
 
         <service id="Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="messenger.message_handler"/>
         </service>
@@ -546,6 +571,7 @@
 
         <service id="Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Content\Media\UnusedMediaPurger"/>
             <tag name="messenger.message_handler"/>
         </service>

@@ -40,11 +40,6 @@ class PluginTranslationEntity extends TranslationEntity
     protected $supportLink;
 
     /**
-     * @var array|null
-     */
-    protected $changelog;
-
-    /**
      * @var PluginEntity|null
      */
     protected $plugin;
@@ -97,16 +92,6 @@ class PluginTranslationEntity extends TranslationEntity
     public function setSupportLink(string $supportLink): void
     {
         $this->supportLink = $supportLink;
-    }
-
-    public function getChangelog(): ?array
-    {
-        return $this->changelog;
-    }
-
-    public function setChangelog(array $changelog): void
-    {
-        $this->changelog = $changelog;
     }
 
     public function getPlugin(): ?PluginEntity

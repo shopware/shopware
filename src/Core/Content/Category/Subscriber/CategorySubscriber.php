@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('inventory')]
 class CategorySubscriber implements EventSubscriberInterface
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
@@ -19,13 +19,7 @@ export default {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
-        // FIXME: add type attribute
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -42,7 +36,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -56,7 +49,6 @@ export default {
             required: false,
             default: 'value',
         },
-
         searchFunction: {
             type: Function,
             required: false,
@@ -70,7 +62,6 @@ export default {
                 });
             },
         },
-
         currencies: {
             type: Array,
             required: false,
@@ -78,7 +69,6 @@ export default {
                 return [{ isoCode: 'DEFAULT' }];
             },
         },
-
         languages: {
             type: Array,
             required: false,
@@ -86,7 +76,6 @@ export default {
                 return [{ locale: 'DEFAULT' }];
             },
         },
-
         customFieldSets: {
             type: Array,
             required: false,
@@ -115,7 +104,7 @@ export default {
             ],
             visibilityProperties: ['all', 'link', 'search'],
             notMappedItem: {
-                label: this.$tc('sw-import-export.profile.mapping.notMapped'),
+                label: this.$t('sw-import-export.profile.mapping.notMapped'),
                 relation: undefined,
                 value: '',
             },
@@ -127,14 +116,9 @@ export default {
             get() {
                 return this.value || '';
             },
+
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 
@@ -150,6 +134,12 @@ export default {
             };
         },
 
+        resultListClasses() {
+            return [
+                'sw-import-export-entity-path-select__result-list',
+            ];
+        },
+
         singleSelection: {
             get() {
                 if (this.currentValue === '' || this.currentValue === null) {
@@ -160,6 +150,7 @@ export default {
                     return this.getKey(option, this.valueProperty) === this.currentValue;
                 });
             },
+
             set(newValue) {
                 if (newValue === null) {
                     newValue = '';
@@ -312,6 +303,7 @@ export default {
                 this.processAssignedProducts,
                 this.processPrice,
                 this.processLineItems,
+                this.processTransactions,
                 this.processDeliveries,
                 this.processProperties,
             ];
@@ -576,6 +568,38 @@ export default {
             return [{ label: name, value: name }];
         },
 
+        processTransactions({ definition, options, properties, path }) {
+            const transactionsProperty = definition.properties.transactions;
+
+            if (!transactionsProperty || transactionsProperty.relation !== 'one_to_many') {
+                return { definition, options, properties, path };
+            }
+
+            const transactionDefinition = Shopware.EntityDefinition.get(transactionsProperty.entity);
+            const transactionProperties = Object.keys(transactionDefinition.properties);
+
+            const newOptions = [...options, ...this.generateTransactionsProperties(path, transactionProperties)];
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'transactions';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        generateTransactionsProperties(path, properties) {
+            return properties.reduce((accumulator, propertyName) => {
+                const name = `${path}transactions.${propertyName}`;
+                accumulator.push({ value: name, label: name });
+
+                return accumulator;
+            }, []);
+        },
+
         processDeliveries({ definition, options, properties, path }) {
             const deliveryProperty = definition.properties.deliveries;
 
@@ -600,15 +624,12 @@ export default {
         },
 
         generateDeliveryProperties(path, properties) {
-            const options = [];
-
-            properties.forEach(propertyName => {
+            return properties.reduce((accumulator, propertyName) => {
                 const name = `${path}deliveries.${propertyName}`;
+                accumulator.push({ value: name, label: name });
 
-                options.push({ value: name, label: name });
-            });
-
-            return options;
+                return accumulator;
+            }, []);
         },
 
         processProperties({ definition, options, properties, path }) {
@@ -651,14 +672,12 @@ export default {
         },
 
         getVisibilityProperties(path) {
-            const options = [];
-
-            this.visibilityProperties.forEach(property => {
+            return this.visibilityProperties.reduce((accumulator, property) => {
                 const name = `${path}visibilities.${property}`;
-                options.push({ label: name, value: name });
-            });
+                accumulator.push({ label: name, value: name });
 
-            return options;
+                return accumulator;
+            }, []);
         },
 
         processMedia({ definition, options, properties, path }) {

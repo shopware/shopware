@@ -6,22 +6,20 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description password input field.
  * @status ready
  * @example-type static
  * @component-example
  * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
-Component.extend('sw-password-field', 'sw-text-field', {
+Component.extend('sw-password-field', 'sw-text-field-deprecated', {
     template,
 
     props: {
         passwordToggleAble: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

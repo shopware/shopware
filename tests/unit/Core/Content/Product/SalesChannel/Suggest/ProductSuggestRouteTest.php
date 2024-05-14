@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
-use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSuggestRoute;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,18 +24,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute
  */
+#[CoversClass(ProductSuggestRoute::class)]
 class ProductSuggestRouteTest extends TestCase
 {
-    private EventDispatcher $eventDispatcher;
-
-    /**
-     * @var ProductSearchBuilderInterface&MockObject
-     */
-    private ProductSearchBuilderInterface $searchBuilder;
-
     /**
      * @var ProductListingLoader&MockObject
      */
@@ -43,8 +35,6 @@ class ProductSuggestRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = new EventDispatcher();
-        $this->searchBuilder = $this->createMock(ProductSearchBuilderInterface::class);
         $this->listingLoader = $this->createMock(ProductListingLoader::class);
     }
 
@@ -59,7 +49,14 @@ class ProductSuggestRouteTest extends TestCase
     {
         static::expectException(RoutingException::class);
 
-        $this->getProductSuggestRoute()->load(
+        $route = new ResolvedCriteriaProductSuggestRoute(
+            $this->createMock(ProductSearchBuilderInterface::class),
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSuggestRoute::class),
+            new CompositeListingProcessor([])
+        );
+
+        $route->load(
             new Request(),
             $this->createMock(SalesChannelContext::class),
             new Criteria()
@@ -84,61 +81,20 @@ class ProductSuggestRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $this->searchBuilder->expects(static::once())->method('build');
-
-        $suggestCriteriaEventFired = false;
-        $this->eventDispatcher->addListener(
-            ProductEvents::PRODUCT_SUGGEST_CRITERIA,
-            static function (ProductSuggestCriteriaEvent $event) use (&$suggestCriteriaEventFired): void {
-                $suggestCriteriaEventFired = true;
-
-                static::assertTrue(
-                    $event->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE),
-                    'Criteria should be Elasticsearch aware'
-                );
-            }
-        );
-
-        $suggestResultEventFired = false;
-        $this->eventDispatcher->addListener(
-            ProductEvents::PRODUCT_SUGGEST_RESULT,
-            static function (ProductSuggestResultEvent $event) use (&$suggestResultEventFired): void {
-                $suggestResultEventFired = true;
-
-                static::assertTrue(
-                    $event->getResult()->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE),
-                    'Criteria should be Elasticsearch aware'
-                );
-            }
-        );
-
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $result = $this->getProductSuggestRoute()->load(
+        $this->getProductSuggestRoute()->load(
             $request,
             $salesChannelContext,
             $criteria
-        );
-
-        static::assertTrue(
-            $suggestCriteriaEventFired,
-            sprintf('Event %s was not fired', ProductEvents::PRODUCT_SUGGEST_CRITERIA)
-        );
-
-        static::assertTrue(
-            $suggestResultEventFired,
-            sprintf('Event %s was not fired', ProductEvents::PRODUCT_SUGGEST_CRITERIA)
         );
     }
 
     private function getProductSuggestRoute(): ProductSuggestRoute
     {
         return new ProductSuggestRoute(
-            $this->searchBuilder,
-            $this->eventDispatcher,
-            $this->listingLoader,
-            new CompositeListingProcessor([])
+            $this->listingLoader
         );
     }
 }

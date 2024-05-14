@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton\Response;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -40,12 +41,10 @@ class ReloadDataResponseFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideActionTypes
-     */
+    #[DataProvider('provideActionTypes')]
     public function testSupportsOnlyReloadDataActionType(string $actionType, bool $isSupported): void
     {
-        static::assertEquals($isSupported, $this->factory->supports($actionType));
+        static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
     public function testCreatesReloadDataResponse(): void

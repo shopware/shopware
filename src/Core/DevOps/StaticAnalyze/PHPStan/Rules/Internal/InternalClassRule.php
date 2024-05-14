@@ -6,7 +6,6 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -35,10 +33,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('core')]
 class InternalClassRule implements Rule
 {
-    private const TEST_CLASS_EXCEPTIONS = [
-        StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
-    ];
-
     private const INTERNAL_NAMESPACES = [
         '\\DevOps\\StaticAnalyze',
     ];
@@ -56,13 +50,6 @@ class InternalClassRule implements Rule
         DemodataCommand::class,
         DemodataRequestCreatedEvent::class,
     ];
-
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(ReflectionProvider $reflectionProvider)
-    {
-        $this->reflectionProvider = $reflectionProvider;
-    }
 
     public function getNodeType(): string
     {
@@ -126,10 +113,6 @@ class InternalClassRule implements Rule
     private function isTestClass(InClassNode $node): bool
     {
         $namespace = $node->getClassReflection()->getName();
-
-        if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
-            return false;
-        }
 
         if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
             return false;
@@ -242,7 +225,9 @@ class InternalClassRule implements Rule
 
     private function isParentInternalAndAbstract(Scope $scope): bool
     {
-        $parent = $scope->getClassReflection()->getParentClass();
+        $class = $scope->getClassReflection();
+        \assert($class !== null);
+        $parent = $class->getParentClass();
 
         if ($parent === null) {
             return false;

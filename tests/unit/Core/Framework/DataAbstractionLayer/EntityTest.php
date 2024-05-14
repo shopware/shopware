@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -14,9 +16,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Entity
  */
+#[CoversClass(Entity::class)]
 class EntityTest extends TestCase
 {
     /**
@@ -60,9 +61,7 @@ class EntityTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider apiAliasDefaultsDataProvider
-     */
+    #[DataProvider('apiAliasDefaultsDataProvider')]
     public function testApiAlias(string $class, string $expected): void
     {
         /** @var Entity $entity */

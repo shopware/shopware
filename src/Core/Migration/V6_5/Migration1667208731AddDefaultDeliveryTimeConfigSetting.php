@@ -28,11 +28,6 @@ class Migration1667208731AddDefaultDeliveryTimeConfigSetting extends MigrationSt
         $this->insertSettingValue($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function insertSettingValue(Connection $connection): void
     {
         $query = 'INSERT INTO system_config (`id`, `configuration_key`, `configuration_value`, `created_at`)

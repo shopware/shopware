@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @public
- * @package business-ops
+ * @package services-settings
  * @description Condition for the DateRangeRule. This component must a be child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -57,7 +57,8 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(fromDate) {
                 this.ensureValueExist();
 
-                const date = (fromDate && this.isDateTime) ? fromDate.replace('.000Z', '+00:00') : fromDate;
+                // eslint-disable-next-line max-len
+                const date = this.isDateTime === 'datetime' ? fromDate.replace('.000Z', '+00:00') : fromDate.concat('+00:00');
                 this.condition.value = { ...this.condition.value, fromDate: date };
             },
         },
@@ -70,13 +71,13 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
             set(toDate) {
                 this.ensureValueExist();
 
-                const date = (toDate && this.isDateTime) ? toDate.replace('.000Z', '+00:00') : toDate;
+                const date = this.isDateTime === 'datetime' ? toDate.replace('.000Z', '+00:00') : toDate.concat('+00:00');
                 this.condition.value = { ...this.condition.value, toDate: date };
             },
         },
 
         isDateTime() {
-            return this.useTime ? 'datetime-local' : 'date';
+            return this.useTime ? 'datetime' : 'date';
         },
 
         ...mapPropertyErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),

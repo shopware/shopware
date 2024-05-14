@@ -1,14 +1,10 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import Vue from 'vue';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigProductListing from 'src/module/sw-cms/elements/product-listing/config';
-import 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.register('sw-cms-el-config-product-listing', swCmsElConfigProductListing);
 
 const productSortingRepositoryMock = {
     search() {
@@ -64,43 +60,49 @@ const repositoryMockFactory = (entity) => {
 
 
 async function createWrapper(activeTab = 'sorting') {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing'), {
-        stubs: {
-            'sw-cms-el-config-product-listing-config-sorting-grid': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-entity-single-select': true,
-            'sw-simple-search-field': true,
-            'sw-entity-multi-select': true,
-            'sw-select-field': true,
-            'sw-switch-field': true,
-            'sw-pagination': true,
-            'sw-container': true,
-            'sw-tabs-item': true,
-            'sw-alert': true,
-            'sw-empty-state': true,
-            'sw-tabs': {
-                data() {
-                    return { active: activeTab };
+    return mount(await wrapTestComponent('sw-cms-el-config-product-listing', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-cms-el-config-product-listing-config-sorting-grid': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-entity-single-select': true,
+                'sw-simple-search-field': true,
+                'sw-entity-multi-select': true,
+                'sw-select-field': true,
+                'sw-switch-field': true,
+                'sw-pagination': true,
+                'sw-container': true,
+                'sw-tabs-item': true,
+                'sw-alert': true,
+                'sw-empty-state': true,
+                'sw-tabs': {
+                    data() {
+                        return { active: activeTab };
+                    },
+                    template: `
+                        <div>
+                            <slot></slot>
+                            <slot name="content" v-bind="{ active }"></slot>
+                        </div>
+                    `,
                 },
-                template: `
-<div>
-    <slot></slot>
-    <slot name="content" v-bind="{ active }"></slot>
-</div>`,
             },
-        },
-        provide: {
-            cmsService: {
-                getCmsElementRegistry: () => {
-                    return [];
+            provide: {
+                cmsService: {
+                    getCmsElementRegistry: () => {
+                        return [];
+                    },
                 },
-            },
-            repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity),
-            },
+                repositoryFactory: {
+                    create: (entity) => repositoryMockFactory(entity),
+                },
 
+            },
         },
-        propsData: Vue.observable({
+        props: Vue.observable({
             defaultConfig: {},
             element: {
                 config: {
@@ -191,15 +193,17 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should update the config when product sortings changes', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual([]);
 
         await wrapper.setData({
             productSortings: [
                 {
+                    id: 'foo_id',
                     key: 'foo',
                     priority: 2,
                 },
                 {
+                    id: 'bar_id',
                     key: 'bar',
                     priority: 5,
                 },
@@ -207,8 +211,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
-            foo: 2,
-            bar: 5,
+            foo_id: 2,
+            bar_id: 5,
         });
     });
 
@@ -251,10 +255,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         const before = [
             {
+                id: 'foo_id',
                 key: 'foo',
                 priority: 2,
             },
             {
+                id: 'bar_id',
                 key: 'bar',
                 priority: 5,
             },
@@ -267,13 +273,14 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const after = wrapper.vm.transformProductSortings();
 
         expect(after).toStrictEqual({
-            bar: 5,
-            foo: 2,
+            bar_id: 5,
+            foo_id: 2,
         });
     });
 
     it('should contain content for filter setting', async () => {
         const wrapper = await createWrapper('filter');
+        await flushPromises();
 
         const showFilterManufacturerSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
@@ -283,7 +290,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByPrice"]');
         const showFilterForFreeShippingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping"]');
-
 
         expect(showFilterManufacturerSwitchField.exists()).toBeTruthy();
         expect(showFilterRatingSwitchField.exists()).toBeTruthy();
@@ -343,6 +349,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const wrapper = await createWrapper('filter');
 
         await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises();
 
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);
@@ -351,6 +358,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         wrapper.vm.filterPropertiesTerm = 'bar';
         wrapper.vm.onFilterProperties();
         await wrapper.vm.$nextTick(); // fetch filtered list
+        await flushPromises();
 
         const expectedToDisplayFilteredProperties = ['bar'];
         const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
@@ -358,9 +366,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
         await wrapper.vm.$nextTick(); // await template re-render
+        await flushPromises();
 
         const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
-        expect(emptyStateElement.element).not.toBeTruthy();
+        expect(emptyStateElement.exists()).toBe(false);
     });
 
     it('should show an empty-state when filtered properties have no result', async () => {

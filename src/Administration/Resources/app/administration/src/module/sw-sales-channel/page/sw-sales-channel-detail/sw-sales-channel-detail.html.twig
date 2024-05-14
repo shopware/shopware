@@ -23,11 +23,7 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSaving || isLoading || productComparison.invalidFileName"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-sales-channel.detail.buttonSave') }}
@@ -117,26 +113,32 @@
                 <sw-skeleton />
             </template>
 
-            <router-view
-                v-else
-                :key="$route.params.id"
-                :sales-channel="salesChannel"
-                :product-export="productExport"
-                :storefront-sales-channel-criteria="storefrontSalesChannelCriteria"
-                :custom-field-sets="customFieldSets"
-                :is-loading="isLoading"
-                :product-comparison-access-url="productComparison.productComparisonAccessUrl"
-                :template-options="productComparison.templateOptions"
-                :show-template-modal="productComparison.showTemplateModal"
-                :template-name="productComparison.templateName"
-                @template-selected="onTemplateSelected"
-                @access-key-changed="generateAccessUrl"
-                @domain-changed="generateAccessUrl"
-                @invalid-file-name="setInvalidFileName(true)"
-                @valid-file-name="setInvalidFileName(false)"
-                @template-modal-close="onTemplateModalClose"
-                @template-modal-confirm="onTemplateModalConfirm"
-            />
+            <template v-else>
+                <router-view
+                    :key="$route.params.id"
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        :sales-channel="salesChannel"
+                        :product-export="productExport"
+                        :storefront-sales-channel-criteria="storefrontSalesChannelCriteria"
+                        :custom-field-sets="customFieldSets"
+                        :is-loading="isLoading"
+                        :product-comparison-access-url="productComparison.productComparisonAccessUrl"
+                        :template-options="productComparison.templateOptions"
+                        :show-template-modal="productComparison.showTemplateModal"
+                        :template-name="productComparison.templateName"
+                        @template-selected="onTemplateSelected"
+                        @access-key-changed="generateAccessUrl"
+                        @domain-changed="generateAccessUrl"
+                        @invalid-file-name="setInvalidFileName(true)"
+                        @valid-file-name="setInvalidFileName(false)"
+                        @template-modal-close="onTemplateModalClose"
+                        @template-modal-confirm="onTemplateModalConfirm"
+                    />
+                </router-view>
+            </template>
             {% endblock %}
         </sw-card-view>
     </template>

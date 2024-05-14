@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -21,10 +22,11 @@ final class CleanupVersionTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly Connection $connection,
         private readonly int $days
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void

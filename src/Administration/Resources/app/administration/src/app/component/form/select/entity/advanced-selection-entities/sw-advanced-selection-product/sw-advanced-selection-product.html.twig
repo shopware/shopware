@@ -64,7 +64,7 @@
         v-for="currency in currencies"
         #[`column-price-${currency.isoCode}`]="{ item }"
     >
-        {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+        {{ currencyFilter(getCurrencyPriceByCurrencyId(currency.id, item.price).gross, currency.isoCode) }}
     </template>
     {% endblock %}
 
@@ -74,7 +74,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_stock_content %}
         {{ item.stock }}
-        <sw-color-badge :variant="item.stock | stockColorVariant" />
+        <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
         {% endblock %}
     </template>
     {% endblock %}
@@ -85,7 +85,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_advanced_selection_product_list_grid_columns_release_date_content %}
         <template v-if="item.releaseDate">
-            {{ item.releaseDate | date }}
+            {{ dateFilter(item.releaseDate) }}
         </template>
         <template v-else>
             -

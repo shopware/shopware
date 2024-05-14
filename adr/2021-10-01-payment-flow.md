@@ -41,7 +41,7 @@ To improve the payment workflow on headless systems or reduce orders without pay
 
 The payment handler **has to verify the given payload with the payment service**, because Shopware cannot ensure that the transaction created by the frontend is valid for the current cart. After successful verification the order will be created and the payment handler will be called again to **charge the payment**.
 
-When the charge was successful the payment will be set to paid and the user will be forwarded to the finish page, but on [failure the after order payment process will be active](#after-order-payment-error-case). It is highly recommended implementing this optional feature, when the creation and the capturing of the payment can be seperated.
+When the charge was successful the payment will be set to paid and the user will be forwarded to the finish page, but on [failure the after order payment process will be active](#after-order-payment-error-case). It is highly recommended implementing this optional feature, when the creation and the capturing of the payment can be separated.
 
 ![Pre created payment](./assets/payment-flow/pre-created-payment.png)
 
@@ -50,4 +50,3 @@ When the charge was successful the payment will be set to paid and the user will
 Both possible options can produce failed payments. In failure case the after order payment process begins. The client can choose a new payment method and retry the payment and the entire payment loop of a synchronous / asynchronous payment starts again.
 
 ![After order payment](./assets/payment-flow/after-order-payment.svg)
-

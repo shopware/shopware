@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_media_modal_v2 %}
 <sw-modal
+    ref="swMediaModal"
     class="sw-media-modal-v2"
     variant="full"
     :title="$tc('sw-media.sw-media-modal-v2.titleModal')"
@@ -67,18 +68,14 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_v2_folder_breadcrumbs %}
                             <sw-media-breadcrumbs
-                                {% if VUE3 %}
                                 v-model:currentFolderId="folderId"
-                                {% else %}
-                                v-model="folderId"
-                                {% endif %}
                                 :small="compact"
                             />
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_v2_search_field %}
-                            <sw-simple-search-field v-model="term" />
+                            <sw-simple-search-field v-model:value="term" />
                             {% endblock %}
                         </div>
                         {% endblock %}
@@ -92,11 +89,7 @@
                             :term="term"
                             :compact="compact"
                             :allow-multi-select="allowMultiSelect"
-                            {% if VUE3 %}
                             @update:selection="selection = $event"
-                            {% else %}
-                            @media-selection-change="selection = $event"
-                            {% endif %}
                             @media-folder-change="folderId = $event"
                         />
                         {% endblock %}
@@ -125,7 +118,7 @@
                             :file-accept="fileAccept"
                             :upload-tag="uploadTag"
                             :default-folder="entityContext"
-                            :target-folder="folderId"
+                            :target-folder-id="folderId"
                             :allow-multi-select="allowMultiSelect"
                         />
                         {% endblock %}

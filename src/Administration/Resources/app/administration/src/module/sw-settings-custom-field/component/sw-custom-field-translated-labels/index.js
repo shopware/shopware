@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-custom-field-translated-labels.html.twig';
 import './sw-custom-field-translated-labels.scss';
@@ -16,12 +16,7 @@ export default {
         Mixin.getByName('sw-inline-snippet'),
     ],
 
-    model: {
-        prop: 'config',
-    },
-
     props: {
-        // FIXME: add type to locales
         // eslint-disable-next-line vue/require-prop-types
         locales: {
             required: true,

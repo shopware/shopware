@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 const { Mixin, Data: { Criteria } } = Shopware;
 const { debug } = Shopware.Utils;
@@ -28,6 +28,7 @@ Mixin.register('sw-settings-list', {
         entityRepository() {
             return this.repositoryFactory.create(this.entityName);
         },
+
         listingCriteria() {
             const criteria = new Criteria(1, 25);
 
@@ -37,6 +38,7 @@ Mixin.register('sw-settings-list', {
 
             return criteria;
         },
+
         titleSaveSuccess() {
             if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`)) {
                 return this.$tc((`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`));
@@ -44,6 +46,7 @@ Mixin.register('sw-settings-list', {
 
             return this.$tc('global.default.success');
         },
+
         messageSaveSuccess() {
             if (this.deleteEntity) {
                 let name = this.deleteEntity.name;

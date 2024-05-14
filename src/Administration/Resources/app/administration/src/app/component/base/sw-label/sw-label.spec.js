@@ -2,16 +2,16 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-label';
+import { mount } from '@vue/test-utils';
 
-async function createWrapper(propsData = {}, listeners = {}) {
-    return shallowMount(await Shopware.Component.build('sw-label'), {
-        stubs: {
-            'sw-icon': true,
+async function createWrapper(propsData = {}) {
+    return mount(await wrapTestComponent('sw-label', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
         },
-        listeners,
-        propsData: propsData,
+        props: propsData,
     });
 }
 
@@ -23,13 +23,13 @@ describe('src/app/component/base/sw-label', () => {
     });
 
     it('should be dismissable', async () => {
-        const wrapper = await createWrapper({ dismissable: true }, { dismiss: () => {} });
+        const wrapper = await createWrapper({ dismissable: true });
 
         expect(wrapper.find('sw-label__dismiss')).toBeTruthy();
     });
 
     it('should not be dismissable', async () => {
-        const wrapper = await createWrapper({ dismissable: false }, { dismiss: () => {} });
+        const wrapper = await createWrapper({ dismissable: false });
 
         expect(wrapper.find('sw-label__dismiss').exists()).toBeFalsy();
     });

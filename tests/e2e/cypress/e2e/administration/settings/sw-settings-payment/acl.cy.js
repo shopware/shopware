@@ -10,7 +10,7 @@ describe('Payment: Test ACL privileges', () => {
             });
     });
 
-    it('@settings: has no access to payment module', { tags: ['pa-checkout'] }, () => {
+    it('@settings: has no access to payment module', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
@@ -28,7 +28,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-list').should('not.exist');
     });
 
-    it('@settings: can view payment but is not able to edit or activate payment ', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can view payment but is not able to edit or activate payment ', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'payment',
@@ -54,7 +54,7 @@ describe('Payment: Test ACL privileges', () => {
             .should('be.disabled');
     });
 
-    it('@settings: can edit payment', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can edit payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,
@@ -89,6 +89,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-detail__field-name').should('be.visible');
         cy.get('#sw-field--paymentMethod-description').type('My description');
         cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
+        cy.get('.sw-settings-payment-detail-delete').should('not.exist');
 
         // Verify updated payment method
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');
@@ -103,7 +104,7 @@ describe('Payment: Test ACL privileges', () => {
             .contains('My description');
     });
 
-    it('@settings: can create payment', { tags: ['pa-checkout'] }, () => {
+    it('@settings: can create payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,
@@ -131,6 +132,7 @@ describe('Payment: Test ACL privileges', () => {
 
         // Add payment method
         cy.get('#sw-field--paymentMethod-name').typeAndCheck('1 Coleur');
+        cy.get('#sw-field--paymentMethod-technicalName').typeAndCheck('payment-coleur');
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');
         cy.get('.sw-payment-detail__save-action').click();
 
@@ -140,5 +142,39 @@ describe('Payment: Test ACL privileges', () => {
         cy.get(page.elements.smartBarBack).click();
 
         cy.contains('.sw-card__title', '1 Coleur');
+    });
+
+    it('@settings: can delete payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method/*`,
+            method: 'PATCH',
+        }).as('savePayment');
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'payment',
+                role: 'editor',
+            }, {
+                key: 'payment',
+                role: 'deleter',
+            },
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
+
+        // open settings-payment
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('Edit detail')
+            .click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-settings-payment-detail-delete').should('be.visible');
     });
 });

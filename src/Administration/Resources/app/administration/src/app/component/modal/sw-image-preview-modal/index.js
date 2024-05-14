@@ -5,7 +5,6 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @status ready
  * @example-type static
@@ -90,7 +89,7 @@ Component.register('sw-image-preview-modal', {
         this.updatedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

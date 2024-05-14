@@ -9,8 +9,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description
  * Renders a code editor
@@ -84,7 +83,6 @@ export default {
         softWraps: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -103,6 +101,17 @@ export default {
         },
 
         required: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        /**
+         * @description:
+         * If set to true, the component will show warning below the editor the content might be sanitized
+         * but does not call the sanitize API, the sanitization is done by the backend on saving
+         */
+        sanitizeInfoWarn: {
             type: Boolean,
             required: false,
             default: false,
@@ -192,6 +201,8 @@ export default {
             if (this.setFocus) {
                 this.editor.focus();
             }
+
+            this.$emit('mounted');
         },
 
         destroyedComponent() {
@@ -202,7 +213,7 @@ export default {
             const value = this.editor.getValue();
 
             if (this.value !== value) {
-                this.$emit('input', value);
+                this.$emit('update:value', value);
             }
         },
 

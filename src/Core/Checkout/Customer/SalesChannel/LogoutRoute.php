@@ -13,11 +13,11 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class LogoutRoute extends AbstractLogoutRoute
 {
     /**
@@ -36,7 +36,7 @@ class LogoutRoute extends AbstractLogoutRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */
@@ -44,20 +44,12 @@ class LogoutRoute extends AbstractLogoutRoute
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
-
-            $event = new CustomerLogoutEvent($context, $customer);
-            $this->eventDispatcher->dispatch($event);
-
-            return new ContextTokenResponse($context->getToken());
-        }
-
-        $newToken = Random::getAlphanumericString(32);
-        if ((bool) $data->get('replace-token')) {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        } else {
+            $this->contextPersister->replace($context->getToken(), $context);
         }
 
         $context->assign([
-            'token' => $newToken,
+            'token' => Random::getAlphanumericString(32),
         ]);
 
         $event = new CustomerLogoutEvent($context, $customer);

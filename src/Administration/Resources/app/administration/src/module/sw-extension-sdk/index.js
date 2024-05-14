@@ -13,12 +13,13 @@ Shopware.Module.register('sw-extension-sdk', {
     routes: {
         index: {
             component: 'sw-extension-sdk-module',
-            path: ':id',
+            path: ':id/:back?',
             props: {
                 default(route) {
-                    const { id } = route.params;
+                    const { id, back } = route.params;
                     return {
                         id,
+                        back,
                     };
                 },
             },

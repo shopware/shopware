@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import './mixin/sw-settings-list.mixin';
 import './acl';

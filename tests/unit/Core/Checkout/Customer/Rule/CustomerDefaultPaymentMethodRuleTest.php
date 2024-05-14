@@ -2,11 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerDefaultPaymentMethodRule;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -14,14 +18,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerDefaultPaymentMethodRule
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerDefaultPaymentMethodRule::class)]
+#[Group('rules')]
 class CustomerDefaultPaymentMethodRuleTest extends TestCase
 {
     private CustomerDefaultPaymentMethodRule $rule;
@@ -48,10 +49,9 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param list<string> $methodIds
      */
+    #[DataProvider('getMatchValues')]
     public function testCustomerDefaultPaymentMethodRuleMatching(bool $expected, string $customerDefaultPaymentMethod, array $methodIds, string $operator): void
     {
         $customer = new CustomerEntity();
@@ -101,7 +101,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, string, list<string>, string}>
+     * @return array<string, array{bool, string, list<string>, string}>
      */
     public static function getMatchValues(): array
     {

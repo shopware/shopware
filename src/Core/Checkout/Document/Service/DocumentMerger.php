@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\Service;
 
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tcpdf\Fpdi;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -19,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 final class DocumentMerger
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
     public function __construct(
         private readonly EntityRepository $documentRepository,
@@ -49,8 +50,7 @@ final class DocumentMerger
         $criteria->addAssociation('documentType');
         $criteria->addSorting(new FieldSorting('order.orderNumber'));
 
-        /** @var DocumentCollection $documents */
-        $documents = $this->documentRepository->search($criteria, $context);
+        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         if ($documents->count() === 0) {
             return null;
@@ -59,8 +59,10 @@ final class DocumentMerger
         $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
 
         if ($documents->count() === 1) {
-            /** @var DocumentEntity $document */
             $document = $documents->first();
+            if ($document === null) {
+                return null;
+            }
 
             $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
 
@@ -132,8 +134,10 @@ final class DocumentMerger
 
         $operation->setDocumentId($document->getId());
 
-        /** @var DocumentTypeEntity $documentType */
         $documentType = $document->getDocumentType();
+        if ($documentType === null) {
+            return null;
+        }
 
         $documentStruct = $this->documentGenerator->generate(
             $documentType->getTechnicalName(),

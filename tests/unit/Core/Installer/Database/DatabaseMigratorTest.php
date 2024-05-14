@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -14,9 +15,8 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Database\DatabaseMigrator
  */
+#[CoversClass(DatabaseMigrator::class)]
 class DatabaseMigratorTest extends TestCase
 {
     private MockObject&SetupDatabaseAdapter $setupAdapter;

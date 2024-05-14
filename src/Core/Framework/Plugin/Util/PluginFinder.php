@@ -156,7 +156,7 @@ class PluginFinder
             $pluginBaseClass = $this->getPluginNameFromPackage($root);
             $plugins[$pluginBaseClass] = (new PluginFromFileSystemStruct())->assign([
                 'baseClass' => $pluginBaseClass,
-                'path' => '.',
+                'path' => $projectDir,
                 'managedByComposer' => true,
                 'composerPackage' => $root,
             ]);

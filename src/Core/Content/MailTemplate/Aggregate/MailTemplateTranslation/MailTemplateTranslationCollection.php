@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailTemplateTranslationEntity>
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class MailTemplateTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMailTemplateIds(): array
     {
@@ -25,7 +25,7 @@ class MailTemplateTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

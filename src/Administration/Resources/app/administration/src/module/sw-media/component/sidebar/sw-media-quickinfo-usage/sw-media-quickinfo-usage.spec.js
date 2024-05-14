@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swMediaQuickinfoUsage from 'src/module/sw-media/component/sidebar/sw-media-quickinfo-usage';
-
-Shopware.Component.register('sw-media-quickinfo-usage', swMediaQuickinfoUsage);
+import { mount } from '@vue/test-utils';
 
 const { Module } = Shopware;
 const ModuleFactory = Module;
@@ -34,13 +31,15 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
     let wrapper;
     let moduleMock;
     beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-media-quickinfo-usage'), {
-            stubs: {
-                'router-link': true,
-                'sw-icon': true,
-                'sw-alert': true,
+        wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
+            props: { item: itemDeleteMock() },
+            global: {
+                stubs: {
+                    'router-link': true,
+                    'sw-icon': true,
+                    'sw-alert': true,
+                },
             },
-            propsData: { item: itemDeleteMock() },
         });
 
         const modules = ModuleFactory.getModuleRegistry();

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-snippet-filter-switch.html.twig';
 import './sw-settings-snippet-filter-switch.scss';
@@ -74,7 +74,7 @@ export default {
         onChange(value) {
             const name = this.name;
             const group = this.group;
-            this.$emit('change', { value, name, group });
+            this.$emit('update:value', { value, name, group });
         },
     },
 };

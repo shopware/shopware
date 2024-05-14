@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1674704527UpdateVATPatternForCyprusCountry extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -23,9 +23,5 @@ class Migration1674704527UpdateVATPatternForCyprusCountry extends MigrationStep
             'UPDATE country SET vat_id_pattern = :pattern WHERE iso = :iso;',
             ['pattern' => '(CY)?[0-9]{8}[A-Z]{1}', 'iso' => 'CY']
         );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

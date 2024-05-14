@@ -54,10 +54,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_image_preview_modal_button_close %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-image-preview-modal__button-close"
+            role="button"
+            tabindex="0"
             @click="onClickClose"
+            @keydown.enter="onClickClose"
         >
             <sw-icon name="regular-times" />
         </div>

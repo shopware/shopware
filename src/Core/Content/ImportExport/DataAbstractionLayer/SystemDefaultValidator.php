@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemDefaultValidator implements EventSubscriberInterface
 {
     public function __construct(private readonly Connection $connection)
@@ -39,7 +39,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
         $writeCommands = $event->getCommands();
 
         foreach ($writeCommands as $command) {
-            if ($command->getDefinition()->getClass() === ImportExportProfileDefinition::class
+            if ($command->getEntityName() === ImportExportProfileDefinition::ENTITY_NAME
                 && $command instanceof DeleteCommand
             ) {
                 $ids[] = $command->getPrimaryKey()['id'];
@@ -52,6 +52,11 @@ class SystemDefaultValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param string[] $ids
+     *
+     * @return string[]
+     */
     private function filterSystemDefaults(array $ids): array
     {
         if (empty($ids)) {
@@ -61,7 +66,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
         $result = $this->connection->executeQuery(
             'SELECT id FROM import_export_profile WHERE id IN (:idList) AND system_default = 1',
             ['idList' => $ids],
-            ['idList' => ArrayParameterType::STRING]
+            ['idList' => ArrayParameterType::BINARY]
         );
 
         return $result->fetchFirstColumn();

@@ -46,12 +46,12 @@ class SwagTestSkipRebuild extends Plugin
     public $postActivateContext;
 
     /**
-     * @var Plugin\Context\DeactivateContext|null
+     * @var DeactivateContext|null
      */
     public $preDeactivateContext;
 
     /**
-     * @var Plugin\Context\DeactivateContext|null
+     * @var DeactivateContext|null
      */
     public $postDeactivateContext;
 

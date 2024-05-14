@@ -2,17 +2,11 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProductVariantsDeliveryOrder from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
-
-Shopware.Component.register('sw-product-variants-delivery-order', swProductVariantsDeliveryOrder);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-product-variants-delivery-order'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-variants-delivery-order', { sync: true }), {
+        props: {
             product: {
                 configuratorSettings: [],
                 variantListingConfig: {
@@ -47,13 +41,15 @@ async function createWrapper() {
                 id: 'e6cea31f2d774b06ab6459c64cd3345h',
             }],
         },
-        provide: {
-            repositoryFactory: {},
-            mediaService: {},
-        },
-        stubs: {
-            'sw-loader': true,
-            'sw-tree': true,
+        global: {
+            provide: {
+                repositoryFactory: {},
+                mediaService: {},
+            },
+            stubs: {
+                'sw-loader': true,
+                'sw-tree': true,
+            },
         },
     });
 }

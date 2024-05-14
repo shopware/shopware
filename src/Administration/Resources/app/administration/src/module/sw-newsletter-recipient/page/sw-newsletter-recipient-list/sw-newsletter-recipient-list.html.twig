@@ -81,11 +81,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="item.firstName"
-                        {% else %}
-                        v-model="item.firstName"
-                        {% endif %}
                         class="sw-newsletter-recipient-list__inline-edit-first-name"
                         :size="compact ? 'small' : 'default'"
                     />
@@ -94,11 +90,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="item.lastName"
-                        {% else %}
-                        v-model="item.lastName"
-                        {% endif %}
                         class="sw-newsletter-recipient-list__inline-edit-last-name"
                         :size="compact ? 'small' : 'default'"
                     />
@@ -172,7 +164,7 @@
             <template
                 #column-updatedAt="{ item }"
             >
-                {{ item.updatedAt | date() }}
+                {{ dateFilter(item.updatedAt) }}
             </template>
             {% endblock %}
 
@@ -181,7 +173,7 @@
             <template
                 #column-createdAt="{ item }"
             >
-                {{ item.createdAt | date() }}
+                {{ dateFilter(item.createdAt) }}
             </template>
             {% endblock %}
 
@@ -253,7 +245,7 @@
                             id="notSet"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.notSet')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -262,7 +254,7 @@
                             id="direct"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.direct')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -271,7 +263,7 @@
                             id="optIn"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.optIn')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -280,7 +272,7 @@
                             id="optOut"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.optOut')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                     </template>
@@ -304,7 +296,7 @@
                                 :id="item.id"
                                 group="languageId"
                                 :label="item.name"
-                                @change="onChange"
+                                @update:value="onChange"
                             />
                         </div>
                         {% endblock %}
@@ -329,7 +321,7 @@
                                 :id="item.id"
                                 group="salesChannelId"
                                 :label="item.translated.name"
-                                @change="onChange"
+                                @update:value="onChange"
                             />
                         </div>
                         {% endblock %}
@@ -347,16 +339,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
                         <sw-entity-multi-select
-                            {% if VUE3 %}
                             v-model:entityCollection="tagCollection"
-                            {% else %}
-                            v-model="tagCollection"
-                            {% endif %}
-                            {% if VUE3 %}
-                            @update:entityCollection="onChange"
-                            {% else %}
-                            @change="onChange"
-                            {% endif %}
+                            @update:entity-collection="onChange"
                         />
                         {% endblock %}
                     </template>

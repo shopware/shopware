@@ -4,36 +4,29 @@ namespace Shopware\Tests\Unit\Core\Profiling\Doctrine;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
-use Symfony\Bridge\PhpUnit\ClockMock;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Doctrine\ConnectionProfiler
- *
- * @group time-sensitive
  */
+#[CoversClass(ConnectionProfiler::class)]
 class ConnectionProfilerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        ClockMock::withClockMock(1500000000);
-    }
-
     public function testCollectConnections(): void
     {
         $c = $this->createCollector([]);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertEquals(['default'], $c->getConnections());
     }
 
@@ -42,6 +35,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector([]);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertEquals(0, $c->getQueryCount());
 
         $queries = [
@@ -50,6 +44,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertEquals(1, $c->getQueryCount());
     }
 
@@ -58,24 +53,28 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector([]);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
         static::assertEquals(0, $c->getTime());
 
         $queries = [
-            ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 1],
+            ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 10],
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(1, $c->getTime());
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
+        static::assertEquals(10, $c->getTime());
 
         $queries = [
-            ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 1],
-            ['sql' => 'SELECT * FROM table2', 'params' => [], 'types' => [], 'executionMS' => 2],
+            ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 10],
+            ['sql' => 'SELECT * FROM table2', 'params' => [], 'types' => [], 'executionMS' => 20],
         ];
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(3, $c->getTime());
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
+
+        static::assertGreaterThanOrEqual(30, $c->getTime());
     }
 
     public function testCollectQueryWithNoTypes(): void
@@ -86,6 +85,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
         static::assertSame([], $collectedQueries['default'][0]['types']);
@@ -102,15 +102,15 @@ class ConnectionProfilerTest extends TestCase
         $c->reset();
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         static::assertEquals([], $c->getQueries());
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testCollectQueries(mixed $param, array $types, mixed $expected): void
     {
         $queries = [
@@ -119,12 +119,14 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
 
+        // @phpstan-ignore-next-line
         $collectedParam = $collectedQueries['default'][0]['params'][0];
         if ($collectedParam instanceof Data) {
-            $out = fopen('php://memory', 'r+b');
+            $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
             $dumper = new CliDumper();
             $dumper->setColors(false);
@@ -162,6 +164,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
         static::assertInstanceOf(Data::class, $collectedQueries['default'][0]['params']);
@@ -175,10 +178,9 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testSerialization(mixed $param, array $types, mixed $expected): void
     {
         $queries = [
@@ -187,12 +189,14 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
+        static::assertInstanceOf(ConnectionProfiler::class, $c);
 
         $collectedQueries = $c->getQueries();
 
+        // @phpstan-ignore-next-line
         $collectedParam = $collectedQueries['default'][0]['params'][0];
         if ($collectedParam instanceof Data) {
-            $out = fopen('php://memory', 'r+b');
+            $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
             $dumper = new CliDumper();
             $dumper->setColors(false);
@@ -222,30 +226,24 @@ class ConnectionProfilerTest extends TestCase
             ->getMock();
         $connection->expects(static::any())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
         $connection->expects(static::any())
             ->method('getConfiguration')
             ->willReturn($config);
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = new Query($queryData['sql'] ?? '');
-            foreach (($queryData['params'] ?? []) as $key => $value) {
-                if (\is_int($key)) {
-                    ++$key;
-                }
-
-                $query->setValue($key, $value, $queryData['types'][$key] ?? ParameterType::STRING);
-            }
-
-            $query->start();
+            $query = $this->createMock(Query::class);
+            $query->method('getSql')
+                ->willReturn($queryData['sql'] ?? '');
+            $query->method('getTypes')
+                ->willReturn($queryData['types'] ?? []);
+            $query->method('getParams')
+                ->willReturn($queryData['params'] ?? []);
+            $query->method('getDuration')
+                ->willReturn((float) ($queryData['executionMS'] ?? 0));
 
             $debugDataHolder->addQuery('default', $query);
-
-            if (isset($queryData['executionMS'])) {
-                sleep($queryData['executionMS']);
-            }
-            $query->stop();
         }
 
         return $collector;

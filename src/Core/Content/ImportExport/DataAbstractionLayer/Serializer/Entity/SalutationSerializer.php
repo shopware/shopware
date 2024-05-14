@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('core')]
@@ -28,23 +27,20 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
     {
     }
 
-    /**
-     * @param array|\Traversable $entity
-     *
-     * @return array|\Traversable
-     */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
         $deserialized = parent::deserialize($config, $definition, $entity);
 
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
+        $context = Context::createDefaultContext();
+
         if (!isset($deserialized['id']) && isset($deserialized['salutationKey'])) {
-            $id = $this->getSalutationId($deserialized['salutationKey']);
+            $id = $this->getSalutationId($deserialized['salutationKey'], $context);
 
             // if we dont find it by salutationKey, only set the id to the fallback if we dont have any other data
             if (!$id && \count($deserialized) === 1) {
-                $id = $this->getSalutationId('not_specified');
+                $id = $this->getSalutationId('not_specified', $context);
                 unset($deserialized['salutationKey']);
             }
 
@@ -66,7 +62,7 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
         $this->cacheSalutations = [];
     }
 
-    private function getSalutationId(string $salutationKey): ?string
+    private function getSalutationId(string $salutationKey, Context $context): ?string
     {
         if (\array_key_exists($salutationKey, $this->cacheSalutations)) {
             return $this->cacheSalutations[$salutationKey];
@@ -74,12 +70,10 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salutationKey', $salutationKey));
-        $salutation = $this->salutationRepository->search($criteria, Context::createDefaultContext())->first();
-
-        $this->cacheSalutations[$salutationKey] = null;
-        if ($salutation instanceof SalutationEntity) {
-            $this->cacheSalutations[$salutationKey] = $salutation->getId();
-        }
+        $this->cacheSalutations[$salutationKey] = $this->salutationRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cacheSalutations[$salutationKey];
     }

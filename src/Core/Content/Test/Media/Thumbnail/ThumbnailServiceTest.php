@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -16,7 +18,6 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -29,16 +30,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
     use QueueTestBehaviour;
-
-    private UrlGeneratorInterface $urlGenerator;
 
     private Context $context;
 
@@ -50,7 +48,6 @@ class ThumbnailServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
@@ -63,8 +60,8 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $filePath = $media->getPath();
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
 
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -92,10 +89,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertEquals(2, $thumbnails->count());
 
         foreach ($thumbnails as $thumbnail) {
-            $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
-                $media,
-                $thumbnail
-            );
+            $thumbnailPath = $thumbnail->getPath();
 
             $folder = $updatedMedia->getMediaFolder();
             static::assertInstanceOf(MediaFolderEntity::class, $folder);
@@ -131,7 +125,8 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        $filePath = $media->getPath();
+
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
         $this->expectException(MediaException::class);
@@ -167,8 +162,8 @@ class ThumbnailServiceTest extends TestCase
         );
         $media->getMediaFolder()->getConfiguration()->setThumbnailQuality(100);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb');
+        $filePath = $media->getPath();
+        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'r');
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
 
@@ -190,7 +185,7 @@ class ThumbnailServiceTest extends TestCase
         $thumbnail = $thumbnails->first();
         static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
 
-        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+        $thumbnailPath = $thumbnail->getPath();
 
         static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
 
@@ -204,8 +199,8 @@ class ThumbnailServiceTest extends TestCase
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb');
+        $filePath = $media->getPath();
+        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -232,16 +227,19 @@ class ThumbnailServiceTest extends TestCase
                     'name' => 'media without thumbnails',
                     'fileExtension' => $mediaExtension,
                     'mimeType' => 'image/png',
+                    'path' => 'foo/media_without_thumbnails.png',
                     'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
                     'thumbnails' => [
                         [
                             'width' => 100,
                             'height' => 100,
+                            'path' => 'foo/thumb_100x100.png',
                             'highDpi' => false,
                         ],
                         [
                             'width' => 300,
                             'height' => 300,
+                            'path' => 'foo/thumb_300x300.png',
                             'highDpi' => true,
                         ],
                     ],
@@ -252,7 +250,8 @@ class ThumbnailServiceTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
-        $mediaUrl = $this->urlGenerator->getRelativeMediaUrl($media);
+
+        $mediaUrl = $media->getPath();
 
         static::assertInstanceOf(MediaThumbnailCollection::class, $media->getThumbnails());
         static::assertCount(2, $media->getThumbnails());
@@ -261,7 +260,7 @@ class ThumbnailServiceTest extends TestCase
 
         $thumbnailUrls = [];
         foreach ($media->getThumbnails() as $thumbnail) {
-            $thumbnailUrl = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $thumbnailUrl = $thumbnail->getPath();
             $this->getPublicFilesystem()->write($thumbnailUrl, 'test content');
             $thumbnailUrls[] = $thumbnailUrl;
         }
@@ -339,13 +338,12 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
-        $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            $resource
-        );
+        $url = $media->getPath();
+
+        $this->getPublicFilesystem()->writeStream($url, $resource);
 
         $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
@@ -370,10 +368,9 @@ class ThumbnailServiceTest extends TestCase
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
             static::assertTrue(
-                $this->getPublicFilesystem()->has($path),
-                'Thumbnail: ' . $path . ' does not exist'
+                $this->getPublicFilesystem()->has($thumbnail->getPath()),
+                'Thumbnail: ' . $thumbnail->getPath() . ' does not exist'
             );
         }
     }
@@ -404,13 +401,11 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
-        $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            $resource
-        );
+        $url = $media->getPath();
+        $this->getPublicFilesystem()->writeStream($url, $resource);
 
         $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
@@ -429,7 +424,7 @@ class ThumbnailServiceTest extends TestCase
         static::assertEquals(2, $thumbnails->count());
 
         foreach ($thumbnails as $thumbnail) {
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -470,12 +465,12 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
-        $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            $resource
-        );
+
+        $url = $media->getPath();
+
+        $this->getPublicFilesystem()->writeStream($url, $resource);
 
         $thumbnailService = $this->getContainer()->get(ThumbnailService::class);
 
@@ -502,7 +497,7 @@ class ThumbnailServiceTest extends TestCase
 
         /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -518,9 +513,7 @@ class ThumbnailServiceTest extends TestCase
         return [[true], [false]];
     }
 
-    /**
-     * @dataProvider strictModeConditionsProvider
-     */
+    #[DataProvider('strictModeConditionsProvider')]
     public function testUpdateThumbnailStrictMode(bool $strict): void
     {
         $this->setFixtureContext($this->context);
@@ -542,12 +535,12 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
-        $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            $resource
-        );
+
+        $location = $media->getPath();
+
+        $this->getPublicFilesystem()->writeStream($location, $resource);
 
         $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
@@ -564,12 +557,11 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
 
-        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+        $thumbnailPath = $thumbnail->getPath();
 
-        if ($this->getPublicFilesystem()->has($thumbnailPath)) {
-            // Make sure the file is deleted from filesystem
-            $this->getPublicFilesystem()->delete($thumbnailPath);
-        }
+        static::assertTrue($this->getPublicFilesystem()->has($thumbnailPath));
+
+        $this->getPublicFilesystem()->delete($thumbnailPath);
 
         $this->thumbnailService->updateThumbnails($media, $this->context, $strict);
 

@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('core')]
 class DefaultTransportCompilerPass implements CompilerPassInterface
 {
+    use CompilerPassConfigTrait;
+
     public function process(ContainerBuilder $container): void
     {
         // the default transport is defined by the parameter `messenger.default_transport_name`
@@ -18,5 +20,23 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
         }
         $id = 'messenger.transport.' . $defaultName;
         $container->addAliases(['messenger.default_transport' => $id]);
+
+        $config = $this->getConfig($container, 'framework');
+
+        if (!\array_key_exists('messenger', $config)) {
+            return;
+        }
+
+        $mapped = [];
+        foreach ($config['messenger']['routing'] as $message => $transports) {
+            if (!\array_key_exists('senders', $transports)) {
+                continue;
+            }
+            $mapped[$message] = array_shift($transports['senders']);
+        }
+
+        $container
+            ->getDefinition('messenger.bus.shopware')
+            ->replaceArgument(1, $mapped);
     }
 }

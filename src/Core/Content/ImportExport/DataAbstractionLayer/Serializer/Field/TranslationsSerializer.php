@@ -61,7 +61,7 @@ class TranslationsSerializer extends FieldSerializer
         yield $associationField->getPropertyName() => $codedTranslations;
     }
 
-    public function deserialize(Config $config, Field $associationField, $translations)
+    public function deserialize(Config $config, Field $associationField, $translations): mixed
     {
         if (!$associationField instanceof TranslationsAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');

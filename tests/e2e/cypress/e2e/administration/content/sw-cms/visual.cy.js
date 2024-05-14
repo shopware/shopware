@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -14,7 +14,7 @@ describe('CMS: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management'] }, () => {
+    it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH',
@@ -95,13 +95,13 @@ describe('CMS: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').click();
-        cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
+        cy.get('.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
 
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
+        cy.contains('.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();

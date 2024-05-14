@@ -5,22 +5,14 @@
     {% block sw_condition_customer_custom_field_field %}
     <sw-entity-single-select
         ref="selectedField"
-        {% if VUE3 %}
         v-model:value="selectedField"
-        {% else %}
-        v-model="selectedField"
-        {% endif %}
         entity="custom_field"
         :criteria="customFieldCriteria"
         :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
         :disabled="disabled"
         size="medium"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="onFieldChange"
-        {% else %}
-        @change="onFieldChange"
-        {% endif %}
     >
         <template #selection-label-property="slotProps">
             {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
@@ -43,7 +35,6 @@
     {% block sw_condition_customer_custom_field_operator %}
     <sw-condition-operator-select
         v-if="renderedField"
-        v-model="operator"
         v-bind="{ operators, condition }"
         :disabled="disabled"
     />
@@ -53,10 +44,11 @@
     {% block sw_condition_customer_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"
-        v-model="renderedFieldValue"
+        :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
         size="medium"
+        @update:value="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

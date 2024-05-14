@@ -7,13 +7,11 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -23,11 +21,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MediaFixtures;
-
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
 
     /**
      * @var EntityRepository
@@ -48,7 +41,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
@@ -78,18 +70,13 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
         $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            $media->getPath(),
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
         $msg = new GenerateThumbnailsMessage();
         $msg->setMediaIds([$media->getId()]);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $msg->setContext($this->context);
-        } else {
-            $msg->withContext($this->context);
-        }
+        $msg->setContext($this->context);
 
         $this->handler->__invoke($msg);
 
@@ -108,7 +95,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -132,19 +119,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
+        $url = $media->getPath();
+
         $this->getPublicFilesystem()->writeStream(
-            $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            $url,
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
         $msg = new UpdateThumbnailsMessage();
         $msg->setMediaIds([$media->getId()]);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $msg->setContext($this->context);
-        } else {
-            $msg->withContext($this->context);
-        }
+        $msg->setContext($this->context);
 
         $this->handler->__invoke($msg);
 
@@ -164,7 +148,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
             );
 
-            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            $path = $thumbnail->getPath();
             static::assertTrue(
                 $this->getPublicFilesystem()->has($path),
                 'Thumbnail: ' . $path . ' does not exist'
@@ -190,32 +174,17 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $generateMessage = new GenerateThumbnailsMessage();
         $generateMessage->setMediaIds($testEntities1->getIds());
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $generateMessage->setContext($this->context);
-        } else {
-            $generateMessage->withContext($this->context);
-        }
+        $generateMessage->setContext($this->context);
 
         $updateMessage1 = new UpdateThumbnailsMessage();
         $updateMessage1->setMediaIds($testEntities2->getIds());
         $updateMessage1->setIsStrict(true);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $updateMessage1->setContext($this->context);
-        } else {
-            $updateMessage1->withContext($this->context);
-        }
+        $updateMessage1->setContext($this->context);
 
         $updateMessage2 = new UpdateThumbnailsMessage();
         $updateMessage2->setMediaIds($testEntities3->getIds());
         $updateMessage2->setIsStrict(false);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $updateMessage2->setContext($this->context);
-        } else {
-            $updateMessage2->withContext($this->context);
-        }
+        $updateMessage2->setContext($this->context);
 
         $thumbnailServiceMock->expects(static::once())
             ->method('generate')

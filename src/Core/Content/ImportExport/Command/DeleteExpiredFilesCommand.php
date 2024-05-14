@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'import-export:delete-expired',
     description: 'Deletes expired files',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class DeleteExpiredFilesCommand extends Command
 {
     /**
@@ -34,7 +34,7 @@ class DeleteExpiredFilesCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $count = $this->deleteExpiredFilesService->countFiles($context);
 

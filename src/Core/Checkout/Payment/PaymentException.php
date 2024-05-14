@@ -2,29 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidRefundTransitionException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
-use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
-use Shopware\Core\Checkout\Payment\Exception\RefundException;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class PaymentException extends HttpException
 {
     final public const PAYMENT_ASYNC_FINALIZE_INTERRUPTED = 'CHECKOUT__ASYNC_PAYMENT_FINALIZE_INTERRUPTED';
@@ -40,6 +22,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION = 'CHECKOUT__PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION';
     final public const PAYMENT_REFUND_PROCESS_INTERRUPTED = 'CHECKOUT__REFUND_PROCESS_INTERRUPTED';
     final public const PAYMENT_REFUND_PROCESS_ERROR = 'CHECKOUT__REFUND_PROCESS_ERROR';
+    final public const PAYMENT_RECURRING_PROCESS_INTERRUPTED = 'CHECKOUT__RECURRING_PROCESS_INTERRUPTED';
     final public const PAYMENT_SYNC_PROCESS_INTERRUPTED = 'CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED';
     final public const PAYMENT_TOKEN_EXPIRED = 'CHECKOUT__PAYMENT_TOKEN_EXPIRED';
     final public const PAYMENT_TOKEN_INVALIDATED = 'CHECKOUT__PAYMENT_TOKEN_INVALIDATED';
@@ -47,13 +30,10 @@ class PaymentException extends HttpException
     final public const PAYMENT_REFUND_UNKNOWN_ERROR = 'CHECKOUT__REFUND_UNKNOWN_ERROR';
     final public const PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR = 'CHECKOUT__REFUND_UNKNOWN_HANDLER_ERROR';
     final public const PAYMENT_VALIDATE_PREPARED_ERROR = 'CHECKOUT__VALIDATE_PREPARED_PAYMENT_ERROR';
+    final public const PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME = 'CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME';
 
     public static function asyncFinalizeInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new AsyncPaymentFinalizeException($orderTransactionId, $errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_ASYNC_FINALIZE_INTERRUPTED,
@@ -68,10 +48,6 @@ class PaymentException extends HttpException
 
     public static function asyncProcessInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new AsyncPaymentProcessException($orderTransactionId, $errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_ASYNC_PROCESS_INTERRUPTED,
@@ -86,10 +62,6 @@ class PaymentException extends HttpException
 
     public static function syncProcessInterrupted(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new SyncPaymentProcessException($orderTransactionId, $errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_SYNC_PROCESS_INTERRUPTED,
@@ -104,10 +76,6 @@ class PaymentException extends HttpException
 
     public static function capturePreparedException(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CapturePreparedPaymentException($orderTransactionId, $errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_CAPTURE_PREPARED_ERROR,
@@ -122,10 +90,6 @@ class PaymentException extends HttpException
 
     public static function customerCanceled(string $orderTransactionId, string $additionalInformation, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CustomerCanceledAsyncPaymentException($orderTransactionId, $additionalInformation, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_CUSTOMER_CANCELED_EXTERNAL,
@@ -140,27 +104,17 @@ class PaymentException extends HttpException
 
     public static function invalidOrder(string $orderId, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidOrderException($orderId, $e);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::PAYMENT_INVALID_ORDER_ID,
             'The order with id {{ orderId }} is invalid or could not be found.',
-            [
-                'orderId' => $orderId,
-            ],
+            ['orderId' => $orderId],
             $e
         );
     }
 
     public static function refundInvalidTransition(string $refundId, string $stateName, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidRefundTransitionException($refundId, $stateName, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT__REFUND_INVALID_TRANSITION_ERROR,
@@ -172,10 +126,6 @@ class PaymentException extends HttpException
 
     public static function invalidToken(string $token, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidTokenException($token, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_INVALID_TOKEN,
@@ -187,10 +137,6 @@ class PaymentException extends HttpException
 
     public static function invalidTransaction(string $transactionId, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidTransactionException($transactionId, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_INVALID_TRANSACTION_ID,
@@ -202,10 +148,6 @@ class PaymentException extends HttpException
 
     public static function pluginPaymentMethodDeleteRestriction(?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new PluginPaymentMethodsDeleteRestrictionException($e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION,
@@ -217,10 +159,6 @@ class PaymentException extends HttpException
 
     public static function refundInterrupted(string $refundId, string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new RefundException($refundId, $errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_REFUND_PROCESS_INTERRUPTED,
@@ -237,7 +175,7 @@ class PaymentException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::PAYMENT_REFUND_PROCESS_INTERRUPTED,
+            self::PAYMENT_RECURRING_PROCESS_INTERRUPTED,
             'The recurring capture process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             [
                 'orderTransactionId' => $transactionId,
@@ -249,10 +187,6 @@ class PaymentException extends HttpException
 
     public static function tokenExpired(string $token, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new TokenExpiredException($token, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_TOKEN_EXPIRED,
@@ -266,10 +200,6 @@ class PaymentException extends HttpException
 
     public static function tokenInvalidated(string $token, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new TokenInvalidatedException($token, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_TOKEN_INVALIDATED,
@@ -281,71 +211,68 @@ class PaymentException extends HttpException
         );
     }
 
-    public static function unknownPaymentMethod(string $paymentMethodId, ?\Throwable $e = null): self
+    public static function unknownPaymentMethodById(string $paymentMethodId, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new UnknownPaymentMethodException($paymentMethodId, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_UNKNOWN_PAYMENT_METHOD,
-            'The payment method {{ paymentMethodId }} could not be found.',
-            [
-                'paymentMethodId' => $paymentMethodId,
-            ],
+            self::$couldNotFindMessage,
+            ['entity' => 'payment method', 'field' => 'id', 'value' => $paymentMethodId],
+            $e
+        );
+    }
+
+    public static function unknownPaymentMethodByHandlerIdentifier(string $paymentMethodId, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_UNKNOWN_PAYMENT_METHOD,
+            self::$couldNotFindMessage,
+            ['entity' => 'payment method', 'field' => 'handler identifier', 'value' => $paymentMethodId],
             $e
         );
     }
 
     public static function unknownRefund(string $refundId, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new UnknownRefundException($refundId, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_REFUND_UNKNOWN_ERROR,
             'The Refund process failed with following exception: Unknown refund with id {{ refundId }}.',
-            [
-                'refundId' => $refundId,
-            ],
+            ['refundId' => $refundId],
             $e
         );
     }
 
     public static function unknownRefundHandler(string $refundId, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new UnknownRefundHandlerException($refundId, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR,
             'The Refund process failed with following exception: Unknown refund handler for refund id {{ refundId }}.',
-            [
-                'refundId' => $refundId,
-            ],
+            ['refundId' => $refundId],
             $e
         );
     }
 
     public static function validatePreparedPaymentInterrupted(string $errorMessage, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ValidatePreparedPaymentException($errorMessage, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PAYMENT_VALIDATE_PREPARED_ERROR,
             'The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
-            [
-                'errorMessage' => $errorMessage,
-            ],
+            ['errorMessage' => $errorMessage],
             $e
+        );
+    }
+
+    public static function duplicateTechnicalName(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_METHOD_DUPLICATE_TECHNICAL_NAME,
+            'The technical name "{{ technicalName }}" is not unique.',
+            ['technicalName' => $technicalName]
         );
     }
 

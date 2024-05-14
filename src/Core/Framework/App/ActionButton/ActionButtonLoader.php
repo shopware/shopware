@@ -4,27 +4,29 @@ namespace Shopware\Core\Framework\App\ActionButton;
 
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
+ *
+ * @phpstan-type ActionButtonArray array{app: string, id: string, label: array<string, string|null>, action: string, url: string, icon: string}
  */
 #[Package('core')]
 class ActionButtonLoader
 {
+    /**
+     * @param EntityRepository<ActionButtonCollection> $actionButtonRepository
+     */
     public function __construct(private readonly EntityRepository $actionButtonRepository)
     {
     }
 
     /**
-     * @return array<int, array<string, array<string, string|null>|string|null>>
+     * @return list<ActionButtonArray>
      */
     public function loadActionButtonsForView(string $entity, string $view, Context $context): array
     {
@@ -38,20 +40,19 @@ class ActionButtonLoader
                 new EqualsFilter('app.active', true)
             );
 
-        /** @var ActionButtonCollection $actionButtons */
         $actionButtons = $this->actionButtonRepository->search($criteria, $context)->getEntities();
 
         return $this->formatCollection($actionButtons);
     }
 
     /**
-     * @return array<int, array<string, array<string, string|null>|string|null>>
+     * @return list<ActionButtonArray>
      */
     private function formatCollection(ActionButtonCollection $actionButtons): array
     {
-        return array_values(array_map(function (ActionButtonEntity $button): array {
-            /** @var AppEntity $app */
+        return array_values($actionButtons->map(function (ActionButtonEntity $button): array {
             $app = $button->getApp();
+            \assert($app !== null);
 
             return [
                 'app' => $app->getName(),
@@ -61,7 +62,7 @@ class ActionButtonLoader
                 'url' => $button->getUrl(),
                 'icon' => $app->getIcon(),
             ];
-        }, $actionButtons->getElements()));
+        }));
     }
 
     /**
@@ -77,11 +78,15 @@ class ActionButtonLoader
 
         $labels = [];
         foreach ($translations as $translation) {
-            /** @var LanguageEntity $language */
             $language = $translation->getLanguage();
+            if ($language === null) {
+                continue;
+            }
 
-            /** @var LocaleEntity $locale */
             $locale = $language->getLocale();
+            if ($locale === null) {
+                continue;
+            }
             $labels[$locale->getCode()] = $translation->getLabel();
         }
 

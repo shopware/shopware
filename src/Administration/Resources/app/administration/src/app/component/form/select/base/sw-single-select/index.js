@@ -9,10 +9,18 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-single-select', {
     template,
+
+    emits: [
+        'update:value',
+        'item-selected',
+        'on-open-change',
+        'before-selection-clear',
+        'search',
+    ],
 
     inject: ['feature'],
 
@@ -20,17 +28,11 @@ Component.register('sw-single-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         options: {
             required: true,
             type: Array,
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -43,7 +45,6 @@ Component.register('sw-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -110,13 +111,7 @@ Component.register('sw-single-select', {
                 return this.value;
             },
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 

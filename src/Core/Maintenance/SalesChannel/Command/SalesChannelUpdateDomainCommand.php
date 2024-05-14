@@ -37,7 +37,7 @@ class SalesChannelUpdateDomainCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $domains = $this->salesChannelDomainRepository->search(new Criteria(), $context);
 
         $host = $input->getArgument('domain');

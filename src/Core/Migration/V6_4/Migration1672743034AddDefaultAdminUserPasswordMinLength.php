@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('system-settings')]
 class Migration1672743034AddDefaultAdminUserPasswordMinLength extends MigrationStep

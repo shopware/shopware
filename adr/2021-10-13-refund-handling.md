@@ -3,7 +3,7 @@ title: Refund handling
 date: 2021-10-13
 area: checkout
 tags: [payment, refund, capture]
---- 
+---
 
 ## Context
 Shopware offers no way of unified refund handling. This results in every payment extension either implementing it themselves or not at all.

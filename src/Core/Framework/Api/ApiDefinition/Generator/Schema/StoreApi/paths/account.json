@@ -32,10 +32,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AccountNewsletterRecipientResult"
-                                    }
+                                    "$ref": "#/components/schemas/AccountNewsletterRecipientResult"
                                 }
                             }
                         }
@@ -43,16 +40,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/change-profile": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Change the customer's information",
                 "description": "Make changes to a customer's account, like changing their name, salutation or title.",
                 "operationId": "changeProfile",
@@ -119,16 +115,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/change-email": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Change the customer's email address",
                 "description": "Changes a customer's email address to a new email address, using their current password as a validation.",
                 "operationId": "changeEmail",
@@ -175,16 +170,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/change-language": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Change the customer's language.",
                 "description": "Changes the language of the logged in customer",
                 "operationId": "changeLanguage",
@@ -193,9 +187,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "languageId"
-                                ],
+                                "required": ["languageId"],
                                 "properties": {
                                     "language": {
                                         "description": "New languageId",
@@ -221,16 +213,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/change-password": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Change the customer's password",
                 "description": "Changes a customer's password using their current password as a validation.",
                 "operationId": "changePassword",
@@ -277,16 +268,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/change-payment-method/{paymentMethodId}": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Change the customer's default payment method",
                 "description": "Changes a customer's default (preselected) payment method.",
                 "operationId": "changePaymentMethod",
@@ -315,16 +305,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/customer-recovery-is-expired": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Checks if the customer recovery entry for a given hash is expired.",
                 "description": "This can be used to validate a provided hash has a valid and not expired customer recovery hash.",
                 "operationId": "getCustomerRecoveryIsExpired",
@@ -333,9 +322,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "hash"
-                                ],
+                                "required": ["hash"],
                                 "properties": {
                                     "hash": {
                                         "description": "Parameter from the link in the confirmation mail sent in Step 1",
@@ -368,10 +355,7 @@
         },
         "/account/customer": {
             "post": {
-                "tags": [
-                    "Profile",
-                    "Endpoints supporting Criteria "
-                ],
+                "tags": ["Profile", "Endpoints supporting Criteria "],
                 "summary": "Get information about current customer",
                 "description": "Returns information about the current customer.",
                 "operationId": "readCustomer",
@@ -403,14 +387,13 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             },
             "delete": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Delete the customer's profile",
                 "description": "Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
                 "operationId": "deleteCustomer",
@@ -421,16 +404,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/address/{addressId}": {
             "delete": {
-                "tags": [
-                    "Address"
-                ],
+                "tags": ["Address"],
                 "summary": "Delete an address of a customer",
                 "description": "Delete an address of customer.\n\n    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.\n\n    **A customer must have at least one address (which can be used for shipping and billing).**\n\n    An automatic fallback is not applied.",
                 "operationId": "deleteCustomerAddress",
@@ -455,14 +437,13 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             },
             "patch": {
-                "tags": [
-                    "Address"
-                ],
+                "tags": ["Address"],
                 "summary": "Modify an address of a customer",
                 "description": "Modifies an existing address of a customer.",
                 "operationId": "updateCustomerAddress",
@@ -481,7 +462,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddress"
+                                "$ref": "#/components/schemas/CustomerAddressBody"
                             }
                         }
                     }
@@ -492,7 +473,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CustomerAddress"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/CustomerAddress"
+                                        },
+
+                                        {
+                                            "$ref": "#/components/schemas/CustomerAddressRead"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -500,17 +489,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/list-address": {
             "post": {
-                "tags": [
-                    "Address",
-                    "Endpoints supporting Criteria "
-                ],
+                "tags": ["Address", "Endpoints supporting Criteria "],
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
                 "operationId": "listAddress",
@@ -545,16 +532,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/login": {
             "post": {
-                "tags": [
-                    "Login & Registration"
-                ],
+                "tags": ["Login & Registration"],
                 "summary": "Log in a customer",
                 "description": "Logs in customers given their credentials.",
                 "operationId": "loginCustomer",
@@ -563,10 +549,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "username",
-                                    "password"
-                                ],
+                                "required": ["username", "password"],
                                 "properties": {
                                     "username": {
                                         "description": "Email",
@@ -606,9 +589,7 @@
         },
         "/account/logout": {
             "post": {
-                "tags": [
-                    "Login & Registration"
-                ],
+                "tags": ["Login & Registration"],
                 "summary": "Log out a customer",
                 "description": "Logs out a customer.",
                 "operationId": "logoutCustomer",
@@ -622,16 +603,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/register-confirm": {
             "post": {
-                "tags": [
-                    "Login & Registration"
-                ],
+                "tags": ["Login & Registration"],
                 "summary": "Confirm a customer registration",
                 "description": "Confirms a customer registration when double opt-in is activated.\n\nLearn more about double opt-in registration in our guide \"Register a customer\".",
                 "operationId": "registerConfirm",
@@ -640,10 +620,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "hash",
-                                    "em"
-                                ],
+                                "required": ["hash", "em"],
                                 "properties": {
                                     "hash": {
                                         "description": "Hash from the email received",
@@ -679,9 +656,7 @@
         },
         "/account/register": {
             "post": {
-                "tags": [
-                    "Login & Registration"
-                ],
+                "tags": ["Login & Registration"],
                 "summary": "Register a customer",
                 "description": "Registers a customer. Used both for normal customers and guest customers.See the Guide \"Register a customer\" for more information on customer registration.",
                 "operationId": "register",
@@ -690,16 +665,6 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "password",
-                                    "salutationId",
-                                    "firstName",
-                                    "lastName",
-                                    "acceptedDataProtection",
-                                    "storefrontUrl",
-                                    "billingAddress"
-                                ],
                                 "properties": {
                                     "email": {
                                         "description": "Email of the customer. Has to be unique, unless `guest` is `true`",
@@ -770,6 +735,16 @@
                                         "type": "string"
                                     }
                                 },
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "salutationId",
+                                    "firstName",
+                                    "lastName",
+                                    "acceptedDataProtection",
+                                    "storefrontUrl",
+                                    "billingAddress"
+                                ],
                                 "type": "object"
                             }
                         }
@@ -796,9 +771,7 @@
         },
         "/account/recovery-password-confirm": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Reset a password with recovery credentials",
                 "description": "This operation is Step 2 of the password reset flow. It is required to conduct Step 1 \"Send a password recovery mail\" in order to obtain the required credentials for this step.Resets a customer's password using credentials from a password recovery mail as a validation.",
                 "operationId": "recoveryPassword",
@@ -852,9 +825,7 @@
         },
         "/account/recovery-password": {
             "post": {
-                "tags": [
-                    "Profile"
-                ],
+                "tags": ["Profile"],
                 "summary": "Send a password recovery mail",
                 "description": "This operation is Step 1 of the password reset flow. Make sure to implement Step 2 \"Reset password with recovery credentials\" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
                 "operationId": "sendRecoveryMail",
@@ -863,10 +834,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "storefrontUrl"
-                                ],
+                                "required": ["email", "storefrontUrl"],
                                 "properties": {
                                     "email": {
                                         "description": "E-Mail address to identify the customer",
@@ -903,9 +871,7 @@
         },
         "/account/address/default-shipping/{addressId}": {
             "patch": {
-                "tags": [
-                    "Address"
-                ],
+                "tags": ["Address"],
                 "summary": "Change a customer's default shipping address",
                 "description": "Updates the default (preselected) shipping addresses of a customer.",
                 "operationId": "defaultShippingAddress",
@@ -927,16 +893,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/address/default-billing/{addressId}": {
             "patch": {
-                "tags": [
-                    "Address"
-                ],
+                "tags": ["Address"],
                 "summary": "Change a customer's default billing address",
                 "description": "Updates the default (preselected) billing addresses of a customer.",
                 "operationId": "defaultBillingAddress",
@@ -958,16 +923,15 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
         },
         "/account/address": {
             "post": {
-                "tags": [
-                    "Address"
-                ],
+                "tags": ["Address"],
                 "summary": "Create a new address for a customer",
                 "description": "Creates a new address for a customer.",
                 "operationId": "createCustomerAddress",
@@ -986,7 +950,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CustomerAddress"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/CustomerAddress"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/CustomerAddressRead"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -994,7 +965,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

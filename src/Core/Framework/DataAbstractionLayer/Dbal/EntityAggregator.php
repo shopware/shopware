@@ -72,8 +72,11 @@ class EntityAggregator implements EntityAggregatorInterface
     ) {
     }
 
-    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
-    {
+    public function aggregate(
+        EntityDefinition $definition,
+        Criteria $criteria,
+        Context $context
+    ): AggregationResultCollection {
         $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
             $result = $this->fetchAggregation($aggregation, $definition, $criteria, $context);
@@ -107,8 +110,12 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function fetchAggregation(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResult
-    {
+    private function fetchAggregation(
+        Aggregation $aggregation,
+        EntityDefinition $definition,
+        Criteria $criteria,
+        Context $context
+    ): AggregationResult {
         $clone = clone $criteria;
         $clone->resetAggregations();
         $clone->resetSorting();
@@ -129,7 +136,8 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = new QueryBuilder($this->connection);
 
         // If an aggregation is to be created on a to many association that is already stored as a filter.
-        // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
+        // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case.
+        // But since only the filters are considered, the association is referenced only once.
         // In this case we add the aggregation field as path to the criteria builder and the join group builder will consider this path for the sub-join logic
         $paths = array_filter([$this->findToManyPath($aggregation, $definition)]);
 
@@ -202,7 +210,6 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $found = false;
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             if (!($field instanceof AssociationField)) {
                 break;
@@ -223,8 +230,12 @@ class EntityAggregator implements EntityAggregatorInterface
         return null;
     }
 
-    private function extendQuery(Aggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function extendQuery(
+        Aggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         match (true) {
             $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $query, $definition, $context),
             $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $query, $definition, $context),
@@ -241,20 +252,28 @@ class EntityAggregator implements EntityAggregatorInterface
         };
     }
 
-    private function parseFilterAggregation(FilterAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseFilterAggregation(
+        FilterAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         if (!empty($aggregation->getFilter())) {
             $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
-        /** @var Aggregation $aggregationStruct FilterAggregations always have an aggregation */
         $aggregationStruct = $aggregation->getAggregation();
+        \assert($aggregationStruct !== null, 'FilterAggregation always have an aggregation');
 
         $this->extendQuery($aggregationStruct, $query, $definition, $context);
     }
 
-    private function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseDateHistogramAggregation(
+        DateHistogramAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
         if ($this->timeZoneSupportEnabled && $aggregation->getTimeZone()) {
@@ -274,11 +293,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($groupBy);
 
         $key = $aggregation->getName() . '.key';
-        $query->addSelect(sprintf('MIN(%s) as `%s`', $accessor, $key));
+        $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($key)));
 
         $key = $aggregation->getName() . '.count';
         $countAccessor = $this->queryHelper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
+        $query->addSelect(sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         if ($aggregation->getSorting()) {
             $this->addSorting($aggregation->getSorting(), $definition, $query, $context);
@@ -291,8 +310,12 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function parseTermsAggregation(TermsAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseTermsAggregation(
+        TermsAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $keyAccessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
         $query->addGroupBy($keyAccessor);
 
@@ -303,12 +326,12 @@ class EntityAggregator implements EntityAggregatorInterface
             $keyAccessor = 'LOWER(HEX(' . $keyAccessor . '))';
         }
 
-        $query->addSelect(sprintf('%s as `%s`', $keyAccessor, $key));
+        $query->addSelect(sprintf('%s as %s', $keyAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         $key = $aggregation->getName() . '.count';
 
         $countAccessor = $this->queryHelper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
+        $query->addSelect(sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         if ($aggregation->getLimit()) {
             $query->setMaxResults($aggregation->getLimit());
@@ -323,61 +346,89 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
-    private function parseAvgAggregation(AvgAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseAvgAggregation(
+        AvgAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('AVG(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
-    private function parseSumAggregation(SumAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseSumAggregation(
+        SumAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('SUM(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
-    private function parseMaxAggregation(MaxAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseMaxAggregation(
+        MaxAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MAX(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
-    private function parseMinAggregation(MinAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseMinAggregation(
+        MinAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MIN(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
-    private function parseCountAggregation(CountAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseCountAggregation(
+        CountAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('COUNT(DISTINCT %s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('COUNT(DISTINCT %s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
-    private function parseStatsAggregation(StatsAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseStatsAggregation(
+        StatsAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
         if ($aggregation->fetchAvg()) {
-            $query->addSelect(sprintf('AVG(%s) as `%s.avg`', $accessor, $aggregation->getName()));
+            $query->addSelect(sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.avg')));
         }
         if ($aggregation->fetchMin()) {
-            $query->addSelect(sprintf('MIN(%s) as `%s.min`', $accessor, $aggregation->getName()));
+            $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.min')));
         }
         if ($aggregation->fetchMax()) {
-            $query->addSelect(sprintf('MAX(%s) as `%s.max`', $accessor, $aggregation->getName()));
+            $query->addSelect(sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.max')));
         }
         if ($aggregation->fetchSum()) {
-            $query->addSelect(sprintf('SUM(%s) as `%s.sum`', $accessor, $aggregation->getName()));
+            $query->addSelect(sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.sum')));
         }
     }
 
-    private function parseRangeAggregation(RangeAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseRangeAggregation(
+        RangeAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
         $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         if (!$field instanceof PriceField && !$field instanceof FloatField && !$field instanceof IntField) {
@@ -394,24 +445,32 @@ class EntityAggregator implements EntityAggregatorInterface
                 $sum .= sprintf(' AND %s < %f', $accessor, $range['to']);
             }
 
-            $query->addSelect(sprintf('SUM(%s) as `%s.%s`', $sum, $aggregation->getName(), $id));
+            $query->addSelect(sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
         }
     }
 
-    private function parseEntityAggregation(EntityAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
-    {
+    private function parseEntityAggregation(
+        EntityAggregation $aggregation,
+        QueryBuilder $query,
+        EntityDefinition $definition,
+        Context $context
+    ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
         $query->addGroupBy($accessor);
 
         $accessor = 'LOWER(HEX(' . $accessor . '))';
-        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(sprintf('%s as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     /**
-     * @param array<mixed> $rows
+     * @param array<array<string, mixed>> $rows
      */
-    private function hydrateResult(Aggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): AggregationResult
-    {
+    private function hydrateResult(
+        Aggregation $aggregation,
+        EntityDefinition $definition,
+        array $rows,
+        Context $context
+    ): AggregationResult {
         $name = $aggregation->getName();
 
         switch (true) {
@@ -422,8 +481,8 @@ class EntityAggregator implements EntityAggregatorInterface
                 return $this->hydrateTermsAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof FilterAggregation:
-                /** @var Aggregation $aggregationStruct FilterAggregations always have an aggregation */
                 $aggregationStruct = $aggregation->getAggregation();
+                \assert($aggregationStruct !== null, 'FilterAggregation always have an aggregation');
 
                 return $this->hydrateResult($aggregationStruct, $definition, $rows, $context);
 
@@ -474,10 +533,13 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<mixed> $rows
+     * @param array<array<string, mixed>> $rows
      */
-    private function hydrateEntityAggregation(EntityAggregation $aggregation, array $rows, Context $context): EntityResult
-    {
+    private function hydrateEntityAggregation(
+        EntityAggregation $aggregation,
+        array $rows,
+        Context $context
+    ): EntityResult {
         $ids = array_filter(array_column($rows, $aggregation->getName()));
 
         if (empty($ids)) {
@@ -495,10 +557,14 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<mixed> $rows
+     * @param array<array<string, mixed>> $rows
      */
-    private function hydrateDateHistogramAggregation(DateHistogramAggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): DateHistogramResult
-    {
+    private function hydrateDateHistogramAggregation(
+        DateHistogramAggregation $aggregation,
+        EntityDefinition $definition,
+        array $rows,
+        Context $context
+    ): DateHistogramResult {
         if (empty($rows)) {
             return new DateHistogramResult($aggregation->getName(), []);
         }
@@ -530,10 +596,14 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<mixed> $rows
+     * @param array<array<string, mixed>> $rows
      */
-    private function hydrateTermsAggregation(TermsAggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): TermsResult
-    {
+    private function hydrateTermsAggregation(
+        TermsAggregation $aggregation,
+        EntityDefinition $definition,
+        array $rows,
+        Context $context
+    ): TermsResult {
         $buckets = [];
 
         $grouped = $this->groupBuckets($aggregation, $rows);
@@ -552,8 +622,12 @@ class EntityAggregator implements EntityAggregatorInterface
         return new TermsResult($aggregation->getName(), $buckets);
     }
 
-    private function addSorting(FieldSorting $sorting, EntityDefinition $definition, QueryBuilder $query, Context $context): void
-    {
+    private function addSorting(
+        FieldSorting $sorting,
+        EntityDefinition $definition,
+        QueryBuilder $query,
+        Context $context
+    ): void {
         if ($sorting->getField() !== '_count') {
             $this->criteriaQueryBuilder->addSortings($definition, new Criteria(), [$sorting], $query, $context);
 
@@ -569,9 +643,9 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<mixed> $rows
+     * @param array<array<string, mixed>> $rows
      *
-     * @return array<array{ count: int, buckets: list<mixed>}>
+     * @return array<array{count: int, buckets: list<array<string, mixed>>}>
      */
     private function groupBuckets(BucketAggregation $aggregation, array $rows): array
     {

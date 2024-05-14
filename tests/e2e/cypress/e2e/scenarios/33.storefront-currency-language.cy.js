@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Sales Channel: create product, change currency and language', () => {
     beforeEach(() => {
@@ -34,7 +37,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.get('.sw-sales-channel-detail__button-domain-add').contains('Domein toevoegen').click();
         cy.contains('.sw-modal__title', 'Nieuw domain maken');
         cy.get('.sw-field__url-input__prefix').click();
-        cy.get('#sw-field--currentDomain-url').type('localhost:8000/nl');
+        cy.get('.sw-url-input-field__input').type('localhost:8000/nl');
         cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
         cy.get('.sw-select-result').contains('Dutch').click();
         cy.get('.sw-sales-channel-detail-domains__domain-currency-select').find('.sw-single-select__selection').click();
@@ -51,7 +54,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.get('.sw-sales-channel-detail__button-domain-add').contains('Domein toevoegen').click();
         cy.contains('.sw-modal__title', 'Nieuw domain maken');
         cy.get('.sw-field__url-input__prefix').click();
-        cy.get('#sw-field--currentDomain-url').type('localhost:8000/de');
+        cy.get('.sw-url-input-field__input').type('localhost:8000/de');
         cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
         cy.contains('.sw-select-result', 'Deutsch').click();
         cy.get('.sw-sales-channel-detail-domains__domain-currency-select').find('.sw-single-select__selection').click();
@@ -85,17 +88,17 @@ describe('Sales Channel: create product, change currency and language', () => {
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
         cy.contains('.line-item-total-price-value', '€ 49,98*').should('be.visible');
-        cy.get('a[title="Naar de kassa"]').should('be.visible');
+        cy.get('a[title="Ga naar de kassa"]').should('be.visible');
         cy.contains('Doorgaan met winkelen').click();
 
         // Change currency
         cy.get('#currenciesDropdown-top-bar').click();
-        cy.get('.dropdown-menu-right.show.top-bar-list').contains('$ USD').click();
+        cy.get('.dropdown-menu-end.show.top-bar-list').contains('$ USD').click();
         cy.contains('#currenciesDropdown-top-bar', '$ US-Dollar');
 
         // Change language
         cy.get('#languagesDropdown-top-bar').click();
-        cy.get('.dropdown-menu-right.show.top-bar-list').contains('Deutsch').click();
+        cy.get('.dropdown-menu-end.show.top-bar-list').contains('Deutsch').click();
         cy.url().should('include', '/de');
         cy.contains('#languagesDropdown-top-bar', 'Deutsch');
 

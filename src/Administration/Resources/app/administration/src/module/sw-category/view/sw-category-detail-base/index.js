@@ -4,7 +4,7 @@ import './sw-category-detail-base.scss';
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -52,6 +52,7 @@ export default {
                     value: 'folder',
                     label: this.$tc('sw-category.base.general.types.folder'),
                 },
+                // eslint-disable-next-line no-warning-comments
                 // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
                 // {
                 //     value: 'custom_entity',

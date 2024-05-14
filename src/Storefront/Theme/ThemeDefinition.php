@@ -52,7 +52,7 @@ class ThemeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -72,10 +72,7 @@ class ThemeDefinition extends EntityDefinition
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, ThemeSalesChannelDefinition::class, 'theme_id', 'sales_channel_id'),
             (new ManyToManyAssociationField('media', MediaDefinition::class, ThemeMediaDefinition::class, 'theme_id', 'media_id'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class),
+            new ManyToManyAssociationField('dependentThemes', self::class, ThemeChildDefinition::class, 'parent_id', 'child_id'),
         ]);
-
-        $fields->add(new ManyToManyAssociationField('dependentThemes', ThemeDefinition::class, ThemeChildDefinition::class, 'parent_id', 'child_id'));
-
-        return $fields;
     }
 }

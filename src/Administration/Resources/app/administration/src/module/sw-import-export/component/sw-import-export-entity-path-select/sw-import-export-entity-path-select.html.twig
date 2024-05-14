@@ -69,6 +69,7 @@
             :is-loading="isLoading"
             :empty-message="$tc('global.sw-single-select.messageNoResults', 0, { term: searchInput })"
             :focus-el="$refs.swSelectInput"
+            :popover-classes="resultListClasses"
             @paginate="$emit('paginate')"
             @item-select="setValue"
         >
@@ -78,8 +79,7 @@
             {% block sw_import_export_entity_path_select_base_results_list_before %}
             <template #before-item-list>
                 <slot name="before-item-list">
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(notMappedItem)"
                         v-bind="{ item: notMappedItem, index: -1 }"
                         @item-select="setValue"
@@ -88,7 +88,7 @@
                         {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
                         {{ notMappedItem.label }}
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                     <hr class="sw-import-export-entity-path-select__listing-seperator">
                 </slot>
             </template>
@@ -101,8 +101,7 @@
                     name="result-item"
                     v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         @item-select="setValue"
@@ -129,7 +128,7 @@
                             />
                         </slot>
                         {% endblock %}
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
             {% endblock %}

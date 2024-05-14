@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class TestSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

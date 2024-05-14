@@ -50,7 +50,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
             $setIds = $this->connection->fetchFirstColumn(
                 'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->clearCache($setIds);
@@ -66,6 +66,6 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
         $snippetSetCacheKeys = array_map(fn (string $setId) => 'translation.catalog.' . $setId, $snippetSetIds);
 
-        $this->cacheInvalidator->invalidate($snippetSetCacheKeys, true);
+        $this->cacheInvalidator->invalidate($snippetSetCacheKeys);
     }
 }

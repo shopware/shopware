@@ -2,75 +2,61 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-property-detail', swPropertyDetail);
-
-async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-property-detail'), {
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-property-detail', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                id: '1a2b3c',
+                                name: 'Test property',
+                                entity: 'property',
+                            };
+                        },
+                        get: () => Promise.resolve({
                             id: '1a2b3c',
                             name: 'Test property',
                             entity: 'property',
-                        };
-                    },
-                    get: () => Promise.resolve({
-                        id: '1a2b3c',
-                        name: 'Test property',
-                        entity: 'property',
-                        options: {
-                            entity: 'property_options_group',
-                        },
+                            options: {
+                                entity: 'property_options_group',
+                            },
+                        }),
+                        search: () => Promise.resolve({}),
                     }),
-                    search: () => Promise.resolve({}),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                        </div>`,
+                },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-language-switch': true,
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-field': true,
+                'sw-language-info': true,
+                'sw-skeleton': true,
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
-<div class="sw-page">
-    <slot name="smart-bar-actions"></slot>
-</div>`,
-            },
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-field': true,
-            'sw-language-info': true,
-            'sw-skeleton': true,
         },
     });
 }
 
 describe('module/sw-property/page/sw-property-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-
-        wrapper.destroy();
-    });
-
     it('should not be able to save the property', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             isLoading: false,
@@ -80,14 +66,12 @@ describe('module/sw-property/page/sw-property-detail', () => {
 
         expect(saveButton.attributes()['is-loading']).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
-
-        wrapper.destroy();
     });
 
     it('should be able to save the property', async () => {
-        const wrapper = await createWrapper([
-            'property.editor',
-        ]);
+        global.activeAclRoles = ['property.editor'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -99,7 +83,5 @@ describe('module/sw-property/page/sw-property-detail', () => {
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-
-        wrapper.destroy();
     });
 });

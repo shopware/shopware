@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -17,10 +18,9 @@ class EntityDefinitionQueryHelperTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider getData
-     *
      * @param array<string> $expected
      */
+    #[DataProvider('getData')]
     public function testGetFieldsOfAccessor(
         string $class,
         string $accessor,

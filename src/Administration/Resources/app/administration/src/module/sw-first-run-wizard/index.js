@@ -23,10 +23,9 @@ Shopware.Component.register('sw-first-run-wizard-finish', () => import('./view/s
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
+ * @package checkout
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-first-run-wizard', {
     type: 'core',
     name: 'first-run-wizard',

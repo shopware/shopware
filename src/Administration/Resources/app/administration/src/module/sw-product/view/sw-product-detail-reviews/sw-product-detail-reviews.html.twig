@@ -32,15 +32,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_reviews_data_stars_content %}
 
-                    <sw-rating-stars v-model="item.points" />
-
-                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_filled %}{% endblock %}
-
-                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_empty %}{% endblock %}
+                    <sw-rating-stars :value="item.points" />
 
                     {% endblock %}
                 </template>
@@ -50,7 +42,7 @@
                 {% block sw_product_detail_reviews_data_status %}
                 <template #column-status="{ item }">
                     <sw-data-grid-column-boolean
-                        v-model="item.status"
+                        v-model:value="item.status"
                         :is-inline-edit="false"
                     />
                 </template>
@@ -59,7 +51,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_reviews_data_created_at %}
                 <template #column-createdAt="{ item }">
-                    {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+                    {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
                 </template>
                 {% endblock %}
 
@@ -120,7 +112,7 @@
         >
             <template #icon>
                 <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                     :alt="$tc('sw-product.reviewForm.messageEmptyTitle')"
                 >
             </template>

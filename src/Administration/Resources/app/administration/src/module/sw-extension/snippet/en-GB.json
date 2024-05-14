@@ -208,7 +208,7 @@
           "textProblem": "A problem occurred while installing your extension. We will inform the manufacturer.",
           "notificationLicense": "Please note that the subscription to this extension remains active.",
           "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available via email at {0} or via phone at {1}.",
-          "supportEmail": "financial.services@shopware.com",
+          "supportEmail": "financial.services{'@'}shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
       },
@@ -540,7 +540,7 @@
       "entities": {
         "promotion": "Promotion",
         "promotion_translation": "Promotion translation",
-        "promotion_cart_rule": "Card rule",
+        "promotion_cart_rule": "Cart rule",
         "promotion_discount": "Discount",
         "promotion_discount_prices": "Discount prices",
         "promotion_discount_rule": "Discount rule",
@@ -631,7 +631,10 @@
       }
     },
     "additional_privileges": {
-      "title": "Additional permissions"
+      "title": "Additional permissions",
+      "entities": {
+        "api_feature_flag_toggle": "API feature flag toggle"
+      }
     }
   },
   "sw-privileges": {

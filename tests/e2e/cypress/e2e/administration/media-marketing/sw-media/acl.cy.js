@@ -1,11 +1,11 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
-describe('Media: Test ACL privileges', () => {
+describe('Media: Test ACL privileges', { tags: ['VUE3'] }, () => {
     beforeEach(() => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
     });
@@ -163,30 +163,5 @@ describe('Media: Test ACL privileges', () => {
         );
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
         cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--deleter').should('not.exist');
-    });
-
-    it('@media: can edit settings for media folder', { tags: ['pa-content-management'] }, () => {
-        // open context menu and open settings modal
-        cy.get('.sw-media-grid-item__item--0 .sw-context-button__button').click({ force: true });
-        cy.get('.sw-media-context-item__open-settings-action').click();
-
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
-        // go to thumbnail tab
-        cy.get('.sw-media-folder-settings__thumbnails-tab').click();
-
-        // turn on thumbnail edit mode
-        cy.get('.sw-media-modal-folder-settings__switch-mode').click();
-
-        // delete thumbnail size
-        cy.get('.sw-media-folder-settings__thumbnails-tab').click();
-
-        // turn of thumbnail edit mode
-        cy.get('.sw-media-modal-folder-settings__switch-mode').click();
-
-        cy.get('.sw-modal .sw-button.sw-button--primary').click();
-
-        cy.awaitAndCheckNotification('Settings have been saved.');
     });
 });

@@ -1,11 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swCustomerBaseForm from 'src/module/sw-customer/component/sw-customer-base-form';
+import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
-
-Shopware.Component.register('sw-customer-base-form', swCustomerBaseForm);
 
 const customer = {
     id: '1',
@@ -17,19 +14,21 @@ const customer = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-customer-base-form'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
+        props: {
             customer,
         },
-        stubs: {
-            'sw-container': true,
-            'sw-entity-single-select': true,
-            'sw-text-field': true,
-            'sw-email-field': true,
-            'sw-password-field': true,
-            'sw-datepicker': true,
-            'sw-entity-tag-select': true,
-            'sw-single-select': true,
+        global: {
+            stubs: {
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-entity-single-select': true,
+                'sw-text-field': true,
+                'sw-email-field': true,
+                'sw-password-field': true,
+                'sw-datepicker': true,
+                'sw-entity-tag-select': true,
+                'sw-single-select': true,
+            },
         },
     });
 }

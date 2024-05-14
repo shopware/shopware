@@ -64,11 +64,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_account_type_field %}
                                 <sw-single-select
-                                    {% if VUE3 %}
                                     v-model:value="customer.accountType"
-                                    {% else %}
-                                    v-model="customer.accountType"
-                                    {% endif %}
+                                    name="sw-field--customer-accountType"
                                     class="sw-customer-card__account-type-select"
                                     :label="$tc('sw-customer.customerType.labelAccountType')"
                                     :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
@@ -79,11 +76,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                 <sw-entity-single-select
-                                    {% if VUE3 %}
                                     v-model:value="customer.salutationId"
-                                    {% else %}
-                                    v-model="customer.salutationId"
-                                    {% endif %}
+                                    name="sw-field--customer-salutationId"
                                     class="sw-customer-card__salutation-select"
                                     entity="salutation"
                                     label-property="displayName"
@@ -95,11 +89,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_title %}
                                 <sw-text-field
-                                    {% if VUE3 %}
                                     v-model:value="customer.title"
-                                    {% else %}
-                                    v-model="customer.title"
-                                    {% endif %}
+                                    name="sw-field--customer-title"
                                     :label="$tc('sw-customer.card.labelTitle')"
                                     :placeholder="$tc('sw-customer.card.placeholderTitle')"
                                 />
@@ -113,11 +104,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_first_name %}
                                 <sw-text-field
-                                    {% if VUE3 %}
                                     v-model:value="customer.firstName"
-                                    {% else %}
-                                    v-model="customer.firstName"
-                                    {% endif %}
+                                    name="sw-field--customer-firstName"
                                     :label="$tc('sw-customer.card.labelFirstName')"
                                     validation="required"
                                     required
@@ -129,11 +117,8 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_customer_card_metadata_customer_name_editor_last_name %}
                                 <sw-text-field
-                                    {% if VUE3 %}
                                     v-model:value="customer.lastName"
-                                    {% else %}
-                                    v-model="customer.lastName"
-                                    {% endif %}
+                                    name="sw-field--customer-lastName"
                                     :label="$tc('sw-customer.card.labelLastName')"
                                     validation="required"
                                     required
@@ -146,11 +131,8 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="customer.company"
-                                {% else %}
-                                v-model="customer.company"
-                                {% endif %}
+                                name="sw-field--customer-company"
                                 :required="isBusinessAccountType"
                                 :error="customerCompanyError"
                                 :label="$tc('sw-customer.card.labelCompany')"
@@ -165,11 +147,7 @@
                         {% block sw_customer_card_vat_ids %}
                         <sw-text-field
                             v-if="editMode && isBusinessAccountType"
-                            {% if VUE3 %}
                             v-model:value="customer.vatIds[0]"
-                            {% else %}
-                            v-model="customer.vatIds[0]"
-                            {% endif %}
                             name="vatId"
                             :label="$tc('sw-customer.card.labelVatId')"
                             :placeholder="$tc('sw-customer.card.placeholderVatId')"
@@ -196,11 +174,8 @@
                         {% block sw_customer_card_metadata_customer_email_editor %}
                         <sw-email-field
                             v-else
-                            {% if VUE3 %}
                             v-model:value="customer.email"
-                            {% else %}
-                            v-model="customer.email"
-                            {% endif %}
+                            name="sw-field--customer-email"
                             validation="required"
                             required
                             :label="$tc('sw-customer.card.labelEmail')"
@@ -214,11 +189,8 @@
                         {% block sw_customer_card_password %}
                         <sw-password-field
                             v-if="editMode"
-                            {% if VUE3 %}
                             v-model:value="customer.passwordNew"
-                            {% else %}
-                            v-model="customer.passwordNew"
-                            {% endif %}
+                            name="sw-field--customer-passwordNew"
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPassword')"
@@ -231,11 +203,8 @@
                         {% block sw_customer_card_password_confirm %}
                         <sw-password-field
                             v-if="editMode"
-                            {% if VUE3 %}
                             v-model:value="customer.passwordConfirm"
-                            {% else %}
-                            v-model="customer.passwordConfirm"
-                            {% endif %}
+                            name="sw-field--customer-passwordConfirm"
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
@@ -247,7 +216,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_card_metadata_customer_tag %}
                         <sw-entity-tag-select
-                            v-model="customer.tags"
+                            v-model:entityCollection="customer.tags"
+                            name="sw-field--customer-tags"
                             :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
                             class="sw-customer-card__tag-select"
                             :disabled="!editMode"

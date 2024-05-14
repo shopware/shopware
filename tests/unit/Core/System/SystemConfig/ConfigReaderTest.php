@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
+use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Util\ConfigReader
  */
 #[Package('system-settings')]
+#[CoversClass(ConfigReader::class)]
 class ConfigReaderTest extends TestCase
 {
     private ConfigReader $configReader;
@@ -31,14 +31,14 @@ class ConfigReaderTest extends TestCase
 
     public function testConfigReaderWithInvalidPath(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/config.xml');
     }
 
     public function testConfigReaderWithInvalidConfig(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/_fixtures/invalid_config.xml');
     }

@@ -5,7 +5,7 @@
 
     <img
         class="sw-first-run-wizard-mailer-selection__illustration"
-        :src="'/administration/static/img/first-run-wizard/mailer-selection.svg' | asset"
+        :src="assetFilter('/administration/static/img/first-run-wizard/mailer-selection.svg')"
         alt=""
     >
 
@@ -25,11 +25,13 @@
     </p>
 
     <div class="sw-first-run-wizard-mailer-selection__selections">
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-first-run-wizard-mailer-selection__selection"
             :class="{ 'is--selected': mailAgent === 'local' }"
+            role="button"
+            tabindex="0"
             @click="setMailAgent('local')"
+            @keydown.enter="setMailAgent('local')"
         >
 
             <sw-help-text
@@ -51,11 +53,13 @@
 
         </div>
 
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-first-run-wizard-mailer-selection__selection"
             :class="{ 'is--selected': mailAgent === 'smtp' }"
+            role="button"
+            tabindex="0"
             @click="setMailAgent('smtp')"
+            @keydown.enter="setMailAgent('smtp')"
         >
 
             <sw-icon

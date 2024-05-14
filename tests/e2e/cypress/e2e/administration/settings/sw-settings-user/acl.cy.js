@@ -5,7 +5,7 @@ describe('User: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: view user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: view user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -15,6 +15,10 @@ describe('User: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
                 role: 'viewer',
             },
         ]).then(() => {
@@ -45,7 +49,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'max@muster.com');
     });
 
-    it('@settings: edit user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: edit user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -63,6 +67,14 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
                 role: 'editor',
             },
         ]).then(() => {
@@ -121,7 +133,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: edit user role', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: edit user role', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -145,6 +157,14 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'editor',
             },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -159,7 +179,7 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--1')
             .should('not.exist');
 
-        cy.get('.sw-card.sw-users-permissions-role-listing .sw-data-grid__row--0 .sw-data-grid__cell--name a')
+        cy.get('.sw-users-permissions-role-listing .sw-data-grid__row--0 .sw-data-grid__cell--name a')
             .click();
 
 
@@ -199,7 +219,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'This is a description');
     });
 
-    it('@settings: create user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: create user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
@@ -225,6 +245,18 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'creator',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
+                role: 'editor',
+            },
+            {
+                key: 'media',
                 role: 'creator',
             },
         ]).then(() => {
@@ -280,7 +312,7 @@ describe('User: Test acl privileges', () => {
         cy.wait('@createCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create user and delete them', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: create user and delete them', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
@@ -296,6 +328,22 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'deleter',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'creator',
+            },
+            {
+                key: 'media',
                 role: 'deleter',
             },
         ]).then(() => {

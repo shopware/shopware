@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-describe('Extension:  Visual tests', () => {
+describe('Extension:  Visual tests', { tags: ['VUE3'] }, () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
         const now = new Date(2018, 1, 1);
@@ -12,7 +12,7 @@ describe('Extension:  Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of my extension overview', { tags: ['pa-merchant-services'] }, () => {
+    it('@visual: check appearance of my extension overview', { tags: ['quarantined', 'pa-services-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
             method: 'GET',

@@ -8,7 +8,7 @@
                     "System Operations"
                 ],
                 "summary": "Send product indexing message",
-                "description": "Dispachtes an product indexing message to the message bus, with the provided ids",
+                "description": "Dispatches a product indexing message to the message bus, with the provided ids",
                 "operationId": "productIndexing",
                 "responses": {
                     "204": {

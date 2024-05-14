@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:generate-media-types',
     description: 'Generates media types for all media files',
 )]
-#[Package('content')]
+#[Package('buyers-experience')]
 class GenerateMediaTypesCommand extends Command
 {
     private ShopwareStyle $io;
@@ -55,7 +55,7 @@ class GenerateMediaTypesCommand extends Command
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $this->batchSize = $this->validateBatchSize($input);
 
         $this->io->comment('Starting to generate MediaTypes. This may take some time...');

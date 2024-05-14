@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductSortingCollection extends EntityCollection
 {
+    /**
+     * @param string[] $keys
+     */
     public function sortByKeyArray(array $keys): void
     {
         $sorted = [];

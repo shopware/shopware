@@ -19,14 +19,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsController extends StorefrontController
 {
     /**
@@ -63,7 +63,7 @@ class CmsController extends StorefrontController
     /**
      * Navigation id is required to load the slot config for the navigation
      */
-    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true], methods: ['GET', 'POST'])]
+    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
@@ -126,14 +126,15 @@ class CmsController extends StorefrontController
         /** @var string[]|null $options */
         $options = json_decode($request->query->get('options', ''), true);
 
+        $variantRequestData = [
+            'switchedGroup' => $request->query->get('switched'),
+            'options' => $options ?? [],
+        ];
+        $variantRequest = $request->duplicate($variantRequestData);
+
         $variantResponse = $this->findVariantRoute->load(
             $productId,
-            new Request(
-                [
-                    'switchedGroup' => $request->query->get('switched'),
-                    'options' => $options ?? [],
-                ]
-            ),
+            $variantRequest,
             $context
         );
 

@@ -5,7 +5,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  * @private since v6.5.0
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -41,6 +41,7 @@ export default {
         return {
             showElementSettings: false,
             showElementSelection: false,
+            elementNotFound: false,
         };
     },
 
@@ -49,8 +50,12 @@ export default {
             return this.element.id;
         },
 
+        cmsServiceState() {
+            return this.cmsService.getCmsServiceState();
+        },
+
         elementConfig() {
-            return this.cmsService.getCmsElementConfigByName(this.element.type);
+            return this.cmsServiceState.elementRegistry[this.element.type];
         },
 
         cmsElements() {
@@ -93,7 +98,7 @@ export default {
         },
 
         cmsSlotSettingsClasses() {
-            if (this.elementConfig.defaultConfig && !this.element.locked) {
+            if (this.elementConfig?.defaultConfig && !this.element?.locked) {
                 return null;
             }
 
@@ -101,7 +106,7 @@ export default {
         },
 
         tooltipDisabled() {
-            if (this.elementConfig.disabledConfigInfoTextKey) {
+            if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
                     message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
@@ -113,11 +118,27 @@ export default {
                 disabled: true,
             };
         },
+        modalVariant() {
+            return this.element.type === 'html' ? 'full' : 'large';
+        },
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            // Show a "Not found" error after 10 seconds, when no element has been found
+            setTimeout(() => {
+                if (!this.elementConfig) {
+                    this.elementNotFound = true;
+                }
+            }, 10000);
+        },
+
         onSettingsButtonClick() {
-            if (!this.elementConfig.defaultConfig || this.element.locked) {
+            if (!this.elementConfig?.defaultConfig || this.element?.locked) {
                 return;
             }
 
@@ -127,7 +148,7 @@ export default {
         onCloseSettingsModal() {
             const childComponent = this.$refs.elementComponentRef;
 
-            if (childComponent.hasOwnProperty('handleUpdateContent')) {
+            if (childComponent && childComponent.handleUpdateContent) {
                 childComponent.handleUpdateContent();
             }
 

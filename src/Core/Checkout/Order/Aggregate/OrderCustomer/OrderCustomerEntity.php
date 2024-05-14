@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderCustomerEntity extends Entity
 {
     use EntityCustomFieldsTrait;

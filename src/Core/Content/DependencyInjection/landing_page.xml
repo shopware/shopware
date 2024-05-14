@@ -24,7 +24,6 @@
         <service id="Shopware\Core\Content\LandingPage\DataAbstractionLayer\LandingPageIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="landing_page.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.entity_indexer" priority="1000"/>
         </service>

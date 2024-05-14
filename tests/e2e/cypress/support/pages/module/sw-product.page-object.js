@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import elements from '../sw-general.page-object';
 
 export default class ProductPageObject {
@@ -68,7 +71,7 @@ export default class ProductPageObject {
     proceedVariantsGeneration(totalCount) {
         // Request we want to wait for later
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
+            url: `${Cypress.env('apiPath')}/_action/sync?indexing-behavior=disable-indexing`,
             method: 'post',
         }).as('productCall');
 
@@ -79,7 +82,7 @@ export default class ProductPageObject {
 
         if (totalCount !== 1) {
             cy.get('.sw-product-modal-variant-generation__infoBox')
-                .contains(new RegExp(`${totalCount} (variants will be added|varianten worden toegevoegd)`));
+                .contains(new RegExp(`${totalCount} (variants will be added|varianten wordt toegevoegd)`));
         }
 
         cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click()

@@ -101,7 +101,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
                 'lastName' => 'Test',
                 'username' => $userId,
                 'email' => 'Test@test.com',
-                'password' => password_hash($userId, \PASSWORD_BCRYPT),
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'active' => true,
             ],

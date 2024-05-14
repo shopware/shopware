@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Wrapper for inherited data with toggle
  * @status ready
  * @example-type dynamic
@@ -43,13 +42,11 @@ Component.register('sw-inherit-wrapper', {
     inject: ['feature'],
 
     props: {
-        // FIXME: add type property
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
 
-        // FIXME: add type property
         // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true,
@@ -82,7 +79,6 @@ Component.register('sw-inherit-wrapper', {
         hasParent: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
@@ -134,12 +130,16 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
-                if (this.isInherited) {
-                    this.removeInheritance(newValue);
+                if (this.isInherited && newValue === this.inheritedValue) {
                     return;
                 }
 
-                this.updateValue(newValue, 'restore');
+                if (!this.isInherited && newValue !== this.inheritedValue) {
+                    this.updateValue(newValue, 'restore');
+                    return;
+                }
+
+                this.removeInheritance(newValue);
             },
         },
 
@@ -185,14 +185,7 @@ Component.register('sw-inherit-wrapper', {
         },
 
         updateValue(value, inheritanceEventName) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', value);
-                this.$emit(`inheritance-${inheritanceEventName}`);
-
-                return;
-            }
-
-            this.$emit('input', value);
+            this.$emit('update:value', value);
             this.$emit(`inheritance-${inheritanceEventName}`);
         },
 
@@ -225,7 +218,7 @@ Component.register('sw-inherit-wrapper', {
                 return;
             }
 
-            this.$emit('input', null);
+            this.$emit('update:value', null);
         },
 
         removeInheritance(newValue = this.currentValue) {
@@ -257,7 +250,7 @@ Component.register('sw-inherit-wrapper', {
                 this.forceInheritanceRemove = true;
             }
 
-            this.$emit('input', newValue);
+            this.$emit('update:value', newValue);
         },
     },
 });

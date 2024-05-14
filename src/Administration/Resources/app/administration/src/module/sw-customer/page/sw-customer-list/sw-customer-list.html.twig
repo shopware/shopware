@@ -118,11 +118,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_list_grid_inline_edit_first_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="item.firstName"
-                            {% else %}
-                            v-model="item.firstName"
-                            {% endif %}
+                            name="sw-field--item-firstName"
                             class="sw-customer-list__inline-edit-first-name"
                             :size="compact ? 'small' : 'default'"
                         />
@@ -131,11 +128,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_customer_list_grid_inline_edit_last_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="item.lastName"
-                            {% else %}
-                            v-model="item.lastName"
-                            {% endif %}
+                            name="sw-field--item-lastName"
                             class="sw-customer-list__inline-edit-last-name"
                             :size="compact ? 'small' : 'default'"
                         />
@@ -212,11 +206,8 @@
                     {% block sw_customer_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.active"
-                            {% else %}
-                            v-model="item.active"
-                            {% endif %}
+                            name="sw-field--item-active"
                         />
                     </template>
                     {% endblock %}
@@ -405,7 +396,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
@@ -427,7 +418,7 @@
                 >
                     <template #icon>
                         <img
-                            :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                            :src="assetFilter('/administration/static/img/empty-states/customer-empty-state.svg')"
                             :alt="$tc('sw-customer.list.messageEmpty')"
                         >
                     </template>

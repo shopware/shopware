@@ -1,17 +1,15 @@
 /**
  * @package storefront
  */
+const chalk = require('chalk');
 
-const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
-const babelrc = require('./.babelrc');
+const { merge } = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const chalk = require('chalk');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const crypto = require('crypto');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -26,23 +24,11 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
-let watchFilePaths = [];
 let features = {};
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
     themeFiles = require(themeFilesConfigPath);
-
-    const pluginsConfigPath = path.resolve(projectRootPath, 'var/plugins.json');
-    const plugins = require(pluginsConfigPath);
-
-    Object.values(plugins).map((plugin) => {
-        if (plugin.views && plugin.views.length > 0) {
-            watchFilePaths.push(...plugin.views.map((viewEntry) => {
-                return path.resolve(projectRootPath, plugin.basePath, viewEntry).replace(projectRootPath + '/', '') + '/**/*.twig'; // resolve to normalize it and cut the root path to work with the cwd option of the devServer
-            }));
-        }
-    });
 }
 const featureConfigPath = path.resolve(projectRootPath, 'var/config_js_features.json');
 
@@ -65,53 +51,51 @@ try {
     hostName = undefined;
 }
 
-let webpackConfig = {
-    cache: true,
-    devServer: (() => {
-        if (isHotMode) {
-            return {
-                static: {
-                    directory: path.resolve(__dirname, 'dist'),
-                },
-                open: false,
-                devMiddleware: {
-                    publicPath: `${hostName}/`,
-                    stats: {
-                        colors: true
-                    }
-                },
-                hot: true,
-                compress: false,
-                allowedHosts: 'all',
-                port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
-                host: '127.0.0.1',
-                client: {
-                    webSocketURL: {
-                        hostname: '0.0.0.0',
-                        protocol: 'ws',
-                        port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
-                    },
-                    logging: 'warn',
-                    overlay: {
-                        warnings: false,
-                        errors: true,
-                    },
-                },
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                },
-                watchFiles: {
-                    paths: watchFilePaths,
-                    options: {
-                        persistent: true,
-                        cwd: projectRootPath,
-                        ignorePermissionErrors: true,
-                    },
-                },
+const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
+let watchFilePaths = isHotMode ? [`${themeFiles.basePath}/**/*.twig`] : [];
+
+const pluginEntries = (() => {
+    const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
+
+    if (!fs.existsSync(pluginFile)) {
+        throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
+    }
+
+    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+
+    return Object.entries(pluginDefinition)
+        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
+        .map(([name, definition]) => {
+            console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
+
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
+            const hasHtmlFile = fs.existsSync(htmlFilePath);
+
+            if (isHotMode && useExtensionTwigWatch && definition.views?.length > 0) {
+                watchFilePaths = watchFilePaths.concat(definition.views.map((view) => {
+                    return `${path.resolve(projectRootPath, definition.basePath, view)}/**/*.twig`;
+                }));
             }
-        }
-        return {};
-    })(),
+
+            return {
+                name,
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+                basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
+                path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path),
+                filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.entryFilePath),
+                hasHtmlFile,
+                webpackConfig: definition.storefront.webpack ? path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.webpack) : null,
+            };
+        });
+})();
+
+const coreConfig = {
+    cache: true,
+    experiments: {
+        topLevelAwait: true,
+    },
     devtool: (() => {
         if (isDevMode || isHotMode) {
             return 'eval-cheap-module-source-map';
@@ -125,18 +109,7 @@ let webpackConfig = {
     })(),
     context: path.resolve(__dirname, 'src'),
     mode: isProdMode ? 'production' : 'development',
-    ...(() => {
-        if (isHotMode) {
-            return {
-                entry: {
-                    app: [],
-                    storefront: [],
-                },
-            };
-        }
-
-        return {};
-    })(),
+    entry: {},
     module: {
         rules: [
             {
@@ -144,19 +117,32 @@ let webpackConfig = {
                 exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|query-string|split-on-first)\/).*/,
                 use: [
                     {
-                        loader: 'babel-loader',
+                        loader: 'swc-loader',
                         options: {
-                            ...babelrc,
-                            cacheDirectory: true,
+                            env: {
+                                mode: 'entry',
+                                coreJs: '3.34.0',
+                                // .browserlistrc is not found by swc-loader, so we load it manually: https://github.com/swc-project/swc/issues/3365
+                                targets: require('browserslist').loadConfig({
+                                    path: './',
+                                }),
+                            },
+                            jsc: {
+                                parser: {
+                                    syntax: 'typescript',
+                                },
+                                transform: {
+                                    // NEXT-30535 - Restore babel option to not use defineProperty for class fields.
+                                    // Previously (in v6.5.x) this was done by `@babel/preset-typescript` automatically.
+                                    useDefineForClassFields: false,
+                                },
+                            },
                         },
                     },
                 ],
             },
             {
                 test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-                include: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
-                ],
                 use: [
                     {
                         loader: 'file-loader',
@@ -170,9 +156,6 @@ let webpackConfig = {
             },
             {
                 test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
-                exclude: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
-                ],
                 use: [
                     {
                         loader: 'file-loader',
@@ -241,58 +224,14 @@ let webpackConfig = {
     optimization: {
         moduleIds: 'deterministic',
         chunkIds: 'named',
-        runtimeChunk: {
-            name: 'runtime',
-        },
-        splitChunks: {
-            minSize: 0,
-            minChunks: 1,
-            cacheGroups: {
-                'vendor-node': {
-                    enforce: true,
-                    test: path.resolve(__dirname, 'node_modules'),
-                    name: 'vendor-node',
-                    chunks: 'all',
-                },
-                'vendor-shared': {
-                    enforce: true,
-                    test: (content) => {
-                        if (!content.resource) {
-                            return false;
-                        }
-
-                        return !!(content.resource.includes(path.resolve(__dirname, 'src/plugin-system'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/helper'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/utility'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/service')));
-
-                    },
-                    name: 'vendor-shared',
-                    chunks: 'all',
-                },
-                ...(() => {
-                    if (isProdMode) {
-                        return {
-                            vendor: {
-                                test: path.resolve(__dirname, 'node_modules'),
-                                name: 'vendors',
-                                chunks: 'all',
-                            },
-                        }
-                    }
-
-                    return {};
-                })(),
-            },
-        },
         ...(() => {
             if (isProdMode) {
                 return {
                     minimizer: [
                         new TerserPlugin({
+                            minify: TerserPlugin.swcMinify,
                             terserOptions: {
-                                ecma: 5,
-                                warnings: false,
+                                compress: true,
                             },
                             parallel: true,
                         }),
@@ -305,9 +244,8 @@ let webpackConfig = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: './js/[name].js',
-        publicPath: `${hostName}/`,
-        chunkFilename: './js/[name].js',
+        filename: './storefront/[name].js',
+        chunkFilename: './storefront/[name].js',
     },
     performance: {
         hints: false,
@@ -316,9 +254,6 @@ let webpackConfig = {
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
             Popper: ['popper.js', 'default'],
-        }),
-        new WebpackBar({
-            name: 'Shopware 6 Storefront',
         }),
         new MiniCssExtractPlugin({
             filename: './css/[name].css',
@@ -336,9 +271,6 @@ let webpackConfig = {
     ],
     resolve: {
         extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
-        extensionAlias: {
-            '.js': ['.ts', '.js'],
-        },
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules'),
@@ -353,6 +285,60 @@ let webpackConfig = {
     stats: 'minimal',
     target: 'web',
 };
+
+// Create all plugin configs
+const pluginConfigs = pluginEntries.map((plugin) => {
+
+    // add custom config optionally when it exists
+    let customPluginConfig = {};
+
+    if (plugin.webpackConfig) {
+        // eslint-disable-next-line no-console
+        console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
+
+        const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
+
+        customPluginConfig = pluginWebpackConfigFn({
+            basePath: plugin.basePath,
+            env: process.env.NODE_ENV,
+            config: coreConfig,
+            name: plugin.name,
+            technicalName: plugin.technicalName,
+            technicalFolderName: plugin.technicalFolderName,
+            plugin,
+        });
+    }
+
+    return merge([
+        coreConfig,
+        {
+            name: plugin.technicalName,
+            entry: {
+                [plugin.technicalName]: plugin.filePath,
+            },
+            output: {
+                // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
+                path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
+                filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+            },
+            resolve: {
+                modules: ['node_modules'],
+            },
+            plugins: [
+                new WebpackBar({
+                    name: plugin.name,
+                    color: 'green',
+                }),
+            ],
+            optimization: {
+                splitChunks: false,
+                runtimeChunk: false,
+            },
+        },
+        customPluginConfig,
+    ]);
+});
 
 if (isHotMode) {
     /**
@@ -413,14 +399,68 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    webpackConfig.entry.app = [scssEntryFilePath];
-
-    webpackConfig.entry.storefront = [...themeFiles.script].map((file) => {
-        return file.filepath;
-    });
+    coreConfig.entry.css = [scssEntryFilePath];
 }
 
-const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'storefront');
-webpackConfig = injector.webpackConfig;
+const mergedCoreConfig = merge([
+    coreConfig,
+    {
+        devServer: (() => {
+            if (isHotMode) {
+                return {
+                    static: {
+                        directory: path.resolve(__dirname, 'dist'),
+                    },
+                    open: false,
+                    devMiddleware: {
+                        publicPath: `${hostName}/`,
+                        stats: {
+                            colors: true,
+                        },
+                    },
+                    hot: false,
+                    compress: false,
+                    allowedHosts: 'all',
+                    port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                    host: '127.0.0.1',
+                    client: {
+                        webSocketURL: {
+                            hostname: '0.0.0.0',
+                            protocol: 'ws',
+                            port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                        },
+                        logging: 'warn',
+                        overlay: {
+                            warnings: false,
+                            errors: true,
+                        },
+                    },
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    watchFiles: {
+                        paths: watchFilePaths,
+                        options: {
+                            persistent: true,
+                            cwd: projectRootPath,
+                            ignorePermissionErrors: true,
+                        },
+                    },
+                }
+            }
+            return {};
+        })(),
+        entry: {
+            storefront: `${path.resolve('src')}/main.js`,
+        },
+        plugins: [
+            new WebpackBar({
+                name: 'Shopware 6 Storefront',
+                color: '#118cff',
+            }),
+        ],
+    },
+]);
 
-module.exports = webpackConfig;
+// Use multi-compiler
+module.exports = [mergedCoreConfig, ...pluginConfigs];

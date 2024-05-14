@@ -25,12 +25,12 @@
     {% endif %}
 
     <h1 class="confirm-main-header">
-        {{ "account.completePayment"|trans|sw_sanitize }}
+        {{ 'account.completePayment'|trans|sw_sanitize }}
     </h1>
 {% endblock %}
 
 {% block page_checkout_confirm_tos_control %}
-    {{ "checkout.confirmTermsReminderText"|trans({
+    {{ 'checkout.confirmTermsReminderText'|trans({
         '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
     })|raw }}
 {% endblock %}
@@ -38,7 +38,7 @@
 {% block page_checkout_confirm_revocation_control %}
     {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
     {% if page.order.lineItems.hasLineItemWithState(DOWNLOAD_STATE) %}
-        <br>{{ "checkout.confirmRevocationReminder"|trans() }}
+        <br>{{ 'checkout.confirmRevocationReminder'|trans() }}
     {% endif %}
 {% endblock %}
 
@@ -85,7 +85,7 @@
 {% block page_checkout_aside_actions %}
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
-              action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
+              action="{{ path('frontend.account.edit-order.update-order', { orderId: page.order.id }) }}"
               data-form-submit-loader="true"
               data-form-preserver="true"
               method="post">
@@ -102,24 +102,26 @@
             {% endfor %}
 
             {% block page_checkout_confirm_form_submit %}
-                <button
-                    class="btn btn-primary btn-block"
-                    {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
-                        disabled="disabled"
-                    {% endif %}
-                    type="submit">
-                    {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
-                </button>
+                <div class="d-grid">
+                    <button
+                        class="btn btn-primary"
+                        {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
+                            disabled="disabled"
+                        {% endif %}
+                        type="submit">
+                        {{ 'account.editOrderUpdateButton'|trans|sw_sanitize }}
+                    </button>
+                </div>
             {% endblock %}
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}
             {% if page.order.stateMachineState.technicalName != 'cancelled' and config('core.cart.enableOrderRefunds') %}
                 <button type="button"
-                        class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
+                        class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn mt-3"
                         data-bs-toggle="modal"
                         data-bs-target="#cancelOrderModal">
-                    {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                    {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
                 </button>
             {% endif %}
         {% endblock %}

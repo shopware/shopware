@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent
  */
+#[CoversClass(UpdatePostFinishEvent::class)]
 class UpdatePostFinishEventTest extends TestCase
 {
     public function testGetters(): void

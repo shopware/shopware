@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Newsletter\Subscribe;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class NewsletterSubscribePage extends Page
 {
 }

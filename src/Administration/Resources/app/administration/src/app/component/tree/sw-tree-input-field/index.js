@@ -6,7 +6,6 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @status ready
  * @example-type code-only
@@ -18,7 +17,6 @@ Component.register('sw-tree-input-field', {
     template,
 
     props: {
-        // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         currentValue: {
             type: String,

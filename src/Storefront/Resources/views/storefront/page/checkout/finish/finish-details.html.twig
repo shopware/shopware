@@ -5,9 +5,9 @@
                 {% block page_checkout_finish_header %}
                     <h1 class="finish-header">
                         {% if page.changedPayment == true %}
-                            {{ "checkout.finishUpdateHeader"|trans|sw_sanitize }}
+                            {{ 'checkout.finishUpdateHeader'|trans|sw_sanitize }}
                         {% else %}
-                            {{ "checkout.finishHeader"|trans({
+                            {{ 'checkout.finishHeader'|trans({
                                 '%shop%': config('core.basicInformation.shopName')
                             })|sw_sanitize }}
                         {% endif %}
@@ -16,7 +16,7 @@
 
                 {% block page_checkout_finish_ordernumber %}
                     <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
-                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
+                        {{ 'checkout.finishInfoOrdernumber'|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
                 {% endblock %}
 
@@ -30,7 +30,7 @@
                 {% block page_checkout_finish_subtitle %}
                     {% if page.changedPayment == true %}
                         <p class="finish-order-subtitle">
-                            {{ "checkout.finishPaymentHeader"|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
+                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
                         </p>
                     {% endif %}
                 {% endblock %}
@@ -39,15 +39,8 @@
                     <div class="finish-content">
                         {% block page_checkout_finish_teaser %}
                             {% if page.changedPayment != true %}
-                                <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
+                                <p class="finish-teaser">{{ 'checkout.finishInfoConfirmationMail'|trans|sw_sanitize }}</p>
                             {% endif %}
-                        {% endblock %}
-
-                        {# @deprecated tag:v6.6.0 - Block will be removed. Use upper block `page_checkout_finish_teaser` instead. #}
-                        {% block page_checkout_finish_action %}
-
-                            {# @deprecated tag:v6.6.0 - Block will be removed. Use upper block `page_checkout_finish_teaser` instead. #}
-                            {% block page_checkout_finish_action_back %}{% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -69,13 +62,13 @@
                         <div class="card-body">
                             {% block page_checkout_finish_order_title %}
                                 <div class="card-title">
-                                    {{ "checkout.finishInfoHeader"|trans|sw_sanitize }}
+                                    {{ 'checkout.finishInfoHeader'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
-                                    <strong>{{ "checkout.finishInfoPayment"|trans|sw_sanitize }}</strong>
+                                    <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
                                     {{ page.order.transactions.last.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
@@ -83,7 +76,7 @@
                             {% block page_checkout_finish_order_dispatch_method %}
                                 {% if page.order.deliveries.first.shippingMethod is defined %}
                                     <p>
-                                        <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
+                                        <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
                                         {{ page.order.deliveries.first.shippingMethod.translated.name }}
                                     </p>
                                 {% endif %}

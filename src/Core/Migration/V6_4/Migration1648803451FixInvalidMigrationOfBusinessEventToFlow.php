@@ -79,6 +79,8 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 continue;
             }
 
+            \assert($actionSequence['id'] !== null);
+
             $parentId = $parentCondition['id'];
 
             $hasSaleChannelRule = \in_array($parentCondition['rule_id'], $saleChannelRule, true);
@@ -101,6 +103,8 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
             $childrenCondition = array_values(array_filter($sequence, fn ($sequence) => $sequence['rule_id'] !== null && $sequence['parent_id'] !== null));
 
             foreach ($childrenCondition as $child) {
+                \assert($child['id'] !== null);
+
                 $this->sequenceUpdate[] = $this->buildSequenceData(
                     $child['id'],
                     $parentId,
@@ -152,7 +156,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 'ids' => array_column($this->sequenceDelete, 'id'),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
     }

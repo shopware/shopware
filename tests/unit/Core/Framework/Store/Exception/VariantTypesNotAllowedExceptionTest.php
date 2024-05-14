@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\VariantTypesNotAllowedException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Exception\VariantTypesNotAllowedException
  */
+#[Package('checkout')]
+#[CoversClass(VariantTypesNotAllowedException::class)]
 class VariantTypesNotAllowedExceptionTest extends TestCase
 {
     private VariantTypesNotAllowedException $exception;

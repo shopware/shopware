@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Log\Package;
@@ -24,8 +25,10 @@ class LockValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -81,11 +84,13 @@ class LockValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!$command->getDefinition()->isLockAware()) {
+            $definition = $this->definitionRegistry->getByEntityName($command->getEntityName());
+
+            if (!$definition->isLockAware()) {
                 continue;
             }
 
-            $ids[$command->getDefinition()->getEntityName()][] = $command->getPrimaryKey()['id'];
+            $ids[$command->getEntityName()][] = $command->getPrimaryKey()['id'];
         }
 
         /** @var string $entityName */
@@ -94,7 +99,7 @@ class LockValidator implements EventSubscriberInterface
                 ->select('1')
                 ->from(EntityDefinitionQueryHelper::escape($entityName))
                 ->where('`id` IN (:ids) AND `locked` = 1')
-                ->setParameter('ids', $primaryKeys, ArrayParameterType::STRING)
+                ->setParameter('ids', $primaryKeys, ArrayParameterType::BINARY)
                 ->executeQuery()
                 ->rowCount() > 0;
         }

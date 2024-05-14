@@ -104,6 +104,7 @@
                         </template>
                         {% endblock %}
 
+                        {# @deprecated tag:v6.7.0 - Remove block #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_product_visibilites %}
                         <template #column-product_visibilities="{ item }">
@@ -138,7 +139,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_sales_channel_list_grid_column_created_at %}
                         <template #column-createdAt="{ item }">
-                            {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                            {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                         </template>
                         {% endblock %}
 
@@ -150,11 +151,7 @@
                                 class="favorite-switch"
                                 :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
                                 :value="isFavorite(item.id)"
-                                {% if VUE3 %}
                                 @update:value="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
-                                {% else %}
-                                @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
-                                {% endif %}
                             />
                         </template>
                         {% endblock %}

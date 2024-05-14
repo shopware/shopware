@@ -6,7 +6,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_type_base_labels %}
     <sw-custom-field-translated-labels
-        v-model="currentCustomField.config"
+        v-model:config="currentCustomField.config"
         :disabled="!acl.can('custom_field.editor')"
         :property-names="propertyNames"
         :locales="locales"

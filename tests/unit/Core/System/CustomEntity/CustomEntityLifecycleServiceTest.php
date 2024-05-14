@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -20,9 +21,8 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\CustomEntityLifecycleService
  */
+#[CoversClass(CustomEntityLifecycleService::class)]
 class CustomEntityLifecycleServiceTest extends TestCase
 {
     public function testResultIsNullIfThereIsNoExtension(): void

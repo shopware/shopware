@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
@@ -9,9 +11,8 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition
  */
+#[CoversClass(CartPromotionsDataDefinition::class)]
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**
@@ -20,9 +21,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * within its tuple object.
      * We add 1 promotion without code, and verify the single tuple
      * that will be generated.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAutomaticPromotionHasEmptyCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -39,9 +39,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * correct code within its tuple object.
      * We add 1 promotion with code, and verify the single tuple
      * that will be generated.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCodePromotionHasCorrectCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -56,9 +55,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
     /**
      * This test verifies we get 2 tuple objects for a code
      * if we add 2 promotions for it.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testMultiplePromotionForCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -75,9 +73,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * This test verifies that we can retrieve all added
      * promotions as 1 single tuple list. This should combine all
      * code promotions and the automatic promotions
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testGetPromotionCodeTuplesAll(): void
     {
         $promotion1 = new PromotionEntity();
@@ -97,9 +94,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * of added codes from the definition.
      * This has to return the codes, even if the promotion list is
      * empty for a code.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testGetAllCodes(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -114,9 +110,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * This test verifies that we can successfully remove a code
      * including the promotions. We add 2 codes with a sum of 4 promotions
      * and ensure we have 2 codes in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testRemoveCode(): void
     {
         $promotion1 = new PromotionEntity();
@@ -138,9 +133,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
     /**
      * This test verifies that our hasCode returns
      * true if we have an entry for the code.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testHasCodeIsTrueEvenIfEmpty(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -152,9 +146,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
     /**
      * This test verifies that our hasCode returns
      * false if we dont have an entry for the code.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testHasCodeIsFalse(): void
     {
         $definition = new CartPromotionsDataDefinition();
@@ -167,9 +160,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * This test verifies that we cast any code that is based on a number
      * when creating tuples. Otherwise PHP would automatically use INT
      * which would lead to an exception.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testIntegerCodeIsCastedWhenBuildingTuples(): void
     {
         $promotion1 = new PromotionEntity();

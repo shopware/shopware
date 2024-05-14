@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>test</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <shipping-methods>
+        <shipping-method>
+            <identifier>swagFirstShippingMethod</identifier>
+            <name>first Shipping Method</name>
+            <name lang="de-DE">erste Versandmethode</name>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c8</id>
+                <name>Short delivery time 1-2 days</name>
+                <min>1</min>
+                <max>2</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+        <shipping-method>
+            <identifier>swagUpdatedShippingMethod</identifier>
+            <name>second Shipping Method</name>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c9</id>
+                <name>another delivery time</name>
+                <min>2</min>
+                <max>3</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+    </shipping-methods>
+</manifest>

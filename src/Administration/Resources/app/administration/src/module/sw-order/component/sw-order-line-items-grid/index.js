@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils } = Shopware;
@@ -27,7 +27,6 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -158,6 +157,10 @@ export default {
             return this.$refs.dataGrid?.currentColumns
                 .find(item => item.property === 'payload.productNumber')?.visible;
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
     },
     methods: {
         onInlineEditSave(item) {
@@ -260,8 +263,9 @@ export default {
 
             Object.values(this.selectedItems).forEach((item) => {
                 if (item.isNew()) {
-                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem.id);
-                    this.$delete(this.order.lineItems, itemIndex);
+                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem?.id);
+                    this.order.lineItems.splice(itemIndex, 1);
+
                     return;
                 }
 
@@ -283,7 +287,8 @@ export default {
 
         onDeleteItem(item, itemIndex) {
             if (item.isNew()) {
-                this.$delete(this.order.lineItems, itemIndex);
+                this.order.lineItems.splice(itemIndex, 1);
+
                 return;
             }
 
@@ -324,6 +329,10 @@ export default {
             return item.type === this.lineItemTypes.PROMOTION;
         },
 
+        isContainerItem(item) {
+            return item.type === this.lineItemTypes.CONTAINER;
+        },
+
         getMinItemPrice(id) {
             if (this.isCreditItem(id)) {
                 return null;
@@ -354,7 +363,7 @@ export default {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.detailBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.shortName),
+                    tax: format.currency(taxItem.tax, this.order.currency.isoCode),
                 });
             });
 

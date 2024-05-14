@@ -25,11 +25,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_type_select_field %}
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="category.productAssignmentType"
-                {% else %}
-                v-model="category.productAssignmentType"
-                {% endif %}
                 class="sw-category-detail-products__product-assignment-type-select"
                 :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
                 :error="categoryProductAssignmentTypeError"
@@ -62,11 +58,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_product_assignment_stream_select_field %}
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="category.productStreamId"
-                {% else %}
-                v-model="category.productStreamId"
-                {% endif %}
                 class="sw-category-detail-products__product-stream-select"
                 entity="product_stream"
                 show-clearable-button
@@ -115,7 +107,7 @@
             <router-link
                 :to="{ name: column.routerLink, params: { id: item.id } }"
             >
-                <sw-product-variant-info :variations="item.options">
+                <sw-product-variant-info :variations="item.variation">
                     {{ item.name || item.translated.name }}
                 </sw-product-variant-info>
             </router-link>
@@ -126,10 +118,10 @@
         {% block sw_category_detail_product_assignment_column_manufacturer %}
         <template #[manufacturerColumn]="{ item, column }">
             <router-link
-                v-if="item.manufacturerId"
+                v-if="getManufacturer(item)"
                 :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
             >
-                {{ item.manufacturer.name || item.manufacturer.translated.name }}
+                {{ getManufacturer(item).name || getManufacturer(item).translated.name }}
             </router-link>
             <span v-else></span>
         </template>
@@ -145,7 +137,7 @@
             >
                 <template #icon>
                     <img
-                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
                     >
                 </template>

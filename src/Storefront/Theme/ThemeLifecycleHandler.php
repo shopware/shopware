@@ -49,23 +49,31 @@ class ThemeLifecycleHandler
 
     public function handleThemeUninstall(StorefrontPluginConfiguration $config, Context $context): void
     {
-        $themeId = null;
-        if ($config->getIsTheme()) {
-            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
-            $themeId = $themeData->getId();
-
-            // throw an exception if theme is still assigned to a sales channel
-            $this->validateThemeAssignment($themeId);
-
-            // set active = false in the database to theme and all children
-            $this->changeThemeActive($themeData, false, $context);
-        }
+        $themeId = $this->deactivateTheme($config, $context);
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
         $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
+    }
+
+    public function recompileAllActiveThemes(Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null): void
+    {
+        // Recompile all themes as the extension generally extends the storefront
+        $mappings = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id
+             FROM theme_sales_channel'
+        );
+
+        foreach ($mappings as $mapping) {
+            $this->themeService->compileTheme(
+                $mapping['sales_channel_id'],
+                $mapping['theme_id'],
+                $context,
+                $configurationCollection
+            );
+        }
     }
 
     /**
@@ -111,7 +119,7 @@ class ThemeLifecycleHandler
             return;
         }
 
-        if (!$config->hasFilesToCompile()) {
+        if (!$config->hasFilesToCompile() && !$config->hasAdditionalBundles()) {
             return;
         }
 
@@ -125,20 +133,7 @@ class ThemeLifecycleHandler
             return;
         }
 
-        // Recompile all themes as the extension generally extends the storefront
-        $mappings = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id
-             FROM theme_sales_channel'
-        );
-
-        foreach ($mappings as $mapping) {
-            $this->themeService->compileTheme(
-                $mapping['sales_channel_id'],
-                $mapping['theme_id'],
-                $context,
-                $configurationCollection
-            );
-        }
+        $this->recompileAllActiveThemes($context, $configurationCollection);
     }
 
     private function getThemeDataByTechnicalName(string $technicalName): ThemeDependencies
@@ -189,7 +184,7 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel = [];
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
-                if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId && $data['saleschannelId'] !== null) {
+                if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
                     $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
                     $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
                 }
@@ -215,5 +210,22 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel,
             $salesChannels
         );
+    }
+
+    public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
+    {
+        $themeId = null;
+        if ($config->getIsTheme()) {
+            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
+            $themeId = $themeData->getId();
+
+            // throw an exception if theme is still assigned to a sales channel
+            $this->validateThemeAssignment($themeId);
+
+            // set active = false in the database to theme and all children
+            $this->changeThemeActive($themeData, false, $context);
+        }
+
+        return $themeId;
     }
 }

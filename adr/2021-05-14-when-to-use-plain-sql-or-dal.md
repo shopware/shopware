@@ -3,7 +3,7 @@ title: When to use plain SQL or the DAL
 date: 2021-05-14
 area: core
 tags: [sql, dal, store-api, storefront, admin-api, entity-indexer]
---- 
+---
 
 ## Context
 
@@ -41,4 +41,3 @@ In the following application layers you should work with plain SQL because of th
 * In Core Components
     * Core components like the theme compiler, request transformer, etc. are not places where a third party developer should be able to load additional data. The data loaded here is for pure processing only and should never be rewritten.
     * Deep processes like theme compiling should not be affected by plugin entity schemas, because plugins are an optional part of the system and might be in an unstable state during an update process.
-

@@ -20,9 +20,9 @@
         <li class="product-feature-list-item">
 
             {% sw_include '@Storefront/storefront/component/product/feature/types/' ~ type ~ '.html.twig' with {
-                'type': type,
-                'label': feature.label,
-                'value': feature.value
+                type: type,
+                label: feature.label,
+                value: feature.value
             } %}
 
         </li>

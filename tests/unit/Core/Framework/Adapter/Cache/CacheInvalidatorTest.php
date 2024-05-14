@@ -2,189 +2,156 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @group cache
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator
  */
+#[CoversClass(CacheInvalidator::class)]
+#[Group('cache')]
 class CacheInvalidatorTest extends TestCase
 {
-    /**
-     * @dataProvider demandInvalidationProvider
-     *
-     * @param array<string, string> $logs
-     * @param list<string> $expected
-     */
-    public function testDemandValidation(array $logs, ?\DateTime $time, int $delay, array $expected): void
+    public function testInvalidateNothingShouldNotCall(): void
     {
-        $adapter = new TracedCacheAdapter();
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::never())
+            ->method('invalidateTags');
 
-        $item = CacheCompressor::compress(new CacheItem(), $logs);
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::never())
+            ->method('store');
 
-        if ($delay > 0 && $time !== null) {
-            $time->modify(sprintf('-%d second', $delay));
-        }
-
-        $storage = $this->createMock(TagAwareAdapter::class);
-        $storage->expects(static::once())
-            ->method('getItem')
-            ->willReturn($item);
-
-        $logger = new CacheInvalidator(
-            $delay,
-            150,
-            [$adapter],
-            $storage,
+        $invalidator = new CacheInvalidator(
+            0,
+            [
+                $tagAwareAdapter,
+            ],
+            $redisInvalidatorStorage,
             new EventDispatcher(),
+            new NullLogger()
         );
 
-        $logger->invalidateExpired($time);
-
-        $invalidated = $adapter->getInvalidated();
-
-        static::assertCount(\count($expected), $invalidated);
-        foreach ($expected as $key) {
-            static::assertContains($key, $invalidated);
-        }
+        $invalidator->invalidate([]);
     }
 
-    public static function demandInvalidationProvider(): \Generator
+    #[DataProvider('dataProviderInvalidation')]
+    public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
     {
-        yield 'Test one key match' => [
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects($directInvalidate ? static::once() : static::never())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects($backgroundInvalidate ? static::once() : static::never())
+            ->method('store');
+
+        $invalidator = new CacheInvalidator(
+            (int) $enableDelay,
             [
-                'key-1' => '2021-03-03 13:00:00',
-                'key-2' => '2021-03-03 13:10:00',
+                $tagAwareAdapter,
             ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-1'],
-        ];
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger()
+        );
 
-        yield 'Test invalidate all' => [
-            [
-                'key-1' => '2021-03-03 13:00:00',
-                'key-2' => '2021-03-03 13:10:00',
-            ],
-            null,
-            60,
-            ['key-1', 'key-2'],
-        ];
-
-        yield 'Test multiple keys match' => [
-            [
-                'key-1' => '2021-03-03 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-1', 'key-2'],
-        ];
-
-        yield 'Test different day' => [
-            [
-                'key-1' => '2021-03-02 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-1', 'key-2'],
-        ];
-
-        yield 'Test different day #2' => [
-            [
-                'key-1' => '2021-03-04 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-2'],
-        ];
-
-        yield 'Test different month' => [
-            [
-                'key-1' => '2021-02-03 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-1', 'key-2'],
-        ];
-
-        yield 'Test different month #2' => [
-            [
-                'key-1' => '2021-04-03 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-2'],
-        ];
-
-        yield 'Test different year' => [
-            [
-                'key-1' => '2020-03-03 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-1', 'key-2'],
-        ];
-
-        yield 'Test different year #2' => [
-            [
-                'key-1' => '2022-03-03 13:00:00',
-                'key-2' => '2021-03-03 13:09:00',
-                'key-3' => '2021-03-03 13:10:00',
-            ],
-            new \DateTime('2021-03-03 13:10:00', new \DateTimeZone('UTC')),
-            60,
-            ['key-2'],
-        ];
-    }
-}
-
-/**
- * @internal
- */
-class TracedCacheAdapter extends ArrayAdapter implements TagAwareAdapterInterface
-{
-    /**
-     * @var list<string>
-     */
-    private array $invalidated = [];
-
-    /**
-     * @param list<string> $tags
-     */
-    public function invalidateTags(array $tags): bool
-    {
-        $this->invalidated = [...$this->invalidated, ...$tags];
-
-        return true;
+        $invalidator->invalidate(['foo'], $force);
     }
 
-    /**
-     * @return list<string>
-     */
-    public function getInvalidated(): array
+    public static function dataProviderInvalidation(): \Generator
     {
-        return $this->invalidated;
+        yield 'no delay' => [
+            false,
+            true,
+            false,
+            false,
+        ];
+
+        yield 'no delay, with force' => [
+            false,
+            true,
+            false,
+            true,
+        ];
+
+        yield 'with delay, no force' => [
+            true,
+            false,
+            true,
+            false,
+        ];
+
+        yield 'with delay, force' => [
+            true,
+            true,
+            false,
+            true,
+        ];
+    }
+
+    public function testInvalidateExpiredEmpty(): void
+    {
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::never())
+            ->method('invalidateTags');
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::once())
+            ->method('loadAndDelete')
+            ->willReturn([]);
+
+        $invalidator = new CacheInvalidator(
+            0,
+            [
+                $tagAwareAdapter,
+            ],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger()
+        );
+
+        $invalidator->invalidateExpired();
+    }
+
+    public function testInvalidateExpired(): void
+    {
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::once())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::once())
+            ->method('loadAndDelete')
+            ->willReturn(['foo']);
+
+        $invalidator = new CacheInvalidator(
+            0,
+            [
+                $tagAwareAdapter,
+            ],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger()
+        );
+
+        $invalidator->invalidateExpired();
     }
 }

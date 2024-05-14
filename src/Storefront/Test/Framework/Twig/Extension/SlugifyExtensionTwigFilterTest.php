@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Loader\ArrayLoader;
@@ -13,9 +14,7 @@ class SlugifyExtensionTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @dataProvider sampleAnchorIdProvider
-     */
+    #[DataProvider('sampleAnchorIdProvider')]
     public function testSlugifyAnchorIds(?string $input, ?string $expected): void
     {
         static::assertEquals($expected, $this->renderTestTemplate($input), 'Slugify needed for plugins missing or invalid.');

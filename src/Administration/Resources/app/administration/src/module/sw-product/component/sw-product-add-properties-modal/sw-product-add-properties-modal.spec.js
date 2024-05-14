@@ -2,77 +2,66 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProductAddPropertiesModal from 'src/module/sw-product/component/sw-product-add-properties-modal';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-card-section';
-import 'src/app/component/grid/sw-grid';
-import 'src/app/component/base/sw-empty-state';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/base/sw-property-search';
-import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/utils/sw-loader';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
-Shopware.Component.register('sw-product-add-properties-modal', swProductAddPropertiesModal);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-product-add-properties-modal'), {
-        localVue,
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-card-section': await Shopware.Component.build('sw-card-section'),
-            'sw-grid': true,
-            'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
-            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-            'sw-property-search': await Shopware.Component.build('sw-property-search'),
-            'sw-pagination': await Shopware.Component.build('sw-pagination'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(new EntityCollection(
-                            'jest',
-                            'jest',
-                            Shopware.Context.api,
-                            new Criteria(1),
-                            [],
-                            0,
-                            [],
-                        ));
-                    },
-                }),
+    return mount(await wrapTestComponent('sw-product-add-properties-modal', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                          <slot name="modal-header"></slot>
+                          <slot></slot>
+                          <slot name="modal-footer"></slot>
+                        </div>
+                    `,
+                },
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-card-section': await wrapTestComponent('sw-card-section'),
+                'sw-grid': true,
+                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
+                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                'sw-property-search': await wrapTestComponent('sw-property-search'),
+                'sw-pagination': await wrapTestComponent('sw-pagination'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
             },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(new EntityCollection(
+                                'jest',
+                                'jest',
+                                Shopware.Context.api,
+                                new Criteria(1),
+                                [],
+                                0,
+                                [],
+                            ));
+                        },
+                    }),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
+                validationService: {},
             },
-            validationService: {},
         },
-        propsData: {
+        props: {
             newProperties: [],
         },
     });
@@ -83,10 +72,6 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.JS component', async () => {

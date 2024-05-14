@@ -25,11 +25,16 @@ Component.register('sw-desktop', {
         desktopClasses() {
             return {
                 'sw-desktop--no-nav': this.noNavigation,
+                'sw-desktop--staging': this.isStaging,
             };
         },
 
         currentUser() {
             return Shopware.State.get('session').currentUser;
+        },
+
+        isStaging() {
+            return Shopware.State.get('context').app.config.settings.enableStagingMode === true;
         },
     },
 
@@ -101,6 +106,10 @@ Component.register('sw-desktop', {
         getModuleMetadata() {
             const { $module } = this.$route.meta;
             const routeName = this.$route?.name;
+
+            if (!$module) {
+                return false;
+            }
 
             const { name, icon, color, entity, routes, title } = $module;
 

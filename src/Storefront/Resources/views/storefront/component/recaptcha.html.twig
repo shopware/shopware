@@ -3,7 +3,10 @@
     {% set recaptchaV3Active = config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.isActive') %}
 
     {% if recaptchaV2Active or recaptchaV3Active %}
-        <script type="text/javascript" src='https://www.google.com/recaptcha/api.js{% if recaptchaV3Active %}?render={{ config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey') }}{% endif %}' defer></script>
+        <script type="text/javascript"
+                {# ludtwig-ignore html-string-quotation #}
+                src='https://www.google.com/recaptcha/api.js{% if recaptchaV3Active %}?render={{ config('core.basicInformation.activeCaptchasV2.googleReCaptchaV3.config.siteKey') }}{% endif %}'
+                defer></script>
         <script>
             {% if recaptchaV2Active %}
                 window.googleReCaptchaV2Active = true;

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>TestShippingApp</name>
+        <label>Test Swag Shipping App</label>
+        <description>Test for App System Shipping</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>0.0.1</version>
+        <license>MIT</license>
+    </meta>
+
+    <shipping-methods>
+
+        <shipping-method>
+            <identifier>shippingMethodOne</identifier>
+            <name>Shipping method one</name>
+            <description>This is the description for shipping method one</description>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c8</id>
+                <name>Short delivery time 1-2 days</name>
+                <min>1</min>
+                <max>2</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+
+        <shipping-method>
+            <identifier>shippingMethodTwo</identifier>
+            <name>Shipping method two</name>
+            <description>This is the description for shipping method two</description>
+            <delivery-time>
+                <id>c8864e36a4d84bd4a16cc31b5953431b</id>
+                <name>Long delivery time 2-4 days</name>
+                <min>2</min>
+                <max>4</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+
+    </shipping-methods>
+</manifest>

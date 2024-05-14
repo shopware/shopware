@@ -4,7 +4,7 @@ Shopware.Component.register('sw-settings-store', () => import('./page/sw-setting
 const { Module } = Shopware;
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 Module.register('sw-settings-store', {

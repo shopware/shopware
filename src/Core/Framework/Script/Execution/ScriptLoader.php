@@ -113,10 +113,8 @@ class ScriptLoader implements EventSubscriberInterface
 
             $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
 
-            /** @var \DateTimeInterface $lastModified */
             $lastModified = new \DateTimeImmutable(max($dates));
 
-            /** @var string $cachePrefix */
             $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
             $includes = array_map(function (array $script) use ($appId) {

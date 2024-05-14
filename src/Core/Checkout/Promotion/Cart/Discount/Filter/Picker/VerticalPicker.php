@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * So if you decide to get the first 2 cheapest items,
  * then it will return the first 2 cheapest items from each group.
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class VerticalPicker implements FilterPickerInterface
 {
     public function getKey(): string

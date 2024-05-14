@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -44,9 +45,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
      * @param array<int, mixed>|null $existedData
      * @param array<int, mixed>|null $updateData
      * @param array<int, mixed>|null $expectData
-     *
-     * @dataProvider createDataProvider
      */
+    #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForCustomer(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
         $customFieldName = 'custom_field_test';
@@ -54,8 +54,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, ['customFields' => [$customFieldName => $existedData]]);
+        $this->prepareCustomer($email, ['customFields' => [$customFieldName => $existedData]]);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -83,7 +82,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */

@@ -3,23 +3,22 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater
  */
+#[Package('buyers-experience')]
+#[CoversClass(CustomerNewsletterSalesChannelsUpdater::class)]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testUpdateCustomersRecipient(?string $newsletterIds, \Closure $expectsClosure): void
     {
         $connection = $this->createMock(Connection::class);
@@ -44,7 +43,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     public static function dataProvider(): \Generator
     {
         yield 'Email Newsletter Recipient Registered' => [
-            'newsletter_sales_channel_ids' => json_encode([Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
+            'newsletterIds' => json_encode([Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
             function (MockObject $connection, ?array $ids): void {
                 $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
                     static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
@@ -61,7 +60,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ];
 
         yield 'Email Newsletter Recipient Registered Multiple' => [
-            'newsletter_sales_channel_ids' => json_encode([Uuid::randomHex() => Uuid::randomHex(), Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
+            'newsletterIds' => json_encode([Uuid::randomHex() => Uuid::randomHex(), Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),
             function (MockObject $connection, ?array $ids): void {
                 $connection->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($ids): void {
                     static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
@@ -78,7 +77,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ];
 
         yield 'Email Newsletter Recipient Not Registered' => [
-            'newsletter_sales_channel_ids' => null,
+            'newsletterIds' => null,
             function (MockObject $connection): void {
                 $connection->expects(static::never())->method('executeUpdate');
             },

@@ -3,7 +3,7 @@ title: Add typescript support for storefront javascript
 date: 2022-06-24
 area: storefront
 tags: [storefront, typescript, javascript]
---- 
+---
 
 ## Context
 

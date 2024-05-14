@@ -15,8 +15,7 @@
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
-            :src="'/administration/static/img/media/folder--back.svg' | asset"
-            key="sw-media-folder-preview"
+            :src="assetFilter('/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
         >
@@ -26,10 +25,9 @@
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
-            key="sw-media-folder-preview"
         >
             <img
-                :src="'/administration/static/img/media/' + iconName + '.svg' | asset"
+                :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
@@ -45,8 +43,7 @@
         {% block sw_media_folder_folder_icon%}
         <img
             v-else
-            key="sw-media-folder-preview"
-            :src="'/administration/static/img/media/folder-thumbnail--large.svg' | asset"
+            :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder thumbnail"
         >
@@ -65,9 +62,9 @@
             class="sw-media-base-item__name-field"
             :value="item.name"
             name="media-item-name"
-            @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
+            @keydown.enter.stop
             @keyup.esc="endInlineEdit"
         />
         <div
@@ -86,7 +83,7 @@
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
-            {{ item.createdAt| date() }}
+            {{ dateFilter(item.createdAt) }}
         </div>
     </template>
     {% endblock %}

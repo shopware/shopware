@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-base.html.twig';
@@ -31,7 +31,6 @@ export default {
     ],
 
     props: {
-        // FIXME: add type for salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
@@ -43,7 +42,6 @@ export default {
             required: true,
         },
 
-        // FIXME: add default value for this property
         // eslint-disable-next-line vue/require-default-prop
         storefrontSalesChannelCriteria: {
             type: Criteria,
@@ -359,23 +357,10 @@ export default {
             ];
         },
 
-        /**
-         * @deprecated tag:v6.6.0 will be removed. use maintenanceIpAllowlist instead
-         */
-        // eslint-disable-next-line inclusive-language/use-inclusive-words
-        maintenanceIpWhitelist: {
-            get() {
-                return this.maintenanceIpAllowlist;
-            },
-            set(value) {
-                this.maintenanceIpAllowlist = value;
-            },
-        },
-
         maintenanceIpAllowlist: {
             get() {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];
+                return this.salesChannel.maintenanceIpWhitelist ?? [];
             },
             set(value) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
@@ -472,6 +457,10 @@ export default {
 
             return criteria;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -563,8 +552,18 @@ export default {
             });
         },
 
-        copyToClipboard() {
-            domUtils.copyToClipboard(this.salesChannel.accessKey);
+        async copyToClipboard() {
+            try {
+                await domUtils.copyStringToClipboard(this.salesChannel.accessKey);
+                this.createNotificationSuccess({
+                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                });
+            }
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
@@ -720,6 +719,10 @@ export default {
 
         isFavorite() {
             return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
+        },
+
+        validateMaintenanceIpCidr(term) {
+            return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
         },
     },
 };

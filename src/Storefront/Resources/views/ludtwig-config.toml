@@ -1,0 +1,81 @@
+# -------------------------------
+# Config generated with Ludtwig v0.8.0
+# -------------------------------
+# Ludtwig documentation
+# -------------------------------
+
+# To override any of the config values with environment variables use the following format:
+# LUDTWIG_FORMAT__INDENTATION_COUNT=1
+
+# To exclude any files / directories from ludtwig you can use `.ludtwig-ignore` files anywhere in the file tree
+# These are evaluated just like .gitignore files (which are also considered by ludtwig!)
+
+# Ludtwig does support directives as html and twig comments like
+# <!-- ludtwig-ignore-file rule1, rule2, rule3 -->
+# {# ludtwig-ignore-file rule1, rule2, rule3 #}
+
+# Ignoring whole files from ludtwig is possible by adding the comment
+# {# ludtwig-ignore-file #}
+# on top of the file. You can also only ignore specific rules for a file with
+# {# ludtwig-ignore-file indentation, twig-block-line-breaks #}
+
+# Ignoring specific errors / warnings is possible by adding the comment
+# {# ludtwig-ignore #}
+# or
+# {# ludtwig-ignore twig-block-name-snake-case #}
+# before the problematic element.
+# This will ignore also all children (the whole next SyntaxNode)!
+
+# -------------------------------
+# Ludtwig configuration
+# -------------------------------
+[general]
+active-rules = [
+    "ludtwig-ignore-file-not-on-top",
+    "whitespace-between-line-breaks",
+    "line-ending",
+#    "indentation",
+    "twig-block-line-breaks",
+    "twig-block-name-snake-case",
+    "html-attribute-name-kebab-case",
+    "twig-logic-and",
+    "twig-logic-or",
+    "twig-string-quotation",
+    "html-string-quotation",
+    "twig-hash-key-no-quotes",
+    "twig-prefer-shopware-extends",
+# maybe activate in the future? these are okay because shopware extends the twig syntax
+#    "twig-use-is-same-as",
+#    "twig-use-is-not-same-as",
+# not needed by shopware
+#    "unknown-token",
+]
+
+[format]
+# How should the line endings look like? ["unix_LF", "windows_CRLF"]
+# unix_LF is a single '\n' character
+# windows_CRLF are the characters '\r\n'
+# checked by the 'line-ending' rule
+line-ending = "unix_LF"
+
+# Which character should be used for indentation ["space", "tab"]
+# checked by the 'indentation' rule
+indentation-mode = "space"
+# How many times should this character be printed for one indentation [0-255]
+# checked by the 'indentation' rule
+indentation-count = 4
+# Should the children of twig blocks be indented? [true, false]
+# checked by the 'indentation' rule
+indent-children-of-blocks = true
+
+# Should twig blocks have empty lines around them? [true, false]
+# checked by the 'twig-block-line-breaks' rule
+linebreaks-around-blocks = true
+
+# How twig strings should be quotated? ["single", "double"]
+# checked by the 'twig-string-quotation' rule
+twig-quotation = "single"
+
+# How html attribute strings should be quotated? ["single", "double"]
+# checked by the 'html-string-quotation' rule
+html-quotation = "double"

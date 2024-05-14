@@ -38,7 +38,6 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
         </service>
@@ -60,12 +59,6 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
-
-        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">
@@ -201,8 +194,72 @@
 
         <service id="Shopware\Core\Framework\Plugin\Command\PluginCreateCommand">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="tagged_iterator" tag="shopware.scaffold.generator"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector">
+            <argument type="tagged_iterator" tag="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter">
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\PluginClassGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\TestsGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CommandGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScheduledTaskGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EventSubscriberGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StorefrontControllerGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StoreApiRouteGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ConfigGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\JavascriptPluginGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator">
+            <tag name="shopware.scaffold.generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CustomFieldsetGenerator">
+            <tag name="shopware.scaffold.generator"/>
         </service>
     </services>
 </container>

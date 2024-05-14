@@ -11,7 +11,7 @@ describe('Rule builder: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic rule workflow', { tags: ['pa-business-ops'] }, () => {
+    it('@visual: check appearance of basic rule workflow', { tags: ['pa-services-settings'] }, () => {
         const page = new RulePageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
@@ -38,6 +38,7 @@ describe('Rule builder: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-card__content').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

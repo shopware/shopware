@@ -68,7 +68,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test matching'), 1000));
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
+        $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
             ->expects(static::once())
             ->method('addOrderBy')
@@ -83,7 +83,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
+        $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
             ->expects(static::once())
             ->method('addOrderBy')

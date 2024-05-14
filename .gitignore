@@ -13,7 +13,7 @@ Thumbs.db
 # PhpStorm-Project
 /.idea/
 /.fleet/
-/*.http
+*.http
 /.run/
 
 # Composer
@@ -29,6 +29,7 @@ php.ini
 # Caches/Proxies
 .php_cs
 .php_cs.cache
+/.phpunit.cache
 /var/*
 /var/bootstrap.php.cache
 /var/config_administration_plugins.json
@@ -37,6 +38,7 @@ php.ini
 .eslintcache
 .stylelintcache
 .jestcache
+/.phpunit.cache
 
 /public/*
 !/public/index.php
@@ -99,16 +101,13 @@ src/Core/DevOps/Locust/**/__pycache__/
 # tests / ci
 /build/
 !build/artifacts/.gitkeep
-src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
+tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
+tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
-###< phpunit/phpunit ###
 
 ###> symfony/framework-bundle ###
 .env
@@ -119,10 +118,18 @@ phpstan.neon
 ###< symfony/framework-bundle ###
 
 config/jwt/
-config/packages/
+config/packages/*
+!config/packages/test/
+config/routes*
+!config/routes/
+config/routes/*
+!config/routes/test/
 config/services*
+!/config/services_test.xml
 
 custom
+!/custom/scripts/boot
+!/custom/scripts/examples
 files/*
 install.lock
 docker-compose.override.yaml
@@ -131,6 +138,8 @@ vendor-bin/**/vendor
 vendor-bin/**/composer.lock
 .uniqueid.txt
 
+http-client.private.env.json
+
 # nix
 .direnv/
 .phpbench/*
@@ -138,4 +147,3 @@ vendor-bin/**/composer.lock
 # Devenv
 .devenv*
 devenv.local.nix
-

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
@@ -13,9 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs
  */
+#[CoversClass(ScriptPriceStubs::class)]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso
@@ -23,9 +24,8 @@ class ScriptPriceStubsTest extends TestCase
 
     /**
      * @param array<string, array{gross:float, net:float}> $prices
-     *
-     * @dataProvider priceCases
      */
+    #[DataProvider('priceCases')]
     public function testPriceFactory(array $prices, PriceCollection $expected): void
     {
         $connection = $this->createMock(Connection::class);

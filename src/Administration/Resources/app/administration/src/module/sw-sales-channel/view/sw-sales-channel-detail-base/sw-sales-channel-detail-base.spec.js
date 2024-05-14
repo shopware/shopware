@@ -1,12 +1,9 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDetailBase from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
-
-Shopware.Component.register('sw-sales-channel-detail-base', swSalesChannelDetailBase);
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -23,48 +20,54 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-base'), {
-        stubs: {
-            'sw-card': true,
-            'sw-switch-field': true,
-            'sw-text-field': true,
-            'sw-number-field': true,
-            'sw-container': true,
-            'sw-entity-single-select': true,
-            'sw-sales-channel-defaults-select': true,
-            'router-link': true,
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-radio-field': true,
-            'sw-multi-tag-ip-select': true,
-            'sw-select-number-field': true,
-            'sw-select-field': true,
-            'sw-help-text': true,
-            'sw-sales-channel-detail-hreflang': true,
-            'sw-sales-channel-detail-domains': true,
-            'sw-category-tree-field': true,
-        },
-        provide: {
-            salesChannelService: {},
-            productExportService: {},
-            knownIpsService: {
-                getKnownIps: () => Promise.resolve(),
+    return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-switch-field': true,
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-entity-single-select': true,
+                'sw-sales-channel-defaults-select': true,
+                'router-link': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-radio-field': true,
+                'sw-multi-tag-ip-select': true,
+                'sw-select-number-field': true,
+                'sw-select-field': true,
+                'sw-help-text': true,
+                'sw-sales-channel-detail-hreflang': true,
+                'sw-sales-channel-detail-domains': true,
+                'sw-category-tree-field': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
-                    get: () => {
-                        return Promise.resolve();
-                    },
-                    delete: () => {
-                        return Promise.resolve();
-                    },
-                }),
+            provide: {
+                salesChannelService: {},
+                productExportService: {},
+                knownIpsService: {
+                    getKnownIps: () => Promise.resolve(),
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([]);
+                        },
+                        get: () => {
+                            return Promise.resolve();
+                        },
+                        delete: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
             },
         },
-        propsData: {
+        props: {
             salesChannel: {},
             productExport: {},
             customFieldSets: [],
@@ -77,12 +80,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have the select template field disabled', async () => {
@@ -966,7 +963,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    // todo: figure out what this test actually tests
     // eslint-disable-next-line jest/no-identical-title
     it('should have the field for productExport accessKey disabled', async () => {
         const wrapper = await createWrapper();
@@ -987,7 +983,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    // todo: figure out what this test actually tests
     // eslint-disable-next-line jest/no-identical-title
     it('should have the field for productExport accessKey not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
@@ -1076,23 +1071,23 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist disabled', async () => {
+    it('should have the field multi tag ip select for maintenanceIpAllowlist disabled', async () => {
         const wrapper = await createWrapper();
 
         const field = wrapper.get(
-            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]',
+            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressAllowlist"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist enabled', async () => {
+    it('should have the field multi tag ip select for maintenanceIpAllowlist enabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
 
         const field = wrapper.get(
-            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]',
+            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressAllowlist"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -1108,5 +1103,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                 { field: 'name', order: 'ASC', naturalSorting: false },
             ]),
         }));
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

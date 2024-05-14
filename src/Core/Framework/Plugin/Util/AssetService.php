@@ -4,13 +4,15 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -37,36 +39,29 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $this->copyAssets($bundle);
+        $this->copyAssets($bundle, $force);
 
         if ($bundle instanceof Plugin) {
             foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                $this->copyAssets($bundle);
+                $this->copyAssets($bundle, $force);
             }
         }
     }
 
-    public function copyAssets(BundleInterface $bundle): void
+    public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
         $this->copyAssetsFromBundleOrApp(
             $bundle->getPath() . '/Resources/public',
-            $bundle->getName()
+            $bundle->getName(),
+            $force
         );
     }
 
-    /**
-     * @decrecated tag:v6.6.0 - Will be removed without replacement
-     */
-    public function copyRecoveryAssets(): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
-    }
-
-    public function copyAssetsFromApp(string $appName, string $appPath): void
+    public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
         $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
 
@@ -76,7 +71,8 @@ class AssetService
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
-            $appName
+            $appName,
+            $force
         );
     }
 
@@ -109,7 +105,7 @@ class AssetService
         $this->writeManifest($manifest);
     }
 
-    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName): void
+    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName, bool $force): void
     {
         $bundleOrAppName = mb_strtolower($bundleOrAppName);
 
@@ -118,6 +114,10 @@ class AssetService
         }
 
         $manifest = $this->getManifest();
+
+        if ($force) {
+            unset($manifest[$bundleOrAppName]);
+        }
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
@@ -178,25 +178,6 @@ class AssetService
         return $localManifest;
     }
 
-    private function copyFile(string $from, string $to): void
-    {
-        $fp = fopen($from, 'rb');
-
-        // @codeCoverageIgnoreStart
-        if (!\is_resource($fp)) {
-            throw new \RuntimeException('Could not open file ' . $from);
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this->filesystem->writeStream($to, $fp);
-
-        // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
-        // error, we therefore need to check whether the stream has been closed yet.
-        if (\is_resource($fp)) {
-            fclose($fp);
-        }
-    }
-
     private function getTargetDirectory(string $name): string
     {
         $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));
@@ -228,9 +209,16 @@ class AssetService
             $this->filesystem->delete($targetDirectory . '/' . $file);
         }
 
+        $batches = [];
+
         foreach ($uploads as $file) {
-            $this->copyFile($originDir . '/' . $file, $targetDirectory . '/' . $file);
+            $batches[] = new CopyBatchInput(
+                $originDir . '/' . $file,
+                [$targetDirectory . '/' . $file]
+            );
         }
+
+        CopyBatch::copy($this->filesystem, ...$batches);
     }
 
     /**
@@ -245,7 +233,7 @@ class AssetService
         }
 
         if ($bundle === null) {
-            throw new PluginNotFoundException($bundleName);
+            throw PluginException::notFound($bundleName);
         }
 
         return $bundle;

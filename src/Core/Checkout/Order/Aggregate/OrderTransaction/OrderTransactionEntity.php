@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionEntity extends Entity
 {
     use EntityCustomFieldsTrait;

@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 import template from './sw-sales-channel-config.html.twig';
 
@@ -7,12 +7,16 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-sales-channel-config', {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+        'feature',
+    ],
 
     props: {
         domain: {
@@ -20,7 +24,6 @@ Component.register('sw-sales-channel-config', {
             required: false,
             default: '',
         },
-        // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         value: {
             type: Object,
@@ -68,7 +71,7 @@ Component.register('sw-sales-channel-config', {
                     return;
                 }
 
-                this.$emit('input', configData);
+                this.$emit('update:value', configData);
             },
             deep: true,
         },

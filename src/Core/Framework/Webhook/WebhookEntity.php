@@ -27,6 +27,8 @@ class WebhookEntity extends Entity
      */
     protected $url;
 
+    protected bool $onlyLiveVersion;
+
     /**
      * @var string|null
      */
@@ -69,6 +71,16 @@ class WebhookEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getOnlyLiveVersion(): bool
+    {
+        return $this->onlyLiveVersion;
+    }
+
+    public function setOnlyLiveVersion(bool $onlyLiveVersion): void
+    {
+        $this->onlyLiveVersion = $onlyLiveVersion;
     }
 
     public function getAppId(): ?string

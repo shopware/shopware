@@ -1,7 +1,7 @@
-import { shallowMount } from '@vue/test-utils';
-import swCategoryDetailCustomEntity from 'src/module/sw-category/view/sw-category-detail-custom-entity/index';
-
-Shopware.Component.register('sw-category-detail-custom-entity', swCategoryDetailCustomEntity);
+/**
+ * @package inventory
+ */
+import { mount } from '@vue/test-utils';
 
 const customEntity1 = {
     id: 'CUSTOM_ENTITY_ID_1',
@@ -56,47 +56,46 @@ async function createWrapper() {
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-category-detail-custom-entity'), {
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot /></div>',
-                props: ['title', 'position-identifier'],
-            },
-            'sw-entity-single-select': {
-                template: '<div class="sw-entity-single-select"></div>',
-                props: ['value', 'label', 'help-text', 'disabled', 'criteria', 'entity', 'required'],
-            },
-            'sw-many-to-many-assignment-card': {
-                template: '<div class="sw-many-to-many-assignment-card"><slot name="prepend-select" /><slot name="empty-state" /></div>',
-                props: ['entityCollection', 'title', 'columns', 'local-mode', 'label-property', 'criteria', 'select-label', 'placeholder'],
-                model: {
-                    prop: 'entityCollection',
-                    event: 'change',
+    return mount(await wrapTestComponent('sw-category-detail-custom-entity', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot /></div>',
+                    props: ['title', 'position-identifier'],
+                },
+                'sw-entity-single-select': {
+                    template: '<div class="sw-entity-single-select"></div>',
+                    props: ['value', 'label', 'help-text', 'disabled', 'criteria', 'entity', 'required'],
+                },
+                'sw-many-to-many-assignment-card': {
+                    template: '<div class="sw-many-to-many-assignment-card"><slot name="prepend-select" /><slot name="empty-state" /></div>',
+                    props: ['entityCollection', 'title', 'columns', 'local-mode', 'label-property', 'criteria', 'select-label', 'placeholder'],
+                    model: {
+                        prop: 'entityCollection',
+                        event: 'change',
+                    },
+                },
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>',
+                    props: ['title', 'absolute'],
                 },
             },
-            'sw-empty-state': {
-                template: '<div class="sw-empty-state"></div>',
-                props: ['title', 'absolute'],
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: (repositoryName) => {
-                    switch (repositoryName) {
-                        case 'custom_entity':
-                            return customEntityRepositoryMock;
-                        default:
-                            throw new Error(`No Mock for ${repositoryName} Repository not found`);
-                    }
+            provide: {
+                repositoryFactory: {
+                    create: (repositoryName) => {
+                        switch (repositoryName) {
+                            case 'custom_entity':
+                                return customEntityRepositoryMock;
+                            default:
+                                throw new Error(`No Mock for ${repositoryName} Repository not found`);
+                        }
+                    },
                 },
             },
         },
     });
 }
 
-/**
- * @package content
- */
 describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts', () => {
     it('should allow selecting a custom entity', async () => {
         global.activeAclRoles = ['category.editor'];
@@ -107,13 +106,13 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         await flushPromises();
 
         // check initial state without custom entity type selected
-        expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-category-detail-custom-entity__selection-container').props()).toEqual({
             positionIdentifier: 'category-detail-custom-entity',
             title: 'sw-category.base.customEntity.cardTitle',
         });
 
-        const entitySelect = wrapper.find('.sw-entity-single-select');
-        expect(entitySelect.props()).toStrictEqual({
+        const entitySelect = wrapper.getComponent('.sw-entity-single-select');
+        expect(entitySelect.props()).toEqual({
             value: undefined,
             label: 'sw-category.base.customEntity.assignment.label',
             helpText: 'sw-category.base.customEntity.assignment.helpText',
@@ -130,16 +129,15 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         });
 
         // select a custom entity type
-        entitySelect.vm.$emit('change', customEntity1.id, { name: customEntity1.name });
+        entitySelect.vm.$emit('update:value', customEntity1.id, { name: customEntity1.name });
         await flushPromises();
-        await wrapper.vm.$nextTick();
 
         // expect the custom entity type and the customEntityAssignments to have been updated
         expect(wrapper.vm.category.customEntityTypeId).toBe(customEntity1.id);
-        expect(wrapper.vm.customEntityAssignments).toBe(customEntity1.instanceRepository);
+        expect(wrapper.vm.customEntityAssignments).toStrictEqual(customEntity1.instanceRepository);
 
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').exists()).toBe(false);
-        expect(wrapper.find('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -165,12 +163,11 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper();
-        await flushPromises();
 
         // expect a custom entity type to be selected
         expect(wrapper.find('.sw-category-detail-custom-entity__selection-container').exists()).toBe(false);
 
-        expect(wrapper.get('.sw-entity-single-select').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-entity-single-select').props()).toEqual({
             value: customEntity1.id,
             label: 'sw-category.base.customEntity.assignment.label',
             helpText: 'sw-category.base.customEntity.assignment.helpText',
@@ -186,7 +183,7 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             required: '',
         });
 
-        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -208,10 +205,10 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
         });
 
         // select another custom entity type
-        wrapper.get('.sw-entity-single-select').vm.$emit('change', customEntity2.id, { name: customEntity2.name });
+        wrapper.getComponent('.sw-entity-single-select').vm.$emit('update:value', customEntity2.id, { name: customEntity2.name });
         await flushPromises();
 
-        expect(wrapper.get('.sw-entity-single-select').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-entity-single-select').props()).toEqual(expect.objectContaining({
             value: customEntity2.id,
             label: 'sw-category.base.customEntity.assignment.label',
             helpText: 'sw-category.base.customEntity.assignment.helpText',
@@ -225,9 +222,9 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             }),
             entity: 'custom_entity',
             required: '',
-        });
+        }));
 
-        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(expect.objectContaining({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -246,13 +243,13 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
             title: 'sw-category.base.customEntity.cardTitle',
-        });
+        }));
 
         // trigger a change event
-        wrapper.get('.sw-many-to-many-assignment-card').vm.$emit('change', emptyEntityCollection);
+        wrapper.getComponent('.sw-many-to-many-assignment-card').vm.$emit('update:entity-collection', emptyEntityCollection);
         await flushPromises();
 
-        expect(wrapper.get('.sw-many-to-many-assignment-card').props()).toStrictEqual({
+        expect(wrapper.getComponent('.sw-many-to-many-assignment-card').props()).toEqual(expect.objectContaining({
             columns: [{
                 dataIndex: 'cmsAwareTitle',
                 label: 'sw-category.base.customEntity.instanceAssignment.title',
@@ -271,6 +268,6 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             placeholder: 'sw-category.base.customEntity.instanceAssignment.placeholder',
             selectLabel: 'sw-category.base.customEntity.instanceAssignment.label',
             title: 'sw-category.base.customEntity.cardTitle',
-        });
+        }));
     });
 });

@@ -3,34 +3,41 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-type ConfigArray array<string, array{source: string, value: string}>
  */
 #[Package('content')]
 class Config extends XmlElement
 {
-    private function __construct(protected array $items)
-    {
-    }
+    /**
+     * @var ConfigArray
+     */
+    protected array $items = [];
 
+    /**
+     * @return ConfigArray
+     */
     public function toArray(string $defaultLocale): array
     {
         return $this->items;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    protected static function parse(\DOMElement $element): array
     {
         $config = [];
 
         foreach ($element->getElementsByTagName('config-value') as $configValue) {
-            $config[self::kebabCaseToCamelCase($configValue->getAttribute('name'))] = [
+            $config[XmlParserUtils::kebabCaseToCamelCase($configValue->getAttribute('name'))] = [
                 'source' => $configValue->getAttribute('source'),
                 'value' => $configValue->getAttribute('value'),
             ];
         }
 
-        return new self($config);
+        return ['items' => $config];
     }
 }

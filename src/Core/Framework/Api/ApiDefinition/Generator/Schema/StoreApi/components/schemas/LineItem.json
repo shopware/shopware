@@ -4,41 +4,197 @@
     "paths": [],
     "components": {
         "schemas": {
+            "LineItemType": {
+                "type": "string",
+                "enum": [
+                    "product",
+                    "credit",
+                    "custom",
+                    "promotion",
+                    "discount",
+                    "container",
+                    "quantity"
+                ]
+            },
             "LineItem": {
                 "type": "object",
                 "properties": {
-                    "id": {
+                    "children": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/LineItem" }
+                    },
+                    "cover": {
+                        "$ref": "#/components/schemas/ProductMedia"
+                    },
+                    "dataContextHash": {
                         "type": "string"
                     },
-                    "referencedId": {
+                    "dataTimestamp": {
                         "type": "string"
                     },
-                    "label": {
-                        "type": "string"
+                    "deliveryInformation": {
+                        "$ref": "#/components/schemas/DeliveryInformation"
                     },
-                    "quantity": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "type": {
+                    "description": {
                         "type": "string"
                     },
                     "good": {
                         "type": "boolean"
                     },
-                    "description": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "modified": {
+                        "type": "boolean"
+                    },
+                    "modifiedByApp": {
+                        "type": "boolean"
+                    },
+                    "payload": {
+                        "$ref": "#/components/schemas/ProductJsonApi"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["calculated_price"]
+                            },
+                            "calculatedTaxes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["cart_tax_calculated"]
+                                        },
+                                        "tax": {
+                                            "type": "number"
+                                        },
+                                        "taxRate": {
+                                            "type": "number"
+                                        },
+                                        "price": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "apiAlias",
+                                        "tax",
+                                        "taxRate",
+                                        "price"
+                                    ]
+                                }
+                            },
+                            "listPrice": {
+                                "oneOf": [
+                                    { "$ref": "#/components/schemas/ListPrice" }
+                                ],
+                                "nullable": true
+                            },
+                            "quantity": {
+                                "type": "number"
+                            },
+                            "referencePrice": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ReferencePrice"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "regulationPrice": {
+                                "type": "object",
+                                "properties": {
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "apiAlias": {
+                                        "type": "string",
+                                        "enum": ["cart_regulation_price"]
+                                    }
+                                },
+                                "nullable": true
+                            },
+                            "totalPrice": {
+                                "type": "number"
+                            },
+                            "unitPrice": {
+                                "type": "number"
+                            },
+                            "taxRules": {
+                                "type": "array",
+                                "description": "Currently active tax rules and/or rates",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "taxRate": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "apiAlias",
+                            "totalPrice",
+                            "quantity",
+                            "unitPrice"
+                        ]
+                    },
+                    "priceDefinition": {
+                        "$ref": "#/components/schemas/PriceDefinition"
+                    },
+                    "quantity": {
+                        "type": "number"
+                    },
+                    "quantityInformation": {
+                        "type": "object",
+                        "properties": {
+                            "maxPurchase": {
+                                "type": "number"
+                            },
+                            "minPurchase": {
+                                "type": "number"
+                            },
+                            "purchaseSteps": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "referencedId": {
                         "type": "string"
                     },
                     "removable": {
                         "type": "boolean"
                     },
+                    "requirement": {},
                     "stackable": {
                         "type": "boolean"
                     },
-                    "modified": {
-                        "type": "boolean"
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["is-physical", "is-download"]
+                        }
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/LineItemType"
+                    },
+                    "uniqueIdentifier": {
+                        "type": "string"
                     }
-                }
+                },
+                "required": ["id", "type"]
             }
         }
     }

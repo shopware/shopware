@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer
  */
+#[CoversClass(CustomerGroupAdminSearchIndexer::class)]
 class CustomerGroupAdminSearchIndexerTest extends TestCase
 {
     private CustomerGroupAdminSearchIndexer $searchIndexer;

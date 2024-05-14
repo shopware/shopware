@@ -1,52 +1,48 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swOrderCreateAddressModal from 'src/module/sw-order/component/sw-order-create-address-modal';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-card';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
-
-Shopware.Component.register('sw-order-create-address-modal', swOrderCreateAddressModal);
-
 const { Classes: { ShopwareError } } = Shopware;
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-order-create-address-modal'), {
-        localVue,
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-customer-address-form': true,
-            'sw-customer-address-form-options': true,
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-extension-component-section': true,
-            'sw-card-filter': true,
-            'sw-empty-state': true,
-            'sw-address': true,
-            'sw-icon': true,
-            'sw-loader': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve();
-                    },
-                }),
+    return mount(await wrapTestComponent('sw-order-create-address-modal', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
+                'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-ignore-class': true,
+                'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
+                'sw-card-filter': await wrapTestComponent('sw-card-filter'),
+                'sw-empty-state': true,
+                'sw-address': await wrapTestComponent('sw-address'),
+                'sw-icon': true,
+                'sw-loader': true,
             },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
             },
         },
-        propsData: {
+        props: {
             customer: {
                 id: 'id',
                 company: null,
@@ -66,8 +62,8 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should dispatch error with invalid company field', async () => {
@@ -75,10 +71,10 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
             addresses: [{ id: '12345', isNew: () => {} }, { id: '02', isNew: () => {} }],
         });
 
-        const btn = wrapper.findAll('.sw-order-create-address-modal__edit-btn').at(0);
+        const btn = wrapper.findAll('.sw-order-create-address-modal__edit-btn')[0];
         await btn.trigger('click');
 
-        const swModalEditAddress = wrapper.findAll('.sw-modal').at(1);
+        const swModalEditAddress = wrapper.findAll('.sw-modal')[0];
 
         expect(Shopware.State.get('error').api.customer_address).toBeUndefined();
 

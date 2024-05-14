@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -25,7 +25,8 @@ class InstallController extends AbstractController
     public function __construct(
         private readonly RecoveryManager $recoveryManager,
         private readonly StreamedCommandResponseGenerator $streamedCommandResponseGenerator,
-        private readonly ReleaseInfoProvider $releaseInfoProvider
+        private readonly ReleaseInfoProvider $releaseInfoProvider,
+        private readonly ProjectComposerJsonUpdater $projectComposerJsonUpdater
     ) {
     }
 
@@ -54,7 +55,7 @@ class InstallController extends AbstractController
         $fs->mkdir($folder . '/custom/plugins');
         $fs->mkdir($folder . '/custom/static-plugins');
 
-        ProjectComposerJsonUpdater::update(
+        $this->projectComposerJsonUpdater->update(
             $folder . '/composer.json',
             $shopwareVersion
         );

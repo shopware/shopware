@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,9 +24,7 @@ class FilesystemBehaviourTest extends TestCase
         static::assertNotEmpty($this->getPublicFilesystem()->listContents('', true)->toArray());
     }
 
-    /**
-     * @depends testWrittenFilesGetDeleted
-     */
+    #[Depends('testWrittenFilesGetDeleted')]
     public function testFileSystemIsEmptyOnNextTest(): void
     {
         static::assertEmpty($this->getPublicFilesystem()->listContents('', true)->toArray());

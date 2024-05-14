@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition" >
+        <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -13,7 +13,7 @@
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
+        <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -25,24 +25,13 @@
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\Entity\Serializer\SeoUrlFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor" />
-            <tag name="shopware.field_serializer" priority="200"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
-            <tag name="shopware.field_resolver" priority="200"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Seo\Entity\Dbal\SeoUrlJoinBuilder" />
-
         <service id="Shopware\Core\Content\Seo\SeoUrlGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="shopware.seo_url.twig"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlPersister">
@@ -57,11 +46,6 @@
 
         <service id="Shopware\Core\Content\Seo\EmptyPathInfoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-2000">
             <argument type="service" id="Shopware\Core\Content\Seo\EmptyPathInfoResolver.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Seo\CachedSeoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-1000">
-            <argument type="service" id="Shopware\Core\Content\Seo\CachedSeoResolver.inner"/>
-            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoResolver" public="true">

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>ValidManifestApp</name>
+        <label>Shipping method app to test</label>
+        <description>Testdescription</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <shipping-methods>
+        <shipping-method>
+            <identifier>ValidShippingMethodOne</identifier>
+            <name>Shipping Method</name>
+            <description>This is a simple description</description>
+            <tracking-url>https://www.mytrackingurl.com</tracking-url>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c8</id>
+                <name>Delivery time 1-2 days</name>
+                <min>1</min>
+                <max>2</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+    </shipping-methods>
+</manifest>
+

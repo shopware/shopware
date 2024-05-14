@@ -8,7 +8,7 @@ use Shopware\Core\Kernel;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class InstanceService
 {
     public function __construct(

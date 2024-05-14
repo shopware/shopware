@@ -3,10 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/extension-api/sw-extension-component-section';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
 import Vue from 'vue';
 
 describe('src/app/component/extension-api/sw-extension-component-section', () => {
@@ -14,19 +10,23 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     let stubs;
 
     async function createWrapper() {
-        return mount(await Shopware.Component.build('sw-extension-component-section'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-extension-component-section', { sync: true }), {
+            props: {
                 positionIdentifier: 'test-position',
             },
-            stubs,
+            global: {
+                stubs,
+            },
         });
     }
 
     beforeAll(async () => {
         stubs = {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+            'sw-card': await wrapTestComponent('sw-card'),
+            'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+            'sw-tabs': await wrapTestComponent('sw-tabs'),
+            'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+            'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
             'sw-ignore-class': true,
             'sw-iframe-renderer': {
                 template: '<div></div>',
@@ -36,13 +36,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
     beforeEach(async () => {
         Vue.set(Shopware.State.get('extensionComponentSections'), 'identifier', {});
-    });
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-            wrapper = null;
-        }
     });
 
     it('should be a Vue.js component', async () => {

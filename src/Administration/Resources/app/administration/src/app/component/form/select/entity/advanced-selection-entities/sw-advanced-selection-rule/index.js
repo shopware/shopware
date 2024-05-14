@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @description Configures the advanced selection in entity selects.
  * Should only be used as a parameter `advanced-selection-component="sw-advanced-selection-rule"`
  * to `sw-entity-...-select` components.
@@ -236,6 +236,10 @@ Component.register('sw-advanced-selection-rule', {
             });
 
             return aggregations;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

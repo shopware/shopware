@@ -37,8 +37,8 @@
         {% block sw_bulk_edit_product_smart_bar_header_title %}
         <h2>
             {{ isChild
-                ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
-                : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
+            ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
+            : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
             }}
         </h2>
         {% endblock %}
@@ -186,12 +186,14 @@
                             @inheritance-remove="onInheritanceRemove(formField)"
                         />
 
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
                             :class="{ 'is--disabled': !!bulkEditProduct[formField.name].isInherited }"
                             class="sw-card__quick-link"
+                            role="link"
+                            tabindex="0"
                             @click="displayAdvancePricesModal = true"
+                            @keydown.enter="displayAdvancePricesModal = true"
                         >
                             {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', 0, { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }) }}
                             <sw-icon
@@ -210,26 +212,21 @@
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
-                            {% if VUE3 %}
-                            @update:entityCollection="onRuleChange"
-                            {% else %}
-                            @change="onRuleChange"
-                            {% endif %}
+                            @update:entity-collection="onRuleChange"
                         >
                             <template #selection-label-property="{ item }">
                                 {{ item.ruleName }}
                             </template>
 
                             <template #result-item="{ item, index, labelProperty, isSelected, addItem, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     :selected="isSelected(item)"
                                     :disabled="!!priceRuleGroups[item.id]"
                                     v-bind="{ item, index }"
                                     @item-select="addItem"
                                 >
                                     {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </li>
+                                </sw-select-result>
                             </template>
                         </sw-entity-multi-select>
                         {% endblock %}
@@ -450,12 +447,17 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_product_save_modal %}
         <router-view
-            :item-total="selectedIds.length"
-            :is-loading="isLoading"
-            :process-status="processStatus"
-            @modal-close="closeModal"
-            @bulk-save="onSave"
-        />
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
         {% endblock %}
     </template>
     {% endblock %}

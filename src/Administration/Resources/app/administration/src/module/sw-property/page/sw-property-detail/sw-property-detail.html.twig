@@ -38,11 +38,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('property.editor')"
             variant="primary"
-            {% if VUE3 %}
-            @update:processSuccess="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
+            @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
             {{ $tc('sw-property.detail.buttonSave') }}

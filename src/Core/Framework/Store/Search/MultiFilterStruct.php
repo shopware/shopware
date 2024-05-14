@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class MultiFilterStruct extends FilterStruct
 {
     /**
@@ -15,6 +15,11 @@ class MultiFilterStruct extends FilterStruct
      */
     protected $queries;
 
+    protected string $operator;
+
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): FilterStruct
     {
         $queries = $data['queries'];
@@ -41,6 +46,9 @@ class MultiFilterStruct extends FilterStruct
         return $parameter;
     }
 
+    /**
+     * @return array<FilterStruct>
+     */
     public function getQueries(): array
     {
         return $this->queries;

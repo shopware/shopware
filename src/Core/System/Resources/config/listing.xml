@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
         <title>Product</title>
         <title lang="de-DE">Produkt</title>
@@ -11,6 +11,15 @@
             <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
             <helpText>In product listings, buy buttons are displayed beneath every product. Deactivate to display detail buttons only.</helpText>
             <helpText lang="de-DE">In Produktlisten wird der Kaufen-Button unter jedem Produkt angezeigt. Deaktivieren, um nur den Detail-Button anzuzeigen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>autoplayVideoInListing</name>
+            <label>Autoplay videos in product listings</label>
+            <label lang="de-DE">Videos in Produkt-Listings</label>
+            <helpText>Videos in product listings that are configured as product media covers are played automatically. Deactivate to display the first frame of video only.</helpText>
+            <helpText lang="de-DE">Videos in Produkt-Listings, die als Cover von Produktmedien konfiguriert sind, werden automatisch abgespielt. Wenn deaktiviert, wird nur der erste Frame des Videos angezeigt.</helpText>
+            <defaultValue>false</defaultValue>
         </input-field>
 
         <input-field type="bool">

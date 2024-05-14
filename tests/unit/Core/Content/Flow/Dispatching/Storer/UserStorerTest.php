@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -12,18 +13,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\UserAware;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\UserStorer
  */
+#[Package('services-settings')]
+#[CoversClass(UserStorer::class)]
 class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
@@ -71,32 +70,6 @@ class UserStorerTest extends TestCase
         $this->storer->restore($storable);
 
         static::assertEmpty($storable->data());
-    }
-
-    public function testLoadEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = new UserRecoveryEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
-    }
-
-    public function testLoadNullEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
     }
 
     public function testLazyLoadEntity(): void

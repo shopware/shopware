@@ -2,17 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Pipe;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package system-settings
- *
- * @covers \Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe
  */
+#[Package('system-settings')]
+#[CoversClass(KeyMappingPipe::class)]
 class KeyMappingPipeTest extends TestCase
 {
     public function testEmptyMapping(): void
@@ -77,11 +78,10 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @dataProvider simpleMappingProvider
-     *
      * @param array<string, mixed> $input
      * @param array<string, mixed> $expectedOutput
      */
+    #[DataProvider('simpleMappingProvider')]
     public function testSimpleMapping(array $input, array $expectedOutput): void
     {
         $mapping = [
@@ -167,11 +167,10 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @dataProvider nestedProvider
-     *
      * @param array<string, mixed> $input
      * @param array<string, mixed> $expectedOutput
      */
+    #[DataProvider('nestedProvider')]
     public function testFlattenNested(array $input, array $expectedOutput): void
     {
         $mapping = [
@@ -277,11 +276,10 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @dataProvider nestedProviderNoFlatten
-     *
      * @param array<string, mixed> $input
      * @param array<string, mixed> $expectedOutput
      */
+    #[DataProvider('nestedProviderNoFlatten')]
     public function testNoFlatten(array $input, array $expectedOutput): void
     {
         $mapping = [

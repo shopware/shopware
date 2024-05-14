@@ -1,16 +1,9 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import swCmsLayoutAssignmentModal from 'src/module/sw-cms/component/sw-cms-layout-assignment-modal';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/utils/sw-inherit-wrapper';
-
-Shopware.Component.register('sw-cms-layout-assignment-modal', swCmsLayoutAssignmentModal);
 
 const mockCategories = [
     {
@@ -70,8 +63,11 @@ const mockLandingPages = [
 ];
 
 async function createWrapper(layoutType = 'product_list') {
-    return shallowMount(await Shopware.Component.build('sw-cms-layout-assignment-modal'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-layout-assignment-modal', {
+        sync: true,
+    }), {
+        attachTo: document.body,
+        props: {
             page: {
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), mockCategories),
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), mockProducts),
@@ -80,68 +76,80 @@ async function createWrapper(layoutType = 'product_list') {
                 id: 'uuid007',
             },
         },
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-button': {
-                template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
-            },
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-category-tree-field': true,
-            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-entity-single-select': {
-                props: ['value'],
-                template: `
+        global: {
+            stubs: {
+                // Original modal is not working because it moves the sub-modal to body
+                'sw-modal': {
+                    template: `
+                    <div class="sw-modal">
+                        <slot />
+                        <slot name="content" />
+                        <slot name="modal-footer" />
+                    </div>
+`,
+                },
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                'sw-button': {
+                    template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
+                },
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-category-tree-field': true,
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                'sw-entity-single-select': {
+                    props: ['value'],
+                    template: `
                         <input
                            value="value"
-                           @change="$emit(\'change\', $event.target.value)"
+                           @change="$emit(\'update:value\', this.value)"
                            class="sw-entity-single-select" />
                       `,
+                },
+                'sw-multi-select': true,
+                'sw-entity-multi-select': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-cms-product-assignment': true,
+                'sw-inheritance-switch': true,
+                transition: false,
             },
-            'sw-multi-select': true,
-            'sw-entity-multi-select': true,
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-cms-product-assignment': true,
-            'sw-inheritance-switch': true,
-            transition: false,
-        },
-        provide: {
-            systemConfigApiService: {
-                getValues: jest.fn((domain, salesChannelId) => {
-                    if (salesChannelId === null) {
-                        return Promise.resolve({
-                            'core.basicInformation.contactPage': 'uuid007',
-                            'core.basicInformation.imprintPage': 'uuid2',
-                            'core.basicInformation.revocationPage': 'uuid3',
-                            'core.basicInformation.newsletterPage': 'uuid007',
-                        });
-                    }
+            provide: {
+                systemConfigApiService: {
+                    getValues: jest.fn((domain, salesChannelId) => {
+                        if (salesChannelId === null) {
+                            return Promise.resolve({
+                                'core.basicInformation.contactPage': 'uuid007',
+                                'core.basicInformation.imprintPage': 'uuid2',
+                                'core.basicInformation.revocationPage': 'uuid3',
+                                'core.basicInformation.newsletterPage': 'uuid007',
+                            });
+                        }
 
-                    if (salesChannelId === 'storefront_id') {
-                        return Promise.resolve({
-                            'core.basicInformation.contactPage': 'uuid007',
-                            'core.basicInformation.imprintPage': 'uuid2',
-                            'core.basicInformation.revocationPage': 'uuid3',
-                        });
-                    }
+                        if (salesChannelId === 'storefront_id') {
+                            return Promise.resolve({
+                                'core.basicInformation.contactPage': 'uuid007',
+                                'core.basicInformation.imprintPage': 'uuid2',
+                                'core.basicInformation.revocationPage': 'uuid3',
+                            });
+                        }
 
-                    if (salesChannelId === 'headless_id') {
-                        return Promise.resolve({
-                            'core.basicInformation.contactPage': 'uuid1',
-                            'core.basicInformation.imprintPage': 'uuid2',
-                            'core.basicInformation.revocationPage': 'uuid3',
-                        });
-                    }
+                        if (salesChannelId === 'headless_id') {
+                            return Promise.resolve({
+                                'core.basicInformation.contactPage': 'uuid1',
+                                'core.basicInformation.imprintPage': 'uuid2',
+                                'core.basicInformation.revocationPage': 'uuid3',
+                            });
+                        }
 
-                    return Promise.resolve({});
-                }),
-                saveValues: jest.fn(() => Promise.resolve()),
-                batchSave: jest.fn(() => Promise.resolve()),
-            },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+                        return Promise.resolve({});
+                    }),
+                    saveValues: jest.fn(() => Promise.resolve()),
+                    batchSave: jest.fn(() => Promise.resolve()),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
             },
         },
     });
@@ -198,9 +206,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
     it('should add categories', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockCategories,
                     {
@@ -229,8 +239,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should add a category which already has a different assigned layout', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockCategories,
                     {
@@ -252,14 +263,16 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         // Wait for warning modal
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Change warning should appear because one new category has already an assigned layout
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts')
-            .exists()).toBeTruthy();
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-text-assigned-layouts').exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').exists()).toBe(true);
 
         // Confirm changes
-        await wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm').trigger('click');
+        await wrapper.find('.sw-cms-layout-assignment-modal__action-changes-confirm')
+            .trigger('click');
 
         await wrapper.vm.$nextTick(); // Wait for validation
         await wrapper.vm.$nextTick(); // Wait for warning modal to close
@@ -283,8 +296,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove categories and confirm', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
@@ -320,8 +334,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove categories but discard changes', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
@@ -358,8 +373,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove categories but keep editing', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 categories: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
@@ -556,21 +572,26 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper('page');
 
         // Select shop page tab
-        await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
+        await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages')
+            .trigger('click');
 
         // Wait for tab content to open
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Set new sales channel id
         await wrapper.setData({
             shopPageSalesChannelId: 'storefront_id',
         });
 
+        await flushPromises();
+
         // Trigger sales channel select change
-        await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
+        await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select')
+            .trigger('change');
 
         // Wait for system config to be loaded
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.selectedShopPages.storefront_id).toEqual([
             'core.basicInformation.contactPage',
@@ -700,8 +721,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should add products', async () => {
         const wrapper = await createWrapper('product_detail');
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockProducts,
                     {
@@ -730,8 +752,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should add a product which already has a different assigned layout', async () => {
         const wrapper = await createWrapper('product_detail');
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockProducts,
                     {
@@ -784,8 +807,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove products and save the changes', async () => {
         const wrapper = await createWrapper('product_detail');
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
@@ -821,8 +845,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove products but discard changes', async () => {
         const wrapper = await createWrapper('product_detail');
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
@@ -856,8 +881,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove products but keep editing', async () => {
         const wrapper = await createWrapper('product_detail');
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 products: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Product 1',
@@ -921,8 +947,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             id: 'uuidLand4',
         };
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
                     newPage,
@@ -957,8 +984,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             cmsPageId: 'totallyDifferentId',
         };
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     ...mockLandingPages,
                     newPage1,
@@ -994,8 +1022,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove landing pages and save', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
@@ -1031,8 +1060,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should remove landing pages but discard changes', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     {
                         name: 'Computers',
@@ -1077,8 +1107,9 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             id: 'uuid2',
         };
 
-        await wrapper.setData({
+        await wrapper.setProps({
             page: {
+                ...wrapper.vm.page,
                 landingPages: new EntityCollection(null, null, null, new Criteria(1, 25), [
                     page1,
                     page2,

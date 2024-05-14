@@ -7,7 +7,7 @@
         {% if element.type not in productElementTypes or element.data.products or element.data.product %}
             <div class="col-md-4" data-cms-element-id="{{ element.id }}">
                 {% block block_product_three_column_left_inner %}
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 {% endblock %}
             </div>
         {% endif %}
@@ -18,7 +18,7 @@
         {% if element.type not in productElementTypes or element.data.products or element.data.product %}
             <div class="col-md-4" data-cms-element-id="{{ element.id }}">
                 {% block block_product_three_column_center_inner %}
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 {% endblock %}
             </div>
         {% endif %}
@@ -29,7 +29,7 @@
         {% if element.type not in productElementTypes or element.data.products or element.data.product %}
             <div class="col-md-4" data-cms-element-id="{{ element.id }}">
                 {% block block_product_three_column_right_inner %}
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 {% endblock %}
             </div>
         {% endif %}

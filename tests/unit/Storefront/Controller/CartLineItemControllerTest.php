@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -23,7 +24,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -39,9 +39,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\CartLineItemController
  */
+#[CoversClass(CartLineItemController::class)]
 class CartLineItemControllerTest extends TestCase
 {
     private CartLineItemController $controller;
@@ -180,7 +179,7 @@ class CartLineItemControllerTest extends TestCase
                     $expectedLineItemData,
                     $expectedLineItemData2
                 ) {
-                    match ($matcher->getInvocationCount()) {
+                    match ($matcher->numberOfInvocations()) {
                         default => static::fail('to many calls of create'),
                         2 => static::assertEquals($expectedLineItemData2, $lineItemDataPar),
                         1 => static::assertEquals($expectedLineItemData, $lineItemDataPar),
@@ -247,40 +246,6 @@ class CartLineItemControllerTest extends TestCase
             ->method('create')
             ->with($lineItemData, $this->createMock(SalesChannelContext::class))
             ->willReturn($expectedLineItem);
-
-        $this->cartService->expects(static::once())
-            ->method('add')
-            ->with($cart, [$expectedLineItem], $context)
-            ->willReturn($cart);
-
-        $this->translatorCallback();
-
-        $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
-    }
-
-    public function testAddLineItemsWithoutExistingFactory(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $productId = Uuid::randomHex();
-        $lineItemData = [
-            'id' => $productId,
-            'referencedId' => $productId,
-            'type' => 'nonexistenttype',
-            'stackable' => 1,
-            'removable' => 1,
-            'quantity' => 1,
-        ];
-
-        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
-        $cart = new Cart(Uuid::randomHex());
-        $context = $this->createMock(SalesChannelContext::class);
-        $expectedLineItem = new LineItem($productId, 'nonexistenttype');
-
-        $this->lineItemRegistryMock->expects(static::once())
-            ->method('create')
-            ->with($lineItemData, $this->createMock(SalesChannelContext::class))
-            ->willThrowException(CartException::lineItemTypeNotSupported('nonexistenttype'));
 
         $this->cartService->expects(static::once())
             ->method('add')
@@ -425,7 +390,7 @@ class CartLineItemControllerTest extends TestCase
 
         $response = $this->controller->addProductByNumber($request, $context);
 
-        static::assertEquals(new Response(), $response);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
@@ -464,7 +429,7 @@ class CartLineItemControllerTest extends TestCase
         $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
         $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
         $item->setLabel($code);
-        $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true));
+        $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true, false));
 
         $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
 
@@ -736,7 +701,7 @@ class CartLineItemControllerTest extends TestCase
 
     private function translatorCallback(?Session $session = null): void
     {
-        if ($session === null) {
+        if (!$session instanceof Session) {
             $session = new Session(new MockArraySessionStorage());
         }
         $stack = $this->createMock(RequestStack::class);

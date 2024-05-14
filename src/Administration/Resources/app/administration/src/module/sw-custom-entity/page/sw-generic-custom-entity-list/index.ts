@@ -73,7 +73,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customEntityName(): string {
-            const entityName = this.$route.params.entityName;
+            const entityName = this.$route.params.entityName as string;
 
             const customEntityDefinition = this.customEntityDefinitionService.getDefinitionByName(entityName) ?? null;
 
@@ -150,6 +150,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -168,9 +172,10 @@ export default Shopware.Component.wrapComponentConfig({
         createdComponent(): void {
             if (this.adminConfig !== null) {
                 this.sortBy = this.adminConfig?.listing?.columns?.[0]?.ref ?? '';
+                // @ts-expect-error
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
-                this.$route.meta!.$module.icon = this.adminConfig?.icon;
+                this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 
             this.parseRoute();

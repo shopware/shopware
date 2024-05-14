@@ -1,7 +1,7 @@
 import template from './sw-order-create-details-header.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -11,7 +11,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         customer: {
             type: Object,
@@ -22,13 +21,11 @@ export default {
             required: true,
         },
 
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         cartPrice: {
             type: Object,
         },
 
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         currency: {
             type: Object,
@@ -51,12 +48,17 @@ export default {
                 if (this.customer) this.customer.id = customerId;
             },
         },
+
         customerCriteria() {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('defaultBillingAddress.country');
 
             return criteria;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

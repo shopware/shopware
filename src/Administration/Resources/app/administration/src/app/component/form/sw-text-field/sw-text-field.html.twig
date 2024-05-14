@@ -1,63 +1,39 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_text_field %}
-<sw-contextual-field
-    class="sw-field--text"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-text-field component #}
+<mt-text-field
+    v-if="useMeteorComponent"
     v-bind="$attrs"
-    :name="formFieldName"
-    @inheritance-restore="$emit('inheritance-restore', $event)"
-    @inheritance-remove="$emit('inheritance-remove', $event)"
+    :model-value="compatValue"
+    v-on="$listeners"
+    @update:modelValue="handleUpdateModelValue"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</mt-text-field>
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-text-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
     v-on="$listeners"
 >
     <template
-        v-if="hasPrefix"
-        #sw-contextual-field-prefix="{ disabled, identification }"
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
     >
         <slot
-            name="prefix"
-            v-bind="{ disabled, identification }"
-        ></slot>
-    </template>
-
-    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
-        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-        <input
-            v-bind="$attrs"
-            :id="createInputId(identification)"
-            type="text"
-            :name="identification"
-            :disabled="disabled"
-            :value="currentValue"
-            :placeholder="placeholder"
-            @input="onInput"
-            @change="onChange"
-            @focus="setFocusClass"
-            @blur="removeFocusClass"
-            v-on="additionalListeners"
+            :name="name"
+            v-bind="data || {}"
         >
+        </slot>
     </template>
-
-    <template
-        v-if="copyable || hasSuffix"
-        #sw-contextual-field-suffix="{ disabled, identification }"
-    >
-        <slot
-            name="suffix"
-            v-bind="{ identification }"
-        ></slot>
-        <sw-field-copyable
-            v-if="copyable"
-            :display-name="identification"
-            :copyable-text="currentValue"
-            :tooltip="copyableTooltip"
-        />
-    </template>
-
-    <template #label>
-        <slot name="label"></slot>
-    </template>
-
-    <template #hint>
-        <slot name="hint"></slot>
-    </template>
-</sw-contextual-field>
-{% endblock %}
+</sw-text-field-deprecated>

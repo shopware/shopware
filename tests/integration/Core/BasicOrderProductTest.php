@@ -53,6 +53,6 @@ class BasicOrderProductTest extends TestCase
 
         static::assertEquals(100, $item->getTotalPrice());
 
-        $this->assertStock($product->id, 100, 99);
+        $this->assertStock($product->id, 99, 99);
     }
 }

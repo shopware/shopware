@@ -17,8 +17,10 @@ Shopware.Component.register('sw-extension-component-section', {
     extensionApiDevtoolInformation: {
         property: 'ui.componentSection',
         method: 'add',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        positionId: (currentComponent) => currentComponent.positionIdentifier as string,
+        positionId: (currentComponent) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            return currentComponent.positionIdentifier as string;
+        },
     },
 
     data() {

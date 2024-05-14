@@ -31,6 +31,7 @@ class JsonApiEncoder
 
     /**
      * @param EntityCollection<Entity>|Entity|null $data
+     * @param array<string, mixed> $metaData
      *
      * @throws UnsupportedEncoderInputException
      */
@@ -161,7 +162,6 @@ class JsonApiEncoder
                 continue;
             }
 
-            /** @var ApiAware|null $flag */
             $flag = $field->getFlag(ApiAware::class);
 
             if ($flag === null || !$flag->isBaseUrlAllowed($result->getBaseUrl())) {
@@ -213,7 +213,7 @@ class JsonApiEncoder
 
     private function formatToJson(JsonApiEncodingResult $result): string
     {
-        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION|\JSON_THROW_ON_ERROR);
     }
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void

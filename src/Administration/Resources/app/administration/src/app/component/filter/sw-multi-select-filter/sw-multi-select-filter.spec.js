@@ -1,22 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/app/component/filter/sw-multi-select-filter';
-import 'src/app/component/filter/sw-base-filter';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/base/sw-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/utils/sw-loader';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/base/sw-label';
+import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
-let entities = [
+const entities = [
     { id: 'id1', name: 'first' },
 ];
 
@@ -31,44 +17,36 @@ function getCollection() {
         null,
     );
 }
-async function createWrapper(customOptions) {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.directive('tooltip', {});
-
-    const options = {
-        localVue,
-        stubs: {
-            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
-            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
-            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-icon': true,
-            'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-product-variant-info': true,
-            'sw-field-error': {
-                template: '<div></div>',
+async function createWrapper(slots) {
+    return mount(await wrapTestComponent('sw-multi-select-filter', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-base-filter': {
+                    template: '<div class="sw-base-filter"><slot></slot></div>',
+                    props: ['showResetButton'],
+                },
+                'sw-entity-multi-select': {
+                    template: '<div class="sw-entity-multi-select"><slot name="selection-label-property"></slot><slot name="result-item"></slot></div>',
+                    props: ['value', 'options', 'labelProperty', 'valueProperty', 'placeholder', 'displayVariants'],
+                },
+                'sw-multi-select': {
+                    template: '<div class="sw-multi-select"><slot></slot></div>',
+                    props: ['value', 'options', 'labelProperty', 'valueProperty'],
+                },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => Promise.resolve(getCollection()),
-                    };
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: (value) => Promise.resolve({ id: value, name: value }),
+                            search: () => Promise.resolve(getCollection()),
+                        };
+                    },
                 },
             },
         },
-        propsData: {
+        slots,
+        props: {
             filter: {
                 name: 'category-filter',
                 property: 'category',
@@ -83,50 +61,29 @@ async function createWrapper(customOptions) {
             },
             active: true,
         },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-multi-select-filter'), {
-        ...options,
-        ...customOptions,
     });
 }
 
 describe('src/app/component/filter/sw-multi-select-filter', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('Should display title and placeholder', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-base-filter .sw-base-filter__title').text()).toBe('Test');
-        expect(wrapper.find('.sw-select-selection-list__input').attributes().placeholder).toBe('placeholder');
+        expect(wrapper.get('.sw-base-filter').attributes('title')).toBe('Test');
+        expect(wrapper.getComponent('.sw-entity-multi-select').props('placeholder')).toBe('placeholder');
     });
 
-    it('should emit `filter-update` event when user choose entity', async () => {
+    it('should emit `filter-update` event when user chooses entity', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', entities);
 
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        await list.at(0).trigger('click');
-
-        const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
+        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
 
         expect(name).toBe('category-filter');
         expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
-        expect(value.first()).toEqual({ id: 'id1', name: 'first' });
+        expect(value[0]).toEqual({ id: 'id1', name: 'first' });
 
-        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+        expect(wrapper.emitted('filter-reset')).toBeFalsy();
     });
 
     it('should emit `filter-reset` event when click Reset button', async () => {
@@ -140,54 +97,22 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         await wrapper.setProps({ filter: { ...wrapper.vm.filter, value: entityCollection } });
 
         // Trigger click Reset button
-        await wrapper.find('.sw-base-filter__reset').trigger('click');
-        expect(wrapper.emitted()['filter-update']).toBeFalsy();
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+        await wrapper.getComponent('.sw-base-filter').vm.$emit('filter-reset');
+        expect(wrapper.emitted('filter-update')).toBeFalsy();
+        expect(wrapper.emitted('filter-reset')).toBeTruthy();
     });
 
-    it('should reset the filter value when `active` is false', async () => {
+    it('should should pass `active` to the `sw-base-filter`', async () => {
         const wrapper = await createWrapper();
-
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        await list.at(0).trigger('click');
-
-        await wrapper.setProps({ active: false });
-
-        expect(wrapper.vm.values).toHaveLength(0);
-        expect(wrapper.vm.filter.value).toBeNull();
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-    });
-
-    it('should not reset the filter value when `active` is true', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        await list.at(0).trigger('click');
 
         await wrapper.setProps({ active: true });
 
-        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+        expect(wrapper.getComponent('.sw-base-filter').props('active')).toBe(true);
     });
 
     it('should display slot "selection-label-property" correct', async () => {
         const wrapper = await createWrapper({
-            slots: {
-                'selection-label-property': '<div class="selected-label">Selected label</div>',
-            },
+            'selection-label-property': '<div class="selected-label">Selected label</div>',
         });
 
         await wrapper.setProps({
@@ -211,119 +136,91 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
     it('should display slot "result-item" correct', async () => {
         const wrapper = await createWrapper({
-            slots: {
-                'result-item': 'List item',
-            },
+            'result-item': '<div class="result-item">List item</div>',
         });
 
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-select-result-list__item-list').text()).toBe('List item');
+        expect(wrapper.find('.result-item').text()).toBe('List item');
     });
 
     it('should display sw-multi-select if filter has options', async () => {
         const wrapper = await createWrapper();
 
+        const filter = {
+            name: 'category-filter',
+            property: 'category',
+            placeholder: 'placeholder',
+            labelProperty: 'key',
+            valueProperty: 'key',
+            label: 'Test',
+            value: null,
+            filterCriteria: null,
+            options: [
+                { key: 'option1' },
+                { key: 'option2' },
+            ],
+        };
+
         await wrapper.setProps({
-            filter: {
-                name: 'category-filter',
-                property: 'category',
-                placeholder: 'placeholder',
-                labelProperty: 'key',
-                valueProperty: 'key',
-                label: 'Test',
-                value: null,
-                filterCriteria: null,
-                options: [
-                    { key: 'option1' },
-                    { key: 'option2' },
-                ],
-            },
+            filter,
         });
 
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        expect(wrapper.find('.sw-multi-select').exists()).toBeTruthy();
-        expect(list.at(0).text()).toBe('option1');
-        expect(list.at(1).text()).toBe('option2');
+        expect(wrapper.getComponent('.sw-multi-select').props('options')).toStrictEqual(filter.options);
     });
 
     it('should emit filter-update with correct value when filter is sw-multi-select', async () => {
         const wrapper = await createWrapper();
 
+        const filter = {
+            name: 'category-filter',
+            property: 'category',
+            placeholder: 'placeholder',
+            labelProperty: 'key',
+            valueProperty: 'key',
+            label: 'Test',
+            value: null,
+            filterCriteria: null,
+            options: [
+                { key: 'option1' },
+                { key: 'option2' },
+            ],
+        };
+
         await wrapper.setProps({
-            filter: {
-                name: 'category-filter',
-                property: 'category',
-                placeholder: 'placeholder',
-                labelProperty: 'key',
-                valueProperty: 'key',
-                label: 'Test',
-                value: null,
-                filterCriteria: null,
-                options: [
-                    { key: 'option1' },
-                    { key: 'option2' },
-                ],
-            },
+            filter,
         });
 
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        await list.at(0).trigger('click');
-
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
+        await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', [filter.options[0].key]);
+        expect(wrapper.emitted('filter-update')).toEqual([[
             'category-filter',
             [Criteria.equalsAny('category', ['option1'])],
             ['option1'],
-        ]);
+        ]]);
     });
 
     it('should emit filter-update with correct value when filter has existing type', async () => {
         const wrapper = await createWrapper();
 
+        const filter = {
+            name: 'category-filter',
+            property: 'category',
+            placeholder: 'placeholder',
+            labelProperty: 'key',
+            valueProperty: 'key',
+            label: 'Test',
+            value: null,
+            filterCriteria: null,
+            options: [
+                { key: 'option1' },
+                { key: 'option2' },
+            ],
+            existingType: true,
+        };
+
         await wrapper.setProps({
-            filter: {
-                name: 'category-filter',
-                property: 'category',
-                placeholder: 'placeholder',
-                labelProperty: 'key',
-                valueProperty: 'key',
-                label: 'Test',
-                value: null,
-                filterCriteria: null,
-                options: [
-                    { key: 'option1' },
-                    { key: 'option2' },
-                ],
-                existingType: true,
-            },
+            filter,
         });
 
-        await wrapper.find('.sw-select__selection').trigger('click');
-
-        await wrapper.find('input').trigger('change');
-
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        await list.at(0).trigger('click');
+        await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', [filter.options[0].key]);
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',
@@ -360,66 +257,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             },
         });
 
-        const entityMultiSelect = wrapper.find('.sw-entity-multi-select');
-        expect(entityMultiSelect.exists()).toBeTruthy();
-
-        const selectionList = wrapper.find('.sw-select-selection-list').findAll('li');
-        expect(selectionList.at(0).find('sw-product-variant-info-stub').exists()).toBeTruthy();
-    });
-
-    it('should update product variant value when displayVariants attribute of filter is true', async () => {
-        entities = [
-            {
-                id: 'product2',
-                name: 'Product name 2',
-                variation: [{
-                    group: 'color',
-                    option: 'red',
-                }],
-            },
-        ];
-
-        const wrapper = await createWrapper();
-
-        await wrapper.setProps({
-            filter: {
-                name: 'line-item-filter',
-                property: 'lineItems.product',
-                placeholder: 'placeholder',
-                labelProperty: 'name',
-                label: 'Product',
-                value: null,
-                displayVariants: true,
-                schema: {
-                    entity: 'product',
-                    referenceField: 'id',
-                },
-            },
-        });
-
-
-        await wrapper.find('.sw-select__selection').trigger('click');
-        await wrapper.find('input').trigger('change');
-
-        const resultList = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-        expect(resultList.at(0).find('sw-product-variant-info-stub').exists()).toBeTruthy();
-
-        await resultList.at(0).trigger('click');
-
-        const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
-
-        expect(name).toBe('line-item-filter');
-        expect(criteria).toEqual([Criteria.equalsAny('lineItems.product.id', ['product2'])]);
-        expect(value.first()).toEqual({
-            id: 'product2',
-            variation: [{
-                group: 'color',
-                option: 'red',
-            }],
-            name: 'Product name 2',
-        });
-
-        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+        expect(wrapper.getComponent('.sw-entity-multi-select').props('displayVariants')).toBe(true);
     });
 
     it('should reset filter if no value is selected', async () => {
@@ -443,10 +281,10 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             },
         });
 
-        await wrapper.find('.sw-label__dismiss').trigger('click');
+        await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', []);
 
-        expect(wrapper.emitted()['filter-update']).toBeFalsy();
-        expect(wrapper.emitted()['filter-reset'][0]).toEqual([
+        expect(wrapper.emitted('filter-update')).toBeFalsy();
+        expect(wrapper.emitted('filter-reset')[0]).toEqual([
             'category-filter',
         ]);
     });

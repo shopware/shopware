@@ -4,7 +4,10 @@ exports[`components/utils/sw-internal-link should render correctly 1`] = `
 <a
   class="sw-internal-link"
 >
-  test internal link 
+  
+  test internal link
+  
+   
   <sw-icon-stub
     name="regular-long-arrow-right"
     small=""
@@ -16,7 +19,10 @@ exports[`components/utils/sw-internal-link should render correctly when disabled
 <span
   class="sw-internal-link sw-internal-link--disabled"
 >
-  test internal link 
+  
+  test internal link
+  
+   
   <sw-icon-stub
     name="regular-long-arrow-right"
     small=""

@@ -1,7 +1,13 @@
 @import "~scss/variables";
 
+.sw-modal__body:has(.sw-order-nested-line-items-modal__container) {
+    overflow-x: scroll;
+}
+
 .sw-order-nested-line-items-modal {
     &__container {
+        display: table;
+        width: 100%;
         margin: -20px 0;
     }
 

@@ -1,14 +1,10 @@
 <sw-container class="product-deliverability-downloadable-form">
 
     <sw-inherit-wrapper
-        {% if VUE3 %}
         v-model:value="product.isCloseout"
-        {% else %}
-        v-model="product.isCloseout"
-        {% endif %}
         :has-parent="!!parentProduct.id"
         :inherited-value="parentProduct.isCloseout"
-        @input="onSwitchInput"
+        @update:value="onSwitchInput"
     >
         <template #content="props">
 
@@ -21,11 +17,7 @@
                 :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
                 :value="props.currentValue"
-                {% if VUE3 %}
                 @update:value="props.updateCurrentValue"
-                {% else %}
-                @change="props.updateCurrentValue"
-                {% endif %}
             />
 
         </template>
@@ -38,14 +30,9 @@
     >
 
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="product.stock"
-            {% else %}
-            v-model="product.stock"
-            {% endif %}
             name="sw-field--product-stock"
             number-type="int"
-            :min="0"
             :disabled="disabled"
             :label="$tc('sw-product.settingsForm.labelStock')"
             :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
@@ -53,11 +40,7 @@
         />
 
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="product.availableStock"
-            {% else %}
-            v-model="product.availableStock"
-            {% endif %}
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
@@ -68,11 +51,7 @@
 
     <sw-inherit-wrapper
         v-if="showModeSetting"
-        {% if VUE3 %}
         v-model:value="product.deliveryTimeId"
-        {% else %}
-        v-model="product.deliveryTimeId"
-        {% endif %}
         :inherited-value="parentProduct.deliveryTimeId"
         :has-parent="!!parentProduct.id"
         :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
@@ -89,7 +68,7 @@
                 :error="productDeliveryTimeIdError"
                 :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
                 show-clearable-button
-                @change="updateCurrentValue"
+                @update:value="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Provides a wrapper to create a wizard modal. The wizard pages are placed in the default slot of the
  * component. Dot navigation as well as the navigation buttons are dynamically within the wizard itself.
  * Please use `sw-wizard-page` for the different wizard pages. When a more sophisticated wizard page is necessary,
@@ -31,11 +30,12 @@ const { Component } = Shopware;
 Component.register('sw-wizard', {
     template,
 
+    inject: ['feature'],
+
     props: {
         showNavigationDots: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
@@ -53,7 +53,6 @@ Component.register('sw-wizard', {
         leftButtonDisabled: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
@@ -63,7 +62,6 @@ Component.register('sw-wizard', {
         rightButtonDisabled: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
@@ -102,6 +100,8 @@ Component.register('sw-wizard', {
         addPage(component) {
             this.pages.push(component);
             this.$emit('pages-updated', this.pages, component, 'add');
+
+            this.changePage(this.currentlyActivePage);
         },
 
         removePage(component) {

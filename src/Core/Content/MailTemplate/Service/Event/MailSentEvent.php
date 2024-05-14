@@ -4,10 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
-use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -17,11 +14,8 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - SubjectAware, ContentsAware and RecipientsAware are deprecated and will be removed in v6.6.0
- */
-#[Package('sales-channel')]
-class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware, ScalarValuesAware, FlowEventAware
+#[Package('buyers-experience')]
+class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.sent';
 
@@ -99,11 +93,8 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
         ];
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
-     */
-    public function getLogLevel(): int
+    public function getLogLevel(): Level
     {
-        return Level::Info->value;
+        return Level::Info;
     }
 }

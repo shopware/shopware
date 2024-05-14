@@ -18,9 +18,9 @@ class CustomEventTest extends TestCase
         static::assertCount(1, $flowEvents->getCustomEvents()->getCustomEvents());
 
         $firstEvent = $flowEvents->getCustomEvents()->getCustomEvents()[0];
-        static::assertNotNull($firstEvent->getName());
+        static::assertSame('checkout.order.place.custom', $firstEvent->getName());
 
-        static::assertEquals('checkout.order.place.custom', $firstEvent->getName());
+        static::assertSame('checkout.order.place.custom', $firstEvent->getName());
         static::assertEquals(['orderAware', 'customerAware'], $firstEvent->getAware());
     }
 }

@@ -5,16 +5,18 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
-use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
-use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -33,29 +35,27 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
-use Shopware\Core\Framework\App\Template\TemplateEntity;
+use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Script\ScriptEntity;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
+use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
-use Shopware\Core\System\Integration\IntegrationEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -66,40 +66,47 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
-    use IntegrationTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private Context $context;
 
+    /**
+     * @var EntityRepository<ActionButtonCollection>
+     */
     private EntityRepository $actionButtonRepository;
 
     private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
 
+    private EntityRepository $customEntityRepository;
+
     protected function setUp(): void
     {
-        $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
+        $this->appRepository = static::getContainer()->get('app.repository');
+        $this->actionButtonRepository = static::getContainer()->get('app_action_button.repository');
 
-        $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
 
-        $userRepository = $this->getContainer()->get('user.repository');
-        $userId = $userRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $userId = static::getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         $source = new AdminApiSource($userId);
         $source->setIsAdmin(true);
         $this->context = Context::createDefaultContext($source);
 
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $cache = $this->getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.object');
         $item = $cache->getItem(ScriptLoader::CACHE_KEY);
         $cache->save(CacheCompressor::compress($item, []));
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->customEntityRepository = static::getContainer()->get('custom_entity.repository');
     }
 
     public function testInstall(): void
@@ -111,34 +118,32 @@ class AppLifecycleTest extends TestCase
         $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
             $appId = $event->getApp()->getId();
-            static::assertEquals($manifest, $event->getManifest());
+            static::assertSame($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
 
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
-        static::assertEquals('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppInstalledEvent::class, $onAppInstalled);
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('test', $appEntity->getName());
-        static::assertEquals(
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
             base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $appEntity->getIcon()
         );
         // assert formatting with \n and \t is preserved
-        static::assertEquals(
+        static::assertSame(
             'Following personal information will be processed on shopware AG\'s servers:
 
 - Name
@@ -147,15 +152,14 @@ class AppLifecycleTest extends TestCase
             $appEntity->getPrivacyPolicyExtensions()
         );
 
-        static::assertEquals($appId, $appEntity->getId());
+        static::assertSame($appId, $appEntity->getId());
         static::assertFalse($appEntity->isConfigurable());
         static::assertTrue($appEntity->getAllowDisable());
-        /** @var IntegrationEntity $integrationEntity */
         $integrationEntity = $appEntity->getIntegration();
         static::assertNotNull($integrationEntity);
         static::assertFalse($integrationEntity->getAdmin());
         static::assertSame(100, $appEntity->getTemplateLoadPriority());
-        static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
+        static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
 
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
@@ -169,6 +173,7 @@ class AppLifecycleTest extends TestCase
         $this->assertAssetExists($appEntity->getName());
         $this->assertFlowActionExists($appEntity->getId());
         $this->assertDefaultHosts($appEntity);
+        $this->assertShippingMethodsExists($appEntity->getId());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -188,7 +193,7 @@ class AppLifecycleTest extends TestCase
         static::assertTrue($wasThrown);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getTotal();
 
-        static::assertEquals(0, $apps);
+        static::assertSame(0, $apps);
     }
 
     public function testInstallMinimalManifest(): void
@@ -196,14 +201,12 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('minimal', $appEntity->getName());
+        static::assertSame('minimal', $appEntity->getName());
     }
 
     public function testInstallOnlyCallsAppLifecycleScriptsForAffectedApps(): void
@@ -211,15 +214,15 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
         static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
-        static::assertEquals('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
         static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
     }
@@ -229,14 +232,12 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('withoutDescription', $appEntity->getName());
+        static::assertSame('withoutDescription', $appEntity->getName());
         static::assertNull($appEntity->getDescription());
     }
 
@@ -247,12 +248,10 @@ class AppLifecycleTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('webhooks');
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
 
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertCount(0, $appEntity->getModules());
@@ -270,15 +269,13 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('test', $appEntity->getName());
-        static::assertEquals('Test for App System', $appEntity->getDescription());
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame('Test for App System', $appEntity->getDescription());
     }
 
     public function testInstallSavesConfig(): void
@@ -286,18 +283,16 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('withConfig', $appEntity->getName());
+        static::assertSame('withConfig', $appEntity->getName());
         static::assertTrue($appEntity->isConfigurable());
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        static::assertEquals([
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -306,8 +301,8 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
         $this->appLifecycle->install($manifest, true, $this->context);
     }
 
@@ -318,19 +313,16 @@ class AppLifecycleTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('scriptConditions');
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('withRuleConditions', $appEntity->getName());
-        /** @var AppScriptConditionCollection $scriptCollection */
+        static::assertSame('withRuleConditions', $appEntity->getName());
         $scriptCollection = $appEntity->getScriptConditions();
+        static::assertNotNull($scriptCollection);
         static::assertCount(14, $scriptCollection);
 
-        /** @var AppScriptConditionEntity $scriptCondition */
         foreach ($scriptCollection as $scriptCondition) {
             static::assertStringContainsString('app\withRuleConditions_', $scriptCondition->getIdentifier());
             static::assertStringContainsString('{% return true %}', (string) $scriptCondition->getScript());
@@ -342,21 +334,18 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withRuleConditionsUpdated/manifest.xml');
         $this->appLifecycle->update($manifest, ['id' => $appEntity->getId(), 'roleId' => Uuid::randomHex()], $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
 
-        /** @var AppScriptConditionCollection $scriptCollection */
         $scriptCollection = $appEntity->getScriptConditions();
+        static::assertNotNull($scriptCollection);
         static::assertCount(1, $scriptCollection);
-        /** @var AppScriptConditionEntity $appScriptConditionEntity */
         $appScriptConditionEntity = $scriptCollection->first();
         static::assertNotNull($appScriptConditionEntity);
         $identifier = $appScriptConditionEntity->getIdentifier();
         static::assertIsString($identifier);
-        static::assertEquals('app\withRuleConditions_testcondition0', $identifier);
+        static::assertSame('app\withRuleConditions_testcondition0', $identifier);
         $constraints = $appScriptConditionEntity->getConstraints();
         static::assertIsArray($constraints);
         static::assertArrayHasKey('number', $constraints);
@@ -367,7 +356,7 @@ class AppLifecycleTest extends TestCase
         static::assertArrayHasKey(0, $config);
         static::assertIsArray($config[0]);
         static::assertArrayHasKey('type', $config[0]);
-        static::assertEquals('int', $config[0]['type']);
+        static::assertSame('int', $config[0]['type']);
     }
 
     public function testInstallThrowsIfAppIsAlreadyInstalled(): void
@@ -375,7 +364,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        static::expectException(AppAlreadyInstalledException::class);
+        $this->expectException(AppAlreadyInstalledException::class);
         $this->appLifecycle->install($manifest, true, $this->context);
     }
 
@@ -418,7 +407,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -460,6 +448,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\myMethod',
                         'name' => 'My method',
+                        'technicalName' => 'payment_test',
                         'active' => false,
                         'media' => [
                             'private' => true,
@@ -472,6 +461,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\toBeRemoved',
                         'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
                         'active' => false,
                     ],
                     'appName' => 'test',
@@ -480,9 +470,11 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['update'],
+            'permissions' => [
+                'product' => ['update'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $roleId);
@@ -497,32 +489,30 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getApp()->getId());
-            static::assertEquals($manifest, $event->getManifest());
+            static::assertSame($id, $event->getApp()->getId());
+            static::assertSame($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
-        static::assertEquals('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('test', $appEntity->getName());
-        static::assertEquals(
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
             base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $appEntity->getIcon()
         );
-        static::assertEquals('1.0.0', $appEntity->getVersion());
+        static::assertSame('1.0.0', $appEntity->getVersion());
         static::assertNotEquals('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
@@ -581,7 +571,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -623,6 +612,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\myMethod',
                         'name' => 'My method',
+                        'technicalName' => 'payment_test',
                         'active' => true,
                         'media' => [
                             'private' => false,
@@ -635,6 +625,7 @@ class AppLifecycleTest extends TestCase
                     'paymentMethod' => [
                         'handlerIdentifier' => 'app\\test\\toBeRemoved',
                         'name' => 'This method shall be removed',
+                        'technicalName' => 'payment_removed',
                         'active' => true,
                     ],
                     'appName' => 'test',
@@ -643,9 +634,11 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['update'],
+            'permissions' => [
+                'product' => ['update'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $roleId);
@@ -660,33 +653,31 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getApp()->getId());
-            static::assertEquals($manifest, $event->getManifest());
+            static::assertSame($id, $event->getApp()->getId());
+            static::assertSame($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
-        static::assertEquals('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('test', $appEntity->getName());
-        static::assertEquals(
+        static::assertSame('test', $appEntity->getName());
+        static::assertSame(
             base64_encode((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $appEntity->getIcon()
         );
-        static::assertEquals('1.0.0', $appEntity->getVersion());
-        static::assertEquals('https://base-url.com', $appEntity->getBaseAppUrl());
+        static::assertSame('1.0.0', $appEntity->getVersion());
+        static::assertSame('https://base-url.com', $appEntity->getBaseAppUrl());
         static::assertNotEquals('test', $appEntity->getTranslation('label'));
         static::assertTrue($appEntity->getAllowDisable());
 
@@ -719,7 +710,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -746,9 +736,11 @@ class AppLifecycleTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
+        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
         $permissions = Permissions::fromArray([
-            'product' => ['update'],
+            'permissions' => [
+                'product' => ['update'],
+            ],
         ]);
 
         $permissionPersister->updatePrivileges($permissions, $roleId);
@@ -768,13 +760,11 @@ class AppLifecycleTest extends TestCase
         $criteria->addAssociation('actionButtons');
         $criteria->addAssociation('webhooks');
         $criteria->addAssociation('paymentMethods');
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
 
         $this->assertDefaultActionButtons();
-        /** @var AppEntity $app1 */
         $app1 = $apps->first();
         static::assertNotNull($app1);
         $this->assertDefaultModules($app1);
@@ -794,7 +784,7 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
 
         $this->appRepository->create([[
             'id' => $id,
@@ -805,7 +795,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -824,16 +813,14 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        static::assertEquals([
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertTrue($appEntity->isConfigurable());
@@ -843,7 +830,7 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
 
         $this->appRepository->create([[
             'id' => $id,
@@ -854,7 +841,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -871,12 +857,12 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('withConfig.config.email', 'my-shop@test.com');
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        static::assertEquals([
+        static::assertSame([
             'withConfig.config.email' => 'my-shop@test.com',
         ], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -885,7 +871,7 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
 
         $this->appRepository->create([[
             'id' => $id,
@@ -897,7 +883,6 @@ class AppLifecycleTest extends TestCase
             'configurable' => true,
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -916,11 +901,9 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertFalse($appEntity->isConfigurable());
@@ -930,7 +913,7 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+        $path = str_replace(static::getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
 
         $this->appRepository->create([[
             'id' => $id,
@@ -945,7 +928,6 @@ class AppLifecycleTest extends TestCase
             'appSecret' => 'iamsecret',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -964,11 +946,9 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
         static::assertEmpty($appEntity->getModules());
@@ -1001,7 +981,6 @@ class AppLifecycleTest extends TestCase
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -1027,29 +1006,26 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppDeleted = function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
             $eventWasReceived = true;
-            static::assertEquals($appId, $event->getAppId());
+            static::assertSame($appId, $event->getAppId());
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
         $this->appLifecycle->delete('Test', $app, $this->context);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
-        static::assertEquals('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
+        static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        /** @var EntityRepository $aclRoleRepository */
-        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
-        $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
+        $roles = static::getContainer()->get('acl_role.repository')->searchIds(new Criteria([$roleId]), $this->context)->getIds();
         static::assertCount(1, $roles);
 
-        /** @var EntityRepository $integrationRepository */
-        $integrationRepository = $this->getContainer()->get('integration.repository');
-        $integrations = $integrationRepository->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
+        $integrations = static::getContainer()->get('integration.repository')
+            ->searchIds(new Criteria([$integrationId]), $this->context)->getIds();
         static::assertCount(1, $integrations);
 
         $criteria = new Criteria();
@@ -1081,7 +1057,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -1099,7 +1074,7 @@ class AppLifecycleTest extends TestCase
         $countEventDispatched = 0;
         $onAppDeleted = function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
             ++$countEventDispatched;
-            static::assertEquals($appId, $event->getAppId());
+            static::assertSame($appId, $event->getAppId());
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
@@ -1115,18 +1090,16 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
 
-        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
         static::assertTrue($filesystem->fileExists('bundles/test/asset.txt'));
-        /** @var AppEntity $app */
         $app = $apps->first();
+        static::assertNotNull($app);
 
         $this->appLifecycle->delete('test', [
             'id' => $app->getId(),
-            'roleId' => $app->getAclRoleId(),
         ], $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
@@ -1140,23 +1113,21 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('withConfig', $appEntity->getName());
+        static::assertSame('withConfig', $appEntity->getName());
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        static::assertEquals([
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
         $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context);
 
-        static::assertEquals([], $systemConfigService->getDomain('withConfig.config'));
+        static::assertSame([], $systemConfigService->getDomain('withConfig.config'));
     }
 
     public function testDeleteAppDoesNotDeleteConfigWhenUserDataShouldBeKept(): void
@@ -1164,30 +1135,28 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('withConfig', $appEntity->getName());
+        static::assertSame('withConfig', $appEntity->getName());
 
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        static::assertEquals([
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
         $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context, true);
 
-        static::assertEquals([
+        static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
     }
 
     public function testInstallWithUpdateAclRole(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = static::getContainer()->get(Connection::class);
         $userId = Uuid::randomHex();
         $this->createUser($userId);
 
@@ -1202,14 +1171,12 @@ class AppLifecycleTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $appEntity */
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals('test', $appEntity->getName());
+        static::assertSame('test', $appEntity->getName());
 
         $privileges = $connection->fetchOne('
             SELECT `privileges`
@@ -1228,30 +1195,26 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
 
         $aclRoleId = Uuid::randomHex();
-        /** @var AppEntity $app */
         $app = $apps->first();
+        static::assertNotNull($app);
         $appPrivilege = 'app.' . $app->getName();
         $this->createAclRole($aclRoleId, [$appPrivilege]);
 
-        $app = [
+        $this->appLifecycle->delete('test', [
             'id' => $app->getId(),
-            'roleId' => $app->getAclRoleId(),
-        ];
-
-        $this->appLifecycle->delete('test', $app, $this->context);
+        ], $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-        /** @var EntityRepository $aclRoleRepository */
+        /** @var EntityRepository<AclRoleCollection> $aclRoleRepository */
         $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
-        /** @var AclRoleEntity $aclRole */
-        $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->first();
+        $aclRole = $aclRoleRepository->search(new Criteria([$aclRoleId]), $this->context)->getEntities()->first();
+        static::assertNotNull($aclRole);
 
         static::assertNotContains($appPrivilege, $aclRole->getPrivileges());
     }
@@ -1261,28 +1224,26 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withAllowedHosts/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
         static::assertCount(1, $apps);
-        /** @var AppEntity $app */
         $app = $apps->first();
         static::assertNotNull($app);
-        static::assertEquals('withAllowedHosts', $app->getName());
+        static::assertSame('withAllowedHosts', $app->getName());
 
         $allowedHosts = $app->getAllowedHosts();
         static::assertIsArray($allowedHosts);
         static::assertCount(2, $allowedHosts);
-        static::assertTrue(\in_array('shopware.com', $allowedHosts, true));
-        static::assertTrue(\in_array('example.com', $allowedHosts, true));
+        static::assertContains('shopware.com', $allowedHosts);
+        static::assertContains('example.com', $allowedHosts);
     }
 
     public function testUpdateFlowActionApp(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
 
         $appFlowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($appFlowActions);
@@ -1298,45 +1259,19 @@ class AppLifecycleTest extends TestCase
             $this->context
         );
 
-        /** @var AppEntity $newVersion */
-        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->first();
-        static::assertEquals('1.1.0', $newVersion->getVersion());
+        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($newVersion);
+        static::assertSame('1.1.0', $newVersion->getVersion());
 
         $newAppFlowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($newAppFlowActions);
         static::assertArrayHasKey(0, $newAppFlowActions);
 
-        static::assertEquals($appFlowActions[0], $newAppFlowActions[0]);
-    }
-
-    public function testRefreshFlowActions(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
-
-        $flowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v2.xml');
-        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($newFlowActions);
-        static::assertCount(2, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
+        static::assertSame($appFlowActions[0], $newAppFlowActions[0]);
     }
 
     public function testRefreshFlowExtension(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
@@ -1348,7 +1283,7 @@ class AppLifecycleTest extends TestCase
         static::assertIsArray($flowActions);
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
         $newFlowActions = $this->getAppFlowActions($appId);
@@ -1359,34 +1294,8 @@ class AppLifecycleTest extends TestCase
         }
     }
 
-    public function testRefreshFlowActionsWithAnotherAction(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
-
-        $flowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v3.xml');
-        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($newFlowActions);
-        static::assertCount(1, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertNotContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
-    }
-
     public function testRefreshFlowExtensionWithAnotherAction(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
@@ -1398,7 +1307,7 @@ class AppLifecycleTest extends TestCase
         static::assertIsArray($flowActions);
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
-        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
         $newFlowActions = $this->getAppFlowActions($appId);
@@ -1431,19 +1340,19 @@ class AppLifecycleTest extends TestCase
         $this->createSequence($sequenceId, $flowId, $flowActions[0]['id']);
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
         $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
 
         $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
-        static::assertEquals($appFlowActionId, $flowActions[0]['id']);
+        static::assertSame($appFlowActionId, $flowActions[0]['id']);
     }
 
     public function testUpdateFlowEventApp(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
 
         $appFlowEvents = $this->getAppFlowEvents($app->getId());
         static::assertIsArray($appFlowEvents);
@@ -1459,15 +1368,15 @@ class AppLifecycleTest extends TestCase
             $this->context
         );
 
-        /** @var AppEntity $newVersion */
-        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->first();
-        static::assertEquals('1.1.0', $newVersion->getVersion());
+        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($newVersion);
+        static::assertSame('1.1.0', $newVersion->getVersion());
 
         $newAppEvents = $this->getAppFlowEvents($app->getId());
         static::assertIsArray($newAppEvents);
         static::assertArrayHasKey(0, $newAppEvents);
 
-        static::assertEquals($appFlowEvents[0], $newAppEvents[0]);
+        static::assertSame($appFlowEvents[0], $newAppEvents[0]);
     }
 
     public function testRefreshFlowEvents(): void
@@ -1483,14 +1392,14 @@ class AppLifecycleTest extends TestCase
         static::assertIsArray($flowEvents);
 
         $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister = static::getContainer()->get(FlowEventPersister::class);
         $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
 
         $newFlowEvents = $this->getAppFlowEvents($appId);
         static::assertIsArray($newFlowEvents);
         static::assertCount(2, $newFlowEvents);
         foreach ($flowEvents as $event) {
-            static::assertTrue(\in_array($event['id'], array_column($newFlowEvents, 'id'), true));
+            static::assertContains($event['id'], array_column($newFlowEvents, 'id'));
         }
     }
 
@@ -1507,14 +1416,14 @@ class AppLifecycleTest extends TestCase
         static::assertIsArray($flowEvents);
 
         $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
-        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister = static::getContainer()->get(FlowEventPersister::class);
         $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
 
         $newFlowEvents = $this->getAppFlowEvents($appId);
         static::assertIsArray($newFlowEvents);
         static::assertCount(1, $newFlowEvents);
         foreach ($flowEvents as $event) {
-            static::assertTrue(\in_array($event['id'], array_column($newFlowEvents, 'id'), true));
+            static::assertContains($event['id'], array_column($newFlowEvents, 'id'));
         }
     }
 
@@ -1543,7 +1452,7 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($flow);
 
         $flowEvent = Event::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
-        $flowEventPersister = $this->getContainer()->get(FlowEventPersister::class);
+        $flowEventPersister = static::getContainer()->get(FlowEventPersister::class);
         $flowEventPersister->updateEvents($flowEvent, $appId, $context, 'en-GB');
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
@@ -1585,32 +1494,31 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
 
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
     }
 
     public function testUpdateAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
 
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
-        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
-
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
         $appLifeCycle->update(
             $updatedManifest,
             [
@@ -1623,10 +1531,10 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretInDevEnvIsSuccessfulWhenSecretIsSet(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
 
-        /** @var AppLifecycle $appLifeCycle */
-        $appLifeCycle = $this->getContainer()->get('app-life-cycle-dev');
+        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
+        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
         $appLifeCycle->install($manifest, true, $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
@@ -1637,13 +1545,119 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretDoesNotThrowExceptionWhenNoSecretSetAndNotInDevEnv(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->first();
 
         static::assertNotNull($app);
+    }
+
+    public function testOnUninstallCustomEntitiesAreSoftDeleted(): void
+    {
+        // We need to stop the transaction because create table statements commit the transaction instantly
+        $this->stopTransactionAfter();
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
+
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        // We call delete with keepUserData = true
+        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
+
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+        static::assertNotNull($customEntity->getDeletedAt());
+
+        // Cleanup
+        $this->connection->executeStatement('DELETE FROM custom_entity');
+        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
+        $this->connection->executeStatement('DROP TABLE `custom_entity_test`');
+
+        // We need to start a new transaction, so we have something to stop after the test
+        $this->startTransactionBefore();
+    }
+
+    public function testOnUninstallCustomEntitiesAreHardDeleted(): void
+    {
+        // We need to stop the transaction because create table statements commit the transaction instantly
+        $this->stopTransactionAfter();
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
+
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppEntity $app */
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
+
+        static::assertTrue($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(1, $customEntities);
+
+        /** @var CustomEntityEntity $customEntity */
+        $customEntity = $customEntities->first();
+
+        // We call delete with keepUserData = false
+        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
+
+        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
+
+        static::assertFalse($this->connection->createSchemaManager()->tablesExist(['custom_entity_test']));
+        static::assertCount(0, $customEntities);
+
+        // Cleanup
+        $this->connection->executeStatement('DELETE FROM custom_entity');
+        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
+        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
+
+        // We need to start a new transaction, so we have something to stop after the test
+        $this->startTransactionBefore();
+    }
+
+    private function assertShippingMethodsExists(string $appId): void
+    {
+        $criteria = new Criteria([$appId]);
+        $criteria->addAssociation('appShippingMethods.shippingMethod');
+
+        $app = $this->appRepository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(AppEntity::class, $app);
+
+        $appShippingMethods = $app->getAppShippingMethods();
+        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
+        static::assertCount(2, $appShippingMethods);
+
+        foreach ($appShippingMethods as $appShippingMethod) {
+            static::assertInstanceOf(AppShippingMethodEntity::class, $appShippingMethod);
+            $shippingMethod = $appShippingMethod->getShippingMethod();
+            static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
+        }
     }
 
     private function getAppFlowActionIdFromSequence(string $sequenceId): ?string
@@ -1722,10 +1736,7 @@ class AppLifecycleTest extends TestCase
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
 
-        /** @var ActionButtonEntity[] $actionButtons */
-        $actionButtons = $actionButtons->getElements();
-
-        $actionNames = \array_map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction(), $actionButtons);
+        $actionNames = $actionButtons->map(fn (ActionButtonEntity $actionButton) => $actionButton->getAction());
 
         static::assertContains('viewOrder', $actionNames);
         static::assertContains('doStuffWithProducts', $actionNames);
@@ -1737,22 +1748,22 @@ class AppLifecycleTest extends TestCase
 
         static::assertEquals([
             [
-                'label' => [
-                    'en-GB' => 'My first own module',
-                    'de-DE' => 'Mein erstes eigenes Modul',
-                ],
-                'source' => 'https://test.com',
                 'name' => 'first-module',
+                'label' => [
+                    'de-DE' => 'Mein erstes eigenes Modul',
+                    'en-GB' => 'My first own module',
+                ],
                 'parent' => 'sw-test-structure-module',
+                'source' => 'https://test.com',
                 'position' => 10,
             ], [
-                'label' => [
-                    'en-GB' => 'My menu entry for modules',
-                    'de-DE' => 'Mein Menüeintrag für Module',
-                ],
-                'source' => null,
                 'name' => 'structure-module',
+                'label' => [
+                    'de-DE' => 'Mein Menüeintrag für Module',
+                    'en-GB' => 'My menu entry for modules',
+                ],
                 'parent' => 'sw-catalogue',
+                'source' => null,
                 'position' => 50,
             ],
         ], $app->getModules());
@@ -1760,9 +1771,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultPrivileges(string $roleId): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
-
-        $privileges = $connection->fetchOne('
+        $privileges = static::getContainer()->get(Connection::class)->fetchOne('
             SELECT `privileges`
             FROM `acl_role`
             WHERE `id` = :aclRoleId
@@ -1792,23 +1801,21 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultCustomFields(string $appId): void
     {
-        /** @var EntityRepository $customFieldSetRepository */
-        $customFieldSetRepository = $this->getContainer()->get('custom_field_set.repository');
+        /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
+        $customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addAssociation('relations');
         $criteria->addAssociation('customFields');
 
-        /** @var CustomFieldSetCollection $customFieldSets */
         $customFieldSets = $customFieldSetRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $customFieldSets);
 
-        /** @var CustomFieldSetEntity $customFieldSet */
         $customFieldSet = $customFieldSets->first();
         static::assertNotNull($customFieldSet);
-        static::assertEquals('custom_field_test', $customFieldSet->getName());
+        static::assertSame('custom_field_test', $customFieldSet->getName());
         static::assertCount(2, $customFieldSet->getRelations() ?? []);
 
         $relations = $customFieldSet->getRelations();
@@ -1820,8 +1827,8 @@ class AppLifecycleTest extends TestCase
 
         static::assertEquals([
             'label' => [
-                'en-GB' => 'Custom field test',
                 'de-DE' => 'Zusatzfeld Test',
+                'en-GB' => 'Custom field test',
             ],
             'translated' => true,
         ], $customFieldSet->getConfig());
@@ -1845,35 +1852,34 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultWebhooks(string $appId): void
     {
-        /** @var EntityRepository $webhookRepository */
-        $webhookRepository = $this->getContainer()->get('webhook.repository');
+        /** @var EntityRepository<WebhookCollection> $webhookRepository */
+        $webhookRepository = static::getContainer()->get('webhook.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        /** @var WebhookEntity[] $webhooks */
-        $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
+        $webhooks = $webhookRepository->search($criteria, $this->context)->getEntities()->getElements();
 
         static::assertCount(3, $webhooks);
         \usort($webhooks, static fn (WebhookEntity $a, WebhookEntity $b) => $a->getUrl() <=> $b->getUrl());
 
         $firstWebhook = $webhooks[0];
-        static::assertEquals('https://test-flow.com', $firstWebhook->getUrl());
-        static::assertEquals('telegram.send.message', $firstWebhook->getEventName());
+        static::assertSame('https://test-flow.com', $firstWebhook->getUrl());
+        static::assertSame('telegram.send.message', $firstWebhook->getEventName());
 
         $secondWebhook = $webhooks[1];
-        static::assertEquals('https://test.com/hook', $secondWebhook->getUrl());
-        static::assertEquals('checkout.customer.before.login', $secondWebhook->getEventName());
+        static::assertSame('https://test.com/hook', $secondWebhook->getUrl());
+        static::assertSame('checkout.customer.before.login', $secondWebhook->getEventName());
 
         $thirdWebhook = $webhooks[2];
-        static::assertEquals('https://test.com/hook2', $thirdWebhook->getUrl());
-        static::assertEquals('checkout.order.placed', $thirdWebhook->getEventName());
+        static::assertSame('https://test.com/hook2', $thirdWebhook->getUrl());
+        static::assertSame('checkout.order.placed', $thirdWebhook->getEventName());
     }
 
     private function assertDefaultTemplate(string $appId, bool $active = true): void
     {
-        /** @var EntityRepository $templateRepository */
-        $templateRepository = $this->getContainer()->get('app_template.repository');
+        /** @var EntityRepository<TemplateCollection> $templateRepository */
+        $templateRepository = static::getContainer()->get('app_template.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -1883,29 +1889,27 @@ class AppLifecycleTest extends TestCase
         static::assertCount(3, $templates);
         $templates = array_values($templates->getElements());
 
-        /** @var TemplateEntity $template */
         $template = $templates[0];
-        static::assertEquals('storefront/layout/header/header.html.twig', $template->getPath());
+        static::assertSame('storefront/layout/header/header.html.twig', $template->getPath());
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/header.html.twig',
             $template->getTemplate()
         );
-        static::assertEquals($active, $template->isActive());
+        static::assertSame($active, $template->isActive());
 
-        /** @var TemplateEntity $template */
         $template = $templates[1];
-        static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
+        static::assertSame('storefront/layout/header/logo.html.twig', $template->getPath());
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
             $template->getTemplate()
         );
-        static::assertEquals($active, $template->isActive());
+        static::assertSame($active, $template->isActive());
     }
 
     private function assertDefaultScript(string $appId, bool $active = true): void
     {
-        /** @var EntityRepository $scriptRepository */
-        $scriptRepository = $this->getContainer()->get('script.repository');
+        /** @var EntityRepository<ScriptCollection> $scriptRepository */
+        $scriptRepository = static::getContainer()->get('script.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -1914,17 +1918,17 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(6, $scripts);
 
-        /** @var ScriptEntity $script */
         $script = $scripts->first();
-        static::assertEquals('product-page-loaded/product-page-script.twig', $script->getName());
-        static::assertEquals('product-page-loaded', $script->getHook());
+        static::assertNotNull($script);
+        static::assertSame('product-page-loaded/product-page-script.twig', $script->getName());
+        static::assertSame('product-page-loaded', $script->getHook());
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig',
             $script->getScript()
         );
-        static::assertEquals($active, $script->isActive());
+        static::assertSame($active, $script->isActive());
 
-        $cache = $this->getContainer()->get('cache.object');
+        $cache = static::getContainer()->get('cache.object');
         static::assertTrue($cache->hasItem(ScriptLoader::CACHE_KEY));
 
         $item = $cache->getItem(ScriptLoader::CACHE_KEY);
@@ -1932,13 +1936,13 @@ class AppLifecycleTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $cachedScripts);
         static::assertCount(1, $cachedScripts['product-page-loaded']);
         static::assertInstanceOf(Script::class, $cachedScripts['product-page-loaded'][0]);
-        static::assertEquals($script->getName(), $cachedScripts['product-page-loaded'][0]->getName());
+        static::assertSame($script->getName(), $cachedScripts['product-page-loaded'][0]->getName());
     }
 
     private function assertDefaultPaymentMethods(string $appId): void
     {
-        /** @var EntityRepository $paymentMethodRepository */
-        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
+        $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('appPaymentMethod');
@@ -1948,13 +1952,12 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(2, $paymentMethods);
 
-        /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $paymentMethods->filterByProperty('name', 'The app payment method')->first();
         static::assertNotNull($paymentMethod);
         static::assertSame('The app payment method', $paymentMethod->getName());
         static::assertSame('handler_app_test_mymethod', $paymentMethod->getFormattedHandlerIdentifier());
         static::assertNotNull($paymentMethod->getMediaId());
-        $fileLoader = $this->getContainer()->get(FileLoader::class);
+        $fileLoader = static::getContainer()->get(FileLoader::class);
         static::assertNotEmpty($fileLoader->loadMediaFile($paymentMethod->getMediaId(), $this->context));
         $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
         static::assertNotNull($appPaymentMethod);
@@ -1966,8 +1969,8 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultCmsBlocks(string $appId): void
     {
-        /** @var EntityRepository $cmsBlockRepository */
-        $cmsBlockRepository = $this->getContainer()->get('app_cms_block.repository');
+        /** @var EntityRepository<AppCmsBlockCollection> $cmsBlockRepository */
+        $cmsBlockRepository = static::getContainer()->get('app_cms_block.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -1977,34 +1980,34 @@ class AppLifecycleTest extends TestCase
         $cmsBlocks = $cmsBlockRepository->search($criteria, $this->context)->getEntities();
         static::assertCount(2, $cmsBlocks);
 
-        /** @var AppCmsBlockEntity $firstCmsBlock */
         $firstCmsBlock = $cmsBlocks->filterByProperty('name', 'my-first-block')->first();
-        static::assertEquals('my-first-block', $firstCmsBlock->getName());
-        static::assertEquals('First block from app', $firstCmsBlock->getLabel());
+        static::assertNotNull($firstCmsBlock);
+        static::assertSame('my-first-block', $firstCmsBlock->getName());
+        static::assertSame('First block from app', $firstCmsBlock->getLabel());
         $firstBlockJson = json_encode($firstCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
         static::assertIsString($firstBlockJson);
         static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedFirstCmsBlock.json', $firstBlockJson);
-        static::assertEquals(
+        static::assertSame(
             $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/preview.html')),
             $this->stripWhitespace($firstCmsBlock->getTemplate())
         );
-        static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/styles.css'),
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-first-block/styles.css',
             $firstCmsBlock->getStyles()
         );
 
-        /** @var AppCmsBlockEntity $secondCmsBlock */
         $secondCmsBlock = $cmsBlocks->filterByProperty('name', 'my-second-block')->first();
-        static::assertEquals('my-second-block', $secondCmsBlock->getName());
-        static::assertEquals('Second block from app', $secondCmsBlock->getLabel());
+        static::assertNotNull($secondCmsBlock);
+        static::assertSame('my-second-block', $secondCmsBlock->getName());
+        static::assertSame('Second block from app', $secondCmsBlock->getLabel());
         $cmsBlockJson = json_encode($secondCmsBlock->getBlock(), \JSON_THROW_ON_ERROR);
         static::assertIsString($cmsBlockJson);
         static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/cms/expectedSecondCmsBlock.json', $cmsBlockJson);
-        static::assertEquals(
+        static::assertSame(
             $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html')),
             $this->stripWhitespace($secondCmsBlock->getTemplate())
         );
-        static::assertEquals(
+        static::assertSame(
             $this->stripWhitespace((string) file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/styles.css')),
             $this->stripWhitespace($secondCmsBlock->getStyles())
         );
@@ -2017,7 +2020,7 @@ class AppLifecycleTest extends TestCase
 
     private function setNewSystemLanguage(string $iso): void
     {
-        $languageRepository = $this->getContainer()->get('language.repository');
+        $languageRepository = static::getContainer()->get('language.repository');
 
         $localeId = $this->getIsoId($iso);
         $languageRepository->update(
@@ -2035,22 +2038,22 @@ class AppLifecycleTest extends TestCase
 
     private function getIsoId(string $iso): string
     {
-        /** @var EntityRepository $localeRepository */
-        $localeRepository = $this->getContainer()->get('locale.repository');
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
+        $localeRepository = static::getContainer()->get('locale.repository');
 
         $criteria = new Criteria();
 
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        /** @var LocaleEntity $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($locale);
 
         return $locale->getId();
     }
 
     private function createUser(string $userId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('user', [
+        static::getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::fromHexToBytes($userId),
             'first_name' => 'test',
             'last_name' => '',
@@ -2069,7 +2072,7 @@ class AppLifecycleTest extends TestCase
      */
     private function createAclRole(string $aclRoleId, array $privileges): void
     {
-        $this->getContainer()->get(Connection::class)->insert('acl_role', [
+        static::getContainer()->get(Connection::class)->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
             'name' => 'aclTest',
             'privileges' => \json_encode($privileges, \JSON_THROW_ON_ERROR),
@@ -2079,7 +2082,7 @@ class AppLifecycleTest extends TestCase
 
     private function createAclUserRole(string $userId, string $aclRoleId): void
     {
-        $this->getContainer()->get(Connection::class)->insert('acl_user_role', [
+        static::getContainer()->get(Connection::class)->insert('acl_user_role', [
             'user_id' => Uuid::fromHexToBytes($userId),
             'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2088,7 +2091,7 @@ class AppLifecycleTest extends TestCase
 
     private function assertAssetExists(string $appName): void
     {
-        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+        $filesystem = static::getContainer()->get('shopware.filesystem.asset');
 
         static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
     }
@@ -2105,7 +2108,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('select', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition1':
@@ -2114,7 +2117,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('entity', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition2':
@@ -2123,7 +2126,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition3':
@@ -2132,7 +2135,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('int', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('int', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition4':
@@ -2141,7 +2144,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('float', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('float', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition5':
@@ -2150,7 +2153,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('entity', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition6':
@@ -2159,7 +2162,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('bool', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('bool', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition7':
@@ -2168,7 +2171,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('datetime', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('datetime', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition8':
@@ -2177,7 +2180,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition9':
@@ -2186,7 +2189,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition10':
@@ -2195,7 +2198,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('price', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('price', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition11':
@@ -2204,7 +2207,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('html', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('html', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition12':
@@ -2213,7 +2216,7 @@ class AppLifecycleTest extends TestCase
                 static::assertArrayHasKey(0, $scriptCondition->getConfig());
                 static::assertIsArray($scriptCondition->getConfig()[0]);
                 static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
+                static::assertSame('select', $scriptCondition->getConfig()[0]['type']);
 
                 break;
             case 'app\withRuleConditions_testcondition13':
@@ -2228,16 +2231,16 @@ class AppLifecycleTest extends TestCase
 
     private function assertFlowActionExists(string $appId): void
     {
-        $appFlowAction = $this->getContainer()
+        $appFlowAction = static::getContainer()
             ->get(Connection::class)
             ->executeQuery('SELECT * FROM `app_flow_action` WHERE `app_id` = :id', [
                 'id' => Uuid::fromHexToBytes($appId),
             ])->fetchAssociative();
 
         static::assertIsArray($appFlowAction);
-        static::assertEquals($appFlowAction['name'], 'telegram.send.message');
-        static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
-        static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
+        static::assertSame($appFlowAction['name'], 'telegram.send.message');
+        static::assertSame($appFlowAction['url'], 'https://test-flow.com');
+        static::assertSame($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         $parameters = json_decode((string) $appFlowAction['parameters'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($parameters);
         static::assertEquals(
@@ -2304,19 +2307,19 @@ class AppLifecycleTest extends TestCase
             $requirements
         );
 
-        $headlines = $this->getContainer()
+        $headlines = static::getContainer()
             ->get(Connection::class)
             ->executeQuery('SELECT `headline` FROM `app_flow_action_translation` WHERE `app_flow_action_id` = :id', [
                 'id' => $appFlowAction['id'],
             ])->fetchAllAssociativeIndexed();
 
-        static::assertTrue(\in_array('The headline App Flow Action', \array_keys($headlines), true));
-        static::assertTrue(\in_array('Die Überschrift App Flow Action', \array_keys($headlines), true));
+        static::assertContains('The headline App Flow Action', \array_keys($headlines));
+        static::assertContains('Die Überschrift App Flow Action', \array_keys($headlines));
     }
 
     private function assertDefaultHosts(AppEntity $app): void
     {
-        static::assertEquals([
+        static::assertSame([
             'my.app.com',
             'test.com',
             'base-url.com',
@@ -2344,18 +2347,18 @@ class AppLifecycleTest extends TestCase
 
     private function assertFlowEventExists(string $appId): void
     {
-        $appFlowEvent = $this->getContainer()
+        $appFlowEvent = static::getContainer()
             ->get(Connection::class)
             ->executeQuery('SELECT * FROM `app_flow_event` WHERE `app_id` = :id', [
                 'id' => Uuid::fromHexToBytes($appId),
             ])->fetchAssociative();
 
         static::assertIsArray($appFlowEvent);
-        static::assertEquals($appFlowEvent['name'], 'checkout.order.place.custom');
+        static::assertSame($appFlowEvent['name'], 'checkout.order.place.custom');
 
         $aware = json_decode($appFlowEvent['aware'], true);
         static::assertNotNull($aware);
-        static::assertEquals(
+        static::assertSame(
             [
                 'orderAware',
                 'customerAware',

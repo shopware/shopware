@@ -42,7 +42,6 @@ class ApiCriteriaValidator
                     continue;
                 }
 
-                /** @var ApiAware|null $flag */
                 $flag = $field->getFlag(ApiAware::class);
 
                 if ($flag === null) {
@@ -53,7 +52,6 @@ class ApiCriteriaValidator
                     throw new ApiProtectionException($accessor);
                 }
 
-                /** @var Runtime|null $runtime */
                 $runtime = $field->getFlag(Runtime::class);
 
                 if ($runtime !== null) {

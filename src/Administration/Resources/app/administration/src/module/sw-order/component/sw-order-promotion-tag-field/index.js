@@ -2,7 +2,7 @@ import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils } = Shopware;
@@ -53,7 +53,8 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('change', [...this.value, newTagItem]);
+            this.$emit('update:value', [...this.value, newTagItem]);
+
             this.newTagName = '';
         },
 
@@ -79,7 +80,7 @@ export default {
 
             const discountValue = discountType === 'percentage'
                 ? value
-                : format.currency(Number(value), this.currency.shortName);
+                : format.currency(Number(value), this.currency.isoCode);
 
             return this.$tc(
                 `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,

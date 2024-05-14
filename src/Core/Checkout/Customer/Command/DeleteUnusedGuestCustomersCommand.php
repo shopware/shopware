@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'customer:delete-unused-guests',
     description: 'Delete unused guest customers',
 )]
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeleteUnusedGuestCustomersCommand extends Command
 {
     /**
@@ -34,7 +34,7 @@ class DeleteUnusedGuestCustomersCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $count = $this->deleteUnusedGuestCustomerService->countUnusedCustomers($context);
 

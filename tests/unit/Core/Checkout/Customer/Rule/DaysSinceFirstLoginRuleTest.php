@@ -2,24 +2,26 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule
- * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
+#[Package('services-settings')]
+#[CoversClass(DaysSinceFirstLoginRule::class)]
+#[CoversClass(DaysSinceRule::class)]
+#[Group('rules')]
 class DaysSinceFirstLoginRuleTest extends TestCase
 {
     protected DaysSinceFirstLoginRule $rule;
@@ -49,13 +51,11 @@ class DaysSinceFirstLoginRuleTest extends TestCase
         $this->rule->match(new CheckoutRuleScope($salesChannelContext));
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testIfMatchesCorrect(
         string $operator,
         bool $isMatching,
-        int $daysPassed,
+        float $daysPassed,
         ?\DateTimeImmutable $day,
         bool $noCustomer = false
     ): void {
@@ -94,11 +94,11 @@ class DaysSinceFirstLoginRuleTest extends TestCase
 
         $dayTest = $datetime->modify('-30 minutes');
 
-        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest];
+        yield 'operator_eq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1.2, $dayTest];
         yield 'operator_eq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest];
         yield 'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest];
         yield 'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest];
-        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest];
+        yield 'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1.1, $dayTest];
         yield 'operator_lte_lt / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 1,  $dayTest];
         yield 'operator_lte_e / match / day passed/ day' => [Rule::OPERATOR_LTE, true, 0, $dayTest];
         yield 'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest];

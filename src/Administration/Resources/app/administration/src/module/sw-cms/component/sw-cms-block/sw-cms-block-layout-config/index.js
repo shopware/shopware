@@ -3,7 +3,7 @@ import './sw-cms-block-layout-config.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

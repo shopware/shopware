@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Controller\IndexController;
 use Symfony\Component\DependencyInjection\Container;
@@ -12,9 +13,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Controller\IndexController
  */
+#[CoversClass(IndexController::class)]
 class IndexControllerTest extends TestCase
 {
     public function testIndexRedirectsToInstall(): void

@@ -9,20 +9,23 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed as the test for the service is not used anymore because the service will be removed
+ *
  * @internal
  */
 class AttachmentLoaderTest extends TestCase
@@ -68,6 +71,10 @@ class AttachmentLoaderTest extends TestCase
 
     public function testLoad(): void
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            static::markTestSkipped('deprecated tag:v6.7.0 - Will be removed as the test for the service is not used anymore because the service will be removed');
+        }
+
         $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(static::callback(static function (AttachmentLoaderCriteriaEvent $event) {
             $criteria = $event->getCriteria();
 
@@ -79,8 +86,11 @@ class AttachmentLoaderTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId);
 
-        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess()->first();
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
+        $errors = $result->getErrors();
+        static::assertEmpty($errors, 'Invoice generation failed: ' . array_pop($errors)?->getMessage());
 
+        $document = $result->getSuccess()->first();
         static::assertNotNull($document);
 
         $attachments = $this->attachmentLoader->load([$document->getId()], Context::createDefaultContext());

@@ -1,12 +1,16 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
 .e2e-base:
+  image: shopware/development:8.2-composer-2
   extends:
     - .long-running
-  needs: [ Build, 'Jest (Administration)' ]
-  dependencies: [ Build ]
+  tags:
+    - shopware-amd64
+  needs: [Build, "Jest (Administration)"]
+  dependencies: [Build]
   services:
-    - name: mariadb:10.4.30
+    - name: mariadb:10.11
       alias: database
   variables:
     APP_ENV: e2e
@@ -15,27 +19,29 @@
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
     CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
     SHOPWARE_HTTP_CACHE_ENABLED: 0
-    cypress_usePercy: 'false'
-    SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+    SHOPWARE_DISABLE_UPDATE_CHECK: "true"
     CYPRESS_storefrontName: "E2E install test"
   before_script:
     - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
-    - !reference [ .scripts, install-node, script ]
     - cp public/.htaccess.dist public/.htaccess
-    - !reference [ .scripts, init, composer ]
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - !reference [.scripts, init, composer]
     - touch install.lock
     - mkdir -p config/jwt custom/plugins || true
     - npm --prefix tests/e2e ci
     - >
-      if [[ -r var/database.sql ]]; then
+      if [[ -r context.tar.gz ]]; then
+          tar -xzf context.tar.gz
           mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
           mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
           bin/console system:generate-jwt || true
+          touch install.lock
       else
           composer run setup
           composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - bin/console assets:install
+    - bin/console theme:compile
     - bin/console e2e:dump-db
     - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
     - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
@@ -51,197 +57,51 @@
       junit: var/log/e2e/results/single-reports/*.xml
 
 E2E:
-    extends:
-       - .e2e-base
-    stage: E2E
-    variables:
-        CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-        CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
-        CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
-        CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
-        CYPRESS_grepTags: '-quarantined'
-    parallel:
-        matrix:
-            -   TEST_DIRECTORY:
-                    - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
-                    - "cypress/e2e/administration/settings/sw-settings-*/*"
-                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
-                    - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
-                    - "cypress/e2e/storefront/**/*"
-                BROWSER: 'chrome'
-                FEATURE_ALL: 'false'
-    script:
-        - >
-          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
-            export CYPRESS_INTERRUPT_ON_ERROR="true"
-          fi
-        - export CYPRESS_INTERRUPT_ON_ERROR="true"
-        - composer run e2e:cypress -- run
-            --config retries=1
-            --browser "$BROWSER"
-            --spec "$TEST_DIRECTORY"
-            --headless
-
-E2E Vue3:
   extends:
     - .e2e-base
   stage: E2E
-  rules:
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /E2E::VUE3/ && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "trigger")'
   variables:
     CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
     CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
     CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
-    CYPRESS_grepTags: 'VUE3'
-    TEST_DIRECTORY: 'cypress/e2e/administration/**/*'
-    BROWSER: 'chrome'
-    VUE3: 1
-  script:
-    - composer run init:js
-    - echo "{\"VUE3\":true,\"vue3\":true}" > var/config_js_features.json
-    - npm run --prefix src/Administration/Resources/app/administration/ build
-    - bin/console assets:install
-    - export CYPRESS_VUE3="true"
-    - composer run e2e:cypress -- run
-      --config retries=1
-      --spec "$TEST_DIRECTORY"
-      --browser "$BROWSER"
-      --headless
-
-E2E quarantined:
-  extends: E2E
-  stage: quarantine
-  rules:
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, skip-in-merge-train ]
-    - if: !reference [ .rules, run-allow-failure, if ]
-      allow_failure: true
-    - !reference [ .rules, run ]
-    - if: !reference [ .rules, long-running-allow-failure, if ]
-      allow_failure: true
-    - !reference [ .rules, long-running ]
-  script:
-    - composer run e2e:cypress -- run
-      --config retries=0
-      --browser $BROWSER
-      --spec "$TEST_DIRECTORY"
-      --headless
+    CYPRESS_grepTags: "-quarantined"
   parallel:
     matrix:
-      - TEST_DIRECTORY:
-          - 'cypress/e2e/administration/**/*'
-          - 'cypress/e2e/storefront/**/*'
-        CYPRESS_grepTags: 'quarantined'
-        BROWSER: 'chrome'
-        ALLOW_FAILURE: 'true'
+      - BROWSER: "chrome"
+        FEATURE_ALL: "false"
+        TEST_DIRECTORY:
+          - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
+          - "cypress/e2e/administration/settings/sw-settings-*/*"
+          - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
+          - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
+          - "cypress/e2e/storefront/**/*"
 
-Changed E2E:
-    extends: E2E
-    parallel:
-      matrix:
-        - _DUMMY_VAR: [ 'dummy1' , 'dummy2', 'dummy3', 'dummy4', 'dummy5' ]
-    rules:
-      - !reference [ .rules, skip ]
-      - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-        changes:
-          - 'tests/e2e/cypress/e2e/administration/**/*.cy.js'
-          - 'tests/e2e/cypress/e2e/storefront/**/*.cy.js'
-    script:
-        - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/(administration|storefront)")'
-        - 'echo "Changed files: $CHANGED_FILES"'
-        # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
-        - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
-        - 'echo "Test spec: $TEST_SPEC"'
-        - composer run e2e:cypress-repeat -- run
-          -n 10
-          --config retries=0
-          --browser chrome
-          --spec "$TEST_SPEC"
-          --headless
-
-.e2e-install-nl-base: &e2e-install-nl-base
-    - echo -e "\e[0Ksection_start:$(date +%s):set_version[collapsed=true]\r\e[0Ke2e set shopware version"
-    - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
-    # fake version by using the latest tag if not set
-    - >
-      if [[ "$PLATFORM_VERSION" = "null" ]]; then
-        LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-        PLATFORM_VERSION="${LATEST_TAG#"v"}"
-        composer config version "$PLATFORM_VERSION"
-        composer update
-      fi
-    - echo -e "\e[0Ksection_end:`date +%s`:set_version\r\e[0K"
-    - echo -e "\e[0Ksection_start:$(date +%s):setup_e2e[collapsed=true]\r\e[0Ke2e setup e2e"
-    - rm .env install.lock || true
-    - mkdir -p config/packages || true
-    - >
-      cat > config/packages/ci.yaml <<EOF
-
-      shopware:
-        store:
-          frw: true
-      EOF
-    - composer run init:e2e
-    - mkdir -p var/dumps
-    - touch var/dumps/database_root.sql
-    - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
-    - echo -e "\e[0Ksection_end:`date +%s`:setup_e2e\r\e[0K"
-    - echo -e "\e[0Ksection_start:$(date +%s):install_sw[collapsed=false]\r\e[0Ke2e install shopware"
-    - composer run e2e:cypress -- run
-      --config retries=0
-      --browser chrome
-      --spec "cypress/e2e/installer/install_nl.cy.js"
-      --headless
-    - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
-    - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
-    - rm -rf custom/plugins/SwagLanguagePack || true
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
-    - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
-    - bin/console plugin:refresh
-    - bin/console plugin:install --activate SwagLanguagePack
-    - APP_ENV=e2e bin/console cache:clear
-    - npm --prefix src/Administration/Resources/app/administration ci
-    - composer run e2e:prepare
-    - echo -e "\e[0Ksection_end:`date +%s`:install_language_pack\r\e[0K"
+  script:
     - >
       if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
         export CYPRESS_INTERRUPT_ON_ERROR="true"
       fi
-
-E2E install NL scenarios:
-  extends:
-    - .e2e-base
-  variables:
-    APP_DEBUG: 0
-    E2E_PROJECT: recovery
-    CYPRESS_dbHost: database
-    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
-    CYPRESS_dbName: root
-    CYPRESS_locale: nl-NL
-    FEATURE_ALL: 'false'
-    ALLOW_FAILURE: 'true'
-    CYPRESS_grepTags: '-quarantined'
-  stage: E2E
-  script:
-    - *e2e-install-nl-base
+    - export CYPRESS_INTERRUPT_ON_ERROR="true"
     - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/scenarios/**/*.cy.js"
+      --config retries=1
+      --browser "$BROWSER"
+      --spec "$TEST_DIRECTORY"
       --headless
 
-E2E Changed install NL scenarios:
-  extends:
-    - E2E install NL scenarios
-  stage: E2E
+Changed E2E:
+  extends: E2E
+  parallel:
+    matrix:
+      - _DUMMY_VAR: ["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"]
   rules:
-    - !reference [ .rules, skip ]
+    - !reference [.rules, skip]
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
       changes:
-        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
+        - "tests/e2e/cypress/e2e/administration/**/*.cy.js"
+        - "tests/e2e/cypress/e2e/storefront/**/*.cy.js"
   script:
-    - *e2e-install-nl-base
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
+    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/(administration|storefront)")'
     - 'echo "Changed files: $CHANGED_FILES"'
     # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
     - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
@@ -253,73 +113,122 @@ E2E Changed install NL scenarios:
       --spec "$TEST_SPEC"
       --headless
 
-.e2e-update-base:
+acceptance:
   extends:
     - .long-running
+  image: mcr.microsoft.com/playwright:v1.44.0-jammy
+  needs: [build image]
+  tags:
+    - shopware-amd64
   stage: E2E
-  needs: [ Build, 'Jest (Administration)' ]
-  dependencies: [ Build ]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+      changes:
+        - "tests/acceptance/**/*"
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - !reference [.rules, long-running]
   services:
-    -   name: mysql:8.0.33
-        alias: database
+    - name: mysql:8
+      alias: database
+      entrypoint:
+        [
+          "sh",
+          "-c",
+          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON",
+        ]
+    - name: redis:7.0
+      alias: redis
+    - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
+      alias: shopware.test
   variables:
-    APP_ENV: e2e
-    APP_DEBUG: 0
-    CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
-    SHOPWARE_HTTP_CACHE_ENABLED: 1
-    cypress_usePercy: 'false'
-    E2E_PROJECT: recovery
-    CYPRESS_baseUrl: "http://localhost:8050"
-    INSTALL_URL: "http://localhost:8050"
-    CYPRESS_dbHost: database
-    CYPRESS_dbUser: root
-    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
-    CYPRESS_dbName: root
-    SW_RECOVERY_NEXT_VERSION: 6.5.99.9
-    SW_RECOVERY_NEXT_BRANCH: dev-main
-    CYPRESS_SKIP_INIT: 1
-    PROJECT_ROOT: $CI_PROJECT_DIR/shop
-    TRUSTED_PROXIES: '0.0.0.0/16,REMOTE_ADDR'
-    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-    DISABLE_ADMIN_COMPILATION_TYPECHECK: 'true'
-  before_script:
-    - composer install
-    - composer run init:e2e
-    - curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/bin
-    - composer e2e:web-update:prepare
-    - symfony local:server:start --dir=shop --port=8050 -d
-    - symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d
-    - symfony local:server:log --dir=shop &
-    - chown -R www-data:www-data shop
+    APP_ENV: prod
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    SHOPWARE_DISABLE_UPDATE_CHECK: "true"
+    PROJECT_ROOT: /var/www/html
+    DATABASE_URL: mysql://root:app@database:3306/root
+    APP_URL: http://shopware.test:8000
+    ACCEPTANCE_PROJECT: Platform
+    KUBERNETES_SERVICE_CPU_REQUEST: "500m"
+    KUBERNETES_SERVICE_CPU_LIMIT: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "512Mi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "2Gi"
+  before_script: []
   script:
-    - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/recovery/updater/manual-update.cy.js"
-      --headless
+    - cd tests/acceptance
+    - npm ci
+    - npx playwright test --workers=1 --project=${ACCEPTANCE_PROJECT}
   after_script:
-    - !reference [ .scripts, handle-failed-merge-train, after_script ]
-    - !reference [ .upload-junit-xml, after_script ]
+    - |
+      echo "Link to HTML report"
+      echo "-------------------------------------------------------------------------------------------------------------------------------------------------------"
+      echo "https://shopware.pages.apps.shopware.io/-/6/product/$CI_PROJECT_NAME/-/jobs/$CI_JOB_ID/artifacts/tests/acceptance/playwright-report/index.html"
+      echo "-------------------------------------------------------------------------------------------------------------------------------------------------------"
   artifacts:
+    expire_in: 1 day
     when: always
     paths:
-      - var/log/*
-    reports:
-      junit: var/log/e2e/*.xml
+      - $CI_PROJECT_DIR/tests/acceptance/test-results/*
+      - $CI_PROJECT_DIR/tests/acceptance/playwright-report/*
 
-E2E manual update:
-  extends:
-    - .e2e-update-base
-  script:
-    - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/recovery/updater/manual-update.cy.js"
-      --headless
+install test:
+  extends: acceptance
+  variables:
+    ACCEPTANCE_PROJECT: Install
+    APP_ENV: dev
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    SHOPWARE_DISABLE_UPDATE_CHECK: "true"
+    PROJECT_ROOT: /var/www/html
+    APP_URL: http://shopware.test:8000
+    DATABASE_URL: mysql://root:app@database:3306/install_test
+    TEST_WEB_INSTALLER: 1 # skip automatic setup
+    SHOPWARE_SKIP_WEBINSTALLER: 0 # we want to test the web installer/updater
 
-E2E auto update:
-  extends:
-    - .e2e-update-base
-  script:
-    - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/recovery/updater/auto-update.cy.js"
-      --headless
+update test:
+  extends: acceptance
+  needs: [build image tagged, tested_update_tags]
+  dependencies: [build image tagged, tested_update_tags]
+  rules:
+    - if: "$SHOPWARE_CORE_VERSION == ''"
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - src/WebInstaller/**/*
+        - tests/acceptance/tests/Update/**/*
+    - !reference [.rules, long-running]
+  parallel:
+    matrix:
+      - SHOPWARE_CORE_VERSION: [
+            # these variables are filled by the dotenv report tested_update_tags.env
+            "${PREV_MAJOR_MIN_TAG}",
+            "${PREV_MAJOR_MAX_TAG}",
+            "${CUR_MAJOR_MIN_TAG}",
+            "${CUR_MAJOR_MAX_TAG}",
+          ]
+  services:
+    - name: mysql:8
+      alias: database
+      entrypoint:
+        [
+          "sh",
+          "-c",
+          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON",
+        ]
+    - name: redis:7.0
+      alias: redis
+    - name: "${CI_REGISTRY_IMAGE}/ci-e2e:${SHOPWARE_CORE_VERSION}_${CI_PIPELINE_ID}"
+      alias: shopware.test
+  variables:
+    ACCEPTANCE_PROJECT: Update
+    APP_ENV: dev
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    PROJECT_ROOT: /var/www/html
+    APP_URL: http://shopware.test:8000
+    DATABASE_URL: mysql://root:app@database:3306/root
+    SHOPWARE_SKIP_WEBINSTALLER: 0 # we want to test the web installer/updater
+    SHOPWARE_DISABLE_UPDATE_CHECK: "0"
+    SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
+    SW_RECOVERY_NEXT_BRANCH: dev-trunk
+    SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
+  before_script:
+    - echo "Testing update from version $SHOPWARE_CORE_VERSION"

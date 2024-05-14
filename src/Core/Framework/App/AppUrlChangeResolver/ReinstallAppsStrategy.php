@@ -12,11 +12,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  *
  * Resolver used when apps should be reinstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before
@@ -34,7 +33,7 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
         AbstractAppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
-        private readonly SystemConfigService $systemConfigService,
+        private readonly ShopIdProvider $shopIdProvider,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($appLoader, $appRepository, $registrationService);
@@ -58,7 +57,7 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     public function resolve(Context $context): void
     {
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $this->shopIdProvider->deleteShopId();
 
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
             $this->reRegisterApp($manifest, $app, $context);

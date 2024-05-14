@@ -1,5 +1,8 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+/**
+ * @package inventory
+ */
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './index.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';

@@ -21,7 +21,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_option_list_toolbar_search %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearch"
@@ -91,20 +91,18 @@
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="item.name"
-                        {% else %}
-                        v-model="item.name"
-                        {% endif %}
                         size="small"
                     />
                 </template>
 
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
                     v-else
                     class="sw-settings-option-detail__link"
+                    role="button"
+                    tabindex="0"
                     @click="onOptionEdit(item)"
+                    @keydown.enter="onOptionEdit(item)"
                 >
                     {{ item.translated.name }}
                 </a>

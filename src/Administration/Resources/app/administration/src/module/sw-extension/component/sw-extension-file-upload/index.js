@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default {
@@ -87,8 +87,13 @@ export default {
                         return;
                     }
 
+                    const message = [
+                        this.$tc(error.message),
+                        error.details,
+                    ].filter(Boolean).join('<br />');
+
                     this.createNotificationError({
-                        message: this.$tc(error.message),
+                        message: message,
                     });
                 });
             }).finally(() => {

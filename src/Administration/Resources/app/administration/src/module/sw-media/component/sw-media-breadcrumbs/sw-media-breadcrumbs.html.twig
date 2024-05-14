@@ -6,33 +6,34 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_root_folder %}
-    <!-- eslint-disable-next-line  vuejs-accessibility/click-events-have-key-events vuejs-accessibility/anchor-has-content -->
+    <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
     <a
         class="sw-media-breadcrumbs__button-back-to-root"
+        role="button"
+        tabindex="0"
         @click="onBreadcrumbsItemClicked(null)"
+        @keydown.enter="onBreadcrumbsItemClicked(null)"
     >
-        <sw-icon
+        <img
             v-if="!small"
-            large
-            name="multicolor-folder-breadcrumbs-back-to-root"
-            multicolor
-        />
-        <sw-icon
+            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs-back-to-root.svg')"
+            alt="Folder breadcrumbs back-to-root">
+        <img
             v-else
-            small
-            name="multicolor-folder-breadcrumbs"
-            multicolor
-        />
+            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs.svg')"
+            alt="Folder breadcrumbs">
     </a>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_breadcrumbs_parent_folder %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <a
         v-if="parentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"
+        role="button"
+        tabindex="0"
         @click="onBreadcrumbsItemClicked(parentFolder.id)"
+        @keydown.enter="onBreadcrumbsItemClicked(parentFolder.id)"
     >
         <sw-icon
             class="sw-media-breadcrumbs__arrow-separator"

@@ -12,22 +12,22 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_editor %}
     <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -->
-        <sw-base-field
-            v-bind="$attrs"
-            :label="label"
-            :disabled="disabled"
-            :required="required"
-            :error="error"
-        >
-            <template #sw-field-input>
-                <div
-                    :ref="`editor${editorId}`"
-                    class="sw-code-editor__editor"
-                    :content="value"
-                    tabindex="1"
-                ></div>
-            </template>
-        </sw-base-field>
+    <sw-base-field
+        v-bind="$attrs"
+        :label="label"
+        :disabled="disabled"
+        :required="required"
+        :error="error"
+    >
+        <template #sw-field-input>
+            <div
+                :ref="`editor${editorId}`"
+                class="sw-code-editor__editor"
+                :content="value"
+                tabindex="0"
+            ></div>
+        </template>
+    </sw-base-field>
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_code_editor_sanitize_info %}
@@ -73,6 +73,28 @@
         </div>
         {% endblock %}
 
+    </div>
+
+    <div
+        v-else-if="enableHtmlSanitizer && sanitizeInfoWarn"
+        class="sw-code-editor__sanitize-bar"
+    >
+        <div
+            class="sw-code-editor__sanitize-info"
+            :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_code_editor_sanitize_info_content_hint %}
+            <sw-circle-icon
+                icon-name="regular-info-circle"
+                :size="30"
+                variant="info"
+            />
+            <p class="sw-code-editor__sanitize-text">
+                {{ $tc('global.sw-code-editor.sanitizeInfo') }}
+            </p>
+            {% endblock %}
+        </div>
     </div>
     {% endblock %}
 </div>

@@ -52,11 +52,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_system_config_content_card_field %}
                     <sw-inherit-wrapper
-                        {% if VUE3 %}
                         v-model:value="actualConfigData[currentSalesChannelId][element.name]"
-                        {% else %}
-                        v-model="actualConfigData[currentSalesChannelId][element.name]"
-                        {% endif %}
                         v-bind="getInheritWrapperBind(element)"
                         :has-parent="isNotDefaultSalesChannel"
                         :inherited-value="getInheritedValue(element)"
@@ -69,8 +65,7 @@
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
                                 :error="getFieldError(element.name)"
-                                @input="props.updateCurrentValue"
-                                @change="props.updateCurrentValue"
+                                @update:value="props.updateCurrentValue"
                             />
                         </template>
                     </sw-inherit-wrapper>
@@ -81,7 +76,7 @@
         </template>
         <slot
             name="afterElements"
-            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"
         >
         </slot>
     </sw-card>

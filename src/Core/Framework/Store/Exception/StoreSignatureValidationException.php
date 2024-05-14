@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('merchant-services')]
+/**
+ * @deprecated tag:v6.7.0 - unused class
+ */
+#[Package('checkout')]
 class StoreSignatureValidationException extends ShopwareHttpException
 {
     public function __construct(string $reason)
@@ -18,6 +22,8 @@ class StoreSignatureValidationException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         return 'FRAMEWORK__STORE_SIGNATURE_INVALID';
     }
 }

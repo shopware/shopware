@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     /**

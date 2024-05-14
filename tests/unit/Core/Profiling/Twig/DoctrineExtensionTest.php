@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Profiling\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Twig\DoctrineExtension;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Twig\DoctrineExtension
  */
+#[CoversClass(DoctrineExtension::class)]
 class DoctrineExtensionTest extends TestCase
 {
     public function testReplaceQueryParametersWithPostgresCasting(): void

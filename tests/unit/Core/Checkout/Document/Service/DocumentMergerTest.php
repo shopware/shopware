@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -14,10 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Document\Service\DocumentMerger
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[CoversClass(DocumentMerger::class)]
 class DocumentMergerTest extends TestCase
 {
     public function testMergeWithFpdiConfig(): void
@@ -43,6 +43,6 @@ class DocumentMergerTest extends TestCase
             $fpdi
         );
 
-        $documentMerger->merge([Uuid::randomHex()], $this->createMock(Context::class));
+        $documentMerger->merge([Uuid::randomHex()], Context::createDefaultContext());
     }
 }

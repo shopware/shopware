@@ -1,13 +1,8 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import swSettingsCustomFieldSetList from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
-import 'src/app/component/grid/sw-grid';
-import 'src/app/component/base/sw-card';
-
-Shopware.Component.register('sw-settings-custom-field-set-list', swSettingsCustomFieldSetList);
 
 function mockCustomFieldSetData() {
     const _customFieldSets = [];
@@ -36,85 +31,87 @@ function mockCustomFieldSetData() {
 }
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const { Mixin } = Shopware;
 
 
-    return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                params: {
-                    id: '1234',
-                },
-                query: {
-                    limit: '25',
-                    naturalSorting: false,
-                    page: 1,
-                    sortBy: 'config.name',
-                    sortDirection: 'ASC',
-                },
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(mockCustomFieldSetData());
+    return mount(await wrapTestComponent('sw-settings-custom-field-set-list', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    params: {
+                        id: '1234',
                     },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+                    query: {
+                        limit: '25',
+                        naturalSorting: false,
+                        page: 1,
+                        sortBy: 'config.name',
+                        sortDirection: 'ASC',
+                    },
                 },
             },
-            mixins: [
-                Mixin.getByName('notification'),
-                Mixin.getByName('sw-inline-snippet'),
-                Mixin.getByName('discard-detail-page-changes')('set'),
-            ],
-            searchRankingService: {},
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(mockCustomFieldSetData());
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                mixins: [
+                    Mixin.getByName('notification'),
+                    Mixin.getByName('sw-inline-snippet'),
+                    Mixin.getByName('discard-detail-page-changes')('set'),
+                ],
+                searchRankingService: {},
+            },
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                },
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-grid': await wrapTestComponent('sw-grid'),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                },
+                'sw-context-menu': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-grid-column': {
+                    template: '<div class="sw-grid-column"><slot></slot></div>',
+                },
+                'sw-grid-row': {
+                    template: '<div class="sw-grid-row"><slot></slot></div>',
+                },
+                'sw-pagination': true,
+                'sw-empty-state': true,
+                'router-link': true,
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                'sw-card-view': true,
+                'sw-ignore-class': true,
+                'sw-extension-component-section': true,
             },
-            'sw-button': true,
-            'sw-icon': true,
-            'sw-search-bar': true,
-            'sw-grid': await Shopware.Component.build('sw-grid'),
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-            },
-            'sw-context-menu': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-grid-column': {
-                template: '<div class="sw-grid-column"><slot></slot></div>',
-            },
-            'sw-grid-row': {
-                template: '<div class="sw-grid-row"><slot></slot></div>',
-            },
-            'sw-pagination': true,
-            'sw-empty-state': true,
-            'router-link': true,
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-card-view': true,
-            'sw-ignore-class': true,
-            'sw-extension-component-section': true,
         },
     });
 }
@@ -122,14 +119,14 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new custom-field set', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
 
@@ -140,7 +137,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = await createWrapper([
             'custom_field.creator',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-custom-field-set-list__button-create');
 
@@ -149,7 +146,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -159,7 +156,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = await createWrapper([
             'custom_field.deleter',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
         expect(deleteMenuItem.attributes('disabled')).toBeFalsy();
@@ -167,7 +164,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -177,7 +174,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = await createWrapper([
             'custom_field.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
         expect(editMenuItem.attributes('disabled')).toBeFalsy();
@@ -185,7 +182,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should contain a listing criteria with page and limit properties', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.listingCriteria.page).toBe(1);
         expect(wrapper.vm.listingCriteria.limit).toBe(25);

@@ -17,6 +17,7 @@ export default {
         'repositoryFactory',
         'acl',
         'feature',
+        'mediaService',
     ],
 
     mixins: [
@@ -50,6 +51,7 @@ export default {
             filterWindowOpen: false,
             showBulkEditModal: false,
             toBeDeletedVariantIds: [],
+            productDownloadFolderId: null,
         };
     },
 
@@ -193,7 +195,15 @@ export default {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        async createdComponent() {
+            this.productDownloadFolderId = await this.mediaService.getDefaultFolderId('product_download');
+        },
+
         removeFile(fileName, item) {
             if (item.downloads.length === 1) {
                 return;
@@ -479,7 +489,7 @@ export default {
                 this.$delete(variant.price, foundVariantIndex);
             }
 
-            if (variant.price.length <= 0) {
+            if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
                 variant.price = null;
             }
         },

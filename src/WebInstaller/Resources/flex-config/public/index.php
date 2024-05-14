@@ -1,11 +1,8 @@
 <?php declare(strict_types=1);
 
-use Shopware\Core\HttpKernel;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Installer\InstallerKernel;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\TerminableInterface;
 
 $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
@@ -48,24 +45,5 @@ return function (array $context) {
         return new InstallerKernel($appEnv, $debug);
     }
 
-    $shopwareHttpKernel = new HttpKernel($appEnv, $debug, $classLoader);
-
-    return new class($shopwareHttpKernel) implements HttpKernelInterface, TerminableInterface {
-        private HttpKernel $httpKernel;
-
-        public function __construct(HttpKernel $httpKernel)
-        {
-            $this->httpKernel = $httpKernel;
-        }
-
-        public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
-        {
-            return $this->httpKernel->handle($request, $type, $catch)->getResponse();
-        }
-
-        public function terminate(Request $request, Response $response): void
-        {
-            $this->httpKernel->terminate($request, $response);
-        }
-    };
+    return KernelFactory::create($appEnv, $debug, $classLoader);
 };

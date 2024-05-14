@@ -2,16 +2,16 @@
 
 {% block component_account_login_header %}
     <h2 class="card-title">
-        {{ "detail.reviewLoginHeader"|trans|sw_sanitize }}
+        {{ 'detail.reviewLoginHeader'|trans|sw_sanitize }}
     </h2>
 {% endblock %}
 
 {% block component_account_login_form_description %}
     <p class="login-form-description">
-        {{ "detail.reviewLoginDescription"|trans|sw_sanitize }}
+        {{ 'detail.reviewLoginDescription'|trans|sw_sanitize }}
         <a href="{{ path('frontend.account.login.page') }}"
-           title="{{ "detail.reviewRegisterLink"|trans|striptags }}">
-            {{ "detail.reviewRegisterLink"|trans|sw_sanitize }}
+           title="{{ 'detail.reviewRegisterLink'|trans|striptags }}">
+            {{ 'detail.reviewRegisterLink'|trans|sw_sanitize }}
         </a>
     </p>
 {% endblock %}
@@ -23,10 +23,7 @@
 
     <input type="hidden"
            name="redirectParameters"
-           value='{
-            "productId": "{{ reviews.productId }}",
-            "id": "{{ cmsPage.id }}",
-            "navigationId": "{{ page.header.navigation.active.id }}"}'>
+           value="{{ {productId: reviews.productId, id: cmsPage.id, navigationId: page.header.navigation.active.id}|json_encode }}">
 {% endblock %}
 
 {% block component_account_login_submit %}
@@ -41,7 +38,7 @@
                data-bs-target=".multi-collapse"
                aria-expanded="false"
                aria-controls="review-form review-list">
-                {{ "detail.reviewLoginCancelButton"|trans|sw_sanitize }}
+                {{ 'detail.reviewLoginCancelButton'|trans|sw_sanitize }}
             </a>
         {% endblock %}
     </div>

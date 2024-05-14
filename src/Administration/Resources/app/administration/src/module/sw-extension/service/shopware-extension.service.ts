@@ -1,4 +1,4 @@
-import type { RawLocation, Location } from 'vue-router';
+import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
 import type { ShopwareDiscountCampaignService } from 'src/app/service/discount-campaign.service';
@@ -18,12 +18,12 @@ type EXTENSION_TYPES = {
     [Property in Uppercase<ExtensionType>]: Lowercase<Property>
 }
 
-interface LabeledLocation extends Location {
+interface LabeledLocation extends RouteLocation {
     label: string|null
 }
 
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default class ShopwareExtensionService {
@@ -47,6 +47,12 @@ export default class ShopwareExtensionService {
             APP: 'app',
             PLUGIN: 'plugin',
         });
+    }
+
+    public async installAndActivateExtension(extensionName: string, type: ExtensionType): Promise<void> {
+        await this.extensionStoreActionService.installExtension(extensionName, type);
+        await this.extensionStoreActionService.activateExtension(extensionName, type);
+        await this.updateExtensionData();
     }
 
     public async installExtension(extensionName: string, type: ExtensionType): Promise<void> {
@@ -159,7 +165,7 @@ export default class ShopwareExtensionService {
         }
     }
 
-    public async getOpenLink(extension: Extension): Promise<null|RawLocation> {
+    public async getOpenLink(extension: Extension): Promise<null|LabeledLocation|RouteLocationNamedRaw> {
         if (extension.isTheme) {
             return this.getLinkToTheme(extension);
         }

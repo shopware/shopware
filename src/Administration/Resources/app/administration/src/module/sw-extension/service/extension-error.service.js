@@ -1,5 +1,5 @@
 /**
- * @package merchant-services
+ * @package checkout
  * @private
  */
 export default class ExtensionErrorService {

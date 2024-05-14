@@ -1,15 +1,14 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsPaymentSortingModal from 'src/module/sw-settings-payment/component/sw-settings-payment-sorting-modal';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
 
-Shopware.Component.register('sw-settings-payment-sorting-modal', swSettingsPaymentSortingModal);
-
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-settings-payment-sorting-modal'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-payment-sorting-modal', {
+        sync: true,
+    }), {
+        props: {
             paymentMethods: [
                 {
                     id: '1a',
@@ -21,31 +20,34 @@ async function createWrapper(privileges = []) {
                 },
             ],
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            saveAll: () => {
+                                return Promise.resolve();
+                            },
+                        };
+                    },
                 },
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        saveAll: () => {
-                            return Promise.resolve();
-                        },
-                    };
-                },
+            stubs: {
+                'sw-modal': true,
+                'sw-sortable-list': true,
+                'sw-button': true,
+                'sw-button-process': true,
             },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-sortable-list': true,
-            'sw-button': true,
-            'sw-button-process': true,
         },
     });
 }

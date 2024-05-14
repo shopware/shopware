@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class StoreSessionExpiredMiddleware implements MiddlewareInterface
 {
     private const STORE_TOKEN_EXPIRED = 'ShopwarePlatformException-1';

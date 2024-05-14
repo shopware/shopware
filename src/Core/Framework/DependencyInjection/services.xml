@@ -32,6 +32,12 @@ base-uri 'self';
             <parameter key="storefront"/>
             <parameter key="installer"/>
         </parameter>
+
+        <parameter key="shopware_http_cache_enabled_default">1</parameter>
+        <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
+
+        <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
+        <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
     </parameters>
 
     <monolog:config>
@@ -57,13 +63,6 @@ base-uri 'self';
     </monolog:config>
 
     <services>
-        <!-- Asset -->
-        <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
-            <argument type="service" id="assets.packages"/>
-            <argument type="service" id="shopware.asset.asset_without_versioning"/>
-            <argument type="service" id="shopware.asset.asset.version_strategy"/>
-        </service>
-
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
@@ -112,6 +111,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_6"
                  class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core.V6_6</argument>
+            <tag name="shopware.migration_source"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core.V6_7"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
+            <argument type="string">core.V6_7</argument>
             <tag name="shopware.migration_source"/>
         </service>
 
@@ -178,9 +183,6 @@ base-uri 'self';
             <tag name="serializer.normalizer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Struct\Serializer\StructDecoder">
-        </service>
-
         <!-- Routing -->
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
@@ -215,6 +217,10 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Routing\RouteEventSubscriber">
             <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\MaintenanceModeResolver">
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -261,10 +267,9 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
             <argument type="service" id="service_container" />
-            <argument type="service" id="Shopware\Storefront\Theme\SalesChannelThemeLoader" on-invalid="null" />
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">
@@ -433,11 +438,6 @@ base-uri 'self';
             <argument type="service" id="app_template.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParser">
-            <argument type="service" id="twig" />
-            <deprecated package="shopware/core" version="6.6.0.0">tag:v6.6.0 - The %service_id% service will be removed in v6.6.0.0 use "TwigVariableParserFactory" instead.</deprecated>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
@@ -470,7 +470,6 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Checkout\Cart\ApiOrderCartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator"/>
             <call method="setContainer">
@@ -507,6 +506,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
 
@@ -576,13 +576,6 @@ base-uri 'self';
             <tag name="console.command"/>
         </service>
 
-        <!-- Util -->
-        <service id="Shopware\Core\Framework\Log\LoggerFactory">
-            <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
-            <argument type="service" id="logger"/>
-            <argument>%shopware.logger.file_rotation_count%</argument>
-        </service>
-
         <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
@@ -594,6 +587,24 @@ base-uri 'self';
 
             <tag name="console.command"/>
             <tag name="console.command" command="administration:dump:features"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureDisableCommand">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureEnableCommand">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureListCommand">
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand">
@@ -640,8 +651,56 @@ base-uri 'self';
             <argument type="service" id="request_stack"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage">
+        <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="messenger.bus.shopware" class="Shopware\Core\Framework\Adapter\Messenger\MessageBus" decorates="messenger.default_bus">
+            <argument type="service" id=".inner"/>
+            <argument type="collection"></argument>
+        </service>
+
+        <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="controller_resolver"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="argument_resolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\CanonicalRedirectService"/>
+
+            <tag name="container.hot_path"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\ResponseRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\SymfonyRuntime"/>
+        </service>
+
+        <service id="http_kernel.cache" class="Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel" decorates="http_kernel">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
+            <argument type="service" id="esi"/>
+            <argument type="collection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore" public="true">
+            <argument type="service" id="cache.http"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%session.storage.options%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">
+            <argument>%kernel.cache.hash%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.http_cache.ignored_url_parameters%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
+            <argument>%shopware.cache.invalidation.http_cache%</argument>
         </service>
     </services>
 </container>

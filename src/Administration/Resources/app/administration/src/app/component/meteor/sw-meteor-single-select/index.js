@@ -9,7 +9,7 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-meteor-single-select', {
     template,
@@ -20,18 +20,12 @@ Component.register('sw-meteor-single-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         options: {
             required: true,
             type: Array,
         },
 
-        // FIXME: add type for property
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -52,7 +46,6 @@ Component.register('sw-meteor-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -92,12 +85,7 @@ Component.register('sw-meteor-single-select', {
                 return this.value;
             },
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 

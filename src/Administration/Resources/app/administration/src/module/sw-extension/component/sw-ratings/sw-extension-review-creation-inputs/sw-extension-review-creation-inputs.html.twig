@@ -7,11 +7,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_review_creation_inputs_grid_headline_input %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="headline"
-            {% else %}
-            v-model="headline"
-            {% endif %}
             :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelHeadline')"
             :placeholder="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.placeholderHeadline')"
             :error="errors.headlineError"
@@ -25,11 +21,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_review_creation_inputs_grid_rating_wrapper_input %}
             <sw-extension-select-rating
-                {% if VUE3 %}
                 v-model:value="rating"
-                {% else %}
-                v-model="rating"
-                {% endif %}
                 :error="errors.ratingError"
                 required
                 :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelRating')"
@@ -43,11 +35,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_creation_inputs_description_input %}
     <sw-textarea-field
-        {% if VUE3 %}
         v-model:value="text"
-        {% else %}
-        v-model="text"
-        {% endif %}
         :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelText')"
     />
     {% endblock %}

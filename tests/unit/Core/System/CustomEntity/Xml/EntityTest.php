@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Entity
  */
+#[CoversClass(Entity::class)]
 class EntityTest extends TestCase
 {
     public function testFromXml(): void
@@ -27,7 +27,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 
@@ -59,7 +59,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 
@@ -81,7 +81,7 @@ class EntityTest extends TestCase
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        \assert($dom->documentElement !== null);
+        \assert($dom->documentElement instanceof \DOMElement);
 
         $entity = Entity::fromXml($dom->documentElement);
 

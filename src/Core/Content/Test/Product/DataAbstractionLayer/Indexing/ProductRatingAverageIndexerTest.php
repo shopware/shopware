@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -17,13 +17,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class ProductRatingAverageIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -70,9 +70,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testUpsertReviewIndexerLogic(): void
     {
         $productId = Uuid::randomHex();
@@ -103,9 +102,8 @@ class ProductRatingAverageIndexerTest extends TestCase
      * tests that a deactivated review is not considered for calculation
      * rating would be 3, but because the reviewA is deactivated only reviewB points will
      * be taken for calculation
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testThatDeactivatedReviewsAreNotCalculated(): void
     {
         $productId = Uuid::randomHex();
@@ -128,9 +126,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that a deactivating/activating reviews are considered correctly
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testThatUpdatingReviewsTriggerCalculationProcessCorrectly(): void
     {
         $productId = Uuid::randomHex();
@@ -162,9 +159,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that a multi save reviews are considered correctly
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testMultiReviewsSaveProcess(): void
     {
         $productAId = Uuid::randomHex();
@@ -203,9 +199,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testCalculateWhenSwitchingReviewStatus(): void
     {
         $productAId = Uuid::randomHex();
@@ -238,9 +233,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testCalculateWhenDeletingReviews(): void
     {
         $productAId = Uuid::randomHex();
@@ -269,9 +263,8 @@ class ProductRatingAverageIndexerTest extends TestCase
 
     /**
      * tests that the full index works
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testFullIndex(): void
     {
         $productId = Uuid::randomHex();
@@ -384,7 +377,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $password = 'foo12345';
         $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
@@ -405,12 +397,13 @@ SQL;
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => Uuid::randomHex(),
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

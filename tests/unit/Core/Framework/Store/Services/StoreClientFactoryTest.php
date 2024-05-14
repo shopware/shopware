@@ -2,79 +2,72 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
-use GuzzleHttp\ClientInterface;
+use Doctrine\DBAL\Connection;
+use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use PHPUnit\Framework\MockObject\MockObject;
+use GuzzleHttp\Middleware;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\MiddlewareInterface;
+use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\StoreClientFactory
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
+#[CoversClass(StoreClientFactory::class)]
 class StoreClientFactoryTest extends TestCase
 {
     public function testCreatesClientWithoutMiddlewares(): void
     {
-        $factory = new StoreClientFactory($this->createSystemConfigService());
+        $expected = new Client($this->createConfig());
 
+        $factory = new StoreClientFactory(new StaticSystemConfigService(['core.store.apiUri' => 'http://shopware.swag']));
         $client = $factory->create();
-        $config = $this->getConfigFromClient($client);
-        $handler = $this->getHandlerFromConfig($config);
 
-        static::assertTrue($handler->hasHandler());
+        static::assertEquals($expected, $client);
     }
 
     public function testCreatesClientWithMiddlewares(): void
     {
-        $factory = new StoreClientFactory($this->createSystemConfigService());
+        $connection = $this->createMock(Connection::class);
+        $middlewares = [
+            new StoreSessionExpiredMiddleware($connection, new RequestStack()),
+            new ShopSecretInvalidMiddleware($connection, new StaticSystemConfigService()),
+        ];
 
-        $client = $factory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
-        $config = $this->getConfigFromClient($client);
-        $handler = $this->getHandlerFromConfig($config);
+        $expected = new Client($this->createConfig($middlewares));
 
-        static::assertTrue($handler->hasHandler());
-    }
+        $factory = new StoreClientFactory(new StaticSystemConfigService(['core.store.apiUri' => 'http://shopware.swag']));
+        $client = $factory->create($middlewares);
 
-    private function createSystemConfigService(): SystemConfigService&MockObject
-    {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getString')
-            ->willReturn('http://shopware.swag');
-
-        return $systemConfigService;
+        static::assertEquals($expected, $client);
     }
 
     /**
-     * @return array{handler: HandlerStack, base_uri: string, headers: array<string, string>}
+     * @param MiddlewareInterface[] $middlewares
+     *
+     * @return array{base_uri: string, headers: array<string, string>, handler: HandlerStack}
      */
-    private function getConfigFromClient(ClientInterface $client): array
+    private function createConfig(array $middlewares = []): array
     {
-        $reflection = new \ReflectionClass($client);
-        $config = $reflection->getProperty('config')->getValue($client);
+        $handler = HandlerStack::create();
+        foreach ($middlewares as $middleware) {
+            $handler->push(Middleware::mapResponse($middleware));
+        }
 
-        static::assertIsArray($config);
-        static::assertArrayHasKey('base_uri', $config);
-        static::assertArrayHasKey('handler', $config);
-        static::assertArrayHasKey('headers', $config);
-
-        return $config;
-    }
-
-    /**
-     * @param array{handler: HandlerStack} $config
-     */
-    private function getHandlerFromConfig(array $config): HandlerStack
-    {
-        $handler = $config['handler'];
-
-        static::assertInstanceOf(HandlerStack::class, $handler);
-
-        return $handler;
+        return [
+            'base_uri' => 'http://shopware.swag',
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/vnd.api+json,application/json',
+            ],
+            'handler' => $handler,
+        ];
     }
 }

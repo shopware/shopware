@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\InstalledVersions;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -24,7 +26,8 @@ class AppLoader extends AbstractAppLoader
     public function __construct(
         private readonly string $appDir,
         private readonly string $projectDir,
-        ConfigReader $configReader
+        ConfigReader $configReader,
+        private readonly LoggerInterface $logger
     ) {
         parent::__construct($configReader);
     }
@@ -34,9 +37,6 @@ class AppLoader extends AbstractAppLoader
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return Manifest[]
-     */
     public function load(): array
     {
         return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
@@ -103,6 +103,7 @@ class AppLoader extends AbstractAppLoader
         $finder = new Finder();
         $finder->in($this->appDir)
             ->depth('<= 1') // only use manifest files in-app root folders
+            ->followLinks()
             ->name('manifest.xml');
 
         $manifests = [];
@@ -111,8 +112,26 @@ class AppLoader extends AbstractAppLoader
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
                 $manifests[$manifest->getMetadata()->getName()] = $manifest;
-            } catch (XmlParsingException) {
-                // nth, if app is already registered it will be deleted
+            } catch (AppXmlParsingException|XmlParsingException $exception) {
+                $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
+            }
+        }
+
+        // Overriding with local manifests
+        $finder = new Finder();
+
+        $finder->in($this->appDir)
+            ->depth('<= 1') // only use manifest files in-app root folders
+            ->followLinks()
+            ->name('manifest.local.xml');
+
+        foreach ($finder->files() as $xml) {
+            try {
+                $manifest = Manifest::createFromXmlFile($xml->getPathname());
+
+                $manifests[$manifest->getMetadata()->getName()] = $manifest;
+            } catch (AppXmlParsingException|XmlParsingException $exception) {
+                $this->logger->error('Local manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
             }
         }
 
@@ -135,8 +154,8 @@ class AppLoader extends AbstractAppLoader
                     $manifest->setManagedByComposer(true);
 
                     $manifests[$manifest->getMetadata()->getName()] = $manifest;
-                } catch (XmlParsingException) {
-                    // nth, if app is already registered it will be deleted
+                } catch (AppXmlParsingException|XmlParsingException $exception) {
+                    $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
                 }
             }
         }

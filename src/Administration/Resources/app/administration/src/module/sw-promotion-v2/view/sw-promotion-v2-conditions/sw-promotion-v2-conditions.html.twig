@@ -24,12 +24,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_conditions_pre_conditions_prevent_combination %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="promotion.preventCombination"
-            {% else %}
-            v-model="promotion.preventCombination"
-            {% endif %}
             class="sw-promotion-v2-conditions__prevent-combination"
+            :disabled="!acl.can('promotion.editor')"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"
             :text="$tc('sw-promotion-v2.detail.conditions.preConditions.helpTextPreventCombination')"
         />
@@ -44,11 +41,7 @@
             :criteria="exclusionCriteria"
             :entity-collection="excludedPromotions"
             :disabled="!acl.can('promotion.editor') || promotion.preventCombination"
-            {% if VUE3 %}
-            @update:entityCollection="onChangeExclusions"
-            {% else %}
-            @change="onChangeExclusions"
-            {% endif %}
+            @update:entity-collection="onChangeExclusions"
         />
         {% endblock %}
 
@@ -66,11 +59,7 @@
         {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
         <sw-promotion-v2-rule-select
             v-if="promotion"
-            {% if VUE3 %}
             v-model:collection="promotion.personaRules"
-            {% else %}
-            v-model="promotion.personaRules"
-            {% endif %}
             class="sw-promotion-v2-conditions__rule-select-customer"
             :local-mode="promotion.isNew()"
             :criteria="personaRuleFilter"
@@ -94,11 +83,7 @@
         {% block sw_promotion_v2_rule_conditions_rule_select_order_conditions %}
         <sw-promotion-v2-rule-select
             v-if="promotion"
-            {% if VUE3 %}
             v-model:collection="promotion.orderRules"
-            {% else %}
-            v-model="promotion.orderRules"
-            {% endif %}
             class="sw-promotion-v2-conditions__rule-select-order-conditions"
             :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
             :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"

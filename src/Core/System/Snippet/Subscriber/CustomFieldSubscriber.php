@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Subscriber;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -61,14 +62,14 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $queue = new MultiInsertQueryQueue($this->connection, 500, false, false);
+        $queue->addUpdateFieldOnDuplicateKey('snippet', 'value');
+
         foreach ($snippets as $snippet) {
-            $this->connection->executeStatement(
-                'INSERT INTO snippet (`id`, `snippet_set_id`, `translation_key`, `value`, `author`, `custom_fields`, `created_at`)
-                      VALUES (:id, :setId, :translationKey, :value, :author, :customFields, :createdAt)
-                      ON DUPLICATE KEY UPDATE `value` = :value',
-                $snippet
-            );
+            $queue->addInsert('snippet', $snippet);
         }
+
+        $queue->execute();
     }
 
     public function customFieldIsDeleted(EntityDeletedEvent $event): void
@@ -77,13 +78,13 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
-            ['customFieldIds' => ArrayParameterType::STRING]
+            ['customFieldIds' => ArrayParameterType::BINARY]
         );
     }
 
     /**
-     * @param list<array<string, string>> $snippetSets
-     * @param array<string, mixed> $snippets
+     * @param array<array<string, string>> $snippetSets
+     * @param list<array<string, mixed>> $snippets
      */
     private function setInsertSnippets(EntityWriteResult $writeResult, array $snippetSets, array &$snippets): void
     {
@@ -100,14 +101,14 @@ class CustomFieldSubscriber implements EventSubscriberInterface
 
             $snippets[] = [
                 'id' => Uuid::randomBytes(),
-                'setId' => $snippetSet['id'],
-                'translationKey' => 'customFields.' . $name,
+                'snippet_set_id' => $snippetSet['id'],
+                'translation_key' => 'customFields.' . $name,
                 'value' => $label,
                 'author' => 'System',
-                'customFields' => json_encode([
+                'custom_fields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
                 ], \JSON_THROW_ON_ERROR),
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }
     }

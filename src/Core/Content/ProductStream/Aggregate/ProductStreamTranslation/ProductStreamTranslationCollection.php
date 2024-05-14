@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ProductStreamTranslationEntity>
  */
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getProductStreamIds(): array
     {
@@ -25,7 +25,7 @@ class ProductStreamTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class ExtensionCriteria extends Struct
 {
     final public const ORDER_SEQUENCE_ASC = 'asc';

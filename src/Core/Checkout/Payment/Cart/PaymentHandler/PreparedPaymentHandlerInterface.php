@@ -4,8 +4,6 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -19,7 +17,7 @@ interface PreparedPaymentHandlerInterface extends PaymentHandlerInterface
      * The validate method will be called before actually placing the order.
      * It allows the validation of the supplied payment transaction.
      *
-     * @throws ValidatePreparedPaymentException
+     * @throws PaymentException
      */
     public function validate(
         Cart $cart,
@@ -30,7 +28,6 @@ interface PreparedPaymentHandlerInterface extends PaymentHandlerInterface
     /**
      * The capture method will be called, after successfully validating the payment before
      *
-     * @throws CapturePreparedPaymentException
      * @throws PaymentException - PaymentException::PAYMENT_CAPTURE_PREPARED_ERROR
      */
     public function capture(

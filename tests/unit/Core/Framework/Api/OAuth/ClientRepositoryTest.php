@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
@@ -12,9 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\OAuth\ClientRepository
  */
+#[CoversClass(ClientRepository::class)]
 class ClientRepositoryTest extends TestCase
 {
     private ClientRepository $clientRepository;
@@ -35,10 +36,9 @@ class ClientRepositoryTest extends TestCase
     }
 
     /**
-     * @dataProvider validateClientDataProvider
-     *
      * @param string $clientIdentifier
      */
+    #[DataProvider('validateClientDataProvider')]
     public function testValidateClient(string $grantType, $clientIdentifier, string $clientSecret, bool $expectedResult): void
     {
         $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier, $clientSecret) {
@@ -55,9 +55,7 @@ class ClientRepositoryTest extends TestCase
         static::assertSame($expectedResult, $result);
     }
 
-    /**
-     * @dataProvider getClientEntityDataProvider
-     */
+    #[DataProvider('getClientEntityDataProvider')]
     public function testGetClientEntity(mixed $clientIdentifier, ?ClientEntityInterface $expectedResult): void
     {
         $this->connection->method('fetchAssociative')->willReturnCallback(function () use ($clientIdentifier) {
@@ -91,7 +89,7 @@ class ClientRepositoryTest extends TestCase
 
         $clientEntity = $this->clientRepository->getClientEntity($clientIdentifier);
 
-        if ($expectedResult === null) {
+        if (!$expectedResult instanceof ClientEntityInterface) {
             static::assertNull($clientEntity);
 
             return;

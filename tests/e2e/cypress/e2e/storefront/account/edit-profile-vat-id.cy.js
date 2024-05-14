@@ -101,7 +101,7 @@ describe('Account: Edit profile\'s Vat Id', () => {
 
         cy.get(vatIdsSelector).clear();
         cy.get('#profilePersonalForm button[type="submit"]').click();
-        cy.get('.invalid-feedback').contains('VAT Reg.No. should not be empty.').should('be.visible');
+        cy.get('.invalid-feedback').contains('Input should not be empty.').should('be.visible');
 
         cy.get(vatIdsSelector).clearTypeAndCheck('wrong-format');
         cy.get('#profilePersonalForm button[type="submit"]').click();

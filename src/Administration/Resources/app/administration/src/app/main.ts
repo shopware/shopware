@@ -45,12 +45,17 @@ import RecentlySearchService from 'src/app/service/recently-search.service';
 import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
+import addUsageDataConsentListener from 'src/core/service/usage-data-consent-listener.service';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
 
 /** Import decorators */
 import 'src/app/decorator';
+
+/** Import Meteor Component Library styles */
+import '@shopware-ag/meteor-component-library/dist/style.css';
 
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
@@ -107,6 +112,7 @@ Application
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);
         addCustomerGroupRegistrationListener(loginService);
+        addUsageDataConsentListener(loginService, serviceContainer);
 
         return loginService;
     })
@@ -210,5 +216,8 @@ Application
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
+    })
+    .addServiceProvider('fileValidationService', () => {
+        return FileValidationService();
     });
 

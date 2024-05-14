@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
@@ -10,9 +11,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns
  */
+#[CoversClass(Columns::class)]
 class ColumnsTest extends TestCase
 {
     public function testFromXml(): void

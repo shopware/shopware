@@ -13,12 +13,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-/**
- * @Annotation
- *
- * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
- */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
     /**

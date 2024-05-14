@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 ---
 
 .rule_branch_rufus_match:
@@ -18,11 +19,28 @@
 
 .rule_deployment_branch:
   if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   when: on_success
 
 .rule_exclude_on_deployment_branch:
   if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
   when: never
+
+.rule_exclude_on_protected_tag:
+  if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  when: never
+
+.rule_branch_commercial_match_rufus_source:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+  when: on_success
+
+.rule_branch_commercial_match_rufus_trunk:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
 
 .downstream-job:
   stage: downstream
@@ -40,6 +58,7 @@ rufus source branch:
   extends: .downstream-job
   rules:
     - !reference [ .rules, skip ]
+    - !reference [ .rule_branch_commercial_match_rufus_source ]
     - !reference [ .rule_branch_rufus_match ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
@@ -50,8 +69,13 @@ rufus source branch:
     branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
     strategy: depend
 
-commercial source branch:
+.commercial-downstream-job:
   extends: .downstream-job
+  needs: [build image]
+
+
+commercial source branch:
+  extends: .commercial-downstream-job
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_branch_commercial_match ]
@@ -59,6 +83,8 @@ commercial source branch:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
     MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+    PLATFORM_BASE_IMAGE: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
   trigger:
     project: shopware/6/product/commercial
     branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
@@ -74,11 +100,9 @@ rufus target branch:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
     MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
-    PLUGIN_DEPENDENCIES:
-      value: >
+    PLUGIN_DEPENDENCIES: >
         [
-          { "name": "SwagExtensionStore", "url": "gitlab.shopware.com/shopware/6/product/SwagExtensionStore", "branch": "trunk" },
-          { "name": "SwagCommercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
+          { "name": "SwagCommercial", "package": "shopware/commercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
         ]
   trigger:
     project: shopware/6/product/rufus
@@ -86,7 +110,7 @@ rufus target branch:
     strategy: depend
 
 commercial target branch:
-  extends: .downstream-job
+  extends: .commercial-downstream-job
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
@@ -95,6 +119,8 @@ commercial target branch:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
     MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+    PLATFORM_BASE_IMAGE: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
   trigger:
     project: shopware/6/product/commercial
     branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
@@ -106,6 +132,8 @@ rufus trunk:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
     - !reference [ .rule_exclude_on_deployment_branch ]
+    - !reference [ .rule_exclude_on_protected_tag ]
+    - !reference [ .rule_branch_commercial_match_rufus_trunk ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
@@ -119,11 +147,12 @@ rufus trunk:
     strategy: depend
 
 commercial trunk:
-  extends: .downstream-job
+  extends: .commercial-downstream-job
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
     - !reference [ .rule_exclude_on_deployment_branch ]
+    - !reference [ .rule_exclude_on_protected_tag ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
@@ -132,6 +161,8 @@ commercial trunk:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
     MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+    PLATFORM_BASE_IMAGE: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
   trigger:
     project: shopware/6/product/commercial
     strategy: depend
@@ -149,3 +180,38 @@ commercial tag:
     strategy: depend
     branch: $CI_COMMIT_TAG
 
+.extensions:
+  extends: .downstream-job
+  needs: []
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, scheduled ]
+  trigger:
+    project: $PLUGIN_PROJECT
+    strategy: depend
+    branch: $PLUGIN_BRANCH
+
+extensions-saas:
+  extends: .extensions
+  parallel:
+    matrix:
+      - PLUGIN_BRANCH: trunk
+        PLUGIN_PROJECT:
+          - shopware/6/services/swagdynamicaccess
+          - shopware/6/services/paypal
+          - shopware/6/services/migration-assistant
+      - PLUGIN_BRANCH: master
+        PLUGIN_PROJECT:
+          - shopware/6/enterprise/publisher
+          - shopware/6/services/customized-product
+          - shopware/6/services/cms-extensions
+          - shopware/6/services/swagsocialshopping
+
+extensions:
+  extends: .extensions
+  allow_failure: true
+  parallel:
+    matrix:
+      - PLUGIN_BRANCH: trunk
+        PLUGIN_PROJECT:
+          - shopware/6/services/swagdigitalsalesrooms

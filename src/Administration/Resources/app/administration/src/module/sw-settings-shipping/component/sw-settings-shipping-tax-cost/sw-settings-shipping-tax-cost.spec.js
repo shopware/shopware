@@ -1,5 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsShippingTaxCost from 'src/module/sw-settings-shipping/component/sw-settings-shipping-tax-cost';
+import { mount } from '@vue/test-utils';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 /**
@@ -7,16 +6,17 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
  */
 
 Shopware.State.registerModule('swShippingDetail', state);
-Shopware.Component.register('sw-settings-shipping-tax-cost', swSettingsShippingTaxCost);
 
 const createWrapper = async () => {
-    return shallowMount(await Shopware.Component.build('sw-settings-shipping-tax-cost'), {
-        stubs: {
-            'sw-card': true,
-            'sw-single-select': true,
-            'sw-entity-single-select': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-shipping-tax-cost', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-card': true,
+                'sw-entity-single-select': true,
+                'sw-single-select': true,
+            },
         },
     });
 };

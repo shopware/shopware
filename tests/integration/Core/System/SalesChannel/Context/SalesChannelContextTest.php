@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
@@ -25,7 +26,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -668,9 +669,7 @@ class SalesChannelContextTest extends TestCase
         static::assertNotSame($shippingMethodIdNoExits, $salesChannelContext->getSalesChannel()->getShippingMethodId());
     }
 
-    /**
-     * @dataProvider ensureLoginProvider
-     */
+    #[DataProvider('ensureLoginProvider')]
     public function testEnsureLogin(bool $login, bool $isGuest, bool $allowGuest, bool $shouldThrow): void
     {
         $options = [];
@@ -764,7 +763,7 @@ class SalesChannelContextTest extends TestCase
      */
     private function createSalesChannelContext(array $taxData = [], array $options = []): SalesChannelContext
     {
-        if ($taxData) {
+        if ($taxData !== []) {
             $this->getContainer()->get('tax.repository')->create($taxData, Context::createDefaultContext());
         }
 

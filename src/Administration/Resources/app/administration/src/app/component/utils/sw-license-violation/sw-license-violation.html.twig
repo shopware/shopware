@@ -32,9 +32,9 @@
                         :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
                         alt=""
                     >
-                    <strong>{{ (getPluginForViolation(violation).translated &&
-                        getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label
-                    }}</strong>
+                    <strong>
+                        {{ (getPluginForViolation(violation).translated && getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label}}
+                    </strong>
                 </template>
 
                 <template v-else>
@@ -75,11 +75,7 @@
 
     <template #modal-footer>
         <sw-checkbox-field
-            {% if VUE3 %}
             v-model:value="readNotice"
-            {% else %}
-            v-model="readNotice"
-            {% endif %}
             :label="$tc('sw-license-violation.checkboxMessage')"
         />
 

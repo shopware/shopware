@@ -35,18 +35,18 @@ class ProductConfiguratorLoader
         SalesChannelProductEntity $product,
         SalesChannelContext $context
     ): PropertyGroupCollection {
-        if (!$product->getParentId()) {
+        $parentId = $product->getParentId();
+        if (!$parentId) {
             return new PropertyGroupCollection();
         }
 
-        $groups = $this->loadSettings($product, $context);
+        $groups = $this->loadSettings($parentId, $context);
 
         $groups = $this->sortSettings($groups, $product);
 
-        $combinations = $this->combinationLoader->load(
-            $product->getParentId(),
-            $context->getContext(),
-            $context->getSalesChannelId()
+        $combinations = $this->combinationLoader->loadCombinations(
+            $parentId,
+            $context,
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
@@ -78,10 +78,10 @@ class ProductConfiguratorLoader
      *
      * @return array<string, PropertyGroupEntity>|null
      */
-    private function loadSettings(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
+    private function loadSettings(string $parentId, SalesChannelContext $context): ?array
     {
         $criteria = (new Criteria())->addFilter(
-            new EqualsFilter('productId', $product->getParentId() ?? $product->getId())
+            new EqualsFilter('productId', $parentId)
         );
 
         $criteria->addAssociation('option.group')
@@ -122,8 +122,6 @@ class ProductConfiguratorLoader
                 $options = new PropertyGroupOptionCollection();
                 $group->setOptions($options);
             }
-            $options->add($option);
-
             $options->add($option);
 
             $option->setConfiguratorSetting($setting);
@@ -181,11 +179,8 @@ class ProductConfiguratorLoader
 
         $collection = new PropertyGroupCollection($sorted);
 
-        // check if product has an individual sorting configuration for property groups\
-        $config = $product->getVariantListingConfig();
-        if ($config) {
-            $config = $config->getConfiguratorGroupConfig();
-        }
+        // check if product has an individual sorting configuration for property groups
+        $config = $product->getVariantListingConfig()?->getConfiguratorGroupConfig();
 
         if (!$config) {
             $collection->sortByPositions();
@@ -232,16 +227,15 @@ class ProductConfiguratorLoader
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
-        $keyMap = $groups->getOptionIdMap();
-
-        $optionIds = $product->getOptionIds() ?? [];
-        $current = [];
-
-        if ($product->getOptionIds() === null) {
-            return $current;
+        if (empty($product->getOptionIds())) {
+            return [];
         }
 
-        foreach ($optionIds as $optionId) {
+        $keyMap = $groups->getOptionIdMap();
+
+        $current = [];
+
+        foreach ($product->getOptionIds() as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

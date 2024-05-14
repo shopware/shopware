@@ -2,26 +2,8 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swProductSeoForm from 'src/module/sw-product/component/sw-product-seo-form';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/base/sw-product-variant-info';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-textarea-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-
-Shopware.Component.register('sw-product-seo-form', swProductSeoForm);
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {
@@ -45,56 +27,58 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             },
         ];
 
-        const localVue = createLocalVue();
-        localVue.directive('tooltip', {});
-
-        return shallowMount(await Shopware.Component.build('sw-product-seo-form'), {
-            localVue,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve(productVariants);
+        return mount(await wrapTestComponent('sw-product-seo-form', { sync: true }), {
+            global: {
+                directives: {
+                    tooltip: {},
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve(productVariants);
+                            },
+                        }),
+                    },
+                    validationService: {},
+                },
+                mocks: {
+                    $store: createStore({
+                        modules: {
+                            swProductDetail: {
+                                namespaced: true,
+                                state: {
+                                    product: productEntity,
+                                    parentProduct,
+                                },
+                                getters: {
+                                    isLoading: () => false,
+                                },
+                            },
                         },
                     }),
                 },
-                validationService: {},
-            },
-            mocks: {
-                $store: new Vuex.Store({
-                    modules: {
-                        swProductDetail: {
-                            namespaced: true,
-                            state: {
-                                product: productEntity,
-                                parentProduct,
-                            },
-                            getters: {
-                                isLoading: () => false,
-                            },
-                        },
-                    },
-                }),
-            },
-            stubs: {
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-single-select': await Shopware.Component.build('sw-single-select'),
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-icon': true,
-                'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-popover': true,
-                'sw-help-text': true,
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-textarea-field': await Shopware.Component.build('sw-textarea-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-inheritance-switch': true,
+                stubs: {
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-icon': true,
+                    'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-popover': true,
+                    'sw-help-text': true,
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-inheritance-switch': true,
+                },
             },
         });
     }
@@ -102,12 +86,10 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
     /** @tupe Wrapper */
     let wrapper;
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
@@ -119,6 +101,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         };
 
         wrapper = await createWrapper(productEntity);
+        await flushPromises();
 
         const switchComponent = wrapper.find('.sw-field--switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
@@ -139,6 +122,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         };
 
         wrapper = await createWrapper(productEntity, parentProduct);
+        await flushPromises();
 
         const switchComponent = wrapper.find('.sw-field--switch');
         const singleSelectComponent = wrapper.find('.sw-single-select');
@@ -155,15 +139,16 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         };
 
         wrapper = await createWrapper(productEntity);
+        await flushPromises();
 
-        const switchComponent = wrapper.find('.sw-field--switch');
+        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
         const singleSelectComponent = wrapper.find('.sw-single-select');
 
         // check if switch is off
         expect(switchComponent.vm.value).toBe(false);
 
         // check if single select is disabled
-        expect(singleSelectComponent.attributes('disabled')).toBe('disabled');
+        expect(singleSelectComponent.classes('is--disabled')).toBe(true);
     });
 
     it('should have a selected value if there is a canonical url in the Vuex store', async () => {
@@ -175,12 +160,10 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         };
 
         wrapper = await createWrapper(productEntity);
+        await flushPromises();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        const switchComponent = wrapper.find('.sw-field--switch');
-        const singleSelectComponent = wrapper.find('.sw-single-select');
+        const switchComponent = wrapper.getComponent({ name: 'sw-switch-field-deprecated__wrapped' });
+        const singleSelectComponent = wrapper.get('.sw-single-select');
 
         // check if switch is turned on
         expect(switchComponent.vm.value).toBe(true);

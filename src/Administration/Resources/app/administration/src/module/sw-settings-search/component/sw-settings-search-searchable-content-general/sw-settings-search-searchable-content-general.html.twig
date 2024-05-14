@@ -14,7 +14,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_state_image %}
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
             >
             {% endblock %}
@@ -48,20 +48,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_field_editor %}
                 <sw-single-select
-                    {% if VUE3 %}
                     v-model:value="item.field"
-                    {% else %}
-                    v-model="item.field"
-                    {% endif %}
                     class="sw-settings-search-field-select"
                     size="small"
                     show-clearable-button
                     :options="fieldConfigs"
-                    {% if VUE3 %}
                     @update:value="onSelectField(item)"
-                    {% else %}
-                    @change="onSelectField(item)"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -81,11 +73,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_ranking_editor %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="item.ranking"
-                    {% else %}
-                    v-model="item.ranking"
-                    {% endif %}
                     number-type="int"
                     size="small"
                 />
@@ -101,11 +89,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_searchable_editor %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.searchable"
-                    {% else %}
-                    v-model="item.searchable"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -113,7 +97,7 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_searchable_label %}
-                    <sw-data-grid-column-boolean v-model="item.searchable" />
+                <sw-data-grid-column-boolean v-model:value="item.searchable" />
                 {% endblock %}
             </template>
         </template>
@@ -126,11 +110,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_tokenize_editor %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.tokenize"
-                    {% else %}
-                    v-model="item.tokenize"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -138,7 +118,7 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_tokenize_label %}
-                    <sw-data-grid-column-boolean v-model="item.tokenize" />
+                <sw-data-grid-column-boolean v-model:value="item.tokenize" />
                 {% endblock %}
             </template>
         </template>

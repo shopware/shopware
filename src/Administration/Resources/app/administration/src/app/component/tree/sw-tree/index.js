@@ -7,8 +7,7 @@ const { debounce, sort } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @description you need to declare the functions createNewElement, getChildrenFromParent in the parent.
@@ -47,6 +46,12 @@ Component.register('sw-tree', {
     template,
 
     inject: ['feature'],
+
+    provide() {
+        return {
+            getItems: this.getItems,
+        };
+    },
 
     props: {
         items: {
@@ -89,7 +94,6 @@ Component.register('sw-tree', {
         searchable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -131,7 +135,6 @@ Component.register('sw-tree', {
         disableContextMenu: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -141,7 +144,6 @@ Component.register('sw-tree', {
         bindItemsToFolder: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -151,7 +153,6 @@ Component.register('sw-tree', {
         sortable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -161,7 +162,6 @@ Component.register('sw-tree', {
         checkItemsInitial: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -171,7 +171,6 @@ Component.register('sw-tree', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -181,7 +180,6 @@ Component.register('sw-tree', {
         allowCreateCategories: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -191,7 +189,6 @@ Component.register('sw-tree', {
         initiallyExpandedRoot: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -284,7 +281,7 @@ Component.register('sw-tree', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.$emit('checked-elements-count', 0);
     },
 
@@ -507,11 +504,7 @@ Component.register('sw-tree', {
             }
 
             let newElem = null;
-            if (this.feature.isActive('VUE3')) {
-                newElem = this.$parent.$parent.createNewElement(null, null, name);
-            } else {
-                newElem = this.$parent.createNewElement(null, null, name);
-            }
+            newElem = this.$parent.$parent.createNewElement(null, null, name);
 
             this.saveItems();
 
@@ -530,24 +523,9 @@ Component.register('sw-tree', {
             }
             this.currentEditMode = this.addSubElement;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.getChildrenFromParent(contextItem.id).then(() => {
-                    const parentElement = contextItem;
-                    const newElem = this.$parent.$parent.createNewElement(contextItem, contextItem.id);
-                    const newTreeItem = this.getNewTreeItem(newElem);
-
-                    parentElement.childCount += 1;
-                    parentElement.data.childCount += 1;
-                    this.newElementId = newElem.id;
-                    this.createdItem = newTreeItem;
-                });
-
-                return;
-            }
-
-            this.$parent.getChildrenFromParent(contextItem.id).then(() => {
+            this.$parent.$parent.getChildrenFromParent(contextItem.id).then(() => {
                 const parentElement = contextItem;
-                const newElem = this.$parent.createNewElement(contextItem, contextItem.id);
+                const newElem = this.$parent.$parent.createNewElement(contextItem, contextItem.id);
                 const newTreeItem = this.getNewTreeItem(newElem);
 
                 parentElement.childCount += 1;
@@ -558,22 +536,12 @@ Component.register('sw-tree', {
         },
 
         duplicateElement(contextItem) {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.duplicateElement(contextItem);
-
-                return;
-            }
-
-            this.$parent.duplicateElement(contextItem);
+            this.$parent.$parent.duplicateElement(contextItem);
         },
 
         addElement(contextItem, pos) {
             let newElem = null;
-            if (this.feature.isActive('VUE3')) {
-                newElem = this.$parent.$parent.createNewElement(contextItem);
-            } else {
-                newElem = this.$parent.createNewElement(contextItem);
-            }
+            newElem = this.$parent.$parent.createNewElement(contextItem);
 
             const newTreeItem = this.getNewTreeItem(newElem);
 

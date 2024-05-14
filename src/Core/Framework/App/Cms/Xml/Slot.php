@@ -17,18 +17,6 @@ class Slot extends XmlElement
 
     protected Config $config;
 
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseSlot($element));
-    }
-
     public function toArray(string $defaultLocale): array
     {
         $array = parent::toArray($defaultLocale);
@@ -52,12 +40,12 @@ class Slot extends XmlElement
         return $this->config;
     }
 
-    private static function parseSlot(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $name = $element->getAttribute('name');
         $type = $element->getAttribute('type');
-        /** @var \DOMElement $config */
         $config = $element->getElementsByTagName('config')->item(0);
+        \assert($config !== null);
         $config = Config::fromXml($config);
 
         return [

@@ -7,8 +7,10 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
-NotRule inverses the return value of the child rule. Only one child is possible')]
+/**
+ * NotRule inverses the return value of the child rule. Only one child is possible
+ */
+#[Package('services-settings')]
 class NotRule extends Container
 {
     final public const RULE_NAME = 'notContainer';

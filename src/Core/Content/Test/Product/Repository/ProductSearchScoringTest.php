@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Test\Product\Repository;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
@@ -25,18 +24,12 @@ class ProductSearchScoringTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var Connection
+     * @var EntityRepository<ProductCollection>
      */
-    private $connection;
-
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
@@ -60,17 +53,13 @@ class ProductSearchScoringTest extends TestCase
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]]],
         ], $context);
 
-        $result = $this->repository->search($criteria, $context);
-
-        /** @var Entity $entity */
-        foreach ($result as $entity) {
+        foreach ($this->repository->search($criteria, $context)->getEntities() as $entity) {
             static::assertArrayHasKey('search', $entity->getExtensions());
-            /** @var ArrayEntity $extension */
             $extension = $entity->getExtension('search');
 
             static::assertInstanceOf(ArrayEntity::class, $extension);
             static::assertArrayHasKey('_score', $extension);
-            static::assertGreaterThan(0, (float) $extension['_score']);
+            static::assertGreaterThan(0, (float) $extension->get('_score'));
         }
     }
 }

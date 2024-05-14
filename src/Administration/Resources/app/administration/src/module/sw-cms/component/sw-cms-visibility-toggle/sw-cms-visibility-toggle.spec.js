@@ -1,30 +1,32 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 import 'src/app/component/base/sw-icon';
 
 /**
- * @package content
+ * @package buyers-experience
  */
 
 Shopware.Component.register('sw-cms-visibility-toggle', swCmsVisibilityToggle);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-visibility-toggle'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-visibility-toggle', {
+        sync: true,
+    }), {
+        props: {
             text: 'Toggle Text Button',
             isCollapsed: true,
         },
-        provide: {
-            cmsService: {},
-        },
-        stubs: {
-            'sw-icon': await Shopware.Component.build('sw-icon'),
-            'icons-regular-eye-slash': true,
-            'icons-regular-chevron-down-xs': true,
-            'icons-regular-chevron-up-xs': true,
+        global: {
+            provide: {
+                cmsService: {},
+            },
+            stubs: {
+                'sw-icon': await Shopware.Component.build('sw-icon'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
+                'icons-regular-eye-slash': true,
+                'icons-regular-chevron-down-xs': true,
+                'icons-regular-chevron-up-xs': true,
+            },
         },
     });
 }

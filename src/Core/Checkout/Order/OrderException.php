@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderException extends HttpException
 {
     final public const ORDER_MISSING_ORDER_ASSOCIATION_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_ASSOCIATION';
@@ -21,8 +21,9 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
     final public const ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE';
-
     final public const ORDER_CUSTOMER_NOT_LOGGED_IN = 'CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN';
+    final public const ORDER_CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__ORDER_CUSTOMER_ADDRESS_NOT_FOUND';
+    final public const ORDER_INVALID_ORDER_ADDRESS_MAPPING = 'CHECKOUT__INVALID_ORDER_ADDRESS_MAPPING';
 
     public static function missingAssociation(string $association): self
     {
@@ -39,8 +40,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_DELIVERY_NOT_FOUND_CODE,
-            'Order delivery with id {{ id }} not found.',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'order delivery', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -59,8 +60,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE,
-            'Order transaction with id {{ id }} not found.',
-            ['id' => $id]
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -98,8 +99,8 @@ class OrderException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ORDER_ORDER_NOT_FOUND_CODE,
-            'Order with id {{ orderId }} not found.',
-            ['orderId' => $orderId]
+            self::$couldNotFindMessage,
+            ['entity' => 'order', 'field' => 'id', 'value' => $orderId]
         );
     }
 
@@ -137,6 +138,25 @@ class OrderException extends HttpException
         return new CustomerAuthThrottledException(
             $waitTime,
             $e
+        );
+    }
+
+    public static function customerAddressNotFound(string $customerAddressId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_CUSTOMER_ADDRESS_NOT_FOUND,
+            'Customer address with id {{ customerAddressId }} not found.',
+            ['customerAddressId' => $customerAddressId]
+        );
+    }
+
+    public static function invalidOrderAddressMapping(string $reason = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_INVALID_ORDER_ADDRESS_MAPPING,
+            'Invalid order address mapping provided. ' . $reason,
         );
     }
 }

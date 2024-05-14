@@ -2,21 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Controller\SyncController
  */
+#[CoversClass(SyncController::class)]
 class SyncControllerTest extends TestCase
 {
     public function testRequestGetsConverted(): void
@@ -58,6 +61,64 @@ class SyncControllerTest extends TestCase
             });
 
         $controller = new SyncController($service, new Serializer([], [new JsonEncoder()]));
+
+        $controller->sync($request, Context::createDefaultContext());
+    }
+
+    public function testSyncWithValidJson(): void
+    {
+        $validJson = json_encode([
+            [
+                'key' => 'some-key',
+                'entity' => 'some-entity',
+                'action' => 'upsert',
+                'payload' => [
+                    'some-key' => 'some-value',
+                ],
+                'criteria' => [],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $request = new Request([], [], [], [], [], [], $validJson);
+
+        $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
+        $service = $this->createMock(SyncService::class);
+
+        $controller = new SyncController($service, $serializer);
+
+        $response = $controller->sync($request, Context::createDefaultContext());
+        static::assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testSyncWithInvalidJson(): void
+    {
+        $this->expectException(ApiException::class);
+        $this->expectExceptionMessage('Parameter type json is invalid.');
+
+        $invalidJson = 'this is not json';
+        $request = new Request([], [], [], [], [], [], $invalidJson);
+
+        $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
+        $service = $this->createMock(SyncService::class);
+
+        $controller = new SyncController($service, $serializer);
+
+        $controller->sync($request, Context::createDefaultContext());
+    }
+
+    public function testSyncWithInvalidOperation(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Invalid payload format. Expected an array of operations.');
+
+        $operations = ['delete-mapping' => 'action:delete'];
+
+        $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
+
+        $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
+        $service = $this->createMock(SyncService::class);
+
+        $controller = new SyncController($service, $serializer);
 
         $controller->sync($request, Context::createDefaultContext());
     }

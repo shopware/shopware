@@ -6,18 +6,18 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\TrackingEventClient;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\TrackingEventClient
  */
+#[Package('checkout')]
+#[CoversClass(TrackingEventClient::class)]
 class TrackingEventClientTest extends TestCase
 {
     public function testEventRequestNotMadeIfInstanceIdIsUnknown(): void

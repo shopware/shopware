@@ -10,12 +10,23 @@
                 "summary": "Search for products (suggest)",
                 "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
                 "operationId": "searchSuggest",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
                                 "allOf": [
                                     {
                                         "required": [

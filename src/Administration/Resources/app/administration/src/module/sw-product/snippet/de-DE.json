@@ -3,9 +3,10 @@
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Verkaufskanäle zuweisen ...",
+      "columnSalesChannel": "Verkaufskanal",
       "columnAll": "Sichtbar",
       "columnSearchOnly": "In Produktlisten ausblenden",
-      "columnLinkOnly": "In Produktlisten und der Suche ausblenden",
+      "columnLinkOnly": "In Produktlisten und Suche ausblenden",
       "visibilityModalDescription": "Mit der Option “In Produktlisten ausblenden” wird das Produkt von Übersichtslisten, sowie Produkt-Slidern und Cross Sellings ausgeblendet. Mit der Option “In Produktlisten und der Suche ausblenden” wird das Produkt auch über die Suche nicht mehr angezeigt. Augeblendete Produkte können immer noch über die URL erreicht werden.",
       "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen",
       "labelVisibility": "Sichtbarkeit",
@@ -127,6 +128,7 @@
       "placeholderHeight": "z.B. 200 ...",
       "placeholderLength": "z.B.100 ...",
       "placeholderWeight": "z.B. 0,4 ...",
+      "placeholderTime": "z.B. 31 ...",
       "placeholderStock": "Gib den Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
@@ -181,7 +183,7 @@
       "cardTitleReviews": "Bewertungen"
     },
     "reviewForm": {
-      "labelStatus": "Sichtbar",
+      "labelStatus": "Freigegeben",
       "labelCreatedAt": "Erstellt am",
       "labelPoints": "Sterne",
       "labelTitle": "Titel",
@@ -194,8 +196,8 @@
         "buttonDelete": "Löschen"
       },
       "messageEmptyTitle": "Produkt noch nicht bewertet",
-      "messageEmptySubline": "Du kannst Bewertungen anderer Produkte durchsuchen.",
-      "emptyStateButton": "Andere Bewertungen öffnen"
+      "messageEmptySubline": "Sieh Dir stattdessen die Bewertungen anderer Produkte an.",
+      "emptyStateButton": "Zu den Bewertungen"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -287,7 +289,9 @@
       "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild.",
       "errorMediaItemDuplicated": "Medium \"{fileName}\" bereits verwendet.",
-      "coverSubline": "Cover"
+      "coverSubline": "Cover",
+      "spatialSubline": "3D",
+      "arSubline": "AR"
     },
     "advancedPrices": {
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
@@ -322,6 +326,7 @@
       "buttonAddProperty": "Eigenschaft konfigurieren",
       "buttonAddProperties": "Eigenschaften konfigurieren",
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
+      "titleEmptyStateList": "Keine Eigenschaften gefunden.",
       "columnProperty": "Eigenschaft",
       "columnValue": "Eigenschaftsausprägung",
       "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",
@@ -468,7 +473,7 @@
       "productStreamType": "Dynamische Produktgruppe",
       "productListType": "Manuelle Zuweisung",
       "deleteConfirmTitle": "Cross Selling löschen",
-      "deleteConfirmText": "Möchtest Du die Cross Selling-Konfiguration wirklich löschen?",
+      "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
@@ -479,11 +484,11 @@
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",
       "descriptionTitle": "Wesentliche Merkmale",
-      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und Checkout dargestellt.",
-      "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und an der Kasse dargestellt.",
+      "configInformation": "Lege zuerst Templates für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
-      "templateSelectFieldLabel": "Vorlagen",
-      "templateSelectFieldPlaceholder": "Wähle eine Vorlage aus ..."
+      "templateSelectFieldLabel": "Templates",
+      "templateSelectFieldPlaceholder": "Wähle ein Template aus ..."
     },
     "layoutAssignment": {
       "title": "Standardwert",

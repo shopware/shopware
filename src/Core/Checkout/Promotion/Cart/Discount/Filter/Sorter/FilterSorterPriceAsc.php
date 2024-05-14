@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class FilterSorterPriceAsc extends AbstractPriceSorter
 {
     public function getKey(): string

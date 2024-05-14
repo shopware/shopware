@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class CleanupSalesChannelContextTask extends ScheduledTask
 {
     public static function getTaskName(): string

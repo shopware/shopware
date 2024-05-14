@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentBaseConfigSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
@@ -59,9 +59,6 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
         return $this->salesChannelId;
     }
 
-    /**
-     * @param string $salesChannelId
-     */
     public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;

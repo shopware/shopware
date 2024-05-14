@@ -1,28 +1,22 @@
-import 'src/app/component/filter/sw-boolean-filter';
-import 'src/app/component/filter/sw-base-filter';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-boolean-filter'), {
-        localVue,
-        stubs: {
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
-            'sw-icon': true,
-            'sw-field-error': {
-                template: '<div></div>',
+    return mount(await wrapTestComponent('sw-boolean-filter', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
+                'sw-icon': true,
+                'sw-field-error': {
+                    template: '<div></div>',
+                },
             },
         },
-        propsData: {
+        props: {
             filter: {
                 property: 'manufacturerId',
                 name: 'manufacturerId',

@@ -1,8 +1,10 @@
 <div class="sw-meteor-single-select">
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         class="sw-meteor-single-select__preview"
+        role="button"
+        tabindex="0"
         @click="toggleResultList"
+        @keydown.enter="toggleResultList"
     >
         <span class="sw-meteor-single-select__label">
             {{ label }}:
@@ -35,9 +37,10 @@
                 <slot name="before-item-list">
                     <sw-simple-search-field
                         ref="searchField"
-                        v-model="searchTerm"
+                        :value="searchTerm"
                         size="small"
                         variant="form"
+                        @update:value="searchTerm = $event"
                         @search-term-change="onInputSearchTerm"
                     />
                 </slot>
@@ -48,8 +51,7 @@
                     name="result-item"
                     v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
                 >
-                    <li
-                        is="sw-select-result"
+                    <sw-select-result
                         :class="'sw-meteor-select-option--' + item.value"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
@@ -69,7 +71,7 @@
                                 {{ getKey(item, labelProperty) }}
                             </template>
                         </slot>
-                    </li>
+                    </sw-select-result>
                 </slot>
             </template>
 

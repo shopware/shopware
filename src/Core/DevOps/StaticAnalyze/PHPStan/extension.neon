@@ -1,5 +1,25 @@
 services:
-        -
-            class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
-            tags:
-                - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+    -
+        factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
+
+parameters:
+    shopware:
+        allowedNonDomainExceptions:
+            - Shopware\Core\Framework\Plugin\Exception\DecorationPatternException
+            - Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
+            - Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException
+            - Twig\Error\LoaderError
+            - Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+            - Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException
+            - Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            - Symfony\Component\HttpFoundation\Exception\BadRequestException
+
+parametersSchema:
+    shopware: structure([
+        allowedNonDomainExceptions: list(string),
+    ])

@@ -1,6 +1,6 @@
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @package admin
+ * @private
  */
 
 const ApiService = Shopware.Classes.ApiService;
@@ -35,13 +35,6 @@ class UpdateService extends ApiService {
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed
-     */
-    pluginCompatibility() {
-        return {};
     }
 
     extensionCompatibility() {

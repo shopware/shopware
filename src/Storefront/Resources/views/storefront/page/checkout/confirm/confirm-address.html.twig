@@ -30,14 +30,14 @@
                             <div class="card-body">
                                 {% block page_checkout_confirm_address_shipping_title %}
                                     <div class="card-title">
-                                        {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                                        {{ 'checkout.shippingAddressHeader'|trans|sw_sanitize }}
                                     </div>
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_address_shipping_data %}
                                     <div class="confirm-address-shipping">
                                         {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                            'address': shippingAddress
+                                            address: shippingAddress
                                         } %}
                                     </div>
                                 {% endblock %}
@@ -50,12 +50,12 @@
                                         } %}
 
                                         {% block page_checkout_confirm_address_shipping_actions_link %}
-                                            <a href="{{ path('frontend.account.address.edit.page', {'addressId': shippingAddress.id}) }}"
-                                               title="{{ "account.overviewChangeShipping"|trans|striptags }}"
+                                            <a href="{{ path('frontend.account.address.edit.page', {addressId: shippingAddress.id}) }}"
+                                               title="{{ 'account.overviewChangeShipping'|trans|striptags }}"
                                                class="btn btn-light"
                                                data-address-editor="true"
-                                               data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
-                                                {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
+                                               data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                                {{ 'account.overviewChangeShipping'|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
                                     </div>
@@ -72,7 +72,7 @@
                         <div class="card-body">
                             {% block page_checkout_confirm_address_billing_title %}
                                 <div class="card-title">
-                                    {{ "checkout.billingAddressHeader"|trans|sw_sanitize }}
+                                    {{ 'checkout.billingAddressHeader'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -81,12 +81,12 @@
                                     {% if billingAddress.id is same as(shippingAddress.id) %}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
-                                                {{ "checkout.addressEqualText"|trans|sw_sanitize }}
+                                                {{ 'checkout.addressEqualText'|trans|sw_sanitize }}
                                             </p>
                                         {% endblock %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                            'address': billingAddress
+                                            address: billingAddress
                                         } %}
                                     {% endif %}
                                 </div>
@@ -100,12 +100,12 @@
                                     } %}
 
                                     {% block page_checkout_confirm_address_billing_actions_link %}
-                                        <a href="{{ path('frontend.account.address.edit.page', {'addressId': billingAddress.id}) }}"
-                                           title="{{ "account.overviewChangeBilling"|trans|striptags }}"
+                                        <a href="{{ path('frontend.account.address.edit.page', {addressId: billingAddress.id}) }}"
+                                           title="{{ 'account.overviewChangeBilling'|trans|striptags }}"
                                            class="btn btn-light"
                                            data-address-editor="true"
-                                           data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
-                                            {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
+                                           data-address-editor-options="{{ addressEditorOptions|json_encode }}">
+                                            {{ 'account.overviewChangeBilling'|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}
                                 </div>

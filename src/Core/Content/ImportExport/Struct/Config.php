@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 /**
  * @phpstan-import-type MappingArray from Mapping
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class Config
 {
     use JsonSerializableTrait;

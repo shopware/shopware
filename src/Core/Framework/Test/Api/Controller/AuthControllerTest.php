@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,14 +19,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class AuthControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -49,7 +51,7 @@ class AuthControllerTest extends TestCase
             'The resource owner or authorization server denied the request.',
             $response['errors'][0]['title']
         );
-        static::assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
+        static::assertEquals('Missing token in "Authorization" header', $response['errors'][0]['detail']);
     }
 
     public function testCreateTokenWithInvalidCredentials(): void
@@ -62,7 +64,7 @@ class AuthControllerTest extends TestCase
         ];
 
         $client = $this->getBrowser();
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
@@ -145,7 +147,7 @@ class AuthControllerTest extends TestCase
             'refresh_token' => 'foobar',
         ];
 
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -174,7 +176,7 @@ class AuthControllerTest extends TestCase
             'scopes' => [],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $oldRefreshToken = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['refresh_token'];
@@ -186,10 +188,10 @@ class AuthControllerTest extends TestCase
         ];
 
         // old refresh token should be invalidated here, as we issue a new refresh token with it
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
 
         // try to request a new token with the old refresh token again
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $response = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -212,7 +214,6 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser(false);
 
         $username = Uuid::randomHex();
-        $password = Uuid::randomHex();
 
         $this->getContainer()->get(Connection::class)->insert('user', [
             'id' => Uuid::randomBytes(),
@@ -220,7 +221,7 @@ class AuthControllerTest extends TestCase
             'last_name' => '',
             'email' => 'test@example.com',
             'username' => $username,
-            'password' => password_hash($password, \PASSWORD_BCRYPT),
+            'password' => TestDefaults::HASHED_PASSWORD,
             'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
             'active' => 1,
             'admin' => 1,
@@ -236,10 +237,10 @@ class AuthControllerTest extends TestCase
             'grant_type' => 'password',
             'client_id' => 'administration',
             'username' => $username,
-            'password' => $password,
+            'password' => 'shopware',
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -264,7 +265,7 @@ class AuthControllerTest extends TestCase
             'refresh_token' => $data['refresh_token'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey(
@@ -314,7 +315,7 @@ class AuthControllerTest extends TestCase
             'scope' => [],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -339,7 +340,7 @@ class AuthControllerTest extends TestCase
             'scope' => ['admin', 'write', 'admin', 'admin', 'write', 'write', 'admin'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -364,7 +365,7 @@ class AuthControllerTest extends TestCase
             'scope' => ['admin', 'write'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -376,7 +377,7 @@ class AuthControllerTest extends TestCase
             'scope' => ['admin'], // change the scope to something different
         ];
 
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -401,7 +402,7 @@ class AuthControllerTest extends TestCase
             'scope' => ['admin', 'write', UserVerifiedScope::IDENTIFIER],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -417,7 +418,7 @@ class AuthControllerTest extends TestCase
             'refresh_token' => $data['refresh_token'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -442,7 +443,7 @@ class AuthControllerTest extends TestCase
             'scope' => ['admin', 'write'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -456,7 +457,7 @@ class AuthControllerTest extends TestCase
             'refresh_token' => $data['refresh_token'],
         ];
 
-        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
 
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -472,13 +473,12 @@ class AuthControllerTest extends TestCase
         $client = $this->getBrowser(false);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
-        $secretKey = AccessKeyHelper::generateSecretAccessKey();
 
         $this->getContainer()->get(Connection::class)->insert('integration', [
             'id' => Uuid::randomBytes(),
             'label' => 'test integration',
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretKey, \PASSWORD_BCRYPT),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -488,10 +488,10 @@ class AuthControllerTest extends TestCase
         $authPayload = [
             'grant_type' => 'client_credentials',
             'client_id' => $accessKey,
-            'client_secret' => $secretKey,
+            'client_secret' => 'shopware',
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($client->getResponse()->getContent());
         $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -529,7 +529,7 @@ class AuthControllerTest extends TestCase
             'client_secret' => $secretKey,
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
     }
@@ -550,7 +550,7 @@ class AuthControllerTest extends TestCase
             'client_secret' => $secretKey,
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
     }
@@ -571,7 +571,7 @@ class AuthControllerTest extends TestCase
             'client_secret' => $secretKey,
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $client->getResponse()->getStatusCode());
     }
@@ -603,7 +603,7 @@ class AuthControllerTest extends TestCase
             'client_secret' => $secretKey,
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         $response = $client->getResponse();
         $content = $response->getContent();
         static::assertNotFalse($content);
@@ -630,7 +630,7 @@ class AuthControllerTest extends TestCase
             'grant_type' => 'foo',
         ];
 
-        $client->request('POST', '/api/oauth/token', $authPayload);
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
     }
@@ -655,7 +655,7 @@ class AuthControllerTest extends TestCase
             'client_secret' => $secret,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
     }
 
@@ -673,7 +673,7 @@ class AuthControllerTest extends TestCase
             'password' => $admin->getPassword(),
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($browser->getResponse()->getContent());
 
         static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
@@ -698,13 +698,13 @@ class AuthControllerTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
 
-        return $appRepository->search($criteria, Context::createDefaultContext())->first();
+        return $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
     }
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void

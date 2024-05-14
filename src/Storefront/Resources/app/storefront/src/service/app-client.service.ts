@@ -53,19 +53,25 @@ export default class AppClientService {
             return data.headers;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = JSON.parse(window.sessionStorage.getItem(key));
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
         if (new Date(data.expires) < new Date()) {
             window.sessionStorage.removeItem(key);
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return await this.getHeaders();
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
         return data.headers;
     }
 
     private async fetchHeaders(): Promise<{ headers: { [key: string]: string }, expires: string }> {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const url = window['router']['frontend.app-system.generate-token'].replace('Placeholder', encodeURIComponent(this.name));
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const response = await fetch(url, {
             method: 'POST',
         });
@@ -74,7 +80,6 @@ export default class AppClientService {
             throw new Error(`Error while fetching token, got status code: ${response.status} with response ${await response.text()}`);
         }
 
-        // eslint-disable-next-line no-undef
         const data = await response.json() as { token: string, shopId: string, expires: string };
 
         return {
@@ -91,6 +96,7 @@ export default class AppClientService {
             options.headers = {};
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options.headers = {...options.headers, ...await this.getHeaders()};
 
         return fetch(url, options)

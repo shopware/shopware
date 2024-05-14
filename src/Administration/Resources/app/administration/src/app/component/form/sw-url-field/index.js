@@ -14,8 +14,7 @@ const URL_REGEX = {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description URL field component which supports a switch for https and http.
  * @status ready
  * @example-type dynamic
@@ -23,9 +22,13 @@ const URL_REGEX = {
  * <sw-field type="url" label="Name" placeholder="Placeholder"
  * switchLabel="My shop uses https"></sw-field>
  */
-Component.extend('sw-url-field', 'sw-text-field', {
+Component.extend('sw-url-field', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
+
+    emits: [
+        'update:value',
+    ],
 
     inject: ['feature'],
 
@@ -48,7 +51,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
     data() {
         return {
             sslActive: true,
-            currentValue: this.value || '',
+            currentUrlValue: '',
             errorUrl: null,
             currentDebounce: null,
         };
@@ -72,7 +75,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         },
 
         url() {
-            const trimmedValue = this.currentValue.trim();
+            const trimmedValue = this.currentUrlValue.trim();
             if (trimmedValue === '') {
                 return '';
             }
@@ -83,11 +86,18 @@ Component.extend('sw-url-field', 'sw-text-field', {
         combinedError() {
             return this.errorUrl || this.error;
         },
+
+        unicodeUriFilter() {
+            return Shopware.Filter.getByName('unicodeUri');
+        },
     },
 
     watch: {
-        value() {
-            this.checkInput(this.value || '');
+        value: {
+            handler() {
+                this.checkInput(this.value || '');
+            },
+            immediate: true,
         },
     },
 
@@ -97,7 +107,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     methods: {
         createdComponent() {
-            this.checkInput(this.currentValue);
+            this.currentUrlValue = this.validateCurrentValue(this.value || '');
+            this.checkInput(this.currentUrlValue || '');
         },
 
         onBlur(event) {
@@ -107,7 +118,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         checkInput(inputValue) {
             this.errorUrl = null;
 
-            if (!inputValue.length) {
+            if (!inputValue || !inputValue.length) {
                 this.handleEmptyUrl();
 
                 return;
@@ -121,27 +132,15 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
             if (!validated) {
                 this.setInvalidUrlError();
-            } else {
-                this.currentValue = validated;
+            } else if (this.currentUrlValue !== validated) {
+                this.currentUrlValue = validated;
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', this.url);
-                    return;
-                }
-
-                this.$emit('input', this.url);
+                this.$emit('update:value', this.url);
             }
         },
 
         handleEmptyUrl() {
-            this.currentValue = '';
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', '');
-                return;
-            }
-
-            this.$emit('input', '');
+            this.currentUrlValue = '';
         },
 
         validateCurrentValue(value) {
@@ -168,7 +167,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 .toString()
                 .replace(URL_REGEX.PROTOCOL, '')
                 .replace(removeTrailingSlash, '')
-                .replace(url.host, this.$options.filters.unicodeUri(url.host));
+                .replace(url.host, this.unicodeUriFilter(url.host));
         },
 
         changeMode(disabled) {
@@ -177,12 +176,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.url);
-                return;
-            }
-
-            this.$emit('input', this.url);
+            this.$emit('update:value', this.url);
         },
 
         getURLInstance(value) {

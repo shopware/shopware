@@ -1,6 +1,7 @@
+import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Mixin, Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -42,7 +43,6 @@ export default {
     },
 
     computed: {
-
         logEntryRepository() {
             return this.repositoryFactory.create('log_entry');
         },
@@ -53,12 +53,17 @@ export default {
 
         modalNameFromLogEntry() {
             const eventName = this.displayedLog.message;
-
             const subComponentName = eventName.replace(/[._]/g, '-');
-            if (this.$options.components[`sw-settings-logging-${subComponentName}-info`]) {
+
+            if (Component.getComponentRegistry().has(`sw-settings-logging-${subComponentName}-info`)) {
                 return `sw-settings-logging-${subComponentName}-info`;
             }
+
             return 'sw-settings-logging-entry-info';
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

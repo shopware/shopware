@@ -9,17 +9,14 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
-/**
- * @Annotation
- *
- * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
- *
- * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
- */
 #[Package('core')]
 class EntityNotExists extends Constraint
 {
     final public const ENTITY_EXISTS = 'fr456trg-r43w-ko87-z54e-de4r5tghzt65';
+
+    protected const ERROR_NAMES = [
+        self::ENTITY_EXISTS => 'ENTITY_EXISTS',
+    ];
 
     public string $message = 'The {{ entity }} entity already exists.';
 
@@ -30,13 +27,6 @@ class EntityNotExists extends Constraint
     protected Criteria $criteria;
 
     protected string $primaryProperty = 'id';
-
-    /**
-     * @var array<string, string>
-     */
-    protected static $errorNames = [
-        self::ENTITY_EXISTS => 'ENTITY_EXISTS',
-    ];
 
     /**
      * @param array{entity: string, context: Context, criteria?: Criteria} $options

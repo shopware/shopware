@@ -124,15 +124,15 @@ class VariantListingUpdater
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'product.id as id',
             'product.variant_listing_config as config',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
-        ]);
+        );
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->setParameter('version', $versionBytes);
 
         $configuration = $query->executeQuery()->fetchAllAssociative();
@@ -144,7 +144,7 @@ class VariantListingUpdater
             $groups = [];
             $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
             foreach ($configuratorGroupConfig as $group) {
-                if ($group['expressionForListings']) {
+                if (\array_key_exists('expressionForListings', $group) && $group['expressionForListings']) {
                     $groups[] = $group['id'];
                 }
             }

@@ -4,17 +4,17 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Exception\StoreApiException
  */
+#[Package('checkout')]
+#[CoversClass(StoreApiException::class)]
 class StoreApiExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

@@ -7,8 +7,7 @@ const { dom } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Container for the content of a page, including the search bar, page header, actions and the actual content.
  * @status ready
@@ -52,7 +51,6 @@ Component.register('sw-page', {
          */
         showSmartBar: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -61,7 +59,6 @@ Component.register('sw-page', {
          */
         showSearchBar: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -176,7 +173,7 @@ Component.register('sw-page', {
         this.updatedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         Shopware.State.dispatch('error/resetApiErrors');
         this.beforeDestroyComponent();
     },

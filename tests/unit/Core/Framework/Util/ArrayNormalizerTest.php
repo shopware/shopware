@@ -2,33 +2,32 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\ArrayNormalizer
  */
+#[CoversClass(ArrayNormalizer::class)]
 class ArrayNormalizerTest extends TestCase
 {
     /**
-     * @dataProvider provideTestData
-     *
      * @param array<string, mixed> $nested
      * @param array<string, string> $flattened
      */
+    #[DataProvider('provideTestData')]
     public function testFlattening(array $nested, array $flattened): void
     {
         static::assertSame($flattened, ArrayNormalizer::flatten($nested));
     }
 
     /**
-     * @dataProvider provideTestData
-     *
      * @param array<string, mixed> $nested
      * @param array<string, string> $flattened
      */
+    #[DataProvider('provideTestData')]
     public function testExpanding(array $nested, array $flattened): void
     {
         static::assertSame($nested, ArrayNormalizer::expand($flattened));

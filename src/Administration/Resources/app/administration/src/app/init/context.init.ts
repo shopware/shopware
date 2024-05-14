@@ -3,7 +3,7 @@
  */
 
 /* Is covered by E2E tests */
-import { publish } from '@shopware-ag/admin-extension-sdk/es/channel';
+import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -35,6 +35,10 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextShopwareVersion', () => {
         return Shopware.Context.app.config.version ?? '';
+    });
+
+    Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
+        return (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
     });
 
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {

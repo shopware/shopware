@@ -19,11 +19,14 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class AppStateService
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepo
+     */
     public function __construct(
         private readonly EntityRepository $appRepo,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -39,10 +42,9 @@ class AppStateService
 
     public function activateApp(string $appId, Context $context): void
     {
-        /** @var AppEntity|null $app */
-        $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
+        $app = $this->appRepo->search(new Criteria([$appId]), $context)->getEntities()->first();
 
-        if (!$app) {
+        if ($app === null) {
             throw AppException::notFound($appId);
         }
         if ($app->isActive()) {
@@ -65,10 +67,9 @@ class AppStateService
 
     public function deactivateApp(string $appId, Context $context): void
     {
-        /** @var AppEntity|null $app */
-        $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
+        $app = $this->appRepo->search(new Criteria([$appId]), $context)->getEntities()->first();
 
-        if (!$app) {
+        if ($app === null) {
             throw AppException::notFound($appId);
         }
         if (!$app->isActive()) {

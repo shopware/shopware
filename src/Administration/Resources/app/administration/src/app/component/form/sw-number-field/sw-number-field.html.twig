@@ -1,66 +1,39 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_text_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_number_field %}
-<sw-contextual-field
-    class="sw-field--number"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-number-field component #}
+<mt-number-field
+    v-if="useMeteorComponent"
     v-bind="$attrs"
-    :name="formFieldName"
-    @inheritance-restore="$emit('inheritance-restore', $event)"
-    @inheritance-remove="$emit('inheritance-remove', $event)"
+    :model-value="currentValue"
+    v-on="$listeners"
+    @change="currentValue = $event"
 >
     <template
-        v-if="hasPrefix"
-        #sw-contextual-field-prefix="{ disabled, identification }"
-    >
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
         <slot
-            name="prefix"
-            v-bind="{ disabled, identification }"
-        ></slot>
+            :name="name"
+            v-bind="data">
+        </slot>
     </template>
+    <slot></slot>
+</mt-number-field>
 
-    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
-        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-        <input
-            :id="identification"
-            :name="identification"
-            type="text"
-            :value="stringRepresentation"
-            :placeholder="placeholder"
-            :disabled="disabled"
-            autocomplete="off"
-            @input="onInput"
-            @keydown.up="increaseNumberByStep"
-            @keydown.down="decreaseNumberByStep"
-            @change="onChange"
-            @focus="setFocusClass"
-            @blur="removeFocusClass"
-        >
-    </template>
-
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-number-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
+    v-on="$listeners"
+>
     <template
-        v-if="copyable || hasSuffix"
-        #sw-contextual-field-suffix="{ disabled, identification }"
-    >
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
         <slot
-            name="suffix"
-            v-bind="{ identification }"
-        ></slot>
-        <sw-field-copyable
-            v-if="copyable"
-            :display-name="identification"
-            :copyable-text="stringRepresentation"
-            :tooltip="copyableTooltip"
-        />
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
     </template>
-
-    <template #label>
-        <slot name="label"></slot>
-    </template>
-
-    <template #hint>
-        <slot name="hint"></slot>
-    </template>
-</sw-contextual-field>
-{% endblock %}
-{% endblock %}
+    <slot></slot>
+</sw-number-field-deprecated>

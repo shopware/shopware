@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @memberOf module:core/service/rule-assignment-configuration
  * @constructor
  * @method createRuleAssignmentConfigService
@@ -587,11 +587,11 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
     };
 
-    return {
-        getConfiguration,
-    };
-
     function getConfiguration() {
         return configuration;
     }
+
+    return {
+        getConfiguration,
+    };
 }

@@ -15,7 +15,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('checkout')]
 class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';

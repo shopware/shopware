@@ -8,7 +8,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
         <sw-simple-search-field
-            v-model="searchTerm"
+            v-model:value="searchTerm"
             size="small"
             variant="form"
             :disabled="!mappingsExist"
@@ -53,11 +53,7 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="item.mappedKey"
-                {% else %}
-                v-model="item.mappedKey"
-                {% endif %}
                 :name="`mappedKey-${itemIndex}`"
                 :disabled="profile.systemDefault"
             />
@@ -68,11 +64,7 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_entry_column %}
         <template #column-entry="{ item }">
             <sw-import-export-entity-path-select
-                {% if VUE3 %}
                 v-model:value="item.key"
-                {% else %}
-                v-model="item.key"
-                {% endif %}
                 :languages="languages"
                 :currencies="currencies"
                 :entity-type="profile.sourceEntity"
@@ -90,15 +82,10 @@
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :value="true"
                 :disabled="true"
-                @change="() => {}"
             />
             <sw-switch-field
                 v-show="!isRequiredBySystem(item)"
-                {% if VUE3 %}
-                v-modle:value="item.requiredByUser"
-                {% else %}
-                v-model="item.requiredByUser"
-                {% endif %}
+                v-model:value="item.requiredByUser"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :disabled="profile.systemDefault"
             />
@@ -109,22 +96,14 @@
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
             <sw-switch-field
-                {% if VUE3 %}
-                v-modle:value="item.useDefaultValue"
-                {% else %}
-                v-model="item.useDefaultValue"
-                {% endif %}
+                v-model:value="item.useDefaultValue"
                 :name="`useDefaultValue-${itemIndex}`"
                 :disabled="isDefaultValueCheckboxDisabled()"
                 class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
             />
 
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="item.defaultValue"
-                {% else %}
-                v-model="item.defaultValue"
-                {% endif %}
                 :name="`defaultValue-${itemIndex}`"
                 :disabled="isDefaultValueTextFieldDisabled(item)"
             />

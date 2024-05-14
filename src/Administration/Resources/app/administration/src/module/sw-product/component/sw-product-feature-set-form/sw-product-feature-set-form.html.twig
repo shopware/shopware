@@ -53,11 +53,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_feature_set_form_wrapper_input %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.featureSetId"
-            {% else %}
-            v-model="product.featureSetId"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.featureSetId"
             :label="$tc('sw-product.featureSets.templateSelectFieldLabel')"
@@ -73,7 +69,7 @@
                     :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
                     :disabled="isInherited || !allowEdit"
                     show-clearable-button
-                    @change="updateCurrentValue"
+                    @update:value="updateCurrentValue"
                 />
                 {% endblock %}
 

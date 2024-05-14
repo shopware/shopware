@@ -11,11 +11,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_payment_status %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="config.order_transaction"
-        {% else %}
-        v-model="config.order_transaction"
-        {% endif %}
+        name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
         :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
@@ -26,11 +23,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_delivery_status %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="config.order_delivery"
-        {% else %}
-        v-model="config.order_delivery"
-        {% endif %}
+        name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
         :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
@@ -41,11 +35,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_order_status %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="config.order"
-        {% else %}
-        v-model="config.order"
-        {% endif %}
+        name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
         :label="$tc('sw-flow.modals.status.labelOrderStatus')"
@@ -56,11 +47,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_set_order_state_modal_force_transition %}
     <sw-checkbox-field
-        {% if VUE3 %}
         v-model:value="config.force_transition"
-        {% else %}
-        v-model="config.force_transition"
-        {% endif %}
+        name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
         :label="$tc('sw-flow.modals.status.forceTransition')"
         :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"
@@ -90,9 +78,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id
-                ? $tc('sw-flow.modals.buttonSaveAction')
-                : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
         </sw-button>
         {% endblock %}
     </template>

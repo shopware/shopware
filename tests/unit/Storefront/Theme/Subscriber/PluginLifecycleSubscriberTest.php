@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
@@ -22,9 +24,8 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber
  */
+#[CoversClass(PluginLifecycleSubscriber::class)]
 class PluginLifecycleSubscriberTest extends TestCase
 {
     private PluginLifecycleSubscriber $pluginSubscriber;
@@ -47,6 +48,7 @@ class PluginLifecycleSubscriberTest extends TestCase
                 PluginPostActivateEvent::class => 'pluginPostActivate',
                 PluginPreUpdateEvent::class => 'pluginUpdate',
                 PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+                PluginPostDeactivateEvent::class => 'pluginPostDeactivate',
                 PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
                 PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
                 PluginPostUninstallEvent::class => 'pluginPostUninstall',

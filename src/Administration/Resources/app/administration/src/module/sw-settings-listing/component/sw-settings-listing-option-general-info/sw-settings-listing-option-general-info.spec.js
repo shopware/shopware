@@ -1,46 +1,42 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsListingOptionGeneralInfo from 'src/module/sw-settings-listing/component/sw-settings-listing-option-general-info';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-field-error';
-
-Shopware.Component.register('sw-settings-listing-option-general-info', swSettingsListingOptionGeneralInfo);
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-general-info', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-general-info'), {
-            provide: {
-                validationService: {},
-            },
-            directives: {
-                tooltip() {},
-            },
-            propsData: {
+        return mount(await wrapTestComponent('sw-settings-listing-option-general-info', {
+            sync: true,
+        }), {
+            props: {
                 sortingOption: {
                     label: 'Price descending',
+                    key: 'price-desc',
                 },
                 isDefaultSorting: false,
             },
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
+            global: {
+                provide: {
+                    validationService: {},
                 },
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
+                directives: {
+                    tooltip() {},
                 },
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                },
             },
         });
     }
@@ -49,6 +45,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('is a Vue.js component', async () => {
@@ -56,9 +53,27 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     });
 
     it('should display the correct name', async () => {
-        const textField = wrapper.find('.sw-field--text input');
+        const textField = wrapper.find('.sw-settings-listing-edit__general-input input');
 
         expect(textField.element.value).toBe('Price descending');
+    });
+
+    it('should display name error', async () => {
+        await wrapper.setProps({ labelError: {} });
+
+        expect(wrapper.find('.sw-settings-listing-edit__general-input .sw-field__error').exists()).toBe(true);
+    });
+
+    it('should display the correct technical name', async () => {
+        const textField = wrapper.find('.sw-settings-listing-option-general-info__field-technical-name input');
+
+        expect(textField.element.value).toBe('price-desc');
+    });
+
+    it('should display technical name error', async () => {
+        await wrapper.setProps({ technicalNameError: {} });
+
+        expect(wrapper.find('.sw-settings-listing-option-general-info__field-technical-name .sw-field__error').exists()).toBe(true);
     });
 
     it('should display the correct active state', async () => {
@@ -81,6 +96,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         const switchField = wrapper.find('.sw-field--switch input');
         const isDisabled = switchField.attributes('disabled');
 
-        expect(isDisabled).toBe('disabled');
+        expect(isDisabled).toBeDefined();
     });
 });

@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMai
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -44,23 +42,23 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
-use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  */
@@ -80,7 +78,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
 
         $sessionId = $session->getId();
@@ -93,7 +91,7 @@ class AuthControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
         static::assertNotEquals($contextToken, $newContextToken);
@@ -115,10 +113,10 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
 
-        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        $browser->getResponse();
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
@@ -129,7 +127,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+        static::assertNotEquals($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
@@ -139,21 +137,17 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
+
         $contextToken = $session->get('sw-context-token');
 
-        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        $browser->getResponse();
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
         $browser->request('GET', '/account');
 
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(AccountOverviewPage::class, $response->getData()['page']);
-        static::assertEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+        static::assertEquals($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void
@@ -173,7 +167,7 @@ class AuthControllerTest extends TestCase
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         if ($session->isStarted()) {
             // Close the old session
@@ -188,7 +182,7 @@ class AuthControllerTest extends TestCase
         // Try opening account page
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/account', []);
         $response = $browser->getResponse();
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         // Expect the session to have the same value as the initial session
         static::assertSame($session->getId(), $sessionCookie->getValue());
@@ -213,19 +207,19 @@ class AuthControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
         $sessionId = $session->getId();
 
-        $browser->request('GET', '/account/logout', []);
+        $browser->request('GET', '/account/logout');
         $response = $browser->getResponse();
         static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('GET', '/', []);
+        $browser->request('GET', '/');
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
         static::assertNotEquals($contextToken, $newContextToken);
@@ -241,7 +235,7 @@ class AuthControllerTest extends TestCase
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
-        $firstTimeLogin = $browser->getRequest()->getSession();
+        $firstTimeLogin = $this->getSession();
         $firstTimeLoginSessionId = $firstTimeLogin->getId();
         $firstTimeLoginContextToken = $firstTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
@@ -263,12 +257,12 @@ class AuthControllerTest extends TestCase
             ])
         );
 
-        $secondTimeLogin = $browser->getRequest()->getSession();
+        $secondTimeLogin = $this->getSession();
         $secondTimeLoginSessionId = $secondTimeLogin->getId();
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
-        static::assertEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
+        static::assertNotEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     public function testMergedHintIsAdded(): void
@@ -578,38 +572,37 @@ class AuthControllerTest extends TestCase
 
     public function testAccountRecoveryPasswordNotMatchingNewPasswords(): void
     {
-        $controller = $this->getAuthController();
-
-        $request = new Request();
-        $request->attributes->set('_route', 'frontend.account.recover.password.reset');
-        $session = $this->getSession();
-        $request->setSession($session);
-        $this->getContainer()->get('request_stack')->push($request);
-
-        $requestData = new RequestDataBag();
-        $passwordData = new RequestDataBag();
-        $passwordData->set('newPassword', 'kek12345');
-        $passwordData->set('newPasswordConfirm', 'kek12345!');
-        $requestData->set('password', $passwordData);
-
-        $controller->resetPassword($requestData, Generator::createSalesChannelContext());
+        $this->request('POST', '/account/recover/password', [
+            'password' => [
+                'newPassword' => 'kek12345',
+                'newPasswordConfirm' => 'kek12345!',
+            ],
+        ]);
 
         /** @var FlashBag $flashBag */
         $flashBag = $this->getSession()->getBag('flashes');
 
-        static::assertEquals(
-            ['The passwords you have entered do not match.'],
+        static::assertContains(
+            'The passwords you have entered do not match.',
             $flashBag->get('danger')
         );
     }
 
     public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
-        $this->request('GET', '/account/guest/login', []);
+        $this->request('GET', '/account/guest/login', ['redirectTo' => 'foo']);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testAccountGuestLoginPageWithoutRedirectRedirects(): void
+    {
+        $response = $this->request('GET', '/account/guest/login', []);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('/account/login', $response->headers->get('location'));
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
@@ -657,17 +650,10 @@ class AuthControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('GET', '/');
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-        $salesChannelContext = $response->getContext();
-        static::assertNotNull($salesChannelContext);
-        static::assertNotNull($salesChannelContext->getCustomer());
-
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): Entity|null
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): ?Entity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -707,7 +693,7 @@ class AuthControllerTest extends TestCase
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function getAuthController(?SendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
+    private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
         $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
 

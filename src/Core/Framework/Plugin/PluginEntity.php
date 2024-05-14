@@ -113,11 +113,6 @@ class PluginEntity extends Entity
     protected $supportLink;
 
     /**
-     * @var array<string, list<string>>|null
-     */
-    protected $changelog;
-
-    /**
      * @var PluginTranslationCollection|null
      */
     protected $translations;
@@ -328,22 +323,6 @@ class PluginEntity extends Entity
     public function setSupportLink(string $supportLink): void
     {
         $this->supportLink = $supportLink;
-    }
-
-    /**
-     * @return array<string, list<string>>|null
-     */
-    public function getChangelog(): ?array
-    {
-        return $this->changelog;
-    }
-
-    /**
-     * @param array<string, list<string>> $changelog
-     */
-    public function setChangelog(array $changelog): void
-    {
-        $this->changelog = $changelog;
     }
 
     public function getTranslations(): ?PluginTranslationCollection

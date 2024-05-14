@@ -4,6 +4,11 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -13,7 +18,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -56,7 +60,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -81,9 +84,8 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\EsProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -91,10 +93,9 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @group skip-paratest
- *
  * @package system-settings
  */
+#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -128,13 +129,14 @@ class ElasticsearchProductTest extends TestCase
 
     private AbstractElasticsearchDefinition $definition;
 
+    private ElasticsearchIndexingUtils $utils;
+
     private Context $context;
 
     protected function setUp(): void
     {
         $this->definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
-
-        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
+        $this->utils = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
 
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
@@ -168,9 +170,7 @@ class ElasticsearchProductTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -183,11 +183,12 @@ class ElasticsearchProductTest extends TestCase
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
                 `product_id` BINARY(16) NULL,
+                `product_version_id` BINARY(16) NULL DEFAULT 0x0fa91ce3e96a4bc2be4bd9ce752c3425,
                 `language_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`),
                 CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             )
         ');
@@ -195,9 +196,7 @@ class ElasticsearchProductTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -212,8 +211,6 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $this->connection->executeStatement('DELETE FROM product');
-
-            $context = $this->context;
 
             $this->clearElasticsearch();
 
@@ -259,34 +256,20 @@ class ElasticsearchProductTest extends TestCase
                 new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
             );
 
-            if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-                $index = $this->helper->getIndexName($this->productDefinition);
+            $index = $this->helper->getIndexName($this->productDefinition);
 
-                $exists = $this->client->indices()->exists(['index' => $index]);
-                static::assertTrue($exists, 'Expected elasticsearch indices present');
-            } else {
-                $languages = $this->languageRepository->searchIds($criteria, $context);
-
-                foreach ($languages->getIds() as $languageId) {
-                    \assert(\is_string($languageId));
-                    $index = $this->helper->getIndexName($this->productDefinition, $languageId);
-
-                    $exists = $this->client->indices()->exists(['index' => $index]);
-                    static::assertTrue($exists, 'Expected elasticsearch indices present');
-                }
-            }
+            $exists = $this->client->indices()->exists(['index' => $index]);
+            static::assertTrue($exists, 'Expected elasticsearch indices present');
 
             return $this->ids;
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testUpdate(IdsCollection $ids): void
     {
         try {
@@ -316,15 +299,13 @@ class ElasticsearchProductTest extends TestCase
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEmptySearch(IdsCollection $data): void
     {
         try {
@@ -336,15 +317,13 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertCount(\count($data->prefixed('product-')), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testPagination(IdsCollection $data): void
     {
         try {
@@ -354,20 +333,19 @@ class ElasticsearchProductTest extends TestCase
             $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->setLimit(1);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertCount(1, $products->getIds());
             static::assertSame(\count($data->prefixed('product-')), $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsFilter(IdsCollection $data): void
     {
         try {
@@ -381,15 +359,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $products->getIds());
             static::assertSame(1, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsFilterWithNumericEncodedBoolFields(IdsCollection $data): void
     {
         try {
@@ -403,15 +379,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(9, $products->getIds());
             static::assertSame(9, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testRangeFilter(IdsCollection $data): void
     {
         try {
@@ -425,15 +399,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(6, $products->getIds());
             static::assertSame(6, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsAnyFilter(IdsCollection $data): void
     {
         try {
@@ -448,15 +420,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(3, $products->getTotal());
             static::assertContains($data->get('product-1'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMultiNotFilterFilter(IdsCollection $data): void
     {
         try {
@@ -484,20 +454,18 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-5'), $products->getIds());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider multiFilterWithOneToManyRelationProvider
-     *
      * @param array<string> $expectedProducts
      * @param Filter $filter
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('multiFilterWithOneToManyRelationProvider')]
     public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
     {
         try {
@@ -509,9 +477,9 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertEquals(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
+            static::assertSame(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -608,9 +576,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testContainsFilter(IdsCollection $data): void
     {
         try {
@@ -650,15 +616,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-2'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testPrefixFilter(IdsCollection $data): void
     {
         try {
@@ -698,15 +662,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSuffixFilter(IdsCollection $data): void
     {
         try {
@@ -746,15 +708,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame(1, $products->getTotal());
             static::assertContains($data->get('product-6'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSingleGroupBy(IdsCollection $data): void
     {
         try {
@@ -776,15 +736,13 @@ class ElasticsearchProductTest extends TestCase
                 || \in_array($data->get('product-6'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMultiGroupBy(IdsCollection $data): void
     {
         try {
@@ -802,15 +760,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAvgAggregation(IdsCollection $data): void
     {
         try {
@@ -832,15 +788,13 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertTrue(FloatComparator::equals(194.57142857143, $result->getAvg()));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -868,25 +822,23 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregationWithAvg(IdsCollection $data): void
     {
         try {
@@ -916,36 +868,34 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
 
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(2, $price->getAvg());
+            static::assertSame(2.0, $price->getAvg());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
             static::assertTrue(FloatComparator::equals(136.66666666667, $price->getAvg()));
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
 
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(300, $price->getAvg());
+            static::assertSame(300.0, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregationWithAssociation(IdsCollection $data): void
     {
         try {
@@ -973,25 +923,23 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSumAggregation(IdsCollection $data): void
     {
         try {
@@ -1011,17 +959,15 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('sum-stock');
             static::assertInstanceOf(SumResult::class, $result);
 
-            static::assertEquals(1362, $result->getSum());
+            static::assertSame(1362.0, $result->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSumAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1051,34 +997,32 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertEquals(0, $price->getSum());
+            static::assertSame(0.0, $price->getSum());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertEquals(0, $price->getSum());
+            static::assertSame(0.0, $price->getSum());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertEquals(0, $price->getSum());
+            static::assertSame(0.0, $price->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxAggregation(IdsCollection $data): void
     {
         try {
@@ -1098,17 +1042,15 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('max-stock');
             static::assertInstanceOf(MaxResult::class, $result);
 
-            static::assertEquals(350, $result->getMax());
+            static::assertSame(350.0, $result->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1138,34 +1080,32 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
-            static::assertEquals(2, $price->getMax());
+            static::assertSame(2.0, $price->getMax());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
-            static::assertEquals(300, $price->getMax());
+            static::assertSame(300.0, $price->getMax());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(MaxResult::class, $price);
-            static::assertEquals(300, $price->getMax());
+            static::assertSame(300.0, $price->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMinAggregation(IdsCollection $data): void
     {
         try {
@@ -1185,17 +1125,15 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('min-stock');
             static::assertInstanceOf(MinResult::class, $result);
 
-            static::assertEquals(1, $result->getMin());
+            static::assertSame(1.0, $result->getMin());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMinAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1225,34 +1163,32 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $stock);
-            static::assertEquals(2, $stock->getMin());
+            static::assertSame(2.0, $stock->getMin());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $stock);
-            static::assertEquals(10, $stock->getMin());
+            static::assertSame(10.0, $stock->getMin());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(MinResult::class, $stock);
-            static::assertEquals(300, $stock->getMin());
+            static::assertSame(300.0, $stock->getMin());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCountAggregation(IdsCollection $data): void
     {
         try {
@@ -1272,17 +1208,15 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('manufacturer-count');
             static::assertInstanceOf(CountResult::class, $result);
 
-            static::assertEquals(6, $result->getCount());
+            static::assertSame(6, $result->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCountAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1312,34 +1246,32 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $stock);
-            static::assertEquals(1, $stock->getCount());
+            static::assertSame(1, $stock->getCount());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $stock);
-            static::assertEquals(3, $stock->getCount());
+            static::assertSame(3, $stock->getCount());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
             $stock = $bucket->getResult();
             static::assertInstanceOf(CountResult::class, $stock);
-            static::assertEquals(2, $stock->getCount());
+            static::assertSame(2, $stock->getCount());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStatsAggregation(IdsCollection $data): void
     {
         try {
@@ -1359,21 +1291,19 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('price-stats');
             static::assertInstanceOf(StatsResult::class, $result);
 
-            static::assertEquals(50, $result->getMin());
-            static::assertEquals(300, $result->getMax());
+            static::assertSame(50.0, $result->getMin());
+            static::assertSame(300.0, $result->getMax());
             static::assertIsFloat($result->getAvg());
             static::assertTrue(FloatComparator::equals(192.85714285714, $result->getAvg()));
-            static::assertEquals(1350, $result->getSum());
+            static::assertSame(1350.0, $result->getSum());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStatsAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1403,43 +1333,41 @@ class ElasticsearchProductTest extends TestCase
 
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
-            static::assertEquals(1, $bucket->getCount());
+            static::assertSame(1, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
-            static::assertEquals(50, $price->getSum());
-            static::assertEquals(50, $price->getMax());
-            static::assertEquals(50, $price->getMin());
-            static::assertEquals(50, $price->getAvg());
+            static::assertSame(50.0, $price->getSum());
+            static::assertSame(50.0, $price->getMax());
+            static::assertSame(50.0, $price->getMin());
+            static::assertSame(50.0, $price->getAvg());
 
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
-            static::assertEquals(3, $bucket->getCount());
+            static::assertSame(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
-            static::assertEquals(450, $price->getSum());
-            static::assertEquals(200, $price->getMax());
-            static::assertEquals(100, $price->getMin());
-            static::assertEquals(150, $price->getAvg());
+            static::assertSame(450.0, $price->getSum());
+            static::assertSame(200.0, $price->getMax());
+            static::assertSame(100.0, $price->getMin());
+            static::assertSame(150.0, $price->getAvg());
 
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
-            static::assertEquals(2, $bucket->getCount());
+            static::assertSame(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(StatsResult::class, $price);
-            static::assertEquals(550, $price->getSum());
-            static::assertEquals(300, $price->getMax());
-            static::assertEquals(250, $price->getMin());
-            static::assertEquals(275, $price->getAvg());
+            static::assertSame(550.0, $price->getSum());
+            static::assertSame(300.0, $price->getMax());
+            static::assertSame(250.0, $price->getMin());
+            static::assertSame(275.0, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEntityAggregation(IdsCollection $data): void
     {
         try {
@@ -1465,15 +1393,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($result->getEntities()->has($data->get('m2')));
             static::assertTrue($result->getEntities()->has($data->get('m3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEntityAggregationWithTermQuery(IdsCollection $data): void
     {
         try {
@@ -1498,15 +1424,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($result->getEntities()->has($data->get('m2')));
             static::assertTrue($result->getEntities()->has($data->get('m3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
@@ -1521,29 +1445,27 @@ class ElasticsearchProductTest extends TestCase
 
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtolower($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtoupper($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregation(IdsCollection $data): void
     {
         try {
@@ -1569,17 +1491,15 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('avg-stock');
             static::assertInstanceOf(AvgResult::class, $result);
 
-            static::assertEquals(6, $result->getAvg());
+            static::assertSame(6.0, $result->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregationWithNestedFilterAndAggregation(IdsCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -1644,15 +1564,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotContains($data->get('l'), $result->getKeys());
             static::assertCount(2, $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterForProperties(IdsCollection $data): void
     {
         try {
@@ -1668,15 +1586,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($products->has($data->get('product-1')));
             static::assertTrue($products->has($data->get('product-3')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNestedFilterAggregationWithRootQuery(IdsCollection $data): void
     {
         try {
@@ -1710,15 +1626,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertNotContains($data->get('l'), $result->getKeys());
             static::assertNotContains($data->get('green'), $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregationWithRootFilter(IdsCollection $data): void
     {
         try {
@@ -1750,17 +1664,14 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('l'), $result->getKeys());
             static::assertContains($data->get('green'), $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends      testIndexing
-     *
-     * @dataProvider dateHistogramProvider
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('dateHistogramProvider')]
     public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
     {
         try {
@@ -1800,7 +1711,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertSame($count, $bucket->getCount());
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -1915,9 +1826,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testDateHistogramWithNestedAvg(IdsCollection $data): void
     {
         try {
@@ -1950,35 +1859,33 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(Bucket::class, $bucket);
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(6, $price->getAvg());
+            static::assertSame(6.0, $price->getAvg());
 
             $bucket = $histogram->get('2019-06-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(100, $price->getAvg());
+            static::assertSame(100.0, $price->getAvg());
 
             $bucket = $histogram->get('2020-09-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(300, $price->getAvg());
+            static::assertSame(300.0, $price->getAvg());
 
             $bucket = $histogram->get('2021-12-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
             $price = $bucket->getResult();
             static::assertInstanceOf(AvgResult::class, $price);
-            static::assertEquals(300, $price->getAvg());
+            static::assertSame(300.0, $price->getAvg());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterCustomTextField(IdsCollection $data): void
     {
         try {
@@ -1988,18 +1895,16 @@ class ElasticsearchProductTest extends TestCase
 
             $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
 
-            static::assertEquals(1, $result->getTotal());
+            static::assertSame(1, $result->getTotal());
             static::assertTrue($result->has($data->get('product-1')));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testXorQuery(IdsCollection $data): void
     {
         try {
@@ -2020,15 +1925,13 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertSame(3, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNegativXorQuery(IdsCollection $data): void
     {
         try {
@@ -2049,15 +1952,13 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertSame(0, $products->getTotal());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTotalWithGroupFieldAndPostFilter(IdsCollection $data): void
     {
         try {
@@ -2070,21 +1971,19 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-            static::assertEquals(3, $products->getTotal());
+            static::assertSame(3, $products->getTotal());
             static::assertCount(3, $products->getIds());
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
             static::assertContains($data->get('product-4'), $products->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testIdsSorting(IdsCollection $data): void
     {
         try {
@@ -2108,17 +2007,15 @@ class ElasticsearchProductTest extends TestCase
 
             $ids = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-            static::assertEquals($expected, $ids->getIds());
+            static::assertSame($expected, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSorting(IdsCollection $data): void
     {
         try {
@@ -2141,17 +2038,15 @@ class ElasticsearchProductTest extends TestCase
 
             $ids = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-            static::assertEquals($expected, $ids->getIds());
+            static::assertSame($expected, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxLimit(IdsCollection $data): void
     {
         try {
@@ -2165,15 +2060,13 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertCount(11, $ids->getIds());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStorefrontListing(): void
     {
         try {
@@ -2209,15 +2102,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertTrue($listing->getAggregations()->has('properties'));
             static::assertTrue($listing->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortingIsCaseInsensitive(IdsCollection $data): void
     {
         try {
@@ -2243,15 +2134,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('s5'), $idList[1]);
             static::assertContains($data->get('s6'), $idList[1]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceFilter(IdsCollection $ids): void
     {
         try {
@@ -2294,7 +2183,7 @@ class ElasticsearchProductTest extends TestCase
                 }
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2343,9 +2232,7 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceSorting(IdsCollection $ids): void
     {
         try {
@@ -2368,7 +2255,7 @@ class ElasticsearchProductTest extends TestCase
                 $this->assertSorting($message, $ids, $context, $case, FieldSorting::DESCENDING);
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
@@ -2530,9 +2417,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceAggregation(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2560,19 +2445,17 @@ class ElasticsearchProductTest extends TestCase
                 $aggregation = $result->get('price');
 
                 static::assertInstanceOf(StatsResult::class, $aggregation);
-                static::assertEquals($case['min'], $aggregation->getMin(), sprintf('Case `%s` failed', $message));
-                static::assertEquals($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
+                static::assertSame($case['min'], $aggregation->getMin(), sprintf('Case `%s` failed', $message));
+                static::assertSame($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
     {
         try {
@@ -2613,15 +2496,18 @@ class ElasticsearchProductTest extends TestCase
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
                 static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), sprintf('Case `%s` failed', $message));
-                static::assertEquals(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
+    /**
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
         yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
@@ -2667,9 +2553,31 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
+    public function testNestedSorting(IdsCollection $ids): void
+    {
+        $criteria = new Criteria($ids->prefixed('sort.'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('tags.name'));
+
+        $searcher = $this->createEntitySearcher();
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertSame($ids->get('sort.bisasam'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.glumanda'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.pikachu'), $result->getIds()[2]);
+
+        $criteria = new Criteria($ids->prefixed('sort.'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('tags.name', FieldSorting::DESCENDING));
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertSame($ids->get('sort.pikachu'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.glumanda'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.bisasam'), $result->getIds()[2]);
+    }
+
+    #[Depends('testIndexing')]
     public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2687,18 +2595,16 @@ class ElasticsearchProductTest extends TestCase
             $aggregation = $result->get('percentage');
 
             static::assertInstanceOf(StatsResult::class, $aggregation);
-            static::assertEquals(0, $aggregation->getMin());
-            static::assertEquals(66.67, $aggregation->getMax());
+            static::assertSame(0.0, $aggregation->getMin());
+            static::assertSame(66.67, $aggregation->getMax());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
     {
         $context = $this->createIndexingContext();
@@ -2714,15 +2620,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $context)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][Defaults::LANGUAGE_SYSTEM]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
 
         // Fetch: Second language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2735,15 +2635,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
 
         // Fetch: Third language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2757,15 +2651,9 @@ class ElasticsearchProductTest extends TestCase
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
 
         // Fetch: Second language variant fallback to parent
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2782,15 +2670,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
 
         // Fetch: Fallback through parent to variant in other language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2'), Defaults::LANGUAGE_SYSTEM]);
@@ -2807,15 +2689,9 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-2')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-2')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-2')]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
 
         // Fetch: Fallback to parent on null-entry
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1'), Defaults::LANGUAGE_SYSTEM]);
@@ -2832,20 +2708,12 @@ class ElasticsearchProductTest extends TestCase
         $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name'][$ids->get('language-1')]);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description'][$ids->get('language-1')]);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
-        } else {
-            static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
-            static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
-            static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
-        }
+        static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
+        static::assertSame((string) $dalProduct->getTranslation('description'), (string) $esProduct['description'][$ids->get('language-1')]);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testReleaseDate(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2857,9 +2725,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame('2019-01-01T10:11:00+00:00', $product['releaseDate']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2875,9 +2741,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(0, $product['sales']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCategoriesProperties(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2894,67 +2758,20 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
         $mapping = $this->definition->getMapping($this->context);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            /** @var list<string> $languages */
-            $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
 
-            $expected = [
-                'properties' => [],
-            ];
+        $expected = [
+            'properties' => [],
+        ];
 
-            foreach ($languages as $language) {
-                $expected['properties'][$language] = [
-                    'type' => 'object',
-                    'dynamic' => true,
-                    'properties' => [
-                        'test_bool' => [
-                            'type' => 'boolean',
-                        ],
-                        'test_date' => [
-                            'type' => 'date',
-                            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
-                            'ignore_malformed' => true,
-                        ],
-                        'test_float' => [
-                            'type' => 'double',
-                        ],
-                        'test_int' => [
-                            'type' => 'long',
-                        ],
-                        'test_object' => [
-                            'type' => 'object',
-                            'dynamic' => true,
-                        ],
-                        'test_select' => [
-                            'type' => 'keyword',
-                        ],
-                        'test_html' => [
-                            'type' => 'text',
-                        ],
-                        'test_text' => [
-                            'type' => 'text',
-                        ],
-                        'test_unmapped' => [
-                            'type' => 'keyword',
-                        ],
-                        'testFloatingField' => [
-                            'type' => 'double',
-                        ],
-                        'testField' => [
-                            'type' => 'text',
-                        ],
-                    ],
-                ];
-            }
-        } else {
-            $expected = [
+        foreach ($languages as $language) {
+            static::assertIsString($language);
+            $expected['properties'][$language] = [
                 'type' => 'object',
                 'dynamic' => true,
                 'properties' => [
@@ -2976,24 +2793,17 @@ class ElasticsearchProductTest extends TestCase
                         'type' => 'object',
                         'dynamic' => true,
                     ],
-                    'test_select' => [
-                        'type' => 'keyword',
-                    ],
-                    'test_html' => [
-                        'type' => 'text',
-                    ],
-                    'test_text' => [
-                        'type' => 'text',
-                    ],
-                    'test_unmapped' => [
-                        'type' => 'keyword',
-                    ],
+                    'test_select' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_html' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_text' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_unmapped' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
                     'testFloatingField' => [
                         'type' => 'double',
                     ],
-                    'testField' => [
-                        'type' => 'text',
-                    ],
+                    'testField' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'a' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'b' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'c' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
                 ],
             ];
         }
@@ -3001,24 +2811,24 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
-    /**
-     * @depends testIndexing
-     */
-    public function testSortByCustomFieldInt(IdsCollection $ids): void
+    #[Depends('testIndexing')]
+    public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
     {
         $context = $this->context;
 
         try {
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::ASCENDING));
 
             $searcher = $this->createEntitySearcher();
 
+            $context->addState('test');
+
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
 
-            static::assertSame($ids->get('product-1'), $result[0]);
-            static::assertSame($ids->get('product-2'), $result[1]);
+            static::assertSame($ids->get('product-2'), $result[0]);
+            static::assertSame($ids->get('product-1'), $result[1]);
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -3026,9 +2836,61 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
+    public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
+    {
+        $context = $this->context;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $context->addState('test');
+
+            /** @var array<string> $result */
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('variant-3.1'), $result[0], (string) $ids->getKey($result[0])); // has 8000000000
+            static::assertSame($ids->get('variant-3.2'), $result[1], (string) $ids->getKey($result[1])); // has 8000000000
+            static::assertSame($ids->get('product-1'), $result[2], (string) $ids->getKey($result[2])); // has 19999
+            static::assertSame($ids->get('product-2'), $result[3], (string) $ids->getKey($result[3])); // has 200
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    #[Depends('testIndexing')]
+    public function testCustomFieldsAreMerged(IdsCollection $ids): void
+    {
+        $context = $this->context;
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.test_int', 8000000000));
+            $criteria->addSorting(new FieldSorting('customFields.test_int', FieldSorting::ASCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertCount(2, $result);
+            static::assertContains($ids->get('variant-3.2'), $result);
+            static::assertContains($ids->get('variant-3.1'), $result);
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    #[Depends('testIndexing')]
     public function testCustomFieldDateType(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3063,15 +2925,13 @@ class ElasticsearchProductTest extends TestCase
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
             static::assertContains($ids->get('product-2'), $result);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortByPropertiesCount(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3111,15 +2971,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame($ids->get('dal-2.1'), $result[1]);
             static::assertSame($ids->get('dal-1'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3137,15 +2995,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains('1', $result->getKeys());
             static::assertContains('1.5', $result->getKeys());
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterByCustomFieldDate(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3161,15 +3017,13 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertSame($ids->get('product-2'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterByStates(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3186,15 +3040,13 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $result);
             static::assertSame($ids->get('s-4'), $result[0]);
         } catch (\Exception $e) {
-            static::tearDown();
+            $this->tearDown();
 
             throw $e;
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEmptyEntityAggregation(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -3221,11 +3073,8 @@ class ElasticsearchProductTest extends TestCase
         static::assertEmpty($agg->getEntities());
     }
 
-    /**
-     * @depends      testIndexing
-     *
-     * @dataProvider variantListingConfigProvider
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('variantListingConfigProvider')]
     public function testVariantListingConfig(string $productIds, int $expected, IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed($productIds));
@@ -3274,13 +3123,11 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider rangeAggregationDataProvider
-     *
      * @param array<int, array<string, string|float>> $rangesDefinition
-     * @param array<int, array<string, string|float>> $rangesExpectedResult
+     * @param array<string, int> $rangesExpectedResult
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('rangeAggregationDataProvider')]
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult, IdsCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -3298,13 +3145,11 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {
             static::assertArrayHasKey($key, $rangesExpectedResult);
-            static::assertEquals($rangesExpectedResult[$key], $count);
+            static::assertSame($rangesExpectedResult[$key], $count);
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterCoreDateFields(): void
     {
         $criteria = new EsAwareCriteria();
@@ -3386,20 +3231,20 @@ class ElasticsearchProductTest extends TestCase
 
         foreach ($expected as $index => $key) {
             $id = $actual[$index];
-            static::assertEquals($ids->get($key), $id, sprintf('Case `%s` failed for %s', $message, $key));
+            static::assertSame($ids->get($key), $id, sprintf('Case `%s` failed for %s', $message, $key));
         }
     }
 
     /**
-     * @return array<string, array{min: int, max: int, rules: string[]}>
+     * @return array<string, array{min: float, max: float, rules: string[]}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
-        yield 'With no rules' => ['min' => 60, 'max' => 190, 'rules' => []];
-        yield 'With rule a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a']];
-        yield 'With rule b' => ['min' => 60, 'max' => 200, 'rules' => ['rule-b']];
-        yield 'With rule a+b' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a', 'rule-b']];
-        yield 'With rule b+a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-b', 'rule-a']];
+        yield 'With no rules' => ['min' => 60.0, 'max' => 190.0, 'rules' => []];
+        yield 'With rule a' => ['min' => 60.0, 'max' => 220.0, 'rules' => ['rule-a']];
+        yield 'With rule b' => ['min' => 60.0, 'max' => 200.0, 'rules' => ['rule-b']];
+        yield 'With rule a+b' => ['min' => 60.0, 'max' => 220.0, 'rules' => ['rule-a', 'rule-b']];
+        yield 'With rule b+a' => ['min' => 60.0, 'max' => 220.0, 'rules' => ['rule-b', 'rule-a']];
     }
 
     private function createData(): void
@@ -3417,6 +3262,18 @@ class ElasticsearchProductTest extends TestCase
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
 
         $customFields = [
+            [
+                'name' => 'a',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'b',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'c',
+                'type' => CustomFieldTypes::TEXT,
+            ],
             [
                 'name' => 'test_int',
                 'type' => CustomFieldTypes::INT,
@@ -3483,16 +3340,9 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customFieldsTypes')->setValue(
-            $this->definition,
-            $customMapping
-        );
-
-        $newImplementation = $this->getContainer()->get(EsProductDefinition::class);
-
-        ReflectionHelper::getProperty(EsProductDefinition::class, 'customFieldsTypes')->setValue(
-            $newImplementation,
-            $customMapping
+        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+            $this->utils,
+            ['product' => $customMapping],
         );
 
         $products = [
@@ -3500,7 +3350,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Silk')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->visibility()
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50, 50, 'default', 150, 150)
@@ -3745,7 +3595,7 @@ class ElasticsearchProductTest extends TestCase
                 ->category('navi')
                 ->customField(
                     'test_text',
-                    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. PellentesqueLorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque'
+                    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. PellentesqueLorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero'
                 )
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
@@ -4029,6 +3879,13 @@ class ElasticsearchProductTest extends TestCase
                         ->build()
                 )
                 ->build(),
+            (new ProductBuilder($this->ids, 'dal-3'))
+                ->price(50)
+                ->customField('a', '1')
+                ->translation($secondLanguage, 'customFields', ['a' => '2', 'b' => '1'])
+                ->translation($thirdLanguage, 'customFields', ['a' => '3', 'b' => '2', 'c' => '1'])
+                ->build(),
+
             (new ProductBuilder($this->ids, 's-1'))
                 ->name('Default-1')
                 ->price(1)
@@ -4085,6 +3942,37 @@ class ElasticsearchProductTest extends TestCase
                     (new ProductBuilder($this->ids, 'variant-2.2'))
                         ->build()
                 )
+                ->build(),
+            (new ProductBuilder($this->ids, 'variant-3'))
+                ->name('Main-Product-2')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->customField('test_int', 8000000000)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-3.1'))
+                        ->customField('random', 1)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-3.2'))
+                        ->customField('random', 1)
+                        ->build()
+                )
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.glumanda'))
+                ->tag('shopware')
+                ->price(1)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.bisasam'))
+                ->tag('amazon')
+                ->price(1)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.pikachu'))
+                ->tag('zalando')
+                ->price(1)
+                ->visibility()
                 ->build(),
         ];
 

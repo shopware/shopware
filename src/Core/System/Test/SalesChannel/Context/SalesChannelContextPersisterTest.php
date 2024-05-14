@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -25,7 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('core')]
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -319,9 +320,7 @@ class SalesChannelContextPersisterTest extends TestCase
         yield [2, 'P1D', true];
     }
 
-    /**
-     * @dataProvider tokenExpiringDataProvider
-     */
+    #[DataProvider('tokenExpiringDataProvider')]
     public function testTokenExpiring(int $tokenAgeInDays, string $lifeTimeInterval, bool $expectedExpired): void
     {
         $connection = $this->getContainer()->get(Connection::class);
@@ -351,10 +350,8 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    /**
-     * @dataProvider testRevokeTokensDataProvider
-     */
-    public function testRevokeTokens(string $token, string|null $preserveToken): void
+    #[DataProvider('testRevokeTokensDataProvider')]
+    public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);

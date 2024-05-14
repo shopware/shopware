@@ -12,18 +12,19 @@
         {% block sw_product_variants_configurator_prices_groups %}
         <div class="sw-product-variants-configurator-prices__groups">
             <ul>
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-for="group in selectedGroups"
                     :key="group.id"
                     class="sw-product-variants-configurator-prices__groupElement"
                     :class="{'is--selected': activeGroup.id == group.id}"
+                    role="button"
+                    tabindex="0"
                     @click="activeGroup = group"
+                    @keydown.enter="activeGroup = group"
                 >
                     <sw-icon
                         name="regular-folder"
                         size="16px"
-                        multicolor
                     />
                     {{ group.translated.name }}
                 </li>
@@ -40,7 +41,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_prices_search_field %}
                 <sw-simple-search-field
-                    v-model="term"
+                    v-model:value="term"
                     size="small"
                     variant="form"
                     :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')"
@@ -76,11 +77,11 @@
                     {% block sw_product_variants_configurator_prices_column_currency %}
                     <template
                         v-for="currency in currenciesList"
+                        :key="currency.id"
                         #[`column-currency.${currency.id}`]="{ item, isInlineEdit, compact }"
                     >
 
                         <sw-product-variants-price-field
-                            :key="currency.id"
                             :price="getCurrencyOfOption(item, currency.id)"
                             :tax-rate="product.taxId"
                             :currency="currency"

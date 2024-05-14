@@ -5,6 +5,8 @@
       "edit": "Bearbeiten",
       "save": "Speichern",
       "delete": "Löschen",
+      "remove": "Entfernen",
+      "rename": "Umbenennen",
       "activate": "Aktivieren",
       "deactivate": "Deaktivieren",
       "confirm": "Bestätigen",
@@ -37,7 +39,6 @@
     "required": "*",
     "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
     "privacyTitle": "Datenschutz",
-    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyLink": "Datenschutz",
     "imprintLink": "Impressum",
@@ -46,6 +47,7 @@
     "404ErrorReturn": "Zurück zum Shop",
     "maintenanceModeHeader": "Wartungsmodus",
     "maintenanceModeDescription": "Wir aktualisieren derzeit die Inhalte dieser Seite. Bitte schauen Sie später wieder vorbei.",
+    "stagingModeDescription": "Der Shop befindet sich im Staging-Modus.",
     "sortingLabel": "Sortierung",
     "next": "Nächstes",
     "previous": "Vorheriges",
@@ -64,9 +66,9 @@
     "wishlist": "Merkzettel"
   },
   "error": {
-    "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
-    "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
-    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
+    "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",
+    "VIOLATION::TOO_LOW_ERROR": "Die Eingabe darf nicht leer sein.",
+    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Die Eingabe ist ungültig",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Das Passwort ist nicht korrekt.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur",
@@ -77,14 +79,14 @@
     "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
-    "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
+    "VIOLATION::TOO_SHORT_ERROR": "Die Eingabe ist zu kurz.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
     "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht mehr gültig!",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warten Sie %seconds% Sekunden, bevor Sie es erneut versuchen.",
-    "captcha" : {
+    "captcha": {
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
@@ -100,6 +102,7 @@
     "doubleOptInRegistrationSuccessfully": "Vielen Dank für Ihre Anmeldung! Ihr Account wurde erfolgreich freigeschaltet.",
     "myAccount": "Ihr Konto",
     "registerTitle": "Registrierung",
+    "registerMetaTitle": "Registrierung",
     "loginHeader": "Ich bin bereits Kunde",
     "loginFormDescription": "Einloggen mit E-Mail-Adresse und Passwort",
     "loginMailLabel": "Ihre E-Mail-Adresse",
@@ -149,7 +152,6 @@
     "personalPhonePlaceholder": "Telefonnummer eingeben ...",
     "registerDifferentShipping": "Lieferadresse weicht von Rechnungsadresse ab.",
     "registerSubmit": "Weiter",
-    "overviewTitle": "Übersicht",
     "greetings": "Hallo, ",
     "overviewLink": "Übersicht",
     "profileLink": "Persönliches Profil",
@@ -157,17 +159,23 @@
     "paymentSuccess": "Zahlungsart erfolgreich geändert.",
     "paymentLink": "Zahlungsarten",
     "ordersLink": "Bestellungen",
-    "profileTitle": "Persönliches Profil",
+    "profileTitle": "Profil",
+    "profileMetaTitle": "Profil",
     "profileText": "Überprüfen Sie Ihre persönlichen Daten. ",
     "addressTitle": "Adressen",
+    "addressMetaTitle": "Adressen",
     "paymentTitle": "Zahlungsarten",
+    "paymentMetaTitle": "Zahlungsarten",
     "paymentText": "Hier finden sie alle verfügbaren Zahlungsarten und können eine Standard-Zahlungsart wählen.",
     "ordersTitle": "Bestellungen",
+    "ordersMetaTitle": "Bestellungen",
     "logout": "Abmelden",
     "guestAbort": "Gastsitzung beenden",
     "logoutSucceeded": "Sie haben sich erfolgreich abgemeldet.",
     "overviewInfo": "Hier haben Sie direkten Zugriff auf Ihre Profilinformationen, hinterlegte Adressen und die Standard-Zahlungsart.",
     "overviewProfileHeader": "Persönliche Daten",
+    "overviewTitle": "Übersicht",
+    "overviewMetaTitle": "Übersicht",
     "overviewPaymentHeader": "Standard-Zahlungsart",
     "overviewBillingHeader": "Standard-Rechnungsadresse",
     "overviewShippingHeader": "Standard-Lieferadresse",
@@ -197,6 +205,7 @@
     "passwordChangeSuccess": "Passwort wurde geändert",
     "passwordChangeNoSuccess": "Passwort konnte nicht geändert werden.",
     "passwordNotIdentical": "Die von Ihnen eingegebenen Passwörter stimmen nicht überein.",
+    "passwordPoliciesUpdated": "Die Passwortrichtlinien haben sich geändert. Bitte fordern Sie hier ein neues Passwort an.",
     "passwordHashNotFound": "Der Link zum Zurücksetzen des Passworts scheint defekt zu sein.",
     "passwordHashExpired": "Der Link zum Zurücksetzen des Passworts ist nicht mehr gültig. Bitte fordern Sie einen neuen Link an.",
     "recoveryMailSend": "Wenn die angegebene E-Mail-Adresse registriert ist, wurde eine Bestätigungs-E-Mail mit einem Link versandt, mit dem Sie Ihr Passwort zurücksetzen können.",
@@ -208,7 +217,6 @@
     "profileRecoverPasswordInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
     "profileRecoverPasswordSubmit": "E-Mail anfordern",
     "profileSaveChanges": "Änderungen speichern",
-    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen",
     "profileDeleteText": "<a href=\"%target%\" data-bs-toggle=\"modal\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen.",
     "profileDeleteAlert": "Nach dem Löschen der persönlichen Daten Ihres Kundenkontos sind Newsletter-Einträge und Bewertungen für Sie nicht mehr zugänglich. Beachten Sie jedoch, dass weiterhin Aufzeichnungen über alle Bestellungen gespeichert bleiben, um die gesetzlichen Bestimmungen zu erfüllen.",
     "profileDeleteConfirm": "Möchten Sie Ihr Kundenkonto wirklich löschen?",
@@ -217,21 +225,25 @@
     "profileDeleteSuccessAlert": "Ihr Kundenkonto wurde gelöscht.",
     "addressWelcome": "Adressen",
     "addressText": "Ändern Sie Ihre Standard-Adressen oder fügen Sie neue hinzu.",
-    "addressListHeader": "Alle Adressen",
+    "addressListHeader": "Verfügbare Adressen",
     "addressesTitleDefaultShippingAddress": "Standard-Lieferadresse",
     "addressesTitleDefaultBillingAddress": "Standard-Rechnungsadresse",
+    "addressTitleChangeShippingAddress": "Lieferadresse ändern",
+    "addressTitleChangeBillingAddress": "Rechnungsadresse ändern",
     "addressesSetAsDefaultShippingAction": "Als Standard-Lieferadresse verwenden",
     "addressesSetAsDefaultBillingAction": "Als Standard-Rechnungsadresse verwenden",
     "addressesTitleCurrentShippingAddress": "Aktuelle Lieferadresse",
     "addressesTitleCurrentBillingAddress": "Aktuelle Rechnungsadresse",
-    "addressesContentItemActionEdit": "Bearbeiten",
-    "addressesContentItemActionDelete": "Löschen",
+    "addressesContentItemActionEdit": "Adresse bearbeiten",
+    "addressesContentItemActionDelete": "Adresse löschen",
     "availableAddresses": "Verfügbare Adressen",
     "selectAddress": "Adresse wählen",
     "addressCreateBtn": "Neue Adresse hinzufügen",
     "addressEditBtn": "Adresse bearbeiten",
-    "addressCreateWelcome": "Neue Adresse erstellen",
+    "addressCreateWelcome": "Neue Adresse",
+    "addressCreateMetaTitle": "Neue Adresse",
     "addressEditWelcome": "Adresse bearbeiten",
+    "addressEditMetaTitle": "Adresse bearbeiten",
     "addressSaveChange": "Adresse speichern",
     "addressDeleted": "Adresse erfolgreich gelöscht.",
     "addressNotDeleted": "Adresse konnte nicht gelöscht werden.",
@@ -258,7 +270,9 @@
     "orderContextMenuReorder": "Bestellung wiederholen",
     "orderContextMenuCancel": "Bestellung stornieren",
     "completePayment": "Zahlung abschließen",
+    "completePaymentMetaTitle": "Zahlung abschließen",
     "editOrder": "Bestellung bearbeiten",
+    "orderActions": "Aktionen",
     "editOrderUpdateButton": "Zahlung abschließen",
     "editOrderBackToAccountButton": "Zurück zum Account",
     "editOrderBackToOrderButton": "Zurück zur Bestellung",
@@ -343,9 +357,11 @@
     "addressHeader": "Versandinformationen",
     "addressLoginToggle": "Sie sind bereits Kunde? Klicken Sie hier, um sich einzuloggen.",
     "addressRegisterCardTitle": "Persönliche Informationen",
+    "registerMetaTitle": "Versandinformationen",
     "registerGuestmodeLabel": "Kein Kundenkonto anlegen.",
     "registerCustomermodeLabel": "Kundenkonto anlegen.",
     "cartTitle": "Warenkorb",
+    "cartMetaTitle": "Warenkorb",
     "cartHeader": "Warenkorb",
     "cartUpdateSuccess": "Warenkorb aktualisiert.",
     "continueShopping": "Weiter einkaufen",
@@ -354,7 +370,7 @@
     "proceedToCheckout": "Zur Kasse",
     "quantityTimes": "x",
     "priceUnitName": "Inhalt:",
-    "removeLineItem": "Produkt entfernen",
+    "removeLineItem": "Entferne %lineItemLabel% aus dem Warenkorb",
     "subtotalAmount": "Zwischensumme",
     "summaryHeader": "Zusammenfassung",
     "lineItemContainerHeadline": "Produkt-Bundle enthält",
@@ -385,6 +401,7 @@
     "billingAddressHeader": "Rechnungsadresse",
     "shippingAddressHeader": "Lieferadresse",
     "confirmHeader": "Bestellung abschließen",
+    "confirmMetaTitle": "Bestellung abschließen",
     "confirmPaymentMethod": "Zahlungsart",
     "confirmPaymentMethodNotAvailable": "Zahlungsart nicht verfügbar",
     "confirmChangePayment": "Zahlungsart ändern",
@@ -399,23 +416,22 @@
     "confirmChangePaymentShippingCancel": "Abbrechen",
     "confirmSubmit": "Zahlungspflichtig bestellen",
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
-    "confirmRevocationNotice": "Bitte beachten Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Widerrufsbelehrung\">Widerrufsbelehrung</a>.",
-    "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+    "confirmRevocationNotice": "Bitte beachten Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Widerrufsbelehrung\">Widerrufsbelehrung</a>.",
     "confirmTermsText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
-    "confirmTermsReminder": "<br>Sie haben die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> bereits akzeptiert.",
     "confirmTermsReminderText": "Sie haben bereits die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> akzeptiert.",
     "confirmRevocationTerms": "Ja, ich möchte sofort Zugang zu dem digitalen Inhalt und weiß, dass mein Widerrufsrecht mit dem Zugang erlischt.",
     "confirmRevocationReminder": "Sie haben bereits erklärt, dass Sie auf das Widerrufsrecht verzichten.",
     "finishInfoPayment": "Zahlungsart:",
     "finishInfoShipping": "Versandart:",
     "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
+    "finishMetaTitle": "Bestellung abgeschlossen",
     "finishUpdateHeader": "Vielen Dank für die Aktualisierung Ihrer Bestellung!",
     "finishPaymentHeader": "Die Zahlungsart Ihrer Bestellung wurde zu \"%paymentName%\" geändert!",
     "finishInfoHeader": "Informationen",
     "finishInfoOrdernumber": "Ihre Bestellnummer:",
     "finishInfoConfirmationMail": "Bestellbestätigungs-E-Mail wurde verschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
-    "finishChangePayment":  "Zahlungsart ändern",
+    "finishChangePayment": "Zahlungsart ändern",
     "finishPaymentFailed": "Leider ist der Zahlungsprozess fehlgeschlagen. Bitte ändern Sie die Zahlungsart um Ihre Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Gutschein-Code erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte zum Warenkorb hinzugefügt.",
@@ -436,9 +452,9 @@
     "promotion-discount-deleted": "Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
     "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
+    "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "promotion-excluded": "Mindestens ein Rabatt wurde wegen Konflikten mit anderen Rabatten aus dem Warenkorb entfernt. Sobald die Bedingungen wieder zutreffen, wird der Rabatt automatisch hinzugefügt.",
-    "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
     "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Angaben.",
@@ -453,7 +469,9 @@
     "salutation-missing": "Es wurde keine Anrede konfiguriert, bitte wählen Sie beim Abschluss Ihrer Bestellung eine Anrede aus.",
     "salutation-missing-profile": "Ihr Profil enthält noch keine Anrede, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
     "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
-    "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus."
+    "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "country-region-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "country-region-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -488,8 +506,7 @@
     "afterListPrice": "",
     "cheapestPriceLabel": "Varianten ab",
     "addToWishlist": "Zum Merkzettel hinzufügen",
-    "removeFromWishlist": "Vom Merkzettel entfernen",
-    "toggleWishlist": "Merkzettel ein-/ausschalten"
+    "removeFromWishlist": "Vom Merkzettel entfernen"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -498,7 +515,7 @@
     "unsubscribeOption": "Newsletter abbestellen",
     "formSubmit": "Abonnieren",
     "subscriptionPersistedSuccess": "Sie haben gerade unseren Newsletter abonniert.\n Um die Registrierung abzuschließen, suchen Sie in Ihrer E-Mail-Box nach unserer Bestätigungsmail und klicken Sie auf den darin enthaltenen Link.",
-    "subscriptionPersistedInfo": "Sollten Sie keine Mail erhalten haben, wiederholen Sie den Vorgang oder wenden Sie sich an den Support.",
+    "subscriptionPersistedInfo": "Sollten Sie in den nächsten Minuten keine Bestätigungs-E-Mail erhalten, sind Sie eventuell bereits für den Newsletter angemeldet. Durchsuchen Sie Ihren Posteingang und auch den Spamordner. Versuchen Sie danach, sich ein weiteres Mal anzumelden und wenden Sie sich an unseren Support, falls auch das nicht funktioniert.",
     "subscriptionRevokeSuccess": "Sie haben sich erfolgreich vom Newsletter abgemeldet.",
     "subscriptionConfirmationSuccess": "Ihr Newsletter-Abonnement wurde erfolgreich registriert.",
     "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen. Bitte wenden Sie sich an den Support.",
@@ -518,13 +535,13 @@
     "subjectPlaceholder": "Betreff eingeben ...",
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
-    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne sie an.",
-    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
+    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
+    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden",
+    "metaTitle": "Suchergebnis"
   },
   "detail": {
     "ordernumberLabel": "Produktnummer:",
@@ -551,7 +568,6 @@
     "reviewFormRatingLabel": "Ihre Bewertung",
     "reviewFormTitleLabel": "Titel",
     "reviewFormTitlePlaceholder": "Titel eingeben ...",
-    "reviewFormContentPlaceholder": "Erfahrungen eingeben ...",
     "review1PointRatingText": "Unbefriedigend",
     "review2PointRatingText": "Akzeptierbar",
     "review3PointRatingText": "Gut",
@@ -587,6 +603,14 @@
     "reviewAvgRateElements": "Sternen",
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
+  "spatial": {
+    "scanQrCode": "QR-Code scannen",
+    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um den Artikel im \"Erweiterte Realität\"-Modus anzuzeigen",
+    "arSupportInFollowingDevices": "Das \"Erweiterte Realität\"-Erlebnis wird von den folgenden Geräten unterstützt:",
+    "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
+    "moveTheDeviceToStart": "Bewegen Sie das Gerät zum Start",
+    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren"
+  },
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",
     "headline": "Ihr Merkzettel",
@@ -609,13 +633,10 @@
     "informationHeadline": "Informationen",
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
-    "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "serviceContactText": "Oder über unser <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Versanddetails\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "includeVatText": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "excludeVat": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Versanddetails\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "excludeVatText": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
@@ -623,12 +644,11 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\"https://policies.google.com/privacy?hl=de\">Datenschutzrichtlinie</a> und <a href=\"https://policies.google.com/terms?hl=de\">Nutzungsbedingungen</a>."
     },
-    "basicCaptchaLabel" : "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
+    "basicCaptchaLabel": "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
   },
   "cookie": {
-    "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "messageText": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
-    "deny": "Ablehnen",
+    "deny": "Nur technisch notwendige",
     "configure": "Konfigurieren",
     "configuration": "Einstellungen",
     "save": "Speichern",
@@ -644,7 +664,10 @@
     "groupStatisticalGoogleAnalytics": "Google Analytics",
     "groupComfortFeatures": "Komfortfunktionen",
     "groupComfortFeaturesWishlist": "Merkzettel",
-    "groupComfortFeaturesYoutubeVideo": "YouTube-Video"
+    "groupComfortFeaturesYoutubeVideo": "YouTube-Video",
+    "groupMarketing": "Marketing",
+    "groupMarketingDescription": "Erlaubt es Google, personenbezogene Daten für Online-Werbung und Marketing zu sammeln.",
+    "groupMarketingAdConsent": "Google Werbung und Marketing"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",
@@ -657,24 +680,33 @@
           "manufacturerNumber": "Herstellernummer:",
           "ean": "GTIN/EAN:",
           "weight": "Gewicht:",
-          "width":  "Breite:",
+          "width": "Breite:",
           "height": "Höhe:",
-          "length":  "Länge:",
+          "length": "Länge:",
           "releaseDate": "Veröffentlicht:",
-          "description":  "Beschreibung:",
+          "description": "Beschreibung:",
           "referencePrice": "Inhalt:"
         },
         "customField": {
           "true": "Ja",
           "false": "Nein"
         }
+      },
+      "quantitySelect": {
+        "label": "Anzahl",
+        "increase": "Anzahl erhöhen",
+        "decrease": "Anzahl verringern"
       }
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "privacyNoticeText": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
+      },
+      "imageGallery": {
+        "touchMove": "Drücken und drehen",
+        "clickMove": "Klicken und drehen",
+        "sliderDotLabel": "Zeige Bild %index% von %total%"
       },
       "defaultMedia": {
         "preview_camera_large": {
@@ -709,6 +741,13 @@
           "title": "Pflanze",
           "alt": "Sukkulente in weißem Topf vor hellblauem Hintergrund"
         }
+      }
+    }
+  },
+  "theme": {
+    "compilation": {
+      "async": {
+        "success": "Kompilierung für Verkaufskanal %salesChannelName% abgeschlossen"
       }
     }
   }

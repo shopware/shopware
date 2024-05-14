@@ -23,7 +23,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -90,7 +90,9 @@ class OrderEntity extends Entity
     protected $positionPrice;
 
     /**
-     * @var string
+     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
+     *
+     * @var string|null
      */
     protected $taxStatus;
 
@@ -120,7 +122,7 @@ class OrderEntity extends Entity
     protected $languageId;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -321,9 +323,18 @@ class OrderEntity extends Entity
         return $this->positionPrice;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
+     * return type will be ?string in v6.7.0.0
+     */
     public function getTaxStatus(): string
     {
-        return $this->taxStatus;
+        /**
+         * @deprecated tag:v6.7.0
+         * remove the null-check
+         * return $this->taxStatus;
+         */
+        return $this->taxStatus ?? '';
     }
 
     public function getShippingCosts(): CalculatedPrice
@@ -371,12 +382,12 @@ class OrderEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageEntity $language): void
+    public function setLanguage(?LanguageEntity $language): void
     {
         $this->language = $language;
     }

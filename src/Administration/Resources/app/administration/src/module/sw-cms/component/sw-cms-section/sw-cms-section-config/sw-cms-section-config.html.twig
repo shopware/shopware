@@ -10,10 +10,12 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config__quickaction_duplicate %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-section-config__quickaction"
+            role="button"
+            tabindex="0"
             @click="onSectionDuplicate(section)"
+            @keydown.enter="onSectionDuplicate(section)"
         >
             <sw-icon
                 name="regular-duplicate"
@@ -25,10 +27,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config__quickaction_delete %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-section-config__quickaction is--danger"
+            role="button"
+            tabindex="0"
             @click="onSectionDelete(section.id)"
+            @keydown.enter="onSectionDelete(section.id)"
         >
             <sw-icon
                 name="regular-trash"
@@ -47,11 +51,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_name_field %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="section.name"
-            {% else %}
-            v-model="section.name"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.sectionNameField')"
             :help-text="$tc('sw-cms.detail.tooltip.sectionNameField')"
         />
@@ -60,11 +60,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_css_classes_field %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="section.cssClass"
-            {% else %}
-            v-model="section.cssClass"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.cssClassField')"
             :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
         />
@@ -73,11 +69,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_sidebar_section_config_sizing_field %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="section.sizingMode"
-            {% else %}
-            v-model="section.sizingMode"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.sizingField')"
         >
             <option value="boxed">
@@ -93,11 +85,7 @@
         {% block sw_cms_sidebar_section_config_sidebar_mobile %}
         <sw-select-field
             v-if="section.type === 'sidebar'"
-            {% if VUE3 %}
             v-model:value="section.mobileBehavior"
-            {% else %}
-            v-model="section.mobileBehavior"
-            {% endif %}
             :label="$tc('sw-cms.detail.sidebar.mobile')"
         >
             <option value="hidden">
@@ -112,11 +100,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_color_field %}
         <sw-colorpicker
-            {% if VUE3 %}
             v-model:value="section.backgroundColor"
-            {% else %}
-            v-model="section.backgroundColor"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
             :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
         />
@@ -142,11 +126,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_section_config_background_image_position_field %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="section.backgroundMediaMode"
-            {% else %}
-            v-model="section.backgroundMediaMode"
-            {% endif %}
             :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!section.backgroundMediaId"
         >

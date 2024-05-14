@@ -12,7 +12,7 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderAddressEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -48,10 +48,7 @@ class OrderAddressEntity extends Entity
      */
     protected $street;
 
-    /**
-     * @var string
-     */
-    protected $zipcode;
+    protected ?string $zipcode;
 
     /**
      * @var string
@@ -188,12 +185,12 @@ class OrderAddressEntity extends Entity
         $this->street = $street;
     }
 
-    public function getZipcode(): string
+    public function getZipcode(): ?string
     {
         return $this->zipcode;
     }
 
-    public function setZipcode(string $zipcode): void
+    public function setZipcode(?string $zipcode): void
     {
         $this->zipcode = $zipcode;
     }

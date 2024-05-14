@@ -5,17 +5,17 @@ namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 
 /**
- * @covers \Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler
- *
  * @internal
  *
  * @package core
  */
+#[CoversClass(DoctrineSQLHandler::class)]
 class DoctrineSQLHandlerTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -54,7 +54,7 @@ class DoctrineSQLHandlerTest extends TestCase
                 unset($data['id']);
                 unset($data['created_at']);
 
-                if ($exceptionThrown === null) {
+                if (!$exceptionThrown instanceof \Exception) {
                     $exceptionThrown = new \Exception('some exception');
                     $insertData = $data;
 

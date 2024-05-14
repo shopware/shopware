@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables
  */
+#[CoversClass(FlowMailVariables::class)]
 class FlowMailVariablesTest extends TestCase
 {
     public function testVariablesAreStillTheSame(): void

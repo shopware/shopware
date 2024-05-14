@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class TestRuleScope extends RuleScope
 {
     public function __construct(private readonly SalesChannelContext $salesChannelContext)

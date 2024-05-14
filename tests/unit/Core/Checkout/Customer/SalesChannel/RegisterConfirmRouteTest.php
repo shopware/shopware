@@ -2,22 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,12 +26,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute
  */
+#[CoversClass(RegisterConfirmRoute::class)]
 class RegisterConfirmRouteTest extends TestCase
 {
     protected SalesChannelContext&MockObject $context;
@@ -93,7 +92,7 @@ class RegisterConfirmRouteTest extends TestCase
 
         $confirmResult = $this->route->confirm($this->mockRequestDataBag(), $this->context);
 
-        static::assertInstanceOf(CustomerResponse::class, $confirmResult);
+        static::assertTrue($confirmResult->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testConfirmCustomerNotDoubleOptIn(): void
@@ -132,10 +131,9 @@ class RegisterConfirmRouteTest extends TestCase
 
     public function testConfirmActivatedCustomer(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
         $customer = $this->mockCustomer();
         $customer->setActive(true);
+        $customer->setDoubleOptInConfirmDate(new \DateTime());
 
         $this->customerRepository->expects(static::once())
             ->method('search')
@@ -180,7 +178,7 @@ class RegisterConfirmRouteTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setId('customer-1');
-        $customer->setActive(Feature::isActive('v6.6.0.0'));
+        $customer->setActive(false);
         $customer->setEmail('test@test.test');
         $customer->setHash('hash');
         $customer->setGuest(false);

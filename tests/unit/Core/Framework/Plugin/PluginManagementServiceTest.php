@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -20,10 +21,9 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginManagementService
  */
 #[Package('core')]
+#[CoversClass(PluginManagementService::class)]
 class PluginManagementServiceTest extends TestCase
 {
     public function testRefreshesPluginsAfterDownloadingFromStore(): void

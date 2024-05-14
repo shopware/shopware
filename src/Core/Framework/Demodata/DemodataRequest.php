@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class DemodataRequest
 {
+    public int $multiplier = 1;
+
     /**
      * Number of entities indexed by definition
      *
@@ -32,7 +34,7 @@ class DemodataRequest
      */
     public function add(string $definition, int $numberOfItems, array $options = []): void
     {
-        $this->numberOfItems[$definition] = $numberOfItems;
+        $this->numberOfItems[$definition] = $this->multiplier * $numberOfItems;
         $this->options[$definition] = $options;
     }
 

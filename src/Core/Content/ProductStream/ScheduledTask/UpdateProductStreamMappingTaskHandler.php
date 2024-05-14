@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +16,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: UpdateProductStreamMappingTask::class)]
-#[Package('business-ops')]
+#[Package('inventory')]
 final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -23,14 +24,15 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly EntityRepository $productStreamRepository
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('filters.type', 'until'),

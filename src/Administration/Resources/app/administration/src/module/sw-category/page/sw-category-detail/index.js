@@ -8,7 +8,7 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -226,6 +226,10 @@ export default {
 
             return criteria;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -243,13 +247,11 @@ export default {
             }
 
             if (this.category) {
-                this.category.slotConfig = null;
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPage);
             }
 
             if (this.landingPage) {
-                this.landingPage.slotConfig = null;
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPageForLandingPage);
             }

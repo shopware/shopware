@@ -202,7 +202,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
             $insert->execute();
         });

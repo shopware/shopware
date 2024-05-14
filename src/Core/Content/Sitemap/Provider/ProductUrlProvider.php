@@ -17,10 +17,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class ProductUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'hourly';
@@ -67,6 +66,7 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
 
+        /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
 
         $urls = [];
@@ -82,7 +82,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']], UrlGeneratorInterface::ABSOLUTE_PATH));
+                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));
@@ -100,6 +100,9 @@ class ProductUrlProvider extends AbstractUrlProvider
         return new UrlResult($urls, $nextOffset);
     }
 
+    /**
+     * @return list<array{id: string, created_at: string, updated_at: string}>
+     */
     private function getProducts(SalesChannelContext $context, int $limit, ?int $offset): array
     {
         $lastId = null;
@@ -138,15 +141,21 @@ class ProductUrlProvider extends AbstractUrlProvider
         $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
-            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::STRING);
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::BINARY);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $query->executeQuery()->fetchAllAssociative();
+        /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
+        $result = $query->executeQuery()->fetchAllAssociative();
+
+        return $result;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array
     {
         $salesChannelId = $salesChannelContext->getSalesChannel()->getId();

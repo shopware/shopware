@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class PaymentMethodRule extends Rule
 {
     final public const RULE_NAME = 'paymentMethod';
@@ -21,7 +21,7 @@ class PaymentMethodRule extends Rule
      * @internal
      */
     public function __construct(
-        protected string $operator = RULE::OPERATOR_EQ,
+        protected string $operator = Rule::OPERATOR_EQ,
         protected array $paymentMethodIds = []
     ) {
         parent::__construct();

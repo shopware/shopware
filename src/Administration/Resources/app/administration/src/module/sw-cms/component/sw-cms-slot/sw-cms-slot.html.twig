@@ -13,11 +13,47 @@
     {% block sw_cms_slot_content_component %}
     <component
         :is="elementConfig.component"
-        v-model="element"
+        v-if="elementConfig && elementConfig.component"
+        v-model:element="element"
         :element-data="elementConfig"
         :disabled="disabled"
     />
     {% endblock %}
+
+    {# This is just a quick inline design which needs to be refactored for a real design implementation #}
+    <div
+        v-else-if="elementNotFound"
+        class="sw-cms-slot__element-not-found"
+        style="
+            width: 100%;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fbe5ea;
+            border: 1px solid #de294c;
+            border-radius: 4px;
+            gap: 16px;
+        "
+    >
+        <sw-icon
+            name="regular-exclamation-circle"
+            color="#de294c"
+        />
+
+        <div>
+            <p style="color: #de294c;">
+                <strong>Element could not be load</strong>
+            </p>
+            <p style="color: #de294c; margin-top: 6px;">
+                Please try again or select another element.
+            </p>
+        </div>
+    </div>
+
+    <div v-else>
+        <sw-skeleton-bar style="width: 100%; min-height: 250px;" />
+    </div>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_slot_content_preview_overlay %}
@@ -42,6 +78,8 @@
                 v-tooltip.bottom="tooltipDisabled"
                 class="sw-cms-slot__settings-action"
                 :class="cmsSlotSettingsClasses"
+                role="button"
+                tabindex="0"
                 @click="onSettingsButtonClick"
                 @keydown.enter="onSelectElement(element.name)"
             >
@@ -55,8 +93,10 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_slot_content_overlay_action_swap %}
             <div
-                v-if="elementConfig.removable !== false"
+                v-if="elementConfig?.removable !== false"
                 class="sw-cms-slot__element-action"
+                role="button"
+                tabindex="0"
                 @click="onElementButtonClick"
                 @keydown.enter="onSelectElement(element.name)"
             >
@@ -76,7 +116,7 @@
     <sw-modal
         v-if="showElementSettings"
         class="sw-cms-slot__config-modal"
-        variant="large"
+        :variant="modalVariant"
         :title="$tc('sw-cms.detail.title.elementSettingsModal')"
         @modal-close="onCloseSettingsModal"
     >
@@ -85,7 +125,7 @@
         <component
             :is="elementConfig.configComponent"
             ref="elementComponentRef"
-            v-model="element"
+            v-model:element="element"
             :element-data="elementConfig"
         />
         {% endblock %}
@@ -135,10 +175,10 @@
                         {% block sw_cms_slot_content_element_modal_selection_element %}
                         <template
                             v-for="element in cmsElementGroup.items"
+                            :key="element.name"
                         >
                             <div
                                 v-if="!element.hidden && element.previewComponent"
-                                :key="element.name"
                                 class="element-selection__element-wrapper"
                             >
                                 <div class="element-selection__element">
@@ -155,6 +195,8 @@
                                     {% block sw_cms_slot_content_element_modal_selection_element_overlay %}
                                     <div
                                         class="element-selection__overlay element-selection__overlay-action-select"
+                                        role="button"
+                                        tabindex="0"
                                         @click="onSelectElement(element)"
                                         @keydown.enter="onSelectElement(element)"
                                     >
@@ -169,6 +211,8 @@
                                     {% block sw_cms_slot_content_element_modal_selection_element_overlay_favorite %}
                                     <div
                                         class="element-selection__overlay element-selection__overlay-action-favorite"
+                                        role="button"
+                                        tabindex="0"
                                         @click="onToggleElementFavorite(element.name)"
                                         @keydown.enter="onToggleElementFavorite(element.name)"
                                     >

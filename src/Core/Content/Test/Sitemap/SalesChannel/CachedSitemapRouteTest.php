@@ -3,6 +3,9 @@
 namespace Shopware\Core\Content\Test\Sitemap\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\SalesChannel\AbstractSitemapRoute;
 use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
@@ -29,11 +32,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedSitemapRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -50,18 +52,14 @@ class CachedSitemapRouteTest extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')
             ->invalidateTags([CachedSitemapRoute::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls, int $strategy = SitemapExporterInterface::STRATEGY_SCHEDULED_TASK): void
     {
         $this->getContainer()->get('cache.object')

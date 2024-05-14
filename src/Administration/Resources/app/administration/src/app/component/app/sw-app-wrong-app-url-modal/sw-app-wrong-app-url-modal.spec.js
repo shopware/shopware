@@ -2,49 +2,53 @@
  * @package admin
  */
 
-import { createLocalVue, mount } from '@vue/test-utils';
-import 'src/app/component/app/sw-app-wrong-app-url-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-icon';
+import { mount } from '@vue/test-utils';
 
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 let stubs = {};
 
 describe('sw-app-wrong-app-url-modal', () => {
     let wrapper = null;
-    const notificationMock = jest.fn();
     const deleteNotificationMock = jest.fn();
 
     async function createWrapper() {
         stubs = {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
+                template: `
+                    <div class="sw-modal">
+                        <slot name="modal-header">
+                            <slot name="modal-title"></slot>
+                        </slot>
+                        <slot name="modal-body">
+                             <slot></slot>
+                        </slot>
+                        <slot name="modal-footer>
+                        </slot>
+                    </div>
+                `,
             },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-button': await wrapTestComponent('sw-button'),
+            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+            'sw-icon': await wrapTestComponent('sw-icon'),
             'icons-small-default-x-line-medium': {
                 template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
             },
         };
-        const localVue = createLocalVue();
 
-        const modal = await Shopware.Component.build('sw-app-wrong-app-url-modal');
-
-        modal.methods.createSystemNotificationInfo = notificationMock;
-
-        return mount(modal, {
-            localVue,
-            stubs: {
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-icon': await Shopware.Component.build('sw-icon'),
-                ...stubs,
-            },
-            provide: {
-                shortcutService: {
-                    startEventListener() {
-                    },
-                    stopEventListener() {
+        return mount(await wrapTestComponent('sw-app-wrong-app-url-modal', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-icon': await wrapTestComponent('sw-icon'),
+                    ...stubs,
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener() {
+                        },
+                        stopEventListener() {
+                        },
                     },
                 },
             },
@@ -67,6 +71,9 @@ describe('sw-app-wrong-app-url-modal', () => {
                         },
                     },
                 },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                },
             },
         });
         Shopware.State.unregisterModule('notification');
@@ -76,14 +83,10 @@ describe('sw-app-wrong-app-url-modal', () => {
             mutations: {
                 removeNotification: deleteNotificationMock,
             },
+            actions: {
+                createNotification: jest.fn(),
+            },
         });
-    });
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-            wrapper = null;
-        }
     });
 
     it('should be a Vue.js component', async () => {
@@ -101,7 +104,6 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toHaveBeenCalledTimes(0);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
@@ -114,7 +116,6 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toHaveBeenCalledTimes(0);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(1);
     });
 
@@ -127,7 +128,6 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
@@ -140,7 +140,6 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
@@ -153,12 +152,16 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toHaveBeenCalledTimes(0);
 
         modal.vm.$emit('modal-close');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

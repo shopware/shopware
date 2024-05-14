@@ -48,11 +48,7 @@
                 :process-success="isSaveSuccessful"
                 variant="primary"
                 :disabled="isLoading || !acl.can('product.editor')"
-                {% if VUE3 %}
-                @update:processSuccess="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
+                @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-product.detail.buttonSave') }}
@@ -270,8 +266,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_content_view %}
             <router-view
-                @cover-change="onCoverChange"
-            />
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    @cover-change="onCoverChange"
+                />
+            </router-view>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

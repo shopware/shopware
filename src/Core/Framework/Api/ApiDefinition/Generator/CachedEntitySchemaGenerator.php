@@ -30,9 +30,9 @@ class CachedEntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     /**
      * @return never
      */
-    public function generate(array $definitions, string $api, string $apiType): array
+    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
-        $this->innerService->generate($definitions, $api, $apiType);
+        $this->innerService->generate($definitions, $api, $apiType, $bundleName);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class MigrationStep
 {
+    use AddColumnTrait;
+
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
@@ -27,7 +30,9 @@ abstract class MigrationStep
     /**
      * update destructive changes
      */
-    abstract public function updateDestructive(Connection $connection): void;
+    public function updateDestructive(Connection $connection): void
+    {
+    }
 
     public function removeTrigger(Connection $connection, string $name): void
     {
@@ -83,11 +88,67 @@ abstract class MigrationStep
         return !empty($exists);
     }
 
+    protected function dropTableIfExists(Connection $connection, string $table): void
+    {
+        $sql = sprintf('DROP TABLE IF EXISTS `%s`', $table);
+        $connection->executeStatement($sql);
+    }
+
+    /**
+     * @return bool - Returns true when the foreign key has been really deleted
+     */
+    protected function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
+    {
+        $sql = sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
+
+        try {
+            $connection->executeStatement($sql);
+        } catch (\Throwable $e) {
+            if ($e instanceof TableNotFoundException) {
+                return false;
+            }
+
+            // fk does not exists
+            if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool - Returns true when the index has been really deleted
+     */
+    protected function dropIndexIfExists(Connection $connection, string $table, string $index): bool
+    {
+        $sql = sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
+
+        try {
+            $connection->executeStatement($sql);
+        } catch (\Throwable $e) {
+            if ($e instanceof TableNotFoundException) {
+                return false;
+            }
+
+            // index does not exists
+            if (str_contains($e->getMessage(), 'SQLSTATE[42000]')) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
     /**
      * @param array<string, array<string>> $privileges
      *
      * @throws ConnectionException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      * @throws \JsonException
      */
     protected function addAdditionalPrivileges(Connection $connection, array $privileges): void
@@ -97,7 +158,6 @@ abstract class MigrationStep
         try {
             $connection->beginTransaction();
 
-            /** @var array<string, mixed> $role */
             foreach ($roles as $role) {
                 $currentPrivileges = \json_decode((string) $role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
                 $newPrivileges = $this->fixRolePrivileges($privileges, $currentPrivileges);

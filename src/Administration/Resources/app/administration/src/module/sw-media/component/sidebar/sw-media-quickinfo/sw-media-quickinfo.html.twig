@@ -27,7 +27,6 @@
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_replace %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -37,7 +36,10 @@
                     }"
                     class="quickaction--replace"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalReplace"
+                    @keydown.enter="openModalReplace"
                 >
                     <sw-icon
                         small
@@ -55,7 +57,6 @@
                     class="sw-media-sidebar__quickaction quickaction--download"
                 >
                     <sw-external-link
-                        class="sw-media-sidebar__quickaction"
                         :href="item.url"
                         download
                     >
@@ -71,7 +72,6 @@
                 {% endblock %}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -80,7 +80,10 @@
                     }"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
 
                     <sw-icon
@@ -94,11 +97,13 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_copy_link %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="item.hasFile"
                     class="sw-media-sidebar__quickaction quickaction--copy-link"
+                    role="button"
+                    tabindex="0"
                     @click="copyLinkToClipboard"
+                    @keydown.enter="copyLinkToClipboard"
                 >
 
                     <sw-icon
@@ -112,7 +117,6 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -122,7 +126,10 @@
                     }"
                     class="quickaction--delete"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
                     <sw-icon
                         small
@@ -134,6 +141,25 @@
                 {% endblock %}
             </ul>
             {% endblock %}
+        </template>
+    </sw-media-collapse>
+    {% endblock %}
+
+    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+    {% block sw_media_quickinfo_spatial_configuration %}
+    <sw-media-collapse
+        v-if="isSpatial"
+        :title="$tc('sw-media.sidebar.sections.configuration')"
+        :expand-on-loading="true"
+    >
+        <template #content>
+            <sw-switch-field
+                v-model:value="arReady"
+                :disabled="!editable"
+                :label="$tc('sw-media.sidebar.actions.ar')"
+                class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                @update:value="toggleAR"
+            />
         </template>
     </sw-media-collapse>
     {% endblock %}
@@ -354,6 +380,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_custom_field_sets %}
     <sw-custom-field-set-renderer
+        :key="item.id"
         :disabled="!acl.can('media.editor')"
         :entity="item"
         variant="media-collapse"

@@ -1,6 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin_menu_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <li
     v-if="showMenuItem"
     class="sw-admin-menu__navigation-list-item"
@@ -151,10 +151,13 @@
         v-if="children.length > 0"
         class="sw-admin-menu__sub-navigation-list"
     >
-        <template v-for="entry in children">
+        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
+        <template
+            v-for="entry in children"
+            :key="getCustomKey(entry.id || entryPath + '-separator')"
+        >
             <li
                 v-if="isFirstPluginInMenuEntries(entry, children)"
-                :key="getCustomKey(entry.id || entryPath + '-separator')"
                 :style="{ 'border-color': borderColor }"
                 class="sw-admin-menu__separator"
             >
@@ -162,7 +165,6 @@
             </li>
 
             <sw-admin-menu-item
-                :key="getCustomKey(entry.id || entryPath)"
                 :entry="entry"
                 :border-color="borderColor"
                 :display-icon="false"

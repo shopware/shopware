@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -13,12 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber
  */
+#[CoversClass(CustomerSalutationSubscriber::class)]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

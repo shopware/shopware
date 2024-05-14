@@ -9,8 +9,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Radio panel that can be used for radio input with bigger content.
  * It is possible to define custom content via slots.
  * @status ready
@@ -28,18 +27,11 @@ Component.register('sw-radio-panel', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'modelValue', // use the variable 'modelValue' instead of 'value' because both are relevant!
-        event: 'input',
-    },
-
     props: {
-        // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         value: {
             type: String,
         },
-        // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         modelValue: {
             type: String,
@@ -88,13 +80,7 @@ Component.register('sw-radio-panel', {
 
     methods: {
         toggle() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:modelValue', this.value);
-
-                return;
-            }
-
-            this.$emit('input', this.value);
+            this.$emit('update:modelValue', this.value);
         },
     },
 });

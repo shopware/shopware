@@ -9,12 +9,10 @@ abstract class AbstractIncrementer
 {
     protected string $poolName;
 
-    protected array $config;
-
     /**
-     * @deprecated tag:v6.6.0 - Will be removed. Incrementer are designed with the adapter pattern. Adapter are not designed to be decorated.
+     * @var array<string, mixed>
      */
-    abstract public function getDecorated(): self;
+    protected array $config;
 
     abstract public function decrement(string $cluster, string $key): void;
 
@@ -22,6 +20,8 @@ abstract class AbstractIncrementer
 
     /**
      * limit -1 means no limit
+     *
+     * @return array<string, array{count: int, key: string, cluster: string, pool: string}>
      */
     abstract public function list(string $cluster, int $limit = 5, int $offset = 0): array;
 
@@ -32,6 +32,9 @@ abstract class AbstractIncrementer
         return $this->poolName;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
@@ -47,6 +50,8 @@ abstract class AbstractIncrementer
 
     /**
      * @internal
+     *
+     * @param array<string, mixed> $config
      */
     public function setConfig(array $config): void
     {

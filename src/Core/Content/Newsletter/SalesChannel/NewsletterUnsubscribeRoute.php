@@ -8,7 +8,6 @@ use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -16,14 +15,13 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**
@@ -45,6 +43,11 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {
         $data = $dataBag->only('email');
+
+        if (empty($data['email']) || !\is_string($data['email'])) {
+            throw NewsletterException::missingEmailParameter();
+        }
+
         $recipient = $this->getNewsletterRecipient($data['email'], $context);
 
         $data['id'] = $recipient->getId();
@@ -55,7 +58,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
-        $event = new NewsletterUnsubscribeEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $event = new NewsletterUnsubscribeEvent($context->getContext(), $recipient, $context->getSalesChannelId());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
@@ -65,20 +68,18 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_AND),
             new EqualsFilter('email', $email),
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
+            new EqualsFilter('salesChannelId', $context->getSalesChannelId())
         );
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search(
             $criteria,
             $context->getContext()
         )->getEntities()->first();
 
-        if (!$newsletterRecipient) {
+        if (!$newsletterRecipient instanceof NewsletterRecipientEntity) {
             throw NewsletterException::recipientNotFound('email', $email);
         }
 
@@ -88,9 +89,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     private function getOptOutValidation(): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.opt_out');
-        $definition->add('email', new NotBlank(), new Email())
-            ->add('status', new EqualTo(['value' => NewsletterSubscribeRoute::STATUS_OPT_OUT]))
-            ->add('id', new NotBlank());
+        $definition->add('email', new NotBlank(), new Email());
 
         return $definition;
     }

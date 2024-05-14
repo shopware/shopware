@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 abstract class FlowRule extends Rule
 {
 }

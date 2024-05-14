@@ -1,17 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swOrderAddressSelection from 'src/module/sw-order/component/sw-order-address-selection';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/form/field-base/sw-base-field';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
@@ -20,69 +7,94 @@ import 'src/app/component/form/field-base/sw-base-field';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-Shopware.Component.register('sw-order-address-selection', swOrderAddressSelection);
-Shopware.Component.register('sw-customer-address-form', swCustomerAddressForm);
-
 async function createWrapper(propsData) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-order-address-selection'), {
-        localVue,
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-block-field': true,
-            'sw-icon': true,
-            'sw-customer-address-form': await Shopware.Component.build('sw-customer-address-form'),
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-container': true,
-            'sw-text-field': true,
-            'sw-entity-single-select': true,
-            'sw-customer-address-form-options': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([]);
+    return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
+        global: {
+            directives: {
+                popover: {},
+            },
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-select-result': {
+                    props: ['item', 'index'],
+                    template: `<li :class="componentClasses" class="sw-select-result" @click.stop="onClickResult">
+                        <slot></slot></li>`,
+                    methods: {
+                        onClickResult() {
+                            this.$parent.$parent.$emit('item-select', this.item);
+                        },
                     },
-                    save: () => {
-                        return Promise.resolve();
+                    computed: {
+                        componentClasses() {
+                            return [
+                                `sw-select-option--${this.index}`,
+                            ];
+                        },
                     },
-                    get: () => Promise.resolve({
-                        id: '63e27affb5804538b5b06cb4e344b130',
-                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
-                            {
-                                street: 'Stehr Divide',
-                                zipcode: '64885-2245',
-                                city: 'Faheyshire',
-                                id: '652e9e571cc94bd898077f256dcf629f',
-                            },
-                        ]),
-                    }),
+                },
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
+                'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
+            },
+            provide: {
+                repositoryFactory: {
                     create: () => ({
-                        _isNew: true,
+                        search: () => {
+                            return Promise.resolve([]);
+                        },
+                        save: () => {
+                            return Promise.resolve();
+                        },
+                        get: () => Promise.resolve({
+                            id: '63e27affb5804538b5b06cb4e344b130',
+                            addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+                                {
+                                    street: 'Stehr Divide',
+                                    zipcode: '64885-2245',
+                                    city: 'Faheyshire',
+                                    id: '652e9e571cc94bd898077f256dcf629f',
+                                    country: {
+                                        translated: {
+                                            name: 'Buzbach',
+                                        },
+                                    },
+                                },
+                            ]),
+                        }),
+                        create: () => ({
+                            _isNew: true,
+                        }),
                     }),
-                }),
-            },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
             },
         },
-        propsData: {
+        props: {
             address: {
                 street: 'Denesik Bridge',
                 zipcode: '05132',
                 city: 'Bernierstad',
                 id: '38e8895864a649a1b2ec806dad02ab87',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
@@ -107,6 +119,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                         zipcode: '05132',
                         city: 'Bernierstad',
                         id: '38e8895864a649a1b2ec806dad02ab87',
+                        country: {
+                            translated: {
+                                name: 'Buzbach',
+                            },
+                        },
                     }],
                     billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
                     orderCustomer: {
@@ -121,10 +138,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -132,9 +145,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     it('should be able to edit address', async () => {
         expect(wrapper.vm.currentAddress).toBeNull();
 
-        const addressSelection = wrapper.find('.sw-order-address-selection');
+        const addressSelection = wrapper.findComponent('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
 
         const selectEdit = wrapper.find('.sw-select-option--0');
 
@@ -147,6 +161,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             zipcode: '05132',
             city: 'Bernierstad',
             id: '38e8895864a649a1b2ec806dad02ab87',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
         });
     });
 
@@ -154,7 +173,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         expect(addressSelection.find('.sw-single-select__selection-text').text())
-            .toBe('Denesik Bridge, 05132 Bernierstad');
+            .toBe('Denesik Bridge, 05132 Bernierstad, Buzbach');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
 
@@ -198,10 +217,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
         expect(firstSelection.findAll('p').at(1).text()).toBe('Denesik Bridge');
         expect(firstSelection.findAll('p').at(2).text()).toBe('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
 
         const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should be able to get the options with not props', async () => {
@@ -223,5 +244,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(list.findAll('.sw-select-result')).toHaveLength(1);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(information.findAll('p').at(3).text()).toBe('Buzbach');
     });
 });

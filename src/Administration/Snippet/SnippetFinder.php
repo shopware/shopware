@@ -50,7 +50,7 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @return array<int, string>
      */
-    private function getPluginPaths(): array
+    private function getBundlePaths(): array
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
@@ -86,18 +86,14 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @return array<int, string>
      */
-    private function findSnippetFiles(string $locale, bool $withPlugins = true): array
+    private function findSnippetFiles(string $locale): array
     {
         $finder = (new Finder())
             ->files()
-            ->in(__DIR__ . '/../../*/Resources/app/administration/src/')
             ->exclude('node_modules')
             ->ignoreUnreadableDirs();
         $finder->name(sprintf('%s.json', $locale));
-
-        if ($withPlugins) {
-            $finder->in($this->getPluginPaths());
-        }
+        $finder->in($this->getBundlePaths());
 
         $iterator = $finder->getIterator();
         $files = [];

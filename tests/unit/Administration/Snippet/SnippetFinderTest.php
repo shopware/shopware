@@ -7,12 +7,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
+use Shopware\Storefront\Storefront;
 
 /**
  * @internal
@@ -260,10 +263,6 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        if (empty($pluginPaths) || empty($activePluginPaths)) {
-            return $this->createMock(Kernel::class);
-        }
-
         $getBundleMockByPath = function (string $path): Plugin&MockObject {
             $plugin = $this->createMock(Plugin::class);
             $plugin
@@ -275,9 +274,22 @@ class SnippetFinderTest extends TestCase
 
         $plugins = array_map($getBundleMockByPath, $pluginPaths);
         $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
+
+        $adminBundle = $this->createMock(Bundle::class);
+        $adminBundle
+            ->method('getPath')
+            ->willReturn(\dirname((string) (new \ReflectionClass(Administration::class))->getFileName()));
+
+        $storefrontBundle = $this->createMock(Bundle::class);
+        $storefrontBundle
+            ->method('getPath')
+            ->willReturn(\dirname((string) (new \ReflectionClass(Storefront::class))->getFileName()));
+
         $bundles = [
             ...array_map($getBundleMockByPath, $bundlePaths),
             ...$plugins,
+            $adminBundle,
+            $storefrontBundle,
         ];
 
         $pluginCollectionMock = $this->createMock(KernelPluginCollection::class);

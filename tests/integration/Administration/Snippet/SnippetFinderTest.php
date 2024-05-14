@@ -2,17 +2,11 @@
 
 namespace Shopware\Tests\Integration\Administration\Snippet;
 
-use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -30,97 +24,6 @@ class SnippetFinderTest extends TestCase
             self::getKernel(),
             $this->getContainer()->get(Connection::class)
         );
-    }
-
-    public function testGetPluginPath(): void
-    {
-        $kernelMock = $this->createMock(Kernel::class);
-
-        $loader = $this->createMock(ClassLoader::class);
-        $loader->method('findFile')->willReturn(__DIR__);
-
-        $kernelPluginLoader = new StaticKernelPluginLoader(
-            $loader,
-            null,
-            [
-                [
-                    'name' => 'FakePlugin',
-                    'active' => true,
-                    'baseClass' => FakePlugin::class,
-                    'path' => 'src/FakePlugin',
-                    'autoload' => [
-                        'psr-4' => [
-                            'Shopware\\FakePlugin\\' => 'src/',
-                        ],
-                    ],
-                    'managedByComposer' => true,
-                ],
-            ]
-        );
-
-        $kernelPluginLoader->initializePlugins($this->getContainer()->getParameter('kernel.project_dir'));
-
-        $kernelMock
-            ->expects(static::exactly(2))
-            ->method('getPluginLoader')
-            ->willReturn($kernelPluginLoader);
-
-        $kernelMock
-            ->expects(static::exactly(1))
-            ->method('getBundles')
-            ->willReturn([new BundleFixture('SomeBundle', __DIR__ . '/fixtures/caseBundleLoading/bundle')]);
-
-        $this->snippetFinder = new SnippetFinder(
-            $kernelMock,
-            $this->getContainer()->get(Connection::class)
-        );
-
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('getPluginPaths');
-        $reflectionMethod->setAccessible(true);
-        $returnValue = $reflectionMethod->invoke($this->snippetFinder);
-
-        static::assertCount(2, $returnValue);
-        static::assertContains(__DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle/Resources/app/administration', $returnValue);
-        static::assertContains(__DIR__ . '/fixtures/caseBundleLoading/bundle/Resources/app/administration', $returnValue);
-    }
-
-    public function testGetPluginPathWithDuplicatePlugin(): void
-    {
-        $kernelMock = $this->createMock(Kernel::class);
-        $pluginMock = $this->createMock(Plugin::class);
-        $activeReflection = new \ReflectionProperty(Plugin::class, 'active');
-        $activeReflection->setAccessible(true);
-        $activeReflection->setValue($pluginMock, true);
-        $pluginMock->method('getPath')->willReturn(__DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle');
-
-        $kernelPluginLoaderMock = $this->createMock(KernelPluginLoader::class);
-        $activeReflection = new \ReflectionProperty(KernelPluginLoader::class, 'pluginInstances');
-        $activeReflection->setAccessible(true);
-        $activeReflection->setValue($kernelPluginLoaderMock, new KernelPluginCollection([Plugin::class => $pluginMock]));
-
-        $kernelMock
-            ->expects(static::exactly(2))
-            ->method('getPluginLoader')
-            ->willReturn($kernelPluginLoaderMock);
-
-        $kernelMock
-            ->expects(static::exactly(1))
-            ->method('getBundles')
-            ->willReturn([$pluginMock]);
-
-        $this->snippetFinder = new SnippetFinder(
-            $kernelMock,
-            $this->getContainer()->get(Connection::class)
-        );
-
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('getPluginPaths');
-        $reflectionMethod->setAccessible(true);
-        $returnValue = $reflectionMethod->invoke($this->snippetFinder);
-
-        static::assertCount(1, $returnValue);
-        static::assertContains(__DIR__ . '/fixtures/caseBundleLoadingWithPlugin/bundle/Resources/app/administration', $returnValue);
     }
 
     public function testValidSnippetMergeWithOnlySameLanguageFiles(): void

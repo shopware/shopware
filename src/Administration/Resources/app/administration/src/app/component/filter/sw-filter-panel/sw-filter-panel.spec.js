@@ -1,7 +1,6 @@
 import 'src/app/component/filter/sw-filter-panel';
 import 'src/app/component/filter/sw-boolean-filter';
 import 'src/app/component/filter/sw-existence-filter';
-import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
@@ -76,7 +75,8 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
-                'sw-select-field': await Shopware.Component.build('sw-select-field'),
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-base-filter': await Shopware.Component.build('sw-base-filter'),

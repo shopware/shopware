@@ -9,6 +9,7 @@ async function createWrapper() {
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-icon': true,
                 'sw-field-error': {

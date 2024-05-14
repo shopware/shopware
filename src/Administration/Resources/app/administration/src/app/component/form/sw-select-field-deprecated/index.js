@@ -1,4 +1,4 @@
-import template from './sw-select-field.html.twig';
+import template from './sw-select-field-deprecated.html.twig';
 import './sw-select-field.scss';
 
 const { Component, Mixin } = Shopware;
@@ -11,15 +11,15 @@ const { Component, Mixin } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-select-field placeholder="placeholder goes here..." label="label">
+ * <sw-select-field-deprecated placeholder="placeholder goes here..." label="label">
  *     <option value="value1">Label #1</option>
  *     <option value="value2">Label #2</option>
  *     <option value="value3">Label #3</option>
  *     <option value="value4">Label #4</option>
  *     <option value="value5">Label #5</option>
- * </sw-select-field>
+ * </sw-select-field-deprecated>
  */
-Component.register('sw-select-field', {
+Component.register('sw-select-field-deprecated', {
     template,
 
     inheritAttrs: false,

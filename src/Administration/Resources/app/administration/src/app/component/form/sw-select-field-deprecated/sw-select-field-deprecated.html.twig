@@ -1,0 +1,70 @@
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
+{% block sw_block_field %}
+<sw-block-field
+    class="sw-field--select"
+    :class="swFieldSelectClasses"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
+    :name="formFieldName"
+>
+    <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <select
+            :id="identification"
+            :name="identification"
+            :class="{ 'is--placeholder': currentValue === null }"
+            :disabled="disabled"
+            :value="currentValue"
+            @change="onChange"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+        >
+
+            <option
+                v-if="placeholder"
+                class="sw-field--select__placeholder-option"
+                :value="''"
+            >
+                {{ placeholder }}
+            </option>
+
+            <slot>
+                <template v-if="options && options.length">
+                    <option
+                        v-for="option in options"
+                        :key="option.id"
+                        :value="option.id"
+                        :disabled="disabled || option.disabled"
+                    >
+                        {{ getOptionName(option.name) }}
+                    </option>
+                </template>
+            </slot>
+        </select>
+
+        <sw-loader
+            v-if="!$slots.default && !hasOptions"
+            class="sw-field--select__loader"
+            size="20px"
+        />
+
+        <div class="sw-field--select__options">
+            <sw-icon
+                name="regular-chevron-down-xs"
+                small
+                decorative
+            />
+        </div>
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+</sw-block-field>
+{% endblock %}

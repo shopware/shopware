@@ -31,7 +31,7 @@ module.exports = {
             // Event handlers for <template> tags
             {
                 VElement(node) {
-                    // Handle mt-switch exception
+                    // Handle sw-switch deprecation
                     if (node.name === 'sw-switch-field') {
                         const componentName = node.name;
                         const newComponentName = 'mt-switch';
@@ -77,10 +77,56 @@ module.exports = {
                         });
                     }
 
-                    // Handle mt-checkbox-field exception
+                    // Handle sw-checkbox-field deprecation
                     if (node.name === 'sw-checkbox-field') {
                         const componentName = node.name;
                         const newComponentName = 'mt-checkbox';
+
+                        // Convert old component to new component
+                        context.report({
+                            loc: node.loc,
+                            message: `"${componentName}" is deprecated. Please use "${newComponentName}" instead.`,
+                            *fix(fixer) {
+                                if (context.options.includes('disableFix')) return;
+
+                                const isSelfClosing = node.startTag.selfClosing;
+
+                                // Handle self-closing tags
+                                if (isSelfClosing) {
+                                    // Replace the component name
+                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
+                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
+
+                                    // Save indentation of the old component
+                                    const indentation = node.loc.start.column;
+
+                                    // Add comment to the converted component
+                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
+
+                                    return;
+                                }
+
+                                // Handle non-self-closing tags
+                                const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
+                                const endTagRange = node.endTag.range;
+
+                                // Replace the component name
+                                yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
+                                yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
+
+                                // Save indentation of the old component
+                                const indentation = node.loc.start.column;
+
+                                // Add comment to the converted component
+                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
+                            }
+                        });
+                    }
+
+                    // Handle sw-select-field deprecation
+                    if (node.name === 'sw-select-field') {
+                        const componentName = node.name;
+                        const newComponentName = 'mt-select';
 
                         // Convert old component to new component
                         context.report({

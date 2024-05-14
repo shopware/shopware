@@ -1,70 +1,41 @@
-<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
-{% block sw_block_field %}
-<sw-block-field
-    class="sw-field--select"
-    :class="swFieldSelectClasses"
-    v-bind="{
-        ...$attrs,
-        ...inheritanceAttrs
-    }"
-    :name="formFieldName"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-select component #}
+<mt-select
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :options="options"
+    v-on="$listeners"
 >
-    <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
-        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-        <select
-            :id="identification"
-            :name="identification"
-            :class="{ 'is--placeholder': currentValue === null }"
-            :disabled="disabled"
-            :value="currentValue"
-            @change="onChange"
-            @focus="setFocusClass"
-            @blur="removeFocusClass"
-        >
-
-            <option
-                v-if="placeholder"
-                class="sw-field--select__placeholder-option"
-                :value="''"
-            >
-                {{ placeholder }}
-            </option>
-
-            <slot>
-                <template v-if="options && options.length">
-                    <option
-                        v-for="option in options"
-                        :key="option.id"
-                        :value="option.id"
-                        :disabled="disabled || option.disabled"
-                    >
-                        {{ getOptionName(option.name) }}
-                    </option>
-                </template>
-            </slot>
-        </select>
-
-        <sw-loader
-            v-if="!$slots.default && !hasOptions"
-            class="sw-field--select__loader"
-            size="20px"
-        />
-
-        <div class="sw-field--select__options">
-            <sw-icon
-                name="regular-chevron-down-xs"
-                small
-                decorative
-            />
-        </div>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
     </template>
-
-    <template #label>
-        <slot name="label"></slot>
+    <template #default>
+        <slot></slot>
     </template>
+</mt-select>
 
-    <template #hint>
-        <slot name="hint"></slot>
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-select-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :options="options"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
     </template>
-</sw-block-field>
-{% endblock %}
+    <template #default>
+        <slot></slot>
+    </template>
+</sw-select-field-deprecated>

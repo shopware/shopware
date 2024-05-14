@@ -52,6 +52,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-tabs />
             </template>`
+        },
+        {
+            name: '"mt-checkbox" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-checkbox />
+            </template>`
         }
     ],
     invalid: [
@@ -305,6 +313,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
+            }]
+        },
+        {
+            name: '"sw-select-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-select-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-select-field - please check if everything works correctly -->
+    <mt-select />
+</template>`,
+            errors: [{
+                message: '"sw-select-field" is deprecated. Please use "mt-select" instead.',
+            }]
+        },
+        {
+            name: '"sw-select-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-select-field />
+</template>`,
+            errors: [{
+                message: '"sw-select-field" is deprecated. Please use "mt-select" instead.',
             }]
         },
     ]

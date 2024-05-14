@@ -89,16 +89,15 @@ export const getStateMachineStateId = async (stateMachineId: string, adminApiCon
     return result.data[0].id;
 };
 
-export const getFlowId = async (eventName: string, adminApiContext: AdminApiContext): Promise<{ id: string }> => {
-    const resp = await adminApiContext.post('./search-ids/flow', {
+export const getFlowId = async (flowName: string, adminApiContext: AdminApiContext): Promise<string> => {
+    const resp = await adminApiContext.post('./search/flow', {
         data: {
-            query: [
+            limit: 1,
+            filter: [
                 {
-                    query: {
-                        type: 'contains',
-                        field: 'flow.eventName',
-                        value: eventName,
-                    },
+                    type: 'equals',
+                    field: 'name',
+                    value: flowName,
                 },
             ],
         },
@@ -106,7 +105,7 @@ export const getFlowId = async (eventName: string, adminApiContext: AdminApiCont
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
     await expect(result.total).toBe(1);
-    return result.data[0];
+    return result.data[0].id;
 };
 
 export const getMediaId = async (fileName: string, adminApiContext: AdminApiContext): Promise<string> => {
@@ -134,3 +133,8 @@ export const getOrderTransactionId = async (orderId: string, adminApiContext: Ad
         const { data: orderTransaction } = await orderTransactionResponse.json();
         return orderTransaction[0].id;
 };
+
+export function extractIdFromUrl(url: string): string | null {
+    const segments = url.split('/');
+    return segments.length > 0 ? segments[segments.length - 1] : null;
+}

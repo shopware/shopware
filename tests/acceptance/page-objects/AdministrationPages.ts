@@ -4,12 +4,16 @@ import { AdminProductDetailPage } from './Administration/ProductDetail';
 import { AdminOrderDetailPage } from './Administration/OrderDetail';
 import { FirstRunWizardPage } from '@page-objects/Administration/Settings/FirstRunWizard';
 import { AdminCustomerDetailPage } from './Administration/CustomerDetail';
+import { FlowBuilderListingPage } from './Administration/FlowBuilderListing';
+import { FlowBuilderCreatePage } from './Administration/FlowBuilderCreatePage';
 
 export interface AdministrationPages {
     adminProductDetailPage: AdminProductDetailPage,
     firstRunWizardPage: FirstRunWizardPage,
     adminOrderDetailPage: AdminOrderDetailPage,
     adminCustomerDetailPage: AdminCustomerDetailPage,
+    flowBuilderListingPage: FlowBuilderListingPage,
+    flowBuilderCreatePage: FlowBuilderCreatePage,
 }
 
 export const test = base.extend<FixtureTypes>({
@@ -27,5 +31,13 @@ export const test = base.extend<FixtureTypes>({
 
     adminCustomerDetailPage: async ({ adminPage, defaultStorefront }, use) => {
         await use(new AdminCustomerDetailPage(adminPage, defaultStorefront.customer));
+    },
+
+    flowBuilderListingPage: async ({ adminPage }, use) => {
+        await use(new FlowBuilderListingPage(adminPage));
+    },
+
+    flowBuilderCreatePage: async ({ adminPage }, use) => {
+        await use(new FlowBuilderCreatePage(adminPage));
     },
 });

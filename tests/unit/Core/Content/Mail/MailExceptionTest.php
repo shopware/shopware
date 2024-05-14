@@ -31,6 +31,12 @@ class MailExceptionTest extends TestCase
                 'errorCode' => 'MAIL__GIVEN_OPTION_INVALID',
                 'message' => 'Given sendmail option "blah" is invalid. Available options: foo, bar',
             ],
+            [
+                'exception' => MailException::mailBodyTooLong(5),
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'errorCode' => 'MAIL__MAIL_BODY_TOO_LONG',
+                'message' => 'Mail body is too long. Maximum allowed length is 5',
+            ],
         ];
 
         foreach ($testCases as $testCase) {

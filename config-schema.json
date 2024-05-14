@@ -264,6 +264,10 @@
                 "update_mail_variables_on_send": {
                     "type": "boolean",
                     "title": "Configure mail template variable update on each mail sending. This setting should be disabled on productive installations. "
+                },
+                "max_body_length": {
+                    "type": "int",
+                    "title": "The maximum length of the mail body. If it's set to 0 there is no limit."
                 }
             },
             "title": "Mail Template configuration, Available since 6.4.11.0"

@@ -690,6 +690,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->booleanNode('update_mail_variables_on_send')->defaultTrue()->end()
+            ->integerNode('max_body_length')->defaultValue(0)->end()
             ->end();
 
         return $rootNode;

@@ -283,6 +283,7 @@ shopware:
 
     mail:
         update_mail_variables_on_send: true
+        max_body_length: 0
 
     cart:
         compress: false
@@ -502,6 +503,7 @@ shopware:
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__INVALID_SYNC_OPERATION: notice
             FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
+            MAIL__MAIL_BODY_TOO_LONG: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

@@ -14,6 +14,8 @@ class MailException extends HttpException
 
     final public const GIVEN_AGENT_INVALID = 'MAIL__GIVEN_AGENT_INVALID';
 
+    final public const MAIL_BODY_TOO_LONG = 'MAIL__MAIL_BODY_TOO_LONG';
+
     /**
      * @param string[] $validOptions
      */
@@ -34,6 +36,16 @@ class MailException extends HttpException
             self::GIVEN_AGENT_INVALID,
             'Invalid mail agent given "{{ agent }}"',
             ['agent' => $agent]
+        );
+    }
+
+    public static function mailBodyTooLong(int $maxContentLength): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAIL_BODY_TOO_LONG,
+            'Mail body is too long. Maximum allowed length is {{ maxContentLength }}',
+            ['maxContentLength' => $maxContentLength]
         );
     }
 }

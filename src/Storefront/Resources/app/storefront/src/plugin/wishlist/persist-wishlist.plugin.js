@@ -1,7 +1,7 @@
-import HttpClient from 'src/service/http-client.service';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccessHelper from 'src/helper/dom-access.helper';
+import HttpClient from 'src/service/http-client.service';
 
 /**
  * @package checkout
@@ -10,6 +10,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
     init() {
         super.init();
         this.httpClient = new HttpClient();
+        this.httpClient.setErrorHandlingInternal(true);
     }
 
     load() {

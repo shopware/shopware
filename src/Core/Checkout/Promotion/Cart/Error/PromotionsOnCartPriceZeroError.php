@@ -12,7 +12,7 @@ class PromotionsOnCartPriceZeroError extends Error
 
     public function __construct(protected array $promotions)
     {
-        $this->message = sprintf('Promotions %s were excluded for cart because the price of the cart is zero.', implode(', ',$this->promotions));
+        $this->message = sprintf('Promotions %s were excluded for cart because the price of the cart is zero.', implode(', ', $this->promotions));
 
         parent::__construct($this->message);
     }
@@ -37,7 +37,7 @@ class PromotionsOnCartPriceZeroError extends Error
         return self::KEY;
     }
 
-    public function getPromotions(): string
+    public function getPromotions(): array
     {
         return $this->promotions;
     }
@@ -50,7 +50,7 @@ class PromotionsOnCartPriceZeroError extends Error
     public function getParameters(): array
     {
         return [
-            'promotions' => $this->promotions,
+            'promotions' => implode(', ', $this->promotions),
         ];
     }
 }

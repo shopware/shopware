@@ -232,6 +232,7 @@
                                 {% block component_address_personal_company_name_input %}
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                           autocomplete="section-personal organization"
                                            id="{{ idPrefix ~ prefix }}company"
                                            placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                            name="company"

@@ -20,6 +20,7 @@
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'firstName',
+                    autocomplete: 'section-personal given-name'
                     required: firstNameFieldRequired,
                     additionalClass: 'col-md-4',
                     label: 'account.personalFirstNameLabel',
@@ -33,6 +34,7 @@
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'lastName',
+                    autocomplete: 'section-personal family-name',
                     required: lastNameFieldRequired,
                     additionalClass: 'col-md-4',
                     label: 'account.personalLastNameLabel',
@@ -47,6 +49,7 @@
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
                     fieldName: 'email',
+                    autocomplete: 'email',
                     type: 'email',
                     required: true,
                     additionalClass: 'col-md-6',
@@ -63,6 +66,7 @@
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                         with {
                         fieldName: 'phone',
+                        autocomplete: 'tel',
                         required: phoneNumberFieldRequired,
                         additionalClass: 'col-md-6',
                         label: 'account.personalPhoneLabel',

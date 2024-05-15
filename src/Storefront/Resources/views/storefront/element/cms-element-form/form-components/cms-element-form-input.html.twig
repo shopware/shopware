@@ -10,6 +10,7 @@
             <input name="{{ fieldName }}"
                    type="{{ type ?? 'text'}}"
                    id="form-{{ fieldName }}"
+                   {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"
                    {% if required %}required="required"{% endif %}

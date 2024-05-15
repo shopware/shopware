@@ -63,6 +63,7 @@
       "buttonSave": "Speichern",
       "helpTextTechnicalName": "Der technische Name wird für die einzigartige Identifikation der Zahlungsart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Zahlungsintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
       "hintTextTechnicalName": "Wird ab Version 6.7.0 erforderlich sein",
+      "hintTextTechnicalNameIsProvided": "Der technische Name wird durch {name} bereitgestellt.",
       "delete": {
         "textHeadline": "Zahlungsart löschen",
         "textAlert": "Diese Zahlungsart wird in Regeln, Vertriebskanälen oder Bestellungen verwendet und kann daher nicht gelöscht werden.",

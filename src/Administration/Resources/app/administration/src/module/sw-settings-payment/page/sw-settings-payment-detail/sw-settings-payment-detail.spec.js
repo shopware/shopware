@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @package checkout
  */
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], paymentMethod = {}) {
     return mount(await wrapTestComponent('sw-settings-payment-detail', {
         sync: true,
     }), {
@@ -30,6 +30,7 @@ async function createWrapper(privileges = []) {
                                 name: 'Test settings-payment',
                                 entity: 'settings-payment',
                                 pluginId: '12321-a',
+                                ...paymentMethod,
                             };
                         },
                         get: () => Promise.resolve({
@@ -37,6 +38,7 @@ async function createWrapper(privileges = []) {
                             name: 'Test settings-payment',
                             entity: 'settings-payment',
                             pluginId: '12321-a',
+                            ...paymentMethod,
                         }),
                         search: () => Promise.resolve({
                             first: () => Promise.resolve({
@@ -45,6 +47,7 @@ async function createWrapper(privileges = []) {
                                 entity: 'settings-payment',
                                 pluginId: '12321-a',
                                 getEntityName: () => 'payment-method',
+                                ...paymentMethod,
                             }),
                         }),
                     }),
@@ -98,29 +101,15 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
-    const mockPaymentMethod = {
-        name: 'Cash',
-        id: '1000000000',
-        pluginId: '01',
-    };
-    mockPaymentMethod.getEntityName = () => { return 'payment_method'; };
-
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save the settings-payment', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
+
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-payment-detail__save-action');
@@ -131,10 +120,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper([
             'payment.editor',
         ]);
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
+
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-payment-detail__save-action');
@@ -143,10 +129,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
     it('should not be able to edit payment fields', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
+
         await flushPromises();
 
         const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
@@ -172,10 +155,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const wrapper = await createWrapper([
             'payment.editor',
         ]);
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
+
         await flushPromises();
 
         const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
@@ -200,12 +180,56 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
 
     it('should add conditions association', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            paymentMethod: mockPaymentMethod,
-            isLoading: false,
-        });
+
+        await flushPromises();
+
         const criteria = wrapper.vm.ruleFilter;
 
         expect(criteria.associations[0].association).toBe('conditions');
+    });
+
+    it('should disabled technical name input pluginId', async () => {
+        const wrapper = await createWrapper(
+            [],
+            {
+                pluginId: '001',
+            },
+        );
+
+        await flushPromises();
+
+        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+
+        expect(technicalInput.attributes().disabled).toBeTruthy();
+    });
+
+    it('should disabled technical name input appId', async () => {
+        const wrapper = await createWrapper(
+            [],
+            {
+                appPaymentMethod: {
+                    id: '001',
+                },
+            },
+        );
+
+        await flushPromises();
+
+        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+
+        expect(technicalInput.attributes().disabled).toBeTruthy();
+    });
+
+    it('should not disabled technical name input', async () => {
+        const wrapper = await createWrapper(
+            ['payment.editor'],
+            { pluginId: undefined },
+        );
+
+        await flushPromises();
+
+        const technicalInput = wrapper.find('.sw-settings-payment-detail__field-technical-name');
+
+        expect(technicalInput.attributes().disabled).toBeFalsy();
     });
 });

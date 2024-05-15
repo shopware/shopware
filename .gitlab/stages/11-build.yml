@@ -94,9 +94,9 @@ Prepare commercial release:
     - git config --global user.email $GIT_EMAIL
     - git config --global user.name $GIT_USER
     # fetch saas branches
-    - git fetch --tags origin 'refs/heads/saas/*:refs/remotes/origin/saas/*'
+    - git fetch --tags origin 'refs/heads/*:refs/remotes/origin/*'
     # track saas branches
-    - 'git branch --all | grep remotes/origin/saas/ | sort | sed -e "s|remotes/origin/||" | xargs -n1 -i{} git fetch origin "{}:{}"'
+    - 'git branch --all | grep -E "remotes/origin/(saas/|next-.*)" | sort | sed -e "s|remotes/origin/||" | xargs -n1 -i{} git fetch origin "{}:{}"'
   script:
     - '.gitlab/bin/commercial_release.bash "$CI_COMMIT_TAG" "$COMMERCIAL_REMOTE_URL"'
     - git -C commercial log -n 2

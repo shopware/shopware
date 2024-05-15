@@ -10,10 +10,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
-use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Storefront;
 
@@ -70,6 +70,8 @@ class SnippetFinderTest extends TestCase
             'irrelevantPlugin',
         ];
         $bundlePaths = [
+            'Administration',
+            'Storefront',
             'existingBundle',
             'nonExistingBundle',
         ];
@@ -275,15 +277,22 @@ class SnippetFinderTest extends TestCase
         $plugins = array_map($getBundleMockByPath, $pluginPaths);
         $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
 
-        $adminBundle = $this->createMock(Bundle::class);
+        $adminBundle = $this->createMock(Administration::class);
+
         $adminBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) (new \ReflectionClass(Administration::class))->getFileName()));
+            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Administration::class)));
 
-        $storefrontBundle = $this->createMock(Bundle::class);
+        $property = ReflectionHelper::getProperty(Administration::class, 'name');
+        $property->setValue($adminBundle, 'Administration');
+
+        $storefrontBundle = $this->createMock(Storefront::class);
         $storefrontBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) (new \ReflectionClass(Storefront::class))->getFileName()));
+            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Storefront::class)));
+
+        $property = ReflectionHelper::getProperty(Storefront::class, 'name');
+        $property->setValue($storefrontBundle, 'Storefront');
 
         $bundles = [
             ...array_map($getBundleMockByPath, $bundlePaths),

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Processor;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -32,9 +33,8 @@ class PromotionProcessorTest extends TestCase
 
     /**
      * @param array<LineItem> $items
-     *
-     * @dataProvider processorProvider
      */
+    #[DataProvider('processorProvider')]
     public function testProcessor(array $items, CartPrice $cartPrice, ?Error $expectedError): void
     {
         $processor = $this->getContainer()->get(PromotionProcessor::class);
@@ -55,10 +55,10 @@ class PromotionProcessorTest extends TestCase
 
         $processor->process($data, $cart, $new, $context, new CartBehavior());
 
-        if (null === $expectedError) {
+        if ($expectedError === null) {
             static::assertEquals(0, $new->getErrors()->count());
         } else {
-            static::assertEquals(1, $new->getErrors()->filterInstance($expectedError::class)?->count());
+            static::assertEquals(1, $new->getErrors()->filterInstance($expectedError::class)->count());
         }
     }
 

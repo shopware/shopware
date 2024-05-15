@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
@@ -75,7 +76,7 @@ class PromotionProcessor implements CartProcessorInterface
 
             if ($toCalculate->getPrice()->getTotalPrice() === 0.0) {
                 $toCalculate->addErrors(
-                    new PromotionsOnCartPriceZeroError($discountLineItems->fmap(fn($lineItem) => $lineItem->getLabel()))
+                    new PromotionsOnCartPriceZeroError($discountLineItems->fmap(fn (LineItem $lineItem) => $lineItem->getLabel()))
                 );
 
                 return;

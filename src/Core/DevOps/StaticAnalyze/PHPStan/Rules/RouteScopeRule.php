@@ -3,14 +3,15 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\FakeReflectionAttribute;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionAttribute;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\ShouldNotHappenException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,9 +30,6 @@ class RouteScopeRule implements Rule
         return InClassNode::class;
     }
 
-    /**
-     * @throws ShouldNotHappenException
-     */
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$node->getClassReflection()->is(AbstractController::class)) {
@@ -55,7 +53,10 @@ class RouteScopeRule implements Rule
                     'Method %s::%s() has no route scope defined. Please add a route scope to the method or the class.',
                     $method->getDeclaringClass()->getName(),
                     $method->getName()
-                ))->line($method->getStartLine() ?: 0)->build();
+                ))
+                    ->line($method->getStartLine() ?: 0)
+                    ->identifier('shopware.routeScope')
+                    ->build();
 
                 continue;
             }
@@ -68,7 +69,10 @@ class RouteScopeRule implements Rule
                         $method->getDeclaringClass()->getName(),
                         $method->getName()
                     )
-                )->line($method->getStartLine() ?: 0)->build();
+                )
+                    ->line($method->getStartLine() ?: 0)
+                    ->identifier('shopware.routeScope')
+                    ->build();
             }
         }
 
@@ -105,13 +109,13 @@ class RouteScopeRule implements Rule
     {
         $defaults = $attribute->getArgumentsExpressions()['defaults'] ?? null;
 
-        if (!$defaults instanceof Node\Expr\Array_) {
+        if (!$defaults instanceof Array_) {
             return null;
         }
 
         foreach ($defaults->items as $item) {
             if ($item instanceof ArrayItem && $this->hasRouteScopeKey($item)) {
-                \assert($item->value instanceof Node\Expr\Array_);
+                \assert($item->value instanceof Array_);
 
                 return \count($item->value->items);
             }
@@ -124,6 +128,6 @@ class RouteScopeRule implements Rule
     {
         $key = $item->key;
 
-        return $key instanceof Node\Scalar\String_ && $key->value === PlatformRequest::ATTRIBUTE_ROUTE_SCOPE;
+        return $key instanceof String_ && $key->value === PlatformRequest::ATTRIBUTE_ROUTE_SCOPE;
     }
 }

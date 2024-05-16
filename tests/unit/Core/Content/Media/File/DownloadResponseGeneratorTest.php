@@ -132,14 +132,14 @@ class DownloadResponseGeneratorTest extends TestCase
         yield 'private / local / x-sendfile' => [
             true,
             'local',
-            self::getExpectedStreamResponse('X-Sendfile'),
-            DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGRY,
+            self::getExpectedStreamResponse(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY),
+            DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
         ];
         yield 'private / local / x-accel' => [
             true,
             'local',
-            self::getExpectedStreamResponse('X-Accel-Redirect'),
-            DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGRY,
+            self::getExpectedStreamResponse(DownloadResponseGenerator::X_ACCEL_REDIRECT),
+            DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY,
         ];
         yield 'public / local' => [false, 'local', new RedirectResponse('foobar.txt')];
     }

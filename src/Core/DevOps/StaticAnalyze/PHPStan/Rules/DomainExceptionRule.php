@@ -3,11 +3,14 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Throw_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
@@ -75,15 +78,15 @@ class DomainExceptionRule implements Rule
             return [];
         }
 
-        if ($node->expr instanceof Node\Expr\StaticCall) {
+        if ($node->expr instanceof StaticCall) {
             return $this->validateDomainExceptionClass($node->expr, $scope);
         }
 
-        if (!$node->expr instanceof Node\Expr\New_) {
+        if (!$node->expr instanceof New_) {
             return [];
         }
 
-        \assert($node->expr->class instanceof Node\Name);
+        \assert($node->expr->class instanceof Name);
         $exceptionClass = $node->expr->class->toString();
 
         if (\in_array($exceptionClass, $this->validExceptionClasses, true)) {
@@ -91,16 +94,18 @@ class DomainExceptionRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message('Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md')->build(),
+            RuleErrorBuilder::message('Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md')
+                ->identifier('shopware.domainException')
+                ->build(),
         ];
     }
 
     /**
-     * @return list<RuleError>
+     * @return list<IdentifierRuleError>
      */
-    private function validateDomainExceptionClass(Node\Expr\StaticCall $node, Scope $scope): array
+    private function validateDomainExceptionClass(StaticCall $node, Scope $scope): array
     {
-        \assert($node->class instanceof Node\Name);
+        \assert($node->class instanceof Name);
         $exceptionClass = $node->class->toString();
 
         if (!\str_starts_with($exceptionClass, 'Shopware\\Core\\')) {
@@ -110,7 +115,9 @@ class DomainExceptionRule implements Rule
         $exception = $this->reflectionProvider->getClass($exceptionClass);
         if (!$exception->isSubclassOf(HttpException::class)) {
             return [
-                RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))->build(),
+                RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))
+                    ->identifier('shopware.domainException')
+                    ->build(),
             ];
         }
 
@@ -149,7 +156,9 @@ class DomainExceptionRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $acceptedClasses[0], $exceptionClass))->build(),
+            RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $acceptedClasses[0], $exceptionClass))
+                ->identifier('shopware.domainException')
+                ->build(),
         ];
     }
 

@@ -330,7 +330,7 @@ class AssetServiceTest extends TestCase
                 $local = $expectedWrites[$path];
                 unset($expectedWrites[$path]);
 
-                static::assertEquals(__DIR__ . '/../_fixtures/' . $local, $meta['uri']);
+                static::assertSame(__DIR__ . '/../_fixtures/' . $local, $meta['uri'] ?? '');
 
                 return true;
             });
@@ -434,7 +434,7 @@ class AssetServiceTest extends TestCase
                 $local = $expectedWrites[$path];
                 unset($expectedWrites[$path]);
 
-                static::assertEquals(__DIR__ . '/../_fixtures/' . $local, $meta['uri']);
+                static::assertSame(__DIR__ . '/../_fixtures/' . $local, $meta['uri'] ?? '');
 
                 return true;
             });

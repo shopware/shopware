@@ -154,7 +154,7 @@ class MappingService extends AbstractMappingService
             $mappings = $profile->getMapping();
             if ($mappings !== null) {
                 foreach ($mappings as $mapping) {
-                    if (!empty($mapping['key']) && !empty($mapping['mappedKey'])) {
+                    if (\is_array($mapping) && !empty($mapping['key']) && !empty($mapping['mappedKey'])) {
                         $keyLookupTable[(string) $mapping['mappedKey']] = (string) $mapping['key'];
                     }
                 }

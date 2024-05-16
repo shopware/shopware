@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\Log\Package;
 
@@ -56,7 +57,14 @@ class AbstractClassUsageRule implements Rule
                         continue;
                     }
 
-                    $errors[] = sprintf('Decoration error: Parameter %s $%s of %s is using the decoration pattern, but non-abstract constructor parameter is used.', $parameterClass->getName(), $parameter->getName(), $class->getName());
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        'Decoration error: Parameter %s $%s of %s is using the decoration pattern, but non-abstract constructor parameter is used.',
+                        $parameterClass->getName(),
+                        $parameter->getName(),
+                        $class->getName()
+                    ))
+                        ->identifier('shopware.decorationPattern')
+                        ->build();
                 }
             }
         }

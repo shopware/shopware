@@ -62,7 +62,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     }
 
     /**
-     * @param array<string, string> $matches
+     * @param list<string> $matches
      *
      * @return array<string, string>
      */

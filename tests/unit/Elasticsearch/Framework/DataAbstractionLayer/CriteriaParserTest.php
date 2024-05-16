@@ -565,6 +565,7 @@ class CriteriaParserTest extends TestCase
         if ($scriptSorting) {
             static::assertTrue($fieldSort->hasParameter('script'));
             $script = $fieldSort->getParameter('script');
+            static::assertIsArray($script);
 
             // Unset the 'source' key before comparison.
             unset($script['source']);
@@ -1237,6 +1238,7 @@ class CriteriaParserTest extends TestCase
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $parsedSorting->getParameter('script');
+        static::assertIsArray($script);
 
         if ($unsetSource) {
             unset($script['source']);

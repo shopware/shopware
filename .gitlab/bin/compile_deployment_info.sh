@@ -5,6 +5,7 @@ if [ -n "${DEBUG:-}" ]; then
   set -x
 fi
 
+GITLAB_TOKEN="${GITLAB_TOKEN:-$CI_JOB_TOKEN}"
 CI_JOB_TOKEN="${CI_JOB_TOKEN}"
 CI_CURRENT_MAJOR_ALIAS="${CI_CURRENT_MAJOR_ALIAS:-}"
 
@@ -55,7 +56,6 @@ commit_date() {
   local project="${1}"
   local branch="${2}"
 
-  export GITLAB_TOKEN="${CI_JOB_TOKEN}"
   export GITLAB_HOST="gitlab.shopware.com"
 
   glab api "projects/${project}/repository/commits/${branch}" | jq -r '.committed_date' | xargs -I '{}' date -R --date="{}"
@@ -88,8 +88,12 @@ deployment_env() {
   local update_extensions="${1:-}"
 
   local deployment_branch_name="$(deployment_branch_name)"
+  local ci_update_dependency="1"
   local gitlab_mr_description="$(gitlab_mr_description)"
   local custom_version=""
+  local gitlab_mr_title="Deployment - ${deployment_branch_name}"
+  local gitlab_mr_labels="workflow::development"
+  local gitlab_mr_assignees="shopwarebot"
 
   if [ -n "${update_extensions}" ]; then
     custom_version="$(custom_version_core);$(custom_version_extensions)"
@@ -99,13 +103,22 @@ deployment_env() {
 
   cat <<EOF
 DEPLOYMENT_BRANCH_NAME="${deployment_branch_name}"
-CI_UPDATE_DEPENDENCY="1"
-CUSTOM_VERSION=${custom_version}
-GITLAB_MR_TITLE="Deployment - ${deployment_branch_name}"
+CI_UPDATE_DEPENDENCY="${ci_update_dependency}"
+CUSTOM_VERSION="${custom_version}"
+GITLAB_MR_TITLE="${gitlab_mr_title}"
 GITLAB_MR_DESCRIPTION_TEXT="${gitlab_mr_description}"
-GITLAB_MR_LABELS="workflow::development"
-GITLAB_MR_ASSIGNEES="shopwarebot"
+GITLAB_MR_LABELS="${gitlab_mr_labels}"
+GITLAB_MR_ASSIGNEES="${gitlab_mr_assignees}"
 EOF
+}
+
+deployment_env_b64() {
+  local target_var="${1}"
+  local update_extensions="${2:-}"
+
+  printf "%s=%s\n" "${target_var}" "$(deployment_env ${update_extensions} | base64 -w0)"
+  printf "CUSTOM_VERSION=1\n"
+  printf "CI_UPDATE_DEPENDENCY=1\n"
 }
 
 "$@"

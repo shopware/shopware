@@ -42,6 +42,7 @@ export default {
             orderAmount: 0,
             orderCount: 0,
             customerLanguage: null,
+            currencyCode: Shopware.Context.app.systemCurrencyISOCode,
         };
     },
 

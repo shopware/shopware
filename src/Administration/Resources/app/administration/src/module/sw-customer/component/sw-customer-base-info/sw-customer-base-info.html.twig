@@ -297,9 +297,8 @@
             <dt class="sw-customer-base-info__label">
                 {{ $tc('sw-customer.baseInfo.labelTurnover') }}
             </dt>
-            {# price aggregations do not support currencies yet, see NEXT-5069 #}
             <dd class="sw-customer-base__label-turnover">
-                {{ currencyFilter(customer.orderTotalAmount, 'EUR') }}
+                {{ currencyFilter(customer.orderTotalAmount, currencyCode) }}
             </dd>
         </sw-description-list>
         {% endblock %}

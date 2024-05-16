@@ -505,6 +505,7 @@ shopware:
             FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
             MAIL__MAIL_BODY_TOO_LONG: notice
             CONTENT__MEDIA_MISSING_URL_PARAMETER: notice
+            FRAMEWORK__INVALID_WRITE_INPUT: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

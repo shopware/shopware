@@ -337,6 +337,16 @@ class DataAbstractionLayerException extends HttpException
         return new ExpectedArrayException($path);
     }
 
+    public static function expectedAssociativeArray(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_WRITE_INPUT,
+            'Expected data at {{ path }} to be an associative array.',
+            ['path' => $path]
+        );
+    }
+
     /**
      * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */

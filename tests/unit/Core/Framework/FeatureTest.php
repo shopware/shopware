@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -228,6 +229,40 @@ class FeatureTest extends TestCase
     {
         $message = Feature::deprecatedMethodMessage($className, $methodName, 'v6.7.0.0');
         static::assertSame($expectedMessage, $message);
+    }
+
+    public function testFeatureAllMajorOnlyActivatesMajorFlags(): void
+    {
+        // Fake FEATURE_ALL so Core/DevOps/Environment/EnvironmentHelper::getVariable returns "major"
+        $orgFeatureAll = $_SERVER['FEATURE_ALL'];
+        $_SERVER['FEATURE_ALL'] = 'major';
+
+        static::assertSame('major', EnvironmentHelper::getVariable('FEATURE_ALL'));
+
+        // Register 2 features one major and without major
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures([
+            'MAJOR' => [
+                'name' => 'Major',
+                'default' => false,
+                'major' => true,
+                'description' => 'This is a major feature',
+            ],
+            'NONE_MAJOR' => [
+                'name' => 'None Major',
+                'default' => false,
+                'major' => false,
+                'description' => 'This isn\'t a major feature',
+            ],
+        ]);
+
+        // MAJOR feature should be active because of FEATURE_ALL=major
+        static::assertTrue(Feature::isActive('MAJOR'));
+        // NONE_MAJOR feature should be inactive
+        static::assertFalse(Feature::isActive('NONE_MAJOR'));
+
+        // Restore $_SERVER state
+        $_SERVER['FEATURE_ALL'] = $orgFeatureAll;
     }
 
     public static function deprecatedMethodMessageProvider(): \Generator

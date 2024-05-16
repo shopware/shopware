@@ -15,7 +15,7 @@ shopware:
         major: true
       - name: ACCESSIBILITY_TWEAKS
         default: false
-        major: false
+        major: true
         toggleable: true
         description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"
       - name: ADMIN_VITE

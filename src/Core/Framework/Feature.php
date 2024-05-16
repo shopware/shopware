@@ -91,24 +91,24 @@ class Feature
 
         $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
 
-        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
+        // If FEATURE_ALL has any truthy value
+        if (self::isTrue((string) $featureAll)) {
             // If feature is not major and is have set active, return the active state
-            if (\array_key_exists($feature, self::$registeredFeatures) && (self::$registeredFeatures[$feature]['major'] ?? false) === false && \array_key_exists('active', self::$registeredFeatures[$feature])) {
-                return self::$registeredFeatures[$feature]['active'];
+            if (!self::getConfiguration($feature, 'major') && self::hasConfiguration($feature, 'active')) {
+                return self::getConfiguration($feature, 'active');
             }
 
+            // Should only enable major flags
             if ($featureAll === Feature::ALL_MAJOR) {
-                return true;
+                return self::getConfiguration($feature, 'major');
             }
 
-            // return true if it's registered and not a major feature
-            if (isset(self::$registeredFeatures[$feature]) && (self::$registeredFeatures[$feature]['major'] ?? false) === false) {
-                return true;
-            }
+            // Enable all flags
+            return true;
         }
 
-        if (\array_key_exists($feature, self::$registeredFeatures) && \array_key_exists('active', self::$registeredFeatures[$feature])) {
-            return self::$registeredFeatures[$feature]['active'];
+        if (self::hasConfiguration($feature, 'active')) {
+            return self::getConfiguration($feature, 'active');
         }
 
         if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
@@ -355,5 +355,19 @@ class Feature
     private static function denormalize(string $name): string
     {
         return \strtolower(\str_replace(['_'], '.', $name));
+    }
+
+    private static function hasConfiguration(string $feature, string $key): bool
+    {
+        return \array_key_exists($feature, self::$registeredFeatures) && \array_key_exists($key, self::$registeredFeatures[$feature]);
+    }
+
+    private static function getConfiguration(string $feature, string $key): bool
+    {
+        if (!self::hasConfiguration($feature, $key)) {
+            return false;
+        }
+
+        return (bool) (self::$registeredFeatures[$feature][$key] ?? false);
     }
 }

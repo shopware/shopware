@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -24,6 +25,7 @@ use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -42,7 +44,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         private readonly SalesChannelProductDefinition $productDefinition,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -57,7 +60,14 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
             $mainVariantId = $this->checkVariantListingConfig($productId, $context);
 
-            $productId = $mainVariantId ?? $this->findBestVariant($productId, $context);
+            $resolveVariantIdEvent = new ResolveVariantIdEvent(
+                $productId,
+                $mainVariantId,
+                $context,
+            );
+
+            $this->eventDispatcher->dispatch($resolveVariantIdEvent);
+            $productId = $resolveVariantIdEvent->getResolvedVariantId() ?? $this->findBestVariant($productId, $context);
 
             $this->addFilters($context, $criteria);
 

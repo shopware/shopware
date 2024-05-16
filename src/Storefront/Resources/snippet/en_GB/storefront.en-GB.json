@@ -73,7 +73,7 @@
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
     "VIOLATION::ZIP_CODE_INVALID": "The postal code you have entered does not have the correct format.",
-    "VIOLATION::INVALID_FORMAT_ERROR": "The email you have entered does not have the correct format.",
+    "VIOLATION::INVALID_FORMAT_ERROR": "The input does not have the correct format.",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",

@@ -98,10 +98,10 @@
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ManyToManyAssociationService">

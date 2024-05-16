@@ -33,7 +33,6 @@ class IterateEntitiesQueryBuilder
         string $entityName,
         Operation $operation,
         \DateTimeImmutable $currentRun,
-        \DateTimeInterface $lastApprovalDate,
         ?\DateTimeImmutable $lastRun,
     ): QueryBuilder {
         $definition = $this->entityDefinitionService->getAllowedEntityDefinition($entityName);
@@ -44,8 +43,8 @@ class IterateEntitiesQueryBuilder
         }
 
         return match ($operation) {
-            Operation::CREATE => $this->createQueryForCreatedEntities($definition, $lastApprovalDate, $lastRun),
-            Operation::UPDATE => $this->createQueryForUpdatedEntities($definition, $lastApprovalDate, $lastRun),
+            Operation::CREATE => $this->createQueryForCreatedEntities($definition, $currentRun, $lastRun),
+            Operation::UPDATE => $this->createQueryForUpdatedEntities($definition, $currentRun, $lastRun),
             Operation::DELETE => $this->createQueryForDeletedEntities($definition, $currentRun, $lastRun),
         };
     }
@@ -57,7 +56,7 @@ class IterateEntitiesQueryBuilder
 
     private function createQueryForCreatedEntities(
         EntityDefinition $definition,
-        \DateTimeInterface $lastApprovalDate,
+        \DateTimeInterface $currentRun,
         ?\DateTimeImmutable $lastRun,
     ): QueryBuilder {
         if ($lastRun === null) {
@@ -67,25 +66,25 @@ class IterateEntitiesQueryBuilder
         $iterableQuery = $this->getBaseQuery($definition);
         $iterableQuery->andWhere(
             'created_at > :lastRun',
-            'created_at <= :lastApprovalDate',
+            'created_at <= :currentRun',
         );
 
         $iterableQuery->andWhere(
             CompositeExpression::or(
                 $iterableQuery->expr()->isNull('updated_at'),
-                $iterableQuery->expr()->lte('updated_at', ':lastApprovalDate')
+                $iterableQuery->expr()->lte('updated_at', ':currentRun')
             )
         );
 
         $iterableQuery->setParameter('lastRun', $lastRun->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        $iterableQuery->setParameter('lastApprovalDate', $lastApprovalDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        $iterableQuery->setParameter('currentRun', $currentRun->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         return $iterableQuery;
     }
 
     private function createQueryForUpdatedEntities(
         EntityDefinition $definition,
-        \DateTimeInterface $lastApprovalDate,
+        \DateTimeInterface $currentRun,
         ?\DateTimeImmutable $lastRun,
     ): QueryBuilder {
         if ($lastRun === null) {
@@ -96,11 +95,11 @@ class IterateEntitiesQueryBuilder
         $iterableQuery->andWhere(
             'created_at <= :lastRun',
             'updated_at > :lastRun',
-            'updated_at <= :lastApprovalDate',
+            'updated_at <= :currentRun',
         );
 
         $iterableQuery->setParameter('lastRun', $lastRun->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        $iterableQuery->setParameter('lastApprovalDate', $lastApprovalDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        $iterableQuery->setParameter('currentRun', $currentRun->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         return $iterableQuery;
     }

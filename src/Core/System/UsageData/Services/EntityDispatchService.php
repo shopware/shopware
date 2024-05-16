@@ -5,11 +5,11 @@ namespace Shopware\Core\System\UsageData\Services;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
-use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -20,14 +20,18 @@ class EntityDispatchService
 {
     private const LAST_RUN_CONFIG_KEY = 'usageData-entitySync-lastRun';
 
+    private const SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN = 'core.usageData.lastEntitySyncRunDate';
+
+    private const MIN_LAST_ENTITY_SYNC_DIFFERENCE = 60 * 60 * 12; // 12 hours
+
     public function __construct(
         private readonly EntityDefinitionService $entityDefinitionService,
         private readonly AbstractKeyValueStorage $appConfig,
         private readonly MessageBusInterface $messageBus,
-        private readonly ClockInterface $clock,
         private readonly ConsentService $consentService,
         private readonly GatewayStatusService $gatewayStatusService,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -43,9 +47,15 @@ class EntityDispatchService
 
     public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
-        if (!$this->consentService->isConsentAccepted()) {
+        $lastConsentAcceptedDate = $this->consentService->getLastConsentIsAcceptedDate();
+        if (!$lastConsentAcceptedDate) {
             return;
         }
+
+        if (!$this->hasMinimumTimeElapsed($lastConsentAcceptedDate)) {
+            return;
+        }
+        $runDate = $lastConsentAcceptedDate;
 
         // don't start iterating if shopId is different; handle old messages without shopId
         if ($message->shopId !== null && $this->shopIdProvider->getShopId() !== $message->shopId) {
@@ -55,9 +65,6 @@ class EntityDispatchService
         if (!$this->gatewayStatusService->isGatewayAllowsPush()) {
             return;
         }
-
-        // TODO: Do not run multiple times i.e. return if already started
-        $runDate = $this->clock->now();
 
         foreach ($this->entityDefinitionService->getAllowedEntityDefinitions() as $entityDefinition) {
             $entityName = $entityDefinition->getEntityName();
@@ -81,6 +88,8 @@ class EntityDispatchService
                 $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT)
             );
         }
+
+        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN, $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function resetLastRunDateForAllEntities(): void
@@ -107,5 +116,16 @@ class EntityDispatchService
         }
 
         return Operation::cases();
+    }
+
+    private function hasMinimumTimeElapsed(\DateTimeImmutable $lastConsentAcceptedDate): bool
+    {
+        $lastRunDate = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN);
+        if (!\is_string($lastRunDate)) {
+            return true;
+        }
+        $lastRunDate = new \DateTimeImmutable($lastRunDate);
+
+        return $lastConsentAcceptedDate->getTimestamp() > ($lastRunDate->getTimestamp() + self::MIN_LAST_ENTITY_SYNC_DIFFERENCE);
     }
 }

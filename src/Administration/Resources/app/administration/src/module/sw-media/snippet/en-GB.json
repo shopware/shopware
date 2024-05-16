@@ -49,6 +49,7 @@
       },
       "usage": {
         "tooltipFoundInProducts": "Found in products",
+        "tooltipFoundInLandingPages": "Found in landing pages",
         "tooltipFoundInCategories": "Found in categories",
         "tooltipFoundInManufacturers": "Found in manufacturers",
         "tooltipFoundInMailTemplate": "Found in mail templates",

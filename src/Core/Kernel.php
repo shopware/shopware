@@ -231,7 +231,7 @@ class Kernel extends HttpKernel
     {
         return sprintf(
             '%s/var/cache/%s_h%s%s',
-            $this->getProjectDir(),
+            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''

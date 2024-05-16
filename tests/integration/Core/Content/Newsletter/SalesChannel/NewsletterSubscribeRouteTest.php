@@ -56,6 +56,50 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->systemConfig->set('core.newsletter.doubleOptIn', false);
     }
 
+    public function testSubscribeToMultipleSalesChannels(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'test@example.com',
+                    'option' => 'direct',
+                    'storefrontUrl' => 'http://localhost',
+                    'firstName' => 'Foo',
+                    'lastName' => 'Bar',
+                ]
+            );
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel-2'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://test.localhost',
+                ],
+            ],
+        ]);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'test@example.com',
+                    'option' => 'direct',
+                    'storefrontUrl' => 'http://test.localhost',
+                    'firstName' => 'Foo',
+                    'lastName' => 'Bar',
+                ],
+            );
+
+        $count = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@example.com" AND status = "direct"');
+        static::assertSame(2, $count);
+    }
+
     public function testSubscribeWithoutFields(): void
     {
         $this->browser

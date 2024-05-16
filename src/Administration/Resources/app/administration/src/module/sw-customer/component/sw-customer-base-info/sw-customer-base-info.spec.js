@@ -83,6 +83,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     let wrapper;
 
     beforeEach(async () => {
+        Shopware.Context.app.systemCurrencyISOCode = 'GBP';
         wrapper = await createWrapper();
     });
 
@@ -123,7 +124,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display turnover of user', async () => {
-        expect(wrapper.find('.sw-customer-base__label-turnover').text()).toBe('€29.68');
+        expect(wrapper.find('.sw-customer-base__label-turnover').text()).toBe('£29.68');
     });
 
     it('should hide some information when displayed in edit mode', async () => {

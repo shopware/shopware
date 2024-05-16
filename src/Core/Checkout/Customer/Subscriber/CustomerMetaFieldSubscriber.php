@@ -109,7 +109,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         $select = '
             SELECT `order_customer`.customer_id as id,
                    COUNT(`order`.id) as order_count,
-                   SUM(`order`.amount_total) as order_total_amount,
+                   ROUND(SUM(`order`.amount_total / `order`.currency_factor), 2) as order_total_amount,
                    MAX(`order`.order_date_time) as last_order_date
 
             FROM `order_customer`

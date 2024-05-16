@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Migration;
+namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +17,7 @@ class Migration1632281097NotificationTest extends TestCase
     public function testNoNotificationTable(): void
     {
         $conn = $this->getContainer()->get(Connection::class);
-        $conn->executeStatement('DROP TABLE `notification`');
+        $conn->executeStatement('DROP TABLE IF EXISTS `notification`');
 
         $migration = new Migration1632281097Notification();
         $migration->update($conn);

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\DependencyInjection;
+namespace Shopware\Tests\Integration\Administration\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerPass;

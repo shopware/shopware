@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Notification\Repository;
+namespace Shopware\Tests\Integration\Administration\Notification\Repository;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +77,9 @@ class NotificationRepositoryTest extends TestCase
         static::assertSame($data['message'], $notification->getMessage());
     }
 
+    /**
+     * @return array<int, array<int, string>>
+     */
     public static function notificationProvider(): array
     {
         return [

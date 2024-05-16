@@ -139,7 +139,7 @@ PHP legacy:
     - php vendor/bin/phpunit
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
-      --testsuite administration,storefront,content,framework,migration,system
+      --testsuite storefront,content,framework,migration,system
       --order-by default
 
 PHP bench:
@@ -327,7 +327,7 @@ PHP Full:
     - name: redis:7.0
       alias: redis
   variables:
-    TEST_SUITES: "administration storefront content devops framework profiling system unit integration migration migration-tests"
+    TEST_SUITES: "integration storefront content devops framework system unit migration migration-tests"
     APP_ENV: test
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     ALLOW_FAILURE: "false"
@@ -363,15 +363,15 @@ PHP Full:
         PREFER_LOWEST: "prefer lowest"
         # Don't run devops tests with lowest dependencies, as phpstan has known issues with mismatched in installed package versions: https://github.com/phpstan/phpdoc-parser/issues/188
         # Also running devops tests don't provide value with prefer lowest, as the scripts are always executed with the latest dependencies
-        TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
+        TEST_SUITES: "integration storefront content framework system unit migration migration-tests"
       - MYSQL_IMAGE: mariadb:10.11
         ONLY_CORE: "only core"
-        TEST_SUITES: "content framework profiling system integration migration"
+        TEST_SUITES: "integration content framework system migration"
       - MYSQL_IMAGE: mariadb:11.0
         DEPENDENCY_DEV: "dev dependencies"
         ALLOW_FAILURE: "true"
         MYSQL_CMD: "mariadbd"
-        TEST_SUITES: "content framework profiling system integration migration"
+        TEST_SUITES: "integration content framework system migration"
   before_script:
     - >
       if [ -n "$FAKE_PHP_VERSION" ]; then

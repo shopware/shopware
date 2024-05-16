@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\RateLimiter;
+namespace Shopware\Tests\Integration\Administration\RateLimiter;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;

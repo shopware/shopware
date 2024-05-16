@@ -56,7 +56,7 @@ final class DispatchEntityMessageHandler
         if ($lastApprovalDate === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No approval date found');
         }
-        /** @var \DateTimeInterface $lastApprovalDate */
+
         if ($message->operation === Operation::DELETE) {
             $this->handleDelete($message, $definition);
 
@@ -104,6 +104,9 @@ final class DispatchEntityMessageHandler
         return $encoded;
     }
 
+    /**
+     * @return never-return
+     */
     private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): void
     {
         throw new UnrecoverableMessageHandlingException(sprintf(
@@ -157,7 +160,7 @@ final class DispatchEntityMessageHandler
     private function handleUpserts(
         DispatchEntityMessage $message,
         EntityDefinition $definition,
-        \DateTimeInterface $lastApprovalDate,
+        \DateTimeImmutable $lastApprovalDate,
     ): void {
         $fields = $this->usageDataAllowListService->getFieldsToSelectFromDefinition($definition);
         $manyToManyAssociationIdFields = $this->entityDefinitionService->getManyToManyAssociationIdFields($fields);

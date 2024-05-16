@@ -54,7 +54,6 @@ final class IterateEntityMessageHandler
                 $message->entityName,
                 $message->operation,
                 $message->runDate,
-                $lastApprovalDate,
                 $message->lastRun
             );
 

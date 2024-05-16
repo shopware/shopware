@@ -23,7 +23,7 @@ git clone $COMMERCIAL_REMOTE_URL commercial --branch $BRANCH
 cd commercial
 
 # allow the current minor or newer (required for the update, it breaks if you only allow patch releases for some reason)
-CORE_REQUIRE="shopware/core:~$(echo ${PLATFORM_TAG} | cut -d '.' -f1,2,3)"
+CORE_REQUIRE="shopware/core:~${PLATFORM_TAG}"
 
 # composer will put it into the composer.json otherwise
 composer config --global --no-plugins allow-plugins.symfony/runtime false

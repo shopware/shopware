@@ -1,36 +1,41 @@
-<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
-{% block sw_block_field %}
-<sw-block-field
-    class="sw-field--textarea"
-    v-bind="{
-        ...$attrs,
-        ...inheritanceAttrs
-    }"
-    :name="formFieldName"
-    @inheritance-restore="$emit('inheritance-restore', $event)"
-    @inheritance-remove="$emit('inheritance-remove', $event)"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-textarea component #}
+<mt-textarea
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    v-model="realValue"
+    :placeholder="placeholder"
 >
-    <template #sw-field-input="{identification, helpText, error, disabled, setFocusClass, removeFocusClass }">
-        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-        <textarea
-            :id="identification"
-            :name="identification"
-            :placeholder="placeholder"
-            :disabled="disabled"
-            :value="currentValue"
-            @change="onChange"
-            @input="onInput"
-            @focus="setFocusClass"
-            @blur="removeFocusClass"
-        ></textarea>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
     </template>
+</mt-textarea>
 
-    <template #label>
-        <slot name="label"></slot>
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-textarea-field-deprecated
+    v-else
+    v-bind="$attrs"
+    v-model:value="realValue"
+    :value="value"
+    :placeholder="placeholder"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
     </template>
-
-    <template #hint>
-        <slot name="hint"></slot>
-    </template>
-</sw-block-field>
-{% endblock %}
+</sw-textarea-field-deprecated>

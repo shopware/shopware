@@ -11,9 +11,9 @@ const { Component, Mixin } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-textarea-field type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
+ * <sw-textarea-field-deprecated type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
  */
-Component.register('sw-textarea-field', {
+Component.register('sw-textarea-field-deprecated', {
     template,
     inheritAttrs: false,
 

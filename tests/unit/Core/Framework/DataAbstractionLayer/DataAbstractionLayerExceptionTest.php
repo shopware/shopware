@@ -125,6 +125,16 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertEquals('FRAMEWORK__WRITE_MALFORMED_INPUT', $e->getErrorCode());
     }
 
+    public function testExpectedAssociativeArray(): void
+    {
+        $e = DataAbstractionLayerException::expectedAssociativeArray('some/path/0');
+
+        static::assertEquals('Expected data at some/path/0 to be an associative array.', $e->getMessage());
+        static::assertEquals('some/path/0', $e->getParameters()['path']);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertEquals('FRAMEWORK__INVALID_WRITE_INPUT', $e->getErrorCode());
+    }
+
     public function testDecodeHandledByHydrator(): void
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);

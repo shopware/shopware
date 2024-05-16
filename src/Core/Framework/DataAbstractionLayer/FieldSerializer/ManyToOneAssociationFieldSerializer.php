@@ -98,12 +98,13 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             throw DataAbstractionLayerException::invalidSerializerField(ManyToOneAssociationField::class, $field);
         }
 
-        if (!\is_array($data->getValue())) {
-            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
+        $value = $data->getValue();
+        if (!\is_array($value) || !$this->isArrayAssociative($value)) {
+            throw DataAbstractionLayerException::expectedAssociativeArray($parameters->getPath());
         }
 
         $this->writeExtractor->extract(
-            $data->getValue(),
+            $value,
             $parameters->cloneForSubresource(
                 $field->getReferenceDefinition(),
                 $parameters->getPath() . '/' . $data->getKey()
@@ -116,5 +117,15 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
     public function decode(Field $field, mixed $value): never
     {
         throw DataAbstractionLayerException::decodeHandledByHydrator($field);
+    }
+
+    /**
+     * @param array<array-key, mixed> $array
+     */
+    private function isArrayAssociative(array $array): bool
+    {
+        $isString = array_map(is_string(...), array_keys($array));
+
+        return \count(array_filter($isString)) === \count($array);
     }
 }

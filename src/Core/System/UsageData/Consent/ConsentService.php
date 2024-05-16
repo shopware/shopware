@@ -74,10 +74,10 @@ class ConsentService
      * Returns the last date when we still had the consent.
      * If we never had the consent before, null is returned.
      */
-    public function getLastConsentIsAcceptedDate(): ?\DateTimeInterface
+    public function getLastConsentIsAcceptedDate(): ?\DateTimeImmutable
     {
         if ($this->isConsentAccepted()) {
-            return $this->clock->now();
+            return \DateTimeImmutable::createFromInterface($this->clock->now());
         }
 
         $criteria = new Criteria();
@@ -86,7 +86,9 @@ class ConsentService
         $entitySearchResult = $this->systemConfigRepository->search($criteria, Context::createDefaultContext());
         $config = $entitySearchResult->first();
 
-        return $config?->getUpdatedAt();
+        $updatedAt = $config?->getUpdatedAt();
+
+        return $updatedAt ? \DateTimeImmutable::createFromInterface($updatedAt) : null;
     }
 
     public function getConsentState(): ?ConsentState

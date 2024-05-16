@@ -6,7 +6,7 @@
                title="{{ 'header.logoLink'|trans|striptags }}">
                 {% block layout_header_logo_image %}
                     <picture class="header-logo-picture">
-                            {% block layout_header_logo_image_tablet %}
+                        {% block layout_header_logo_image_tablet %}
                             {% if theme_config('sw-logo-tablet') and theme_config('sw-logo-tablet') != theme_config('sw-logo-desktop') %}
                                 <source srcset="{{ theme_config('sw-logo-tablet')|sw_encode_url }}"
                                         media="(min-width: {{ theme_config('breakpoint.md') }}px) and (max-width: {{ theme_config('breakpoint.lg') - 1 }}px)">

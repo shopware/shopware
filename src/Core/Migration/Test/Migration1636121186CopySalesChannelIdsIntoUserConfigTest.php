@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Migration;
+namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -32,6 +32,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var array<string, string>
+     */
     private array $languages;
 
     protected function setUp(): void
@@ -109,6 +112,8 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 
     /**
      * @param string[] $salesChannelIds
+     *
+     * @return list<mixed>
      */
     private function fetchSalesChannelNames(array $salesChannelIds, string $languageId): array
     {
@@ -137,6 +142,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->create($insert, Context::createDefaultContext());
     }
 
+    /**
+     * @return array<string, string|bool>
+     */
     private function getUserFixture(string $username, string $localeId): array
     {
         return [
@@ -151,6 +159,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function fetchLanguages(): array
     {
         $all = $this->connection->createQueryBuilder()
@@ -171,6 +182,9 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         return FetchModeHelper::keyPair($all);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function fetchConfigs(): array
     {
         $all = $this->connection->createQueryBuilder()
@@ -190,6 +204,11 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         return FetchModeHelper::keyPair($all);
     }
 
+    /**
+     * @param array<string> $languages
+     *
+     * @return array<int|string, array<int, mixed>>
+     */
     private function fetchExpectedSalesChannelIds(array $languages): array
     {
         $all = $this->connection->createQueryBuilder()
@@ -255,6 +274,11 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->create($insert, Context::createDefaultContext());
     }
 
+    /**
+     * @param array<mixed> $merge
+     *
+     * @return array<string, string>
+     */
     private function getSalesChannelFixture(array $merge): array
     {
         $data = [

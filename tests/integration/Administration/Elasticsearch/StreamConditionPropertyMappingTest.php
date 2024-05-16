@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Elasticsearch;
+namespace Shopware\Tests\Integration\Administration\Elasticsearch;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
@@ -36,7 +36,7 @@ class StreamConditionPropertyMappingTest extends TestCase
             static::fail('EsProductDefinition is not defined');
         }
 
-        $js = file_get_contents(__DIR__ . '/../../Resources/app/administration/src/app/service/product-stream-condition.service.js');
+        $js = file_get_contents(__DIR__ . '/../../../../src/Administration/Resources/app/administration/src/app/service/product-stream-condition.service.js');
 
         if (!$js) {
             static::fail('product-stream-condition.service.js not found');

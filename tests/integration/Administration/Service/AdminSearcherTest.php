@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Service;
+namespace Shopware\Tests\Integration\Administration\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

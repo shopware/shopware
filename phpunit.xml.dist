@@ -61,7 +61,6 @@
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
-            <directory suffix=".php">src/Administration/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
             <directory suffix=".php">./vendor</directory>
             <directory suffix=".php">./var</directory>
@@ -90,9 +89,6 @@
     </php>
     <testsuites>
         <!-- Legacy -->
-        <testsuite name="administration">
-            <directory>src/Administration/Test</directory>
-        </testsuite>
         <testsuite name="storefront">
             <directory>src/Storefront/Test</directory>
         </testsuite>

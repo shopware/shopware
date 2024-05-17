@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Test\System\Service;
+namespace Shopware\Tests\Integration\Core\Maintenance\System\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -11,7 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
-use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -44,12 +45,14 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultLanguage('es-ES');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<LanguageCollection> $langRepo */
         $langRepo = $this->getContainer()->get('language.repository');
 
         $lang = $langRepo->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($lang);
         static::assertEquals('Spanish', $lang->getName());
     }
 
@@ -57,12 +60,14 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultLanguage('en-GB');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<LanguageCollection> $langRepo */
         $langRepo = $this->getContainer()->get('language.repository');
 
         $lang = $langRepo->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($lang);
         static::assertEquals('English', $lang->getName());
     }
 
@@ -70,12 +75,14 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultLanguage('de-DE');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<LanguageCollection> $langRepo */
         $langRepo = $this->getContainer()->get('language.repository');
 
         $lang = $langRepo->search(new Criteria([Defaults::LANGUAGE_SYSTEM]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($lang);
         static::assertEquals('Deutsch', $lang->getName());
     }
 
@@ -83,13 +90,14 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultCurrency('RUB');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<CurrencyCollection> $langRepo */
         $langRepo = $this->getContainer()->get('currency.repository');
 
-        /** @var CurrencyEntity $currency */
         $currency = $langRepo->search(new Criteria([Defaults::CURRENCY]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($currency);
         static::assertEquals('RUB', $currency->getSymbol());
         static::assertEquals('Russian Ruble', $currency->getName());
         static::assertEquals('RUB', $currency->getShortName());
@@ -107,13 +115,14 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultCurrency('EUR');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<CurrencyCollection> $langRepo */
         $langRepo = $this->getContainer()->get('currency.repository');
 
-        /** @var CurrencyEntity $currency */
         $currency = $langRepo->search(new Criteria([Defaults::CURRENCY]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($currency);
         static::assertEquals('Euro', $currency->getName());
     }
 
@@ -121,22 +130,26 @@ class ShopConfiguratorTest extends TestCase
     {
         $this->shopConfigurator->setDefaultCurrency('GBP');
 
-        /** @var EntityRepository $langRepo */
+        /** @var EntityRepository<CurrencyCollection> $langRepo */
         $langRepo = $this->getContainer()->get('currency.repository');
 
-        /** @var CurrencyEntity $currency */
         $currency = $langRepo->search(new Criteria([Defaults::CURRENCY]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($currency);
         static::assertEquals('Pound', $currency->getName());
         static::assertEquals(1, $currency->getFactor());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('isoCode', 'EUR'));
+
         $oldDefault = $langRepo->search($criteria, Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
+        static::assertNotNull($oldDefault);
         static::assertEquals('Euro', $oldDefault->getName());
-        static::assertEquals(1.1216169229561, $oldDefault->getFactor());
+        static::assertEquals(1.1216169229561337, $oldDefault->getFactor());
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Test\SalesChannel\Service;
+namespace Shopware\Tests\Integration\Core\Maintenance\SalesChannel\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;

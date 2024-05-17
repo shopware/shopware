@@ -1,16 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Test\SalesChannel\Command;
+namespace Shopware\Tests\Integration\Core\Maintenance\SalesChannel\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateDomainCommand;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -21,6 +23,21 @@ use Symfony\Component\Console\Tester\CommandTester;
 class SalesChannelUpdateDomainCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    protected function setUp(): void
+    {
+        /** @var EntityRepository<SalesChannelDomainCollection> $domainRepo */
+        $domainRepo = $this->getContainer()->get('sales_channel_domain.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        /** @var SalesChannelDomainEntity $domain */
+        $domain = $domainRepo->search($criteria, Context::createDefaultContext())->first();
+
+        if ($domain === null) {
+            static::markTestSkipped('SalesChannelUpdateDomainCommandTests need storefront channel to be active');
+        }
+    }
 
     public function testUpdateDomainCommand(): void
     {

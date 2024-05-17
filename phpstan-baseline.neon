@@ -5342,16 +5342,6 @@ parameters:
 			path: src/Core/Maintenance/SalesChannel/Service/SalesChannelCreator.php
 
 		-
-			message: "#^Cannot call method getFactor\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Maintenance/Test/System/Service/ShopConfiguratorTest.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 4
-			path: src/Core/Maintenance/Test/System/Service/ShopConfiguratorTest.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getLogoId\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Migration/Test/Migration1605609477RemoveDeleteCascadeConstraintInDocumentBaseConfigTableTest.php

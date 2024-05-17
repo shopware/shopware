@@ -12,12 +12,12 @@ marked.setOptions({
     breaks: true,
 });
 
-async function fetchGithub(url: string, { headers = {}, method = "GET", body}: { headers?: Record<string, string>, body?: string, method?: string } = {}) {
+async function fetchGithub(url: string, { headers = {}, method = "GET", body }: { headers?: Record<string, string>, body?: string, method?: string } = {}) {
     const ghToken = Deno.env.get("GITHUB_TOKEN");
-    headers['User-Agent']  ='Shopware Release Info Generator';
+    headers['User-Agent'] = 'Shopware Release Info Generator';
 
     if (ghToken) {
-        headers["Authorization"] =  `token ${ghToken}`;
+        headers["Authorization"] = `token ${ghToken}`;
     }
 
     return fetch(url, {
@@ -55,7 +55,7 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
 }
 
 async function generateVersionInfo() {
-    const json = await (await fetchGithub("https://api.github.com/repos/shopware/platform/releases")).json();
+    const json = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases")).json();
     const vulnerabilities = await fetchVulnerabilities();
 
     for (const release of json) {
@@ -63,7 +63,7 @@ async function generateVersionInfo() {
             continue;
         }
 
-        marked.use(baseUrl(`https://github.com/shopware/platform/blob/${release.tag_name}/changelog`));
+        marked.use(baseUrl(`https://github.com/shopware/shopware/blob/${release.tag_name}/changelog`));
 
         const detail = await (await fetchGithub(release.url)).json();
 
@@ -81,13 +81,18 @@ async function generateVersionInfo() {
 
 async function generateVersionListing() {
     let currentPage = 1
+    const latestRelease = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases/latest")).json();
     const versions = [];
 
     while (true) {
-        const releases = await(await fetchGithub("https://api.github.com/repos/shopware/platform/releases?per_page=100&page=" + currentPage)).json();
+        const releases = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases?per_page=100&page=" + currentPage)).json();
 
         for (const release of releases) {
             if (release.draft) {
+                continue;
+            }
+
+            if (release.tag_name === latestRelease.tag_name) {
                 continue;
             }
 
@@ -101,11 +106,14 @@ async function generateVersionListing() {
         currentPage++
     }
 
-    Deno.writeTextFileSync(`index.json`, JSON.stringify(versions));
+    // put the release marked as latest always to the top
+    const allVersions = [latestRelease.tag_name.substring(1), ...versions]
+
+    Deno.writeTextFileSync(`index.json`, JSON.stringify(allVersions));
 }
 
 async function fetchVulnerabilities() {
-    const json = await (await fetchGithub("https://api.github.com/repos/shopware/platform/security-advisories?per_page=100&state=published")).json();
+    const json = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/security-advisories?per_page=100&state=published")).json();
 
     const formatted = {};
 

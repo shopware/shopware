@@ -48,10 +48,10 @@ class ApiRouteLoader extends Loader
         $class = ApiController::class;
 
         // uuid followed by any number of '/{entity-name}/{uuid}' | '/extensions/{entity-name}/{uuid}' pairs followed by an optional slash
-        $detailSuffix = '[0-9a-f]{32}(\/(extensions\/)?[a-zA-Z-]+\/[0-9a-f]{32})*\/?$';
+        $detailSuffix = '[0-9a-f]{32}(\/(extensions\/)?[0-9a-zA-Z-]+\/[0-9a-f]{32})*\/?$';
 
         // '/{uuid}/{entity-name}' | '/{uuid}/extensions/{entity-name}' pairs followed by an optional slash
-        $listSuffix = '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$';
+        $listSuffix = '(\/[0-9a-f]{32}\/(extensions\/)?[0-9a-zA-Z-]+)*\/?$';
 
         $elements = $this->definitionRegistry->getDefinitions();
         usort($elements, fn (EntityDefinition $a, EntityDefinition $b) => $a->getEntityName() <=> $b->getEntityName());

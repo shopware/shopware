@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -52,7 +53,7 @@ class OrderActionController extends AbstractController
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
-            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
+            SendMailAction::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
                 $documentIds,

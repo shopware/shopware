@@ -1121,16 +1121,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Exception/MailTransportFailedException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberConfig\\:\\:getDocumentIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriberConfig.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Subscriber\\\\MailSendSubscriberConfig\\:\\:getMediaIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/MailTemplate/Subscriber/MailSendSubscriberConfig.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeEntity\\:\\:getMediaFolderConfigurations\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationCollection but returns Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Aggregate/MediaThumbnailSize/MediaThumbnailSizeEntity.php

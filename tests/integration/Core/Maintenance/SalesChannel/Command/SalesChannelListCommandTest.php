@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Maintenance\Test\SalesChannel\Command;
+namespace Shopware\Tests\Integration\Core\Maintenance\SalesChannel\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;

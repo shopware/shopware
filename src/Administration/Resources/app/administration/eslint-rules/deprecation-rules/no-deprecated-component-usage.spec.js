@@ -12,6 +12,7 @@ const { mtSelectValidTests, mtSelectInvalidTests } = require("./no-deprecated-co
 const { mtTextareaValidTests, mtTextareaInvalidTests } = require("./no-deprecated-component-usage-checks/mt-textarea.check");
 const { mtBannerValidTests, mtBannerInvalidTests } = require("./no-deprecated-component-usage-checks/mt-banner.check");
 const { mtExternalLinkValidTests, mtExternalLinkInvalidTests } = require("./no-deprecated-component-usage-checks/mt-external-link.check");
+const { mtDatepickerInvalidTests, mtDatepickerValidTests } = require("./no-deprecated-component-usage-checks/mt-datepicker.check");
 
 const tester = new RuleTester({
     parser: require.resolve('vue-eslint-parser'),
@@ -37,6 +38,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTextareaValidTests,
         ...mtBannerValidTests,
         ...mtExternalLinkValidTests,
+        ...mtDatepickerValidTests,
     ],
     invalid: [
         ...mtButtonInvalidChecks,
@@ -49,6 +51,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTabsInvalidTests,
         ...mtSelectInvalidTests,
         ...mtTextareaInvalidTests,
+        ...mtDatepickerInvalidTests,
         ...mtBannerInvalidTests,
         ...mtExternalLinkInvalidTests,
     ]

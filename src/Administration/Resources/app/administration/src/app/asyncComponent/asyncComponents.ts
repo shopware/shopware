@@ -7,6 +7,7 @@ export default () => {
     /* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len */
     Shopware.Component.register('sw-code-editor', () => import('src/app/asyncComponent/form/sw-code-editor'));
     Shopware.Component.register('sw-datepicker', () => import('src/app/asyncComponent/form/sw-datepicker'));
+    Shopware.Component.register('sw-datepicker-deprecated', () => import('src/app/asyncComponent/form/sw-datepicker-deprecated'));
     Shopware.Component.register('sw-chart', () => import('src/app/asyncComponent/base/sw-chart'));
     Shopware.Component.register('sw-help-center-v2', () => import('src/app/asyncComponent/utils/sw-help-center'));
     Shopware.Component.register('sw-help-sidebar', () => import('src/app/asyncComponent/sidebar/sw-help-sidebar'));

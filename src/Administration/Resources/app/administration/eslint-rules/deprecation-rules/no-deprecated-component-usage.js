@@ -13,6 +13,7 @@ const { handleMtSelect } = require("./no-deprecated-component-usage-checks/mt-se
 const { handleMtTextarea } = require("./no-deprecated-component-usage-checks/mt-textarea.check");
 const { handleMtBanner } = require("./no-deprecated-component-usage-checks/mt-banner.check");
 const { handleMtExternalLink } = require("./no-deprecated-component-usage-checks/mt-external-link.check");
+const { handleMtDatepicker } = require("./no-deprecated-component-usage-checks/mt-datepicker.check");
 
 /* eslint-disable max-len */
 
@@ -67,6 +68,8 @@ module.exports = {
                     handleMtBanner(context, node);
                     // Handle mt-external-link
                     handleMtExternalLink(context, node);
+                    // Handle mt-datepicker
+                    handleMtDatepicker(context, node);
                 },
             }
         )

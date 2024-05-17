@@ -1,7 +1,7 @@
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
-import template from './sw-datepicker.html.twig';
+import template from './sw-datepicker-deprecated.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
 

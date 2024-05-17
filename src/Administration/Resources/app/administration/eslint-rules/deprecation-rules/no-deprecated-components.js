@@ -110,7 +110,8 @@ module.exports = {
                         'sw-number-field',
                         'sw-external-link',
                         'sw-loader',
-                        'sw-tabs'
+                        'sw-tabs',
+                        'sw-datepicker',
                     ];
 
                     // Handle other deprecated components

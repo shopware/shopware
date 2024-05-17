@@ -103,6 +103,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-password-field': await wrapTestComponent('sw-password-field'),
+                    'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

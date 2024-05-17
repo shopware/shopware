@@ -243,3 +243,5 @@ framework:
             log_level: notice
         Shopware\Core\System\NumberRange\Exception\NoConfigurationException:
             log_level: notice
+        Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched:
+            log_level: notice

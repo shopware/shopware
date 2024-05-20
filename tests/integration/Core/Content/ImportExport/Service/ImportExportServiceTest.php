@@ -33,6 +33,7 @@ class ImportExportServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     public const TEST_PROFILE_NAME = 'Test Profile';
+    public const TEST_PROFILE_TECHNICAL_NAME = 'test_profile';
 
     /**
      * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
@@ -175,7 +176,7 @@ class ImportExportServiceTest extends TestCase
 
         $profile = [
             'id' => Uuid::randomHex(),
-            'name' => self::TEST_PROFILE_NAME,
+            'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
             'label' => self::TEST_PROFILE_NAME,
             'sourceEntity' => 'product',
             'fileType' => 'text/csv',
@@ -203,7 +204,7 @@ class ImportExportServiceTest extends TestCase
         static::assertSame($profile['enclosure'], $actualConfig->get('enclosure'));
         static::assertSame($profile['sourceEntity'], $actualConfig->get('sourceEntity'));
         static::assertSame($profile['fileType'], $actualConfig->get('fileType'));
-        static::assertSame($profile['name'], $actualConfig->get('profileName'));
+        static::assertSame($profile['label'], $actualConfig->get('profileName'));
 
         $expectedMapping = MappingCollection::fromIterable($profile['mapping']);
         static::assertEquals($expectedMapping, $actualConfig->getMapping());
@@ -272,7 +273,7 @@ class ImportExportServiceTest extends TestCase
             'Import with export type should throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -290,7 +291,7 @@ class ImportExportServiceTest extends TestCase
             'Export with export type should not throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -308,7 +309,7 @@ class ImportExportServiceTest extends TestCase
             'Export with import type should not throw exception if invalid records should be exported' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,
@@ -327,7 +328,7 @@ class ImportExportServiceTest extends TestCase
             'Import with import-export type should not throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
@@ -345,7 +346,7 @@ class ImportExportServiceTest extends TestCase
             'Export with import-export type should not throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
@@ -363,7 +364,7 @@ class ImportExportServiceTest extends TestCase
             'Import with import type should not throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,
@@ -381,7 +382,7 @@ class ImportExportServiceTest extends TestCase
             'Export with import type should throw exception' => [
                 [
                     'id' => Uuid::randomHex(),
-                    'name' => self::TEST_PROFILE_NAME,
+                    'technicalName' => self::TEST_PROFILE_TECHNICAL_NAME,
                     'label' => self::TEST_PROFILE_NAME,
                     'sourceEntity' => 'product',
                     'type' => ImportExportProfileEntity::TYPE_IMPORT,

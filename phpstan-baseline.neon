@@ -681,26 +681,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Aggregate/ImportExportLog/ImportExportLogEntity.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getLabel\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Command\\\\ImportEntityCommand\\:\\:chooseProfile\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Command\\\\ImportEntityCommand\\:\\:profileByName\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php
@@ -1801,59 +1781,9 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Api/ImportExportFileApiTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportProfileApiTest\\:\\:getTranslationRecords\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportProfileApiTest\\:\\:prepareImportExportProfileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportProfileApiTest\\:\\:rotateTestdata\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportProfileApiTest\\:\\:rotateTestdata\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 6
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ImportExport/Api/ImportExportProfileApiTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\DeleteExpiredFilesCommandTest\\:\\:prepareImportExportFileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Commands/DeleteExpiredFilesCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\ImportEntityCommandTest\\:\\:\\$context is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\ImportEntityCommandTest\\:\\:\\$demoDataService is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\ImportEntityCommandTest\\:\\:\\$fileRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\ImportEntityCommandTest\\:\\:\\$profileRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with false and 'outer must be…' will always evaluate to true\\.$#"
@@ -1904,16 +1834,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportFileRepositoryTest\\:\\:prepareImportExportFileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Repository/ImportExportFileRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportProfileRepositoryTest\\:\\:getTranslationRecords\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Repository\\\\ImportExportProfileRepositoryTest\\:\\:prepareImportExportProfileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Repository/ImportExportProfileRepositoryTest.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getOriginalName\\(\\)\\.$#"

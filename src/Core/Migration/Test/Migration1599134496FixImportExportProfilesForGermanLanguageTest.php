@@ -106,7 +106,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $englishData = $this->getEnglishData();
         $englishData[] = [
             'id' => Uuid::randomHex(),
-            'name' => 'My custom entry',
+            'technicalName' => 'custom_entry',
             'label' => 'Custom entry',
             'systemDefault' => false,
             'sourceEntity' => 'product',
@@ -212,14 +212,14 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
     }
 
     /**
-     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     * @return list<array{id: string, technicalName: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
      */
     private function getEnglishData(): array
     {
         return [
             [
                 'id' => '0c97a88fe59b49789496d27942948e19',
-                'name' => 'Default variant configuration settings',
+                'technicalName' => 'default_variant_configuration_settings',
                 'label' => 'Default variant configuration settings',
                 'systemDefault' => true,
                 'sourceEntity' => 'product_configurator_setting',
@@ -229,7 +229,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
             ],
             [
                 'id' => '68b0c53efab74b959f6da17f856ab8b9',
-                'name' => 'Default product',
+                'technicalName' => 'default_product',
                 'label' => 'Default product',
                 'systemDefault' => true,
                 'sourceEntity' => 'product',
@@ -239,7 +239,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
             ],
             [
                 'id' => '6cb7a1c19cb94817a108ca48d935bf84',
-                'name' => 'Default properties',
+                'technicalName' => 'default_properties',
                 'label' => 'Default properties',
                 'systemDefault' => true,
                 'sourceEntity' => 'property_group_option',
@@ -249,7 +249,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
             ],
             [
                 'id' => 'b3d5f7a0d84c40088a225691a182afcd',
-                'name' => 'Default newsletter recipient',
+                'technicalName' => 'default_newsletter_recipient',
                 'label' => 'Default newsletter recipient',
                 'systemDefault' => true,
                 'sourceEntity' => 'newsletter_recipient',
@@ -259,7 +259,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
             ],
             [
                 'id' => 'db82e8dadb2a40168e52bd745d9d28ff',
-                'name' => 'Default category',
+                'technicalName' => 'default_category',
                 'label' => 'Default category',
                 'systemDefault' => true,
                 'sourceEntity' => 'category',
@@ -269,7 +269,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
             ],
             [
                 'id' => 'de4ab3bf0d6b4b62a2f79053c5a06b8e',
-                'name' => 'Default media',
+                'technicalName' => 'default_media',
                 'label' => 'Default media',
                 'systemDefault' => true,
                 'sourceEntity' => 'media',
@@ -281,7 +281,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
     }
 
     /**
-     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     * @return list<array{id: string, technicalName: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
      */
     private function getGermanData(): array
     {
@@ -296,7 +296,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $englishData = $this->getEnglishData();
 
         foreach ($englishData as &$englishDatum) {
-            $englishDatum['label'] = $germanData[$englishDatum['name']];
+            $englishDatum['label'] = $germanData[$englishDatum['label']];
         }
         unset($englishDatum);
 
@@ -346,7 +346,7 @@ SQL;
     }
 
     /**
-     * @return list<array{id: string, name: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
+     * @return list<array{id: string, technicalName: string, label: string, systemDefault: bool, sourceEntity: string, fileType: string, delimiter: string, enclosure: string}>
      */
     private function getPolishAndEnglishData(string $polishId, string $englishId): array
     {

@@ -6,6 +6,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
@@ -18,9 +19,16 @@ class ImportExportProfileEntity extends Entity
     final public const TYPE_IMPORT_EXPORT = 'import-export';
 
     /**
+     * @deprecated tag:v6.7.0 - Will be replaced by technical name
+     *
      * @var string|null
      */
     protected $name;
+
+    /**
+     * @var string
+     */
+    protected $technicalName;
 
     /**
      * @var string
@@ -82,14 +90,34 @@ class ImportExportProfileEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed
+     */
     public function getName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
+
         return $this->name;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed
+     */
     public function setName(string $name): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
+
         $this->name = $name;
+    }
+
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(string $technicalName): void
+    {
+        $this->technicalName = $technicalName;
     }
 
     public function getLabel(): string

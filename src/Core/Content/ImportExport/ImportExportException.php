@@ -39,6 +39,8 @@ class ImportExportException extends HttpException
     public const FILE_PATH_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__FILE_PATH_NOT_FOUND';
     public const INVALID_REQUEST_PARAMETER = 'CONTENT__IMPORT_EXPORT__INVALID_REQUEST_PARAMETER';
     public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
+    final public const PROFILE_SEARCH_EMPTY = 'CONTENT__IMPORT_EXPORT__PROFILE_SEARCH_EMPTY';
+    final public const IMPORT_COMMAND_FAILED = 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED';
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -268,6 +270,24 @@ class ImportExportException extends HttpException
             self::MISSING_PRIVILEGE,
             'Missing privilege: {{ missingPrivileges }}',
             ['missingPrivileges' => \json_encode($privilege)],
+        );
+    }
+
+    public static function profileSearchEmpty(): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PROFILE_SEARCH_EMPTY,
+            'The search for profiles returned no results.'
+        );
+    }
+
+    public static function importCommandFailed(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::IMPORT_COMMAND_FAILED,
+            $message
         );
     }
 }

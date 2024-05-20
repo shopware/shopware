@@ -1588,7 +1588,7 @@ class ImportExportTest extends AbstractImportExportTestCase
     {
         return [
             'id' => Uuid::randomHex(),
-            'name' => 'Test Profile',
+            'technicalName' => 'test_profile',
             'label' => 'Test Profile',
             'sourceEntity' => 'category',
             'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,

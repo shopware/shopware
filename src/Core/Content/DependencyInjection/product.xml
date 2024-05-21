@@ -471,6 +471,7 @@
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" decoration-priority="-1000" public="true">

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -18,10 +17,6 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
-        if (!$field instanceof ConfigJsonField) {
-            throw DataAbstractionLayerException::invalidSerializerField(ConfigJsonField::class, $field);
-        }
-
         $wrapped = [ConfigJsonField::STORAGE_KEY => $data->getValue()];
         $data->setValue($wrapped);
 
@@ -30,10 +25,6 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
 
     public function decode(Field $field, mixed $value): mixed
     {
-        if (!$field instanceof ConfigJsonField) {
-            throw DataAbstractionLayerException::invalidSerializerField(ConfigJsonField::class, $field);
-        }
-
         $wrapped = parent::decode($field, $value);
         if ($wrapped === null || !isset($wrapped[ConfigJsonField::STORAGE_KEY])) {
             return null;

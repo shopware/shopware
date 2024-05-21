@@ -32,7 +32,7 @@ class CommandExecutor
                 'packages' => [$pluginComposerName],
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
-                '--update-with-dependencies' => null,
+                '--update-with-all-dependencies' => null,
                 '--no-scripts' => null,
             ]
         );

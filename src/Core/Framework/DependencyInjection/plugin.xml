@@ -59,6 +59,8 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">

@@ -1,0 +1,32 @@
+<a
+    v-if="$attrs.hasOwnProperty('href')"
+    v-bind="$attrs"
+    target="_blank"
+    :rel="rel"
+    class="sw-external-link"
+    :class="classes"
+>
+    <slot></slot>
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
+</a>
+
+<span
+    v-else
+    class="sw-external-link"
+    :class="classes"
+    role="button"
+    tabindex="0"
+    @click="onClick"
+    @keydown.enter="onClick"
+>
+    <slot></slot>
+    <sw-icon
+        class="sw-external-link__icon"
+        :size="iconSize"
+        :name="icon"
+    />
+</span>

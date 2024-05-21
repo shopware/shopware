@@ -55,6 +55,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
                     'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
+                    'sw-external-link-deprecated': await wrapTestComponent('sw-external-link-deprecated', { sync: true }),
                     'sw-loader': true,
                 },
             },

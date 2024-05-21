@@ -167,6 +167,11 @@ export default {
             this.element.config = deepCopyObject(element?.defaultConfig || {});
             this.element.type = element.name;
             this.element.locked = false;
+
+            if (this.element.translated?.config) {
+                this.element.translated.config = {};
+            }
+
             this.showElementSelection = false;
         },
 

@@ -204,6 +204,22 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         });
     });
 
+    it('should reset previous translated config values on onSelectElement', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.element.translated = {
+            config: {
+                test: 'test',
+            },
+        };
+
+        wrapper.vm.onSelectElement({
+            name: 'newTestElement',
+        });
+
+        expect(wrapper.vm.element.type).toBe('newTestElement');
+        expect(wrapper.vm.element.translated.config).toEqual({});
+    });
+
     it('should filter blocks based on pageType compatibility', async () => {
         const wrapper = await createWrapper();
 

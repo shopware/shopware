@@ -44,6 +44,11 @@ type vueWithUid = Partial<App<Element>> & { _uid: number };
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
 
+/**
+ * This array is used to keep track of datasets that should be unregistered
+ */
+let unregisterPublishDataIds: string[] = [];
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Deep clone with custom handling for entities and entity collections
@@ -161,7 +166,10 @@ function parsePath(path :string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope }: publishOptions): void {
+export function publishData({ id, path, scope }: publishOptions): () => void {
+    if (unregisterPublishDataIds.includes(id)) {
+        unregisterPublishDataIds = unregisterPublishDataIds.filter(value => value !== id);
+    }
     const registeredDataSet = publishedDataSets.find(s => s.id === id);
 
     // @ts-expect-error
@@ -169,7 +177,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
     if (registeredDataSet && registeredDataSet.scope !== (scope as vueWithUid)._uid) {
         console.error(`The dataset id "${id}" you tried to publish is already registered.`);
 
-        return;
+        return () => {};
     }
 
     // @ts-expect-error
@@ -178,7 +186,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         register({ id: id, data: get(scope, path) }).catch(() => {});
 
-        return;
+        return () => {};
     }
 
     // Create updateSubscriber which maps back changes from the app to Vue
@@ -272,6 +280,13 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
     const unwatch = scope.$watch(path, debounce((value: App<Element>) => {
+        if (unregisterPublishDataIds.includes(id)) {
+            unregisterPublishDataIds = unregisterPublishDataIds.filter(v => v !== id);
+            unwatch();
+
+            return;
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const clonedValue = deepCloneWithEntity(value);
 
@@ -299,12 +314,21 @@ export function publishData({ id, path, scope }: publishOptions): void {
     // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
     scope.$once('hook:beforeDestroy', () => {
         publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+        unregisterPublishDataIds.push(id);
 
         unwatch();
     });
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     register({ id: id, data: get(scope, path) }).catch(() => {});
+
+    // Return method to manually deregister the dataset
+    return function unregisterPublishData() {
+        publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+        unregisterPublishDataIds.push(id);
+
+        unwatch();
+    };
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

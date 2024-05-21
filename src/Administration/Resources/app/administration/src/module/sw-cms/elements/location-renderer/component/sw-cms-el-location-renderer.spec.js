@@ -83,4 +83,33 @@ describe('module/sw-cms/elements/location-renderer/component', () => {
             },
         );
     });
+
+    it('should unpublish the old publishData when elementData changes', async () => {
+        const unpublishDataMock = jest.fn();
+
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {
+            return () => {
+                unpublishDataMock();
+            };
+        });
+
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(unpublishDataMock).toHaveBeenCalledTimes(0);
+
+        await wrapper.setProps({
+            elementData: {
+                name: 'example_cms_element_type_foo',
+                appData: {
+                    baseUrl: 'http://test.example-app.com',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(unpublishDataMock).toHaveBeenCalledTimes(2);
+    });
 });

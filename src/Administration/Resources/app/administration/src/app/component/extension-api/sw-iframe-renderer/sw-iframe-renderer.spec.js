@@ -320,4 +320,41 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframeRenderer = wrapper.find('.sw-iframe-renderer.sw-iframe-renderer--full-screen');
         expect(iframeRenderer.element instanceof HTMLElement).toBe(true);
     });
+
+    it('should update the iFrame src when location ID changes', async () => {
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'MeteorAdminSDKExampleApp',
+            baseUrl: 'http://localhost:8888/index.html',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        const wrapper = await createWrapper({
+            props: {
+                src: 'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7',
+                locationId: 'ex-dailymotion-element',
+            },
+        });
+
+        await flushPromises();
+
+        const iframe = wrapper.find('iframe');
+        const iframeSrc = iframe.attributes('src');
+
+        expect(iframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+
+        // Update location ID
+        await wrapper.setProps({
+            locationId: 'ex-youtube-element',
+        });
+
+        await flushPromises();
+
+        const updatedIframe = wrapper.find('iframe');
+        const updatedIframeSrc = updatedIframe.attributes('src');
+
+        expect(updatedIframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+    });
 });

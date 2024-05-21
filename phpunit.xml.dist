@@ -58,7 +58,6 @@
             <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
             <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
-            <directory suffix=".php">src/Core/System/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
             <directory suffix=".php">./vendor</directory>
@@ -100,9 +99,6 @@
         </testsuite>
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
-        </testsuite>
-        <testsuite name="system">
-            <directory>src/Core/System/Test</directory>
         </testsuite>
         <!-- new Structure -->
         <testsuite name="unit">

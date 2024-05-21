@@ -68,6 +68,38 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-textarea />
             </template>`
+        },
+        {
+            name: '"mt-select" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-select />
+            </template>`
+        },
+        {
+            name: '"mt-skeleton-bar" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-skeleton-bar />
+            </template>`
+        },
+        {
+            name: '"mt-switch" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-switch />
+            </template>`
+        },
+        {
+            name: '"mt-number-field" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-number-field />
+            </template>`
         }
     ],
     invalid: [
@@ -379,5 +411,33 @@ tester.run('no-deprecated-components', rule, {
                 message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
             }]
         },
+        {
+            name: '"sw-skeleton-bar" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-skeleton-bar />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-skeleton-bar - please check if everything works correctly -->
+    <mt-skeleton-bar />
+</template>`,
+            errors: [{
+                message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
+            }]
+        },
+        {
+            name: '"sw-skeleton-bar" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-skeleton-bar />
+</template>`,
+            errors: [{
+                message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
+            }]
+        }
     ]
 })

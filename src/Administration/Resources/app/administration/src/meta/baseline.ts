@@ -104,7 +104,7 @@ const missingTests = [
     'src/app/component/utils/sw-popover/index.js',
     'src/app/component/utils/sw-progress-bar/index.js',
     'src/app/component/utils/sw-skeleton/index.ts',
-    'src/app/component/utils/sw-skeleton-bar/index.ts',
+    'src/app/component/utils/sw-skeleton-bar-deprecated/index.ts',
     'src/app/component/utils/sw-step-display/index.js',
     'src/app/component/utils/sw-step-item/index.js',
     'src/app/component/utils/sw-text-preview/index.js',

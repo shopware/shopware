@@ -1,32 +1,35 @@
-<a
-    v-if="$attrs.hasOwnProperty('href')"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-external-link component #}
+<mt-external-link
+    v-if="useMeteorComponent"
     v-bind="$attrs"
-    target="_blank"
-    :rel="rel"
-    class="sw-external-link"
-    :class="classes"
 >
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
     <slot></slot>
-    <sw-icon
-        class="sw-external-link__icon"
-        :size="iconSize"
-        :name="icon"
-    />
-</a>
+</mt-external-link>
 
-<span
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-external-link-deprecated
     v-else
-    class="sw-external-link"
-    :class="classes"
-    role="button"
-    tabindex="0"
-    @click="onClick"
-    @keydown.enter="onClick"
+    v-bind="$attrs"
+    v-on="$listeners"
 >
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
     <slot></slot>
-    <sw-icon
-        class="sw-external-link__icon"
-        :size="iconSize"
-        :name="icon"
-    />
-</span>
+</sw-external-link-deprecated>

@@ -3,55 +3,35 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/utils/sw-external-link';
 
-const createWrapper = async (props = {}) => {
+async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-external-link', { sync: true }), {
-        props,
-        global: {
-            stubs: ['sw-icon'],
-            slots: {
-                default: 'test external link',
-            },
-        },
+        global: {},
+        props: {},
+        ...additionalOptions,
     });
-};
+}
 
-describe('components/utils/sw-external-link', () => {
-    it('should display the correct link', async () => {
-        const wrapper = await createWrapper({ href: 'https://google.com' });
-        const anchor = wrapper.find('a');
-
-        expect(anchor.attributes('href')).toBe('https://google.com');
+describe('src/app/component/base/sw-external-link', () => {
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display a custom icon', async () => {
-        const wrapper = await createWrapper({
-            href: 'https://google.com',
-            icon: 'default-test-icon',
-        });
+    it('should render the deprecated external-link when major feature flag is disabled', async () => {
+        global.activeFeatureFlags = [''];
 
-        expect(wrapper.find('sw-icon-stub').exists()).toBe(true);
-        expect(wrapper.find('sw-icon-stub').attributes().name).toBe('default-test-icon');
-        expect(wrapper.find('sw-icon-stub').attributes().size).toBe('10px');
-    });
-
-    it('should emit click event if no href is provided', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.trigger('click');
-        await flushPromises();
-
-        expect(wrapper.emitted().click).toBeTruthy();
+        expect(wrapper.html()).toContain('sw-external-link-deprecated');
+        expect(wrapper.html()).not.toContain('mt-external-link');
     });
 
-    it('should render small', async () => {
-        const wrapper = await createWrapper({
-            href: 'https://google.com',
-            small: true,
-        });
+    it('should render the mt-external-link when major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
 
-        expect(wrapper.find('sw-icon-stub').attributes().size).toBe('8px');
-        expect(wrapper.classes()).toContain('sw-external-link--small');
+        const wrapper = await createWrapper();
+
+        expect(wrapper.html()).toContain('mt-external-link');
     });
 });

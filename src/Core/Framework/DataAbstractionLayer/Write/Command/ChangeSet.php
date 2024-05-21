@@ -35,7 +35,7 @@ class ChangeSet extends Struct
 
         // validate data types
         foreach ($changes as $property => $after) {
-            $before = $state[$property];
+            $before = (string) $state[$property];
             $string = (string) $after;
             if ($string === $before) {
                 continue;
@@ -72,6 +72,13 @@ class ChangeSet extends Struct
     public function hasChanged(string $property): bool
     {
         return \array_key_exists($property, $this->after) || $this->isDelete;
+    }
+
+    public function merge(ChangeSet $changeSet): void
+    {
+        $this->after = array_merge($this->after, $changeSet->after);
+        $this->state = array_merge($this->state, $changeSet->state);
+        $this->isDelete = $this->isDelete || $changeSet->isDelete;
     }
 
     public function getApiAlias(): string

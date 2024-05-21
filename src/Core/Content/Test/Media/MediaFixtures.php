@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Test\EntityFixturesBase;
+use Shopware\Tests\Integration\Core\System\EntityFixturesBase;
 
 trait MediaFixtures
 {

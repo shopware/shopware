@@ -20,8 +20,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\System\EntityFixturesBase;
 
 #[Package('services-settings')]
 trait OrderFixture

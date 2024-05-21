@@ -16,12 +16,11 @@ jobs:
       matrix:
         suite:
           # some suites are merged to reduce the number of jobs
-          - administration,system
+          - integration
           - storefront
           - content
           - framework
           - unit
-          - integration
           - migration,migration-tests
     env:
       APP_ENV: test

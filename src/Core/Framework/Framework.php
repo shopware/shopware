@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
@@ -213,11 +214,19 @@ class Framework extends Bundle
             /** @var string $class */
             $class = $extension->getDefinitionClass();
 
-            $definition = $definitionRegistry->get($class);
+            try {
+                $definition = $definitionRegistry->get($class);
+            } catch (DefinitionNotFoundException) {
+                continue;
+            }
 
             $definition->addExtension($extension);
 
-            $salesChannelDefinition = $salesChannelRegistry->get($class);
+            try {
+                $salesChannelDefinition = $salesChannelRegistry->get($class);
+            } catch (DefinitionNotFoundException) {
+                continue;
+            }
 
             // same definition? do not added extension
             if ($salesChannelDefinition !== $definition) {

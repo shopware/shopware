@@ -47,7 +47,11 @@ module.exports = {
                         {
                             before: 'sw-select-field',
                             after: 'mt-select'
-                        }
+                        },
+                        {
+                            before: 'sw-alert',
+                            after: 'mt-banner'
+                        },
                     ]
 
                     // Handle deprecated components

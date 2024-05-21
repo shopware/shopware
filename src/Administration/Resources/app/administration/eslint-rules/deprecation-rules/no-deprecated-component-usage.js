@@ -11,6 +11,7 @@ const { handleMtCheckbox } = require("./no-deprecated-component-usage-checks/mt-
 const { handleMtTabs } = require("./no-deprecated-component-usage-checks/mt-tabs.check");
 const { handleMtSelect } = require("./no-deprecated-component-usage-checks/mt-select.check");
 const { handleMtTextarea } = require("./no-deprecated-component-usage-checks/mt-textarea.check");
+const { handleMtBanner } = require("./no-deprecated-component-usage-checks/mt-banner.check");
 
 /* eslint-disable max-len */
 
@@ -61,6 +62,8 @@ module.exports = {
                     handleMtSelect(context, node);
                     // Handle mt-textarea
                     handleMtTextarea(context, node);
+                    // Handle mt-banner
+                    handleMtBanner(context, node);
                 },
             }
         )

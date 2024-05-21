@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,6 +39,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $config,
+        private readonly Connection $connection,
         private readonly ProductConfiguratorLoader $configuratorLoader,
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
@@ -125,23 +128,37 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string
     {
-        /** @var SalesChannelProductEntity|null $product */
-        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
-
-        if ($product === null || $product->getParentId() !== null) {
+        if (!Uuid::isValid($productId)) {
             return null;
         }
 
-        if (($listingConfig = $product->getVariantListingConfig()) === null || $listingConfig->getDisplayParent() !== true) {
+        $productData = $this->connection->fetchAssociative(
+            '# product-detail-route::check-variant-listing-config
+            SELECT
+                variant_listing_config as variantListingConfig,
+                parent_id as parentId
+            FROM product
+            WHERE id = :id
+            AND version_id = :versionId',
+            [
+                'id' => Uuid::fromHexToBytes($productId),
+                'versionId' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+            ]
+        );
+
+        if (empty($productData) || empty($productData['parentId']) || $productData['variantListingConfig'] === null) {
             return null;
         }
 
-        return $listingConfig->getMainVariantId();
+        $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+
+        if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent'] !== true) {
+            return null;
+        }
+
+        return $variantListingConfig['mainVariantId'] ?? null;
     }
 
     /**

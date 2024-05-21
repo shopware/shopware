@@ -39,6 +39,10 @@ async function createWrapper(entityType = 'product') {
 }
 
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
+    afterEach(async () => {
+        jest.clearAllTimers();
+    });
+
     it('should return array when calling `actualPathParts` computed property', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -288,29 +292,45 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
 
     it('should return nothing for searching a invalid path', async () => {
+        jest.useFakeTimers();
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setProps({
-            value: 'id.id',
-        });
+        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
 
-        const actual = wrapper.vm.visibleResults;
+        await input.trigger('click');
+        await input.setValue('foo');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
 
-        expect(actual).toEqual([]);
+        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
+
+        await input.setValue('foo.');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
+
+
+        await input.setValue('parent.foo.');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
     });
 
     it('should return filtered product properties when searching', async () => {
+        jest.useFakeTimers();
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setProps({
-            value: 'parent.parent.',
-            languages: [
-                { locale: { code: 'DEFAULT' } },
-            ],
-        });
-        wrapper.vm.actualSearch = 'parent.parent.price';
+        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+
+        await input.trigger('click');
+        await input.setValue('parent.parent.price.');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
 
         const actual = wrapper.vm.visibleResults;
 
@@ -521,9 +541,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: '',
-            languages: [
-                { locale: { code: 'DEFAULT' } },
-            ],
         });
 
         const definition = Shopware.EntityDefinition.get('product_cross_selling');
@@ -591,48 +608,20 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should show custom field options if selected value is custom field', async () => {
+        jest.useFakeTimers();
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setProps({
-            value: '',
-            languages: [
-                { locale: { code: 'DEFAULT' } },
-            ],
-        });
+        const inputField = wrapper.find('.sw-import-export-entity-path-select__selection-input');
 
-        wrapper.vm.onSelectExpanded();
+        await inputField.trigger('click');
+        await inputField.setValue('manufacturer.translations.DEFAULT.customFields.');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
 
-        await wrapper.vm.setValue({
-            label: 'translations.DEFAULT.customFields',
-            value: 'translations.DEFAULT.customFields',
-            relation: true,
-        });
-
-        let actual = wrapper.vm.visibleResults;
-        let expected = [
-            {
-                label: 'translations.DEFAULT.customFields.custom_field_product_1',
-                value: 'translations.DEFAULT.customFields.custom_field_product_1',
-                relation: undefined,
-            },
-            {
-                label: 'translations.DEFAULT.customFields.custom_field_product_2',
-                value: 'translations.DEFAULT.customFields.custom_field_product_2',
-                relation: undefined,
-            },
-        ];
-
-        expect(actual).toEqual(expected);
-
-        await wrapper.vm.setValue({
-            label: 'manufacturer.translations.DEFAULT.customFields',
-            value: 'manufacturer.translations.DEFAULT.customFields',
-            relation: true,
-        });
-
-        actual = wrapper.vm.visibleResults;
-        expected = [
+        const actual = wrapper.vm.visibleResults;
+        const expected = [
             {
                 label: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
                 value: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
@@ -654,10 +643,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const wrapper = await createWrapper('order');
         await flushPromises();
 
-        await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
-        await flushPromises();
-
-        await wrapper.find('.sw-import-export-entity-path-select__selection-input').setValue('transactions');
+        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await input.trigger('click');
+        await input.setValue('transactions');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
@@ -680,8 +668,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'transactions.updatedAt',
             'transactions.versionId',
         ]);
-
-        jest.clearAllTimers();
     });
 
     it('should show deliveries of an order on search', async () => {
@@ -690,10 +676,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         const wrapper = await createWrapper('order');
         await flushPromises();
 
-        await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
-        await flushPromises();
+        const input = wrapper.find('.sw-import-export-entity-path-select__selection-input');
 
-        await wrapper.find('.sw-import-export-entity-path-select__selection-input').setValue('deliveries');
+        await input.trigger('click');
+        await input.setValue('deliveries');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
@@ -722,8 +708,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'deliveries.updatedAt',
             'deliveries.versionId',
         ]);
-
-        jest.clearAllTimers();
     });
 
     it('should add popover classes to the result list', async () => {

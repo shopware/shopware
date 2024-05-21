@@ -55,10 +55,23 @@ export default {
             default({ options, labelProperty, searchTerm }) {
                 return options.filter(option => {
                     const label = this.getKey(option, labelProperty);
+
                     if (!label) {
                         return false;
                     }
-                    return label.toLowerCase().includes(searchTerm.toLowerCase());
+
+                    if (!searchTerm) {
+                        return true;
+                    }
+
+                    // the regex is used to include partial search results,
+                    // e.g. "translations.name" also returns "translations.DEFAULT.name" and so on
+                    if (!this.actualPathPrefix) {
+                        return label.match(new RegExp(searchTerm.replaceAll(/\./g, '([-.\\w]*)'), 'gi'));
+                    }
+
+                    return !!label.split(this.actualPathPrefix)[1]
+                        .match(new RegExp(searchTerm.split(this.actualPathPrefix)[1].replaceAll(/\./g, '([-.\\w]*)'), 'gi'));
                 });
             },
         },
@@ -73,7 +86,7 @@ export default {
             type: Array,
             required: false,
             default() {
-                return [{ locale: 'DEFAULT' }];
+                return [{ locale: { code: 'DEFAULT' } }];
             },
         },
         customFieldSets: {
@@ -187,11 +200,36 @@ export default {
         },
 
         actualPathPrefix() {
-            return this.actualPathParts.length > 0 ? this.actualPathParts.join('.') : '';
+            let path = '';
+            let entity = this.entityType;
+            this.actualPathParts.forEach(part => {
+                if (!entity) {
+                    return;
+                }
+
+                if (part === 'customFields' ||
+                    this.lowerCaseIsoCodes.includes(part.toLowerCase()) ||
+                    this.lowerCaseLocales.includes(part.toLowerCase())) {
+                    path = path.concat(part, '.');
+                    return;
+                }
+
+                const definition = Shopware.EntityDefinition.get(entity);
+
+                if (!definition.properties[part]?.entity) {
+                    entity = '';
+                    return;
+                }
+
+                path = path.concat(part, '.');
+                entity = definition.properties[part].entity;
+            });
+
+            return path;
         },
 
         actualPathParts() {
-            const pathParts = (this.isExpanded && this.actualSearch) ?
+            const pathParts = (this.isExpanded) ?
                 this.actualSearch.split('.') : this.currentValue.split('.');
 
             // remove last element of path which is the user search input
@@ -203,36 +241,32 @@ export default {
 
             // Remove special cases for prices and translations
             return pathParts.filter(part => {
-                // Remove if path is a iso code
-                if (this.availableIsoCodes.includes(part)) {
+                // Remove if path is an iso code
+                if (this.lowerCaseIsoCodes.includes(part.toLowerCase())) {
                     return false;
                 }
                 // Remove if path is a locale code
-                if (this.availableLocales.includes(part)) {
+                if (this.lowerCaseLocales.includes(part.toLowerCase())) {
                     return false;
                 }
 
-                return !(
-                    part === 'translations' ||
-                    part === 'visibilities' ||
-                    part === 'price' ||
-                    part === 'listPrice' ||
-                    part === 'purchasePrices'
-                );
+                return ![
+                    'translations',
+                    'visibilities',
+                    'price',
+                    'listPrice',
+                    'purchasePrices',
+                ].includes(part);
             });
         },
 
         currentEntity() {
-            if (this.actualPathParts.length < 1) {
+            // Use this.entityType if there is no path yet
+            if (this.actualPathParts.length === 0) {
                 return this.entityType;
             }
 
             const pathParts = this.actualPathParts;
-
-            // Use this.entityType if there is not path yet
-            if (pathParts.length === 0) {
-                return this.entityType;
-            }
 
             let actualDefinition = Shopware.EntityDefinition.get(this.entityType);
             let entityFound = false;
@@ -267,6 +301,11 @@ export default {
 
                 // Return if property is a lineItems association
                 if (propertyName === 'lineItems' && property.relation === 'one_to_many') {
+                    return;
+                }
+
+                // Return if property is a categories association
+                if (propertyName === 'categories' && property.relation === 'many_to_many') {
                     return;
                 }
 
@@ -306,6 +345,7 @@ export default {
                 this.processTransactions,
                 this.processDeliveries,
                 this.processProperties,
+                this.processCategories,
             ];
         },
 
@@ -322,11 +362,12 @@ export default {
             } else {
                 definition = Shopware.EntityDefinition.get(this.currentEntity);
             }
+
             const unprocessedValues = {
                 definition: definition,
                 options: [],
                 properties: Object.keys(definition.properties),
-                path: this.actualPathPrefix.length > 0 ? this.actualPathPrefix.replace(/\.?$/, '.') : this.actualPathPrefix,
+                path: this.actualPathPrefix,
             };
 
             // flow is from lodash
@@ -341,7 +382,7 @@ export default {
                     options: this.options,
                     labelProperty: this.labelProperty,
                     valueProperty: this.valueProperty,
-                    searchTerm: this.searchTerm,
+                    searchTerm: this.actualSearch,
                 },
             );
         },
@@ -350,8 +391,16 @@ export default {
             return this.currencies.map(currency => currency.isoCode);
         },
 
+        lowerCaseIsoCodes() {
+            return this.availableIsoCodes.map(isoCode => isoCode.toLowerCase());
+        },
+
         availableLocales() {
             return this.languages.map(language => language.locale.code);
+        },
+
+        lowerCaseLocales() {
+            return this.availableLocales.map(locale => locale.toLowerCase());
         },
 
         searchTerm() {
@@ -374,6 +423,7 @@ export default {
                 this.resetActiveItem();
                 this.$refs.swSelectInput.select();
                 this.$refs.swSelectInput.focus();
+                this.search();
             });
         },
 
@@ -732,6 +782,34 @@ export default {
 
         getAssignedProductsProperties(path) {
             const name = `${path}assignedProducts`;
+
+            return [{ label: name, value: name }];
+        },
+
+        processCategories({ definition, options, properties, path }) {
+            const categoryProperty = definition.properties.categories;
+
+            if (categoryProperty?.relation !== 'one_to_many') {
+                return { properties, options, definition, path };
+            }
+
+            const newOptions = [...options, ...this.getCategoryProperties(path)];
+
+            // Remove media property
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'categories';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        getCategoryProperties(path) {
+            const name = `${path}categories`;
 
             return [{ label: name, value: name }];
         },

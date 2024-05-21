@@ -46,7 +46,7 @@ const missingTests = [
     'src/app/component/form/sw-boolean-radio-group/index.js',
     'src/app/component/form/sw-compact-colorpicker/index.js',
     'src/app/component/form/sw-confirm-field/index.js',
-    'src/app/component/form/sw-email-field/index.js',
+    'src/app/component/form/sw-email-field-deprecated/index.js',
     'src/app/component/form/sw-field-copyable/index.js',
     'src/app/component/form/sw-gtc-checkbox/index.js',
     'src/app/component/form/sw-maintain-currencies-modal/index.js',

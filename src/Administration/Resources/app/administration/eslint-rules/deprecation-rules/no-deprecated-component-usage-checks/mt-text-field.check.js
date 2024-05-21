@@ -1,8 +1,12 @@
 /** @param {RuleContext} context
  *  @param {VElement} node
+ *  @param emailMode
  */
-const handleMtTextField = (context, node) => {
-    const mtComponentName = 'mt-text-field';
+const handleMtTextField = (context, node, emailMode = false) => {
+    let mtComponentName = 'mt-text-field';
+    if (emailMode) {
+        mtComponentName = 'mt-email-field';
+    }
 
     // Refactor the old usage of mt-text-field to mt-text-field after the migration to the new component
     if (node.name !== mtComponentName) {
@@ -240,7 +244,7 @@ const mtTextFieldValidTests = [
                 <sw-text-field />
             </template>`
     }
-]
+];
 
 const mtTextFieldInvalidTests = [
     {

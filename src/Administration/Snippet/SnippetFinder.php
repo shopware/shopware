@@ -58,7 +58,7 @@ class SnippetFinder implements SnippetFinderInterface
         $paths = [];
 
         foreach ($activePlugins as $plugin) {
-            $pluginPath = $plugin->getPath() . '/Resources/app/administration';
+            $pluginPath = $plugin->getPath() . '/Resources/app/administration/src';
             if (!file_exists($pluginPath)) {
                 continue;
             }
@@ -71,7 +71,26 @@ class SnippetFinder implements SnippetFinderInterface
                 continue;
             }
 
-            $bundlePath = $bundle->getPath() . '/Resources/app/administration';
+            if ($bundle->getName() === 'Administration') {
+                $paths = array_merge($paths, [
+                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/module/*/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/app/component/*/*/snippet',
+                ]);
+
+                continue;
+            }
+
+            if ($bundle->getName() === 'Storefront') {
+                $paths = array_merge($paths, [
+                    $bundle->getPath() . '/Resources/app/administration/src/app/snippet',
+                    $bundle->getPath() . '/Resources/app/administration/src/modules/*/snippet',
+                ]);
+
+                continue;
+            }
+
+            $bundlePath = $bundle->getPath() . '/Resources/app/administration/src';
 
             if (!file_exists($bundlePath)) {
                 continue;
@@ -91,9 +110,11 @@ class SnippetFinder implements SnippetFinderInterface
         $finder = (new Finder())
             ->files()
             ->exclude('node_modules')
-            ->ignoreUnreadableDirs();
-        $finder->name(sprintf('%s.json', $locale));
-        $finder->in($this->getBundlePaths());
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(true)
+            ->ignoreUnreadableDirs()
+            ->name(sprintf('%s.json', $locale))
+            ->in($this->getBundlePaths());
 
         $iterator = $finder->getIterator();
         $files = [];

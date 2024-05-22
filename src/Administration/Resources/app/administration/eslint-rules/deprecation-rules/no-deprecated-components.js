@@ -114,6 +114,7 @@ module.exports = {
                         'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
+                        'sw-email-field'
                     ];
 
                     // Handle other deprecated components

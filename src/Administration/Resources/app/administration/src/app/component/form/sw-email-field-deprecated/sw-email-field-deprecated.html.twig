@@ -1,0 +1,86 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_text_field %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_email_field %}
+<sw-contextual-field
+    class="sw-field--email"
+    v-bind="$attrs"
+    :name="formFieldName"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+    v-on="$listeners"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_email_field_prefix %}
+    <template
+        v-if="hasPrefix"
+        #sw-contextual-field-prefix="{ disabled, identification }"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_email_field_prefix_inner %}
+        <slot
+            name="prefix"
+            v-bind="{disabled, identification}"
+        ></slot>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_email_field_input %}
+    <template
+        #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_email_field_input_inner %}
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            :id="identification"
+            type="email"
+            :name="identification"
+            :disabled="disabled"
+            :value="currentValue"
+            :placeHolder="placeholder"
+            @input="onInput"
+            @change="onChange"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+            v-on="additionalListeners"
+        >
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_email_field_copyable %}
+    <template
+        v-if="copyable || hasSuffix"
+        #sw-contextual-field-suffix="{disabled, identification}"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_email_field_copyable_inner %}
+        <slot
+            name="suffix"
+            v-bind="{ identification }"
+        ></slot>
+        <sw-field-copyable
+            v-if="copyable"
+            :display-name="identification"
+            :copyable-text="currentValue"
+            :tooltip="copyableTooltip"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+</sw-contextual-field>
+    {% endblock %}
+{% endblock %}

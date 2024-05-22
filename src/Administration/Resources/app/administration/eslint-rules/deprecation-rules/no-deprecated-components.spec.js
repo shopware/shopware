@@ -78,6 +78,22 @@ tester.run('no-deprecated-components', rule, {
             </template>`
         },
         {
+            name: '"mt-banner" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-banner />
+            </template>`
+        },
+        {
+            name: '"mt-email-field" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-email-field />
+            </template>`
+        },
+        {
             name: '"mt-select" usage is allowed',
             filename: 'test.html.twig',
             code: `
@@ -445,6 +461,62 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
+            }]
+        },
+        {
+            name: '"sw-alert" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-alert>Hello</sw-alert>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-alert - please check if everything works correctly -->
+    <mt-banner>Hello</mt-banner>
+</template>`,
+            errors: [{
+                message: '"sw-alert" is deprecated. Please use "mt-banner" instead.',
+            }]
+        },
+        {
+            name: '"sw-alert" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-alert>Hello</sw-alert>
+</template>`,
+            errors: [{
+                message: '"sw-alert" is deprecated. Please use "mt-banner" instead.',
+            }]
+        },
+        {
+            name: '"sw-email-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-email-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-email-field - please check if everything works correctly -->
+    <mt-email-field />
+</template>`,
+            errors: [{
+                message: '"sw-email-field" is deprecated. Please use "mt-email-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-email-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-email-field />
+</template>`,
+            errors: [{
+                message: '"sw-email-field" is deprecated. Please use "mt-email-field" instead.',
             }]
         },
         {

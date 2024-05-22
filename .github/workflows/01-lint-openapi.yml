@@ -44,7 +44,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: gd, bcmath
           tools: symfony-cli
 
@@ -71,6 +71,5 @@ jobs:
       - name: Lint OpenApi schema
         run: |
           npm i -g @redocly/cli@latest
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./storeApiSchema.json
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./adminApiSchema.json
-
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json

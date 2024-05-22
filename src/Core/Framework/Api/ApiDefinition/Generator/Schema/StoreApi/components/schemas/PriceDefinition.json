@@ -4,7 +4,7 @@
     "paths": [],
     "components": {
         "schemas": {
-            "priceDefinition": {
+            "PriceDefinition": {
                 "type": "object",
                 "properties": {
                     "apiAlias": {

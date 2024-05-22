@@ -94,6 +94,14 @@ tester.run('no-deprecated-components', rule, {
             </template>`
         },
         {
+            name: '"mt-url-field" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-url-field />
+            </template>`
+        },
+        {
             name: '"mt-select" usage is allowed',
             filename: 'test.html.twig',
             code: `
@@ -582,6 +590,34 @@ tester.run('no-deprecated-components', rule, {
             errors: [{
                 message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
             }]
-        }
+        },
+        {
+            name: '"sw-url-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-url-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-url-field - please check if everything works correctly -->
+    <mt-url-field />
+</template>`,
+            errors: [{
+                message: '"sw-url-field" is deprecated. Please use "mt-url-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-url-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-url-field />
+</template>`,
+            errors: [{
+                message: '"sw-url-field" is deprecated. Please use "mt-url-field" instead.',
+            }]
+        },
     ]
 })

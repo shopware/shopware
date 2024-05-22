@@ -110,6 +110,7 @@ module.exports = {
                         'sw-text-field',
                         'sw-number-field',
                         'sw-external-link',
+                        'sw-url-field',
                         'sw-loader',
                         'sw-tabs',
                         'sw-datepicker',

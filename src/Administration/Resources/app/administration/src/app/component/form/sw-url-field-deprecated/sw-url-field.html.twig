@@ -1,0 +1,76 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_text_field %}
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
+{% block sw_url_field %}
+<sw-contextual-field
+    class="sw-field--url"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
+    :error="combinedError"
+    :name="formFieldName"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+>
+    <template #sw-contextual-field-prefix="{ disabled }">
+        <span
+            class="sw-field__url-input__prefix"
+            :class="prefixClass"
+            role="button"
+            tabindex="0"
+            @click="changeMode(disabled)"
+            @keydown.enter="changeMode(disabled)"
+        >
+            <sw-icon
+                v-if="sslActive"
+                name="regular-lock"
+                :small="true"
+            />
+            <sw-icon
+                v-else
+                name="regular-lock-open"
+                :small="true"
+            />
+            {{ urlPrefix }}
+        </span>
+    </template>
+
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            :id="identification"
+            type="url"
+            class="sw-url-input-field__input"
+            :name="identification"
+            :value="unicodeUriFilter(currentUrlValue)"
+            :placeholder="placeholder"
+            :disabled="disabled"
+            @focus="setFocusClass"
+            @blur="onBlur($event); removeFocusClass();"
+        >
+    </template>
+
+    <template
+        v-if="copyable"
+        #sw-contextual-field-suffix="{ identification }"
+    >
+        <sw-field-copyable
+            v-if="copyable"
+            :display-name="identification"
+            :copyable-text="url"
+            :tooltip="copyableTooltip"
+        />
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+
+</sw-contextual-field>
+    {% endblock %}
+{% endblock %}

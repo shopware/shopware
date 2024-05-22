@@ -112,6 +112,7 @@ module.exports = {
                         'sw-loader',
                         'sw-tabs',
                         'sw-datepicker',
+                        'sw-skeleton-bar',
                     ];
 
                     // Handle other deprecated components

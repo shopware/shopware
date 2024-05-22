@@ -165,6 +165,31 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
         });
     }
 
+    beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
+    });
+
     it('should install the SwagLanguagePack plugin and show the language switch modal', async () => {
         const wrapper = await createWrapper();
 

@@ -38,6 +38,14 @@ export default {
             ];
         },
 
+        nextAction() {
+            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+                return 'sw.first.run.wizard.index.shopware.account';
+            }
+
+            return 'sw.first.run.wizard.index.paypal.info';
+        },
+
         buttonConfig() {
             return [
                 {
@@ -53,7 +61,7 @@ export default {
                     label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.paypal.info',
+                    action: this.nextAction,
                     disabled: false,
                 },
                 {
@@ -121,7 +129,7 @@ export default {
             this.isLoading = true;
 
             return this.systemConfigApiService.saveValues(this.mailerSettings).then(() => {
-                this.$emit('frw-redirect', 'sw.first.run.wizard.index.paypal.info');
+                this.$emit('frw-redirect', this.nextAction);
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;

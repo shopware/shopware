@@ -186,6 +186,53 @@ export default {
                 { extensionLabel: this.extension.label },
             );
         },
+
+        extensionManagementDisabled() {
+            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+        },
+
+        showContextMenu() {
+            if (this.isInstalled && this.extension.configurable) {
+                return true;
+            }
+
+            if (this.openLinkExists && this.extension.active) {
+                return true;
+            }
+
+            if (this.privacyPolicyLink) {
+                return true;
+            }
+
+            if (this.isInstalled && this.extension.privacyPolicyExtension) {
+                return true;
+            }
+
+            if (this.isInstalled && this.permissions) {
+                return true;
+            }
+
+            if (!this.extensionManagementDisabled && this.isUpdateable) {
+                return true;
+            }
+
+            if (!this.extensionManagementDisabled
+                && this.extension.storeLicense
+                && this.extension.storeLicense.variant === 'rent'
+                && this.extension.storeLicense.expirationDate === null) {
+                return true;
+            }
+
+            if (!this.extensionManagementDisabled && this.isRemovable) {
+                return true;
+            }
+
+            if (!this.extensionManagementDisabled && this.isUninstallable) {
+                return true;
+            }
+
+            return false;
+        },
     },
 
     created() {

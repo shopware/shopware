@@ -17,6 +17,7 @@ class StoreException extends HttpException
     public const EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION = 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION';
     public const EXTENSION_NOT_FOUND = 'FRAMEWORK__EXTENSION_NOT_FOUND';
     public const CANNOT_UPLOAD_CORRECTLY = 'FRAMEWORK__EXTENSION_CANNOT_BE_UPLOADED_CORRECTLY';
+    public const EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED = 'FRAMEWORK__EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -86,6 +87,15 @@ class StoreException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CANNOT_UPLOAD_CORRECTLY,
             'Extension could not be uploaded correctly.'
+        );
+    }
+
+    public static function extensionRuntimeExtensionManagementNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED,
+            'Runtime extension management is disabled'
         );
     }
 }

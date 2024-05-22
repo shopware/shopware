@@ -31,7 +31,8 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly ExtensionDownloader $extensionDownloader,
         private readonly PluginService $pluginService,
         private readonly PluginManagementService $pluginManagementService,
-        private readonly Filesystem $fileSystem
+        private readonly Filesystem $fileSystem,
+        private readonly bool $runtimeExtensionManagementAllowed
     ) {
     }
 
@@ -43,9 +44,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', methods: ['POST'], defaults: ['_acl' => ['system.plugin_upload']])]
+    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', defaults: ['_acl' => ['system.plugin_upload']], methods: ['POST'])]
     public function uploadExtensions(Request $request, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         if (!$file) {
@@ -84,6 +87,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/download/{technicalName}', name: 'api.extension.download', methods: ['POST'])]
     public function downloadExtension(string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionDownloader->download($technicalName, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -92,6 +97,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/install/{type}/{technicalName}', name: 'api.extension.install', methods: ['POST'])]
     public function installExtension(string $type, string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionLifecycleService->install($type, $technicalName, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -100,6 +107,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/uninstall/{type}/{technicalName}', name: 'api.extension.uninstall', methods: ['POST'])]
     public function uninstallExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionLifecycleService->uninstall(
             $type,
             $technicalName,
@@ -113,6 +122,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['DELETE'])]
     public function removeExtension(string $type, string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionLifecycleService->remove($type, $technicalName, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -121,6 +132,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/activate/{type}/{technicalName}', name: 'api.extension.activate', methods: ['PUT'])]
     public function activateExtension(string $type, string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionLifecycleService->activate($type, $technicalName, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -129,6 +142,8 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/deactivate/{type}/{technicalName}', name: 'api.extension.deactivate', methods: ['PUT'])]
     public function deactivateExtension(string $type, string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $this->extensionLifecycleService->deactivate($type, $technicalName, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
@@ -137,10 +152,19 @@ class ExtensionStoreActionsController extends AbstractController
     #[Route(path: '/api/_action/extension/update/{type}/{technicalName}', name: 'api.extension.update', methods: ['POST'])]
     public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {
+        $this->checkExtensionManagementAllowed();
+
         $allowNewPermissions = $request->request->getBoolean('allowNewPermissions');
 
         $this->extensionLifecycleService->update($type, $technicalName, $allowNewPermissions, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    private function checkExtensionManagementAllowed(): void
+    {
+        if (!$this->runtimeExtensionManagementAllowed) {
+            throw StoreException::extensionRuntimeExtensionManagementNotAllowed();
+        }
     }
 }

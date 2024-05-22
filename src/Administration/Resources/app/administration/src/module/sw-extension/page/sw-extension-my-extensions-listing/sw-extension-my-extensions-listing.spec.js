@@ -124,6 +124,14 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         ]);
     });
 
+    it('runtime management disabled should be there', async () => {
+        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+        const wrapper = await createWrapper();
+
+        const runtimeManagement = wrapper.find('.sw-extension-my-extensions-listing__runtime-extension-warning');
+        expect(runtimeManagement.exists()).toBe(true);
+    });
+
     it('openStore should call router', async () => {
         const wrapper = await createWrapper();
 

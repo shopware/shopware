@@ -46,6 +46,31 @@ async function createWrapper() {
  * @package checkout
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
+    beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
+    });
+
     it('isInstalled should return false when not installedAt set', async () => {
         const wrapper = await createWrapper();
 

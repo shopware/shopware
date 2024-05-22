@@ -39,13 +39,17 @@ export default {
         },
 
         updateButtons() {
+            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const prevRoute = disabledExtensionManagement ? 'mailer.selection' : 'plugins';
+            const skipRoute = disabledExtensionManagement ? 'finish' : 'store';
+
             const buttonConfig = [
                 {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.plugins',
+                    action: `sw.first.run.wizard.index.${prevRoute}`,
                     disabled: false,
                 },
                 {
@@ -53,7 +57,7 @@ export default {
                     label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.store',
+                    action: `sw.first.run.wizard.index.${skipRoute}`,
                     disabled: false,
                 },
                 {

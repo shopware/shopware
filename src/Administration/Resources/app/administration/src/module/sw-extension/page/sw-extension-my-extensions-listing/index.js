@@ -122,6 +122,10 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        extensionManagementDisabled() {
+            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+        },
     },
 
     watch: {

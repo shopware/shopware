@@ -22,7 +22,132 @@ export default {
                 variant: 'large',
                 navigationIndex: 0,
             },
-            stepper: {
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.title,
+        };
+    },
+
+    computed: {
+        columns() {
+            return this.showSteps
+                ? '1fr 4fr'
+                : '1fr';
+        },
+
+        variant() {
+            const { variant } = this.currentStep;
+
+            return variant;
+        },
+
+        showSteps() {
+            const { navigationIndex } = this.currentStep;
+
+            return navigationIndex !== 0;
+        },
+
+        buttons() {
+            return {
+                right: this.buttonConfig.filter((button) => button.position === 'right'),
+                left: this.buttonConfig.filter((button) => button.position === 'left'),
+            };
+        },
+
+        stepIndex() {
+            const { navigationIndex } = this.currentStep;
+
+            if (navigationIndex < 1) {
+                return 0;
+            }
+
+            return navigationIndex - 1;
+        },
+
+        stepInitialItemVariants() {
+            const { navigationIndex } = this.currentStep;
+            const maxIndex = Object.values(this.stepper).reduce(
+                (accumulator, step) => Math.max(accumulator, step.navigationIndex),
+                0,
+            );
+
+            const currentSteps = Array(maxIndex + 1).fill('disabled');
+            currentSteps.every((step, index) => {
+                if (index > navigationIndex) {
+                    return false;
+                }
+
+                currentSteps[index] = 'info';
+
+                if (index > 0) {
+                    currentSteps[index - 1] = 'success';
+                }
+
+                return true;
+            });
+            currentSteps.splice(0, 1);
+
+            return currentSteps;
+        },
+
+        extensionManagementDisabled() {
+            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+        },
+
+        isClosable() {
+            return !Shopware.Context.app.firstRunWizard;
+        },
+
+        stepper() {
+            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+                return {
+                    welcome: {
+                        name: 'sw.first.run.wizard.index.welcome',
+                        variant: 'large',
+                        navigationIndex: 0,
+                    },
+                    defaults: {
+                        name: 'sw.first.run.wizard.index.defaults',
+                        variant: 'large',
+                        navigationIndex: 1,
+                    },
+                    'mailer.selection': {
+                        name: 'sw.first.run.wizard.index.mailer.selection',
+                        variant: 'large',
+                        navigationIndex: 2,
+                    },
+                    'mailer.smtp': {
+                        name: 'sw.first.run.wizard.index.mailer.smtp',
+                        variant: 'large',
+                        navigationIndex: 2,
+                    },
+                    'mailer.local': {
+                        name: 'sw.first.run.wizard.index.mailer.local',
+                        variant: 'large',
+                        navigationIndex: 2,
+                    },
+                    'shopware.account': {
+                        name: 'sw.first.run.wizard.index.shopware.account',
+                        variant: 'large',
+                        navigationIndex: 3,
+                    },
+                    'shopware.domain': {
+                        name: 'sw.first.run.wizard.index.shopware.domain',
+                        variant: 'large',
+                        navigationIndex: 3,
+                    },
+                    finish: {
+                        name: 'sw.first.run.wizard.index.finish',
+                        variant: 'large',
+                        navigationIndex: 4,
+                    },
+                };
+            }
+
+            return {
                 welcome: {
                     name: 'sw.first.run.wizard.index.welcome',
                     variant: 'large',
@@ -88,82 +213,7 @@ export default {
                     variant: 'large',
                     navigationIndex: 8,
                 },
-            },
-        };
-    },
-
-    metaInfo() {
-        return {
-            title: this.title,
-        };
-    },
-
-    computed: {
-        columns() {
-            const res = this.showSteps
-                ? '1fr 4fr'
-                : '1fr';
-
-            return res;
-        },
-
-        variant() {
-            const { variant } = this.currentStep;
-
-            return variant;
-        },
-
-        showSteps() {
-            const { navigationIndex } = this.currentStep;
-
-            return navigationIndex !== 0;
-        },
-
-        buttons() {
-            return {
-                right: this.buttonConfig.filter((button) => button.position === 'right'),
-                left: this.buttonConfig.filter((button) => button.position === 'left'),
             };
-        },
-
-        stepIndex() {
-            const { navigationIndex } = this.currentStep;
-
-            if (navigationIndex < 1) {
-                return 0;
-            }
-
-            return navigationIndex - 1;
-        },
-
-        stepInitialItemVariants() {
-            const { navigationIndex } = this.currentStep;
-            const maxIndex = Object.values(this.stepper).reduce(
-                (accumulator, step) => Math.max(accumulator, step.navigationIndex),
-                0,
-            );
-
-            const currentSteps = Array(maxIndex + 1).fill('disabled');
-            currentSteps.every((step, index) => {
-                if (index > navigationIndex) {
-                    return false;
-                }
-
-                currentSteps[index] = 'info';
-
-                if (index > 0) {
-                    currentSteps[index - 1] = 'success';
-                }
-
-                return true;
-            });
-            currentSteps.splice(0, 1);
-
-            return currentSteps;
-        },
-
-        isClosable() {
-            return !Shopware.Context.app.firstRunWizard;
         },
     },
 

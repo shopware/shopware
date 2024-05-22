@@ -457,7 +457,6 @@ const missingTests = [
     'src/module/sw-dashboard/index.ts',
     'src/module/sw-extension/index.js',
     'src/module/sw-extension/mixin/sw-extension-error.mixin.js',
-    'src/module/sw-extension/page/sw-extension-my-extensions-index/index.js',
     'src/module/sw-extension/page/sw-extension-my-extensions-recommendation/index.js',
     'src/module/sw-extension/service/extension-error-handler.service.ts',
     'src/module/sw-extension/service/extension-error.service.js',

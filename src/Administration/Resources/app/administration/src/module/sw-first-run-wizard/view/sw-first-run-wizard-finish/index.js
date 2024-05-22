@@ -41,13 +41,16 @@ export default {
         },
 
         buttonConfig() {
+            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
+
             return [
                 {
                     key: 'back',
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.store',
+                    action: `sw.first.run.wizard.index.${prevRoute}`,
                     disabled: false,
                 },
                 {

@@ -39,6 +39,44 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
         });
     }
 
+    beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
+    });
+
+    it('template renders with disabled extension management', async () => {
+        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-first-run-wizard-mailer-smtp').exists()).toBe(true);
+
+        expect(wrapper.vm.nextAction).toBe('sw.first.run.wizard.index.shopware.account');
+
+        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
+    });
+
     it('should emit the button config and the title on creation', async () => {
         const frwMailerSmtp = await createWrapper();
         await flushPromises();

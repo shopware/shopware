@@ -266,7 +266,7 @@
                     "title": "Configure mail template variable update on each mail sending. This setting should be disabled on productive installations. "
                 },
                 "max_body_length": {
-                    "type": "int",
+                    "type": "integer",
                     "title": "The maximum length of the mail body. If it's set to 0 there is no limit."
                 }
             },

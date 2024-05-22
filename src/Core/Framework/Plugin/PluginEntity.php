@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
+use Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseCollection;
 
 #[Package('core')]
 class PluginEntity extends Entity
@@ -127,6 +128,8 @@ class PluginEntity extends Entity
      * @var array<string, array<string, list<string>|string>>
      */
     protected $autoload;
+
+    protected ?InAppPurchaseCollection $inAppPurchases = null;
 
     /**
      * @return class-string<Plugin>
@@ -366,6 +369,16 @@ class PluginEntity extends Entity
     public function setAutoload(array $autoload): void
     {
         $this->autoload = $autoload;
+    }
+
+    public function getInAppPurchases(): ?InAppPurchaseCollection
+    {
+        return $this->inAppPurchases;
+    }
+
+    public function setInAppPurchases(InAppPurchaseCollection $inAppPurchases): void
+    {
+        $this->inAppPurchases = $inAppPurchases;
     }
 
     public function jsonSerialize(): array

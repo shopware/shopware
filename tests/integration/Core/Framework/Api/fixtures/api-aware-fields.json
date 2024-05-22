@@ -66,6 +66,8 @@
     "plugin_translation.updatedAt",
     "plugin_translation.pluginId",
     "plugin_translation.languageId",
+    "in_app_purchase.createdAt",
+    "in_app_purchase.updatedAt",
     "scheduled_task.createdAt",
     "scheduled_task.updatedAt",
     "script.createdAt",

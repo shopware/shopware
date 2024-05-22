@@ -232,5 +232,9 @@
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
     </services>
 </container>

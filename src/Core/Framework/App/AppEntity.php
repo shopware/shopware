@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -236,6 +237,8 @@ class AppEntity extends Entity
      * @var int
      */
     protected $templateLoadPriority;
+
+    protected ?InAppPurchaseCollection $inAppPurchases = null;
 
     protected string $sourceType = 'local';
 
@@ -736,6 +739,16 @@ class AppEntity extends Entity
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;
+    }
+
+    public function getInAppPurchases(): ?InAppPurchaseCollection
+    {
+        return $this->inAppPurchases;
+    }
+
+    public function setInAppPurchases(InAppPurchaseCollection $inAppPurchases): void
+    {
+        $this->inAppPurchases = $inAppPurchases;
     }
 
     public function getSourceType(): string

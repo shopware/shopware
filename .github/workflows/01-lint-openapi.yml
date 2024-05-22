@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - trunk
+    paths:
+      - src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*
   pull_request:
+    paths:
+      - src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*
 
 jobs:
   openapi-lint:
@@ -60,16 +64,19 @@ jobs:
       - name: Start Webserver
         run: symfony server:start -d
 
-      - name: Generate OpenApi schema
+      - name: Prepare schema lint
         run: |
+          npm i -g @redocly/cli@latest @shopware/api-gen@canary
           export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 -proot root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
           printf "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
-          npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
-          npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
 
-      - name: Lint OpenApi schema
+      - name: Generate & Lint OpenApi StoreAPI schema
         run: |
-          npm i -g @redocly/cli@latest
+          api-gen loadSchema --apiType=store --filename=storeApiSchema.json
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
+
+      - name: Generate & Lint OpenApi API schema
+        run: |
+          api-gen loadSchema --apiType=admin --filename=adminApiSchema.json
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json

@@ -22,15 +22,6 @@ class FeatureExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 
-    public function testToggleMajorFlag(): void
-    {
-        $exception = FeatureException::cannotToggleMajor('FEATURE_MAJOR_ABC');
-
-        static::assertSame('FRAMEWORK__MAJOR_FEATURE_CANNOT_BE_TOGGLE', $exception->getErrorCode());
-        static::assertSame('Feature "FEATURE_MAJOR_ABC" is major so it cannot be toggled.', $exception->getMessage());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-    }
-
     public function testFeatureCannotBeToggled(): void
     {
         $exception = FeatureException::featureCannotBeToggled('FEATURE_ABC');

@@ -86,10 +86,6 @@ class FeatureFlagRegistry
             throw FeatureException::featureNotRegistered($feature);
         }
 
-        if (\array_key_exists('major', $registeredFlags[$feature]) && (bool) $registeredFlags[$feature]['major'] === true) {
-            throw FeatureException::cannotToggleMajor($feature);
-        }
-
         if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || (bool) $registeredFlags[$feature]['toggleable'] === false) {
             throw FeatureException::featureCannotBeToggled($feature);
         }

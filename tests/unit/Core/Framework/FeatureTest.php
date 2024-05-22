@@ -108,7 +108,7 @@ class FeatureTest extends TestCase
 
         $_ENV['FEATURE_ONE'] = true;
 
-        static::assertFalse(Feature::isActive('FEATURE_ONE'));
+        static::assertTrue(Feature::isActive('FEATURE_ONE'));
     }
 
     public function testFakeRestoresFeatureConfigAndEnv(): void

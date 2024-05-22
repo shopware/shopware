@@ -427,14 +427,18 @@ class FeatureTest extends TestCase
         ];
 
         yield 'unregistered inactive with minor FEATURE_ALL' => [
+            // featureConfig
             [
                 'FEATURE_NEXT_102',
             ],
+            // env
             [
                 'FEATURE_NEXT_101' => 'false',
                 'FEATURE_ALL' => '1',
             ],
+            // feature to check
             'FEATURE_NEXT_101',
+            // expected
             false,
         ];
 
@@ -478,14 +482,13 @@ class FeatureTest extends TestCase
                 'FEATURE_NEXT_101',
             ],
             [
-                'FEATURE_NEXT_101' => '',
                 'FEATURE_ALL' => '1',
             ],
             'FEATURE_NEXT_101',
             true,
         ];
 
-        yield 'registered major inactive  only with minor FEATURE_ALL env' => [
+        yield 'registered major inactive only with minor FEATURE_ALL env' => [
             [
                 'FEATURE_NEXT_101' => [
                     'major' => true,
@@ -498,7 +501,7 @@ class FeatureTest extends TestCase
             false,
         ];
 
-        yield 'registered active major with major FEATURE_ALL' => [
+        yield 'registered active minor with major FEATURE_ALL' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -519,7 +522,7 @@ class FeatureTest extends TestCase
                 'FEATURE_ALL' => 'major',
             ],
             'FEATURE_NEXT_101',
-            true,
+            false,
         ];
 
         yield 'registered major inactive only with major FEATURE_ALL env' => [
@@ -551,7 +554,6 @@ class FeatureTest extends TestCase
                 'FEATURE_NEXT_101',
             ],
             [
-                'FEATURE_NEXT_101' => '',
                 'FEATURE_ALL' => 'minor',
             ],
             'FEATURE_NEXT_101',

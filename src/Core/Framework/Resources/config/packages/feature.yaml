@@ -4,15 +4,19 @@ shopware:
       - name: v6.5.0.0
         default: true
         major: true
+        toggleable: false
       - name: v6.6.0.0
         default: true
         major: true
+        toggleable: false
       - name: v6.7.0.0
         default: false
         major: true
+        toggleable: false
       - name: DISABLE_VUE_COMPAT
         default: false
         major: true
+        toggleable: false
       - name: ACCESSIBILITY_TWEAKS
         default: false
         major: true
@@ -21,5 +25,5 @@ shopware:
       - name: ADMIN_VITE
         default: false
         major: false
-        toggleable: true
+        toggleable: false
         description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"

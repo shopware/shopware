@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Feature;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,8 +35,13 @@ class FeatureException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public static function cannotToggleMajor(string $feature): self
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method "FeatureException::cannotToggleMajor" will be removed as it is unused.');
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::MAJOR_FEATURE_CANNOT_BE_TOGGLE,

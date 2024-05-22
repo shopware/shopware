@@ -6,6 +6,7 @@ use Shopware\Core\DevOps\Docs\ArrayWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -52,6 +53,8 @@ class DocsAppEventCommand extends Command
         $this->collectBusinessEvent($eventsDoc);
 
         $this->collectEntityWrittenEvent($eventsDoc);
+
+        $this->collectHookables($eventsDoc);
 
         $originalLoader = $this->twig->getLoader();
         $this->twig->setLoader(new ArrayLoader([
@@ -127,6 +130,21 @@ class DocsAppEventCommand extends Command
         foreach ($entityWrittenEvents as $event => $permission) {
             $eventsDoc[]
                 = HookableEventDoc::fromEntityWrittenEvent($event, $permission['privileges']);
+        }
+    }
+
+    /**
+     * @param list<HookableEventDoc> $eventsDoc
+     */
+    private function collectHookables(array &$eventsDoc): void
+    {
+        foreach (Hookable::HOOKABLE_EVENTS as $_ => $eventName) {
+            $eventsDoc[] = new HookableEventDoc(
+                $eventName,
+                null,
+                '-',
+                null,
+            );
         }
     }
 }

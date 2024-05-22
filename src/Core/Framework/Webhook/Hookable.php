@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 #[Package('core')]
 interface Hookable
@@ -19,6 +20,7 @@ interface Hookable
         AppDeletedEvent::class => AppDeletedEvent::NAME,
         AppInstalledEvent::class => AppInstalledEvent::NAME,
         AppUpdatedEvent::class => AppUpdatedEvent::NAME,
+        UpdatePostFinishEvent::class => UpdatePostFinishEvent::EVENT_NAME,
     ];
 
     public function getName(): string;

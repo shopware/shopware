@@ -31,6 +31,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $services = $container->findTaggedServiceIds('shopware.entity');
 
         foreach ($services as $class => $_) {
+            /** @var class-string<object> $class */
             $definitions = $this->compiler->compile($class);
 
             foreach ($definitions as $definition) {

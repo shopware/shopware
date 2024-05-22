@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
@@ -77,7 +77,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
 
     public function testEncodeThrowExceptionOnWrongField(): void
     {
-        $field = new JsonField('variant_listing_config', 'variantListingConfig');
+        $field = new ManyToOneAssociationField('test', 'test', 'test');
         $existence = new EntityExistence('test', ['someId' => 'foo'], true, false, false, []);
         $keyPair = new KeyValuePair('someId', null, false);
         $bag = new WriteParameterBag(

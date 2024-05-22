@@ -13,7 +13,10 @@ class Entity
      */
     public string $class;
 
-    public function __construct(public string $name, public ?string $parent = null)
-    {
+    public function __construct(
+        public string $name,
+        public ?string $parent = null,
+        public ?string $since = null
+    ) {
     }
 }

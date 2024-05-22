@@ -67,6 +67,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertInstanceOf(AttributeMappingDefinition::class, $this->getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, $this->getContainer()->get('attribute_entity_translation.definition'));
 
+        static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('attribute_entity.repository'));
         static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('attribute_entity_currency.repository'));
         static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('attribute_entity_agg.repository'));
         static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('attribute_entity_translation.repository'));
@@ -79,7 +80,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $context = Context::createDefaultContext();
 
         /** @var EntityWrittenContainerEvent $result */
-        $result = $this->repository('attribute_entity_currency')->create([
+        $result = $this->repository('attribute_entity')->create([
             [
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
@@ -92,7 +93,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $written = $result->getPrimaryKeys('attribute_entity');
         static::assertContains($ids->get('first-key'), $written);
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
         static::assertCount(1, $search);
@@ -105,7 +106,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame('string', $record->string);
         static::assertSame('transString', $record->getTranslation('transString'));
 
-        $result = $this->repository('attribute_entity_currency')->update([
+        $result = $this->repository('attribute_entity')->update([
             [
                 'id' => $ids->get('first-key'),
                 'string' => 'string-updated',
@@ -118,7 +119,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $written = $result->getPrimaryKeys('attribute_entity');
         static::assertContains($ids->get('first-key'), $written);
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
         static::assertCount(1, $search);
@@ -131,7 +132,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame('string-updated', $record->string);
         static::assertSame('transString-updated', $record->getTranslation('transString'));
 
-        $result = $this->repository('attribute_entity_currency')->delete([
+        $result = $this->repository('attribute_entity')->delete([
             ['id' => $ids->get('first-key')],
         ], $context);
 
@@ -140,7 +141,7 @@ class AttributeEntityIntegrationTest extends TestCase
         $deleted = $result->getDeletedPrimaryKeys('attribute_entity');
         static::assertContains($ids->get('first-key'), $deleted);
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria($ids->getList(['first-key'])), $context);
 
         static::assertCount(0, $search);
@@ -177,13 +178,13 @@ class AttributeEntityIntegrationTest extends TestCase
             'transJson' => ['key' => 'value'],
         ];
 
-        $result = $this->repository('attribute_entity_currency')->create([$data], Context::createDefaultContext());
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
 
         static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
         $written = $result->getPrimaryKeys('attribute_entity');
         static::assertContains($ids->get('first-key'), $written);
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         static::assertCount(1, $search);
@@ -230,7 +231,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'follow' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
 
-        $result = $this->repository('attribute_entity_currency')->create([$data], Context::createDefaultContext());
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
 
         static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
         static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
@@ -238,7 +239,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertNotEmpty($result->getPrimaryKeys('currency'));
         static::assertContains($ids->get('currency-1'), $result->getPrimaryKeys('currency'));
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -247,7 +248,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('follow');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -263,7 +264,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('follow');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -286,7 +287,7 @@ class AttributeEntityIntegrationTest extends TestCase
             ],
         ];
 
-        $result = $this->repository('attribute_entity_currency')->create([$data], Context::createDefaultContext());
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
 
         static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
         static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
@@ -295,7 +296,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertContains($ids->get('agg-1'), $result->getPrimaryKeys('attribute_entity_agg'));
         static::assertContains($ids->get('agg-2'), $result->getPrimaryKeys('attribute_entity_agg'));
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -304,7 +305,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('aggs');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -320,7 +321,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('aggs');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -330,7 +331,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertArrayHasKey($ids->get('agg-2'), $record->aggs);
 
         // test cascade delete
-        $deleted = $this->repository('attribute_entity_currency')->delete([
+        $deleted = $this->repository('attribute_entity')->delete([
             ['id' => $ids->get('first-key')],
         ], Context::createDefaultContext());
 
@@ -349,7 +350,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'currency' => self::currency($ids->get('currency-1'), 'ABC'),
         ];
 
-        $result = $this->repository('attribute_entity_currency')->create([$data], Context::createDefaultContext());
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
 
         static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
         static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
@@ -357,7 +358,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertNotEmpty($result->getPrimaryKeys('currency'));
         static::assertContains($ids->get('currency-1'), $result->getPrimaryKeys('currency'));
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -366,7 +367,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('currency');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -375,7 +376,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertEquals($ids->get('currency-1'), $record->currency->getId());
 
         // set currencyId to null
-        $result = $this->repository('attribute_entity_currency')->update([
+        $result = $this->repository('attribute_entity')->update([
             [
                 'id' => $ids->get('first-key'),
                 'currencyId' => null,
@@ -387,7 +388,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('currency');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -395,7 +396,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertNull($record->currency);
 
         // set currencyId again
-        $result = $this->repository('attribute_entity_currency')->update([
+        $result = $this->repository('attribute_entity')->update([
             [
                 'id' => $ids->get('first-key'),
                 'currencyId' => $ids->get('currency-1'),
@@ -407,7 +408,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('currency');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -437,7 +438,7 @@ class AttributeEntityIntegrationTest extends TestCase
             ],
         ];
 
-        $result = $this->repository('attribute_entity_currency')
+        $result = $this->repository('attribute_entity')
             ->create([$data], Context::createDefaultContext());
 
         static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
@@ -447,7 +448,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertContains($ids->get('currency-1'), $result->getPrimaryKeys('currency'));
         static::assertContains($ids->get('currency-2'), $result->getPrimaryKeys('currency'));
 
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -456,7 +457,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('currencies');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */
@@ -472,7 +473,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $criteria = new Criteria([$ids->get('first-key')]);
         $criteria->addAssociation('currencies');
-        $search = $this->repository('attribute_entity_currency')
+        $search = $this->repository('attribute_entity')
             ->search($criteria, Context::createDefaultContext());
 
         /** @var AttributeEntity $record */

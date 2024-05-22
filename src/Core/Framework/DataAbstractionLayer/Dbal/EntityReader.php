@@ -511,19 +511,19 @@ class EntityReader implements EntityReaderInterface
                 $structData->fill($grouped[$entity->getUniqueIdentifier()]);
             }
 
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
-
             // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 // otherwise the data will be assigned directly as properties
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
+            if (!$association->is(Inherited::class) || \count($structData) > 0 || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -533,15 +533,16 @@ class EntityReader implements EntityReaderInterface
                 $structData->fill($grouped[$entity->get('parentId')]);
             }
 
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
-
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
 
                 continue;
             }
+
+            if ($association->is(AsArray::class)) {
+                $structData = $structData->getElements();
+            }
+
             $entity->assign([$association->getPropertyName() => $structData]);
         }
     }
@@ -627,18 +628,18 @@ class EntityReader implements EntityReaderInterface
 
             $structData = $data->getList($mappingIds);
 
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
-
             // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
+            if (!$association->is(Inherited::class) || \count($structData) || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -653,14 +654,14 @@ class EntityReader implements EntityReaderInterface
 
             $structData = $data->getList($mappingIds);
 
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
-
             // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -708,14 +709,14 @@ class EntityReader implements EntityReaderInterface
             // use assign function to avoid setter name building
             $structData = $data->getList($fks);
 
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
-
             // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -871,14 +872,15 @@ class EntityReader implements EntityReaderInterface
                 // sort list by ids if the criteria contained a sorting
                 $structData->sortByIdArray($mapping[$parentId]);
             }
-            if ($association->is(AsArray::class)) {
-                $structData = $structData->getElements();
-            }
 
             // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }

@@ -18,6 +18,11 @@ class AttributeEntityDefinition extends EntityDefinition
         parent::__construct();
     }
 
+    public function since(): ?string
+    {
+        return $this->meta['since'] ?? null;
+    }
+
     public function getEntityClass(): string
     {
         return $this->meta['entity_class'];

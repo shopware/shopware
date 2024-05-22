@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateIntervalFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -76,7 +76,7 @@ class DateIntervalFieldSerializerTest extends TestCase
         static::expectException(DataAbstractionLayerException::class);
 
         $this->dateIntervalFieldSerializer->encode(
-            new StringField('fake', 'fake'),
+            new ManyToOneAssociationField('name', 'name', 'name', 'name'),
             $this->createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)

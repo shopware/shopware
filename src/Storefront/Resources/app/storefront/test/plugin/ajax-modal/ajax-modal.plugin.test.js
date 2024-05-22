@@ -34,7 +34,6 @@ describe('AjaxModalPlugin tests', () => {
 
         expect(ajaxModalPlugin.el.removeEventListener.mock.calls).toEqual([
             [ 'click', expect.anything() ],
-            [ 'touchend', expect.anything() ],
         ]);
 
         expect(ajaxModalPlugin.el.addEventListener).toBeCalledWith('click', expect.anything());
@@ -77,7 +76,7 @@ describe('AjaxModalPlugin tests', () => {
     });
 
     test('_onClickHandleAjaxModal will create a modal window and load its content', () => {
-        const event = new Event('foo');
+        const event = new Event('foo', { cancelable: true });
 
         event.preventDefault = jest.fn();
         event.stopPropagation = jest.fn();

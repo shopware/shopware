@@ -1,7 +1,6 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
-import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 
@@ -45,11 +44,8 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
-
         this.el.removeEventListener('click', this._onClickHandleAjaxModal.bind(this));
-        this.el.removeEventListener('touchend', this._onClickHandleAjaxModal.bind(this));
-        this.el.addEventListener(eventType, this._onClickHandleAjaxModal.bind(this));
+        this.el.addEventListener('click', this._onClickHandleAjaxModal.bind(this));
     }
 
     /**
@@ -60,8 +56,10 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _onClickHandleAjaxModal(event) {
-        event.preventDefault();
-        event.stopPropagation();
+        if (event.cancelable) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         const pseudoModal = new PseudoModalUtil('', this.options.modalBackdrop);
 

@@ -1,5 +1,6 @@
 ---
 title: Improve error message for wrong API usage ManyToOne field
+issue: NEXT-36325
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

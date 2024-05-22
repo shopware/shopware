@@ -110,16 +110,17 @@
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 :required="feature.isActive('v6.7.0.0')"
-                                :disabled="!acl.can('payment.editor')"
+                                :disabled="!acl.can('payment.editor') || technicalNameIsProvided"
                                 :label="$tc('sw-settings-payment.detail.labelTechnicalName')"
                                 :placeholder="placeholder(paymentMethod, 'technicalName', $tc('sw-settings-payment.detail.placeholderTechnicalName'))"
                                 :error="paymentMethodTechnicalNameError"
                                 :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
                                 :class="!paymentMethod.technicalName ? 'has--warning' : ''"
                             >
-                                {# @deprecated tag:v6.7.0 - Hint can be removed: with technical names now required, the hint is no longer needed. Also remove the snippet and dynamic class has--warning #}
                                 <template #hint>
-                                    <span v-if="!paymentMethod.technicalName">{{ $tc('sw-settings-payment.detail.hintTextTechnicalName') }}</span>
+                                    <span v-if="technicalNameIsProvided">{{ $tc('sw-settings-payment.detail.hintTextTechnicalNameIsProvided', { name: paymentMethod.translated.name ?? paymentMethod.name }) }}</span>
+                                    {# @deprecated tag:v6.7.0 - can be removed: with technical names now required. Also remove the snippet and dynamic class has--warning #}
+                                    <span v-else-if="!paymentMethod.technicalName">{{ $tc('sw-settings-payment.detail.hintTextTechnicalName') }}</span>
                                 </template>
                             </sw-text-field>
                             {% endblock %}

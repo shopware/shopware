@@ -140,6 +140,10 @@ export default {
                 || this.paymentMethod.salesChannelDefaultAssignments?.length !== 0;
         },
 
+        technicalNameIsProvided() {
+            return !!this.paymentMethod?.pluginId || !!this.paymentMethod?.appPaymentMethod?.id;
+        },
+
         ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
     },
 

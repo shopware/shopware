@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media\File;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -27,7 +28,7 @@ class FileFetcherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fileFetcher = new FileFetcher(new FileUrlValidator());
+        $this->fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService());
 
         $projectDir = (new TestBootstrapper())->getProjectDir();
         if (!\is_dir($projectDir . '/public/media')) {
@@ -146,7 +147,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -168,7 +169,7 @@ class FileFetcherTest extends TestCase
 
     public function testCleanUpFileAfterFetching(): void
     {
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false);
         $mediaFile = $fileFetcher->fetchBlob('myBlob', 'png', 'image/png');
         static::assertFileExists($mediaFile->getFileName());
 
@@ -284,7 +285,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 0);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 0);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -317,7 +318,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 100000);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 100000);
 
         try {
             $mediaFile = $fileFetcher->fetchFileFromURL(
@@ -350,7 +351,7 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 1);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, false, 1);
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Source file exceeds maximum file size limit.');
@@ -374,7 +375,7 @@ class FileFetcherTest extends TestCase
         $request->headers = new HeaderBag();
         $request->headers->set('content-length', (string) $fileSize);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, true, 10);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), new FileService(), true, true, 10);
         $fileFetcher->fetchRequestData($request, $tempFile);
 
         static::assertFileExists($tempFile);

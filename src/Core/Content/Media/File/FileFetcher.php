@@ -9,13 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('buyers-experience')]
 class FileFetcher
 {
-    private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
-
     /**
      * @internal
      */
     public function __construct(
         private readonly FileUrlValidatorInterface $fileUrlValidator,
+        private readonly FileService $fileService,
         private readonly bool $enableUrlUploadFeature = true,
         private readonly bool $enableUrlValidation = true,
         private readonly int $maxFileSize = 0
@@ -58,11 +57,13 @@ class FileFetcher
 
         $url = $this->getUrlFromRequest($request);
 
+        if (!$this->fileService->isUrl($url)) {
+            throw MediaException::invalidUrl($url);
+        }
+
         if ($this->enableUrlValidation && !$this->fileUrlValidator->isValid($url)) {
             throw MediaException::illegalUrl($url);
         }
-
-        $extension = $this->getExtensionFromRequest($request);
 
         $inputStream = $this->openSourceFromUrl($url);
         $destStream = $this->openDestinationStream($fileName);
@@ -74,9 +75,13 @@ class FileFetcher
             fclose($destStream);
         }
 
+        $extension = (string) $request->query->get('extension');
+        $mimeType = FileInfoHelper::getMimeType($fileName, $extension);
+        $extension = $extension ?: FileInfoHelper::getExtension($mimeType);
+
         return new MediaFile(
             $fileName,
-            FileInfoHelper::getMimeType($fileName, $extension),
+            $mimeType,
             $extension,
             $writtenBytes,
             hash_file('md5', $fileName) ?: null
@@ -130,10 +135,6 @@ class FileFetcher
 
         if ($url === '') {
             throw MediaException::missingUrlParameter();
-        }
-
-        if (!$this->isUrlValid($url)) {
-            throw MediaException::invalidUrl($url);
         }
 
         return $url;
@@ -211,20 +212,5 @@ class FileFetcher
         }
 
         return $writtenBytes;
-    }
-
-    private function isUrlValid(string $url): bool
-    {
-        return (bool) filter_var($url, \FILTER_VALIDATE_URL) && $this->isProtocolAllowed($url);
-    }
-
-    private function isProtocolAllowed(string $url): bool
-    {
-        $fragments = explode(':', $url);
-        if (\count($fragments) > 1) {
-            return \in_array($fragments[0], self::ALLOWED_PROTOCOLS, true);
-        }
-
-        return false;
     }
 }

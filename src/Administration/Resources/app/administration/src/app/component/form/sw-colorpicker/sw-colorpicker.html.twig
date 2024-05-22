@@ -1,244 +1,39 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_colorpicker %}
-<div class="sw-colorpicker">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_colorpicker_contextual_field %}
-    <sw-contextual-field
-        v-bind="{
-            ...$attrs,
-            ...inheritanceAttrs
-        }"
-        :name="formFieldName"
-        :disabled="disabled"
-        @inheritance-restore="$emit('inheritance-restore', $event)"
-        @inheritance-remove="$emit('inheritance-remove', $event)"
-    >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_colorpicker_input_prefix %}
-        <template #sw-contextual-field-prefix>
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-            <div
-                class="sw-colorpicker__previewWrapper"
-                @click="toggleColorPicker"
-            >
-                <div
-                    class="sw-colorpicker__previewColor"
-                    :class="{active:visible}"
-                    :style="{ background: previewColorValue }"
-                ></div>
-                <div
-                    class="sw-colorpicker__previewBackground"
-                    :class="{'is--invalid': !isColorValid}"
-                ></div>
-            </div>
-        </template>
-        {% endblock %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-colorpicker component #}
+<mt-colorpicker
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :model-value="currentValue"
+    v-on="$listeners"
+    @change="currentValue = $event"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</mt-colorpicker>
 
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_colorpicker_input_field %}
-        <template #sw-field-input="{ disabled }">
-            <input
-                v-model="colorValue"
-                class="sw-colorpicker__input"
-                spellcheck="false"
-                :disabled="disabled"
-                :readonly="readonly"
-                @click="onClickInput"
-            >
-        </template>
-        {% endblock %}
-
-        <template #label>
-            <slot name="label"></slot>
-        </template>
-
-    </sw-contextual-field>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_colorpicker_popover %}
-    <sw-popover
-        v-if="visible"
-        class="sw-colorpicker__colorpicker-position"
-        :z-index="zIndex"
-    >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_colorpicker_colorpicker %}
-        <div class="sw-colorpicker__colorpicker">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_colorpicker_selection %}
-            <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
-            <div
-                ref="colorPicker"
-                class="sw-colorpicker__colorpicker-selection"
-                :style="{ backgroundColor: selectorBackground }"
-                @mousedown="setDragging"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_selector %}
-                <div
-                    class="sw-colorpicker__colorpicker-selector"
-                    :style="selectorStyles"
-                ></div>
-                {% endblock %}
-            </div>
-            {% endblock %}
-            <div class="sw-colorpicker__row">
-                <div class="sw-colorpicker__sliders">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_colorpicker_hue_slider %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.number="hueValue"
-                        class="sw-colorpicker__colorpicker-slider-range"
-                        type="range"
-                        min="0"
-                        max="360"
-                        step="1"
-                    >
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_colorpicker_alpha_slider %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-if="alpha"
-                        v-model.number="alphaValue"
-                        class="sw-colorpicker__alpha-slider"
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        :style="{ backgroundImage: sliderBackground }"
-                    >
-                    {% endblock %}
-                </div>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_preview %}
-                <div
-                    class="sw-colorpicker__colorpicker-wrapper"
-                    :class="{ 'is--small': !alpha }"
-                >
-                    <div
-                        class="sw-colorpicker__colorpicker-previewBackground"
-                        :class="{ 'is--invalid': !isColorValid }"
-                    ></div>
-                    <div
-                        class="sw-colorpicker__colorpicker-previewColor"
-                        :style="{ background: previewColorValue}"
-                    ></div>
-                </div>
-                {% endblock %}
-            </div>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_colorpicker_inputs %}
-            <div class="sw-colorpicker__row sw-colorpicker__input-row">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_inputs_hex %}
-                <div class="sw-colorpicker__row-column">
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.lazy="hexValue"
-                        class="sw-colorpicker__colorpicker-input is--hex"
-                        type="text"
-                        spellcheck="false"
-                    >
-                    <span
-                        v-if="colorLabels"
-                        class="sw-colorpicker__row-column-label"
-                    >HEX</span>
-                </div>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_inputs_red %}
-                <div class="sw-colorpicker__row-column">
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.number="redValue"
-                        class="sw-colorpicker__colorpicker-input"
-                        type="number"
-                        min="0"
-                        max="255"
-                        step="1"
-                        placeholder="0"
-                    >
-                    <span
-                        v-if="colorLabels"
-                        class="sw-colorpicker__row-column-label"
-                    >R</span>
-                </div>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_inputs_green %}
-                <div class="sw-colorpicker__row-column">
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.number="greenValue"
-                        class="sw-colorpicker__colorpicker-input"
-                        type="number"
-                        min="0"
-                        max="255"
-                        step="1"
-                        placeholder="0"
-                    >
-                    <span
-                        v-if="colorLabels"
-                        class="sw-colorpicker__row-column-label"
-                    >G</span>
-                </div>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_inputs_blue %}
-                <div class="sw-colorpicker__row-column">
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.number="blueValue"
-                        class="sw-colorpicker__colorpicker-input"
-                        type="number"
-                        min="0"
-                        max="255"
-                        step="1"
-                        placeholder="0"
-                    >
-                    <span
-                        v-if="colorLabels"
-                        class="sw-colorpicker__row-column-label"
-                    >B</span>
-                </div>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_colorpicker_inputs_alpha %}
-                <div
-                    v-if="alpha"
-                    class="sw-colorpicker__row-column"
-                >
-                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                    <input
-                        v-model.number="integerAlpha"
-                        class="sw-colorpicker__colorpicker-input"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="1"
-                        placeholder="0"
-                    >
-                    <span
-                        v-if="colorLabels"
-                        class="sw-colorpicker__row-column-label"
-                    >Alpha</span>
-                </div>
-                {% endblock %}
-            </div>
-            {% endblock %}
-        </div>
-        {% endblock %}
-    </sw-popover>
-    {% endblock %}
-</div>
-{% endblock %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-colorpicker-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</sw-colorpicker-deprecated>

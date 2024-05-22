@@ -22,7 +22,7 @@ const debounce = Shopware.Utils.debounce;
  *      zIndex="100">
  * </sw-colorpicker>
  */
-Component.register('sw-colorpicker', {
+Component.register('sw-colorpicker-deprecated', {
     template,
 
     emits: ['update:value'],

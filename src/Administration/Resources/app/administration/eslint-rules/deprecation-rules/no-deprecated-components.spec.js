@@ -22,6 +22,14 @@ tester.run('no-deprecated-components', rule, {
             </template>`
         },
         {
+            name: '"mt-colorpicker" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-colorpicker>Hello</mt-colorpicker>
+            </template>`
+        },
+        {
             name: '"mt-icon" usage is allowed',
             filename: 'test.html.twig',
             code: `
@@ -213,6 +221,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-text-field" is deprecated. Please use "mt-text-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-colorpicker" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-colorpicker />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-colorpicker - please check if everything works correctly -->
+    <mt-colorpicker />
+</template>`,
+            errors: [{
+                message: '"sw-colorpicker" is deprecated. Please use "mt-colorpicker" instead.',
+            }]
+        },
+        {
+            name: '"sw-colorpicker" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-colorpicker />
+</template>`,
+            errors: [{
+                message: '"sw-colorpicker" is deprecated. Please use "mt-colorpicker" instead.',
             }]
         },
         {

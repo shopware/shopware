@@ -105,6 +105,7 @@ module.exports = {
                     const deprecatedComponents = [
                         'sw-button',
                         'sw-icon',
+                        'sw-colorpicker',
                         'sw-card',
                         'sw-text-field',
                         'sw-number-field',

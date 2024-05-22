@@ -107,8 +107,8 @@ export default {
             }
 
             const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
-            this.iconConfig.name = module.manifest.icon;
-            this.iconConfig.color = module.manifest.color;
+            this.iconConfig.name = module?.manifest?.icon ?? '';
+            this.iconConfig.color = module?.manifest?.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

@@ -22,7 +22,7 @@ Jest (Administration):
   script:
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - npm --prefix $ADMIN_PATH run unit-setup
-    - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=2 | grep -A 5 -E '^(All files|Fail|    )'
+    - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=2 --no-cache | grep -A 5 -E '^(All files|Fail|    )'
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:

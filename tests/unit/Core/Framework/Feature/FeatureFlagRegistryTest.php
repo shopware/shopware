@@ -97,10 +97,8 @@ class FeatureFlagRegistryTest extends TestCase
         $service->disable('FEATURE_NON_EXIST');
     }
 
-    public function testDisableMajorFeature(): void
+    public function testDisableToggleableMajorFeature(): void
     {
-        $exception = FeatureException::cannotToggleMajor('FEATURE_MAJOR');
-        static::expectExceptionObject($exception);
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
             'FEATURE_ABC' => [
@@ -114,6 +112,7 @@ class FeatureFlagRegistryTest extends TestCase
                 'major' => true,
             ],
         ]);
+        static::assertTrue(Feature::isActive('FEATURE_MAJOR'));
 
         $service = new FeatureFlagRegistry(
             new ArrayKeyValueStorage(),
@@ -123,6 +122,7 @@ class FeatureFlagRegistryTest extends TestCase
         );
 
         $service->disable('FEATURE_MAJOR');
+        static::assertFalse(Feature::isActive('FEATURE_MAJOR'));
     }
 
     public function testDisableToggleableFeature(): void
@@ -209,9 +209,36 @@ class FeatureFlagRegistryTest extends TestCase
         $service->enable('FEATURE_NON_EXIST');
     }
 
-    public function testEnableMajorFeature(): void
+    public function testEnableToggleableMajorFeature(): void
     {
-        $exception = FeatureException::cannotToggleMajor('FEATURE_MAJOR');
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures([
+            'FEATURE_ABC' => [
+                'active' => true,
+                'major' => false,
+            ],
+            'FEATURE_MAJOR' => [
+                'active' => false,
+                'major' => true,
+                'toggleable' => true,
+            ],
+        ]);
+        static::assertFalse(Feature::isActive('FEATURE_MAJOR'));
+
+        $service = new FeatureFlagRegistry(
+            new ArrayKeyValueStorage(),
+            new EventDispatcher(),
+            [],
+            true
+        );
+
+        $service->enable('FEATURE_MAJOR');
+        static::assertTrue(Feature::isActive('FEATURE_MAJOR'));
+    }
+
+    public function testEnableNoneToggleableMajorFeatureThrowsException(): void
+    {
+        $exception = FeatureException::featureCannotBeToggled('FEATURE_MAJOR');
         static::expectExceptionObject($exception);
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
@@ -220,10 +247,12 @@ class FeatureFlagRegistryTest extends TestCase
                 'major' => false,
             ],
             'FEATURE_MAJOR' => [
-                'active' => true,
+                'active' => false,
                 'major' => true,
+                'toggleable' => false,
             ],
         ]);
+        static::assertFalse(Feature::isActive('FEATURE_MAJOR'));
 
         $service = new FeatureFlagRegistry(
             new ArrayKeyValueStorage(),

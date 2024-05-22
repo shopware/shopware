@@ -9,7 +9,8 @@ declare module '*.html.twig' {
     export default content;
 }
 
-declare module '*.html' {
+// Only allow raw imports for html files
+declare module '*.html?raw' {
     const content: string;
 
     // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

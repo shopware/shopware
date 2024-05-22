@@ -77,6 +77,18 @@ class Feature
         return $result;
     }
 
+    /**
+     * Determines weather a feature is active or not.
+     *
+     * A feature is either active by being in the environment (specified in the .env file for example)
+     * or by matching a FEATURE_ALL mode.
+     *
+     * With FEATURE_ALL you can activate either all minor or all major features.
+     * FEATURE_ALL=1, FEATURE_ALL=minor or any other truthy values except 'false' equals minor
+     * FEATURE_ALL=major puts it into major mode
+     *
+     * The specific feature configuration in the environment is always the highest priority, no matter the FEATURE_ALL configuration.
+     */
     public static function isActive(string $feature): bool
     {
         $env = EnvironmentHelper::getVariable('APP_ENV', 'prod');
@@ -89,26 +101,33 @@ class Feature
             trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
+        // Specific configurations are higher priority then FEATURE_ALL
+        if (self::featureInEnv($feature)) {
+            return self::getFeatureInEnv($feature);
+        }
+
         $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
 
+        // If FEATURE_ALL has any truthy value
         if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
             // If feature is not major and is have set active, return the active state
-            if (\array_key_exists($feature, self::$registeredFeatures) && (self::$registeredFeatures[$feature]['major'] ?? false) === false && \array_key_exists('active', self::$registeredFeatures[$feature])) {
-                return self::$registeredFeatures[$feature]['active'];
+            if (!self::getConfiguration($feature, 'major') && self::hasConfiguration($feature, 'active')) {
+                return self::getConfiguration($feature, 'active');
             }
 
+            // Should only enable major flags
             if ($featureAll === Feature::ALL_MAJOR) {
-                return true;
+                return self::getConfiguration($feature, 'major');
             }
 
-            // return true if it's registered and not a major feature
-            if (isset(self::$registeredFeatures[$feature]) && (self::$registeredFeatures[$feature]['major'] ?? false) === false) {
+            // Enable all minor flags
+            if (!self::getConfiguration($feature, 'major')) {
                 return true;
             }
         }
 
-        if (\array_key_exists($feature, self::$registeredFeatures) && \array_key_exists('active', self::$registeredFeatures[$feature])) {
-            return self::$registeredFeatures[$feature]['active'];
+        if (self::hasConfiguration($feature, 'active')) {
+            return self::getConfiguration($feature, 'active');
         }
 
         if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
@@ -355,5 +374,37 @@ class Feature
     private static function denormalize(string $name): string
     {
         return \strtolower(\str_replace(['_'], '.', $name));
+    }
+
+    private static function hasConfiguration(string $feature, string $key): bool
+    {
+        return \array_key_exists($feature, self::$registeredFeatures) && \array_key_exists($key, self::$registeredFeatures[$feature]);
+    }
+
+    private static function getConfiguration(string $feature, string $key): bool
+    {
+        if (!self::hasConfiguration($feature, $key)) {
+            return false;
+        }
+
+        return (bool) (self::$registeredFeatures[$feature][$key] ?? false);
+    }
+
+    private static function featureInEnv(string $feature): bool
+    {
+        return EnvironmentHelper::hasVariable($feature) || EnvironmentHelper::hasVariable(\strtolower($feature));
+    }
+
+    private static function getFeatureInEnv(string $feature): bool
+    {
+        if (EnvironmentHelper::hasVariable($feature)) {
+            return self::isTrue((string) EnvironmentHelper::getVariable($feature));
+        }
+
+        if (EnvironmentHelper::hasVariable(\strtolower($feature))) {
+            return self::isTrue((string) EnvironmentHelper::getVariable(\strtolower($feature)));
+        }
+
+        return false;
     }
 }

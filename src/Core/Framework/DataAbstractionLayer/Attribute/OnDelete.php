@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 enum OnDelete: string
 {
     case CASCADE = 'CASCADE';

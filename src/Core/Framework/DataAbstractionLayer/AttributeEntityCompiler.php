@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
@@ -41,26 +41,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+#[Package('core')]
 class AttributeEntityCompiler
 {
     private const FIELD_ATTRIBUTES = [
         Translations::class,
+        AutoIncrement::class,
         Serialized::class,
         ForeignKey::class,
         Version::class,
@@ -80,9 +80,19 @@ class AttributeEntityCompiler
 
     private static function snake_case(string $name): string
     {
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+        return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
     }
 
+    private static function camel_case(string $name): string
+    {
+        return lcfirst(str_replace('_', '', ucwords($name, '_')));
+    }
+
+    /**
+     * @param class-string<object> $class
+     *
+     * @return array<array<string, mixed>>
+     */
     public function compile(string $class): array
     {
         $reflection = new \ReflectionClass($class);
@@ -124,6 +134,9 @@ class AttributeEntityCompiler
         return $definitions;
     }
 
+    /**
+     * @return \ReflectionAttribute<object>
+     */
     private function getAttribute(\ReflectionProperty $property, string ...$list): ?\ReflectionAttribute
     {
         foreach ($list as $attribute) {
@@ -136,6 +149,9 @@ class AttributeEntityCompiler
         return null;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
         $attribute = $this->getAttribute($property, ...self::FIELD_ATTRIBUTES);
@@ -163,21 +179,16 @@ class AttributeEntityCompiler
         return match ($field->type) {
             FieldType::INT => IntField::class,
             FieldType::TEXT => LongTextField::class,
-            FieldType::STRING => StringField::class,
             FieldType::FLOAT => FloatField::class,
             FieldType::BOOL => BoolField::class,
             FieldType::DATETIME => DateTimeField::class,
             FieldType::UUID => IdField::class,
-            FieldType::AUTO_INCREMENT => AutoIncrementField::class,
-            CustomFieldsAttr::class => CustomFields::class,
+            AutoIncrement::TYPE => AutoIncrementField::class,
+            CustomFieldsAttr::TYPE => CustomFields::class,
             Serialized::TYPE => SerializedField::class,
             FieldType::JSON => JsonField::class,
             FieldType::DATE => DateField::class,
             FieldType::DATE_INTERVAL => DateIntervalField::class,
-            FieldType::EMAIL => EmailField::class,
-            FieldType::LIST => ListField::class,
-            FieldType::PASSWORD => PasswordField::class,
-            FieldType::REMOTE_ADDRESS => RemoteAddressField::class,
             FieldType::TIME_ZONE => TimeZoneField::class,
             OneToMany::TYPE => OneToManyAssociationField::class,
             OneToOne::TYPE => OneToOneAssociationField::class,
@@ -186,24 +197,28 @@ class AttributeEntityCompiler
             ForeignKey::TYPE => FkField::class,
             Version::TYPE => VersionField::class,
             ReferenceVersion::TYPE => ReferenceVersionField::class,
-            Translations::TYPE => TranslationsAssociationField::class
+            Translations::TYPE => TranslationsAssociationField::class,
+            default => StringField::class,
         };
     }
 
-    private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized $field, \ReflectionProperty $property): array
+    /**
+     * @return array<mixed>
+     */
+    private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement $field, \ReflectionProperty $property): array
     {
         $storage = self::snake_case($property->getName());
 
-        return match ($field->type) {
-            Translations::TYPE => [$entity . '_translation', $entity . '_id'],
-            ForeignKey::TYPE => [$storage, $property->getName(), $field->entity],
-            OneToOne::TYPE => [$property->getName(), $field->column ?? $storage . '_id', $field->ref, $field->entity],
-            ManyToOne::TYPE => [$property->getName(), $storage . '_id', $field->entity, $field->ref],
-            OneToMany::TYPE => [$property->getName(), $field->entity, $field->ref, 'id'],
-            ManyToMany::TYPE => [$property->getName(), $field->entity, self::mappingName($entity, $field), $entity . '_id', $field->entity . '_id'],
-            Version::TYPE => [],
-            ReferenceVersion::TYPE => [$field->entity, $storage],
-            Serialized::TYPE => [$storage, $property->getName(), $field->serializer],
+        return match (true) {
+            $field instanceof Translations => [$entity . '_translation', $entity . '_id'],
+            $field instanceof ForeignKey => [$storage, $property->getName(), $field->entity],
+            $field instanceof OneToOne => [$property->getName(), $field->column ?? $storage . '_id', $field->ref, $field->entity, false],
+            $field instanceof ManyToOne => [$property->getName(), $storage . '_id', $field->entity, $field->ref],
+            $field instanceof OneToMany => [$property->getName(), $field->entity, $field->ref, 'id'],
+            $field instanceof ManyToMany => [$property->getName(), $field->entity, self::mappingName($entity, $field), $entity . '_id', $field->entity . '_id'],
+            $field instanceof AutoIncrement, $field instanceof Version => [],
+            $field instanceof ReferenceVersion => [$field->entity, $storage],
+            $field instanceof Serialized => [$storage, $property->getName(), $field->serializer],
             default => [$storage, $property->getName()]
         };
     }
@@ -216,6 +231,9 @@ class AttributeEntityCompiler
         return implode('_', $items);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
         $flags = [];
@@ -235,7 +253,7 @@ class AttributeEntityCompiler
 
         if ($field->api !== false) {
             $aware = [];
-            if (is_array($field->api)) {
+            if (\is_array($field->api)) {
                 if (isset($field->api['admin-api']) && $field->api['admin-api'] === true) {
                     $aware[] = AdminApiSource::class;
                 }
@@ -255,7 +273,8 @@ class AttributeEntityCompiler
         }
 
         if ($this->getAttribute($property, ManyToMany::class, OneToMany::class, Translations::class)) {
-            if ($property->getType()?->getName() === 'array') {
+            $type = $property->getType();
+            if ($type instanceof \ReflectionNamedType && $type->getName() === 'array') {
                 $flags[AsArray::class] = ['class' => AsArray::class];
             }
         }
@@ -272,24 +291,34 @@ class AttributeEntityCompiler
             };
         }
 
+        if ($field->type === AutoIncrement::TYPE) {
+            unset($flags[Required::class]);
+        }
+
         return $flags;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapping(string $entity, \ReflectionProperty $property): array
     {
         $attribute = $this->getAttribute($property, ManyToMany::class);
 
         if (!$attribute) {
-            throw new \RuntimeException('Invalid attribute');
+            throw DataAbstractionLayerException::canNotFindAttribute(ManyToMany::class, $property->getName());
         }
         /** @var ManyToMany $field */
         $field = $attribute->newInstance();
+
+        $srcProperty = self::camel_case($entity);
+        $refProperty = self::camel_case($field->entity);
 
         $fields = [
             [
                 'class' => FkField::class,
                 'translated' => false,
-                'args' => [$entity . '_id', $entity . 'Id', $entity],
+                'args' => [$entity . '_id', $srcProperty . 'Id', $entity],
                 'flags' => [
                     ['class' => PrimaryKey::class],
                     ['class' => Required::class],
@@ -298,7 +327,7 @@ class AttributeEntityCompiler
             [
                 'class' => FkField::class,
                 'translated' => false,
-                'args' => [$field->entity . '_id', $field->entity . 'Id', $field->entity],
+                'args' => [$field->entity . '_id', $refProperty . 'Id', $field->entity],
                 'flags' => [
                     ['class' => PrimaryKey::class],
                     ['class' => Required::class],
@@ -307,13 +336,13 @@ class AttributeEntityCompiler
             [
                 'class' => ManyToOneAssociationField::class,
                 'translated' => false,
-                'args' => [$entity, $entity . '_id', $entity, 'id'],
+                'args' => [$srcProperty, $entity . '_id', $entity, 'id'],
                 'flags' => [],
             ],
             [
                 'class' => ManyToOneAssociationField::class,
                 'translated' => false,
-                'args' => [$field->entity, $field->entity . '_id', $field->entity, 'id'],
+                'args' => [$refProperty, $field->entity . '_id', $field->entity, 'id'],
                 'flags' => [],
             ],
         ];

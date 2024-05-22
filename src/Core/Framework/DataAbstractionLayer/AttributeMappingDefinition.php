@@ -3,9 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class AttributeMappingDefinition extends MappingEntityDefinition
 {
+    /**
+     * @param array<string, mixed> $meta
+     */
     public function __construct(private readonly array $meta = [])
     {
         parent::__construct();
@@ -28,7 +34,11 @@ class AttributeMappingDefinition extends MappingEntityDefinition
             $instance = new $field['class'](...$field['args']);
 
             foreach ($field['flags'] ?? [] as $flag) {
-                $instance->addFlags(new $flag['class'](...$flag['args'] ?? []));
+                $flagInstance = new $flag['class'](...$flag['args'] ?? []);
+
+                if ($flagInstance instanceof Flag) {
+                    $instance->addFlags($flagInstance);
+                }
             }
 
             $fields[] = $instance;

@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+#[Package('core')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
     public function __construct(private readonly AttributeEntityCompiler $compiler)
@@ -38,6 +40,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
                     $this->repository($container, $definition['entity_name']);
 
                     $this->translation($definition, $container, $definition['entity_name']);
+
                     continue;
                 }
 
@@ -67,6 +70,9 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $container->setDefinition($entity . '.repository', $repository);
     }
 
+    /**
+     * @param array<string, mixed> $meta
+     */
     public function definition(array $meta, ContainerBuilder $container, string $entity): void
     {
         $definition = new Definition(AttributeEntityDefinition::class);
@@ -78,11 +84,15 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
     }
 
+    /**
+     * @param array<string, mixed> $meta
+     */
     private function translation(array $meta, ContainerBuilder $container, string $entity): void
     {
         if (!$this->hasTranslation($meta)) {
             return;
         }
+
         $definition = new Definition(AttributeTranslationDefinition::class);
         $definition->addArgument($meta);
         $definition->setPublic(true);
@@ -90,12 +100,18 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
         $registry->addMethodCall('register', [new Reference($entity . '_translation.definition'), $entity . '_translation.definition']);
+
+        $this->repository($container, $entity . '_translation');
     }
 
+    /**
+     * @param array<string, mixed> $meta
+     */
     private function hasTranslation(array $meta): bool
     {
+        /** @var array<string, mixed> $field */
         foreach ($meta['fields'] as $field) {
-            if ($field['translated']) {
+            if (isset($field['translated']) && $field['translated']) {
                 return true;
             }
         }
@@ -103,6 +119,9 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         return false;
     }
 
+    /**
+     * @param array<string, mixed> $meta
+     */
     private function mapping(array $meta, ContainerBuilder $container): void
     {
         $definition = new Definition(AttributeMappingDefinition::class);
@@ -112,5 +131,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
         $registry->addMethodCall('register', [new Reference($meta['entity_name'] . '.definition'), $meta['entity_name'] . '.definition']);
+
+        $this->repository($container, $meta['entity_name']);
     }
 }

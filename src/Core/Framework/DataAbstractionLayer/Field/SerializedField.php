@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 class SerializedField extends Field implements StorageAware
 {
+    /**
+     * @param class-string<FieldSerializerInterface> $serializer
+     */
     public function __construct(
         private readonly string $storageName,
         string $propertyName,

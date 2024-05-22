@@ -95,10 +95,11 @@ class PropertyFilterHandlerTest extends TestCase
 
     /**
      * @param array<string> $input
+     * @param array<string> $expectedIds
      * @param array<array<string, string>> $mapping
      */
     #[DataProvider('createProvider')]
-    public function testCreate(array $input, AndFilter $expected, array $mapping): void
+    public function testCreate(array $input, AndFilter $expectedFilter, array $expectedIds, array $mapping): void
     {
         $request = new Request([], ['properties' => implode('|', $input)]);
 
@@ -126,8 +127,40 @@ class PropertyFilterHandlerTest extends TestCase
                 new TermsAggregation('properties', 'product.properties.id'),
                 new TermsAggregation('options', 'product.options.id'),
             ],
-            $expected,
-            $input,
+            $expectedFilter,
+            $expectedIds,
+            false
+        );
+
+        static::assertEquals($expected, $result);
+    }
+
+    public function testCreateWithInvalidIds(): void
+    {
+        $request = new Request([], ['properties' => 'foo|bar']);
+
+        $request->setMethod(Request::METHOD_POST);
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $connection = $this->createMock(Connection::class);
+
+        $handler = new PropertyListingFilterHandler(
+            new StaticEntityRepository([]),
+            $connection
+        );
+
+        $result = $handler->create($request, $context);
+
+        $expected = new Filter(
+            'properties',
+            false,
+            [
+                new TermsAggregation('properties', 'product.properties.id'),
+                new TermsAggregation('options', 'product.options.id'),
+            ],
+            new AndFilter([]),
+            [],
             false
         );
 
@@ -315,6 +348,9 @@ class PropertyFilterHandlerTest extends TestCase
                 ]),
             ]),
 
+            // expected ids
+            [$ids->get('XL'), $ids->get('green')],
+
             // mapping from the storage
             [
                 ['property_group_id' => $ids->get('size'), 'id' => $ids->get('XL')],
@@ -332,6 +368,9 @@ class PropertyFilterHandlerTest extends TestCase
                     new EqualsAnyFilter('product.propertyIds', [$ids->get('green'), $ids->get('red')]),
                 ]),
             ]),
+
+            // expected ids
+            [$ids->get('green'), $ids->get('red')],
 
             // mapping from the storage
             [
@@ -360,12 +399,47 @@ class PropertyFilterHandlerTest extends TestCase
                 ]),
             ]),
 
+            // expected ids
+            [
+                $ids->get('green'),
+                $ids->get('red'),
+                $ids->get('XL'),
+                $ids->get('L'),
+            ],
+
             // mapping from the storage
             [
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('green')],
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('red')],
                 ['property_group_id' => $ids->get('size'), 'id' => $ids->get('XL')],
                 ['property_group_id' => $ids->get('size'), 'id' => $ids->get('L')],
+            ],
+        ];
+
+        yield 'Test two groups and single option with invalid id' => [
+            // input for the request
+            [$ids->get('XL'), $ids->get('green'), 'foo', 'bar'],
+
+            // expected filter
+            new AndFilter([
+                // each "group" should be an OR filter (e.g. size OR color)
+                new OrFilter([
+                    new EqualsAnyFilter('product.optionIds', [$ids->get('XL')]),
+                    new EqualsAnyFilter('product.propertyIds', [$ids->get('XL')]),
+                ]),
+                new OrFilter([
+                    new EqualsAnyFilter('product.optionIds', [$ids->get('green')]),
+                    new EqualsAnyFilter('product.propertyIds', [$ids->get('green')]),
+                ]),
+            ]),
+
+            // expected ids
+            [$ids->get('XL'), $ids->get('green')],
+
+            // mapping from the storage
+            [
+                ['property_group_id' => $ids->get('size'), 'id' => $ids->get('XL')],
+                ['property_group_id' => $ids->get('color'), 'id' => $ids->get('green')],
             ],
         ];
     }

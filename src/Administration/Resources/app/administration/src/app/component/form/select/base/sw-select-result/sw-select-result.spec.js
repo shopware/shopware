@@ -48,9 +48,19 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
             components: { Parent },
         };
 
-        const grandGrandParent = {
+        const GrandParentAsync = {
             template: '<div><GrandParent></GrandParent></div>',
             components: { GrandParent },
+        };
+
+        const GrandParentAsyncTwo = {
+            template: '<div><GrandParentAsync></GrandParentAsync></div>',
+            components: { GrandParentAsync },
+        };
+
+        const grandGrandParent = {
+            template: '<div><GrandParentAsyncTwo></GrandParentAsyncTwo></div>',
+            components: { GrandParentAsyncTwo },
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);

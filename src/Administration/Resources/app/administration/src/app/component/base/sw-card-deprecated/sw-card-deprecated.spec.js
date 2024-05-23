@@ -13,6 +13,7 @@ async function createWrapper(additionalOptions = {}) {
                 'sw-loader': true,
                 'sw-icon': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,

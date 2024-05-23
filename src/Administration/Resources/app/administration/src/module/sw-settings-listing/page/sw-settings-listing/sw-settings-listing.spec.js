@@ -504,7 +504,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                     },
                     'sw-skeleton': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-popover': {
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': {
                         template: `
                             <div class="sw-popover"><slot></slot></div>
                         `,

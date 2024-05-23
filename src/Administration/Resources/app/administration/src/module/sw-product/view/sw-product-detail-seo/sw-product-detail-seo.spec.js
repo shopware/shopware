@@ -131,6 +131,7 @@ async function createWrapper(privileges = []) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),

@@ -33,7 +33,8 @@ async function createWrapper(
             'sw-base-field': await wrapTestComponent('sw-base-field'),
             'sw-select-result': await wrapTestComponent('sw-select-result'),
             'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-            'sw-popover': true,
+            'sw-popover': await wrapTestComponent('sw-popover'),
+            'sw-popover-deprecated': true,
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
             'sw-icon': {

@@ -43,6 +43,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 stubs: {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),

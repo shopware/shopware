@@ -173,6 +173,7 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),

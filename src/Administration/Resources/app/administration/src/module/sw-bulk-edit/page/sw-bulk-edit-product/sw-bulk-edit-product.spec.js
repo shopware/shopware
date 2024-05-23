@@ -93,6 +93,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-price-field': await wrapTestComponent('sw-price-field'),
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),

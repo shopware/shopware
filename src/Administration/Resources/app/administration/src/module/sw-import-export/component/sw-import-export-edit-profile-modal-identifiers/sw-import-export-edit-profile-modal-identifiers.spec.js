@@ -78,6 +78,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     'sw-field-error': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': {
                         props: ['text'],

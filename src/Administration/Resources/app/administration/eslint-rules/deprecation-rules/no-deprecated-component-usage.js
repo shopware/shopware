@@ -19,6 +19,7 @@ const { handleMtEmailField } = require("./no-deprecated-component-usage-checks/m
 const { handleMtPasswordField } = require("./no-deprecated-component-usage-checks/mt-password-field.check");
 const { handleMtUrlField } = require("./no-deprecated-component-usage-checks/mt-url-field.check");
 const { handleMtProgressBar } = require("./no-deprecated-component-usage-checks/mt-progress-bar.check");
+const { handleMtFloatingUi } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
 
 /* eslint-disable max-len */
 
@@ -85,6 +86,8 @@ module.exports = {
                     handleMtUrlField(context, node);
                     // Handle mt-progress-bar
                     handleMtProgressBar(context, node);
+                    // Handle mt-floating-ui
+                    handleMtFloatingUi(context, node);
                 },
             }
         )

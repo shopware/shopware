@@ -76,7 +76,8 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
+            'sw-popover': await wrapTestComponent('sw-popover'),
+            'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
@@ -126,7 +127,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
-            'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
+            'sw-popover': await wrapTestComponent('sw-popover'),
             'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
@@ -200,13 +201,13 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.vm.showSettings).toBe(true);
         expect(wrapper.findComponent(stubs['sw-context-menu']).exists()).toBe(false);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // find and click button setting
         const contextButtonSetting = wrapper.find('.sw-data-grid-settings__trigger');
         await contextButtonSetting.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
@@ -274,7 +275,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const contextButtonSetting = wrapper.find('.sw-data-grid-settings__trigger');
         await contextButtonSetting.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
@@ -331,7 +332,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const contextButtonSetting = wrapper.find('.sw-data-grid-settings__trigger');
         await contextButtonSetting.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
@@ -392,7 +393,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const contextButtonSetting = wrapper.find('.sw-data-grid-settings__trigger');
         await contextButtonSetting.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
@@ -449,7 +450,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const contextButtonSetting = wrapper.find('.sw-data-grid-settings__trigger');
         await contextButtonSetting.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);

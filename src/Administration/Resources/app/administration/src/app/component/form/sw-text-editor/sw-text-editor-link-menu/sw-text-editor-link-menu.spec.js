@@ -77,7 +77,8 @@ async function createWrapper(buttonConfig) {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                'sw-popover': {
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-select-result': await wrapTestComponent('sw-select-result'),

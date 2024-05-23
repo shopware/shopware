@@ -52,6 +52,10 @@ module.exports = {
                             before: 'sw-alert',
                             after: 'mt-banner'
                         },
+                        {
+                            before: 'sw-popover',
+                            after: 'mt-floating-ui'
+                        },
                     ]
 
                     // Handle deprecated components

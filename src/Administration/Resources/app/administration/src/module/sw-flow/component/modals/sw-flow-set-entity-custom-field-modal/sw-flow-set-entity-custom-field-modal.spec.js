@@ -107,6 +107,7 @@ async function createWrapper(customField = customNormalField) {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-field': {

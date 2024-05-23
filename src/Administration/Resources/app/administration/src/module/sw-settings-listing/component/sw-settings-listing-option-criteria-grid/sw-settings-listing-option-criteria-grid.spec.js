@@ -54,7 +54,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-popover': {
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': {
                         props: ['popoverClass'],
                         template: `
                     <div class="sw-popover" :class="popoverClass">

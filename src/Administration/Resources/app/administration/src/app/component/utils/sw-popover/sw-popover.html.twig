@@ -1,13 +1,28 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_popover %}
-<div class="sw-popover">
-    <div
-        v-popover="popoverConfig"
-        class="sw-popover__wrapper"
-        :class="popoverClass"
-        :style="componentStyle"
-    >
-        <slot></slot>
-    </div>
-</div>
-{% endblock %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-popover component #}
+<mt-floating-ui
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :is-opened="isOpened"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</mt-floating-ui>
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-popover-deprecated
+    v-else
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <slot></slot>
+</sw-popover-deprecated>

@@ -361,15 +361,11 @@ class RegisterRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $customFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
-        $customFieldMapper
-            ->expects(static::once())
-            ->method('map')
-            ->with(CustomerDefinition::ENTITY_NAME, new RequestDataBag([
-                'test' => 1,
-                'mapped' => 1,
-            ]))
-            ->willReturn(['mapped' => 1]);
+        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
+            CustomerDefinition::ENTITY_NAME => [
+                ['name' => 'mapped', 'type' => 'int'],
+            ],
+        ]);
 
         $register = new RegisterRoute(
             new EventDispatcher(),
@@ -393,8 +389,8 @@ class RegisterRouteTest extends TestCase
                 'countryId' => Uuid::randomHex(),
             ],
             'customFields' => [
-                'test' => 1,
-                'mapped' => 1,
+                'test' => '1',
+                'mapped' => '1',
             ],
         ];
 

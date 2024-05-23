@@ -148,7 +148,24 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-progress-bar />
             </template>`
-        }
+        },
+        {
+            name: '"mt-data-table" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-data-table />
+            </template>`
+        },
+        {
+            name: '"sw-data-grid" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->
+    <sw-data-grid />
+</template>`,
+        },
     ],
     invalid: [
         {
@@ -654,6 +671,34 @@ tester.run('no-deprecated-components', rule, {
             errors: [{
                 message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
             }]
-        }
+        },
+        {
+            name: '"sw-data-grid" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-data-grid />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->
+    <sw-data-grid />
+</template>`,
+            errors: [{
+                message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
+            }]
+        },
+        {
+            name: '"sw-data-grid" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-data-grid />
+</template>`,
+            errors: [{
+                message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
+            }]
+        },
     ]
 })

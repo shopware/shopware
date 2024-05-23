@@ -513,6 +513,17 @@ export default class VueAdapter extends ViewAdapter {
 
         this.setLocaleFromUser(store);
 
+        // watch for changes of the user to update the locale
+        Shopware.State.watch(state => state.session.currentUser, (newValue, oldValue) => {
+            const currentUserLocaleId = newValue?.localeId;
+            const oldUserLocaleId = oldValue?.localeId;
+
+            if (currentUserLocaleId && currentUserLocaleId !== oldUserLocaleId) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                Shopware.Service('localeHelper').setLocaleWithId(currentUserLocaleId);
+            }
+        }, { deep: true });
+
         return i18n;
     }
 

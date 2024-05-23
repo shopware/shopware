@@ -151,6 +151,36 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
     });
 
+    it('initLocales should watch for user changes and recall the "setLocaleWithId"', async () => {
+        application = createApplication()
+            .addFactory('locale', () => {
+                return LocaleFactory;
+            });
+
+        // Mock current user in state
+        Shopware.State.get('session').currentUser = {
+            localeId: 'english-id',
+        };
+
+        // create vueAdapter with custom application
+        vueAdapter = new VueAdapter(application);
+
+        vueAdapter.initLocales({
+            subscribe: () => {},
+            dispatch: () => {},
+            state: { session: { currentLocale: 'en-GB' } },
+        });
+
+        // Change the user
+        Shopware.State.get('session').currentUser = {
+            localeId: 'german-id',
+        };
+
+        await flushPromises();
+
+        expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith('german-id');
+    });
+
     it('should resolve mixins by explicit Mixin get by name call', async () => {
         Shopware.Mixin.register('foo1', {
             methods: {

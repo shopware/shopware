@@ -33,6 +33,7 @@ const componentNames = [
     'sw-sidebar-media-item',
     'sw-ai-copilot-badge',
     'sw-ai-copilot-warning',
+    'sw-string-filter',
 ];
 
 describe('src/app/asyncComponent/asyncComponent', () => {

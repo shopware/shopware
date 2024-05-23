@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -21,6 +22,7 @@ class CacheInvalidator
      * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
+        // @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
         private readonly int $delay,
         private readonly array $adapters,
         private readonly AbstractInvalidatorStorage $cache,
@@ -40,7 +42,12 @@ class CacheInvalidator
             return;
         }
 
-        if ($this->delay > 0 && !$force) {
+        $delay = $this->delay > 0 && !$force;
+        if (Feature::isActive('cache_rework')) {
+            $delay = !$force;
+        }
+
+        if ($delay) {
             $this->cache->store($tags);
 
             return;
@@ -49,17 +56,19 @@ class CacheInvalidator
         $this->purge($tags);
     }
 
-    public function invalidateExpired(): void
+    public function invalidateExpired(): array
     {
         $tags = $this->cache->loadAndDelete();
 
         if (empty($tags)) {
-            return;
+            return $tags;
         }
 
-        $this->logger->debug(\sprintf('Purged %d tags', \count($tags)));
+        $this->logger->info(\sprintf('Purged %d tags', \count($tags)));
 
         $this->purge($tags);
+
+        return $tags;
     }
 
     /**
@@ -68,13 +77,11 @@ class CacheInvalidator
     private function purge(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
+            $adapter->deleteItems($keys);
+
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);
             }
-        }
-
-        foreach ($this->adapters as $adapter) {
-            $adapter->deleteItems($keys);
         }
 
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));

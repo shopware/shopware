@@ -37,7 +37,7 @@ class SearchController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/search', name: 'frontend.search.page', defaults: ['_httpCache' => true], methods: ['GET'])]
+    #[Route(path: '/search', name: 'frontend.search.page', methods: ['GET'])]
     public function search(SalesChannelContext $context, Request $request): Response
     {
         try {
@@ -61,7 +61,7 @@ class SearchController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         if (!$request->request->has('no-aggregations')) {
@@ -78,7 +78,7 @@ class SearchController extends StorefrontController
     /**
      * Route to load the listing filters
      */
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']], methods: ['GET', 'POST'])]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);

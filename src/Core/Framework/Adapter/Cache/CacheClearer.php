@@ -26,6 +26,7 @@ class CacheClearer
     public function __construct(
         private readonly array $adapters,
         private readonly CacheClearerInterface $cacheClearer,
+        private readonly CacheInvalidator $invalidator,
         private readonly Filesystem $filesystem,
         private readonly string $cacheDir,
         private readonly string $environment,
@@ -39,6 +40,8 @@ class CacheClearer
         foreach ($this->adapters as $adapter) {
             $adapter->clear();
         }
+
+        $this->invalidator->invalidateExpired();
 
         if (!is_writable($this->cacheDir)) {
             throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));

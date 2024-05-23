@@ -11,7 +11,7 @@
          private InterfaceBased $interfaceBasedComparisons,
          private TraitBased $traitBasedComparisons,
      ) {
-+        $excludes = require __DIR__ . '/../../../../../../.bc-exclude.php';
++        $excludes = require getcwd() . '/.bc-exclude.php';
 +        $this->excludePatterns = $excludes['errors'];
      }
  

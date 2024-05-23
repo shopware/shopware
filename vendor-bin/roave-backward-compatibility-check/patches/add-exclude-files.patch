@@ -34,7 +34,7 @@
 +
 +    public function __construct(private SourceLocator $sourceLocator)
 +    {
-+        $excludes = require __DIR__ . '/../../../../../../../.bc-exclude.php';
++        $excludes = require getcwd() . '/.bc-exclude.php';
 +        $this->excludePatterns = $excludes['filePatterns'];
 +    }
 +

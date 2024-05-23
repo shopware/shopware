@@ -338,16 +338,6 @@
 
         <service id="shopware.elasticsearch.logger" alias="monolog.logger.elasticsearch"/>
 
-        <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
-        <service id="_dummy_es_env_usage" class="iterable" lazy="true">
-            <argument>%env(bool:SHOPWARE_ES_ENABLED)%</argument>
-            <argument>%env(bool:SHOPWARE_ES_INDEXING_ENABLED)%</argument>
-            <argument>%env(string:OPENSEARCH_URL)%</argument>
-            <argument>%env(string:SHOPWARE_ES_INDEX_PREFIX)%</argument>
-            <argument>%env(bool:SHOPWARE_ES_THROW_EXCEPTION)%</argument>
-            <argument>%env(int:SHOPWARE_ES_INDEXING_BATCH_SIZE)%</argument>
-        </service>
-
         <service id="Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber">
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
 

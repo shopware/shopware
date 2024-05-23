@@ -149,7 +149,7 @@
         {% block layout_head_javascript_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>
-                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+                window.activeNavigationId = '{{  navigationId }}';
                 window.router = {
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',

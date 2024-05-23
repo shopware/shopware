@@ -25,7 +25,7 @@
 {% endif %}
 
 {% if unit is not defined %}
-    {% set unit = page.header.activeCurrency.symbol %}
+    {% set unit = context.currency.symbol %}
 {% endif %}
 
 {% if minInputValue is not defined %}

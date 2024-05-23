@@ -23,7 +23,7 @@
 
     <input type="hidden"
            name="redirectParameters"
-           value="{{ {productId: reviews.productId, id: cmsPage.id, navigationId: page.header.navigation.active.id}|json_encode }}">
+           value="{{ {productId: reviews.productId, id: cmsPage.id, navigationId: navigationId}|json_encode }}">
 {% endblock %}
 
 {% block component_account_login_submit %}

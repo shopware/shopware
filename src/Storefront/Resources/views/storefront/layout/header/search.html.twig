@@ -1,6 +1,4 @@
-{% set searchWidgetOptions = {
-    searchWidgetMinChars: page.header.activeLanguage.productSearchConfig.minSearchLength ?: 3
-} %}
+{% set searchWidgetOptions = { searchWidgetMinChars: minSearchLength } %}
 
 {% block layout_header_search %}
     <div class="collapse"

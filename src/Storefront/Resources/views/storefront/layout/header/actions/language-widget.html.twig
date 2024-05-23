@@ -1,9 +1,15 @@
+{% if not feature('cache_rework')  %}
+    {% if not header is defined and page is defined %}
+        {% set header = page.header %}
+    {% endif %}
+{% endif %}
+
 {% block layout_header_actions_language_widget %}
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
 
-    {% if page.header.languages.count > 1 %}
+    {% if header.languages.count > 1 %}
         <div class="top-bar-nav-item top-bar-language">
             {% block layout_header_actions_language_widget_form %}
                 <form method="post"
@@ -11,8 +17,8 @@
                       class="language-form"
                       data-form-auto-submit="true">
                     {% block layout_header_actions_language_widget_content %}
-                        {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
-                        {% set language = isoCode[0] %}
+                        {% set isoCode = language.locale|lower|split('-') %}
+                        {% set iso = isoCode[0] %}
                         {% set country = isoCode[1] %}
 
                         <div class="languages-menu dropdown">
@@ -22,15 +28,16 @@
                                     data-bs-toggle="dropdown"
                                     aria-haspopup="true"
                                     aria-expanded="false">
-                                <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
-                                <span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
+                                <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ iso }}"></div>
+                                <span class="top-bar-nav-text">{{ language.name }}</span>
                             </button>
+                            {% set active = language %}
 
                             {% block layout_header_actions_languages_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-labelledby="languagesDropdown-{{ position }}">
-                                    {% for language in page.header.languages %}
-                                        <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
+                                    {% for language in header.languages %}
+                                        <div class="top-bar-list-item dropdown-item{% if language.id is same as(active.id) %} item-checked{% endif %}"
                                              title="{{ language.translated.name }}">
                                             {% block layout_header_actions_languages_widget_form_items_flag %}
                                                 {% set isoCode = language.translationCode.code|lower|split('-') %}
@@ -44,7 +51,7 @@
                                                            value="{{ language.id }}"
                                                            name="languageId"
                                                            type="radio"
-                                                        {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
+                                                        {% if language.id is same as(active.id) %} checked{% endif %}>
                                                     <div class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
                                                     {{ language.name }}
                                                 </label>

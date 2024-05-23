@@ -132,7 +132,7 @@
                     <input type="hidden" name="navigationId" value="{{ page.navigationId }}">
                     <input type="hidden" name="entityName" value="{{ page.entityName }}">
                 {% else %}
-                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}">
+                    <input type="hidden" name="navigationId" value="{{ navigationId }}">
                 {% endif %}
 
                 <input type="hidden" name="slotId" value="{{ element.id }}">

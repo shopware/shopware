@@ -1,9 +1,15 @@
+{% if not feature('cache_rework')  %}
+    {% if not header is defined and page is defined %}
+        {% set header = page.header %}
+    {% endif %}
+{% endif %}
+
 {% block layout_header_actions_currency_widget %}
     {% if position is empty %}
         {% set position = 'top-bar' %}
     {% endif %}
 
-    {% if page.header.currencies.count > 1 %}
+    {% if header.currencies.count > 1 %}
         <div class="top-bar-nav-item top-bar-currency">
             {% block layout_header_actions_currency_widget_form %}
                 <form method="post"
@@ -20,8 +26,8 @@
                                         aria-haspopup="true"
                                         aria-expanded="false">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
-                                        {{ page.header.activeCurrency.symbol }}
-                                        <span class="top-bar-nav-text">{{ page.header.activeCurrency.translated.name }}</span>
+                                        {{ context.currency.translated.symbol }}
+                                        <span class="top-bar-nav-text">{{ context.currency.translated.name }}</span>
                                     {% endblock %}
                                 </button>
                             {% endblock %}
@@ -29,9 +35,9 @@
                             {% block layout_header_actions_currency_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-end"
                                     aria-labelledby="currenciesDropdown-{{ position }}">
-                                    {% for currency in page.header.currencies %}
+                                    {% for currency in header.currencies %}
                                         {% block layout_header_actions_currency_widget_form_items_element %}
-                                            <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
+                                            <div class="top-bar-list-item dropdown-item{% if currency.id is same as(context.currency.id) %} item-checked{% endif %}"
                                                  title="{{ currency.translated.shortName }}">
                                                 {% block layout_header_actions_currency_widget_form_items_element_label %}
                                                     <label class="top-bar-list-label"
@@ -42,7 +48,7 @@
                                                                    value="{{ currency.id }}"
                                                                    name="currencyId"
                                                                    type="radio"
-                                                                {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
+                                                                {% if currency.id is same as(context.currency.id) %} checked{% endif %}>
                                                             {{ currency.symbol }} {{ currency.translated.shortName }}
                                                         {% endblock %}
                                                     </label>

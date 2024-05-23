@@ -5,13 +5,22 @@
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
-                <div class="cms-breadcrumb container">
-                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                        context: context,
-                        themeIconConfig: themeIconConfig,
-                        category: page.header.navigation.active
-                    } only %}
-                </div>
+
+                {% if feature('cache_rework') %}
+                    <div class="cms-breadcrumb container">
+                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                            context: context,
+                            categoryId: navigationId
+                        } only %}
+                    </div>
+                {% else %}
+                    <div class="cms-breadcrumb container">
+                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                            context: context,
+                            category: page.header.navigation.active
+                        } only %}
+                    </div>
+                {% endif %}
             {% endblock %}
 
             {% block cms_content %}

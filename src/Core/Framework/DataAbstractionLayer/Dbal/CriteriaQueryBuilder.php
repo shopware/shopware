@@ -159,6 +159,7 @@ class CriteriaQueryBuilder
             $definition->getEntityName(),
             $context
         );
+
         if (empty($queries->getWheres())) {
             return;
         }
@@ -171,6 +172,7 @@ class CriteriaQueryBuilder
 
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s.%s)', $definition->getEntityName(), $primary->getStorageName());
         $query->addSelect($select . ' as _score');
+        $this->addConditions($criteria->getQueries(), $definition, $query, $context);
 
         // Sort by _score primarily if the criteria has a score query or search term
         if (!$this->hasScoreSorting($criteria)) {
@@ -189,6 +191,34 @@ class CriteriaQueryBuilder
         foreach ($queries->getParameters() as $key => $value) {
             $query->setParameter($key, $value, $queries->getType($key));
         }
+    }
+
+    /**
+     * @param array<ScoreQuery> $queries
+     */
+    private function addConditions(array $queries, EntityDefinition $definition, QueryBuilder $query, Context $context): void
+    {
+        $conditions = [];
+        foreach ($queries as $scoreQuery) {
+            $parsed = $this->parser->parse($scoreQuery->getQuery(), $definition, $context);
+
+            if (empty($parsed->getWheres())) {
+                continue;
+            }
+
+            $conditions = array_merge($conditions, $parsed->getWheres());
+
+            foreach ($parsed->getParameters() as $key => $value) {
+                $query->setParameter($key, $value, $parsed->getType($key));
+            }
+        }
+
+        if (empty($conditions)) {
+            return;
+        }
+
+        $wheres = implode(' OR ', $conditions);
+        $query->andWhere($wheres);
     }
 
     private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool

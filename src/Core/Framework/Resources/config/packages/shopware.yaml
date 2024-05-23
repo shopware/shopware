@@ -6,6 +6,7 @@ parameters:
 
 shopware:
     http_cache:
+        cookies: []
         reverse_proxy:
             enabled: false
             ban_method: "BAN" # This can defer from used reverse proxy

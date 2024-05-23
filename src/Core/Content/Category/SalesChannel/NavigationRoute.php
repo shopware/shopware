@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
@@ -29,13 +31,20 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
+    final public const ALL_TAG = 'navigation';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly SalesChannelRepository $categoryRepository
+        private readonly SalesChannelRepository $categoryRepository, private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'navigation-route-' . $id;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -54,6 +63,11 @@ class NavigationRoute extends AbstractNavigationRoute
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
+
+        $tags = array_map(static fn($id) => self::buildName($id), array_keys($metaInfo));
+        $tags[] = self::ALL_TAG;
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
 
         $active = $this->getMetaInfoById($activeId, $metaInfo);
 

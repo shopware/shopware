@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +25,11 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      */
     public function __construct(private readonly EntityRepository $productReviewRepository)
     {
+    }
+
+    public static function buildName(string $parentId): string
+    {
+        return EntityCacheKeyGenerator::buildProductTag($parentId);
     }
 
     public function getDecorated(): AbstractProductReviewRoute

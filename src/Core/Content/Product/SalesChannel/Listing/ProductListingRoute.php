@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,11 +17,14 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class ProductListingRoute extends AbstractProductListingRoute
 {
+    public const CACHE_KEY = 'product-listing';
+
     /**
      * @internal
      */
@@ -28,6 +32,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -36,9 +41,16 @@ class ProductListingRoute extends AbstractProductListingRoute
         throw new DecorationPatternException(self::class);
     }
 
+    public static function buildName(string $categoryId): string
+    {
+        return 'product-listing-' . $categoryId;
+    }
+
     #[Route(path: '/store-api/product-listing/{categoryId}', name: 'store-api.product.listing', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductListingRouteResponse
     {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($categoryId)));
+
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );

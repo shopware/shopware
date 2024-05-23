@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via AddCacheTagEvent
+ *
  * @template TCachedContent
  */
 #[Package('core')]

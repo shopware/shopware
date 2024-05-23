@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -40,10 +42,12 @@ class CacheStore implements StoreInterface
         private readonly TagAwareAdapterInterface $cache,
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
+        // @deprecated tag:v6.7.0 - remove
         private readonly AbstractCacheTracer $tracer,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
-        array $sessionOptions
+        array $sessionOptions,
+        private readonly CacheTagCollector $collector
     ) {
         $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
@@ -86,26 +90,7 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
-        $tags = $this->tracer->get('all');
-
-        $tags = array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        });
+        $tags = $this->getTags($request);
 
         if ($response->headers->has(self::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -133,14 +118,13 @@ class CacheStore implements StoreInterface
 
         $item = CacheCompressor::compress($item, $cacheResponse);
         $item->expiresAt($cacheResponse->getExpires());
-
         $item->tag($tags);
 
+        $this->eventDispatcher->dispatch(
+            new HttpCacheStoreEvent($item, $tags, $request, $response)
+        );
+
         $this->cache->save($item);
-
-        $event = new HttpCacheStoreEvent($item, $tags, $request, $response);
-
-        $this->eventDispatcher->dispatch($event);
 
         return $key;
     }
@@ -225,5 +209,33 @@ class CacheStore implements StoreInterface
     private function getLockKey(Request $request): string
     {
         return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
+    }
+
+    private function getTags(Request $request): array
+    {
+        if (Feature::isActive('cache_rework')) {
+            return $this->collector->get($request);
+        }
+
+        $tags = $this->tracer->get('all');
+
+        return array_filter($tags, static function (string $tag): bool {
+            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'theme-config')) {
+                return false;
+            }
+
+            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'system-config')) {
+                return false;
+            }
+
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
+                return false;
+            }
+
+            return true;
+        });
     }
 }

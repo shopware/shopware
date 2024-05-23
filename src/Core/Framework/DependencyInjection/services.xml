@@ -696,6 +696,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

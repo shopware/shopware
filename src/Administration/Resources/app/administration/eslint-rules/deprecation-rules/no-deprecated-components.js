@@ -117,7 +117,8 @@ module.exports = {
                         'sw-skeleton-bar',
                         'sw-email-field',
                         'sw-tabs',
-                        'sw-password-field'
+                        'sw-password-field',
+                        'sw-progress-bar'
                     ];
 
                     // Handle other deprecated components

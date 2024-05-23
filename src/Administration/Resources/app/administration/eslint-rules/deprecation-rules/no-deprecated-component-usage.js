@@ -18,6 +18,7 @@ const { handleMtColorpicker } = require("./no-deprecated-component-usage-checks/
 const { handleMtEmailField } = require("./no-deprecated-component-usage-checks/mt-email-field.check");
 const { handleMtPasswordField } = require("./no-deprecated-component-usage-checks/mt-password-field.check");
 const { handleMtUrlField } = require("./no-deprecated-component-usage-checks/mt-url-field.check");
+const { handleMtProgressBar } = require("./no-deprecated-component-usage-checks/mt-progress-bar.check");
 
 /* eslint-disable max-len */
 
@@ -82,6 +83,8 @@ module.exports = {
                     handleMtPasswordField(context, node);
                     // Handle mt-url-field
                     handleMtUrlField(context, node);
+                    // Handle mt-progress-bar
+                    handleMtProgressBar(context, node);
                 },
             }
         )

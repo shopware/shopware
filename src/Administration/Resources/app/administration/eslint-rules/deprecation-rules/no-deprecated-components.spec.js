@@ -140,6 +140,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-password-field />
             </template>`
+        },
+        {
+            name: '"mt-progress-bar" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-progress-bar />
+            </template>`
         }
     ],
     invalid: [
@@ -619,5 +627,33 @@ tester.run('no-deprecated-components', rule, {
                 message: '"sw-url-field" is deprecated. Please use "mt-url-field" instead.',
             }]
         },
+        {
+            name: '"sw-progress-bar" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-progress-bar />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-progress-bar - please check if everything works correctly -->
+    <mt-progress-bar />
+</template>`,
+            errors: [{
+                message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
+            }]
+        },
+        {
+            name: '"sw-progress-bar" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-progress-bar />
+</template>`,
+            errors: [{
+                message: '"sw-progress-bar" is deprecated. Please use "mt-progress-bar" instead.',
+            }]
+        }
     ]
 })

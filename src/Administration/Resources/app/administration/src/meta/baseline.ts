@@ -499,7 +499,6 @@ const missingTests = [
     'src/module/sw-landing-page/default-search-configuration.js',
     'src/module/sw-landing-page/index.js',
     'src/module/sw-login/index.js',
-    'src/module/sw-login/page/index/index.js',
     'src/module/sw-mail-template/index.js',
     'src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js',
     'src/module/sw-mail-template/page/sw-mail-template-create/index.js',

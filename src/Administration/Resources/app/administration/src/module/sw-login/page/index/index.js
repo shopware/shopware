@@ -22,6 +22,7 @@ Component.register('sw-login', {
 
     data() {
         return {
+            shouldRenderDOM: false,
             isLoading: false,
             isLoginSuccess: false,
             isLoginError: false,
@@ -41,6 +42,18 @@ Component.register('sw-login', {
 
             return `${modulName} | ${adminName}`;
         },
+    },
+
+    beforeMount() {
+        const cookieStorage = Shopware.Service('loginService').getStorage();
+        const refreshAfterLogout = cookieStorage.getItem('refresh-after-logout');
+
+        if (refreshAfterLogout) {
+            cookieStorage.removeItem('refresh-after-logout');
+            window.location.reload();
+        } else {
+            this.shouldRenderDOM = true;
+        }
     },
 
     methods: {

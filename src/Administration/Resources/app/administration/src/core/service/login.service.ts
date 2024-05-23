@@ -379,6 +379,8 @@ export default function createLoginService(
                     void router.push({ name: 'sw.inactivity.login.index', params: { id } });
                 });
             } else {
+                cookieStorage.setItem('refresh-after-logout', 'true');
+
                 void router.push({ name: 'sw.login.index' });
             }
         }

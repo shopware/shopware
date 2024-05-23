@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -29,6 +30,10 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
+        // @deprecated tag:v6.7.0 - handled in CacheInvalidatorSubscriber
         return [
             SnippetEvents::SNIPPET_WRITTEN_EVENT => 'invalidate',
             SnippetEvents::SNIPPET_DELETED_EVENT => 'invalidate',

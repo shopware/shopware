@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
@@ -22,6 +24,7 @@ use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -69,7 +72,8 @@ class Translator extends AbstractTranslator
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly SnippetService $snippetService,
-        private readonly bool $fineGrainedCache
+        private readonly bool $fineGrainedCache,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -142,13 +146,17 @@ class Translator extends AbstractTranslator
             $domain = 'messages';
         }
 
-        if ($this->fineGrainedCache) {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace][self::buildName($id)] = true;
-            }
+        if (Feature::isActive('cache_rework')) {
+            $this->dispatcher->dispatch(new AddCacheTagEvent('shopware.translator'));
         } else {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace]['shopware.translator'] = true;
+            if ($this->fineGrainedCache) {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace][self::buildName($id)] = true;
+                }
+            } else {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace]['shopware.translator'] = true;
+                }
             }
         }
 
@@ -328,8 +336,13 @@ class Translator extends AbstractTranslator
         $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
 
         return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
-            $item->tag('translation.catalog.' . $snippetSetId);
-            $item->tag(\sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
+            if (Feature::isActive('cache_rework')) {
+                $item->tag('shopware.translator');
+                $item->tag('shopware.theme');
+            } else {
+                $item->tag('translation.catalog.' . $snippetSetId);
+                $item->tag(sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
+            }
 
             return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
         });

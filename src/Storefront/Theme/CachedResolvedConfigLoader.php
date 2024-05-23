@@ -34,7 +34,7 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $themeId, $context) {
             $config = $this->getDecorated()->load($themeId, $context);
 
-            $item->tag([$name]);
+            $item->tag([$name, 'shopware.theme']);
 
             return CacheValueCompressor::compress($config);
         });

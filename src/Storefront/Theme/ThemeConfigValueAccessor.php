@@ -2,8 +2,11 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('storefront')]
 class ThemeConfigValueAccessor
@@ -19,6 +22,8 @@ class ThemeConfigValueAccessor
     private array $keys = ['all' => true];
 
     /**
+     * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+     *
      * @var array<string, array<string, bool>>
      */
     private array $traces = [];
@@ -28,10 +33,12 @@ class ThemeConfigValueAccessor
      */
     public function __construct(
         private readonly AbstractResolvedConfigLoader $themeConfigLoader,
-        private readonly bool $fineGrainedCache
+        private readonly bool $fineGrainedCache,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
+    // @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
     public static function buildName(string $key): string
     {
         return 'theme.' . $key;
@@ -42,13 +49,17 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        if ($this->fineGrainedCache) {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace][self::buildName($key)] = true;
-            }
+        if (Feature::isActive('cache_rework')) {
+            $this->dispatcher->dispatch(new AddCacheTagEvent('shopware.theme'));
         } else {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace]['shopware.theme'] = true;
+            if ($this->fineGrainedCache) {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace][self::buildName($key)] = true;
+                }
+            } else {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace]['shopware.theme'] = true;
+                }
             }
         }
 
@@ -62,6 +73,8 @@ class ThemeConfigValueAccessor
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via events
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(): TReturn $param

@@ -26,7 +26,6 @@ class ServiceDefinitionTest extends TestCase
     public function testEverythingIsInstantiatable(): void
     {
         $excludes = [
-            '_dummy_es_env_usage',
             'kernel.bundles',
             'shopware.cache.invalidator.storage.redis', // causes redis connect
             'shopware.cache.invalidator.storage.redis_adapter',  // causes redis connect

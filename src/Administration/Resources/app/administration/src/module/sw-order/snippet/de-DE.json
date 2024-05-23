@@ -542,15 +542,15 @@
       },
       "affiliateCodeFilter": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code auswählen..."
+        "placeholder": "Affiliate-Code eingeben..."
       },
       "campaignCodeFilter": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code auswählen..."
+        "placeholder": "Kampagnen-Code eingeben..."
       },
       "promotionCodeFilter": {
         "label": "Aktionscode",
-        "placeholder": "Aktionscode auswählen ..."
+        "placeholder": "Aktionscode eingeben ..."
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

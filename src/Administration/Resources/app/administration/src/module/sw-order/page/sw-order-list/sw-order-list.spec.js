@@ -385,7 +385,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(wrapper.vm.listFilterOptions).toEqual(expect.objectContaining({
             'affiliate-code-filter': expect.objectContaining({
                 property: 'affiliateCode',
-                type: 'multi-select-filter',
+                type: 'string-filter',
                 label: 'sw-order.filters.affiliateCodeFilter.label',
                 placeholder: 'sw-order.filters.affiliateCodeFilter.placeholder',
                 valueProperty: 'key',
@@ -394,7 +394,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
             'campaign-code-filter': expect.objectContaining({
                 property: 'campaignCode',
-                type: 'multi-select-filter',
+                type: 'string-filter',
                 label: 'sw-order.filters.campaignCodeFilter.label',
                 placeholder: 'sw-order.filters.campaignCodeFilter.placeholder',
                 valueProperty: 'key',
@@ -403,7 +403,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
             'promotion-code-filter': expect.objectContaining({
                 property: 'lineItems.payload.code',
-                type: 'multi-select-filter',
+                type: 'string-filter',
                 label: 'sw-order.filters.promotionCodeFilter.label',
                 placeholder: 'sw-order.filters.promotionCodeFilter.placeholder',
                 valueProperty: 'key',
@@ -446,69 +446,5 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             page: 1,
             limit: 1,
         }));
-    });
-
-    describe('loadFilterValues', () => {
-        it('should be successful', async () => {
-            global.activeAclRoles = [];
-            wrapper = await createWrapper();
-            const loadFilterValuesSpy = jest.spyOn(wrapper.vm, 'loadFilterValues');
-            wrapper.vm.orderRepository.search = jest.fn(() => {
-                return Promise.resolve({
-                    aggregations: {
-                        affiliateCodes: {
-                            buckets: [
-                                {
-                                    count: 1,
-                                    key: 'affiliateCode',
-                                },
-                            ],
-                        },
-                        campaignCodes: {
-                            buckets: [
-                                {
-                                    count: 1,
-                                    key: 'campaignCode',
-                                },
-                            ],
-                        },
-                        promotionCodes: {
-                            buckets: [
-                                {
-                                    count: 1,
-                                    key: 'promotionCode',
-                                },
-                            ],
-                        },
-                    },
-                });
-            });
-
-            await wrapper.vm.createdComponent();
-
-            expect(loadFilterValuesSpy).toHaveBeenCalledTimes(1);
-
-            expect(wrapper.vm.availableAffiliateCodes).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    count: 1,
-                    key: 'affiliateCode',
-                }),
-            ]));
-            expect(wrapper.vm.availableCampaignCodes).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    count: 1,
-                    key: 'campaignCode',
-                }),
-            ]));
-            expect(wrapper.vm.availablePromotionCodes).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    count: 1,
-                    key: 'promotionCode',
-                }),
-            ]));
-
-            wrapper.vm.orderRepository.search.mockRestore();
-            loadFilterValuesSpy.mockClear();
-        });
     });
 });

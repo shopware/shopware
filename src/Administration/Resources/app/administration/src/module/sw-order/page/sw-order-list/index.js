@@ -32,8 +32,17 @@ export default {
             isLoading: false,
             filterLoading: false,
             showDeleteModal: false,
+            /**
+             * @deprecated tag:v6.7.0 - will be removed without replacement
+             */
             availableAffiliateCodes: [],
+            /**
+             * @deprecated tag:v6.7.0 - will be removed without replacement
+             */
             availableCampaignCodes: [],
+            /**
+             * @deprecated tag:v6.7.0 - will be removed without replacement
+             */
             availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
@@ -172,7 +181,7 @@ export default {
                 },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
-                    type: 'multi-select-filter',
+                    type: 'string-filter',
                     label: this.$tc('sw-order.filters.affiliateCodeFilter.label'),
                     placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
@@ -181,7 +190,7 @@ export default {
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
-                    type: 'multi-select-filter',
+                    type: 'string-filter',
                     label: this.$tc('sw-order.filters.campaignCodeFilter.label'),
                     placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
@@ -190,7 +199,7 @@ export default {
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
-                    type: 'multi-select-filter',
+                    type: 'string-filter',
                     label: this.$tc('sw-order.filters.promotionCodeFilter.label'),
                     placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
@@ -278,7 +287,6 @@ export default {
 
     methods: {
         createdComponent() {
-            this.loadFilterValues();
         },
 
         deliveryTooltip(deliveries) {
@@ -450,6 +458,9 @@ export default {
             return style.colorCode;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - will be removed without replacement
+         */
         loadFilterValues() {
             this.filterLoading = true;
 

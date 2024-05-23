@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerAddressUpsertedEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -116,6 +117,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         /** @var CustomerAddressEntity $address */
         $address = $this->addressRepository->search($criteria, $context->getContext())->first();
+
+        // Dispatch event after successful upsert operation -
+        $event = new CustomerAddressUpsertedEvent($customer, $address, $context->getContext());
+        $this->eventDispatcher->dispatch($event);
 
         return new UpsertAddressRouteResponse($address);
     }

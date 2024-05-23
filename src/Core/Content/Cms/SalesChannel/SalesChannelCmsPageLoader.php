@@ -11,6 +11,11 @@ use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -30,7 +35,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly CmsSlotsDataResolver $slotDataResolver,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -41,7 +46,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         ?array $config = null,
         ?ResolverContext $resolverContext = null
     ): EntitySearchResult {
-        $this->eventDispatcher->dispatch(new CmsPageLoaderCriteriaEvent($request, $criteria, $context));
+        $this->dispatcher->dispatch(new CmsPageLoaderCriteriaEvent($request, $criteria, $context));
         $config ??= [];
 
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
@@ -91,7 +96,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             $this->loadSlotData($page, $resolverContext);
         }
 
-        $this->eventDispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
+        $this->dispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(...$this->extractProductIds($pages)));
 
         return $result;
     }
@@ -141,5 +148,63 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             $slot->setConfig($merged);
             $slot->addTranslated('config', $merged);
         }
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function extractProductIds(EntityCollection $pages): array
+    {
+        $ids = [];
+        $streamIds = [];
+
+        foreach ($pages as $page) {
+            $slots = $page->getElementsOfType('product-slider');
+
+            /** @var CmsSlotEntity $slot */
+            foreach ($slots as $slot) {
+                $slider = $slot->getData();
+
+                if (!$slider instanceof ProductSliderStruct) {
+                    continue;
+                }
+
+                if ($slider->getStreamId() !== null) {
+                    $streamIds[] = $slider->getStreamId();
+                }
+
+                if ($slider->getProducts() === null) {
+                    continue;
+                }
+                foreach ($slider->getProducts() as $product) {
+                    $ids[] = $product->getId();
+                    $ids[] = $product->getParentId();
+                }
+            }
+
+            $slots = $page->getElementsOfType('product-box');
+            /** @var CmsSlotEntity $slot */
+            foreach ($slots as $slot) {
+                $box = $slot->getData();
+
+                if (!$box instanceof ProductBoxStruct) {
+                    continue;
+                }
+                if ($box->getProduct() === null) {
+                    continue;
+                }
+
+                $ids[] = $box->getProduct()->getId();
+                $ids[] = $box->getProduct()->getParentId();
+            }
+
+            $ids = array_values(array_unique(array_filter($ids)));
+        }
+
+        return [
+            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $ids),
+            ...array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds),
+            ...array_map(EntityCacheKeyGenerator::buildCmsTag(...), $pages->getIds()),
+        ];
     }
 }

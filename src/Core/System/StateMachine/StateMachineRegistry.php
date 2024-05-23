@@ -257,8 +257,8 @@ class StateMachineRegistry implements ResetInterface
         foreach ($stateMachineTransitions as $transition) {
             /** @var StateMachineStateEntity $toState */
             $toState = $transition->getToStateMachineState();
-            // Always allow to cancel a payment whether its a valid transition or not
-            if ($transition->getActionName() === 'cancel' && $transitionName === 'cancel') {
+            // Always allow to cancel a payment whether it's a valid transition or not
+            if ($stateMachineName === 'order_transaction.state' && $transition->getActionName() === 'cancel' && $transitionName === 'cancel') {
                 return $toState;
             }
 

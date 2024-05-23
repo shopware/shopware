@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'shopware/shopware'
     container:
-      image: mcr.microsoft.com/playwright:v1.39.0-jammy
+      image: mcr.microsoft.com/playwright:v1.44.0-jammy
     needs: docker
     env:
       APP_URL: http://shopware:8000

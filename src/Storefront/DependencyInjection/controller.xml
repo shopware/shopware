@@ -374,6 +374,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -400,6 +401,17 @@
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\EsiController" public="true">
+            <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <call method="setTwig">
+                <argument type="service" id="twig"/>
             </call>
         </service>
     </services>

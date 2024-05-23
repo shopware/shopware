@@ -447,4 +447,14 @@ class SalesChannelContext extends Struct
 
         return $result;
     }
+
+    public function getCustomerGroupId(): string
+    {
+        return $this->currentCustomerGroup->getId();
+    }
+
+    public function getCountryId(): string
+    {
+        return $this->shippingLocation->getCountry()->getId();
+    }
 }

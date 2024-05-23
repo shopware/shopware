@@ -341,6 +341,7 @@
 
         <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">

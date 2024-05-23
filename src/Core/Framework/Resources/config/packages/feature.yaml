@@ -17,6 +17,10 @@ shopware:
         default: false
         major: true
         toggleable: false
+      - name: CACHE_REWORK
+        default: false
+        major: true
+        toggleable: false
       - name: ACCESSIBILITY_TWEAKS
         default: false
         major: true

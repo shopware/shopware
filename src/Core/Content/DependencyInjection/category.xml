@@ -17,6 +17,11 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\DataResolver\Element\CategoryNavigationCmsElementResolver">
+            <tag name="shopware.cms.data_resolver"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition">
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>
@@ -29,6 +34,8 @@
         <service id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="media.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
@@ -57,6 +64,7 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryListRoute" public="true">

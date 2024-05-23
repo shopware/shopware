@@ -31,6 +31,7 @@
 
         <service id="Shopware\Core\System\Country\SalesChannel\CountryRoute" public="true">
             <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\Country\SalesChannel\CachedCountryRoute" decorates="Shopware\Core\System\Country\SalesChannel\CountryRoute" decoration-priority="-1000" public="true">

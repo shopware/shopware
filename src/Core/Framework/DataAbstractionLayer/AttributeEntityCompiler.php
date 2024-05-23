@@ -125,6 +125,7 @@ class AttributeEntityCompiler
 
         $definitions[] = [
             'type' => 'entity',
+            'since' => $instance->since,
             'parent' => $instance->parent,
             'entity_class' => $class,
             'entity_name' => $instance->name,

@@ -27,7 +27,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 /**
  * @internal
  */
-#[Entity('attribute_entity')]
+#[Entity('attribute_entity', since: '6.6.3.0')]
 class AttributeEntity extends EntityStruct
 {
     #[PrimaryKey]

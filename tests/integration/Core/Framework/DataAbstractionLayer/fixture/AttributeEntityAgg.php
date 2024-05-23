@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 /**
  * @internal
  */
-#[Entity('attribute_entity_agg', parent: 'attribute_entity')]
+#[Entity('attribute_entity_agg', parent: 'attribute_entity', since: '6.6.3.0')]
 class AttributeEntityAgg extends EntityStruct
 {
     #[PrimaryKey]

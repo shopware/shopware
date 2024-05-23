@@ -12,6 +12,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-colorpicker';
+import 'src/app/component/form/sw-colorpicker-deprecated';
 import 'src/app/component/form/sw-compact-colorpicker';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';

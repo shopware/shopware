@@ -8,7 +8,7 @@ const { Component } = Shopware;
  *
  * @private
  */
-Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
+Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', {
     template,
 
     emits: ['update:value'],

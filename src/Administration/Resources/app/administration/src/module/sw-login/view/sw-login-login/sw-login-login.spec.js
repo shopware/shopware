@@ -51,6 +51,7 @@ async function createWrapper(loginSuccessfull) {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
+                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'router-link': true,
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),

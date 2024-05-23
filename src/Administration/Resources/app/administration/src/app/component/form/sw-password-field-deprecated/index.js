@@ -1,7 +1,5 @@
-import template from './sw-password-field.html.twig';
+import template from './sw-password-field-deprecated.html.twig';
 import './sw-password-field.scss';
-
-const { Component } = Shopware;
 
 /**
  * @package admin
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
-Component.extend('sw-password-field', 'sw-text-field-deprecated', {
+Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-deprecated', {
     template,
 
     props: {

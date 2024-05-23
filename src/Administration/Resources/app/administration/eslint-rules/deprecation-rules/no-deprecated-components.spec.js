@@ -124,6 +124,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-number-field />
             </template>`
+        },
+        {
+            name: '"mt-password-field" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-password-field />
+            </template>`
         }
     ],
     invalid: [
@@ -545,6 +553,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-skeleton-bar" is deprecated. Please use "mt-skeleton-bar" instead.',
+            }]
+        },
+        {
+            name: '"sw-password-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-password-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-password-field - please check if everything works correctly -->
+    <mt-password-field />
+</template>`,
+            errors: [{
+                message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-password-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-password-field />
+</template>`,
+            errors: [{
+                message: '"sw-password-field" is deprecated. Please use "mt-password-field" instead.',
             }]
         }
     ]

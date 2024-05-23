@@ -67,6 +67,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
+                'sw-url-field-deprecated': await wrapTestComponent('sw-url-field-deprecated'),
                 'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
                 'sw-media-base-item': await wrapTestComponent('sw-media-base-item'),
                 'sw-media-preview-v2': await wrapTestComponent('sw-media-preview-v2'),

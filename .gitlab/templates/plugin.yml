@@ -287,7 +287,7 @@ jest (administration):
           if [[ "$PLATFORM_VERSION" = "6.6"* ]]; then
               export VUE3=1;
           fi
-        - npm exec jest -- --config jest.config.js --ci
+        - npm exec jest -- --config jest.config.js --ci --no-cache
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
 jest (storefront):

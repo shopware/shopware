@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\Shipping
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\RuleIdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -19,7 +21,7 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
 #[Package('checkout')]
-class ShippingMethodEntity extends Entity
+class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;

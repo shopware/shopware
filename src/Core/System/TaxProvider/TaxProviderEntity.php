@@ -4,6 +4,8 @@ namespace Shopware\Core\System\TaxProvider;
 
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\RuleIdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 
 #[Package('checkout')]
-class TaxProviderEntity extends Entity
+class TaxProviderEntity extends Entity implements IdAware, RuleIdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;

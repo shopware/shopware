@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+/**
+ * @method EntitySearchResult<PaymentMethodCollection> getObject()
+ */
 #[Package('checkout')]
 class PaymentMethodRouteResponse extends StoreApiResponse
 {

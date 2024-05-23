@@ -355,6 +355,7 @@ shopware:
               sets: ["basic", "media", "bootstrap", "snippet", "HTML5"]
 
     logger:
+        enforce_throw_exception: '%env(bool:default:defaults_bool_false:LOGGER_ENFORCE_THROW_EXCEPTION)%'
         file_rotation_count: 14
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException

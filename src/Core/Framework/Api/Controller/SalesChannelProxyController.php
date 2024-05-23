@@ -99,7 +99,7 @@ class SalesChannelProxyController extends AbstractController
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
-        $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
+        $order = $this->orderRoute->order($cart, $salesChannelContext, $data, $request)->getOrder();
 
         return new JsonResponse($order);
     }

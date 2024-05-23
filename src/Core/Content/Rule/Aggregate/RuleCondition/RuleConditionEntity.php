@@ -4,13 +4,14 @@ namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Contract\IdAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
-class RuleConditionEntity extends Entity
+class RuleConditionEntity extends Entity implements IdAware
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
@@ -36,7 +37,7 @@ class RuleConditionEntity extends Entity
     protected $parentId;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $value;
 
@@ -105,11 +106,17 @@ class RuleConditionEntity extends Entity
         $this->parentId = $parentId;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getValue(): ?array
     {
         return $this->value;
     }
 
+    /**
+     * @param array<string, mixed>|null $value
+     */
     public function setValue(?array $value): void
     {
         $this->value = $value;

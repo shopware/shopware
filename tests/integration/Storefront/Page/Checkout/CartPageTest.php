@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
@@ -44,26 +42,21 @@ class CartPageTest extends TestCase
 
     public function testAddsCurrentSelectedShippingMethod(): void
     {
-        $response = new ShippingMethodRouteResponse(
-            new EntitySearchResult(
-                'shipping_method',
-                0,
-                new ShippingMethodCollection(),
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
+        $response = new CheckoutGatewayRouteResponse(
+            new PaymentMethodCollection(),
+            new ShippingMethodCollection(),
+            new ErrorCollection()
         );
 
-        $route = $this->createMock(ShippingMethodRoute::class);
-        $route->method('load')
+        $route = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $route
+            ->method('load')
             ->willReturn($response);
 
         $loader = new CheckoutCartPageLoader(
             $this->getContainer()->get(GenericPageLoader::class),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(PaymentMethodRoute::class),
             $route,
             $this->getContainer()->get(CountryRoute::class)
         );

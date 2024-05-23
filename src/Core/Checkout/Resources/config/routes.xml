@@ -19,4 +19,5 @@
     <import resource="../../Order/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Cart/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Document/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Gateway/SalesChannel/**/*Route.php" type="attribute" />
 </routes>

@@ -32,6 +32,8 @@ class AppException extends HttpException
     public const XML_PARSE_ERROR = 'FRAMEWORK_APP__XML_PARSE_ERROR';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
 
+    public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+
     /**
      * @internal will be removed once store extensions are installed over composer
      */
@@ -214,6 +216,15 @@ class AppException extends HttpException
             self::MISSING_REQUEST_PARAMETER_CODE,
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $parameterName]
+        );
+    }
+
+    public static function checkoutGatewayPayloadInvalid(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE,
+            'The checkout gateway payload is invalid'
         );
     }
 }

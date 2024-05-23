@@ -498,6 +498,12 @@ class CreditNoteRendererTest extends TestCase
             'technicalName' => Uuid::randomHex(),
             'bindShippingfree' => false,
             'active' => true,
+            'salesChannels' => [
+                ['id' => TestDefaults::SALES_CHANNEL],
+            ],
+            'salesChannelDefaultAssignments' => [
+                ['id' => TestDefaults::SALES_CHANNEL],
+            ],
             'prices' => [
                 [
                     'name' => 'Std',

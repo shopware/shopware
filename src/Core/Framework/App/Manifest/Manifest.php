@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
@@ -44,6 +45,7 @@ class Manifest
         private readonly ?Storefront $storefront,
         private readonly ?Tax $tax,
         private readonly ?ShippingMethods $shippingMethods,
+        private readonly ?Gateways $gateways,
     ) {
     }
 
@@ -153,6 +155,11 @@ class Manifest
         return $this->tax;
     }
 
+    public function getGateways(): ?Gateways
+    {
+        return $this->gateways;
+    }
+
     /**
      * @return array<string> all hosts referenced in the manifest file
      */
@@ -231,6 +238,8 @@ class Manifest
             $tax = $tax === null ? null : Tax::fromXml($tax);
             $shippingMethods = $doc->getElementsByTagName('shipping-methods')->item(0);
             $shippingMethods = $shippingMethods === null ? null : ShippingMethods::fromXml($shippingMethods);
+            $gateways = $doc->getElementsByTagName('gateways')->item(0);
+            $gateways = $gateways === null ? null : Gateways::fromXml($gateways);
         } catch (\Exception $e) {
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
@@ -250,6 +259,7 @@ class Manifest
             $storefront,
             $tax,
             $shippingMethods,
+            $gateways
         );
     }
 }

@@ -1031,6 +1031,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enforce_throw_exception": {
+                    "type": "boolean"
+                },
                 "file_rotation_count": {
                     "type": "integer"
                 },

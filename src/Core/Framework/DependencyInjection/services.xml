@@ -498,6 +498,12 @@ base-uri 'self';
             <argument type="service" id="monolog.logger.business_events"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Log\ExceptionLogger">
+            <argument>%kernel.environment%</argument>
+            <argument>%shopware.logger.enforce_throw_exception%</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask">
             <tag name="shopware.scheduled.task"/>
         </service>

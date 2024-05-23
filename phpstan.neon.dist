@@ -294,6 +294,11 @@ parameters:
             message: '#PHPDoc tag @param references unknown parameter\: \$recursive#'
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
+
+        - # Added optional request parameter @deprecated tag:v6.7.0 - remove this exclusion
+            message: '#Method .* invoked with 4 parameters, 3 required#'
+            paths:
+                - src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

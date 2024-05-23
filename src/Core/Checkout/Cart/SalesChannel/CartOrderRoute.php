@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -40,7 +42,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly PreparedPaymentService $preparedPaymentService,
-        private readonly TaxProviderProcessor $taxProviderProcessor
+        private readonly TaxProviderProcessor $taxProviderProcessor,
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
     ) {
     }
 
@@ -56,6 +59,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $context->addState('checkout-order-route');
 
         $calculatedCart = $this->cartCalculator->calculate($cart, $context);
+
+        $response = $this->checkoutGatewayRoute->load(new Request($data->all(), $data->all()), $cart, $context);
+        $calculatedCart->addErrors(...$response->getErrors());
+
         $this->taxProviderProcessor->process($calculatedCart, $context);
 
         $this->addCustomerComment($calculatedCart, $data);

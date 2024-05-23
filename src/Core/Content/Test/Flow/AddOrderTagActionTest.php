@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -230,6 +232,39 @@ class AddOrderTagActionTest extends TestCase
             [
                 'id' => $this->ids->create('tag_id3'),
                 'name' => 'test tag3',
+            ],
+        ], Context::createDefaultContext());
+
+        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $shippingMethodRepository->create([
+            [
+                'id' => $this->ids->get('shipping-method'),
+                'name' => 'test',
+                'technicalName' => 'test',
+                'active' => true,
+                'deliveryTimeId' => $this->getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
+                'prices' => [
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'calculation' => 1,
+                        'quantityStart' => 1,
+                        'quantityEnd' => 100,
+                        'currencyPrice' => [
+                            [
+                                'gross' => 0,
+                                'net' => 0,
+                                'linked' => false,
+                                'currencyId' => Defaults::CURRENCY,
+                            ],
+                        ],
+                    ],
+                ],
+                'salesChannels' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
+                'salesChannelDefaultAssignments' => [
+                    ['id' => $this->ids->get('sales-channel')],
+                ],
             ],
         ], Context::createDefaultContext());
     }

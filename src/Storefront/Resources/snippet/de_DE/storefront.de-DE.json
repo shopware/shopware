@@ -473,7 +473,8 @@
     "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
     "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
     "country-region-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
-    "country-region-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus."
+    "country-region-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "checkout-gateway-error": "%reason%"
   },
   "listing": {
     "filterTitleText": "Filter",

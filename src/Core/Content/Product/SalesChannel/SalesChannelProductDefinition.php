@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -65,6 +66,10 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             }
 
             $association->addFilter($activeReviewsFilter);
+        }
+
+        if (Feature::isActive('product_pricing')) {
+            $criteria->removeAssociation('prices');
         }
     }
 

@@ -106,7 +106,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_detail_content %}
     <template #content>
-        <sw-card-view>
+        <sw-card-view class="product_detail_content_card_view">
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_content_top %}
@@ -193,6 +193,18 @@
                 >
                     {{ $tc('sw-product.detail.tabAdvancedPrices') }}
                 </sw-tabs-item>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_content_tabs_pricing %}
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-pricing"
+                        :route="{ name: 'sw.product.detail.pricing', params: { id: $route.params.id } }"
+                        :title="$tc('sw-product.detail.tabPricing')"
+                    >
+                        {{ $tc('sw-product.detail.tabPricing') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

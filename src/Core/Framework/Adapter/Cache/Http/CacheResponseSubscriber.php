@@ -5,12 +5,15 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,9 +33,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
     final public const CURRENCY_COOKIE = 'sw-currency';
-    final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    final public const CONTEXT_CACHE_COOKIE = HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE;
 
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
     private const CORE_HTTP_CACHED_ROUTES = [
@@ -43,13 +49,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
+        private readonly array $cookies,
         private readonly CartService $cartService,
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         private readonly bool $reverseProxyEnabled,
         private readonly ?string $staleWhileRevalidate,
-        private readonly ?string $staleIfError
+        private readonly ?string $staleIfError,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -103,17 +111,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $this->setCurrencyCookie($request, $response);
         }
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
-
-        $states = $this->updateSystemState($cart, $context, $request, $response);
+        $states = $this->updateSystemState($context, $request, $response);
 
         // We need to allow it on login, otherwise the state is wrong
         if (!($route === 'frontend.account.login' || $request->getMethod() === Request::METHOD_GET)) {
             return;
         }
 
-        if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-            $newValue = $this->buildCacheHash($context);
+        if ($context->getCustomer()) {
+            $newValue = $this->buildCacheHash($request, $context);
 
             if ($request->cookies->get(self::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
                 $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $newValue);
@@ -136,17 +142,22 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $cache = [];
         }
 
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
-            return;
+        if (!Feature::isActive('cache_rework')) {
+            if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+                return;
+            }
         }
 
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
-        $response->headers->set(
-            self::INVALIDATION_STATES_HEADER,
-            implode(',', $cache['states'] ?? [])
-        );
+
+        if (!Feature::isActive('cache_rework')) {
+            $response->headers->set(
+                self::INVALIDATION_STATES_HEADER,
+                implode(',', $cache['states'] ?? [])
+            );
+        }
 
         if ($this->staleIfError !== null) {
             $response->headers->addCacheControlDirective('stale-if-error', $this->staleIfError);
@@ -217,8 +228,31 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function buildCacheHash(SalesChannelContext $context): string
+    private function buildCacheHash(Request $request, SalesChannelContext $context): string
     {
+        if (Feature::isActive('cache_rework')) {
+            $parts = [
+                'customer-group-id' => $context->getCustomerGroupId(),
+                'version-id' => $context->getVersionId(),
+                'currency-id' => $context->getCurrencyId(),
+                'tax-state' => $context->getTaxState(),
+                'country-id' => $context->getCountryId(),
+            ];
+
+            foreach ($this->cookies as $cookie) {
+                if (!$request->cookies->has($cookie)) {
+                    continue;
+                }
+
+                $parts[$cookie] = $request->cookies->get($cookie);
+            }
+
+            $event = new HttpCacheCookieEvent($request, $context, $parts);
+            $this->dispatcher->dispatch($event);
+
+            return md5(json_encode($event->getParts(), \JSON_THROW_ON_ERROR));
+        }
+
         return md5(json_encode([
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
@@ -234,8 +268,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      *
      * @return list<string>
      */
-    private function updateSystemState(Cart $cart, SalesChannelContext $context, Request $request, Response $response): array
+    private function updateSystemState(SalesChannelContext $context, Request $request, Response $response): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
         $states = $this->getSystemStates($request, $context, $cart);
 
         if (empty($states)) {

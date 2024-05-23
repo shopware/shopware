@@ -7,6 +7,7 @@ import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
+import PricingService from "../../helper/sw-products-pricing-service";
 
 const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
@@ -79,6 +80,7 @@ export default {
             'localMode',
             'advancedModeSetting',
             'modeSettings',
+            'prices'
         ]),
 
         ...mapGetters('swProductDetail', [
@@ -142,6 +144,10 @@ export default {
 
         productVisibilityRepository() {
             return this.repositoryFactory.create('product_visibility');
+        },
+
+        priceService() {
+            return new PricingService(this.defaultCurrency);
         },
 
         mediaRepository() {
@@ -618,6 +624,20 @@ export default {
             });
         },
 
+        loadPricing() {
+            if (!this.product || !this.product.id) {
+                return;
+            }
+
+
+            this.prices = [];
+
+            this.priceService.load(this.product.id).then((prices) => {
+                this.prices = prices;
+                Shopware.State.commit('swProductDetail/setPrices', prices);
+            });
+        },
+
         adjustProductAccordingToType() {
             if (this.creationStates.includes('is-download')) {
                 this.product.maxPurchase = 1;
@@ -641,6 +661,8 @@ export default {
                 }
 
                 Shopware.State.commit('swProductDetail/setProduct', product);
+
+                this.loadPricing();
 
                 if (this.product.parentId) {
                     this.loadParentProduct();
@@ -964,6 +986,10 @@ export default {
 
             return new Promise((resolve) => {
                 // check if product exists
+                const service = new PricingService();
+
+                service.save(this.product.id, this.prices);
+
                 if (!this.productRepository.hasChanges(this.product)) {
                     Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
                     resolve('empty');

@@ -20,7 +20,7 @@ class CartFactory
 
     public function createNew(string $token): Cart
     {
-        $cart = new Cart($token);
+        $cart = new Cart(token: $token, new: true);
 
         if ($this->source) {
             $cart->setSource($this->source);

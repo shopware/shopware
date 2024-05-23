@@ -36,6 +36,11 @@ class SalesChannelProductEntity extends ProductEntity
     protected $calculatedCheapestPrice;
 
     /**
+     * @var array<CalculatedPrice>
+     */
+    public array $calculated = [];
+
+    /**
      * @var bool
      */
     protected $isNew = false;

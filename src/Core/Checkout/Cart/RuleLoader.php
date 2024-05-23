@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed, use \Shopware\Core\Content\Rule\RuleLoader
+ *
  * @final Depend on the AbstractRuleLoader which is the definition of public API for this scope
  */
 #[Package('checkout')]

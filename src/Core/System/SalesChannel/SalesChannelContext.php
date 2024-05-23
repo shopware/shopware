@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -107,6 +108,9 @@ class SalesChannelContext extends Struct
         ?CustomerEntity $customer,
         protected CashRoundingConfig $itemRounding,
         protected CashRoundingConfig $totalRounding,
+        /**
+         * @deprecated tag:v6.7.0 - Context contains no more rule ids or area rule ids
+         */
         protected array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -193,10 +197,16 @@ class SalesChannelContext extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+     *
      * @return string[]
      */
     public function getRuleIds(): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
+
         return $this->getContext()->getRuleIds();
     }
 
@@ -205,6 +215,11 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
+        if (Feature::isActive('cache_rework')) {
+            $this->getContext()->setRuleIds([]);
+
+            return;
+        }
         $this->getContext()->setRuleIds($ruleIds);
     }
 
@@ -215,6 +230,10 @@ class SalesChannelContext extends Struct
      */
     public function getAreaRuleIds(): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
+
         return $this->areaRuleIds;
     }
 
@@ -227,6 +246,10 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIdsByAreas(array $areas): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
+
         $ruleIds = [];
 
         foreach ($areas as $area) {
@@ -430,5 +453,15 @@ class SalesChannelContext extends Struct
         $this->context = $before;
 
         return $result;
+    }
+
+    public function getCustomerGroupId(): string
+    {
+        return $this->currentCustomerGroup->getId();
+    }
+
+    public function getCountryId(): string
+    {
+        return $this->getShippingLocation()->getCountryId();
     }
 }

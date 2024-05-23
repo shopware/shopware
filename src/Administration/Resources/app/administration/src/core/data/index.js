@@ -13,6 +13,7 @@ import Repository from './repository.data';
 import ErrorResolver from './error-resolver.data';
 import ErrorStore from './error-store.data';
 import FilterFactory from './filter-factory.data';
+import RepositoryLoader from './repository-loader.data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -27,4 +28,5 @@ export default {
     ErrorResolver,
     ErrorStore,
     FilterFactory,
+    RepositoryLoader
 };

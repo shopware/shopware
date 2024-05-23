@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,10 +40,14 @@ class CartLoadRoute extends AbstractCartLoadRoute
         $token = $request->get('token', $context->getToken());
         $taxed = $request->get('taxed', false);
 
-        try {
+        if (Feature::isActive('cache_rework')) {
             $cart = $this->persister->load($token, $context);
-        } catch (CartTokenNotFoundException) {
-            $cart = $this->cartFactory->createNew($token);
+        } else {
+            try {
+                $cart = $this->persister->load($token, $context);
+            } catch (CartTokenNotFoundException) {
+                $cart = $this->cartFactory->createNew($token);
+            }
         }
 
         $cart = $this->cartCalculator->calculate($cart, $context);

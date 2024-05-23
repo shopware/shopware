@@ -432,6 +432,7 @@
                         v-if="showActions"
                         class="sw-data-grid__cell sw-data-grid__cell--actions"
                     >
+                        <slot name="actions-column" :item="item" :item-index="itemIndex">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_data_grid_body_cell_actions_content %}
                         <div class="sw-data-grid__cell-content">
@@ -508,6 +509,7 @@
                             {% endblock %}
                         </div>
                         {% endblock %}
+                        </slot>
                     </td>
                     {% endblock %}
                 </tr>

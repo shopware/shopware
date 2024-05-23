@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -132,6 +133,9 @@ class CountryDefinition extends EntityDefinition
                 ->addFlags(new RestrictDelete()),
 
             (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
+                ->addFlags(new CascadeDelete()),
+
+            (new OneToManyAssociationField('productPricing', ProductPricingDefinition::class, 'country_id'))
                 ->addFlags(new CascadeDelete()),
         ]);
     }

@@ -15,6 +15,7 @@ class ShippingMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
+        // todo@skroblin not possible anymore, should also not be necessary because of new risk-management
         return $this->filter(
             function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
                 if ($shippingMethod->getAvailabilityRuleId() === null) {

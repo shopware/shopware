@@ -18,6 +18,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
@@ -412,6 +413,8 @@ class SalesChannelEntity extends Entity
      * @var LandingPageCollection|null
      */
     protected $landingPages;
+
+    protected ?ProductPricingCollection $productPricing = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -1165,5 +1168,15 @@ class SalesChannelEntity extends Entity
     public function setServiceCategoryVersionId(?string $serviceCategoryVersionId): void
     {
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
+    }
+
+    public function getProductPricing(): ?ProductPricingCollection
+    {
+        return $this->productPricing;
+    }
+
+    public function setProductPricing(ProductPricingCollection $productPricing): void
+    {
+        $this->productPricing = $productPricing;
     }
 }

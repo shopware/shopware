@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -134,6 +135,8 @@ class CountryEntity extends Entity
      * @var array<array<string, array<string, string>>>
      */
     protected array $addressFormat;
+
+    protected ?ProductPricingCollection $productPricing = null;
 
     public function getName(): ?string
     {
@@ -409,5 +412,15 @@ class CountryEntity extends Entity
     public function getDefaultPostalCodePattern(): ?string
     {
         return $this->defaultPostalCodePattern;
+    }
+
+    public function getProductPricing(): ?ProductPricingCollection
+    {
+        return $this->productPricing;
+    }
+
+    public function setProductPricing(ProductPricingCollection $productPricing): void
+    {
+        $this->productPricing = $productPricing;
     }
 }

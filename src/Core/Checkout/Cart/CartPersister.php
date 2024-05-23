@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -26,7 +27,8 @@ class CartPersister extends AbstractCartPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly bool $compress
+        private readonly bool $compress,
+        private readonly CartFactory $factory
     ) {
     }
 
@@ -44,17 +46,30 @@ class CartPersister extends AbstractCartPersister
         );
 
         if (!\is_array($content)) {
+            if (Feature::isActive('cache_rework')) {
+                // todo@skroblin deprecate exception
+                // todo@skroblin upgrade guide
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::tokenNotFound($token);
         }
 
         $cart = $content['compressed'] ? CacheValueCompressor::uncompress($content['payload']) : unserialize((string) $content['payload']);
 
         if (!$cart instanceof Cart) {
+            $this->connection->delete('cart', ['token' => $token]);
+
+            if (Feature::isActive('cache_rework')) {
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::deserializeFailed();
         }
 
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
+        $cart->new = false;
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -87,10 +102,12 @@ class CartPersister extends AbstractCartPersister
             ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
         SQL;
 
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
         $data = [
             'token' => $cart->getToken(),
             'payload' => $this->serializeCart($cart),
-            'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
+            'rule_ids' => json_encode($ruleIds, \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'compressed' => (int) $this->compress,
         ];

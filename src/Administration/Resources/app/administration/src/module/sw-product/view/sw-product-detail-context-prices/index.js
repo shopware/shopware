@@ -191,7 +191,6 @@ export default {
         },
     },
 
-
     watch: {
         'product.prices': {
             handler(value) {

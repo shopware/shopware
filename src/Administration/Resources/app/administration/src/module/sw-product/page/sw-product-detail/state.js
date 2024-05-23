@@ -14,6 +14,7 @@ export default {
             apiContext: {},
             taxes: [],
             variants: [],
+            prices: [],
             customFieldSets: [],
             defaultFeatureSet: {},
             loading: {
@@ -201,6 +202,10 @@ export default {
 
         setProduct(state, newProduct) {
             state.product = newProduct;
+        },
+
+        setPrices(state, prices) {
+            state.prices = prices;
         },
 
         setVariants(state, newVariants) {

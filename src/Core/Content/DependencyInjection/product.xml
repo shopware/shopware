@@ -49,6 +49,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -188,9 +192,15 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Service\PriceStockImporter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Service\PriceStockImporter">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
@@ -243,6 +253,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -382,6 +393,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader" />
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer">
@@ -471,6 +483,7 @@
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" decoration-priority="-1000" public="true">
@@ -484,6 +497,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">
             <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" decoration-priority="-1000" public="true">

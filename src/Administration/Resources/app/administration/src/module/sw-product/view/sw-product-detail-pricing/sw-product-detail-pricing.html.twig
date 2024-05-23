@@ -1,0 +1,69 @@
+{% block sw_product_detail_prices %}
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
+<sw-container v-else rows="auto" columns="100%" class="sw-product-detail-pricing">
+    <sw-container columns="100%" :class="{'is--loading': isLoading}">
+        <sw-data-grid v-if="product.id" show-settings :showSelection="false" :columns="columns" :data-source="prices" @row-classes="rowClass" identifier="sw-product-pricing">
+            <template #column-line_number="{ item, itemIndex, compact }">
+                <span class="line-number">#{{ itemIndex + 1 }}</span>
+                <sw-icon v-if="rowHasError(itemIndex)" name="regular-times-xs" class="has-errors" v-tooltip="{ message: rowError(itemIndex), width: 600, appearance: 'light', position: 'top' }"/>
+                <sw-icon v-else name="regular-checkmark-xs" class="has-no-errors" />
+            </template>
+
+            <template #column-customerGroupId="{ item, itemIndex, compact }">
+                <sw-single-select v-model:value="item.customerGroupId" :options="customerGroups" size="small" show-clearable-button/>
+            </template>
+
+            <template #column-salesChannelId="{ item, itemIndex, compact }">
+                <sw-single-select v-model:value="item.salesChannelId" :options="salesChannels" size="small" show-clearable-button/>
+            </template>
+
+            <template #column-countryId="{ item, itemIndex, compact }">
+                <sw-single-select v-model:value="item.countryId" :options="countries" size="small" show-clearable-button/>
+            </template>
+
+            <template #column-quantity="{ item, itemIndex, compact }">
+                <sw-number-field v-model:value="item.quantityStart" validation="required" :size="'small'" :allowEmpty="true" />
+                <sw-number-field v-model:value="item.quantityEnd" validation="required" :size="'small'" :allowEmpty="true" />
+            </template>
+
+            <template #column-discount="{ item, itemIndex, compact }">
+                <sw-number-field v-model:value="item.discount" :size="'small'" min="0" max="100" :allowEmpty="true" :disabled="isDefault(item)" >
+                    <template #prefix>-</template>
+                    <template #suffix>%</template>
+                </sw-number-field>
+            </template>
+
+            <template v-for="currency in currencies" :key="currency.id" #[`column-price-${currency.isoCode}`]="{ item, column, compact }">
+                <div class="product-detail-pricing__price-field-wrapper">
+                    <sw-inheritance-switch v-if="!currency.isSystemDefault" :is-inherited="isPriceFieldInherited(item, currency)" @inheritance-restore="onInheritanceRestore(item, currency)" @inheritance-remove="onInheritanceRemove(item, currency)"/>
+                    <sw-price-field :value="item.price" :default-price="systemPrice(item)" :tax-rate="productTaxRate" :label="false" :compact="true" :currency="currency"/>
+                </div>
+            </template>
+
+            <template #actions-column="{ item, itemIndex }">
+                <sw-button-group>
+                    <sw-button size="small" class="copy-pricing icon-button" @click="copy(itemIndex)" >
+                        <sw-icon name="regular-copy-s"/>
+                    </sw-button>
+                    <sw-button size="small" class="add-pricing  icon-button" @click="add(itemIndex)" >
+                        <sw-icon name="regular-plus-xs"/>
+                    </sw-button>
+                    <sw-button v-if="itemIndex > 0" size="small" class="remove-pricing  icon-button" @click="remove(itemIndex)" >
+                        <sw-icon name="regular-minus-xs"/>
+                    </sw-button>
+                </sw-button-group>
+            </template>
+
+            <template #customSettings>
+                <sw-button size="small" class="sort-pricing icon-button" @click="sortPrices" >
+                    <sw-icon name="regular-sort"/>
+                </sw-button>
+            </template>
+        </sw-data-grid>
+    </sw-container>
+</sw-container>
+{% endblock %}

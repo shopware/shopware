@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,7 +31,8 @@ class RedisCartPersister extends AbstractCartPersister
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
         private readonly bool $compress,
-        private readonly int $expireDays
+        private readonly int $expireDays,
+        private readonly CartFactory $factory
     ) {
     }
 
@@ -51,27 +53,50 @@ class RedisCartPersister extends AbstractCartPersister
         try {
             $value = \unserialize($value);
         } catch (\Exception) {
+            if (Feature::isActive('cache_rework')) {
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::tokenNotFound($token);
         }
 
         if (!isset($value['compressed'])) {
+            $this->redis->del(self::PREFIX . $token);
+
+            if (Feature::isActive('cache_rework')) {
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::tokenNotFound($token);
         }
 
         $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize((string) $value['content']);
 
         if (!\is_array($content)) {
+            $this->redis->del(self::PREFIX . $token);
+
+            if (Feature::isActive('cache_rework')) {
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::tokenNotFound($token);
         }
 
         $cart = $content['cart'];
 
         if (!$cart instanceof Cart) {
+            $this->redis->del(self::PREFIX . $token);
+
+            if (Feature::isActive('cache_rework')) {
+                return $this->factory->createNew($token);
+            }
+
             throw CartException::deserializeFailed();
         }
 
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
+        $cart->new = false;
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -131,7 +156,9 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->cartSerializationCleaner->cleanupCart($cart);
 
-        $content = ['cart' => $cart, 'rule_ids' => $context->getRuleIds()];
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
+        $content = ['cart' => $cart, 'rule_ids' => $ruleIds];
 
         $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 

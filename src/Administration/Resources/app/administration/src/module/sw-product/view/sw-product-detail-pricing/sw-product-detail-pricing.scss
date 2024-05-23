@@ -1,0 +1,105 @@
+@import "~scss/variables";
+
+.sw-product-detail__tab-pricing:after {
+    content: "new";
+    position: absolute;
+    top: 4px;
+    right: -5px;
+    background: #d1d9e0;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 50px;
+    font-size: 8px;
+}
+
+.sw-product-detail-pricing {
+    .sw-data-grid__table {
+        border-top: 1px solid #d1d9e0;
+        border-bottom: 1px solid #d1d9e0;
+    }
+
+    .line-number {
+        padding-right: 10px;
+        font-weight: bold;
+    }
+
+    .sort-pricing {
+        margin-left: 8px;
+    }
+
+    .sw-data-grid__cell--actions .copy-pricing {
+        margin-left: 4px;
+    }
+
+    .icon-button {
+        padding: 5px;
+        .sw-icon {
+            height: 12px;
+            width: 12px;
+        }
+    }
+
+    .product-detail-pricing__price-field-wrapper {
+        .sw-inheritance-switch {
+            margin-top: 0;
+            margin-left: -10px;
+            float: left;
+            padding-top: 4px;
+            padding-right: 5px;
+        }
+    }
+
+    .sw-data-grid__row.changed {
+        border-top: 1px dashed $color-shopware-brand-500;
+    }
+
+    .sw-data-grid__body .sw-data-grid__cell-content {
+        padding: 2px 10px;
+        height: auto;
+        font-size: 12px;
+    }
+    .sw-data-grid__cell--discount .sw-field__addition {
+        padding: 0px 10px;
+        min-width: initial;
+    }
+
+    .has-errors {
+        width: 12px;
+        height: 12px;
+        color: $color-crimson-500;
+    }
+    .has-no-errors {
+        width: 12px;
+        height: 12px;
+        color: $color-emerald-500;
+    }
+    //
+    //.sw-single-select .sw-single-select__selection-input {
+    //    min-height: 34px;
+    //    height: 34px;
+    //}
+    //
+    //.sw-single-select .sw-single-select__selection-text {
+    //    min-height: 34px;
+    //    height: 34px;
+    //    line-height: 10px;
+    //}
+
+    .sw-field--checkbox .sw-field__checkbox {
+        width: 14px;
+        height: 14px;
+        position: relative;
+    }
+    .sw-price-field .sw-field .sw-field__addition {
+        font-weight: 400;
+        font-size: 12px;
+        min-width: initial;
+        padding: 0 8px;
+    }
+}
+
+.sw-product-detail {
+    .product_detail_content_card_view .sw-card-view__content:has(.sw-product-detail-pricing) {
+        padding: 40px 0;
+    }
+}

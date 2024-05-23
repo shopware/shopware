@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -102,11 +103,13 @@ class DeliveryCalculator
         /** @var ShippingMethodEntity $shippingMethod */
         $shippingMethod = $data->get($key);
 
-        foreach ($context->getRuleIds() as $ruleId) {
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
+        foreach ($ruleIds as $ruleId) {
             /** @var ShippingMethodPriceCollection $shippingPrices */
             $shippingPrices = $shippingMethod->getPrices()->filterByProperty('ruleId', $ruleId);
 
-            $costs = $this->getMatchingPriceOfRule($delivery, $context, $shippingPrices);
+            $costs = $this->getMatchingPriceOfRule($ruleIds, $delivery, $context, $shippingPrices);
             if ($costs !== null) {
                 break;
             }
@@ -116,7 +119,7 @@ class DeliveryCalculator
         if ($costs === null) {
             /** @var ShippingMethodPriceCollection $shippingPrices */
             $shippingPrices = $shippingMethod->getPrices()->filterByProperty('ruleId', null);
-            $costs = $this->getMatchingPriceOfRule($delivery, $context, $shippingPrices);
+            $costs = $this->getMatchingPriceOfRule($ruleIds, $delivery, $context, $shippingPrices);
         }
 
         if (!$costs) {
@@ -141,10 +144,10 @@ class DeliveryCalculator
         return true;
     }
 
-    private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
+    private function matches(array $ruleIds, Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
     {
         if ($shippingMethodPrice->getCalculationRuleId()) {
-            return \in_array($shippingMethodPrice->getCalculationRuleId(), $context->getRuleIds(), true);
+            return \in_array($shippingMethodPrice->getCalculationRuleId(), $ruleIds, true);
         }
 
         $start = $shippingMethodPrice->getQuantityStart();
@@ -220,7 +223,7 @@ class DeliveryCalculator
         return $price->getNet();
     }
 
-    private function getMatchingPriceOfRule(Delivery $delivery, SalesChannelContext $context, ShippingMethodPriceCollection $shippingPrices): ?CalculatedPrice
+    private function getMatchingPriceOfRule(array $ruleIds, Delivery $delivery, SalesChannelContext $context, ShippingMethodPriceCollection $shippingPrices): ?CalculatedPrice
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
@@ -238,7 +241,7 @@ class DeliveryCalculator
 
         $costs = null;
         foreach ($shippingPrices as $shippingPrice) {
-            if (!$this->matches($delivery, $shippingPrice, $context)) {
+            if (!$this->matches($ruleIds, $delivery, $shippingPrice, $context)) {
                 continue;
             }
             $price = $shippingPrice->getCurrencyPrice();

@@ -42,6 +42,7 @@ Shopware.Component.register('sw-product-settings-mode', () => import('./componen
 Shopware.Component.register('sw-product-properties', () => import('./component/sw-product-properties'));
 Shopware.Component.register('sw-product-add-properties-modal', () => import('./component/sw-product-add-properties-modal'));
 Shopware.Component.register('sw-product-detail-base', () => import('./view/sw-product-detail-base'));
+Shopware.Component.register('sw-product-detail-pricing', () => import('./view/sw-product-detail-pricing'));
 Shopware.Component.register('sw-product-detail-specifications', () => import('./view/sw-product-detail-specifications'));
 Shopware.Component.register('sw-product-detail-context-prices', () => import('./view/sw-product-detail-context-prices'));
 Shopware.Component.register('sw-product-detail-variants', () => import('./view/sw-product-detail-variants'));
@@ -140,6 +141,14 @@ Module.register('sw-product', {
                 prices: {
                     component: 'sw-product-detail-context-prices',
                     path: 'prices',
+                    meta: {
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer',
+                    },
+                },
+                pricing: {
+                    component: 'sw-product-detail-pricing',
+                    path: 'pricing',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer',

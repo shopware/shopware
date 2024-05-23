@@ -57,6 +57,11 @@ class ShippingLocation extends Struct
         return $this->address?->getCountry() ?? $this->country;
     }
 
+    public function getCountryId(): string
+    {
+        return $this->getCountry()->getId();
+    }
+
     public function getState(): ?CountryStateEntity
     {
         if ($this->address) {

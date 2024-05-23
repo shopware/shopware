@@ -60,7 +60,7 @@ class Cart extends Struct
     /**
      * @internal
      */
-    public function __construct(protected string $token)
+    public function __construct(protected string $token, public bool $new = false)
     {
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();

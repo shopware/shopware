@@ -15,6 +15,17 @@ class ProductException extends HttpException
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
+    public const PRODUCT_INVALID_PRICE_IMPORT_PAYLOAD = 'PRODUCT_INVALID_PRICE_IMPORT_PAYLOAD';
+
+    public static function invalidPriceImportPayload(array $errors): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_INVALID_PRICE_IMPORT_PAYLOAD,
+            'Invalid price import payload',
+            ['errors' => $errors]
+        );
+    }
 
     public static function invalidCheapestPriceFacade(string $id): self
     {

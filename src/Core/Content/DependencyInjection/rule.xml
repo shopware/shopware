@@ -14,6 +14,11 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Rule\RuleLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Content\Rule\RuleValidator">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>

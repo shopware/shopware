@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
@@ -474,6 +475,8 @@ class ProductEntity extends Entity implements \Stringable
     protected $streams;
 
     protected ?ProductDownloadCollection $downloads = null;
+
+    protected ?ProductPricingCollection $pricing = null;
 
     /**
      * @var array<int, string>
@@ -1470,5 +1473,15 @@ class ProductEntity extends Entity implements \Stringable
     public function setStates(array $states): void
     {
         $this->states = $states;
+    }
+
+    public function getPricing(): ?ProductPricingCollection
+    {
+        return $this->pricing;
+    }
+
+    public function setPricing(ProductPricingCollection $pricing): void
+    {
+        $this->pricing = $pricing;
     }
 }

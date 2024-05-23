@@ -29,6 +29,15 @@
       "tooltipModeSettings": "Mode settings",
       "textAdvancedMode": "Advanced mode"
     },
+    "pricing": {
+      "column": {
+        "customerGroupId": "Customer group",
+        "salesChannelId": "Sales channel",
+        "countryId": "Country",
+        "quantity": "Quantity",
+        "priceEuro": "Euro"
+      }
+    },
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
@@ -272,6 +281,7 @@
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
+      "tabPricing": "Pricing",
       "tabSpecifications": "Specifications",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variants",

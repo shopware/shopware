@@ -17,11 +17,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -93,15 +95,78 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $max = max(min($count / 3, 200), 5);
         $prices = [];
-        for ($i = 0; $i <= $max; ++$i) {
-            $prices[] = $this->createPrices($ruleIds);
+
+        if (Feature::isActive('product_pricing')) {
+            $mapping = $this->connection->fetchAllAssociative(
+                'SELECT LOWER(HEX(id)) as id, LOWER(HEX(customer_group_id)) as customer_group_id, LOWER(HEX(country_id)) as country_id FROM sales_channel'
+            );
+
+            $prices[] = [
+                'quantityStart' => 1,
+                'quantityEnd' => 10,
+                'price' => self::price(120),
+            ];
+
+            $prices[] = [
+                'quantityStart' => 11,
+                'quantityEnd' => 30,
+                'price' => self::price(110),
+            ];
+            $prices[] = [
+                'quantityStart' => 31,
+                'price' => self::price(109),
+            ];
+
+            $prices[] = [
+                'quantityStart' => 1,
+                'quantityEnd' => 20,
+                'price' => self::price(100),
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            ];
+            $prices[] = [
+                'quantityStart' => 21,
+                'price' => self::price(98),
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            ];
+
+            foreach ($mapping as $map) {
+                $prices[] = [
+                    'quantityStart' => 1,
+                    'quantityEnd' => 20,
+                    'price' => self::price(90),
+                    'customerGroupId' => $map['customer_group_id'],
+                    'salesChannelId' => $map['id'],
+                ];
+                $prices[] = [
+                    'quantityStart' => 21,
+                    'price' => self::price(88),
+                    'customerGroupId' => $map['customer_group_id'],
+                    'salesChannelId' => $map['id'],
+                ];
+
+                $prices[] = [
+                    'quantityStart' => 1,
+                    'price' => self::price(80),
+                    'customerGroupId' => $map['customer_group_id'],
+                    'salesChannelId' => $map['id'],
+                    'countryId' => $map['country_id'],
+                ];
+            }
+        } else {
+            for ($i = 0; $i <= $max; ++$i) {
+                $prices[] = $this->createPrices($ruleIds);
+            }
         }
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($taxes, $manufacturers, $tags);
 
-            $product['prices'] = $this->faker->randomElement($prices);
+            if (Feature::isActive('product_pricing')) {
+                $product['pricing'] = $prices;
+            } else {
+                $product['prices'] = $this->faker->randomElement($prices);
+            }
 
             $product['visibilities'] = $visibilities;
 
@@ -190,15 +255,22 @@ class ProductGenerator implements DemodataGeneratorInterface
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
             $id = Uuid::randomHex();
-            $variants[] = [
+            $variant = [
                 'id' => $id,
                 'productNumber' => $id,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
-                'prices' => $this->faker->randomElement($prices),
                 'options' => array_map(fn ($id) => ['id' => $id], $options),
             ];
+
+            if (Feature::isActive('product_pricing')) {
+//                $variant['pricing'] = $prices;
+            } else {
+                $variant['prices'] = $this->faker->randomElement($prices);
+            }
+
+            $variants[] = $variant;
 
             $configurator = [...$configurator, ...array_values($options)];
         }
@@ -282,9 +354,10 @@ class ProductGenerator implements DemodataGeneratorInterface
         \assert($tax instanceof TaxEntity);
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
+        $id = Uuid::randomHex();
         return [
-            'id' => Uuid::randomHex(),
-            'productNumber' => Uuid::randomHex(),
+            'id' => $id,
+            'productNumber' => $id,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
             'name' => $this->faker->format('productName'),
@@ -425,7 +498,6 @@ class ProductGenerator implements DemodataGeneratorInterface
             FROM category
              LEFT JOIN product_category pc
                ON pc.category_id = category.id
-            WHERE category.child_count = 0
             GROUP BY category.id
             ORDER BY COUNT(pc.product_id) ASC
             LIMIT ' . $this->faker->numberBetween(1, 3));
@@ -455,5 +527,27 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private static function price(float $gross): array
+    {
+        return [
+            [
+                'currencyId' => Defaults::CURRENCY,
+                'gross' => $gross,
+                'net' => $gross / 119,
+                'linked' => true,
+                'listPrice' => [
+                    'net' => ($gross + 10) / 119,
+                    'gross' => $gross + 10,
+                    'linked' => true,
+                ],
+                'regulationPrice' => [
+                    'net' => ($gross + 20) / 119,
+                    'gross' => $gross + 20,
+                    'linked' => true,
+                ],
+            ],
+        ];
     }
 }

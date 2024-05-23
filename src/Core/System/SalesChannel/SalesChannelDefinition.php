@@ -17,6 +17,7 @@ use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingP
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPricing\ProductPricingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
@@ -178,6 +179,7 @@ class SalesChannelDefinition extends EntityDefinition
             new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'),
             new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productPricing', ProductPricingDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

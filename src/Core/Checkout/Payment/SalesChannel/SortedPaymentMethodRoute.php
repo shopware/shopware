@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,6 +32,10 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
     #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
+
         $response = $this->getDecorated()->load($request, $context, $criteria);
 
         $response->getPaymentMethods()->sortPaymentMethodsByPreference($context);

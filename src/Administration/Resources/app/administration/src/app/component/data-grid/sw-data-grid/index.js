@@ -543,13 +543,17 @@ Component.register('sw-data-grid', {
         },
 
         getRowClasses(item, itemIndex) {
-            return [
+            const classes = [
                 {
                     'is--inline-edit': this.isInlineEdit(item),
                     'is--selected': this.isSelected(item.id),
                 },
                 `sw-data-grid__row--${itemIndex}`,
             ];
+
+            this.$emit('row-classes', classes, item, itemIndex);
+
+            return classes;
         },
 
         getCellClasses(column) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -30,6 +31,18 @@ class EntityCacheKeyGenerator
      */
     public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
     {
+        if (Feature::isActive('cache_rework')) {
+            return md5((string) json_encode([
+                $context->getSalesChannelId(),
+                $context->getDomainId(),
+                $context->getLanguageIdChain(),
+                $context->getVersionId(),
+                $context->getCurrencyId(),
+                $context->getTaxState(),
+                $context->getItemRounding(),
+            ], \JSON_THROW_ON_ERROR));
+        }
+
         $ruleIds = $context->getRuleIdsByAreas($areas);
 
         return md5((string) json_encode([

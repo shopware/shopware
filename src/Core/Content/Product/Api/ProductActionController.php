@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Api;
 
+use Shopware\Core\Content\Product\Service\PriceStockImporter;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
@@ -16,7 +18,10 @@ class ProductActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly VariantCombinationLoader $combinationLoader)
+    public function __construct(
+        private readonly VariantCombinationLoader $combinationLoader,
+        private readonly PriceStockImporter $importer
+    )
     {
     }
 
@@ -26,5 +31,13 @@ class ProductActionController extends AbstractController
         return new JsonResponse(
             $this->combinationLoader->load($productId, $context)
         );
+    }
+
+    #[Route(path: '/api/_action/sync/stock-pricing', name: 'api.action.sync.prices', methods: ['POST'])]
+    public function priceImport(Request $request, Context $context): JsonResponse
+    {
+        $this->importer->import($request->request->all(), $context);
+
+        return new JsonResponse();
     }
 }

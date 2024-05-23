@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed, states are no more available
+ *
  * @internal
  */
 #[Package('core')]
@@ -23,6 +26,12 @@ class CacheStateValidator
 
     public function isValid(Request $request, Response $response): bool
     {
+        // todo@skroblin deprecate
+        // todo@skroblin upgrade guide
+        if (Feature::isActive('cache_rework')) {
+            return true;
+        }
+
         $states = $request->cookies->get(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
         $states = explode(',', (string) $states);
         $states = array_filter($states);

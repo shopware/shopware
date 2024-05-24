@@ -99,7 +99,7 @@ PHP integration:
     - php vendor/bin/phpunit
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
-      --exclude-group=needsWebserver,skip-paratest,not-deterministic
+      --exclude-group=needsWebserver,not-deterministic
       --testsuite integration,devops
       --order-by default
 

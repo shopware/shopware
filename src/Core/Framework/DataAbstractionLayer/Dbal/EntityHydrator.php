@@ -43,6 +43,11 @@ class EntityHydrator
     protected static array $partial = [];
 
     /**
+     * @var array<bool>
+     */
+    protected static array $partialFullPaths = [];
+
+    /**
      * @var array<mixed>
      */
     private static array $hydrated = [];
@@ -79,9 +84,13 @@ class EntityHydrator
 
         self::$partial = $partial;
 
+        self::$partialFullPaths = [];
+
         if (!empty(self::$partial)) {
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
+
+            $this->mapPartialFieldsToHydrate(self::$partial, $root);
         }
 
         foreach ($rows as $row) {
@@ -184,11 +193,10 @@ class EntityHydrator
         foreach ($fields as $field) {
             $property = $field->getPropertyName();
 
-            if ($isPartial && !isset(self::$partial[$property])) {
+            $key = $root . '.' . $property;
+            if ($isPartial && !isset(self::$partialFullPaths[$key])) {
                 continue;
             }
-
-            $key = $root . '.' . $property;
 
             // initialize not loaded associations with null
             if ($field instanceof AssociationField && $entity instanceof ArrayEntity) {
@@ -366,6 +374,10 @@ class EntityHydrator
             return null;
         }
 
+        if (self::$partial !== [] && !isset(self::$partialFullPaths[$pk])) {
+            self::$partialFullPaths[$key] = true;
+        }
+
         return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
     }
 
@@ -520,6 +532,14 @@ class EntityHydrator
         }
 
         return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR);
+    }
+
+    protected function mapPartialFieldsToHydrate(array $fields, string $currentPath): void {
+        foreach ($fields as $field => $values){
+            self::$partialFullPaths[$currentPath . '.' . $field] = true;
+
+            $this->mapPartialFieldsToHydrate($values, $currentPath . '.' . $field);
+        }
     }
 
     /**

@@ -1524,5 +1524,17 @@
     "calculated_price_field_test.id",
     "calculated_price_field_test.price",
     "calculated_price_field_test.createdAt",
-    "calculated_price_field_test.updatedAt"
+    "calculated_price_field_test.updatedAt",
+    "attribute_entity.autoIncrement",
+    "attribute_entity.serialized",
+    "attribute_entity.translations",
+    "attribute_entity.createdAt",
+    "attribute_entity.updatedAt",
+    "attribute_entity.translated",
+    "attribute_entity_translation.createdAt",
+    "attribute_entity_translation.updatedAt",
+    "attribute_entity_translation.attributeEntityId",
+    "attribute_entity_translation.languageId",
+    "attribute_entity_agg.createdAt",
+    "attribute_entity_agg.updatedAt"
 ]

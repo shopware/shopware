@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
@@ -250,6 +251,12 @@ class AttributeEntityCompiler
         if ($this->getAttribute($property, PrimaryKeyAttr::class)) {
             $flags[PrimaryKey::class] = ['class' => PrimaryKey::class];
             $flags[Required::class] = ['class' => Required::class];
+        }
+
+        if ($inherited = $this->getAttribute($property, Inherited::class)) {
+            /** @var Inherited $instance */
+            $instance = $inherited->newInstance();
+            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
         }
 
         if ($field->api !== false) {

@@ -1,13 +1,13 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Journey: Registered shop customer buys a product. @journey @checkout', async ({
-    shopCustomer,
-    defaultStorefront,
-    productData,
-    adminApiContext,
-    productDetailPage,
-    checkoutConfirmPage,
-    checkoutFinishPage,
+    ShopCustomer,
+    DefaultSalesChannel,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
+    StorefrontCheckoutConfirm,
+    StorefrontCheckoutFinish,
     Login,
     AddProductToCart,
     ProceedFromProductToCheckout,
@@ -16,50 +16,40 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
     SelectStandardShippingOption,
     SubmitOrder,
 }) => {
-    test.info().annotations.push({
-        type: 'Acceptance Criteria',
-        description: 'Shop customer should be able to login.',
-    }, {
-        type: 'Acceptance Criteria',
-        description: 'Shop customer should be able to add a product to the cart.',
-    }, {
-        type: 'Acceptance Criteria',
-        description: 'Shop customer should be able to perform a checkout.',
-    });
 
-    await shopCustomer.attemptsTo(Login());
+    await ShopCustomer.attemptsTo(Login());
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.expects(productDetailPage.page).toHaveTitle(
-        `${productData.translated.name} | ${productData.productNumber}`
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
+        `${ProductData.translated.name} | ${ProductData.productNumber}`
     );
 
-    await shopCustomer.attemptsTo(AddProductToCart(productData));
-    await shopCustomer.attemptsTo(ProceedFromProductToCheckout());
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData));
+    await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
-    await shopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await shopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await shopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
+    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
+    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
 
-    await shopCustomer.expects(checkoutConfirmPage.grandTotalPrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€10.00*');
 
-    await shopCustomer.attemptsTo(SubmitOrder());
+    await ShopCustomer.attemptsTo(SubmitOrder());
 
     await test.step('Validate that the order was submitted successfully.', async () => {
-        const orderId = checkoutFinishPage.getOrderId();
-        const orderResponse = await adminApiContext.get(`order/${orderId}`);
+        const orderId = StorefrontCheckoutFinish.getOrderId();
+        const orderResponse = await AdminApiContext.get(`order/${orderId}`);
 
-        await expect(orderResponse.ok()).toBeTruthy();
+        expect(orderResponse.ok()).toBeTruthy();
 
         const order = await orderResponse.json();
 
-        await expect(order.data).toEqual(
+        expect(order.data).toEqual(
             expect.objectContaining({
                 price: expect.objectContaining({
                     totalPrice: 10,
                 }),
                 orderCustomer: expect.objectContaining({
-                    email: defaultStorefront.customer.email,
+                    email: DefaultSalesChannel.customer.email,
                 }),
             })
         );

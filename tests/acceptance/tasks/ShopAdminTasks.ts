@@ -9,12 +9,14 @@ import { UploadImage } from './ShopAdmin/Product/UploadImage';
  * Product
  */
 import { GenerateVariants } from './ShopAdmin/Product/GenerateVariants';
-import { SaveProduct } from './ShopAdmin/Product/SaveProduct';
-import { FRWSalesChannelSelectionPossibility } from '@tasks/ShopAdmin/FRWSalesChannelSelectionPossibility';
+
+/**
+ * First Run Wizard
+ */
+import { FRWSalesChannelSelectionPossibility } from '@tasks/ShopAdmin/FRW/FRWSalesChannelSelectionPossibility';
 
 export const test = mergeTests(
     GenerateVariants,
-    SaveProduct,
     UploadImage,
     FRWSalesChannelSelectionPossibility,
 );

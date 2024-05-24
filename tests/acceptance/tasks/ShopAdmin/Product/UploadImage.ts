@@ -1,11 +1,10 @@
-import { expect, test as base } from '@playwright/test';
-import { FixtureTypes } from '@fixtures/FixtureTypes';
-import type { Task } from '@fixtures/Task';
-import { createRandomImage, getMediaId } from '@fixtures/Helper';
+import { test as base, expect } from '@playwright/test';
+import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
+import { createRandomImage, getMediaId } from '@fixtures/AcceptanceTest';
 import fs from 'fs';
 
 export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
-    UploadImage: async ({ adminProductDetailPage, adminApiContext }, use ) => {
+    UploadImage: async ({ AdminProductDetail, AdminApiContext }, use ) => {
 
         let imageFilePath: string;
         let fileName: string;
@@ -28,17 +27,17 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                 const image = createRandomImage();
                 fs.writeFileSync(imageFilePath, image.toBuffer());
 
-                const fileChooserPromise = adminProductDetailPage.page.waitForEvent('filechooser');
-                await adminProductDetailPage.uploadMediaButton.click();
+                const fileChooserPromise = AdminProductDetail.page.waitForEvent('filechooser');
+                await AdminProductDetail.uploadMediaButton.click();
                 const fileChooser = await fileChooserPromise;
                 await fileChooser.setFiles(imageFilePath);
 
                 // Wait until media is saved via API
-                const response = await adminProductDetailPage.page.waitForResponse(`${ process.env['APP_URL'] }api/search/media`);
+                const response = await AdminProductDetail.page.waitForResponse(`${ process.env['APP_URL'] }api/search/media`);
+                expect(response.ok()).toBeTruthy();
 
-                // Assertions
-                await expect(response.ok()).toBeTruthy();
                 const mediaResourceResponse = await response.json();
+
                 expect(mediaResourceResponse.data[0]).toEqual(
                   expect.objectContaining({
                       attributes: expect.objectContaining({
@@ -49,12 +48,13 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
                 );
             }
         }
+
         await use(task);
 
-        //Delete image from database
-        const uploadedMediaId = await getMediaId(fileName, adminApiContext);
-        const deleteUploadedMedia = await adminApiContext.delete(`media/${ uploadedMediaId }`);
-        await expect(deleteUploadedMedia.ok()).toBeTruthy();
+        // Delete image from database
+        const uploadedMediaId = await getMediaId(fileName, AdminApiContext);
+        const deleteUploadedMedia = await AdminApiContext.delete(`media/${ uploadedMediaId }`);
+        expect(deleteUploadedMedia.ok()).toBeTruthy();
 
         // Delete image from dir
         fs.unlink(imageFilePath, (err) => {

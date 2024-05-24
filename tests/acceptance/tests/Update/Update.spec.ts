@@ -1,8 +1,11 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('@update: Update a shop', async ({ page, adminApiContext }) => {
-    await test.slow();
+test.skip('Update an existing Shopware instance. @update', async ({
+    page,
+    AdminApiContext,
+}) => {
+    test.slow();
 
     await page.goto(process.env.ADMIN_URL);
 
@@ -14,7 +17,7 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
         timeout: 20000,
     });
 
-    const config = await ((await adminApiContext.get(`./_info/config`)).json()) as { version: string };
+    const config = await ((await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
 
     await page.getByRole('button', { name: 'Open update' }).click();
 

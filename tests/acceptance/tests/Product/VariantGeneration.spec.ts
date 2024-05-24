@@ -1,22 +1,22 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test('Shop administrator should be able to create product variants. @product', async ({
-    shopAdmin,
-    propertiesData,
-    productData,
-    adminProductDetailPage,
+    ShopAdmin,
+    PropertiesData,
+    ProductData,
+    AdminProductDetail,
     GenerateVariants,
 }) => {
-    await shopAdmin.goesTo(adminProductDetailPage);
-    await shopAdmin.page.waitForLoadState('domcontentloaded');
+    await ShopAdmin.goesTo(AdminProductDetail);
+    await ShopAdmin.page.waitForLoadState('domcontentloaded');
 
-    await shopAdmin.attemptsTo(GenerateVariants());
+    await ShopAdmin.attemptsTo(GenerateVariants());
 
     /**
      * The test has to handle random behaviour.
      * Variants displayed in the admin grid can have different order and naming combinations.
      */
-    const variantLocators = adminProductDetailPage.page.locator('.sw-product-variants-overview__variation-link');
+    const variantLocators = AdminProductDetail.page.locator('.sw-product-variants-overview__variation-link');
     const variantTexts = await variantLocators.allInnerTexts();
     const allowedVariants = [
         'RedMedium',
@@ -31,5 +31,5 @@ test('Shop administrator should be able to create product variants. @product', a
 
     const validateVariants = variantTexts.every(variant => allowedVariants.includes(variant.trim()));
 
-    await shopAdmin.expects(validateVariants).toBeTruthy();
+    ShopAdmin.expects(validateVariants).toBeTruthy();
 });

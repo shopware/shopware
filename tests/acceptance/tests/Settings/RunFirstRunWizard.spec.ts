@@ -1,72 +1,71 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test('Journey: Merchant is able to be guided through the First Run Wizard.', async ({
-    shopAdmin,
-    firstRunWizardPage,
-    defaultStorefront,
+    ShopAdmin,
+    DefaultSalesChannel,
+    AdminFirstRunWizard,
     FRWSalesChannelSelectionPossibility,
 }) => {
-    await shopAdmin.goesTo(firstRunWizardPage);
+    await ShopAdmin.goesTo(AdminFirstRunWizard);
 
     //LanguagePack part
-    await shopAdmin.expects(firstRunWizardPage.installLanguagePackButton).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.welcomeText).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.pluginCardInfo).toBeVisible();
-    await firstRunWizardPage.nextButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.installLanguagePackButton).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.welcomeText).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.pluginCardInfo).toBeVisible();
+    await AdminFirstRunWizard.nextButton.click();
 
     //DataImport part
-    await shopAdmin.expects(firstRunWizardPage.dataImportHeader).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.dataImportCard).toHaveCount(2);
-    await shopAdmin.expects(firstRunWizardPage.installDemoDataButton).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.installMigrationAssistantButton).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.backButton).not.toBeVisible();
-    await firstRunWizardPage.nextButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.dataImportHeader).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.dataImportCard).toHaveCount(2);
+    await ShopAdmin.expects(AdminFirstRunWizard.installDemoDataButton).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.installMigrationAssistantButton).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.backButton).not.toBeVisible();
+    await AdminFirstRunWizard.nextButton.click();
 
     //Setup default values part
-    await shopAdmin.expects(firstRunWizardPage.defaultValuesHeader).toBeVisible();
-    const currentSalesChannel = defaultStorefront.salesChannel.name;
-    await shopAdmin.attemptsTo(FRWSalesChannelSelectionPossibility(currentSalesChannel));
-    await firstRunWizardPage.nextButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.defaultValuesHeader).toBeVisible();
+    const currentSalesChannel = DefaultSalesChannel.salesChannel.name;
+    await ShopAdmin.attemptsTo(FRWSalesChannelSelectionPossibility(currentSalesChannel));
+    await AdminFirstRunWizard.nextButton.click();
 
     //Mailer configuration part
-    await shopAdmin.expects(firstRunWizardPage.mailerConfigurationHeader).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.nextButton).toBeDisabled();
-    await firstRunWizardPage.smtpServerButton.click();
-    await firstRunWizardPage.nextButton.click();
-    await shopAdmin.expects(firstRunWizardPage.smtpServerTitle).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.smtpServerFields).toHaveCount(8);
-    await firstRunWizardPage.configureLaterButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.mailerConfigurationHeader).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.nextButton).toBeDisabled();
+    await AdminFirstRunWizard.smtpServerButton.click();
+    await AdminFirstRunWizard.nextButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerTitle).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.smtpServerFields).toHaveCount(8);
+    await AdminFirstRunWizard.configureLaterButton.click();
 
     //PayPal setup part
-    await shopAdmin.expects(firstRunWizardPage.payPalSetupHeader).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.payPalInfoCard).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.payPalPaymethods).toHaveCount(4);
-    await firstRunWizardPage.skipButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.payPalSetupHeader).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.payPalInfoCard).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.payPalPaymethods).toHaveCount(4);
+    await AdminFirstRunWizard.skipButton.click();
 
     //Extensions part
-    await shopAdmin.expects(firstRunWizardPage.extensionsHeader).toBeVisible();
-    await firstRunWizardPage.germanRegionSelector.click();
-    await firstRunWizardPage.toolsSelector.click();
-    await shopAdmin.expects(firstRunWizardPage.toolsRecommendedPlugin).toContainText('Migration Assistant');
-    await shopAdmin.expects(firstRunWizardPage.recommendationHeader).toBeVisible()
-    await firstRunWizardPage.nextButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
+    await AdminFirstRunWizard.germanRegionSelector.click();
+    await AdminFirstRunWizard.toolsSelector.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin).toContainText('Migration Assistant');
+    await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible()
+    await AdminFirstRunWizard.nextButton.click();
 
     //Shopware account part
-    await shopAdmin.expects(firstRunWizardPage.shopwareAccountHeader).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.emailAddressInputField).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.passwordInputField).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.forgotPasswordLink).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.nextButton).toBeVisible();
-    await firstRunWizardPage.skipButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.shopwareAccountHeader).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.emailAddressInputField).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.passwordInputField).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.forgotPasswordLink).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.nextButton).toBeVisible();
+    await AdminFirstRunWizard.skipButton.click();
 
     //Shopware store part
-    await shopAdmin.expects(firstRunWizardPage.shopwareStoreHeader).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.extensionStoreHeading).toBeVisible();
-    await firstRunWizardPage.skipButton.click();
-    await shopAdmin.expects(firstRunWizardPage.frwSuccessText).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.documentationLink).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.forumLink).toBeVisible();
-    await shopAdmin.expects(firstRunWizardPage.roadmapLink).toBeVisible();
-    await firstRunWizardPage.finishButton.click();
-
+    await ShopAdmin.expects(AdminFirstRunWizard.shopwareStoreHeader).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.extensionStoreHeading).toBeVisible();
+    await AdminFirstRunWizard.skipButton.click();
+    await ShopAdmin.expects(AdminFirstRunWizard.frwSuccessText).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.documentationLink).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.forumLink).toBeVisible();
+    await ShopAdmin.expects(AdminFirstRunWizard.roadmapLink).toBeVisible();
+    await AdminFirstRunWizard.finishButton.click();
 });

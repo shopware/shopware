@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -24,13 +26,11 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
         $result = new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
 
@@ -62,13 +62,11 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
         new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
     }
@@ -85,68 +83,20 @@ class AppActionTest extends TestCase
 
         $action = new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
 
         static::assertSame('/api/script/custom-script', $action->getTargetUrl());
     }
 
-    public function testInvalidShopUrl(): void
-    {
-        static::expectException(InvalidArgumentException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my:shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
-        new AppAction(
-            $targetUrl,
-            $shopUrl,
-            $appVersion,
-            $entity,
-            $action,
-            $ids,
-            's3cr3t',
-            $shopId,
-            Uuid::randomHex()
-        );
-    }
-
-    public function testInvalidAppVersion(): void
-    {
-        static::expectException(InvalidArgumentException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = Random::getAlphanumericString(12);
-        $ids = [Uuid::randomHex()];
-        new AppAction(
-            $targetUrl,
-            $shopUrl,
-            $appVersion,
-            $entity,
-            $action,
-            $ids,
-            's3cr3t',
-            $shopId,
-            Uuid::randomHex()
-        );
-    }
-
     public function testEmptyEntity(): void
     {
-        static::expectException(InvalidArgumentException::class);
+        static::expectException(AppException::class);
         $targetUrl = 'https://my-server.com/action';
         $shopUrl = 'https://my-shop.com';
         $appVersion = '1.0.0';
@@ -156,20 +106,18 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
         new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
     }
 
     public function testEmptyAction(): void
     {
-        static::expectException(InvalidArgumentException::class);
+        static::expectException(AppException::class);
         $targetUrl = 'https://my-server.com/action';
         $shopUrl = 'https://my-shop.com';
         $appVersion = '1.0.0';
@@ -179,13 +127,11 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
         new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
     }
@@ -202,20 +148,18 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex(), 'test'];
         new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
     }
 
     public function testInvalidAppSecret(): void
     {
-        static::expectException(InvalidArgumentException::class);
+        static::expectException(AppException::class);
         $targetUrl = 'https://my-server.com/action';
         $shopUrl = 'https://my-shop.com';
         $appVersion = '1.0.0';
@@ -225,36 +169,11 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
         new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $action,
             $ids,
             '',
-            $shopId,
-            Uuid::randomHex()
-        );
-    }
-
-    public function testInvalidShopId(): void
-    {
-        static::expectException(InvalidArgumentException::class);
-        $targetUrl = 'https://my-server.com/action';
-        $shopUrl = 'https://my-shop.com';
-        $appVersion = '1.0.0';
-        $entity = 'product';
-        $action = 'detail';
-        $shopId = '';
-        $ids = [Uuid::randomHex()];
-        new AppAction(
-            $targetUrl,
-            $shopUrl,
-            $appVersion,
-            $entity,
-            $action,
-            $ids,
-            's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
     }

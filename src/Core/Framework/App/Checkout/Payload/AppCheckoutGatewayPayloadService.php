@@ -6,10 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
@@ -27,7 +27,6 @@ class AppCheckoutGatewayPayloadService
         private readonly AppPayloadServiceHelper $helper,
         private readonly Client $client,
         private readonly ExceptionLogger $logger,
-        private readonly string $shopUrl,
     ) {
     }
 
@@ -52,7 +51,7 @@ class AppCheckoutGatewayPayloadService
      */
     private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context): array
     {
-        $payload->setSource($this->helper->buildSource($app, $this->shopUrl));
+        $payload->setSource($this->helper->buildSource($app));
         $encoded = $this->helper->encode($payload);
         $jsonPayload = \json_encode($encoded, \JSON_THROW_ON_ERROR);
 

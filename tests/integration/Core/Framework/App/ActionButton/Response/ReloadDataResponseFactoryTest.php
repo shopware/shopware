@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -30,13 +31,11 @@ class ReloadDataResponseFactoryTest extends TestCase
         $this->factory = $this->getContainer()->get(ReloadDataResponseFactory::class);
         $this->action = new AppAction(
             'http://target.url',
-            'http://shop.url',
-            '1.0.0',
+            new Source('http://shop.url', 'shop-id', '1.0.0'),
             'customer',
             'action-name',
             [Uuid::randomHex(), Uuid::randomHex()],
             'app-secret',
-            'shop-id',
             'action-it'
         );
     }

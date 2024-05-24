@@ -18,7 +18,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -461,11 +462,11 @@ class WebhookDispatcherTest extends TestCase
 
     private function prepareContainer(WebhookEntity $webhookEntity): void
     {
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects(static::once())->method('getShopId')->willReturn('foobar');
+        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->expects(static::once())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
 
         $this->container->set('webhook.repository', new StaticEntityRepository([new WebhookCollection([$webhookEntity])]));
         $this->container->set(AppLocaleProvider::class, $this->createMock(AppLocaleProvider::class));
-        $this->container->set(ShopIdProvider::class, $shopIdProvider);
+        $this->container->set(AppPayloadServiceHelper::class, $appPayloadServiceHelper);
     }
 }

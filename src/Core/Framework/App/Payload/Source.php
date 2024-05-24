@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
+namespace Shopware\Core\Framework\App\Payload;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @method array{url: string, shopId: string, appVersion: string} jsonSerialize()
  */
 #[Package('core')]
 class Source implements \JsonSerializable

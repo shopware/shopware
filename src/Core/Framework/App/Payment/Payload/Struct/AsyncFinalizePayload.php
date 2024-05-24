@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;

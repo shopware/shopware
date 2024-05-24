@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App;
+namespace Shopware\Core\Framework\App\Payload;
 
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -24,16 +24,20 @@ class AppPayloadServiceHelper
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly JsonEntityEncoder $entityEncoder,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly string $shopUrl,
     ) {
     }
 
-    public function buildSource(AppEntity $app, string $shopUrl): Source
+    /**
+     * @throws AppUrlChangeDetectedException
+     */
+    public function buildSource(AppEntity $app): Source
     {
         return new Source(
-            $shopUrl,
+            $this->shopUrl,
             $this->shopIdProvider->getShopId(),
-            $app->getVersion()
+            $app->getVersion(),
         );
     }
 

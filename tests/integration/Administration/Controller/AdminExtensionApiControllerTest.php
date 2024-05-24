@@ -11,7 +11,7 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -46,7 +46,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
         $this->adminExtensionApiController = new AdminExtensionApiController(
             $this->executor,
-            $container->get(ShopIdProvider::class),
+            $container->get(AppPayloadServiceHelper::class),
             $this->appRepository,
             $container->get(QuerySigner::class)
         );

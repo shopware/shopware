@@ -12,7 +12,7 @@
     <services>
         <service id="Shopware\Administration\Controller\AdminExtensionApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Hmac\QuerySigner"/>
 

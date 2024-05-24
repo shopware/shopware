@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\App\ActionButton;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -12,8 +14,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('core')]
 class AppAction
 {
-    private const VERSION_VALIDATE_REGEX = '/^[0-9]+\.[0-9]+\.[0-9]+$/';
-
     /**
      * @var array<string>
      */
@@ -21,17 +21,11 @@ class AppAction
 
     private string $targetUrl;
 
-    private string $appVersion;
-
     private string $entity;
 
     private string $action;
 
-    private string $shopUrl;
-
     private ?string $appSecret;
-
-    private string $shopId;
 
     private string $actionId;
 
@@ -40,23 +34,18 @@ class AppAction
      */
     public function __construct(
         string $targetUrl,
-        string $shopUrl,
-        string $appVersion,
+        private Source $source,
         string $entity,
         string $action,
         array $ids,
         ?string $appSecret,
-        string $shopId,
-        string $actionId
+        string $actionId,
     ) {
         $this->setAction($action);
-        $this->setAppVersion($appVersion);
         $this->setEntity($entity);
         $this->setIds($ids);
-        $this->setShopUrl($shopUrl);
         $this->setTargetUrl($targetUrl);
         $this->setAppSecret($appSecret);
-        $this->setShopId($shopId);
         $this->setActionId($actionId);
     }
 
@@ -71,11 +60,7 @@ class AppAction
     public function asPayload(): array
     {
         return [
-            'source' => [
-                'url' => $this->shopUrl,
-                'appVersion' => $this->appVersion,
-                'shopId' => $this->shopId,
-            ],
+            'source' => $this->source->jsonSerialize(),
             'data' => [
                 'ids' => $this->ids,
                 'entity' => $this->entity,
@@ -89,19 +74,10 @@ class AppAction
         return $this->appSecret;
     }
 
-    public function setShopId(string $shopId): void
-    {
-        if ($shopId === '') {
-            throw new InvalidArgumentException('shop id must not be empty');
-        }
-
-        $this->shopId = $shopId;
-    }
-
     public function setActionId(string $actionId): void
     {
         if ($actionId === '') {
-            throw new InvalidArgumentException('action id must not be empty');
+            throw AppException::missingRequestParameter('action id');
         }
 
         $this->actionId = $actionId;
@@ -134,18 +110,10 @@ class AppAction
         $this->targetUrl = $targetUrl;
     }
 
-    private function setAppVersion(string $appVersion): void
-    {
-        if (!preg_match(self::VERSION_VALIDATE_REGEX, $appVersion)) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid version', $appVersion));
-        }
-        $this->appVersion = $appVersion;
-    }
-
     private function setEntity(string $entity): void
     {
         if ($entity === '') {
-            throw new InvalidArgumentException('entity name cannot be empty');
+            throw AppException::missingRequestParameter('entity');
         }
         $this->entity = $entity;
     }
@@ -153,23 +121,15 @@ class AppAction
     private function setAction(string $action): void
     {
         if ($action === '') {
-            throw new InvalidArgumentException('action name cannot be empty');
+            throw AppException::missingRequestParameter('action');
         }
         $this->action = $action;
-    }
-
-    private function setShopUrl(string $shopUrl): void
-    {
-        if (!filter_var($shopUrl, \FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid url', $shopUrl));
-        }
-        $this->shopUrl = $shopUrl;
     }
 
     private function setAppSecret(?string $appSecret): void
     {
         if ($appSecret === '') {
-            throw new InvalidArgumentException('app secret must not be empty');
+            throw AppException::missingRequestParameter('app secret');
         }
 
         $this->appSecret = $appSecret;

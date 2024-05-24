@@ -71,12 +71,13 @@ create_deployment_branch() {
 
     local latest_succeeded_pipeline_sha
 
-    if ! latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} ${base_branch})"; then
-        echo "No latest succeeded pipeline found for branch ${base_branch}."
-        return 1
-    fi
+    # we reference the latest pipeline in the saas MR instead, so the teams themself can decide if it's problematic
+    # if ! latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} ${base_branch})"; then
+    #     echo "No latest succeeded pipeline found for branch ${base_branch}."
+    #     return 1
+    # fi
 
-    create_branch "${project_path}" "${deployment_branch_name}" "${latest_succeeded_pipeline_sha}"
+    create_branch "${project_path}" "${deployment_branch_name}" "${base_branch}"
 }
 
 "$@"

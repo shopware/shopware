@@ -61,6 +61,19 @@ commit_date() {
   glab api "projects/${project}/repository/commits/${branch}" | jq -r '.committed_date' | xargs -I '{}' date -R --date="{}"
 }
 
+get_latest_pipeline_web_url() {
+    local project_path="${1}"
+    local branch="${2}"
+
+    if [ "${branch}" = "" ]; then
+        return 1
+    fi
+
+    curl -sSf -X GET -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H "Content-Type: text/plain" \
+        "${CI_API_V4_URL}/projects/${project_path}/pipelines/latest?ref=${branch}" \
+        | jq .web_url -r
+}
+
 gitlab_mr_description() {
   local deployment_branch_name="$(deployment_branch_name)"
   local deployment_branch_name_url_encoded=$(echo "${deployment_branch_name}" | sed 's/\//%2F/g')
@@ -72,11 +85,11 @@ This MR has been created automatically to facilitate the deployment <em>${deploy
 Please review the changes and merge this MR if you are satisfied with the deployment.
 </p>
 <p>
-For the core dependencies, the dates of the latest commits on the branches are as follows, please watch out for suspiciously old commits 👀
+For the core dependencies, the dates of the latest commits on the branches are as follows, please make sure that all pipelines are green! 👀
 <ul>
-<li><span>shopware/platform: <b>$(commit_date "shopware%2F6%2Fproduct%2Fplatform" "${deployment_branch_name_url_encoded}")</b></span></li>
-<li><span>shopware/commercial: <b>$(commit_date "shopware%2F6%2Fproduct%2Fcommercial" "${deployment_branch_name_url_encoded}")</b></span></li>
-<li><span>swag/saas-rufus: <b>$(commit_date "shopware%2F6%2Fproduct%2Frufus" "${deployment_branch_name_url_encoded}")</b></span></li>
+<li><span>shopware/platform: <b>$(commit_date "shopware%2F6%2Fproduct%2Fplatform" "${deployment_branch_name_url_encoded}")</b>(Pipeline: $(get_latest_pipeline_web_url "shopware%2F6%2Fproduct%2Fplatform" "${deployment_branch_name_url_encoded}"))</span></li>
+<li><span>shopware/commercial: <b>$(commit_date "shopware%2F6%2Fproduct%2Fcommercial" "${deployment_branch_name_url_encoded}")</b>(Pipeline: $(get_latest_pipeline_web_url "shopware%2F6%2Fproduct%2Fcommercial" "${deployment_branch_name_url_encoded}"))</span></li>
+<li><span>swag/saas-rufus: <b>$(commit_date "shopware%2F6%2Fproduct%2Frufus" "${deployment_branch_name_url_encoded}")</b>(Pipeline: $(get_latest_pipeline_web_url "shopware%2F6%2Fproduct%2Frufus" "${deployment_branch_name_url_encoded}"))</span></li>
 </ul>
 </p>
 <hr/>
@@ -92,7 +105,7 @@ deployment_env() {
   local gitlab_mr_description="$(gitlab_mr_description)"
   local custom_version=""
   local gitlab_mr_title="Deployment - ${deployment_branch_name}"
-  local gitlab_mr_labels="workflow::development"
+  local gitlab_mr_labels="pipeline:autodeploy"
   local gitlab_mr_assignees="shopwarebot"
 
   if [ -n "${update_extensions}" ]; then

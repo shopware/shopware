@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\Plugin;
 use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
+use League\Flysystem\FilesystemWriter;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -39,6 +42,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -51,6 +55,9 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -82,6 +89,9 @@ class PluginLifecycleService
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
+        private readonly KernelInterface $kernel,
+        private readonly KernelPluginLoader $pluginLoader,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
     }
 
@@ -193,6 +203,8 @@ class PluginLifecycleService
         if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
             $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
         }
+
+        $this->clearFilesystems($pluginBaseClassString);
 
         $pluginBaseClass->uninstall($uninstallContext);
 
@@ -649,5 +661,94 @@ class PluginLifecycleService
         $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
 
         return true;
+    }
+
+    private function clearFilesystems(string $bundleName): void
+    {
+        try {
+            $bundle = $this->getBundle($bundleName);
+            $this->clearFilesystem($bundle);
+
+            if ($bundle instanceof Plugin) {
+                $dependencyList = [];
+
+                foreach ($this->kernel->getBundles() as $kernelBundle) {
+                    if ($kernelBundle instanceof Plugin) {
+                        foreach ($this->getAdditionalBundles($kernelBundle) as $additionalBundle) {
+                            $dependencyList[$additionalBundle->getName()][] = $kernelBundle->getName();
+                        }
+                    }
+                }
+
+                foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                    // additionalBundle is required by other plugins than just bundle? better skip
+                    if (($dependencyList[$additionalBundle->getName()] ?? []) !== [$bundle->getName()]) {
+                        continue;
+                    }
+
+                    if (!$additionalBundle instanceof Bundle) {
+                        continue;
+                    }
+
+                    $this->clearFilesystem($additionalBundle);
+                }
+            }
+        } catch (PluginNotFoundException) {
+            // plugin is already unloaded, we cannot find it. Ignore it
+        }
+    }
+
+    public function clearFilesystem(Bundle $bundle): void
+    {
+        $container = $this->kernel->getContainer();
+
+        foreach (['public', 'private'] as $filesystemType) {
+            $containerPrefix = $bundle->getContainerPrefix();
+            $parameterKey = sprintf('shopware.filesystem.%s', $filesystemType);
+            $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $filesystemType);
+
+            if (!$container->has($serviceId)) {
+                continue;
+            }
+
+            $filesystem = $container->get($serviceId);
+
+            if ($filesystem instanceof FilesystemWriter) {
+                $filesystem->deleteDirectory('/');
+            }
+        }
+    }
+
+    /**
+     * @return array<BundleInterface>
+     */
+    private function getAdditionalBundles(Plugin $bundle): array
+    {
+        $params = new AdditionalBundleParameters(
+            $this->pluginLoader->getClassLoader(),
+            $this->pluginLoader->getPluginInstances(),
+            $this->parameterBag->all()
+        );
+
+        return $bundle->getAdditionalBundles($params);
+    }
+
+
+    /**
+     * @throws PluginNotFoundException
+     */
+    private function getBundle(string $bundleName): BundleInterface
+    {
+        try {
+            $bundle = $this->kernel->getBundle($bundleName);
+        } catch (\InvalidArgumentException) {
+            $bundle = $this->pluginLoader->getPluginInstances()->get($bundleName);
+        }
+
+        if ($bundle === null) {
+            throw new PluginNotFoundException($bundleName);
+        }
+
+        return $bundle;
     }
 }

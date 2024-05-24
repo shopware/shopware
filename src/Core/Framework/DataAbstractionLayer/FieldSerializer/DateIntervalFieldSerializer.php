@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -25,7 +25,7 @@ class DateIntervalFieldSerializer extends AbstractFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof DateIntervalField) {
+        if (!$field instanceof StorageAware) {
             throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
         }
 

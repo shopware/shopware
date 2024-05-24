@@ -63,7 +63,7 @@ abstract class EntityDefinition
 
     private ?FieldVisibility $fieldVisibility = null;
 
-    final public function __construct()
+    public function __construct()
     {
         $this->className = static::class;
     }

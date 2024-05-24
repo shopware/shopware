@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -514,11 +515,15 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 // otherwise the data will be assigned directly as properties
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
+            if (!$association->is(Inherited::class) || \count($structData) > 0 || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -533,6 +538,11 @@ class EntityReader implements EntityReaderInterface
 
                 continue;
             }
+
+            if ($association->is(AsArray::class)) {
+                $structData = $structData->getElements();
+            }
+
             $entity->assign([$association->getPropertyName() => $structData]);
         }
     }
@@ -622,10 +632,14 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
 
-            if (!$association->is(Inherited::class) || $structData->count() > 0 || !$context->considerInheritance()) {
+            if (!$association->is(Inherited::class) || \count($structData) || !$context->considerInheritance()) {
                 continue;
             }
 
@@ -644,6 +658,10 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -695,6 +713,10 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }
@@ -855,6 +877,10 @@ class EntityReader implements EntityReaderInterface
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
+                if ($association->is(AsArray::class)) {
+                    $structData = $structData->getElements();
+                }
+
                 $struct->assign([$association->getPropertyName() => $structData]);
             }
         }

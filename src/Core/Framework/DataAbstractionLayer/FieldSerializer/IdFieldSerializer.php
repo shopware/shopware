@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -39,8 +39,8 @@ class IdFieldSerializer extends AbstractFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof IdField) {
-            throw DataAbstractionLayerException::invalidSerializerField(IdField::class, $field);
+        if (!$field instanceof StorageAware) {
+            throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
         }
 
         $value = $data->getValue();

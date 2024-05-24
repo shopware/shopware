@@ -43,6 +43,7 @@ class DataAbstractionLayerException extends HttpException
     public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
+    public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -390,5 +391,15 @@ class DataAbstractionLayerException extends HttpException
     public static function missingTranslation(string $path, int $index): self
     {
         return new MissingTranslationLanguageException($path, $index);
+    }
+
+    public static function canNotFindAttribute(string $attribute, string $property): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ATTRIBUTE_NOT_FOUND,
+            'Can not find attribute "{{ attribute }}" for property {{ property }}',
+            ['attribute' => $attribute, 'property' => $property]
+        );
     }
 }

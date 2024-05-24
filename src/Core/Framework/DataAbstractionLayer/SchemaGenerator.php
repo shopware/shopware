@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -148,6 +149,7 @@ EOL;
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
             case $field instanceof ListField:
+            case $field instanceof SerializedField:
             case $field instanceof JsonField:
                 $type = 'JSON';
 

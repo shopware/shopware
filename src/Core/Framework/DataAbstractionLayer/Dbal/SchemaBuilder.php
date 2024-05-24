@@ -54,6 +54,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -95,7 +96,7 @@ class SchemaBuilder
         DateTimeField::class => Types::DATETIME_MUTABLE,
 
         DateField::class => Types::DATE_MUTABLE,
-
+        SerializedField::class => Types::JSON,
         CartPriceField::class => Types::JSON,
         CalculatedPriceField::class => Types::JSON,
         PriceField::class => Types::JSON,

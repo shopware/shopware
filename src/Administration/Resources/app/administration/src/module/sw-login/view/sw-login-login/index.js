@@ -44,6 +44,8 @@ Component.register('sw-login-login', {
         loginUserWithPassword() {
             this.$emit('is-loading');
 
+            this.loginService.setRememberMe(this.rememberMe);
+
             return this.loginService.loginByUsername(this.username, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
@@ -58,8 +60,6 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
-            this.handleRememberMe();
-
             this.password = '';
 
             this.$emit('login-success');
@@ -84,17 +84,6 @@ Component.register('sw-login-login', {
                     window.location.reload(true);
                 }
             });
-        },
-
-        handleRememberMe() {
-            if (!this.rememberMe) {
-                return;
-            }
-
-            const duration = new Date();
-            duration.setDate(duration.getDate() + 14);
-
-            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

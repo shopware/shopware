@@ -109,6 +109,8 @@ Component.register('sw-inactivity-login', {
         loginUserWithPassword() {
             this.isLoading = true;
 
+            this.loginService.setRememberMe(this.rememberMe);
+
             return this.loginService.loginByUsername(this.lastKnownUser, this.password)
                 .then(() => {
                     this.handleLoginSuccess();
@@ -126,22 +128,9 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
-            this.handleRememberMe();
-
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
-        },
-
-        handleRememberMe() {
-            if (!this.rememberMe) {
-                return;
-            }
-
-            const duration = new Date();
-            duration.setDate(duration.getDate() + 14);
-
-            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

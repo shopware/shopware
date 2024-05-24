@@ -92,7 +92,7 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
     return cy.fixture('customer').then((result) => {
         customerJson = Cypress._.merge(result, userData);
 
-        return cy.fixture('customer-address')
+        return cy.fixture('customer-address');
     }).then((result) => {
         customerAddressJson = result;
 
@@ -100,8 +100,8 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             endpoint: 'country',
             data: {
                 field: 'iso',
-                value: 'DE'
-            }
+                value: 'DE',
+            },
         });
     }).then((result) => {
         countryId = result.id;
@@ -110,8 +110,8 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             endpoint: 'payment-method',
             data: {
                 field: 'name',
-                value: 'Invoice'
-            }
+                value: 'Invoice',
+            },
         });
     }).then((result) => {
         paymentId = result.id;
@@ -120,8 +120,8 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             endpoint: 'sales-channel',
             data: {
                 field: 'name',
-                value: 'Storefront'
-            }
+                value: 'Storefront',
+            },
         });
     }).then((result) => {
         salesChannelId = result.id;
@@ -130,8 +130,8 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             endpoint: 'customer-group',
             data: {
                 field: 'name',
-                value: 'Standard customer group'
-            }
+                value: 'Standard customer group',
+            },
         });
     }).then((result) => {
         groupId = result.id;
@@ -140,8 +140,8 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             endpoint: 'salutation',
             data: {
                 field: 'displayName',
-                value: 'Mr.'
-            }
+                value: 'Mr.',
+            },
         });
     }).then((salutation) => {
         salutationId = salutation.id;
@@ -149,21 +149,21 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
         let first = true;
         finalAddressRawData = {
             addresses: customerAddressJson.addresses.map((a) => {
-                let addrId;;
+                let addrId;
                 if (first) {
                     addrId = addressId;
                     first = false;
                 } else {
                     addrId = uuid().replace(/-/g, '');
                 }
-                cy.log(a.firstName)
+                cy.log(a.firstName);
                 return Cypress._.merge({
                     customerId: customerId,
                     salutationId: salutationId,
                     id: addrId,
-                    countryId: countryId
-                }, a)
-            })
+                    countryId: countryId,
+                }, a);
+            }),
         };
     }).then(() => {
         return Cypress._.merge(customerJson, {
@@ -172,14 +172,14 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
             salesChannelId: salesChannelId,
             groupId: groupId,
             defaultBillingAddressId: addressId,
-            defaultShippingAddressId: addressId
+            defaultShippingAddressId: addressId,
         });
     }).then((result) => {
         return Cypress._.merge(result, finalAddressRawData);
     }).then((result) => {
         return cy.requestAdminApiStorefront({
             endpoint: 'customer',
-            data: result
+            data: result,
         });
     });
 });
@@ -233,14 +233,14 @@ Cypress.Commands.add('setSalesChannel', (salesChannel) => {
 Cypress.Commands.add('setShippingMethod', (shippingMethod, gross, net) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
-        method: 'POST'
+        method: 'POST',
     }).as('set-shipping');
 
     cy.contains(shippingMethod).should('be.visible').click();
     cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
     cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
         'Always valid (Default)',
-        '.sw-settings-shipping-detail__top-rule'
+        '.sw-settings-shipping-detail__top-rule',
     );
     cy.get('.sw-settings-shipping-price-matrix').scrollIntoView();
     cy.get('.sw-data-grid__cell--price-EUR .sw-field--small:nth-of-type(1) [type]').clearTypeAndCheck(gross);
@@ -259,14 +259,14 @@ Cypress.Commands.add('setShippingMethod', (shippingMethod, gross, net) => {
 Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/payment-method`,
-        method: 'POST'
+        method: 'POST',
     }).as('set-payment');
 
     cy.get(".sw-payment-card").contains(paymentMethod).get("a").contains("Details bewerken").click();
     cy.get('.sw-settings-payment-detail__condition_container').scrollIntoView();
     cy.get('.sw-settings-payment-detail__field-availability-rule').typeSingleSelectAndCheck(
         'Always valid (Default)',
-        '.sw-settings-payment-detail__field-availability-rule'
+        '.sw-settings-payment-detail__field-availability-rule',
     );
     cy.get('.sw-payment-detail__save-action').should('be.visible').click();
     cy.wait('@set-payment').its('response.statusCode').should('equal', 200);
@@ -282,11 +282,11 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
 Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/country`,
-        method: 'POST'
+        method: 'POST',
     }).as('country');
 
     cy.get('.sw-sales-channel-detail__select-countries').then(($body) => {
@@ -324,14 +324,14 @@ Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
 Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
     cy.intercept('POST', `**/${Cypress.env('apiPath')}/search/payment-method`, (req) => {
-        const { body } = req
+        const { body } = req;
         if (body.hasOwnProperty('term') && body.term === paymentMethod) {
             req.alias = 'payment-method-search-for';
         } else {
-            req.alias = 'payment-method'
+            req.alias = 'payment-method';
         }
     });
     cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
@@ -368,14 +368,14 @@ Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
 Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
     cy.intercept('POST', `**/${Cypress.env('apiPath')}/search/shipping-method`, (req) => {
-        const { body } = req
+        const { body } = req;
         if (body.hasOwnProperty('term') && body.term === shippingMethod) {
             req.alias = 'shipping-method-search-for';
         } else {
-            req.alias = 'shipping-method'
+            req.alias = 'shipping-method';
         }
     });
     cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
@@ -416,11 +416,11 @@ Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => 
 Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/currency`,
-        method: 'POST'
+        method: 'POST',
     }).as('currency');
 
     cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
@@ -461,11 +461,11 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
 Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/language`,
-        method: 'POST'
+        method: 'POST',
     }).as('language');
 
     cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
@@ -505,7 +505,7 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
     // Hide version information, as it could change
     cy.changeElementStyling(
         '.sw-version__info',
-        'visibility: hidden'
+        'visibility: hidden',
     );
 
     if (Cypress.env('testBase') === 'Update') {
@@ -518,11 +518,11 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
             // Hide notifications for visual testing
             cy.changeElementStyling(
                 '.sw-notification__alert',
-                'display: none'
+                'display: none',
             );
         }
-    })
-    cy.log('Admin successfully prepared for percy usage!')
+    });
+    cy.log('Admin successfully prepared for percy usage!');
 });
 
 /**
@@ -534,7 +534,7 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
 Cypress.Commands.add('resetAdminChangesForScreenshot', () => {
     cy.changeElementStyling(
         '.sw-version__info',
-        'visibility: visible'
+        'visibility: visible',
     );
 
     // Find all open ".sw-alert--notification" and close them
@@ -542,7 +542,7 @@ Cypress.Commands.add('resetAdminChangesForScreenshot', () => {
         if ($alerts.length) {
             cy.changeElementStyling(
                 '.sw-notification__alert',
-                'display: block'
+                'display: block',
             );
 
             cy.get('.sw-alert--notification .sw-alert__close').click({ multiple: true });
@@ -625,7 +625,7 @@ Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], ov
             points: 5,
             title: "Profit!",
         },
-        ...additionalReviews
+        ...additionalReviews,
     ];
 
     const productReviews = overwriteReviews ? additionalReviews : fixtureReviews;
@@ -640,8 +640,8 @@ Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], ov
             endpoint: 'sales-channel',
             data: {
                 field: 'name',
-                value: 'Storefront'
-            }
+                value: 'Storefront',
+            },
         });
     }).then((response) => {
         salesChannelId = response.id;
@@ -653,12 +653,12 @@ Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], ov
             headers: {
                 Accept: 'application/vnd.api+json',
                 Authorization: `Bearer ${result.access}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             method: 'POST',
             url: '/api/_action/sync',
             qs: {
-                response: true
+                response: true,
             },
             body: {
                 'write-product_review': {
@@ -670,12 +670,12 @@ Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], ov
                             ...{
                                 productId: productId,
                                 salesChannelId: salesChannelId,
-                                status: true
-                            }
+                                status: true,
+                            },
                         };
-                    })
-                }
-            }
+                    }),
+                },
+            },
         });
     }).then((reviews) => {
         // Return created product and reviews for further processing
@@ -763,15 +763,15 @@ Cypress.Commands.add('authenticate', ({ username, password, scopes, id } = {} ) 
                     client_id: Cypress.env('client_id') ? Cypress.env('client_id') : 'administration',
                     scope: scopes || (Cypress.env('scope') ? Cypress.env('scope') : 'write'),
                     username: user,
-                    password: password || Cypress.env('password') || Cypress.env('pass') || 'shopware'
-                }
+                    password: password || Cypress.env('password') || Cypress.env('pass') || 'shopware',
+                },
             ).then((responseData) => {
                 let result = responseData.body;
                 result.access = result.access_token;
                 result.refresh = result.refresh_token;
-                result.expiry = Math.round(+new Date() / 1000) + result.expires_in;
+                result.expiry = Math.round(Date.now() + (result.expires_in * 1000));
 
-                cy.log('request /api/oauth/token')
+                cy.log('request /api/oauth/token');
                 cy.log('cookieValue:', result);
 
                 cy.setCookie(
@@ -779,8 +779,8 @@ Cypress.Commands.add('authenticate', ({ username, password, scopes, id } = {} ) 
                     `${Math.round(+new Date() / 1000)}`,
                     {
                         path: Cypress.env('admin'),
-                        sameSite: "strict"
-                    }
+                        sameSite: "strict",
+                    },
                 );
 
                 return cy.setCookie(
@@ -788,8 +788,8 @@ Cypress.Commands.add('authenticate', ({ username, password, scopes, id } = {} ) 
                     JSON.stringify(result),
                     {
                         path: Cypress.env('admin'),
-                        sameSite: "strict"
-                    }
+                        sameSite: "strict",
+                    },
                 );
             });
         },
@@ -805,12 +805,12 @@ Cypress.Commands.add('authenticate', ({ username, password, scopes, id } = {} ) 
                         url: '/api/_info/version',
                         failOnStatusCode: true,
                         headers: {
-                            Authorization: `Bearer ${cookieValue && cookieValue.access}`
+                            Authorization: `Bearer ${cookieValue && cookieValue.access}`,
                         },
                     }).then(() => true);
                 });
             },
-        }
+        },
     );
 
     return cy.getBearerAuth();
@@ -852,7 +852,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                             return privilegesService.getPrivilegesForAdminPrivilegeKeys(adminPrivileges);
                         })(),
                     },
-                })
+                });
 
                 // save user
                 cy.request({
@@ -870,7 +870,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                         password,
                         username,
                     },
-                })
+                });
                 // We need to wait so that last_updated_password_at isn't the same as the token issue timestamp.
                 // Otherwise, the token is considered to be revoked for security reasons, because the password was changed
                 // after the token was issued.

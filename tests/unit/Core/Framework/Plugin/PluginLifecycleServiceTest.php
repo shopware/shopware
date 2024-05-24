@@ -46,6 +46,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -110,6 +111,15 @@ class PluginLifecycleServiceTest extends TestCase
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
         );
+    }
+
+    public function testGetSubscribedEvents(): void
+    {
+        $subscribedEvents = PluginLifecycleService::getSubscribedEvents();
+
+        static::assertCount(1, $subscribedEvents);
+        static::assertArrayHasKey(KernelEvents::RESPONSE, $subscribedEvents);
+        static::assertEquals(['onResponse', \PHP_INT_MIN], $subscribedEvents[KernelEvents::RESPONSE]);
     }
 
     // +++++ InstallPlugin method ++++
@@ -679,6 +689,38 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
 
         static::assertCount(2, $this->eventDispatcher->getEvents());
+    }
+
+    public function testOnResponseWithoutPluginMarkedForDelete(): void
+    {
+        $this->commandExecutor->expects(static::never())->method('remove');
+        $this->pluginServiceMock->expects(static::never())->method('refreshPlugins');
+
+        $this->pluginLifecycleService->onResponse();
+    }
+
+    public function testOnResponseWithPluginMarkedForDelete(): void
+    {
+        $context = Context::createDefaultContext();
+
+        \Closure::bind(function () use ($context): void {
+            $plugin = (new PluginEntity())->assign(['name' => 'MockPlugin', 'composerName' => 'MockPluginComposerName']);
+
+            self::$pluginToBeDeleted = [
+                'plugin' => $plugin,
+                'context' => $context,
+            ];
+        }, $this->pluginLifecycleService, $this->pluginLifecycleService)();
+
+        $this->commandExecutor->expects(static::once())
+            ->method('remove')
+            ->with('MockPluginComposerName', 'MockPlugin');
+
+        $this->pluginServiceMock->expects(static::once())
+            ->method('refreshPlugins')
+            ->with($context);
+
+        $this->pluginLifecycleService->onResponse();
     }
 
     private function getPluginEntityMock(): PluginEntity

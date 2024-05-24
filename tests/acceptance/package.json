@@ -1,10 +1,9 @@
 {
-  "name": "shopware-acceptance-test-suite",
+  "name": "platform-acceptance-test-suite",
   "version": "1.0.0",
   "private": true,
   "bin": {
-    "createTask": "./bin/createTask.js",
-    "createPage": "./bin/createPage.js"
+    "createTask": "./bin/createTask.js"
   },
   "scripts": {
     "lint": "eslint . --ext .ts",
@@ -12,10 +11,11 @@
   },
   "keywords": [],
   "author": "shopware AG",
-  "license": "ISC",
+  "license": "MIT",
+  "type": "module",
   "devDependencies": {
-    "@playwright/test": "~1.44.0",
     "@types/uuid": "^9.0.2",
+    "@types/node": "^20.6.5",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^6.7.2",
     "dotenv": "^16.3.1",
@@ -24,9 +24,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@shopware/api-client": "^0.0.0-canary-20230823113412",
-    "@types/node": "^20.6.5",
-    "image-js": "^0.35.5",
-    "uuid": "^9.0.0"
+    "@playwright/test": "1.44.0",
+    "@shopware-ag/acceptance-test-suite": "1.1.4",
+    "@shopware/api-client": "^0.0.0-canary-20230823113412"
   }
 }

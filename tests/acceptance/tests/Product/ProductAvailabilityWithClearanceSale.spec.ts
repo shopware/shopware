@@ -1,154 +1,155 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Product should be added to the cart if stock:1 and clearance-sale:true. @product @priority1', async ({
-    shopCustomer,
-    productData,
-    adminApiContext,
-    productDetailPage,
+    ShopCustomer,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
     AddProductToCart,
 }) => {
 
     await test.step('Set the stock of the product to 1 and the clearance sale to true.', async () => {
-        const productId = productData.id;
-        const editProductResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const productId = ProductData.id;
+        const editProductResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 1,
                 isCloseout: true,
             },
         });
 
-        await expect(editProductResponse.ok()).toBeTruthy();
+        expect(editProductResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.attemptsTo(AddProductToCart(productData));
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData));
 
 });
 
 test('Product should not be added to the cart if stock:0 and clearance-sale:true. @product @priority1', async ({
-    shopCustomer,
-    productData,
-    adminApiContext,
-    productDetailPage,
+    ShopCustomer,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
 }) => {
 
-    const productId = productData.id;
+    const productId = ProductData.id;
     await test.step('Set the stock of the product to 0 and the clearance sale to true.', async () => {
-        const editProductResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const editProductResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 0,
                 isCloseout: true,
             },
         });
 
-        await expect(editProductResponse.ok()).toBeTruthy();
+        expect(editProductResponse.ok()).toBeTruthy();
     })
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.expects(productDetailPage.addToCartButton).toBeHidden();
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeHidden();
 
 });
 
 test('Product should be added to the cart if stock:0 and clearance-sale:false. @product @priority1', async ({
-    shopCustomer,
-    productData,
-    adminApiContext,
-    productDetailPage,
+    ShopCustomer,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
     AddProductToCart,
 }) => {
 
     await test.step('Set the stock of the product to 0 and the clearance sale to false.', async () => {
-        const productId = productData.id;
-        const editProductResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const productId = ProductData.id;
+        const editProductResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 0,
                 isCloseout: false,
             },
         });
 
-        await expect(editProductResponse.ok()).toBeTruthy();
+        expect(editProductResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.attemptsTo(AddProductToCart(productData));
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData));
 
 });
 
 test('Product should be removed from existing cart if stock:0 and cleareance-sale is changed to true. @product @priority1', async ({
-    shopCustomer,
-    productData,
-    adminApiContext,
-    productDetailPage,
+    ShopCustomer,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
     AddProductToCart,
-    checkoutCartPage,
+    StorefrontCheckoutCart,
 }) => {
 
-    const productId = productData.id;
+    const productId = ProductData.id;
     await test.step('Set stock 0 and the clearance-sale to false.', async () => {
-        const changeClearanceSaleResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const changeClearanceSaleResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 0,
                 isCloseout: false,
             },
         });
 
-        await expect(changeClearanceSaleResponse.ok()).toBeTruthy();
+        expect(changeClearanceSaleResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.attemptsTo(AddProductToCart(productData));
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData));
 
     await test.step('Set the clearance sale to true.', async () => {
-        const productId = productData.id;
-        const editProductResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const productId = ProductData.id;
+        const editProductResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 isCloseout: true,
             },
         });
 
-        await expect(editProductResponse.ok()).toBeTruthy();
+        expect(editProductResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(checkoutCartPage);
-    await shopCustomer.expects(checkoutCartPage.emptyCartAlert).toBeVisible();
+    await ShopCustomer.goesTo(StorefrontCheckoutCart);
+    await ShopCustomer.expects(StorefrontCheckoutCart.emptyCartAlert).toBeVisible();
 
 });
 
 test('Stock reached message should be displayed if stock is changed to 1 and clearance-sale:active after adding 2 products to the cart. @product @priority1', async ({
-    shopCustomer,
-    productData,
-    adminApiContext,
-    productDetailPage,
-    checkoutCartPage,
+    ShopCustomer,
+    ProductData,
+    AdminApiContext,
+    StorefrontProductDetail,
+    StorefrontCheckoutCart,
     AddProductToCart,
 }) => {
 
-    const productId = productData.id;
+    const productId = ProductData.id;
     await test.step('Set the stock of the product to 2 and the clearance sale to active.', async () => {
-        const editProductResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const editProductResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 2,
                 isCloseout: true,
             },
         });
-        await expect(editProductResponse.ok()).toBeTruthy();
+
+        expect(editProductResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.attemptsTo(AddProductToCart(productData, '2'));
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '2'));
 
     await test.step('Set the stock of the product to 1.', async () => {
-        const changeStockResponse = await adminApiContext.patch(`./product/${productId}`, {
+        const changeStockResponse = await AdminApiContext.patch(`./product/${productId}`, {
             data: {
                 stock: 1,
             },
         });
 
-        await expect(changeStockResponse.ok()).toBeTruthy();
+        expect(changeStockResponse.ok()).toBeTruthy();
     });
 
-    await shopCustomer.goesTo(checkoutCartPage);
+    await ShopCustomer.goesTo(StorefrontCheckoutCart);
 
-    await shopCustomer.expects(checkoutCartPage.stockReachedAlert).toContainText(productData.name);
-    await shopCustomer.expects(checkoutCartPage.grandTotalPrice).toHaveText('€10.00*');
+    await ShopCustomer.expects(StorefrontCheckoutCart.stockReachedAlert).toContainText(ProductData.name);
+    await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toHaveText('€10.00*');
 });

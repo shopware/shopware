@@ -1,46 +1,37 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Journey: Customer gets a special product price depending on the amount of products bought. @journey @checkout', async ({
-    shopCustomer,
-    checkoutCartPage,
-    productData,
-    productDetailPage,
+    ShopCustomer,
+    AdminApiContext,
+    SalesChannelBaseConfig,
+    ProductData,
+    StorefrontCheckoutCart,
+    StorefrontProductDetail,
     AddProductToCart,
-    adminApiContext,
-    storeBaseConfig,
+}) => {
 
-    }) => {
-    test.info().annotations.push({
-        type: 'Description',
-        description:
-            'This scenario tests if a certain product price, which depends on the quantity bought, can be actualized.',
-    });
-
-    const ruleResponse = await adminApiContext.post('./search/rule', {
+    const ruleResponse = await AdminApiContext.post('./search/rule', {
         data: {
             limit: 1,
-            filter: [
-                {
-                    type: 'equals',
-                    field: 'name',
-                    value: 'Cart >= 0',
-                },
-            ],
+            filter: [{
+                type: 'equals',
+                field: 'name',
+                value: 'Cart >= 0',
+            }],
         },
     });
-
-    await expect(ruleResponse.ok()).toBeTruthy();
+    expect(ruleResponse.ok()).toBeTruthy();
 
     const ruleResponseJson = await ruleResponse.json();
 
     const rule = ruleResponseJson.data[0]
 
-    const priceResponse = await adminApiContext.post('./product-price', {
+    const priceResponse = await AdminApiContext.post('./product-price', {
         data: {
-            productId: productData.id,
+            productId: ProductData.id,
             ruleId: rule.id,
             price: [{
-                currencyId: storeBaseConfig.eurCurrencyId,
+                currencyId: SalesChannelBaseConfig.eurCurrencyId,
                 gross: 99.99,
                 linked: false,
                 net: 84.03,
@@ -49,14 +40,14 @@ test('Journey: Customer gets a special product price depending on the amount of 
             quantityEnd: 10,
         },
     });
+    expect(priceResponse.ok()).toBeTruthy();
 
-    await expect(priceResponse.ok()).toBeTruthy();
-    const priceResponseAdvanced = await adminApiContext.post('./product-price', {
+    const priceResponseAdvanced = await AdminApiContext.post('./product-price', {
         data: {
-            productId: productData.id,
+            productId: ProductData.id,
             ruleId: rule.id,
             price: [{
-                currencyId: storeBaseConfig.eurCurrencyId,
+                currencyId: SalesChannelBaseConfig.eurCurrencyId,
                 gross: 89.99,
                 linked: false,
                 net: 75.62,
@@ -64,12 +55,9 @@ test('Journey: Customer gets a special product price depending on the amount of 
             quantityStart: 11,
         },
     });
+    expect(priceResponseAdvanced.ok()).toBeTruthy();
 
-    await expect(priceResponseAdvanced.ok()).toBeTruthy();
-
-    await shopCustomer.goesTo(productDetailPage);
-    await shopCustomer.attemptsTo(AddProductToCart(productData, '12'));
-    await shopCustomer.expects(checkoutCartPage.unitPriceInfo).toContainText('€89.99*')
-
+    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '12'));
+    await ShopCustomer.expects(StorefrontCheckoutCart.unitPriceInfo).toContainText('€89.99*')
 });
-

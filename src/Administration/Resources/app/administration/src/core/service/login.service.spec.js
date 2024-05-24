@@ -42,7 +42,7 @@ describe('core/service/login.service.js', () => {
         const mockDate = new Date(1577881800000);
         jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
 
-        Date.now = jest.fn(() => 1577876400);
+        Date.now = jest.fn(() => +mockDate);
     });
 
     beforeEach(() => {
@@ -77,7 +77,7 @@ describe('core/service/login.service.js', () => {
         });
 
         expect(auth).toEqual({
-            expiry: 1577882100,
+            expiry: Date.now() + 300 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
@@ -97,7 +97,7 @@ describe('core/service/login.service.js', () => {
         const auth = await loginService.loginByUsername('admin', 'shopware');
 
         expect(auth).toEqual({
-            expiry: 1577882400,
+            expiry: Date.now() + 600 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });
@@ -162,7 +162,7 @@ describe('core/service/login.service.js', () => {
         const bearerAuthentication = loginService.getBearerAuthentication();
         expect(bearerAuthentication).toEqual({
             access: 'aCcEsS_tOkEn_TwO',
-            expiry: 1577882200,
+            expiry: Date.now() + 400 * 1000,
             refresh: 'rEfReSh_ToKeN_tWo',
         });
     });
@@ -182,7 +182,7 @@ describe('core/service/login.service.js', () => {
 
         const authLoggedIn = loginService.getBearerAuthentication();
         expect(authLoggedIn).toEqual({
-            expiry: 1577882400,
+            expiry: Date.now() + 600 * 1000,
             access: 'aCcEsS_tOkEn',
             refresh: 'rEfReSh_ToKeN',
         });

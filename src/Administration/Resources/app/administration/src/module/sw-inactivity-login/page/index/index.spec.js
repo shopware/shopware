@@ -41,6 +41,17 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
             provide: {
                 loginService: {
                     loginByUsername,
+                    setRememberMe: (active = true) => {
+                        if (!active) {
+                            localStorage.removeItem('rememberMe');
+                            return;
+                        }
+
+                        const duration = new Date();
+                        duration.setDate(duration.getDate() + 14);
+
+                        localStorage.setItem('rememberMe', `${+duration}`);
+                    },
                 },
                 shortcutService: {
                     startEventListener: () => {},

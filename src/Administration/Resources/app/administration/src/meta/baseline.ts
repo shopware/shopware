@@ -165,7 +165,6 @@ const missingTests = [
     'src/core/data/filter-factory.data.js',
     'src/core/data/index.js',
     'src/core/data/repository-factory.data.ts',
-    'src/core/extension-api.ts',
     'src/core/factory/api-context.factory.js',
     'src/core/factory/api-service.factory.js',
     'src/core/factory/app-context.factory.js',

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Random;
@@ -48,13 +49,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://test.com/my-action',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [Uuid::randomHex()],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -94,13 +93,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://brokenServer.com',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -118,13 +115,11 @@ class ExecutorTest extends TestCase
         $targetUrl = 'https://my-server.com';
         $action = new AppAction(
             $targetUrl,
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -164,13 +159,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             $targetUrl,
-            $shopUrl,
-            $appVersion,
+            new Source($shopUrl, $shopId, $appVersion),
             $entity,
             $actionName,
             $affectedIds,
             's3cr3t',
-            $shopId,
             Uuid::randomHex()
         );
 
@@ -224,13 +217,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://brokenServer.com',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -271,13 +262,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://brokenServer.com',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -295,13 +284,11 @@ class ExecutorTest extends TestCase
         $appSecret = 's3cr3t';
         $action = new AppAction(
             'https://brokenServer.com',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [],
             $appSecret,
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 
@@ -333,13 +320,11 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://test.com/my-action',
-            $appUrl,
-            '1.0.0',
+            new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
             'product',
             'detail',
             [Uuid::randomHex()],
             's3cr3t',
-            Random::getAlphanumericString(12),
             Uuid::randomHex()
         );
 

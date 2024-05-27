@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -31,13 +32,11 @@ class ActionButtonResponseFactoryTest extends TestCase
         $this->actionButtonResponseFactory = $this->getContainer()->get(ActionButtonResponseFactory::class);
         $this->action = new AppAction(
             'http://target.url',
-            'http://shop.url',
-            '1.0.0',
+            new Source('http://shop.url', 'shop-id', '1.0.0'),
             'customer',
             'action-name',
             [Uuid::randomHex(), Uuid::randomHex()],
             'app-secret',
-            'shop-id',
             'action-it'
         );
     }

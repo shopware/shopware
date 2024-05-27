@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\ActionButton;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,9 +21,8 @@ class AppActionLoader
      * @param EntityRepository<ActionButtonCollection> $actionButtonRepo
      */
     public function __construct(
-        private readonly string $url,
         private readonly EntityRepository $actionButtonRepo,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
     ) {
     }
 
@@ -41,25 +40,24 @@ class AppActionLoader
             throw new ActionNotFoundException();
         }
 
+        $app = $actionButton->getApp();
+        \assert($app !== null);
+
         try {
-            $shopId = $this->shopIdProvider->getShopId();
+            $source = $this->appPayloadServiceHelper->buildSource($app);
         } catch (AppUrlChangeDetectedException) {
             throw new ActionNotFoundException();
         }
 
-        $app = $actionButton->getApp();
-        \assert($app !== null);
         $secret = $app->getAppSecret();
 
         return new AppAction(
             $actionButton->getUrl(),
-            $this->url,
-            $app->getVersion(),
+            $source,
             $actionButton->getEntity(),
             $actionButton->getAction(),
             $ids,
             $secret,
-            $shopId,
             $actionId
         );
     }

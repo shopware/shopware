@@ -293,8 +293,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -801,8 +801,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -955,8 +955,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -1090,8 +1090,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -1178,8 +1178,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -1263,8 +1263,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ], $data);
 
@@ -1395,8 +1395,8 @@ class WebhookDispatcherTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
+                'appVersion' => '0.0.1',
             ],
         ];
 

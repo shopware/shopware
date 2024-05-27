@@ -141,10 +141,11 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\AppPayloadServiceHelper">
+        <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="string">%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
@@ -164,16 +165,19 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService">
-            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="string">%env(APP_URL)%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService">
-            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="Shopware\Core\Framework\Log\ExceptionLogger"/>
-            <argument type="string">%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway">
@@ -364,9 +368,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">
-            <argument>%env(APP_URL)%</argument>
             <argument type="service" id="app_action_button.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Api\AppActionController" public="true">

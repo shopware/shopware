@@ -4,14 +4,12 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
-use Shopware\Administration\Controller\Exception\MissingShopUrlException;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,7 +31,7 @@ class AdminExtensionApiController extends AbstractController
 {
     public function __construct(
         private readonly Executor $executor,
-        private readonly ShopIdProvider $shopIdProvider,
+        private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
         private readonly EntityRepository $appRepository,
         private readonly QuerySigner $querySigner
     ) {
@@ -54,32 +52,30 @@ class AdminExtensionApiController extends AbstractController
             throw new AppByNameNotFoundException($appName);
         }
 
-        $shopUrl = EnvironmentHelper::getVariable('APP_URL');
-        if (!\is_string($shopUrl)) {
-            throw new MissingShopUrlException();
-        }
-
         $appSecret = $app->getAppSecret();
         if ($appSecret === null) {
             throw new MissingAppSecretException();
         }
 
-        $targetUrl = $requestDataBag->get('url');
-        $targetHost = \parse_url((string) $targetUrl, \PHP_URL_HOST);
+        $targetUrl = $requestDataBag->getString('url');
+        $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
             throw new UnallowedHostException($targetUrl, $allowedHosts, $app->getName());
         }
 
+        $ids = $requestDataBag->get('ids', []);
+        if (!$ids instanceof RequestDataBag) {
+            throw new \InvalidArgumentException('Ids must be an array');
+        }
+
         $action = new AppAction(
             $targetUrl,
-            $shopUrl,
-            $app->getVersion(),
-            $requestDataBag->get('entity'),
-            $requestDataBag->get('action'),
-            $requestDataBag->get('ids')->all(),
+            $this->appPayloadServiceHelper->buildSource($app),
+            $requestDataBag->getString('entity'),
+            $requestDataBag->getString('action'),
+            $ids->all(),
             $appSecret,
-            $this->shopIdProvider->getShopId(),
             Uuid::randomHex()
         );
 

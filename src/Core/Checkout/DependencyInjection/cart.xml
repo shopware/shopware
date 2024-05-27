@@ -190,12 +190,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService">
-            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
-            <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="string">%env(APP_URL)%</argument>
-        </service>
-
         <!-- ==================================================================================================================== -->
 
         <!-- Checkout gateway -->

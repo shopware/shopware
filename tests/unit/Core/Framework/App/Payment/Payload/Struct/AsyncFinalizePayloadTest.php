@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\AsyncFinalizePayload;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\Log\Package;
 
 /**

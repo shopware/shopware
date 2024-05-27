@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App;
+namespace Shopware\Tests\Unit\Core\Framework\App\Payload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppPayloadServiceHelper;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\Context;
@@ -44,13 +44,14 @@ class AppPayloadServiceHelperTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->createMock(JsonEntityEncoder::class),
-            $shopIdProvider
+            $shopIdProvider,
+            'https://shopware.com'
         );
 
         $app = new AppEntity();
         $app->setVersion('1.0.0');
 
-        $source = $appPayloadServiceHelper->buildSource($app, 'https://shopware.com');
+        $source = $appPayloadServiceHelper->buildSource($app);
 
         static::assertSame('https://shopware.com', $source->getUrl());
         static::assertSame($this->ids->get('shop-id'), $source->getShopId());
@@ -82,7 +83,8 @@ class AppPayloadServiceHelperTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
             $entityEncoder,
-            $this->createMock(ShopIdProvider::class)
+            $this->createMock(ShopIdProvider::class),
+            'https://shopware.com'
         );
 
         $array = $appPayloadServiceHelper->encode($payload);

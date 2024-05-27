@@ -1,16 +1,15 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 ---
-
 variables:
   CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES:
-    value: 'true'
-    description: 'Whether to include extension updates in the SaaS deployment preparation MR.'
+    value: "true"
+    description: "Whether to include extension updates in the SaaS deployment preparation MR."
   DEPLOYMENT_BRANCH_BASE_REF:
-    value: 'trunk'
-    description: 'The base branch from which the deployment branch should be split off of. This also determines, which branch is checked for successful scheduled pipeline runs.'
+    value: "trunk"
+    description: "The base branch from which the deployment branch should be split off of. This also determines, which branch is checked for successful scheduled pipeline runs."
   CI_PREPARE_SAAS_DEPLOYMENT_B64_ENCODE:
-    value: 'true'
-    description: 'Whether to base64 encode the deployment environment variables for the downstream SaaS template pipeline.'
+    value: "true"
+    description: "Whether to base64 encode the deployment environment variables for the downstream SaaS template pipeline."
 
 .rules_deployment_preparation: &rules_deployment_preparation
   - if: '$CI_PREPARE_SAAS_DEPLOYMENT == "true"'
@@ -18,32 +17,34 @@ variables:
 create downstream deployment branch:
   extends: .base-no-setup
   stage: downstream
-  needs: [ ]
+  needs: []
   rules:
     - *rules_deployment_preparation
   script:
     - export DEPLOYMENT_BRANCH_NAME=$(.gitlab/bin/compile_deployment_info.sh deployment_branch_name) # FIXME: $DEPLOYMENT_BRANCH_NAME should be set already, but it's not. This is likely a bug in Gitlab-CI.
     - .gitlab/bin/branch.sh create_deployment_branch "${PROJECT_PATH}" "${DEPLOYMENT_BRANCH_NAME}" "${DEPLOYMENT_BRANCH_BASE_REF}"
+    # sleep 10 minutes so that all pipelines are created
+    - sleep 10m
   parallel:
     matrix:
       - PROJECT_PATH:
-          - 'shopware%2F6%2Fproduct%2Fcommercial'
-          - 'shopware%2F6%2Fproduct%2Frufus'
-          - 'shopware%2F6%2Fproduct%2Fplatform'
+          - "shopware%2F6%2Fproduct%2Fcommercial"
+          - "shopware%2F6%2Fproduct%2Frufus"
+          - "shopware%2F6%2Fproduct%2Fplatform"
 
 compile deployment info:
   extends: .base-no-setup
   stage: downstream
   needs:
-    - job: 'create downstream deployment branch'
+    - job: "create downstream deployment branch"
       artifacts: false
   rules:
     - *rules_deployment_preparation
   variables:
-    CI_CURRENT_MAJOR_ALIAS: '6.6.x-dev'
-    GITLAB_HOST: 'gitlab.shopware.com'
-    GITLAB_TOKEN: '${CI_GITLAB_API_TOKEN}'
-    CI_B64_ENVIRONMENT_TARGET_VAR: 'CI_B64_ENVIRONMENT'
+    CI_CURRENT_MAJOR_ALIAS: "6.6.x-dev"
+    GITLAB_HOST: "gitlab.shopware.com"
+    GITLAB_TOKEN: "${CI_GITLAB_API_TOKEN}"
+    CI_B64_ENVIRONMENT_TARGET_VAR: "CI_B64_ENVIRONMENT"
   script:
     - >
       if [ -n "${CI_PREPARE_SAAS_DEPLOYMENT_B64_ENCODE}" ]; then
@@ -60,21 +61,21 @@ compile deployment info:
 create deployment merge request:
   stage: downstream
   needs:
-    - job: 'compile deployment info'
+    - job: "compile deployment info"
       artifacts: true
-    - job: 'create downstream deployment branch'
+    - job: "create downstream deployment branch"
       artifacts: false
   rules:
     - *rules_deployment_preparation
   variables:
-    DEPLOYMENT_BRANCH_NAME: '${DEPLOYMENT_BRANCH_NAME}'
-    CI_UPDATE_DEPENDENCY: '${CI_UPDATE_DEPENDENCY}'
-    CUSTOM_VERSION: '${CUSTOM_VERSION}'
-    GITLAB_MR_TITLE: '${GITLAB_MR_TITLE}'
-    GITLAB_MR_DESCRIPTION_TEXT: '${GITLAB_MR_DESCRIPTION_TEXT}'
-    GITLAB_MR_LABELS: '${GITLAB_MR_LABELS}'
-    GITLAB_MR_ASSIGNEES: '${GITLAB_MR_ASSIGNEES}'
-    CI_B64_ENVIRONMENT: '${CI_B64_ENVIRONMENT}'
+    DEPLOYMENT_BRANCH_NAME: "${DEPLOYMENT_BRANCH_NAME}"
+    CI_UPDATE_DEPENDENCY: "${CI_UPDATE_DEPENDENCY}"
+    CUSTOM_VERSION: "${CUSTOM_VERSION}"
+    GITLAB_MR_TITLE: "${GITLAB_MR_TITLE}"
+    GITLAB_MR_DESCRIPTION_TEXT: "${GITLAB_MR_DESCRIPTION_TEXT}"
+    GITLAB_MR_LABELS: "${GITLAB_MR_LABELS}"
+    GITLAB_MR_ASSIGNEES: "${GITLAB_MR_ASSIGNEES}"
+    CI_B64_ENVIRONMENT: "${CI_B64_ENVIRONMENT}"
   inherit:
     default: false
     variables:
@@ -88,6 +89,6 @@ create deployment merge request:
       - CI_B64_ENVIRONMENT
   allow_failure: false
   trigger:
-    project: 'shopware/6/product/saas'
-    branch: 'trunk'
-    strategy: 'depend'
+    project: "shopware/6/product/saas"
+    branch: "trunk"
+    strategy: "depend"

@@ -55,18 +55,9 @@
         />
         {% endblock %}
 
+        {# @deprecated tag:v6.7.0 - Block will be removed without replacement #}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_custom_field_detail_modal_required %}
-        <sw-switch-field
-            v-model:value="required"
-            bordered
-            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipRequired')"
-            class="sw-custom-field-detail__switch"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelRequired')"
-            required
-            :disabled="!acl.can('custom_field.editor')"
-        />
-        {% endblock %}
+        {% block sw_custom_field_detail_modal_required %}{% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_detail_modal_allow_customer_write %}

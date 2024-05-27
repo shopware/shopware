@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
-use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -94,7 +94,6 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertInstanceOf(FindProductVariantRouteResponse::class, $response);
         static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
         static::assertEquals($options, $response->getFoundCombination()->getOptions());
     }
@@ -150,7 +149,6 @@ class FindProductVariantRouteTest extends TestCase
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 
-        static::assertInstanceOf(FindProductVariantRouteResponse::class, $response);
         static::assertEquals($this->ids->get('found1'), $response->getFoundCombination()->getVariantId());
     }
 
@@ -212,5 +210,21 @@ class FindProductVariantRouteTest extends TestCase
 
             throw $e;
         }
+    }
+
+    public function testLoadWithInvalidOptions(): void
+    {
+        $options = ['optionId1', []];
+
+        $request = new Request(
+            [
+                'switched' => $this->ids->get('element'),
+                'options' => $options,
+            ]
+        );
+        static::expectException(ProductException::class);
+        static::expectExceptionMessage('The parameter options is invalid.');
+
+        $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
     }
 }

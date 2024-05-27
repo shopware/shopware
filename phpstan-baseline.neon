@@ -6557,11 +6557,6 @@ parameters:
 			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FindProductVariantRouteResponse' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FindProductVariantRouteResponse will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php

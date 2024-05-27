@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,6 +37,12 @@ class AppPayloadServiceHelperTest extends TestCase
 
     public function testBuildSource(): void
     {
+        InAppPurchase::registerPurchases([
+            'purchase-1' => $this->ids->get('app'),
+            'purchase-2' => $this->ids->get('app'),
+            'purchase-3' => $this->ids->get('another-app'),
+        ]);
+
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
@@ -49,6 +56,7 @@ class AppPayloadServiceHelperTest extends TestCase
         );
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('1.0.0');
 
         $source = $appPayloadServiceHelper->buildSource($app);
@@ -56,6 +64,7 @@ class AppPayloadServiceHelperTest extends TestCase
         static::assertSame('https://shopware.com', $source->getUrl());
         static::assertSame($this->ids->get('shop-id'), $source->getShopId());
         static::assertSame('1.0.0', $source->getAppVersion());
+        static::assertSame(['purchase-1', 'purchase-2'], $source->getInAppPurchases());
     }
 
     public function testEncode(): void

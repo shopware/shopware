@@ -59,6 +59,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             'url' => $this->shopUrl,
             'shopId' => $this->shopIdProvider->getShopId(),
             'appVersion' => '1.0.0',
+            'inAppPurchases' => [],
         ], $content['source']);
         static::assertArrayHasKey('cart', $content);
         static::assertIsArray($content['cart']);
@@ -188,6 +189,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
             'url' => $this->shopUrl,
             'shopId' => $this->shopIdProvider->getShopId(),
             'appVersion' => '1.0.0',
+            'inAppPurchases' => [],
         ], $content['source']);
         static::assertArrayHasKey('order', $content);
         static::assertIsArray($content['order']);

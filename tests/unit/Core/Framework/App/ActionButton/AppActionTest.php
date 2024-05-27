@@ -46,6 +46,7 @@ class AppActionTest extends TestCase
                 'url' => $shopUrl,
                 'appVersion' => $appVersion,
                 'shopId' => $shopId,
+                'inAppPurchases' => [],
             ],
             'data' => [
                 'ids' => $ids,

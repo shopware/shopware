@@ -296,6 +296,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -804,6 +805,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -958,6 +960,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -1093,6 +1096,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -1181,6 +1185,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -1266,6 +1271,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ], $data);
 
@@ -1398,6 +1404,7 @@ class WebhookDispatcherTest extends TestCase
                 'url' => $this->shopUrl,
                 'shopId' => $this->shopIdProvider->getShopId(),
                 'appVersion' => '0.0.1',
+                'inAppPurchases' => [],
             ],
         ];
 

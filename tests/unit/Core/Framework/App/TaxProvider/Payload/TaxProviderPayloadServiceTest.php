@@ -108,6 +108,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setAppSecret('very-secret');
 
@@ -163,6 +164,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $payload = $this->createMock(TaxProviderPayload::class);
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setAppSecret('very-secret');
 
@@ -208,6 +210,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $context = new Context(new SystemSource());
 
         $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
         $app->setVersion('6.5-dev');
         $app->setName('Test app');
 

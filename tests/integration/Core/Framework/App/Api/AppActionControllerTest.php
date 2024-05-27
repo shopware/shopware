@@ -121,6 +121,7 @@ class AppActionControllerTest extends TestCase
             'url' => getenv('APP_URL'),
             'appVersion' => $app->getVersion(),
             'shopId' => $shopIdProvider->getShopId(),
+            'inAppPurchases' => [],
         ];
         $expectedData = [
             'ids' => $ids,

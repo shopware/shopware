@@ -17,10 +17,14 @@ class Source implements \JsonSerializable
     use CloneTrait;
     use JsonSerializableTrait;
 
+    /**
+     * @param list<string> $inAppPurchases
+     */
     public function __construct(
         protected string $url,
         protected string $shopId,
-        protected string $appVersion
+        protected string $appVersion,
+        protected array $inAppPurchases = [],
     ) {
     }
 
@@ -37,5 +41,13 @@ class Source implements \JsonSerializable
     public function getAppVersion(): string
     {
         return $this->appVersion;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getInAppPurchases(): array
+    {
+        return $this->inAppPurchases;
     }
 }

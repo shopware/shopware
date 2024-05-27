@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -38,6 +39,7 @@ class AppPayloadServiceHelper
             $this->shopUrl,
             $this->shopIdProvider->getShopId(),
             $app->getVersion(),
+            InAppPurchase::getByExtension($app->getId()),
         );
     }
 

@@ -53,6 +53,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
             'url' => $this->shopUrl,
             'shopId' => $this->shopIdProvider->getShopId(),
             'appVersion' => '1.0.0',
+            'inAppPurchases' => [],
         ], $content['source']);
 
         static::assertArrayHasKey('refund', $content);

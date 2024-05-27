@@ -155,7 +155,7 @@ class ProductDetailRouteTest extends TestCase
             ->expects(static::once())
             ->method('fetchAssociative')
             ->willReturn([
-                'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "2"}',
                 'parentId' => '2',
             ]);
 

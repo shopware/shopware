@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -102,7 +103,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $resolverContext
                 );
 
-                if ($page = $pages->first()) {
+                $page = $pages->first();
+                if ($page instanceof CmsPageEntity) {
                     $product->setCmsPage($page);
                 }
             }
@@ -148,13 +150,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData) || empty($productData['parentId']) || $productData['variantListingConfig'] === null) {
+        if (empty($productData) || $productData['variantListingConfig'] === null) {
             return null;
         }
 
         $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent'] !== true) {
+        if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent'] === true) {
             return null;
         }
 
@@ -168,8 +170,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('product.parentId', $productId))
-            ->addSorting(new FieldSorting('product.price'))
             ->addSorting(new FieldSorting('product.available', FieldSorting::DESCENDING))
+            ->addSorting(new FieldSorting('product.price'))
             ->setLimit(1);
 
         $criteria->setTitle('product-detail-route::find-best-variant');

@@ -2126,11 +2126,6 @@ parameters:
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: "#^Parameter \\#1 \\$cmsPage of method Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity\\:\\:setCmsPage\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination\\:\\:getOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/FindVariant/FoundCombination.php

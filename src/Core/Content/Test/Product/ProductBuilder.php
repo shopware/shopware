@@ -164,6 +164,11 @@ class ProductBuilder
     protected array $mainCategories = [];
 
     /**
+     * @var array<array<mixed>>
+     */
+    protected array $variantListingConfig = [];
+
+    /**
      * @var array<string, array<array<mixed>>>
      */
     private array $dependencies = [];
@@ -227,6 +232,16 @@ class ProductBuilder
     public function variant(array $data): self
     {
         $this->children[] = $data;
+
+        return $this;
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function variantListingConfig(array $data): self
+    {
+        $this->variantListingConfig = $data;
 
         return $this;
     }

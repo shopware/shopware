@@ -412,6 +412,10 @@ base-uri 'self';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension">
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer">
             <argument type="service" id="twig"/>
             <argument>%twig.cache%</argument>

@@ -21,7 +21,7 @@ async function createWrapper(propsData) {
                         <slot></slot></li>`,
                     methods: {
                         onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                            this.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
                         },
                     },
                     computed: {
@@ -36,7 +36,8 @@ async function createWrapper(propsData) {
                 'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
                 'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
-                'sw-popover': await wrapTestComponent('sw-popover', { sync: true }),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
@@ -148,7 +149,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.findComponent('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const selectEdit = wrapper.find('.sw-select-option--0');
 
@@ -176,10 +177,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             .toBe('Denesik Bridge, 05132 Bernierstad, Buzbach');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const select = wrapper.find('.sw-select-option--1');
 
         await select.trigger('click');
+        await flushPromises();
 
         expect(wrapper.emitted('change-address')).toBeTruthy();
         expect(wrapper.emitted('change-address')[0]).toEqual([{
@@ -195,10 +198,13 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const newAddress = wrapper.find('.sw-select-result-list__content ul:nth-of-type(1)');
 
         await newAddress.find('.sw-select-result__add-new-address').trigger('click');
+        await flushPromises();
+
 
         expect(wrapper.vm.currentAddress._isNew).toBe(true);
         expect(wrapper.vm.currentAddress.customerId).toBe('63e27affb5804538b5b06cb4e344b130');
@@ -209,6 +215,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const list = wrapper.find('.sw-select-result-list__item-list');
 
@@ -231,11 +238,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             addressId: null,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const list = wrapper.find('.sw-select-result-list__item-list');
 

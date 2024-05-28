@@ -246,6 +246,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtPagination',
             'MtSkeletonBar',
             'MtToast',
+            'MtFloatingUi',
         ];
 
         // Disable compat for meteor components

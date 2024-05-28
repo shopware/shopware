@@ -1,0 +1,13 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_popover %}
+<div class="sw-popover">
+    <div
+        v-popover="popoverConfig"
+        class="sw-popover__wrapper"
+        :class="popoverClass"
+        :style="componentStyle"
+    >
+        <slot></slot>
+    </div>
+</div>
+{% endblock %}

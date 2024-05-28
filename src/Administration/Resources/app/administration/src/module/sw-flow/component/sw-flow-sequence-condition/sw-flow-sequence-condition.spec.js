@@ -77,6 +77,7 @@ async function createWrapper(propsData = {}) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-loader': true,
                 'sw-field-error': true,
                 'sw-label': true,

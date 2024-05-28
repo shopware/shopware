@@ -1,3 +1,5 @@
+import { MtFloatingUi } from "@shopware-ag/meteor-component-library";
+
 const RuleTester = require('eslint').RuleTester
 const rule = require('./no-deprecated-components');
 
@@ -166,6 +168,14 @@ tester.run('no-deprecated-components', rule, {
     <sw-data-grid />
 </template>`,
         },
+        {
+            name: '"mt-floating-ui" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-floating-ui />
+            </template>`
+        }
     ],
     invalid: [
         {
@@ -700,5 +710,34 @@ tester.run('no-deprecated-components', rule, {
                 message: '"sw-data-grid" is deprecated. Please use "mt-data-table" instead.',
             }]
         },
+        {
+            name: '"sw-popover" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-popover />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-popover - please check if everything works correctly -->
+    <mt-floating-ui />
+</template>`,
+            errors: [{
+                message: '"sw-popover" is deprecated. Please use "mt-floating-ui" instead.',
+            }]
+        },
+        {
+            name: '"sw-popover" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-popover />
+</template>`,
+            errors: [{
+                message: '"sw-popover" is deprecated. Please use "mt-floating-ui" instead.',
+            }]
+        }
     ]
 })
+

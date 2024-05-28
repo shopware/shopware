@@ -134,6 +134,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-select-result': await wrapTestComponent('sw-select-result'),
             'sw-popover': await wrapTestComponent('sw-popover'),
+            'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
         };
     }
 

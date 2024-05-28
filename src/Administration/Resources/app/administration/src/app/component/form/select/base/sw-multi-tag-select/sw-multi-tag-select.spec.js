@@ -22,6 +22,7 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-icon': {
                     template: '<div></div>',
                 },

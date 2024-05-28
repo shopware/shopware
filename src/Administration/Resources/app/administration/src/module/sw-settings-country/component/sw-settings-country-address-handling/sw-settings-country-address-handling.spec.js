@@ -121,7 +121,8 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     </div>`,
                 },
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
-                'sw-popover': {
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
                     props: ['popoverClass'],
                     template: `
                     <div class="sw-popover" :class="popoverClass">

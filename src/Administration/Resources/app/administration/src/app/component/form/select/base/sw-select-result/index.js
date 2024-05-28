@@ -80,13 +80,14 @@ Component.register('sw-select-result', {
 
     methods: {
         createdComponent() {
-            this.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+            this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
         },
 
         destroyedComponent() {
-            this.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+            this.$parent.$parent.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
         },
 
         checkIfSelected(selectedItemIndex) {
@@ -102,7 +103,7 @@ Component.register('sw-select-result', {
                 return;
             }
 
-            this.$parent.$parent.$parent.$emit('item-select', this.item);
+            this.$parent.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
         },
 
         onMouseEnter() {

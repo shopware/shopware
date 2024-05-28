@@ -86,6 +86,7 @@ describe('sw-app-actions', () => {
                 template: '<span class="sw-icon sw-icon--solid-ellipsis-h-s"></span>',
             },
             'sw-popover': await Shopware.Component.build('sw-popover'),
+            'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-modal': true,
             'icons-regular-times-s': {
                 template: '<span class="sw-icon sw-icon--regular-times-s"></span>',

@@ -133,7 +133,7 @@ Component.register('sw-select-result-list', {
         checkOutsideClick(event) {
             event.stopPropagation();
 
-            const popoverContentClicked = this.$refs.popoverContent.contains(event.target);
+            const popoverContentClicked = this.$refs.popoverContent?.contains(event.target);
             const componentClicked = this.$el.contains(event.target);
             const parentClicked = this.$parent.$parent.$el.contains(event.target);
 

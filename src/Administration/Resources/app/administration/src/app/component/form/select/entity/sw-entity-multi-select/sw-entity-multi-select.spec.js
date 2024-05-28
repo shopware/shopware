@@ -72,6 +72,7 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),

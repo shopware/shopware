@@ -41,7 +41,8 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
-                'sw-popover': {
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
             },

@@ -12,7 +12,7 @@ const { Component } = Shopware;
  * <sw-popover></sw-popover>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-popover', {
+Component.register('sw-popover-deprecated', {
     template,
 
     props: {

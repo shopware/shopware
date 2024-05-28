@@ -101,7 +101,7 @@ const missingTests = [
     'src/app/component/utils/sw-notification-center-item/index.js',
     'src/app/component/utils/sw-notifications/index.js',
     'src/app/component/utils/sw-overlay/index.js',
-    'src/app/component/utils/sw-popover/index.js',
+    'src/app/component/utils/sw-popover-deprecated/index.js',
     'src/app/component/utils/sw-progress-bar/index.js',
     'src/app/component/utils/sw-skeleton/index.ts',
     'src/app/component/utils/sw-skeleton-bar-deprecated/index.ts',

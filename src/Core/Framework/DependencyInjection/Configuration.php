@@ -305,6 +305,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('blue_green')->end()
                 ->booleanNode('cluster_setup')->end()
+                ->booleanNode('runtime_extension_management')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

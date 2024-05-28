@@ -106,13 +106,16 @@ export default {
         },
 
         updateButtons() {
+            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const nextRoute = disabledExtensionManagement ? 'defaults' : 'data-import';
+
             const buttonConfig = [
                 {
                     key: 'next',
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.data-import',
+                    action: `sw.first.run.wizard.index.${nextRoute}`,
                     disabled: false,
                 },
             ];
@@ -128,6 +131,11 @@ export default {
         },
 
         getLanguagePlugins() {
+            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+                this.languagePlugins = [];
+                return;
+            }
+
             this.languagePluginService.getPlugins().then((response) => {
                 this.languagePlugins = response.items;
             });

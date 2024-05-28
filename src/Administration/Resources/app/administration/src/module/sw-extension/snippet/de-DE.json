@@ -321,7 +321,11 @@
           "titleEmptyState": "Noch keine Themes installiert",
           "textEmptyState": "Wenn Du Themes installierst, werden sie hier aufgelistet."
         },
-        "btnOpenStore": "Store öffnen"
+        "btnOpenStore": "Store öffnen",
+        "alertExtensionManagement": {
+          "title": "Erweiterungsverwaltung eingeschränkt",
+          "description": "Die Verwaltung der Erweiterungen ist bei dieser Installation deaktiviert. Es ist nur möglich die Einstellungen der Erweiterungen zu verändern."
+        }
       },
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" kündigen und entfernen",

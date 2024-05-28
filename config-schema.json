@@ -703,6 +703,9 @@
                 },
                 "cluster_setup": {
                     "type": "boolean"
+                },
+                "runtime_extension_management": {
+                    "type": "boolean"
                 }
             },
             "title": "Deployment"

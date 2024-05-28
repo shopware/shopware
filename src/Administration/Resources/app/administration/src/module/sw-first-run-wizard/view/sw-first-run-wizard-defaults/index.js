@@ -31,15 +31,8 @@ export default {
         },
 
         buttonConfig() {
-            return [
+            const buttons = [
                 {
-                    key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
-                    position: 'left',
-                    variant: null,
-                    action: 'sw.first.run.wizard.index.data-import',
-                    disabled: false,
-                }, {
                     key: 'next',
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
@@ -48,6 +41,19 @@ export default {
                     disabled: !this.defaultSalesChannelCardLoaded,
                 },
             ];
+
+            if (!Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+                buttons.unshift({
+                    key: 'back',
+                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    position: 'left',
+                    variant: null,
+                    action: 'sw.first.run.wizard.index.data-import',
+                    disabled: false,
+                });
+            }
+
+            return buttons;
         },
     },
 

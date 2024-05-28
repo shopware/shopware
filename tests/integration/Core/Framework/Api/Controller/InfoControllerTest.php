@@ -66,6 +66,7 @@ class InfoControllerTest extends TestCase
                 'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => false,
+                'disableExtensionManagement' => false,
             ],
         ];
 
@@ -330,6 +331,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => true,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -392,6 +394,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => false,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -468,6 +471,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => false,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $assets,

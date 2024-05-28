@@ -23,6 +23,9 @@ export default {
         },
 
         buttonConfig() {
+            const disabledExtensionManagement = Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+            const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
+
             return [
                 {
                     key: 'back',
@@ -37,7 +40,7 @@ export default {
                     label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.paypal.info',
+                    action: `sw.first.run.wizard.index.${nextRoute}`,
                     disabled: false,
                 },
                 {

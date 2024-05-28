@@ -32,6 +32,31 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
+    beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
+    });
+
     it('should emit the button config and the title on creation', async () => {
         const wrapper = await createWrapper();
 

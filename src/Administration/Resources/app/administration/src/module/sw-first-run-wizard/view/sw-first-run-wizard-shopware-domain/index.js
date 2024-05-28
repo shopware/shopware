@@ -32,6 +32,14 @@ export default {
         isDomainEmpty() {
             return this.domainToVerify.length <= 0;
         },
+
+        nextAction() {
+            if (Shopware.State.get('context').app.config.settings.disableExtensionManagement) {
+                return 'sw.first.run.wizard.index.finish';
+            }
+
+            return 'sw.first.run.wizard.index.store';
+        },
     },
 
     watch: {
@@ -104,7 +112,7 @@ export default {
                 domain,
                 testEnvironment,
             }).then(() => {
-                this.$emit('frw-redirect', 'sw.first.run.wizard.index.store');
+                this.$emit('frw-redirect', this.nextAction);
                 return false;
             }).catch((error) => {
                 const msg = error.response.data.errors.pop();

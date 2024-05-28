@@ -321,7 +321,11 @@
           "titleEmptyState": "No themes installed yet",
           "textEmptyState": "If you install themes, they will be listed here."
         },
-        "btnOpenStore": "Open store"
+        "btnOpenStore": "Open store",
+        "alertExtensionManagement": {
+          "title": "Runtime extension management disabled",
+          "description": "The runtime extension management is disabled in this installation. You can only change the settings of the extensions in the administration."
+        }
       },
       "sw-extension-removal-modal": {
         "titleCancel": "\"{extensionName}\" cancel and remove",

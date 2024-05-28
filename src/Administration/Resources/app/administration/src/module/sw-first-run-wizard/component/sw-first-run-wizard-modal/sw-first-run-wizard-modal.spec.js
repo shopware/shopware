@@ -84,6 +84,31 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 data: [],
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            appUrlReachable: true,
+                            appsRequireAppUrl: false,
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
     });
 
     beforeEach(() => {
@@ -93,6 +118,20 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             writable: true,
             value: { reload: jest.fn() },
         });
+    });
+
+    it('stepper has less steps with disabled extension management', async () => {
+        const wrapper = await createWrapper();
+
+        expect(Object.keys(wrapper.vm.stepper)).toHaveLength(13);
+
+        Shopware.State.get('context').app.config.settings.disableExtensionManagement = true;
+
+        await wrapper.vm.$nextTick();
+
+        expect(Object.keys(wrapper.vm.stepper)).toHaveLength(8);
+
+        Shopware.State.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
     it('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {

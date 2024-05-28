@@ -103,6 +103,18 @@ export default {
                 'is--expired-rent': this.isExpiredRent,
             };
         },
+
+        showContextMenu() {
+            if (this.detailLink) {
+                return true;
+            }
+
+            if (this.isInstalled && this.extension.storeLicense) {
+                return true;
+            }
+
+            return this.$super('showContextMenu');
+        },
     },
 
     methods: {

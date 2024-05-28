@@ -18,12 +18,6 @@ const handleMtNumberField = (context, node) => {
             attr?.key?.argument?.name === 'value';
     });
 
-    // Check if the mt-number-field uses v-model:value
-    const vModelValue = node.startTag.attributes.find((attr) => {
-        return attr.key?.name?.name === 'model' &&
-            attr.key?.argument?.name === 'value';
-    });
-
     // Check if the mt-number-field has the slot "label" with shorthand syntax
     const labelSlotShorthand = node.children.find((child) => {
         return child.type === 'VElement' &&
@@ -48,23 +42,6 @@ const handleMtNumberField = (context, node) => {
                 if (context.options.includes('disableFix')) return;
 
                 yield fixer.replaceText(valueAttribute.key, 'modelValue');
-            }
-        });
-    }
-
-    if (vModelValue) {
-        context.report({
-            node: vModelValue,
-            message: `[${mtComponentName}] The "v-model:value" is deprecated. Use "modelValue" in combination with "@change" instead.`,
-            *fix(fixer)  {
-                if (context.options.includes('disableFix')) return;
-
-                let previousValue = context.getSourceCode().text.slice(vModelValue.value.range[0], vModelValue.value.range[1]);
-                // Remove the quotes from the string if exists
-                previousValue = previousValue.replace(/['"]+/g, '');
-
-                yield fixer.insertTextAfter(vModelValue, ` @change="${previousValue} = $event"`);
-                yield fixer.replaceText(vModelValue.key, ':modelValue');
             }
         });
     }
@@ -109,11 +86,11 @@ const handleMtNumberField = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "change" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'change');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
             }
         });
     }
@@ -131,7 +108,7 @@ const mtNumberFieldValidTests = [
             <template>
                 <sw-number-field />
             </template>`
-    }
+    },
 ]
 
 const mtNumberFieldInvalidTests = [
@@ -187,33 +164,6 @@ const mtNumberFieldInvalidTests = [
             </template>`,
         errors: [{
             message: '[mt-number-field] The "value" prop is deprecated. Use "modelValue" instead.',
-        }]
-    },
-    {
-        name: '"mt-number-field" wrong "v-model:value" usage should be replaced with :modelValue and @change',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-number-field v-model:value="myValue" />
-            </template>`,
-        output: `
-            <template>
-                <mt-number-field :modelValue="myValue" @change="myValue = $event" />
-            </template>`,
-        errors: [{
-            message: '[mt-number-field] The "v-model:value" is deprecated. Use "modelValue" in combination with "@change" instead.',
-        }]
-    },
-    {
-        name: '"mt-number-field" wrong "v-model:value" usage should be replaced with :modelValue and @change\' [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-number-field v-model:value="myValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-number-field] The "v-model:value" is deprecated. Use "modelValue" in combination with "@change" instead.',
         }]
     },
     {
@@ -291,7 +241,7 @@ const mtNumberFieldInvalidTests = [
         }]
     },
     {
-        name: '"mt-number-field" wrong "update:value" event usage should be replaced with "change"',
+        name: '"mt-number-field" wrong "update:value" event usage should be replaced with "update:modelValue"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -299,14 +249,14 @@ const mtNumberFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-number-field @change="updateValue" />
+                <mt-number-field @update:modelValue="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "update:value" event is deprecated. Use "change" instead.',
+            message: '[mt-number-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
         }],
     },
     {
-        name: '"mt-number-field" wrong "update:value" event usage should be replaced with "change" [disableFix]',
+        name: '"mt-number-field" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -314,7 +264,7 @@ const mtNumberFieldInvalidTests = [
                 <mt-number-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-number-field] The "update:value" event is deprecated. Use "change" instead.',
+            message: '[mt-number-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
         }],
     },
 ];

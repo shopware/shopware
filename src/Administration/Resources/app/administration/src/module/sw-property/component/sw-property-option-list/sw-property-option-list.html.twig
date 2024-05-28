@@ -79,6 +79,7 @@
             ref="grid"
             :is-loading="isLoading"
             :collection="propertyGroup.options"
+            :data-source="dataSource"
             :columns="getGroupColumns()"
             :full-page="false"
             :local-mode="propertyGroup.isNew()"

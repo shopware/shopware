@@ -5,7 +5,7 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { State } = Shopware;
+const { State, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,6 +14,10 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+    ],
+
+    mixins: [
+        Mixin.getByName('listing'),
     ],
 
     props: {
@@ -38,7 +42,6 @@ export default {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
-            limit: 10,
         };
     },
 
@@ -64,6 +67,10 @@ export default {
 
         disableAddButton() {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
+        },
+
+        dataSource() {
+            return this.propertyGroup.options && this.propertyGroup.options.slice(0, this.limit);
         },
     },
 

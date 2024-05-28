@@ -16,6 +16,7 @@ import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import resetFilters from '../_helper_/restartFilters';
 import 'blob-polyfill';
+import { sendTimeoutExpired } from '../_helper_/allowedErrors';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -185,16 +186,7 @@ global.allowedErrors = [
             return msg.includes('you tried to publish is already registered');
         },
     },
-    {
-        method: 'error',
-        msgCheck: (msg) => {
-            if (typeof msg !== 'string') {
-                return false;
-            }
-
-            return msg.includes('It could be possible that no handler for the postMessage request exists or that the handler freezed');
-        },
-    },
+    sendTimeoutExpired,
 ];
 
 global.flushPromises = flushPromises;

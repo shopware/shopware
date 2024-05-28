@@ -11,12 +11,18 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 #[Package('data-services')]
 class IterateEntityMessage implements LowPriorityMessageInterface
 {
+    public readonly \DateTimeImmutable $runDate;
+
+    public readonly ?\DateTimeImmutable $lastRun;
+
     public function __construct(
         public readonly string $entityName,
         public readonly Operation $operation,
-        public readonly \DateTimeImmutable $runDate,
-        public readonly ?\DateTimeImmutable $lastRun,
+        \DateTimeInterface $runDate,
+        ?\DateTimeInterface $lastRun,
         public readonly ?string $shopId = null
     ) {
+        $this->runDate = \DateTimeImmutable::createFromInterface($runDate);
+        $this->lastRun = $lastRun ? \DateTimeImmutable::createFromInterface($lastRun) : null;
     }
 }

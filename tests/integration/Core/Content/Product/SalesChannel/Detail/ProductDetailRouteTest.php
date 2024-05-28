@@ -134,6 +134,78 @@ class ProductDetailRouteTest extends TestCase
         static::assertNotEmpty($response['product']['manufacturer']);
     }
 
+    public function testIncludeForCustomFields(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'custom-fields-product'))
+            ->price(100)
+            ->visibility($this->ids->get('sales-channel'))
+            ->customField('foo', 'foo')
+            ->customField('bar', 'baz')
+            ->customField('nested', [
+                'foo' => 'foo',
+                'bar' => 'baz',
+            ])
+            ->build();
+
+        $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('custom-fields-product')),
+            [
+                'includes' => [
+                    'product' => ['id', 'customFields'],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('customFields', $response['product']);
+        static::assertArrayHasKey('foo', $response['product']['customFields']);
+        static::assertArrayHasKey('bar', $response['product']['customFields']);
+        static::assertArrayHasKey('nested', $response['product']['customFields']);
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('custom-fields-product')),
+            [
+                'includes' => [
+                    'product' => ['id', 'customFields.foo'],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('customFields', $response['product']);
+        static::assertArrayHasKey('foo', $response['product']['customFields']);
+        static::assertArrayNotHasKey('bar', $response['product']['customFields']);
+        static::assertArrayNotHasKey('nested', $response['product']['customFields']);
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('custom-fields-product')),
+            [
+                'includes' => [
+                    'product' => ['id', 'customFields.nested.foo'],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('product', $response);
+        static::assertArrayHasKey('customFields', $response['product']);
+        static::assertArrayNotHasKey('foo', $response['product']['customFields']);
+        static::assertArrayNotHasKey('bar', $response['product']['customFields']);
+        static::assertArrayHasKey('nested', $response['product']['customFields']);
+        static::assertArrayHasKey('foo', $response['product']['customFields']['nested']);
+        static::assertArrayNotHasKey('bar', $response['product']['customFields']['nested']);
+    }
+
     public function testRecursionEncodingWithLayout(): void
     {
         $this->browser->request(

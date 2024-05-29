@@ -23,7 +23,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
@@ -91,7 +90,6 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
-            new StaticSystemConfigService(),
             0,
             false
         );
@@ -110,7 +108,6 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
-            new StaticSystemConfigService(),
             0,
             true
         );
@@ -443,7 +440,6 @@ PHP_EOL;
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
-            new StaticSystemConfigService(),
             0,
             false
         );

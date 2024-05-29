@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -14,14 +12,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('storefront')]
 readonly class ThemeScripts
 {
-    public const SCRIPT_FILES_CONFIG_KEY = 'storefront.theme.scriptFiles';
-
     /**
      * @internal
      */
     public function __construct(
-        private AbstractThemePathBuilder $themePathBuilder,
-        private SystemConfigService $systemConfig,
+        private StorefrontPluginRegistryInterface $pluginRegistry,
+        private ThemeFileResolver $themeFileResolver,
         private RequestStack $requestStack
     ) {
     }
@@ -37,21 +33,25 @@ readonly class ThemeScripts
             return [];
         }
 
-        $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
-        if ($themeId === null) {
+        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME, SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME)
+            ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+
+        if ($themeName === null) {
             return [];
         }
 
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-        if ($salesChannelId === null) {
+        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeName);
+
+        if ($themeConfig === null) {
             return [];
         }
 
-        $themePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
+        $resolvedFiles = $this->themeFileResolver->resolveFiles(
+            $themeConfig,
+            $this->pluginRegistry->getConfigurations(),
+            false
+        );
 
-        /** @var array<int, string> $scripts */
-        $scripts = $this->systemConfig->get(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.' . $themePrefix) ?? [];
-
-        return $scripts;
+        return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
     }
 }

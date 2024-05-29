@@ -25,7 +25,7 @@ x-service: &service
 services:
     database:
         <<: *service
-        image: mysql:8
+        image: mysql:8.3
         pull_policy: always
         entrypoint:
             [

@@ -208,7 +208,7 @@ update test:
             "${CUR_MAJOR_MAX_TAG}",
           ]
   services:
-    - name: mysql:8
+    - name: mysql:8.3
       alias: database
       pull_policy: always
       entrypoint:

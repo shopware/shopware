@@ -17,7 +17,7 @@ test.skip('Update an existing Shopware instance. @update', async ({
         timeout: 20000,
     });
 
-    const config = await ((await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
+    await ((await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
 
     await page.getByRole('button', { name: 'Open update' }).click();
 

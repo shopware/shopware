@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -47,6 +48,12 @@ class AppJWTGenerateRouteTest extends TestCase
 
     public function testGenerate(): void
     {
+        InAppPurchase::registerPurchases([
+            'active-license-1' => 'extension-1',
+            'active-license-2' => 'extension-1',
+            'active-license-3' => 'extension-2',
+        ]);
+
         $privileges = [
             'sales_channel:read',
             'customer:read',
@@ -59,7 +66,7 @@ class AppJWTGenerateRouteTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->method('fetchAssociative')
-            ->willReturn(['app_secret' => '454545454545454545454545454544545454545', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR)]);
+            ->willReturn(['id' => 'extension-1', 'app_secret' => '454545454545454545454545454544545454545', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR)]);
 
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
             $connection,
@@ -82,5 +89,11 @@ class AppJWTGenerateRouteTest extends TestCase
         static::assertArrayHasKey('salesChannelId', $payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertSame($context->getSalesChannel()->getId(), $payload['salesChannelId']);
+        static::assertSame($context->getCustomer()?->getId(), $payload['customerId']);
+        static::assertSame($context->getPaymentMethod()->getId(), $payload['paymentMethodId']);
+        static::assertSame($context->getShippingMethod()->getId(), $payload['shippingMethodId']);
+        static::assertSame($context->getCurrency()->getId(), $payload['currencyId']);
+        static::assertSame($context->getLanguageId(), $payload['languageId']);
+        static::assertSame(['active-license-1', 'active-license-2'], $payload['inAppPurchases']);
     }
 }

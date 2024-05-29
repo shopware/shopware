@@ -9,6 +9,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -33,7 +34,7 @@ class AppJWTGenerateRoute
             throw AppException::jwtGenerationRequiresCustomerLoggedIn();
         }
 
-        ['app_secret' => $appSecret, 'privileges' => $privileges] = $this->fetchAppDetails($name);
+        ['id' => $appId, 'app_secret' => $appSecret, 'privileges' => $privileges] = $this->fetchAppDetails($name);
 
         $key = InMemory::plainText($appSecret);
 
@@ -52,6 +53,8 @@ class AppJWTGenerateRoute
             ->issuedAt(new \DateTimeImmutable())
             ->canOnlyBeUsedAfter(new \DateTimeImmutable())
             ->expiresAt($expiration);
+
+        $builder = $builder->withClaim('inAppPurchases', InAppPurchase::getByExtension($appId));
 
         if (\in_array('sales_channel:read', $privileges, true)) {
             $builder = $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());
@@ -85,11 +88,12 @@ class AppJWTGenerateRoute
     }
 
     /**
-     * @return array{app_secret: non-empty-string, privileges: array<string>}
+     * @return array{id: non-empty-string, app_secret: non-empty-string, privileges: array<string>}
      */
     private function fetchAppDetails(string $name): array
     {
         $row = $this->connection->fetchAssociative('SELECT
+    LOWER(HEX(`app`.id)) as id,
     `app`.app_secret,
     `acl_role`.privileges
 FROM `app`

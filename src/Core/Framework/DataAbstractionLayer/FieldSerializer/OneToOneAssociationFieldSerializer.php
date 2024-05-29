@@ -40,7 +40,9 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($value)) {
-            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
+            throw DataAbstractionLayerException::expectedArray(
+                sprintf('%s/%s', $parameters->getPath(), $key)
+            );
         }
 
         /** @var Field $keyField */
@@ -94,7 +96,9 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($data->getValue())) {
-            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
+            throw DataAbstractionLayerException::expectedArray(
+                sprintf('%s/%s', $parameters->getPath(), $data->getKey())
+            );
         }
 
         $reference = $field->getReferenceDefinition();

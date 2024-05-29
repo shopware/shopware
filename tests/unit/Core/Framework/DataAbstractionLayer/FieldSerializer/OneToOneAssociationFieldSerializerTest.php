@@ -39,7 +39,7 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
         new StaticDefinitionInstanceRegistry(
             [
-                CustomerDefinition::class => $customerDefinition = new CustomerDefinition(),
+                TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
             $this->createMock(ValidatorInterface::class),
@@ -73,7 +73,7 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
         new StaticDefinitionInstanceRegistry(
             [
-                CustomerDefinition::class => $customerDefinition = new CustomerDefinition(),
+                TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
                 CustomerRecoveryDefinition::class => new CustomerRecoveryDefinition(),
             ],
             $this->createMock(ValidatorInterface::class),
@@ -117,13 +117,13 @@ class CustomerRecoveryDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('hash', 'hash'))->addFlags(new Required()),
-            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
+            (new FkField('customer_id', 'customerId', TestCustomerDefinition::class))->addFlags(new Required()),
 
             new OneToOneAssociationField(
                 'customer',
                 'customer_id',
                 'id',
-                CustomerDefinition::class,
+                TestCustomerDefinition::class,
                 false
             ),
         ]);
@@ -133,7 +133,7 @@ class CustomerRecoveryDefinition extends EntityDefinition
 /**
  * @internal
  */
-class CustomerDefinition extends EntityDefinition
+class TestCustomerDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {

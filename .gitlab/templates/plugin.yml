@@ -150,6 +150,7 @@ default:
     services:
         - name: "$MYSQL_IMAGE"
           alias: database
+          pull_policy: always
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     before_script:
         - echo 'memory_limit = -1' | tee /usr/local/etc/php/conf.d/99-memory-limit.ini

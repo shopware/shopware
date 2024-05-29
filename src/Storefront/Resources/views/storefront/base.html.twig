@@ -42,11 +42,20 @@
         {% endblock %}
 
         {% block base_navigation %}
-            <div class="nav-main">
-                {% block base_navigation_inner %}
-                    {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
-                {% endblock %}
-            </div>
+            {% if feature('v6.7.0.0') %}
+                <div class="nav-main d-none d-lg-block">
+                    {% block base_navbar_inner %}
+                        {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
+                    {% endblock %}
+                </div>
+            {% else %}
+                {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
+                <div class="nav-main">
+                    {% block base_navigation_inner %}
+                        {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
+                    {% endblock %}
+                </div>
+            {% endif %}
         {% endblock %}
 
         {% block base_offcanvas_navigation %}

@@ -1,12 +1,6 @@
-{# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig #}
-{% block layout_navigation_categories %}
+{% macro recursiveCategory(navigationTree, level, page, navigationMedia) %}
     {% set navigationMaxDepth = 3 %}
-
-    {% if not level %}
-        {% set level = 0 %}
-    {% endif %}
     {% set activeId = page.header.navigation.active.id %}
-
     {% set activePath = page.header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
@@ -15,9 +9,9 @@
             {% set name = treeItem.category.translated.name %}
             {% set link = category_url(treeItem.category) %}
 
-            {% block layout_navigation_categories_item %}
-                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}navigation-flyout-col">
-                    {% block layout_navigation_categories_item_link %}
+            {% block layout_navbar_categories_item %}
+                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
+                    {% block layout_navbar_categories_item_link %}
                         {% if treeItem.category.type == 'folder' %}
                             <div class="nav-item nav-link navigation-flyout-link is-level-{{ level }}"
                                  title="{{ name }}">
@@ -28,8 +22,8 @@
                                href="{{ link }}"
                                itemprop="url"
                                {% if category_linknewtab(treeItem.category) %}target="_blank"
-                                   {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
-                               {% endif %}
+                               {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
+                                {% endif %}
                                title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
                             </a>
@@ -38,15 +32,21 @@
 
                     {% block layout_navigation_categories_recoursion %}
                         {% if level < navigationMaxDepth %}
-                            {% sw_include '@Storefront/storefront/layout/navigation/categories.html.twig' with {
-                                navigationTree: treeItem.children,
-                                level: level + 1,
-                                page: page
-                            } only %}
+                            {{ _self.recursiveCategory(treeItem.children, level +1, page, navigationMedia) }}
                         {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}
         {% endfor %}
     </div>
+{% endmacro %}
+
+{% block layout_navbar_categories %}
+    {% from _self import recursiveCategory %}
+
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
+
+    {{ recursiveCategory(navigationTree, level, page, navigationMedia) }}
 {% endblock %}

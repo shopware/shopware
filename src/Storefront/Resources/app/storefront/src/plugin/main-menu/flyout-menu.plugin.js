@@ -9,6 +9,7 @@ import Iterator from 'src/helper/iterator.helper';
  * Subcategory display of the main navigation.
  *
  * @package storefront
+ * @deprecated tag:v6.7.0 - Will be removed, see NavbarPlugin for the new implementation
  */
 export default class FlyoutMenuPlugin extends Plugin {
 

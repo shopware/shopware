@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -34,6 +35,7 @@ class CachedNavigationRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()

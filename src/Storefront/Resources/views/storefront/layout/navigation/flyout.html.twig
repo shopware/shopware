@@ -60,32 +60,32 @@
 
             {% block layout_navigation_flyout_teaser %}
                 {% if category.media %}
-                <div class="col-4 col-xl-3">
-                    <div class="navigation-flyout-teaser">
-                        {% block layout_navigation_flyout_teaser_image %}
-                            <a class="navigation-flyout-teaser-image-container"
-                               href="{{ category_url(category) }}"
-                               {% if category_linknewtab(category) %}target="_blank"
+                    <div class="col-4 col-xl-3">
+                        <div class="navigation-flyout-teaser">
+                            {% block layout_navigation_flyout_teaser_image %}
+                                <a class="navigation-flyout-teaser-image-container"
+                                   href="{{ category_url(category) }}"
+                                   {% if category_linknewtab(category) %}target="_blank"
                                    {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
-                               {% endif %}
-                               title="{{ name }}">
-                                {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
-                                    media: category.media,
-                                    sizes: {
-                                        default: '310px'
-                                    },
-                                    attributes: {
-                                        class: 'navigation-flyout-teaser-image',
-                                        alt: (category.media.translated.alt ?: ''),
-                                        title: (category.media.translated.title ?: ''),
-                                        'data-object-fit': 'cover',
-                                        loading: 'lazy'
-                                    }
-                                } %}
-                            </a>
-                        {% endblock %}
+                                    {% endif %}
+                                   title="{{ name }}">
+                                    {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
+                                        media: category.media,
+                                        sizes: {
+                                            default: '310px'
+                                        },
+                                        attributes: {
+                                            class: 'navigation-flyout-teaser-image',
+                                            alt: (category.media.translated.alt ?: ''),
+                                            title: (category.media.translated.title ?: ''),
+                                            'data-object-fit': 'cover',
+                                            loading: 'lazy'
+                                        }
+                                    } %}
+                                </a>
+                            {% endblock %}
+                        </div>
                     </div>
-                </div>
                 {% endif %}
             {% endblock %}
         </div>

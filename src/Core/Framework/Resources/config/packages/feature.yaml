@@ -17,10 +17,6 @@ shopware:
         default: false
         major: true
         toggleable: false
-      - name: CACHE_REWORK
-        default: false
-        major: true
-        toggleable: false
       - name: ACCESSIBILITY_TWEAKS
         default: false
         major: true
@@ -31,3 +27,7 @@ shopware:
         major: false
         toggleable: false
         description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"
+      - name: CACHE_REWORK
+        default: false
+        major: true
+        toggleable: false

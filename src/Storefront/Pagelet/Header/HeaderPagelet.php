@@ -9,7 +9,9 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\NavigationPagelet;
+use Shopware\Storefront\StorefrontException;
 
 #[Package('storefront')]
 class HeaderPagelet extends NavigationPagelet
@@ -35,7 +37,7 @@ class HeaderPagelet extends NavigationPagelet
     protected $activeCurrency;
 
     /**
-     * @var CategoryCollection
+     * @var CategoryCollection|null
      */
     protected $serviceMenu;
 
@@ -43,18 +45,30 @@ class HeaderPagelet extends NavigationPagelet
      * @internal
      */
     public function __construct(
-        Tree $navigation,
+        Tree|CategoryCollection $navigation,
         LanguageCollection $languages,
         CurrencyCollection $currencies,
-        LanguageEntity $activeLanguage,
-        CurrencyEntity $activeCurrency,
-        CategoryCollection $serviceMenu
+        ?CategoryCollection $serviceMenu,
+        // @deprecated tag:v6.7.0 - remove
+        SalesChannelContext $context
     ) {
         $this->languages = $languages;
         $this->currencies = $currencies;
-        $this->activeLanguage = $activeLanguage;
-        $this->activeCurrency = $activeCurrency;
         $this->serviceMenu = $serviceMenu;
+
+        $activeLanguage = $languages->get($context->getLanguageId());
+        $activeCurrency = $currencies->get($context->getCurrencyId());
+
+        if (!$activeCurrency) {
+            throw StorefrontException::noActiveCurrency();
+        }
+
+        if (!$activeLanguage) {
+            throw StorefrontException::noActiveLanguage();
+        }
+
+        $this->activeCurrency = $activeCurrency;
+        $this->activeLanguage = $activeLanguage;
 
         parent::__construct($navigation);
     }
@@ -79,7 +93,7 @@ class HeaderPagelet extends NavigationPagelet
         return $this->activeCurrency;
     }
 
-    public function getServiceMenu(): CategoryCollection
+    public function getServiceMenu(): ?CategoryCollection
     {
         return $this->serviceMenu;
     }

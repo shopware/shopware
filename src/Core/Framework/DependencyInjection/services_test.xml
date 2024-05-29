@@ -24,6 +24,12 @@
             <tag name="shopware.payment.method"/>
         </service>
 
+        <service id="Shopware\Core\Test\Integration\Cache\CacheInvalidatorDecorator"
+                 decorates="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
+
+            <argument type="service" id=".inner"/>
+        </service>
+
         <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>

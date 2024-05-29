@@ -21,6 +21,9 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('core')]
 class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface, LateDataCollectorInterface
 {
+    /**
+     * @var array<string, mixed>
+     */
     public static array $tags = [];
 
     public function __construct(private readonly RequestStack $stack)
@@ -45,6 +48,9 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
     {
     }
 
+    /**
+     * @return array<mixed>|Data
+     */
     public function getData(): array|Data
     {
         return $this->data;
@@ -52,6 +58,10 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
 
     public function getTotal(): int
     {
+        if (!\is_array($this->data)) {
+            return 0;
+        }
+
         return array_sum(array_map('count', $this->data));
     }
 
@@ -84,7 +94,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
                 self::$tags[$uri][$tag] = [];
             }
 
-            if (!isset(self::$tags[$tag][$caller])) {
+            if (!isset(self::$tags[$uri][$tag][$caller])) {
                 self::$tags[$uri][$tag][$caller] = 0;
             }
 
@@ -112,6 +122,7 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         foreach ($source as $index => $element) {
             $class = $element['class'] ?? '';
 
+            /** @var class-string<object> $class */
             $instance = new \ReflectionClass($class);
             // skip dispatcher chain
             if ($instance->implementsInterface(EventDispatcherInterface::class)) {
@@ -126,6 +137,9 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         return 'n/a';
     }
 
+    /**
+     * @param array<string, mixed> $caller
+     */
     private function implode(array $caller): string
     {
         $class = explode('\\', $caller['class']);
@@ -134,6 +148,9 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
         return $class . '::' . $caller['function'];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildTags(): array
     {
         $tags = self::$tags;
@@ -153,12 +170,18 @@ class HttpCacheTagDataCollectorSubscriber extends AbstractDataCollector implemen
 
         $second = $keys[1];
 
-        foreach ($na as $caller => $count) {
-            if (!isset($tags[$second][$caller])) {
-                $tags[$second][$caller] = 0;
-            }
+        foreach ($na as $tag => $callers) {
+            foreach ($callers as $caller => $count) {
+                if (!isset($tags[$second][$tag])) {
+                    $tags[$second][$tag] = [];
+                }
 
-            $tags[$second][$caller] += $count;
+                if (!isset($tags[$second][$tag][$caller])) {
+                    $tags[$second][$tag][$caller] = 0;
+                }
+
+                $tags[$second][$tag][$caller] += $count;
+            }
         }
 
         return $tags;

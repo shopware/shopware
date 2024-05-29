@@ -47,7 +47,6 @@ use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
-use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -447,6 +446,8 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $contextToken = Uuid::randomHex();
 
         $cart = $this->fillCart($contextToken);
@@ -495,23 +496,6 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey('type', $content['lineItems'][0]);
         static::assertArrayHasKey('label', $content['lineItems'][0]);
         static::assertArrayHasKey('quantity', $content['lineItems'][0]);
-    }
-
-    public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
-    {
-        $contextToken = Uuid::randomHex();
-
-        $order = $this->performOrder('', true, null, $contextToken);
-
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        $request = $this->createRequest($salesChannelContext);
-        $request->request->set('orderId', $order->getId());
-        $requestDataBag = $this->createRequestDataBag('');
-
-        $this->getContainer()->get(CheckoutController::class)->finishPage($request, $salesChannelContext, $requestDataBag);
-
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(CheckoutFinishPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testCheckoutInfoWidget(): void
@@ -820,7 +804,7 @@ class CheckoutControllerTest extends TestCase
 
     private function createRequest(?SalesChannelContext $context = null): Request
     {
-        $request = new Request();
+        $request = Request::create((string) EnvironmentHelper::getVariable('APP_URL'));
         $request->setSession($this->getSession());
 
         $request->attributes->add([

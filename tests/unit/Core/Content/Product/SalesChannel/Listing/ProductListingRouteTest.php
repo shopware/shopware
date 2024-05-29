@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -40,6 +41,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $categoryRepository,
             $this->createMock(ProductStreamBuilderInterface::class),
+            new EventDispatcher()
         );
 
         $criteria = new Criteria();
@@ -74,6 +76,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $categoryRepository,
             $productStreamBuilder,
+            new EventDispatcher()
         );
 
         $criteria = new Criteria();
@@ -100,6 +103,7 @@ class ProductListingRouteTest extends TestCase
             $this->createMock(ProductListingLoader::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ProductStreamBuilderInterface::class),
+            new EventDispatcher()
         );
 
         $this->expectException(DecorationPatternException::class);

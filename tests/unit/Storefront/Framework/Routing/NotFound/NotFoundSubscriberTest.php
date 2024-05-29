@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -66,10 +67,12 @@ class NotFoundSubscriberTest extends TestCase
             ->willReturn(new Response());
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
+        if (!Feature::isActive('cache_rework')) {
+            $cacheTracer
+                ->expects(static::once())
+                ->method('trace')
+                ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
+        }
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -112,10 +115,13 @@ class NotFoundSubscriberTest extends TestCase
             ->willReturn($response);
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
-        $cacheTracer
-            ->expects(static::once())
-            ->method('trace')
-            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
+
+        if (!Feature::isActive('cache_rework')) {
+            $cacheTracer
+                ->expects(static::once())
+                ->method('trace')
+                ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
+        }
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());

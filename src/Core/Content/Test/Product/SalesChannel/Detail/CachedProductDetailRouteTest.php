@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -37,6 +38,7 @@ class CachedProductDetailRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)

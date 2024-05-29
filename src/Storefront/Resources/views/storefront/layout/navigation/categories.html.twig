@@ -28,8 +28,8 @@
                                href="{{ link }}"
                                itemprop="url"
                                {% if category_linknewtab(treeItem.category) %}target="_blank"
-                                   {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
-                               {% endif %}
+                               {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
+                                {% endif %}
                                title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
                             </a>

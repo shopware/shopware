@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Page;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -126,6 +128,8 @@ class ProductPageTest extends TestCase
 
     public function testItLoadsPageWithProductCategoryAsActiveNavigation(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $seoCategoryName = 'Fancy Category';
@@ -155,6 +159,7 @@ class ProductPageTest extends TestCase
 
         static::assertNotNull($page->getHeader());
         static::assertNotNull($page->getHeader()->getNavigation());
+        static::assertInstanceOf(Tree::class, $page->getHeader()->getNavigation());
         static::assertNotNull($page->getHeader()->getNavigation()->getActive());
         static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
         static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());

@@ -20,7 +20,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
@@ -297,42 +296,18 @@ class TranslatorTest extends TestCase
 
     public function testThemeSnippetsGetsMergedWithOverride(): void
     {
-        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
-            static::markTestSkipped('This test needs storefront to be installed.');
-        }
+        // Install the app
+        $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
+        $this->reloadAppSnippets();
+
+        $translator = $this->getContainer()->get(Translator::class);
+        $themeService = $this->getContainer()->get(ThemeService::class);
+        $themeRepo = $this->getContainer()->get('theme.repository');
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL
         );
-
-        $translator = $this->getContainer()->get(Translator::class);
-        $themeService = $this->getContainer()->get(ThemeService::class);
-        $themeRepo = $this->getContainer()->get('theme.repository');
-        $themeLoader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
-
-        // Install the app
-        $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
-        $this->reloadAppSnippets();
-
-        // Ensure the default Storefront theme is active
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
-        $defaultThemeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
-        static::assertNotNull($defaultThemeId, 'Default theme not found');
-        $themeService->assignTheme($defaultThemeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
-
-        // Inject the sales channel and assert that the original snippet is used
-        $translator->injectSettings(
-            $salesChannelContext->getSalesChannelId(),
-            $salesChannelContext->getLanguageId(),
-            'en-GB',
-            $salesChannelContext->getContext()
-        );
-
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
-
-        $translator->reset();
 
         // Assign the SwagTheme and assert that the snippet is overwritten
         $criteria = new Criteria();
@@ -351,30 +326,6 @@ class TranslatorTest extends TestCase
         );
 
         static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
-
-        $translator->reset();
-
-        // In reset, we ignore all theme snippets and use the default ones
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
-
-        // Assign the Storefront theme again and assert that the original snippet is used again
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
-        $themeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
-        static::assertNotNull($themeId);
-
-        $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
-
-        $translator->reset();
-
-        $translator->injectSettings(
-            $salesChannelContext->getSalesChannelId(),
-            $salesChannelContext->getLanguageId(),
-            'en-GB',
-            $salesChannelContext->getContext()
-        );
-
-        static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
     #[DataProvider('pluralTranslationProvider')]

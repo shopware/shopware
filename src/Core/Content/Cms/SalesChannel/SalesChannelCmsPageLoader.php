@@ -151,6 +151,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     }
 
     /**
+     * @param EntityCollection<CmsPageEntity> $pages
+     *
      * @return array<string>
      */
     private function extractProductIds(EntityCollection $pages): array
@@ -159,6 +161,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $streamIds = [];
 
         foreach ($pages as $page) {
+            if (!$page instanceof CmsPageEntity) {
+                continue;
+            }
             $slots = $page->getElementsOfType('product-slider');
 
             /** @var CmsSlotEntity $slot */

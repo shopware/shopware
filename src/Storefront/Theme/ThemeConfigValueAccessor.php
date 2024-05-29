@@ -83,6 +83,10 @@ class ThemeConfigValueAccessor
      */
     public function trace(string $key, \Closure $param)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         $this->traces[$key] = [];
         $this->keys[$key] = true;
 

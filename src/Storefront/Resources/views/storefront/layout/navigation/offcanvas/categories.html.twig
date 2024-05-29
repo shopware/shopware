@@ -1,8 +1,14 @@
 {# @var navigation \Shopware\Core\Content\Category\Tree\Tree #}
-{% set activeId = navigation.active.id ?? context.salesChannel.navigationCategoryId %}
+{% if not feature('cache_rework') %}
+    {% set active = navigation.active %}
+{% endif %}
+
+{% set activeId = active.id ?? context.salesChannel.navigationCategoryId %}
 {% set isRoot = activeId == context.salesChannel.navigationCategoryId %}
-{% set children = navigation.getChildren(activeId) %}
-{% set active = navigation.active %}
+
+{% if not feature('cache_rework') %}
+    {% set children = navigation.getChildren(activeId) %}
+{% endif %}
 
 {% block layout_navigation_offcanvas_navigation_categories %}
     <div class="navigation-offcanvas-container js-navigation-offcanvas">
@@ -18,13 +24,21 @@
             {% endif %}
 
             <ul class="list-unstyled navigation-offcanvas-list">
-                {% if not isRoot and page.navigation.active.type != 'folder' %}
+                {% if not isRoot and active.type != 'folder' %}
                     {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active } %}
                 {% endif %}
 
+                {% if not feature('cache_rework') %}
+                    {% set children = children.tree %}
+                {% endif %}
+
                 {# @var item \Shopware\Core\Content\Category\Tree\TreeItem #}
-                {% for item in children.tree %}
-                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with { item: item, activeId: activeId } %}
+                {% for item in children %}
+                    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig' with {
+                        item: item,
+                        category: item,
+                        activeId: activeId
+                    } %}
                 {% endfor %}
             </ul>
         </div>

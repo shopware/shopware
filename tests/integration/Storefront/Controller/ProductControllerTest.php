@@ -130,6 +130,8 @@ class ProductControllerTest extends TestCase
         bool $xl,
         bool $shouldThrowException = false
     ): void {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $products = (new ProductBuilder($this->ids, 'a.0'))
             ->manufacturer('m1')
             ->name('test')

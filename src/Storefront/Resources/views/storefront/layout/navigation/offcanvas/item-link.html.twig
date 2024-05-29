@@ -1,7 +1,13 @@
-{% set isActive = item.category.id == activeId %}
-{% set hasChildren = item.category.visibleChildCount > 0 %}
-{% set url = category_url(item.category) %}
-{% set name = item.category.translated.name %}
+{% if feature('cache_rework') %}
+    {% set hasChildren = category|length > 0 %}
+{% else %}
+    {% set category = item.category %}
+    {% set hasChildren = category.visibleChildCount > 0 %}
+{% endif %}
+
+{% set isActive = category.id == activeId %}
+{% set url = category_url(category) %}
+{% set name = category.translated.name %}
 
 {% block layout_navigation_offcanvas_navigation_category_item_link %}
     <li class="navigation-offcanvas-list-item">
@@ -9,10 +15,10 @@
             <a class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
                href="{{ url }}"
                 {% if hasChildren %}
-                    data-href="{{ path('frontend.menu.offcanvas', {navigationId: item.category.id}) }}"
+                    data-href="{{ path('frontend.menu.offcanvas', {navigationId: category.id}) }}"
                 {% endif %}
                itemprop="url"
-                {% if category_linknewtab(item.category) %}target="_blank"{% endif %}
+                {% if category_linknewtab(category) %}target="_blank"{% endif %}
                title="{{ name }}">
                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}
                     <span itemprop="name">{{ name }}</span>

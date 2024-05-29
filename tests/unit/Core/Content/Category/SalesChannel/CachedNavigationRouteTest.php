@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -54,6 +55,7 @@ class CachedNavigationRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         $this->decorated = $this->createMock(AbstractNavigationRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->eventDispatcher = new EventDispatcher();

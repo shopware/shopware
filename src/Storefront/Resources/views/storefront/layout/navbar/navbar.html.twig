@@ -11,7 +11,7 @@
                         {% block layout_navbar_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
                                 <li class="nav-item pe-2">
-                                    <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link p-2"
+                                    <a class="nav-link main-navigation-link home-link p-2 nav-item-{{ context.salesChannel.navigationCategoryId }}"
                                        href="{{ path('frontend.home.page') }}"
                                        itemprop="url"
                                        title="{{ homeLabel|striptags }}">
@@ -24,17 +24,15 @@
                         {% endblock %}
 
                         {% block layout_navbar_menu_items %}
-                            {% set activePath = page.header.navigation.active.path %}
-
-                            {% for treeItem in page.header.navigation.tree %}
-                                {% set category = treeItem.category %}
-                                {% set name = category.translated.name %}
+                            {% foreach header.navigation as item %}
+                                {% set hasChildren = item.children|length > 0 %}
+                                {% set name = item.translated.name %}
 
                                 {% block layout_navbar_menu_item %}
-                                    {% if category.type == 'folder' %}
-                                        <li class="nav-item main-navigation-link"
-                                            {% if treeItem.children|length > 0 %}
-                                                data-flyout-menu-trigger="{{ category.id }}"
+                                    {% if item.type == 'folder' %}
+                                        <li class="nav-item main-navigation-link nav-item-{{ item.id }} nav-link root nav-item-{{ item.id }}-link"
+                                            {% if hasChildren %}
+                                                data-flyout-menu-trigger="{{ item.id }}"
                                             {% endif %}
                                             title="{{ name }}">
                                             <div class="main-navigation-link-text">
@@ -42,29 +40,28 @@
                                             </div>
                                         </li>
                                     {% else %}
-                                        <li class="nav-item {% if treeItem.children|length > 0 %}dropdown position-static pe-2{% endif %}">
-                                            <a class="nav-link dropdown-toggle main-navigation-link{% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %} p-2"
-                                               href="{{ category_url(category) }}"
+                                        <li class="nav-item nav-item-{{ item.id }} {% if hasChildren %}dropdown position-static pe-2{% endif %}">
+                                            <a class="nav-link nav-item-{{ item.id }}-link root dropdown-toggle main-navigation-link p-2"
+                                               href="{{ category_url(item) }}"
                                                data-bs-toggle="dropdown"
                                                itemprop="url"
-                                               {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                               {% if category_linknewtab(item) %}target="_blank"{% endif %}
                                                title="{{ name }}">
                                                 {{ name }}
                                             </a>
-                                            {% if (treeItem.children|length > 0) %}
+                                            {% if hasChildren %}
                                                 <div class="dropdown-menu w-100 p-4" role="menu">
                                                     {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
                                                         themeIconConfig: themeIconConfig,
-                                                        navigationTree: treeItem,
-                                                        level: level+1,
-                                                        page: page
+                                                        item: item,
+                                                        level: level+1
                                                     } only %}
                                                 </div>
                                             {% endif %}
                                         </li>
                                     {% endif %}
                                 {% endblock %}
-                            {% endfor %}
+                            {% endforeach %}
                         {% endblock %}
                     </ul>
                 </div>

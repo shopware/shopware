@@ -6,9 +6,11 @@
 {% endblock %}
 
 {% block base_html %}
-<html lang="{{ page.header.activeLanguage.translationCode.code }}"
-      itemscope="itemscope"
-      itemtype="https://schema.org/WebPage">
+    {% if not feature('cache_rework') %}
+        <html lang="{{ language.locale }}"
+              itemscope="itemscope"
+              itemtype="https://schema.org/WebPage">
+    {% endif %}
 {% endblock %}
 
 {% block base_head %}
@@ -39,44 +41,49 @@
             </noscript>
         {% endblock %}
 
-        {% block base_header %}
-            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+        {% if feature('cache_rework') %}
+            {{ render_esi(url('frontend.esi.header')) }}
 
-            <header class="header-main">
-                {% block base_header_inner %}
-                    <div class="container">
-                        {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
-                    </div>
-                {% endblock %}
-            </header>
-        {% endblock %}
+            {% sw_include '@Storefront/storefront/layout/navigation/active-styling.html.twig' %}
+        {% else %}
+            {% block base_header %}
+                {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
 
-        {% block base_navigation %}
-            {% if feature('v6.7.0.0') %}
-                <div class="nav-main d-none d-lg-block">
-                    {% block base_navbar_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' %}
+                <header class="header-main">
+                    {% block base_header_inner %}
+                        <div class="container">
+                            {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
+                        </div>
                     {% endblock %}
-                </div>
-            {% else %}
+                </header>
+            {% endblock %}
+
+            {% block base_navigation %}
                 {# @deprecated tag:v6.7.0 - This template will be removed, use src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig #}
                 <div class="nav-main">
                     {% block base_navigation_inner %}
                         {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' %}
                     {% endblock %}
                 </div>
-            {% endif %}
-        {% endblock %}
+            {% endblock %}
 
-        {% block base_offcanvas_navigation %}
-            {% if page.header.navigation %}
-                <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
-                    {% block base_offcanvas_navigation_inner %}
-                        {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
-                    {% endblock %}
-                </div>
-            {% endif %}
-        {% endblock %}
+            {#
+            @deprecated tag:v6.7.0 - The root categories will no longer be loaded from the DOM. Instead, the root categories will also be fetched via AJAX request.
+            Template `@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig` will by loaded by `\Shopware\Storefront\Controller\NavigationController::offcanvas`
+            Twig block `base_offcanvas_navigation` will be removed without replacement.
+
+            @todo: Remove block `base_offcanvas_navigation` and all it's content in v6.7.0.
+            #}
+            {% block base_offcanvas_navigation %}
+                {% if page.header.navigation %}
+                    <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == page.header.navigation.active.id %} is-root{% endif %}">
+                        {% block base_offcanvas_navigation_inner %}
+                            {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: page.header.navigation } %}
+                        {% endblock %}
+                    </div>
+                {% endif %}
+            {% endblock %}
+        {% endif %}
 
         {% block base_main %}
             <main class="content-main" id="content-main">
@@ -108,13 +115,17 @@
             </main>
         {% endblock %}
 
-        {% block base_footer %}
-            <footer class="footer-main">
-                {% block base_footer_inner %}
-                    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
-                {% endblock %}
-            </footer>
-        {% endblock %}
+        {% if feature('cache_rework') %}
+            {{ render_esi(url('frontend.esi.footer')) }}
+        {% else %}
+            {% block base_footer %}
+                <footer class="footer-main">
+                    {% block base_footer_inner %}
+                        {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' %}
+                    {% endblock %}
+                </footer>
+            {% endblock %}
+        {% endif %}
     {% endblock %}
 
     {% block base_scroll_up %}

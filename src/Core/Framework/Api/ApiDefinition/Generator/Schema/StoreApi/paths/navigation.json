@@ -2,6 +2,207 @@
     "openapi": "3.0.0",
     "info": [],
     "paths": {
+        "/service": {
+            "get": {
+                "tags": ["Category"],
+                "summary": "Fetch the shop service menu",
+                "description": "This endpoint returns the service menu for the shop",
+                "operationId": "readService",
+                "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All available navigations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/category/{categoryId}": {
+            "get": {
+                "tags": ["Category"],
+                "summary": "Loads all children of the provided category id",
+                "description": "This endpoint returns all children of the provided category id",
+                "operationId": "readChildren",
+                "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "Identifier of the category",
+                        "required": true,
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/NavigationType"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All available children navigations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/footer": {
+            "get": {
+                "tags": ["Category"],
+                "summary": "Fetch the shop footer",
+                "description": "This endpoint returns the footer for the shop",
+                "operationId": "readFooter",
+                "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All available navigations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/header": {
+            "get": {
+                "tags": ["Category"],
+                "summary": "Fetch the header navigation",
+                "description": "This endpoint returns the header navigation",
+                "operationId": "readHeader",
+                "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All available navigations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationRouteResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/navigation/{activeId}/{rootId}": {
             "post": {
                 "tags": ["Category", "Endpoints supporting Criteria "],

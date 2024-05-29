@@ -25,6 +25,29 @@ class CategoryCollection extends EntityCollection
         return $this->filter(fn (CategoryEntity $category) => $category->getParentId() === $id);
     }
 
+    public function find(string $id): ?CategoryEntity
+    {
+        return $this->_find($this, $id);
+    }
+
+    private function _find(CategoryCollection $elements, string $id): ?CategoryEntity
+    {
+        foreach ($elements as $item) {
+            if ($item->getId() === $id) {
+                return $item;
+            }
+            if ($item->getChildren() === null) {
+                continue;
+            }
+            $result = $this->_find($item->getChildren(), $id);
+            if ($result !== null) {
+                return $result;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @return array<string>
      */

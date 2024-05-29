@@ -102,7 +102,7 @@ class StorefrontException extends HttpException
     }
 
     /**
-     * @deprecated @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function reviewNotActive(): self|ReviewNotActiveExeption
     {

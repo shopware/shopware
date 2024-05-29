@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
@@ -32,6 +33,11 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
      */
     public function getItem($key): CacheItem
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         $item = $this->decorated->getItem($key);
 
         $this->collection->add($this->getTags($item));
@@ -44,6 +50,10 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
      */
     public function getItems(array $keys = []): \Generator
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
         foreach ($this->decorated->getItems($keys) as $item) {
             $this->collection->add($this->getTags($item));
             yield $item;
@@ -52,26 +62,50 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 
     public function clear(string $prefix = ''): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->clear($prefix);
     }
 
     public function hasItem(string $key): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->hasItem($key);
     }
 
     public function deleteItem(string $key): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->deleteItem($key);
     }
 
     public function deleteItems(array $keys): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->deleteItems($keys);
     }
 
     public function save(CacheItemInterface $item): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
         $result = $this->decorated->save($item);
 
         // add tags after saving to get the newly added tags
@@ -82,6 +116,10 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 
     public function saveDeferred(CacheItemInterface $item): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
         $result = $this->decorated->saveDeferred($item);
 
         // add tags after saving to get the newly added tags
@@ -92,6 +130,11 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 
     public function commit(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->commit();
     }
 
@@ -100,11 +143,20 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
      */
     public function invalidateTags(array $tags): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
+
         return $this->decorated->invalidateTags($tags);
     }
 
     public function reset(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0')
+        );
         if ($this->decorated instanceof ResetInterface) {
             $this->decorated->reset();
         }

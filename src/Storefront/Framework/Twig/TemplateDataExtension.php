@@ -102,6 +102,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return $min ? (int) $min : 3;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getLanguage(SalesChannelContext $context): array
     {
         $query = $this->connection->createQueryBuilder();
@@ -112,10 +115,15 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
 
-        return $query->executeQuery()->fetchAssociative();
+        $data = $query->executeQuery()->fetchAssociative();
+
+        return $data === false ? [] : $data;
     }
 
-    private function navigationPath(Request $request, ?SalesChannelContext $context): array
+    /**
+     * @return array<mixed>
+     */
+    private function navigationPath(Request $request, SalesChannelContext $context): array
     {
         $active = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 

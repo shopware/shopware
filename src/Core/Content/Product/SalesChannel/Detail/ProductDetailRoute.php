@@ -74,7 +74,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 $context,
             );
 
-            $this->eventDispatcher->dispatch($resolveVariantIdEvent);
+            $this->dispatcher->dispatch($resolveVariantIdEvent);
             $productId = $resolveVariantIdEvent->getResolvedVariantId() ?? $this->findBestVariant($productId, $context);
 
             $this->addFilters($context, $criteria);

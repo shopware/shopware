@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Offcanvas\OffcanvasLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -25,7 +27,8 @@ class NavigationController extends StorefrontController
      */
     public function __construct(
         private readonly NavigationPageLoaderInterface $navigationPageLoader,
-        private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader
+        private readonly MenuOffcanvasPageletLoaderInterface $menuOffcanvasPageletLoader,
+        private readonly OffcanvasLoader $offcanvasLoader
     ) {
     }
 
@@ -52,7 +55,11 @@ class NavigationController extends StorefrontController
     #[Route(path: '/widgets/menu/offcanvas', name: 'frontend.menu.offcanvas', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
-        $page = $this->offcanvasLoader->load($request, $context);
+        if (Feature::isActive('cache_rework')) {
+            return $this->newOffcanvas($request, $context);
+        }
+
+        $page = $this->menuOffcanvasPageletLoader->load($request, $context);
 
         $this->hook(new MenuOffcanvasPageletLoadedHook($page, $context));
 
@@ -64,5 +71,15 @@ class NavigationController extends StorefrontController
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
+    }
+
+    private function newOffcanvas(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->offcanvasLoader->load($request, $context);
+
+        return $this->renderStorefront(
+            '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig',
+            ['page' => $page]
+        );
     }
 }

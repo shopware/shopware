@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
@@ -29,7 +30,7 @@ class TranslatorCacheInvalidateTest extends TestCase
      */
     private Connection $connection;
 
-    private mixed $cacheInvalidator;
+    private MockObject $cacheInvalidator;
 
     private TranslatorCacheInvalidate $translatorCacheInvalidate;
 
@@ -49,6 +50,9 @@ class TranslatorCacheInvalidateTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
+        // moved to CacheInvalidationSubscriber
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $subscribedEvents = TranslatorCacheInvalidate::getSubscribedEvents();
 
         static::assertEquals([

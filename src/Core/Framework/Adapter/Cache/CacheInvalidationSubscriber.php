@@ -25,7 +25,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefin
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
@@ -117,7 +117,7 @@ class CacheInvalidationSubscriber
 
         $keys = [];
         if ($this->fineGrainedCacheConfig) {
-            /** @var list<string> $keys */
+            /** @var string[] $keys */
             $keys = array_map(
                 static fn (string $key) => SystemConfigService::buildName($key),
                 $event->getWebhookPayload()['changes']
@@ -139,11 +139,6 @@ class CacheInvalidationSubscriber
         $snippets = $event->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
 
         if (!$snippets) {
-            return;
-        }
-        if (!$this->fineGrainedCacheSnippet) {
-            $this->cacheInvalidator->invalidate(['shopware.translator']);
-
             return;
         }
 
@@ -183,6 +178,10 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates the rule loader each time a rule changed or a plugin install state changed
         $this->cacheInvalidator->invalidate([CachedRuleLoader::CACHE_KEY]);
     }
@@ -190,7 +189,7 @@ class CacheInvalidationSubscriber
     public function invalidateCmsPageIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
-        /** @var list<string> $ids */
+        /** @var string[] $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -204,6 +203,10 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
         $this->cacheInvalidator->invalidate(
             array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds())
@@ -216,7 +219,7 @@ class CacheInvalidationSubscriber
             return;
         }
 
-        $tags = array_map([ProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($event->getIds()));
+        $tags = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
 
         $mains = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) as id FROM product WHERE id IN (:ids) AND version_id = :version',
@@ -258,7 +261,7 @@ class CacheInvalidationSubscriber
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        /** @var list<string> $ids */
+        /** @var string[] $ids */
         $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -274,15 +277,19 @@ class CacheInvalidationSubscriber
         if (Feature::isActive('cache_rework')) {
             return;
         }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates the product listing route each time a category changed
-        $this->cacheInvalidator->invalidate(array_map([ProductListingRoute::class, 'buildName'], $event->getIds()));
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $event->getIds()));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        /** @var list<string> $ids */
-        $ids = array_map([LandingPageRoute::class, 'buildName'], $event->getIds());
+        /** @var string[] $ids */
+        $ids = array_map(LandingPageRoute::buildName(...), $event->getIds());
         $this->cacheInvalidator->invalidate($ids);
     }
 
@@ -325,9 +332,9 @@ class CacheInvalidationSubscriber
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
-            /** @var list<string> $tags */
+            /** @var string[] $tags */
             $tags = array_map(
-                [CountryStateRoute::class, 'buildName'],
+                CountryStateRoute::buildName(...),
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
             );
         }
@@ -347,6 +354,10 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates the navigation route when a category changed or the entry point configuration of an sales channel changed
         $logs = [...$this->getChangedCategories($event), ...$this->getChangedEntryPoints($event)];
 
@@ -361,12 +372,19 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($logs);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, use invalidateProduct instead
+     */
     public function invalidateSearch(): void
     {
         if (Feature::isActive('cache_rework')) {
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates the search and suggest route each time a product changed
         $this->cacheInvalidator->invalidate([
             'product-suggest-route',
@@ -383,7 +401,11 @@ class CacheInvalidationSubscriber
             return;
         }
 
-        /** @var list<string> $parentIds */
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+        /** @var string[] $parentIds */
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT(LOWER(HEX(parent_id))) FROM product WHERE id IN (:ids) AND parent_id IS NOT NULL AND version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
@@ -431,20 +453,24 @@ class CacheInvalidationSubscriber
             // @deprecated tag:v6.7.0 - remove also event listener
             return;
         }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates the product listing route, each time a product - category assignment changed
         $ids = $event->getPrimaryKeys(ProductCategoryDefinition::ENTITY_NAME);
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->cacheInvalidator->invalidate(array_map([ProductListingRoute::class, 'buildName'], $ids));
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
     {
         // invalidates the context cache - each time one of the entities which are considered inside the context factory changed
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
-        $keys = array_map([CachedSalesChannelContextFactory::class, 'buildName'], $ids);
-        $keys = array_merge($keys, array_map([CachedBaseContextFactory::class, 'buildName'], $ids));
+        $keys = array_map(CachedSalesChannelContextFactory::buildName(...), $ids);
+        $keys = array_merge($keys, array_map(CachedBaseContextFactory::buildName(...), $ids));
 
         if ($event->getEventByEntityName(CurrencyDefinition::ENTITY_NAME)) {
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
@@ -474,7 +500,7 @@ class CacheInvalidationSubscriber
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
-        /** @var list<string> $keys */
+        /** @var string[] $keys */
         $keys = array_filter(array_unique($keys));
 
         if (empty($keys)) {
@@ -504,7 +530,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([ProductListingRoute::class, 'buildName'], $ids)
+            array_map(ProductListingRoute::buildName(...), $ids)
         );
     }
 
@@ -522,9 +548,13 @@ class CacheInvalidationSubscriber
             // @deprecated tag:v6.7.0 - remove also event listener
             return;
         }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
 
         $this->cacheInvalidator->invalidate(
-            array_map([ProductReviewRoute::class, 'buildName'], $event->getIds())
+            array_map(ProductReviewRoute::buildName(...), $event->getIds())
         );
     }
 
@@ -538,9 +568,13 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         // invalidates product listings which are based on the product category assignment
         $this->cacheInvalidator->invalidate(
-            array_map([ProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($event->getIds()))
+            array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()))
         );
     }
 
@@ -578,6 +612,11 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         // invalidates all stream based pages and routes after the product indexer changes product_stream_mapping
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(product_stream_id))
@@ -603,6 +642,11 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         // invalidates the product detail route for the changed cross selling definitions
         $ids = $event->getPrimaryKeys(ProductCrossSellingDefinition::ENTITY_NAME);
 
@@ -617,10 +661,13 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([ProductCrossSellingRoute::class, 'buildName'], $ids)
+            array_map(CachedProductCrossSellingRoute::buildName(...), $ids)
         );
     }
 
+    /**
+     * @return array<string>
+     */
     private function getChangedEntryPointsNew(EntityWrittenContainerEvent $event): array
     {
         $header = $event->getPrimaryKeysWithPropertyChange(SalesChannelDefinition::ENTITY_NAME, ['navigationCategoryId', 'navigationCategoryDepth']);
@@ -636,6 +683,9 @@ class CacheInvalidationSubscriber
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function getChangedNavigationCategories(EntityWrittenContainerEvent $event): array
     {
         $categories = $event->getPrimaryKeys(CategoryDefinition::ENTITY_NAME);
@@ -676,7 +726,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
@@ -690,13 +740,13 @@ class CacheInvalidationSubscriber
         $productIds = array_column($ids, 'productId');
 
         return array_merge(
-            array_map([ProductDetailRoute::class, 'buildName'], array_unique($productIds)),
-            array_map([ProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds))
+            array_map(ProductDetailRoute::buildName(...), array_unique($productIds)),
+            array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($productIds))
         );
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
@@ -756,15 +806,15 @@ class CacheInvalidationSubscriber
         );
 
         return [
-            ...array_map([ProductDetailRoute::class, 'buildName'], array_filter($parentIds)),
-            ...array_map([ProductListingRoute::class, 'buildName'], array_filter($categoryIds)),
+            ...array_map(ProductDetailRoute::buildName(...), array_filter($parentIds)),
+            ...array_map(ProductListingRoute::buildName(...), array_filter($categoryIds)),
         ];
     }
 
     /**
-     * @param list<string> $ids
+     * @param string[] $ids
      *
-     * @return list<string>
+     * @return string[]
      */
     private function getProductCategoryIds(array $ids): array
     {
@@ -798,7 +848,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedShippingMethods(EntityWrittenContainerEvent $event): array
     {
@@ -818,11 +868,11 @@ class CacheInvalidationSubscriber
             $tags[] = ShippingMethodRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([ShippingMethodRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map(ShippingMethodRoute::buildName(...), $ids));
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedShippingAssignments(EntityWrittenContainerEvent $event): array
     {
@@ -831,11 +881,11 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([ShippingMethodRoute::class, 'buildName'], $ids);
+        return array_map(ShippingMethodRoute::buildName(...), $ids);
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedPaymentMethods(EntityWrittenContainerEvent $event): array
     {
@@ -855,11 +905,11 @@ class CacheInvalidationSubscriber
             $tags[] = PaymentMethodRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([PaymentMethodRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map(PaymentMethodRoute::buildName(...), $ids));
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedPaymentAssignments(EntityWrittenContainerEvent $event): array
     {
@@ -868,11 +918,11 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([PaymentMethodRoute::class, 'buildName'], $ids);
+        return array_map(PaymentMethodRoute::buildName(...), $ids);
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCategories(EntityWrittenContainerEvent $event): array
     {
@@ -882,14 +932,14 @@ class CacheInvalidationSubscriber
             return [];
         }
 
-        /** @var list<string> $ids */
-        $ids = array_map([NavigationRoute::class, 'buildName'], $ids);
+        /** @var string[] $ids */
+        $ids = array_map(NavigationRoute::buildName(...), $ids);
 
         return $ids;
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedEntryPoints(EntityWrittenContainerEvent $event): array
     {
@@ -906,7 +956,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCountries(EntityWrittenContainerEvent $event): array
     {
@@ -927,11 +977,11 @@ class CacheInvalidationSubscriber
             $tags[] = CountryRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CountryRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map(CountryRoute::buildName(...), $ids));
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCountryAssignments(EntityWrittenContainerEvent $event): array
     {
@@ -940,11 +990,11 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CountryRoute::class, 'buildName'], $ids);
+        return array_map(CountryRoute::buildName(...), $ids);
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedSalutations(EntityWrittenContainerEvent $event): array
     {
@@ -957,7 +1007,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array
     {
@@ -978,11 +1028,11 @@ class CacheInvalidationSubscriber
             $tags[] = LanguageRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([LanguageRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map(LanguageRoute::buildName(...), $ids));
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedLanguageAssignments(EntityWrittenContainerEvent $event): array
     {
@@ -991,11 +1041,11 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([LanguageRoute::class, 'buildName'], $ids);
+        return array_map(LanguageRoute::buildName(...), $ids);
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCurrencies(EntityWrittenContainerEvent $event): array
     {
@@ -1017,11 +1067,11 @@ class CacheInvalidationSubscriber
             $tags[] = CurrencyRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CurrencyRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map(CurrencyRoute::buildName(...), $ids));
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCurrencyAssignments(EntityWrittenContainerEvent $event): array
     {
@@ -1030,6 +1080,6 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CurrencyRoute::class, 'buildName'], $ids);
+        return array_map(CurrencyRoute::buildName(...), $ids);
     }
 }

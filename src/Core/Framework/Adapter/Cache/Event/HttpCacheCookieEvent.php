@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('core')]
 class HttpCacheCookieEvent
 {
     /**
-     * @param array<string, string> $parts
+     * @param array<array-key, mixed> $parts
      */
     public function __construct(
         public readonly Request $request,
@@ -32,6 +34,9 @@ class HttpCacheCookieEvent
         unset($this->parts[$key]);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getParts(): array
     {
         return $this->parts;

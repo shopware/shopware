@@ -1,0 +1,28 @@
+
+{% block layout_navigation_active_styling %}
+    <style>
+        {% foreach navigationPath as id %}
+            {% if navigationId != context.salesChannel.navigationCategoryId %}
+                .nav-item-{{ id }}-link:first-of-type {
+                    color: var(--bs-primary);
+                    font-weight: 700;
+                }
+
+                .nav-item-{{ id }}-link.root:first-of-type {
+                    color: var(--bs-body);
+                    font-weight: 700;
+                }
+            {% endif %}
+        {% endforeach %}
+
+        .nav-item-{{ navigationId }}-link:first-of-type {
+            color: var(--bs-primary);
+            font-weight: 700;
+        }
+
+        .nav-item-{{ navigationId }}-link.root:first-of-type {
+            color: var(--bs-body);
+            font-weight: 700;
+        }
+    </style>
+{% endblock %}

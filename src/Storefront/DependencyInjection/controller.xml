@@ -217,9 +217,18 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Pagelet\Offcanvas\OffcanvasLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute"/>
+            <argument type="service" id="category.repository"/>
+        </service>
+
         <service id="Shopware\Storefront\Controller\NavigationController">
             <argument type="service" id="Shopware\Storefront\Page\Navigation\NavigationPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Offcanvas\OffcanvasLoader"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

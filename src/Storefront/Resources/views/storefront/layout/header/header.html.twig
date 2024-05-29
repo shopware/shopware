@@ -18,10 +18,13 @@
                             {% block layout_header_navigation_toggle_tablet %}
                                 <div class="nav-main-toggle">
                                     {% block layout_header_navigation_toggle_tablet_button %}
+                                        {% set options = { activeId: navigationId } %}
+
                                         <button
                                             class="btn nav-main-toggle-btn header-actions-btn"
                                             type="button"
                                             data-off-canvas-menu="true"
+                                            data-off-canvas-menu-options="{{ options|json_encode }}"
                                             aria-label="{{ 'general.menuLink'|trans|striptags }}"
                                         >
                                             {% block layout_header_navigation_toggle_tablet_button_icon %}
@@ -46,10 +49,13 @@
                             <div class="col d-sm-none">
                                 <div class="menu-button">
                                     {% block layout_header_navigation_toggle_button %}
+                                        {% set options = { activeId: navigationId } %}
+
                                         <button
                                             class="btn nav-main-toggle-btn header-actions-btn"
                                             type="button"
                                             data-off-canvas-menu="true"
+                                            data-off-canvas-menu-options="{{ options|json_encode }}"
                                             aria-label="{{ 'general.menuLink'|trans|striptags }}"
                                         >
                                             {% block layout_header_navigation_toggle_button_icon %}

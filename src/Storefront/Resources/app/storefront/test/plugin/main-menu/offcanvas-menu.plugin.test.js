@@ -1,4 +1,5 @@
 import OffCanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
+import Feature from 'src/helper/feature.helper';
 
 jest.mock('src/service/http-client.service', () => {
     const offCanvasMenuSubCategory = `
@@ -78,6 +79,8 @@ describe('OffCanvasMenuPlugin tests', () => {
         };
 
         plugin = new OffCanvasMenuPlugin(el);
+
+        window.Feature = Feature;
 
         jest.useFakeTimers();
     });

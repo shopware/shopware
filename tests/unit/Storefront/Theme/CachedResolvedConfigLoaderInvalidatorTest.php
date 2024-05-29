@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator;
@@ -46,11 +47,15 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $event = new ThemeAssignedEvent($themeId, $salesChannelId);
         $name = 'theme-config-' . $themeId;
 
-        $expectedInvalidatedTags = [
-            $name,
-            CachedDomainLoader::CACHE_KEY,
-            'translation.catalog.' . $salesChannelId,
-        ];
+        if (Feature::isActive('cache_rework')) {
+            $expectedInvalidatedTags = ['shopware.theme'];
+        } else {
+            $expectedInvalidatedTags = [
+                $name,
+                CachedDomainLoader::CACHE_KEY,
+                'translation.catalog.' . $salesChannelId,
+            ];
+        }
 
         $this->cachedResolvedConfigLoaderInvalidator->assigned($event);
 
@@ -65,10 +70,16 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $themeId = Uuid::randomHex();
         $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test']);
 
-        $expectedInvalidatedTags = [
-            'theme-config-' . $themeId,
-            'theme.test',
-        ];
+        if (Feature::isActive('cache_rework')) {
+            $expectedInvalidatedTags = [
+                'shopware.theme',
+            ];
+        } else {
+            $expectedInvalidatedTags = [
+                'theme-config-' . $themeId,
+                'theme.test',
+            ];
+        }
 
         $this->cachedResolvedConfigLoaderInvalidator->invalidate($event);
 

@@ -14,6 +14,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
         tiggerEvent: 'click',
+        activeId: null,
 
         additionalOffcanvasClass: 'navigation-offcanvas',
         linkSelector: '.js-navigation-offcanvas-link',
@@ -21,6 +22,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
         linkLoadingClass: 'is-loading',
         menuSelector: '.js-navigation-offcanvas',
         overlayContentSelector: '.js-navigation-offcanvas-overlay-content',
+        /**
+         * @deprecated tag:v6.7.0 - The root categories will no longer be loaded from the DOM. Instead, the root categories will also be fetched via AJAX request.
+         * @todo: Remove option property `initialContentSelector` with v6.7.0.
+         */
         initialContentSelector: '.js-navigation-offcanvas-initial-content',
 
         homeBtnClass: 'is-home-link',
@@ -75,7 +80,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
         OffcanvasMenuPlugin._stopEvent(event);
         OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
-
+        window.PluginManager.initializePlugins();
         this.$emitter.publish('openMenu');
     }
 
@@ -87,7 +92,20 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _getLinkEventHandler(event, link) {
-        if (!link) {
+        /**
+         * @deprecated tag:v6.7.0 - The root categories will no longer be loaded from the DOM. Instead, the root categories will also be fetched via AJAX request.
+         * @todo: Remove the `else if (!link)` block with v6.7.0.
+         */
+        if (window.Feature.isActive('CACHE_REWORK') && !link) {
+            const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
+            this.initial = initialContentElement.innerHTML;
+
+            return this._fetchMenu(this.options.navigationUrl, (htmlResponse) => {
+                this._content = this.initial + htmlResponse;
+
+                this._openMenu(event);
+            });
+        } else if (!link) {
             const initialContentElement = DomAccess.querySelector(document, this.options.initialContentSelector);
             this._content = initialContentElement.innerHTML;
 

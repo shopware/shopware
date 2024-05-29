@@ -2,9 +2,12 @@
 
 namespace Shopware\Storefront\Page;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\SalesChannelRequest;
@@ -24,7 +27,9 @@ class GenericPageLoader implements GenericPageLoaderInterface
      * @internal
      */
     public function __construct(
+        // @deprecated tag:v6.7.0 - Will be removed
         private readonly HeaderPageletLoaderInterface $headerLoader,
+        // @deprecated tag:v6.7.0 - Will be removed
         private readonly FooterPageletLoaderInterface $footerLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
@@ -45,44 +50,32 @@ class GenericPageLoader implements GenericPageLoaderInterface
                 'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannel()->getId()),
             ]));
 
-            if ($request->isXmlHttpRequest() || $request->attributes->get('_esi', false)) {
+            if ($request->isXmlHttpRequest()) {
                 $this->eventDispatcher->dispatch(
                     new GenericPageLoadedEvent($page, $context, $request)
                 );
 
                 return $page;
             }
-            $page->setHeader(
-                $this->headerLoader->load($request, $context)
-            );
+            if (!Feature::isActive('cache_rework')) {
+                $page->setSalesChannelShippingMethods(
+                    $this->loadShippingMethods($request, $context)
+                );
 
-            $page->setFooter(
-                $this->footerLoader->load($request, $context)
-            );
+                $page->setSalesChannelPaymentMethods(
+                    $this->loadPaymentMethods($request, $context)
+                );
 
-            $criteria = new Criteria();
-            $criteria->setTitle('generic-page::shipping-methods');
+                $page->setHeader(
+                    $this->headerLoader->load($request, $context)
+                );
 
-            $event = new ShippingMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
-            $this->eventDispatcher->dispatch($event);
+                $footer = $this->footerLoader->load($request, $context);
+                $footer->paymentMethods = $page->getSalesChannelPaymentMethods();
+                $footer->shippingMethods = $page->getSalesChannelShippingMethods();
 
-            $shippingMethods = $this->shippingMethodRoute
-                ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
-                ->getShippingMethods();
-
-            $page->setSalesChannelShippingMethods($shippingMethods);
-
-            $criteria = new Criteria();
-            $criteria->setTitle('generic-page::payment-methods');
-
-            $event = new PaymentMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
-            $this->eventDispatcher->dispatch($event);
-
-            $paymentMethods = $this->paymentMethodRoute
-                ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
-                ->getPaymentMethods();
-
-            $page->setSalesChannelPaymentMethods($paymentMethods);
+                $page->setFooter($footer);
+            }
 
             $this->eventDispatcher->dispatch(
                 new GenericPageLoadedEvent($page, $context, $request)
@@ -90,5 +83,31 @@ class GenericPageLoader implements GenericPageLoaderInterface
 
             return $page;
         });
+    }
+
+    private function loadShippingMethods(Request $request, SalesChannelContext $context): ShippingMethodCollection
+    {
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::shipping-methods');
+
+        $event = new ShippingMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->shippingMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getShippingMethods();
+    }
+
+    private function loadPaymentMethods(Request $request, SalesChannelContext $context): PaymentMethodCollection
+    {
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::payment-methods');
+
+        $event = new PaymentMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->paymentMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getPaymentMethods();
     }
 }

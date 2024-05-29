@@ -1,59 +1,63 @@
 {% block layout_breadcrumb_inner %}
+
     {% if category %}
         {% set breadcrumbCategories = sw_breadcrumb_full(category, context.context) %}
         {% set categoryId = category.id %}
 
+    {% elseif categoryId %}
+        {% set breadcrumbCategories = sw_breadcrumb_full_by_id(categoryId, context.context) %}
+
+    {% else %}
+        {% return %}
+    {% endif %}
+
+    {% if breadcrumbCategories|length > 0 %}
         {% set breadcrumbKeys = breadcrumbCategories|keys %}
 
-        {% if breadcrumbCategories|length > 0 %}
-            <nav aria-label="breadcrumb">
-                {% block layout_breadcrumb_list %}
-                    <ol class="breadcrumb"
-                        itemscope
-                        itemtype="https://schema.org/BreadcrumbList">
-                        {% for breadcrumbCategory in breadcrumbCategories %}
-                            {% set key = breadcrumbCategory.id %}
-                            {% set name = breadcrumbCategory.translated.name %}
+        <nav aria-label="breadcrumb">
+            {% block layout_breadcrumb_list %}
+                <ol class="breadcrumb"
+                    itemscope
+                    itemtype="https://schema.org/BreadcrumbList">
+                    {% for breadcrumbCategory in breadcrumbCategories %}
+                        {% set key = breadcrumbCategory.id %}
+                        {% set name = breadcrumbCategory.translated.name %}
 
-                            {% block layout_breadcrumb_list_item %}
-                                <li class="breadcrumb-item"
-                                    {% if key is same as(categoryId) %}aria-current="page"{% endif %}
-                                    itemprop="itemListElement"
-                                    itemscope
-                                    itemtype="https://schema.org/ListItem">
-                                    {% if breadcrumbCategory.type == 'folder' %}
-                                        <div itemprop="item">
-                                            <div itemprop="name">{{ name }}</div>
-                                        </div>
-                                    {% else %}
-                                        <a href="{{ category_url(breadcrumbCategory) }}"
-                                           class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
-                                           title="{{ name }}"
-                                           {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
-                                           itemprop="item">
-                                            <link itemprop="url"
-                                                  href="{{ category_url(breadcrumbCategory) }}">
-                                            <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
-                                        </a>
-                                    {% endif %}
-                                    <meta itemprop="position" content="{{ loop.index }}">
-                                </li>
-                            {% endblock %}
-
-                            {% block layout_breadcrumb_placeholder %}
-                                {% if key != breadcrumbKeys|last %}
-                                    <div
-                                        class="breadcrumb-placeholder"
-                                        aria-hidden="true"
-                                    >
-                                        {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid'} %}
+                        {% block layout_breadcrumb_list_item %}
+                            <li class="breadcrumb-item"
+                                {% if key is same as(categoryId) %}aria-current="page"{% endif %}
+                                itemprop="itemListElement"
+                                itemscope
+                                itemtype="https://schema.org/ListItem">
+                                {% if breadcrumbCategory.type == 'folder' %}
+                                    <div itemprop="item">
+                                        <div itemprop="name">{{ name }}</div>
                                     </div>
+                                {% else %}
+                                    <a href="{{ category_url(breadcrumbCategory) }}"
+                                       class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
+                                       title="{{ name }}"
+                                       {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
+                                       itemprop="item">
+                                        <link itemprop="url"
+                                              href="{{ category_url(breadcrumbCategory) }}">
+                                        <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
+                                    </a>
                                 {% endif %}
-                            {% endblock %}
-                        {% endfor %}
-                    </ol>
-                {% endblock %}
-            </nav>
-        {% endif %}
+                                <meta itemprop="position" content="{{ loop.index }}">
+                            </li>
+                        {% endblock %}
+
+                        {% block layout_breadcrumb_placeholder %}
+                            {% if key != breadcrumbKeys|last %}
+                                <div class="breadcrumb-placeholder">
+                                    {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid'} %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endfor %}
+                </ol>
+            {% endblock %}
+        </nav>
     {% endif %}
 {% endblock %}

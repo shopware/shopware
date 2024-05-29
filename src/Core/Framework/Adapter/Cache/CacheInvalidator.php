@@ -22,7 +22,7 @@ class CacheInvalidator
      * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
-        // @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+        // @deprecated tag:v6.7.0 - Will be removed
         private readonly int $delay,
         private readonly array $adapters,
         private readonly AbstractInvalidatorStorage $cache,
@@ -42,10 +42,19 @@ class CacheInvalidator
             return;
         }
 
-        $delay = $this->delay > 0 && !$force;
         if (Feature::isActive('cache_rework')) {
-            $delay = !$force;
+            if (!$force) {
+                $this->cache->store($tags);
+
+                return;
+            }
+
+            $this->purge($tags);
+
+            return;
         }
+
+        $delay = $this->delay > 0 && !$force;
 
         if ($delay) {
             $this->cache->store($tags);
@@ -56,6 +65,9 @@ class CacheInvalidator
         $this->purge($tags);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function invalidateExpired(): array
     {
         $tags = $this->cache->loadAndDelete();

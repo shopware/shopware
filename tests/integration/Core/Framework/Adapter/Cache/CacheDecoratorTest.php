@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheDecorator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -22,7 +23,10 @@ class CacheDecoratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cache = $this->getContainer()->get('cache.object');
+        Feature::skipTestIfActive('cache_rework', $this);
+        $cache = $this->getContainer()->get('cache.object');
+        static::assertInstanceOf(CacheDecorator::class, $cache);
+        $this->cache = $cache;
     }
 
     public function testTraceSave(): void

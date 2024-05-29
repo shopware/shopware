@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationR
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\RemoveCacheDecoratorCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -122,6 +123,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new AssetBundleRegistrationCompilerPass());
+        $container->addCompilerPass(new RemoveCacheDecoratorCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());

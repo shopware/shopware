@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
 
@@ -9,16 +10,16 @@ use Shopware\Core\Framework\Log\Package;
 abstract class NavigationPagelet extends Pagelet
 {
     /**
-     * @var Tree|null
+     * @var Tree|CategoryCollection|null
      */
     protected $navigation;
 
-    public function __construct(?Tree $navigation)
+    public function __construct(Tree|CategoryCollection|null $navigation)
     {
         $this->navigation = $navigation;
     }
 
-    public function getNavigation(): ?Tree
+    public function getNavigation(): Tree|CategoryCollection|null
     {
         return $this->navigation;
     }

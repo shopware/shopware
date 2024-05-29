@@ -6,6 +6,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Cache\Exception\InvalidArgumentException;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -41,12 +42,17 @@ class CacheClearer
             $adapter->clear();
         }
 
-        $this->invalidator->invalidateExpired();
+        try {
+            $this->invalidator->invalidateExpired();
+        } catch (InvalidArgumentException) {
+            // redis not available atm (in pipeline or build process)
+        }
 
         if (!is_writable($this->cacheDir)) {
             throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
         }
 
+        // no redis connection
         $this->cacheClearer->clear($this->cacheDir);
 
         if ($this->clusterMode) {

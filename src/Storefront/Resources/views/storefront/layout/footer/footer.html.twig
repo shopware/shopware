@@ -1,3 +1,20 @@
+{% if not feature('cache_rework')  %}
+    {# @deprecated tag:v6.7.0 - Fallback will be removed, `page.footer` is no more available #}
+    {% if not footer is defined and page is defined %}
+        {% set footer = page.footer %}
+    {% endif %}
+
+    {# @deprecated tag:v6.7.0 - Fallback will be removed, `page.header.serviceMenu` is no more available #}
+    {% if not serviceMenu is defined and page is defined %}
+        {% set serviceMenu = page.header.serviceMenu %}
+    {% endif %}
+
+    {% set navigation = footer.navigation.tree %}
+{% else %}
+    {% set serviceMenu = footer.serviceMenu %}
+    {% set navigation = footer.navigation %}
+{% endif %}
+
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
@@ -52,7 +69,22 @@
                 {% endblock %}
 
                 {% block layout_footer_navigation_columns %}
-                    {% for root in page.footer.navigation.tree %}
+                    {% if feature('cache_rework') %}
+                        {% set rootItems = footer.navigation %}
+                    {% else %}
+                        {% set rootItems = footer.navigation.tree %}
+                    {% endif %}
+
+                    {% for root in rootItems %}
+                        {% if feature('cache_rework') %}
+                            {% set category = root  %}
+                        {% else %}
+                            {% set category = root.category  %}
+                        {% endif %}
+
+                        {% set name = category.translated.name %}
+                        {% set type = category.type %}
+
                         {% block layout_footer_navigation_column %}
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
@@ -61,13 +93,13 @@
                                          aria-expanded="true"
                                          aria-controls="collapseFooter{{ loop.index }}">
 
-                                        {% if root.category.type == 'folder' %}
-                                            {{ root.category.translated.name }}
+                                        {% if type == 'folder' %}
+                                            {{ name }}
                                         {% else %}
-                                            <a href="{{ category_url(root.category) }}"
-                                               {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
-                                               title="{{ root.category.translated.name }}">
-                                                {{ root.category.translated.name }}
+                                            <a href="{{ category_url(category) }}"
+                                               {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                               title="{{ name }}">
+                                                {{ name }}
                                             </a>
                                         {% endif %}
 
@@ -91,14 +123,21 @@
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}
                                                 <ul class="list-unstyled">
+
                                                     {% for treeItem in root.children %}
-                                                        {% set category = treeItem.category %}
+                                                        {% if feature('cache_rework') %}
+                                                            {% set category = treeItem %}
+                                                        {% else %}
+                                                            {% set category = treeItem.category %}
+                                                        {% endif %}
+
                                                         {% set name = category.translated.name %}
+                                                        {% set type = category.type %}
 
                                                         {% block layout_footer_navigation_information_link_item %}
                                                             <li class="footer-link-item">
                                                                 {% block layout_footer_navigation_information_link %}
-                                                                    {% if category.type == 'folder' %}
+                                                                    {% if type == 'folder' %}
                                                                         <div>{{ name }}</div>
                                                                     {% else %}
                                                                         <a class="footer-link"
@@ -127,7 +166,7 @@
         {% block layout_footer_payment_shipping_logos %}
             <div class="footer-logos">
                 {% block layout_footer_payment_logos %}
-                    {% for paymentMethod in page.salesChannelPaymentMethods %}
+                    {% for paymentMethod in footer.paymentMethods %}
                         {% block layout_footer_payment_logo %}
                             {% if paymentMethod.media %}
                                 <div class="footer-logo is-payment">
@@ -149,7 +188,7 @@
                 {% endblock %}
 
                 {% block layout_footer_shipping_logos %}
-                    {% for shippingMethod in page.salesChannelShippingMethods %}
+                    {% for shippingMethod in footer.shippingMethods %}
                         {% block layout_footer_shipping_logo %}
                             {% if shippingMethod.media %}
                                 <div class="footer-logo is-shipping">
@@ -180,14 +219,20 @@
                     {% block layout_footer_service_menu_content %}
                         {% apply spaceless %}
                             <ul class="footer-service-menu-list list-unstyled">
-                                {% for serviceMenuItem in page.header.serviceMenu %}
+                                {% for serviceMenuItem in serviceMenu %}
+                                    {% if feature('cache_rework') %}
+                                        {% set name = serviceMenuItem.name %}
+                                    {% else %}
+                                        {% set name = serviceMenuItem.translated.name %}
+                                    {% endif %}
+
                                     {% block layout_footer_service_menu_item %}
                                         <li class="footer-service-menu-item">
                                             <a class="footer-service-menu-link"
                                                href="{{ category_url(serviceMenuItem) }}"
                                                {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
-                                               title="{{ serviceMenuItem.translated.name }}">
-                                                {{ serviceMenuItem.translated.name }}
+                                               title="{{ name }}">
+                                                {{ name }}
                                             </a>
                                         </li>
                                     {% endblock %}

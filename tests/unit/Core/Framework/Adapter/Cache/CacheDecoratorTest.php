@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheDecorator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 /**
@@ -16,6 +17,8 @@ class CacheDecoratorTest extends TestCase
 {
     public function testResetIsPassedToDecoration(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $adapter = $this->createMock(TagAwareAdapter::class);
         $adapter
             ->expects(static::once())

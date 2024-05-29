@@ -49,6 +49,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     ];
 
     /**
+     * @param array<string> $cookies
+     *
      * @internal
      */
     public function __construct(
@@ -124,14 +126,23 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $this->setCurrencyCookie($request, $response);
         }
 
-        $states = $this->updateSystemState($context, $request, $response);
+        if (!Feature::isActive('cache_rework')) {
+            $cart = $this->cartService->getCart($context->getToken(), $context);
+
+            $states = $this->updateSystemState($cart, $context, $request, $response);
+        }
 
         // We need to allow it on login, otherwise the state is wrong
         if (!($route === 'frontend.account.login' || $request->getMethod() === Request::METHOD_GET)) {
             return;
         }
 
-        if ($context->getCustomer()) {
+        $buildHash = $context->getCustomer() !== null;
+        if (!Feature::isActive('cache_rework')) {
+            $buildHash = $buildHash || $cart->getLineItems()->count() > 0;
+        }
+
+        if ($buildHash) {
             $newValue = $this->buildCacheHash($request, $context);
 
             if ($request->cookies->get(self::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
@@ -281,14 +292,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      *
      * @return list<string>
      */
-    private function updateSystemState(SalesChannelContext $context, Request $request, Response $response): array
+    private function updateSystemState(Cart $cart, SalesChannelContext $context, Request $request, Response $response): array
     {
-        if (Feature::isActive('cache_rework')) {
-            return [];
-        }
-
-        $cart = $this->cartService->getCart($context->getToken(), $context);
-
         $states = $this->getSystemStates($request, $context, $cart);
 
         if (empty($states)) {

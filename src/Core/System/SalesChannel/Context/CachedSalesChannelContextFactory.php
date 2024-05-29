@@ -67,6 +67,8 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         $context = CacheValueCompressor::uncompress($value);
 
+        \assert($context instanceof SalesChannelContext);
+
         $context->assign(['token' => $token]);
 
         return $context;

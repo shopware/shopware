@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -118,10 +119,15 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
         $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
-            /** @var Response $response */
-            $response = $this->cacheTracer->trace($name, function () use ($event, $request, $context) {
-                return $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
-            });
+            if (Feature::isActive('cache_rework')) {
+                /** @var Response $response */
+                $response = $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
+            } else {
+                /** @var Response $response */
+                $response = $this->cacheTracer->trace($name, function () use ($event, $request, $context) {
+                    return $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
+                });
+            }
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
@@ -173,10 +179,13 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private function generateTags(string $name, Request $request, SalesChannelContext $context): array
     {
-        $tags = array_merge(
-            $this->cacheTracer->get($name),
-            [$name, self::ALL_TAG]
-        );
+        $tags = [$name, self::ALL_TAG];
+        if (!Feature::isActive('cache_rework')) {
+            $tags = array_merge(
+                $tags,
+                $this->cacheTracer->get($name),
+            );
+        }
 
         $event = new NotFoundPageTagsEvent($tags, $request, $context);
 

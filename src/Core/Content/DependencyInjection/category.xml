@@ -35,7 +35,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="media.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">

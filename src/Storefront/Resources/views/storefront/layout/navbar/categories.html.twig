@@ -1,28 +1,26 @@
-{% macro recursiveCategory(navigationTree, level, page, navigationMedia) %}
+{% macro recursiveCategory(items, level, page, media) %}
     {% set navigationMaxDepth = 3 %}
-    {% set activeId = page.header.navigation.active.id %}
-    {% set activePath = page.header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
-        {% for treeItem in navigationTree %}
-            {% set id = treeItem.category.id %}
-            {% set name = treeItem.category.translated.name %}
-            {% set link = category_url(treeItem.category) %}
+        {% for item in items %}
+            {% set id = item.id %}
+            {% set name = item.translated.name %}
+            {% set link = category_url(item) %}
 
             {% block layout_navbar_categories_item %}
-                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
+                <div class="{% if level == 0 %}{% if media %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
                     {% block layout_navbar_categories_item_link %}
-                        {% if treeItem.category.type == 'folder' %}
-                            <div class="nav-item nav-link navigation-flyout-link is-level-{{ level }}"
+                        {% if item.type == 'folder' %}
+                            <div class="nav-item nav-item-{{ item.id }} nav-link nav-item-{{ item.id }}-link navigation-flyout-link is-level-{{ level }}"
                                  title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
                             </div>
                         {% else %}
-                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
+                            <a class="nav-item nav-item-{{ item.id }} nav-link nav-item-{{ item.id }}-link navigation-flyout-link is-level-{{ level }}"
                                href="{{ link }}"
                                itemprop="url"
-                               {% if category_linknewtab(treeItem.category) %}target="_blank"
-                               {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
+                               {% if category_linknewtab(item) %}target="_blank"
+                               {% if item.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                 {% endif %}
                                title="{{ name }}">
                                 <span itemprop="name">{{ name }}</span>
@@ -32,7 +30,7 @@
 
                     {% block layout_navigation_categories_recoursion %}
                         {% if level < navigationMaxDepth %}
-                            {{ _self.recursiveCategory(treeItem.children, level +1, page, navigationMedia) }}
+                            {{ _self.recursiveCategory(item.children, level +1, page, media) }}
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -48,5 +46,5 @@
         {% set level = 0 %}
     {% endif %}
 
-    {{ recursiveCategory(navigationTree, level, page, navigationMedia) }}
+    {{ recursiveCategory(items, level, page, media) }}
 {% endblock %}

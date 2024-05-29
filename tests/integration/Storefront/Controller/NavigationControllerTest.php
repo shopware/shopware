@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
-use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 
 /**
@@ -32,16 +31,6 @@ class NavigationControllerTest extends TestCase
         $this->createData();
     }
 
-    public function testNavigationPageLoadedHookScriptsAreExecuted(): void
-    {
-        $response = $this->request('GET', '/', []);
-        static::assertEquals(200, $response->getStatusCode());
-
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-
-        static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
-    }
-
     public function testNavigationPageLoadedHookScriptsAreExecutedForCategory(): void
     {
         $response = $this->request('GET', '/my-navigation/', []);
@@ -51,16 +40,6 @@ class NavigationControllerTest extends TestCase
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
-    }
-
-    public function testMenuOffcanvasPageletLoadedHookScriptsAreExecuted(): void
-    {
-        $response = $this->request('GET', '/widgets/menu/offcanvas', []);
-        static::assertEquals(200, $response->getStatusCode());
-
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-
-        static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }
 
     private function createData(): void

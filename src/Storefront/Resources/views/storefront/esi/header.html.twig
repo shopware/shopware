@@ -1,0 +1,25 @@
+{% block header %}
+    {% block header_header %}
+        <header class="header-main">
+            {% block base_header_inner %}
+                <div class="container">
+                    {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
+                </div>
+            {% endblock %}
+        </header>
+    {% endblock %}
+
+    {% block base_navigation %}
+        <div class="nav-main">
+            {% block base_navigation_inner %}
+                {% sw_include '@Storefront/storefront/layout/navbar/navbar.html.twig' with { header: header } %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block base_offcanvas_navigation %}
+        <div class="d-none js-navigation-offcanvas-initial-content">
+            {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/actions.html.twig' %}
+        </div>
+    {% endblock %}
+{% endblock %}

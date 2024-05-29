@@ -3,15 +3,23 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+#[Package('core')]
 #[AsEventListener]
 class CacheTagCollector
 {
+    /**
+     * @var array<string, array<string, bool>>
+     */
     private array $tags = [];
 
+    /**
+     * @internal
+     */
     public function __construct(private readonly RequestStack $stack)
     {
     }
@@ -30,6 +38,9 @@ class CacheTagCollector
         $this->tags = [];
     }
 
+    /**
+     * @return array<string>
+     */
     public function get(Request $request): array
     {
         $hash = $this->uri($request);
@@ -48,7 +59,7 @@ class CacheTagCollector
         }
 
         if ($request->attributes->has('sw-original-request-uri')) {
-            return $request->attributes->get('sw-original-request-uri');
+            return (string) $request->attributes->get('sw-original-request-uri');
         }
 
         return $request->getRequestUri();

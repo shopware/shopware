@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -17,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
@@ -28,7 +31,8 @@ class LandingPageRoute extends AbstractLandingPageRoute
     public function __construct(
         private readonly SalesChannelRepository $landingPageRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        private readonly LandingPageDefinition $landingPageDefinition
+        private readonly LandingPageDefinition $landingPageDefinition,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -37,9 +41,16 @@ class LandingPageRoute extends AbstractLandingPageRoute
         throw new DecorationPatternException(self::class);
     }
 
+    public static function buildName(string $id): string
+    {
+        return 'landing-page-route-' . $id;
+    }
+
     #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($landingPageId)));
+
         $landingPage = $this->loadLandingPage($landingPageId, $context);
 
         $pageId = $landingPage->getCmsPageId();
@@ -58,11 +69,12 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $resolverContext
         );
 
-        if (!$pages->has($pageId)) {
+        $page = $pages->get($pageId);
+        if (!$page instanceof CmsPageEntity) {
             throw new PageNotFoundException($pageId);
         }
 
-        $landingPage->setCmsPage($pages->get($pageId));
+        $landingPage->setCmsPage($page);
 
         return new LandingPageRouteResponse($landingPage);
     }
@@ -79,7 +91,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             ->search($criteria, $context)
             ->get($landingPageId);
 
-        if (!$landingPage) {
+        if (!$landingPage instanceof LandingPageEntity) {
             throw new LandingPageNotFoundException($landingPageId);
         }
 

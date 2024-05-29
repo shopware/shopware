@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -44,9 +45,61 @@ class CacheInvalidatorTest extends TestCase
         $invalidator->invalidate([]);
     }
 
+    public function testDelay(): void
+    {
+        Feature::skipTestIfInActive('cache_rework', $this);
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::never())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::once())
+            ->method('store');
+
+        $invalidator = new CacheInvalidator(
+            1,
+            [$tagAwareAdapter],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger()
+        );
+
+        $invalidator->invalidate(['foo']);
+    }
+
+    public function testForce(): void
+    {
+        Feature::skipTestIfInActive('cache_rework', $this);
+        $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
+        $tagAwareAdapter
+            ->expects(static::once())
+            ->method('invalidateTags')
+            ->with(['foo']);
+
+        $redisInvalidatorStorage = $this->createMock(RedisInvalidatorStorage::class);
+        $redisInvalidatorStorage
+            ->expects(static::never())
+            ->method('store');
+
+        $invalidator = new CacheInvalidator(
+            1,
+            [$tagAwareAdapter],
+            $redisInvalidatorStorage,
+            new EventDispatcher(),
+            new NullLogger()
+        );
+
+        $invalidator->invalidate(['foo'], true);
+    }
+
     #[DataProvider('dataProviderInvalidation')]
     public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
             ->expects($directInvalidate ? static::once() : static::never())

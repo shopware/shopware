@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +28,9 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function load(string $themeId, SalesChannelContext $context): array
     {
         $config = $this->service->getThemeConfiguration($themeId, false, $context->getContext());
@@ -54,6 +58,9 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
         }
 
         foreach ($result as $media) {
+            if (!$media instanceof MediaEntity) {
+                continue;
+            }
             if (!\array_key_exists($media->getId(), $mediaItems)) {
                 continue;
             }

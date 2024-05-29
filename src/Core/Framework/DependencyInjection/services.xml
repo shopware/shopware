@@ -625,6 +625,12 @@ base-uri 'self';
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheWatchDelayedCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
             <argument>%shopware.html_sanitizer.cache_dir%</argument>
             <argument>%shopware.html_sanitizer.cache_enabled%</argument>

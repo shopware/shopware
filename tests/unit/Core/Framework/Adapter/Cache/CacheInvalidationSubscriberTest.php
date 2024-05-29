@@ -16,9 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
@@ -86,12 +88,33 @@ class CacheInvalidationSubscriberTest extends TestCase
         ));
     }
 
+    public function testInvalidateTranslationNew(): void
+    {
+        Feature::skipTestIfInActive('cache_rework', $this);
+
+        $invalidator = $this->createMock(CacheInvalidator::class);
+        $invalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                ['shopware.theme', 'shopware.translator'],
+                false
+            );
+
+        $subscriber = new CacheInvalidationSubscriber($invalidator, $this->createMock(Connection::class), false, false);
+
+        $subscriber->invalidateSnippets(
+            $this->createSnippetEvent()
+        );
+    }
+
     /**
      * @param array<string> $tags
      */
     #[DataProvider('provideTracingTranslationExamples')]
     public function testInvalidateTranslation(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects(static::once())
             ->method('invalidate')
@@ -129,12 +152,36 @@ class CacheInvalidationSubscriberTest extends TestCase
         ];
     }
 
+    public function testInvalidateConfigNew(): void
+    {
+        Feature::skipTestIfInActive('cache_rework', $this);
+
+        $invalidator = $this->createMock(CacheInvalidator::class);
+        $invalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                ['global.system.config', CachedSystemConfigLoader::CACHE_TAG],
+                false
+            );
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $invalidator,
+            $this->createMock(Connection::class),
+            false,
+            false
+        );
+
+        $subscriber->invalidateConfigKey(new SystemConfigChangedHook(['test' => '1'], []));
+    }
+
     /**
      * @param array<string> $tags
      */
     #[DataProvider('provideTracingConfigExamples')]
     public function testInvalidateConfig(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects(static::once())
             ->method('invalidate')
@@ -167,12 +214,16 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->connection->method('fetchAllAssociative')
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
+        if (Feature::isActive('cache_rework')) {
+            $expected = ['product-' . $productId];
+        } else {
+            $expected = ['product-detail-route-' . $productId];
+        }
+
         $this->cacheInvalidator->expects(static::once())
             ->method('invalidate')
             ->with(
-                [
-                    'product-detail-route-' . $productId,
-                ],
+                $expected,
                 false
             );
 
@@ -197,14 +248,24 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ['product_id' => $productId, 'variant_id' => $variants[1]],
             ]);
 
+        if (Feature::isActive('cache_rework')) {
+            $expected = [
+                'product-' . $productId,
+                'product-' . $variants[0],
+                'product-' . $variants[1],
+            ];
+        } else {
+            $expected = [
+                'product-detail-route-' . $productId,
+                'product-detail-route-' . $variants[0],
+                'product-detail-route-' . $variants[1],
+            ];
+        }
+
         $this->cacheInvalidator->expects(static::once())
             ->method('invalidate')
             ->with(
-                [
-                    'product-detail-route-' . $productId,
-                    'product-detail-route-' . $variants[0],
-                    'product-detail-route-' . $variants[1],
-                ],
+                $expected,
                 false
             );
 

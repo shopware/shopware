@@ -46,26 +46,37 @@ class AfterSort
 
         // add first element to sorted list as this will be the absolute first item
         $first = array_shift($elements);
-        if (!method_exists($first, 'getId')) {
+
+        $acc = null;
+        if (method_exists($first, 'getId')) {
+            $acc = function ($item) {
+                // @phpstan-ignore-next-line  (ensured via method_exists)
+                return $item->getId();
+            };
+        } elseif (property_exists($first, 'id')) {
+            $acc = function ($item) {
+                // @phpstan-ignore-next-line  (ensured via method_exists)
+                return $item->id;
+            };
+        }
+
+        if ($acc === null) {
             return $elements;
         }
 
-        $sorted = [$first->getId() => $first];
+        $sorted = [$acc($first) => $first];
 
-        $lastId = $first->getId();
+        $lastId = $acc($first);
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
                 if ($lastId !== $element->$propertyName) {
                     continue;
                 }
-                if (!method_exists($element, 'getId')) {
-                    continue;
-                }
 
                 // find the next element in the chain and set it as the new parent
-                $sorted[$element->getId()] = $element;
-                $lastId = $element->getId();
+                $sorted[$acc($element)] = $element;
+                $lastId = $acc($element);
                 unset($elements[$index]);
 
                 // skip the last part of the while loop which handles an invalid chain
@@ -74,8 +85,8 @@ class AfterSort
 
             // chain is broken, continue with next element as parent
             $nextItem = array_shift($elements);
-            if ($nextItem && method_exists($nextItem, 'getId')) {
-                $sorted[$nextItem->getId()] = $nextItem;
+            if ($nextItem) {
+                $sorted[$acc($nextItem)] = $nextItem;
             }
 
             if (!\count($elements)) {

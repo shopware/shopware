@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -55,6 +56,7 @@ class CachedProductListingRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -104,6 +106,10 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
+    /**
+     * @param array<string> $current
+     * @param array<string> $config
+     */
     #[DataProvider('stateProvider')]
     public function testStates(array $current, array $config): void
     {
@@ -424,6 +430,9 @@ class CachedProductListingRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array<array<string, string>>>
+     */
     private static function assign(string $categoryId): array
     {
         return ['categories' => [['id' => $categoryId]]];

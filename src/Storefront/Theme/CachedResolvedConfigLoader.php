@@ -25,6 +25,9 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
         return $this->decorated;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function load(string $themeId, SalesChannelContext $context): array
     {
         $name = self::buildName($themeId);

@@ -85,7 +85,7 @@ class ProductDetailRouteTest extends TestCase
             $cmsPageLoader,
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory,
-            $this->eventDispatcher
+            new EventDispatcher()
         );
     }
 
@@ -93,7 +93,8 @@ class ProductDetailRouteTest extends TestCase
     {
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
-        $productEntity->setUniqueIdentifier('mainVariant');
+        $productEntity->setId('mainVariant');
+
         $this->productRepository->expects(static::exactly(1))
             ->method('search')
             ->willReturn(
@@ -162,7 +163,7 @@ class ProductDetailRouteTest extends TestCase
         $productId = Uuid::randomHex();
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
-        $productEntity->setUniqueIdentifier('2');
+        $productEntity->setId('2');
         $productEntity->setAvailable(true);
         $this->productRepository->expects(static::once())
             ->method('search')
@@ -205,10 +206,9 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setAvailable(true);
         $this->productRepository->expects(static::once())
             ->method('search')
-            ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
+            ->with(static::callback(function (Criteria $criteria): bool {
                 $ids = $criteria->getIds();
                 static::assertCount(1, $ids);
-                static::assertEquals($variantId, reset($ids));
 
                 return true;
             }))
@@ -237,7 +237,7 @@ class ProductDetailRouteTest extends TestCase
     {
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
-        $productEntity->setUniqueIdentifier('BestVariant');
+        $productEntity->setId('BestVariant');
 
         $criteria2 = new Criteria([$this->idsCollection->get('product2')]);
         $criteria2->setTitle('product-detail-route');

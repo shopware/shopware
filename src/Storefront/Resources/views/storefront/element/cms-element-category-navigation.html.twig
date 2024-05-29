@@ -3,9 +3,18 @@
         {% block element_category_navigation_element %}
             <div class="category-navigation-box">
                 {% block element_category_navigation_box %}
+
+                    {% if feature('cache_rework') %}
+                        {% set navigation = element.data.items %}
+                        {% set active = null %}
+                    {% else %}
+                        {% set navigation = page.header.navigation.tree %}
+                        {% set active = page.header.navigation.active %}
+                    {% endif %}
+
                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {
-                        navigationTree: page.header.navigation.tree,
-                        activeResult: page.header.navigation.active
+                        navigationTree: navigation,
+                        activeResult: active
                     } only %}
                 {% endblock %}
             </div>

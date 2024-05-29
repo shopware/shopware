@@ -62,7 +62,7 @@
                             {% endblock %}
                         </div>
 
-                        <input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}">
+                        <input name="redirectTo" type="hidden" value="{{ route }}">
 
                         {% for key, value in app.request.attributes.get('_route_params') %}
                             <input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">

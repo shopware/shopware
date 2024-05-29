@@ -6,14 +6,18 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
@@ -29,13 +34,36 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
+    final public const ALL_TAG = 'navigation';
+
     /**
      * @internal
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly SalesChannelRepository $categoryRepository
+        private readonly SalesChannelRepository $repository,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
+    }
+
+    public static function serviceName(string $salesChannelId): string
+    {
+        return 'service-menu-' . $salesChannelId;
+    }
+
+    public static function headerName(string $salesChannelId): string
+    {
+        return 'header-' . $salesChannelId;
+    }
+
+    public static function footerName(string $salesChannelId): string
+    {
+        return 'footer-' . $salesChannelId;
+    }
+
+    public static function category(?string $categoryId): string
+    {
+        return 'category-' . $categoryId;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -43,6 +71,82 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
+    public static function buildName(string $id): string
+    {
+        return 'navigation-route-' . $id;
+    }
+
+    #[Route(path: '/store-api/header', name: 'store-api.header', methods: ['GET'])]
+    public function header(Request $request, SalesChannelContext $context): NavigationRouteResponse
+    {
+        /** @var array{id: string, depth: int} $main */
+        $main = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(navigation_category_id)) as id, navigation_category_depth as depth FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($context->getSalesChannelId())]
+        );
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(
+            self::headerName($context->getSalesChannelId()),
+            self::category($main['id'])
+        ));
+
+        return $this->fetch($main['id'], (int) $main['depth'], $context);
+    }
+
+    #[Route(path: '/store-api/footer', name: 'store-api.footer', methods: ['GET'])]
+    public function footer(Request $request, SalesChannelContext $context): NavigationRouteResponse
+    {
+        $id = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(footer_category_id)) as id FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($context->getSalesChannelId())]
+        );
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(
+            self::footerName($context->getSalesChannelId()),
+            self::category($id)
+        ));
+
+        if ($id === null) {
+            return new NavigationRouteResponse(new CategoryCollection());
+        }
+
+        return $this->fetch($id, 2, $context);
+    }
+
+    #[Route(path: '/store-api/category/{categoryId}', name: 'store-api.category', methods: ['GET'])]
+    public function children(string $categoryId, Request $request, SalesChannelContext $context): NavigationRouteResponse
+    {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(
+            self::serviceName($context->getSalesChannelId()),
+            self::category($categoryId)
+        ));
+
+        return $this->fetch($categoryId, 0, $context);
+    }
+
+    #[Route(path: '/store-api/service', name: 'store-api.service', methods: ['GET'])]
+    public function service(Request $request, SalesChannelContext $context): NavigationRouteResponse
+    {
+        $id = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(service_category_id)) as id FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($context->getSalesChannelId())]
+        );
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(
+            self::serviceName($context->getSalesChannelId()),
+            self::category($id)
+        ));
+
+        if ($id === null) {
+            return new NavigationRouteResponse(new CategoryCollection());
+        }
+
+        return $this->fetch($id, 2, $context);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use the `header`, `footer` and `service` methods instead.
+     */
     #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(
         string $activeId,
@@ -51,6 +155,11 @@ class NavigationRoute extends AbstractNavigationRoute
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
@@ -83,6 +192,63 @@ class NavigationRoute extends AbstractNavigationRoute
         return new NavigationRouteResponse($categories);
     }
 
+    private function fetch(string $root, int $depth, SalesChannelContext $context): NavigationRouteResponse
+    {
+        $meta = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(`id`)), `path`, `level` FROM `category` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($root)]
+        );
+
+        /** @var array{id: string, path: string, level: int} $meta */
+        $criteria = new Criteria();
+        $criteria->addFilter(new AndFilter([
+            new ContainsFilter('path', '|' . $root . '|'),
+            new RangeFilter('level', [
+                RangeFilter::GT => $meta['level'],
+                RangeFilter::LTE => $meta['level'] + $depth + 1,
+            ]),
+        ]));
+
+        $criteria->addAssociation('media');
+
+        $categories = $this->repository->search($criteria, $context)->getEntities();
+
+        $items = [];
+
+        $mapping = [];
+
+        /** @var CategoryEntity $category */
+        foreach ($categories as $category) {
+            if (!$category->get('active') || !$category->get('visible')) {
+                continue;
+            }
+
+            $id = $category->get('id');
+
+            $parent = $category->get('parentId');
+
+            $items[$id] = $category;
+
+            $mapping[$parent][] = $category;
+        }
+
+        foreach ($items as $key => $item) {
+            $children = $mapping[$item->getId()] ?? [];
+
+            $children = AfterSort::sort($children, 'afterCategoryId');
+
+            $children = \array_filter($children, static fn (CategoryEntity $filter) => $filter->get('active') && $filter->get('visible'));
+
+            $item->setChildren(new CategoryCollection($children));
+
+            if ($item->getParentId() !== $root) {
+                unset($items[$key]);
+            }
+        }
+
+        return new NavigationRouteResponse(new CategoryCollection($items));
+    }
+
     /**
      * @param string[] $ids
      */
@@ -93,7 +259,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         /** @var CategoryCollection $missing */
-        $missing = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $missing = $this->repository->search($criteria, $context)->getEntities();
 
         return $missing;
     }
@@ -114,7 +280,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         /** @var CategoryCollection $levels */
-        $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $levels = $this->repository->search($criteria, $context)->getEntities();
 
         $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);
 
@@ -260,7 +426,7 @@ class NavigationRoute extends AbstractNavigationRoute
             new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
         );
 
-        $termsResult = $this->categoryRepository
+        $termsResult = $this->repository
             ->aggregate($criteria, $context)
             ->get('category-ids');
 

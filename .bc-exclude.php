@@ -43,6 +43,9 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
         'Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\FkReference#__construct\(\)',
 
+        // @final class changed
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\)',
+
         // Removed boot method from Bundle
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
 

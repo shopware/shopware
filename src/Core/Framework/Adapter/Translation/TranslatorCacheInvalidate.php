@@ -33,6 +33,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
         if (Feature::isActive('cache_rework')) {
             return [];
         }
+
         // @deprecated tag:v6.7.0 - handled in CacheInvalidatorSubscriber
         return [
             SnippetEvents::SNIPPET_WRITTEN_EVENT => 'invalidate',

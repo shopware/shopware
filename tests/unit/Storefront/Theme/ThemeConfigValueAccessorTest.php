@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -15,6 +17,11 @@ use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 #[CoversClass(ThemeConfigValueAccessor::class)]
 class ThemeConfigValueAccessorTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('cache_rework', $this);
+    }
+
     public function testBuildName(): void
     {
         static::assertEquals(
@@ -32,7 +39,8 @@ class ThemeConfigValueAccessorTest extends TestCase
 
         $themeConfigValueAccessor = new ThemeConfigValueAccessor(
             $themeConfigLoader,
-            false
+            false,
+            new EventDispatcher()
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -57,7 +65,8 @@ class ThemeConfigValueAccessorTest extends TestCase
     {
         $themeConfigValueAccessor = new ThemeConfigValueAccessor(
             $this->createMock(AbstractResolvedConfigLoader::class),
-            true
+            true,
+            new EventDispatcher()
         );
 
         $context = $this->createMock(SalesChannelContext::class);

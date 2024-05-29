@@ -1891,21 +1891,6 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/Fixture/ListingTestData.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRouteTest\\:\\:assign\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRouteTest\\:\\:testStates\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Listing\\\\CachedProductListingRouteTest\\:\\:testStates\\(\\) has parameter \\$current with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 7
 			path: src/Core/Content/Test/Product/SalesChannel/ProductListRouteTest.php
@@ -4772,6 +4757,16 @@ parameters:
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
 
 		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Migration\\\\Migration1595492054SeoUrlTemplateDataTest\\:\\:customTemplateProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Migration/Migration1595492054SeoUrlTemplateDataTest.php
+
+		-
+			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Migration\\\\Migration1595492054SeoUrlTemplateDataTest\\:\\:testMigrationHasNoEffectWithCustomProductTemplate\\(\\) has parameter \\$templates with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Test/Migration/Migration1595492054SeoUrlTemplateDataTest.php
+
+		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/AbstractResolvedConfigLoader.php
@@ -4805,11 +4800,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\Aggregate\\\\ThemeTranslationEntity\\:\\:\\$labels type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Aggregate/ThemeTranslationEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\CachedResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/CachedResolvedConfigLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Command\\\\ThemePrepareIconsCommand\\:\\:getChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -4860,21 +4850,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Event\\\\ThemeIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Event/ThemeIndexerEvent.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getId\\(\\)\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ResolvedConfigLoader.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getUrl\\(\\)\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ResolvedConfigLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ResolvedConfigLoader.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"

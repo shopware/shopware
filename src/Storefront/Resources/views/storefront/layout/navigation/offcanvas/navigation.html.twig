@@ -1,17 +1,8 @@
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_content %}
-    {% block layout_navigation_offcanvas_navigation_actions %}
-        <nav class="nav navigation-offcanvas-actions">
-            {% block layout_navigation_offcanvas_navigation_action_language %}
-                {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' with {position: 'offcanvas'} %}
-            {% endblock %}
-
-            {% block layout_navigation_offcanvas_navigation_action_currency %}
-                {% sw_include '@Storefront/storefront/layout/header/actions/currency-widget.html.twig' with {position: 'offcanvas'} %}
-            {% endblock %}
-        </nav>
-    {% endblock %}
-
-    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig' with { navigation: navigation } %}
+    {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig' with {
+        children: page.categories,
+        active: page.category
+    } %}
 {% endblock %}

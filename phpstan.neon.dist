@@ -172,6 +172,9 @@ parameters:
                 - src/Core/Checkout/Payment/PaymentMethodDefinition.php
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
+        - '#NavigationLoader implements deprecated interface Shopware\\Core\\Content\\Category\\Service\\NavigationLoaderInterface#'
+        - '#.*has typehint with deprecated interface Shopware\\Core\\Content\\Category\\Service\\NavigationLoaderInterface.*#'
+
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*(class|interface) Shopware\\#'
 
@@ -184,6 +187,9 @@ parameters:
         - # It explicitly tests array access on object, so it works from twig scripts
             message: "#Use explicit methods over array access on object$#"
             path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+
+        - # @final annotations which are overwritten
+            message: '#.*extends @final class.*#'
 
         - # Classes that are allowed to use dynamic property name access
             message: '#Use explicit names over dynamic ones#'

@@ -6,6 +6,9 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed use NavigationRoute instead
+ */
 #[Package('inventory')]
 interface NavigationLoaderInterface
 {

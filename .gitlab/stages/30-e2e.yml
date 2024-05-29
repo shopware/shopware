@@ -41,8 +41,8 @@
           composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - bin/console assets:install
-    - bin/console theme:compile
     - bin/console e2e:dump-db
+    - bin/console theme:compile
     - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
     - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
     - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -51,7 +50,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly MessageBusInterface $messageBus,
-        private readonly SystemConfigService $systemConfig,
         private readonly int $themeFileDeleteDelay,
         private readonly bool $autoPrefix = false
     ) {
@@ -125,7 +123,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
 
         CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
-        $this->systemConfig->set(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.' . $themePrefix, $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js'));
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 

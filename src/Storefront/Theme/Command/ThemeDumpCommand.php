@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -55,6 +57,7 @@ class ThemeDumpCommand extends Command
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria->addAssociation('salesChannels.domains');
 
         $id = $input->getArgument('theme-id');
         if ($id !== null) {
@@ -69,29 +72,45 @@ class ThemeDumpCommand extends Command
             return self::FAILURE;
         }
 
+        $dump = [];
+
         /** @var ThemeEntity $themeEntity */
-        $themeEntity = $themes->first();
-        $technicalName = $this->getTechnicalName($themeEntity->getId());
-        if ($technicalName === null) {
-            $this->io->error('No theme found');
+        foreach ($themes as $themeEntity) {
+            $technicalName = $this->getTechnicalName($themeEntity->getId());
+            if ($technicalName === null) {
+                $this->io->error('No theme found');
 
-            return self::FAILURE;
+                continue;
+            }
+
+            $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($technicalName);
+            if ($themeConfig === null) {
+                $this->io->error(sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
+
+                continue;
+            }
+
+            /** @var SalesChannelEntity|null $firstSalesChannel */
+            $firstSalesChannel = $themeEntity->getSalesChannels()?->first();
+
+            /** @var SalesChannelDomainEntity|null $firstDomain */
+            $firstDomain = $firstSalesChannel?->getDomains()?->first();
+            if ($firstDomain === null) {
+                $this->io->error(sprintf('No domain found for theme "%s"', $themeEntity->getName()));
+
+                continue;
+            }
+
+            $dump[$themeEntity->getTechnicalName()] = array_merge_recursive($dump, $this->themeFileResolver->resolveFiles(
+                $themeConfig,
+                $this->pluginRegistry->getConfigurations(),
+                true
+            ));
+
+            $dump[$themeEntity->getTechnicalName()]['domain'] = $firstDomain->getUrl();
+            $dump[$themeEntity->getTechnicalName()]['themeName'] = $themeEntity->getName();
+            $dump[$themeEntity->getTechnicalName()]['basePath'] = $themeConfig->getBasePath();
         }
-
-        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($technicalName);
-        if ($themeConfig === null) {
-            $this->io->error(sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
-
-            return self::FAILURE;
-        }
-
-        $dump = $this->themeFileResolver->resolveFiles(
-            $themeConfig,
-            $this->pluginRegistry->getConfigurations(),
-            true
-        );
-
-        $dump['basePath'] = $themeConfig->getBasePath();
 
         file_put_contents(
             $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'theme-files.json',

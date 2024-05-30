@@ -52,7 +52,14 @@ try {
 }
 
 const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
-let watchFilePaths = isHotMode ? [`${themeFiles.basePath}/**/*.twig`] : [];
+
+let watchFilePaths = [];
+
+if(isHotMode) {
+    Object.values(themeFiles).forEach((theme) => {
+        watchFilePaths.push(`${theme.basePath}/**/*.twig`);
+    });
+}
 
 const pluginEntries = (() => {
     const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
@@ -382,9 +389,15 @@ if (isHotMode) {
             $sw-asset-sitemap-url: '';
         `;
 
-        const collectedImports = [dumpedVariablesImport, assetOverrides, ...themeFiles.style.map((value) => {
-            return `@import "${value.filepath}";\n`;
-        })];
+        const themesStyles = [];
+
+        Object.values(themeFiles).forEach((theme) => {
+            themesStyles.push(...theme.style.map((value) => {
+                return `@import "${value.filepath}";\n`;
+            }));
+        })
+
+        const collectedImports = [dumpedVariablesImport, assetOverrides, ...themesStyles];
 
         return fileComment + scssFeatureConfig + collectedImports.join('');
     })();

@@ -450,6 +450,12 @@
                     "default": true,
                     "description": "Controls the cache compression before the storage"
                 },
+                "cache_compression_method": {
+                    "type": "string",
+                    "enum": ["gzip", "zstd"],
+                    "default": "gzip",
+                    "description": "Controls the cache compression method"
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
                 },
@@ -586,6 +592,12 @@
                 "compress": {
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
+                },
+                "compression_method": {
+                    "type": "string",
+                    "enum": ["gzip", "zstd"],
+                    "default": "gzip",
+                    "description": "Controls the cache compression method"
                 },
                 "storage": {
                     "type": "object",

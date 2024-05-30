@@ -37,6 +37,7 @@ class FrameworkTest extends TestCase
         $container->set(ExtensionRegistry::class, $this->createMock(ExtensionRegistry::class));
         $container->setParameter('kernel.cache_dir', '/tmp');
         $container->setParameter('shopware.cache.cache_compression', true);
+        $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
         $framework = new Framework();
         $framework->setContainer($container);
 
@@ -58,6 +59,7 @@ class FrameworkTest extends TestCase
         $container->set(ExtensionRegistry::class, $this->createMock(ExtensionRegistry::class));
         $container->setParameter('kernel.cache_dir', null);
         $container->setParameter('shopware.cache.cache_compression', true);
+        $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
         $framework = new Framework();
         $framework->setContainer($container);
 

@@ -224,12 +224,13 @@ export default class FormPreserverPlugin extends Plugin {
     }
 
     /**
-     * Registers a submit event to the form to clear the storage.
+     * Registers a submit / reset event handler to the form to clear the storage.
      *
      * @private
      */
     _registerFormEvent() {
-        this.el.addEventListener('submit', this._onSubmit.bind(this));
+        this.el.addEventListener('submit', () => this._clearStorage());
+        this.el.addEventListener('reset', () => this._clearStorage());
     }
 
     /**
@@ -238,7 +239,7 @@ export default class FormPreserverPlugin extends Plugin {
      *
      * @private
      */
-    _onSubmit() {
+    _clearStorage() {
         this.storedKeys.forEach((storedKey) => {
             this.storage.removeItem(storedKey);
         });

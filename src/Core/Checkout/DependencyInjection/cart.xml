@@ -49,7 +49,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
-            <argument>%shopware.cart.compress%</argument>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartSerializationCleaner">
@@ -499,11 +499,16 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CartCompressor">
+            <argument>%shopware.cart.compress%</argument>
+            <argument>%shopware.cart.compression_method%</argument>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\RedisCartPersister">
             <argument type="service" id="shopware.cart.redis"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
-            <argument>%shopware.cart.compress%</argument>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
             <argument>%shopware.cart.expire_days%</argument>
         </service>
 
@@ -515,9 +520,9 @@
         <service id="Shopware\Core\Checkout\Cart\Command\CartMigrateCommand">
             <argument type="service" id="shopware.cart.redis" on-invalid="null"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument>%shopware.cart.compress%</argument>
             <argument>%shopware.cart.expire_days%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
             <tag name="console.command"/>
         </service>
     </services>

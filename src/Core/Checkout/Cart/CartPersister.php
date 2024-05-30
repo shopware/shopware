@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -26,7 +25,7 @@ class CartPersister extends AbstractCartPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly bool $compress
+        private readonly CartCompressor $compressor
     ) {
     }
 
@@ -47,7 +46,12 @@ class CartPersister extends AbstractCartPersister
             throw CartException::tokenNotFound($token);
         }
 
-        $cart = $content['compressed'] ? CacheValueCompressor::uncompress($content['payload']) : unserialize((string) $content['payload']);
+        try {
+            $cart = $this->compressor->unserialize($content['payload'], (int) $content['compressed']);
+        } catch (\Exception) {
+            // When we can't decode it, we have to delete it
+            throw CartException::tokenNotFound($token);
+        }
 
         if (!$cart instanceof Cart) {
             throw CartException::deserializeFailed();
@@ -87,12 +91,14 @@ class CartPersister extends AbstractCartPersister
             ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
         SQL;
 
+        [$compressed, $serializeCart] = $this->serializeCart($cart);
+
         $data = [
             'token' => $cart->getToken(),
-            'payload' => $this->serializeCart($cart),
+            'payload' => $serializeCart,
             'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'compressed' => (int) $this->compress,
+            'compressed' => $compressed,
         ];
 
         $query = new RetryableQuery($this->connection, $this->connection->prepare($sql));
@@ -136,7 +142,10 @@ class CartPersister extends AbstractCartPersister
         } while ($result > 0);
     }
 
-    private function serializeCart(Cart $cart): string
+    /**
+     * @return array{0: int, 1: string}
+     */
+    private function serializeCart(Cart $cart): array
     {
         $errors = $cart->getErrors();
         $data = $cart->getData();
@@ -146,7 +155,7 @@ class CartPersister extends AbstractCartPersister
 
         $this->cartSerializationCleaner->cleanupCart($cart);
 
-        $serialized = $this->compress ? CacheValueCompressor::compress($cart) : serialize($cart);
+        $serialized = $this->compressor->serialize($cart);
 
         $cart->setErrors($errors);
         $cart->setData($data);

@@ -76,6 +76,9 @@ export default class FormCmsHandler extends Plugin {
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();
+
+        // Reset form after successful submission to clear form contents.
+        this.el.reset();
     }
 
     _handleResponse(res) {

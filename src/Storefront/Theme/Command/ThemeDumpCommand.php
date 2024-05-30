@@ -17,6 +17,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -57,7 +58,21 @@ class ThemeDumpCommand extends Command
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
         $id = $input->getArgument('theme-id');
-        if ($id !== null) {
+
+        if (!$id) {
+            $helper = $this->getHelper('question');
+
+            $choices = $this->getThemeChoices();
+
+            if (\count($choices) > 1) {
+                $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
+                $themeName = $helper->ask($input, $output, $question);
+
+                \assert(\is_string($themeName));
+
+                $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
+            }
+        } else {
             $criteria->setIds([$id]);
         }
 
@@ -101,6 +116,20 @@ class ThemeDumpCommand extends Command
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function getThemeChoices(): array
+    {
+        $choices = [];
+
+        foreach ($this->pluginRegistry->getConfigurations()->getThemes() as $theme) {
+            $choices[] = $theme->getTechnicalName();
+        }
+
+        return $choices;
     }
 
     private function getTechnicalName(string $themeId): ?string

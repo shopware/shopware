@@ -237,7 +237,7 @@ PHP Full:
         - .gitlab/stages/02-unit.yml
   parallel:
     matrix:
-      - MYSQL_IMAGE: mysql:8
+      - MYSQL_IMAGE: mysql:8.3
         CI_IMAGE_TAG:
           - "latest"
           - "php8.3"

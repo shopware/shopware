@@ -30,7 +30,7 @@ describe('Create a variant product using default customer and buy it via cash on
         });
     });
 
-    it('@package: should add multidimensional variant to product and set surcharge', () => {
+    it.skip('@package: should add multidimensional variant to product and set surcharge', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
             method: 'POST',

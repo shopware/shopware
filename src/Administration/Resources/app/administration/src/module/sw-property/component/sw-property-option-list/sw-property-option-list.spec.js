@@ -95,6 +95,7 @@ async function createWrapper() {
                 stopEventListener: () => {},
                 startEventListener: () => {},
             },
+            searchRankingService: {},
         },
         stubs: {
             'sw-card': await Shopware.Component.build('sw-card'),

@@ -56,6 +56,7 @@ class ThemeDumpCommand extends Command
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $criteria->addAssociation('salesChannels.domains');
 
         $id = $input->getArgument('theme-id');
 
@@ -106,6 +107,15 @@ class ThemeDumpCommand extends Command
             true
         );
 
+        $domainUrl = $this->askForDomainUrl($themeEntity, $input, $output);
+
+        if ($domainUrl === null) {
+            $this->io->error(sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
+
+            return self::FAILURE;
+        }
+
+        $dump['domainUrl'] = $domainUrl;
         $dump['basePath'] = $themeConfig->getBasePath();
 
         file_put_contents(
@@ -149,5 +159,46 @@ class ThemeDumpCommand extends Command
         } while ($technicalName === null && $themeId !== null);
 
         return $technicalName;
+    }
+
+    private function askForDomainUrl(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
+    {
+        $salesChannels = $themeEntity->getSalesChannels();
+
+        if (!$salesChannels) {
+            return null;
+        }
+
+        foreach ($salesChannels as $salesChannel) {
+            if (!$salesChannel->getDomains()?->count()) {
+                continue;
+            }
+
+            $domains = $salesChannel->getDomains();
+
+            if (!$domains?->count()) {
+                return null;
+            }
+
+            $domainUrls = [];
+            foreach ($domains as $domain) {
+                $domainUrls[] = $domain->getUrl();
+            }
+
+            if ($domains?->count() > 1) {
+                $helper = $this->getHelper('question');
+
+                $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
+                $domainUrl = $helper->ask($input, $output, $question);
+
+                \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
+
+                return $domainUrl;
+            }
+
+            return $domainUrls[0];
+        }
+
+        return null;
     }
 }

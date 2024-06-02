@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -107,7 +108,7 @@ class ThemeDumpCommand extends Command
             true
         );
 
-        $domainUrl = $this->askForDomainUrl($themeEntity, $input, $output);
+        $domainUrl = $this->askForDomainUrlIfMoreThanOne($themeEntity, $input, $output);
 
         if ($domainUrl === null) {
             $this->io->error(sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
@@ -161,13 +162,15 @@ class ThemeDumpCommand extends Command
         return $technicalName;
     }
 
-    private function askForDomainUrl(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
+    private function askForDomainUrlIfMoreThanOne(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
     {
-        $salesChannels = $themeEntity->getSalesChannels();
+        $salesChannels = $themeEntity->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
         if (!$salesChannels) {
             return null;
         }
+
+        $domainUrls = [];
 
         foreach ($salesChannels as $salesChannel) {
             if (!$salesChannel->getDomains()?->count()) {
@@ -177,28 +180,25 @@ class ThemeDumpCommand extends Command
             $domains = $salesChannel->getDomains();
 
             if (!$domains?->count()) {
-                return null;
+                continue;
             }
 
-            $domainUrls = [];
             foreach ($domains as $domain) {
                 $domainUrls[] = $domain->getUrl();
             }
-
-            if ($domains?->count() > 1) {
-                $helper = $this->getHelper('question');
-
-                $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
-                $domainUrl = $helper->ask($input, $output, $question);
-
-                \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
-
-                return $domainUrl;
-            }
-
-            return $domainUrls[0];
         }
 
-        return null;
+        if (\count($domainUrls) > 1) {
+            $helper = $this->getHelper('question');
+
+            $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
+            $domainUrl = $helper->ask($input, $output, $question);
+
+            \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
+
+            return $domainUrl;
+        }
+
+        return $domainUrls[0] ?? null;
     }
 }

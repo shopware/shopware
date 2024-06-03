@@ -3,6 +3,7 @@
 namespace Shopware\Core;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
@@ -179,7 +180,7 @@ class Kernel extends HttpKernel
 
         try {
             $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (\Throwable $e) {
+        } catch (DBALException $e) {
             if (\defined('\STDERR')) {
                 fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
             }

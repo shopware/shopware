@@ -41,7 +41,7 @@
       "notificationErrorMessage": "Fehler beim Speichern der Währung.",
       "titleRoundingCard": "Preisrundung",
       "titleCountryRoundingCard": "Länder",
-      "searchbarPlaceholder": "Suche Land...",
+      "searchbarPlaceholder": "Suche Land ...",
       "notificationCountryErrorMessage": "Beim Speichern der Ländereinstellung ist ein Fehler aufgetreten.",
       "notificationCountrySuccessMessage": "Ländereinstellungen erfoglreich gespeichert.",
       "currencyCountry": {

@@ -2,7 +2,7 @@
   "sw-settings-product-feature-sets": {
     "general": {
       "mainMenuItemGeneral": "Wesentliche Merkmale",
-      "placeholderSearchBar": "Templates durchsuchen...",
+      "placeholderSearchBar": "Templates durchsuchen ...",
       "searchType": "Wesentliche Merkmale"
     },
     "list": {

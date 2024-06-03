@@ -367,8 +367,8 @@
             "title": "Slider-Titel",
             "selection": "Produkte auswählen",
             "minWidth": "Minimale Breite",
-            "productStreamChoice": "Wähle eine dynamische Produktgruppe...",
-            "productStreamSorting": "Wähle eine Sortierung..."
+            "productStreamChoice": "Wähle eine dynamische Produktgruppe ...",
+            "productStreamSorting": "Wähle eine Sortierung ..."
           },
           "productAssignmentTypeOptions": {
             "manual": "Manuelle Zuweisung",
@@ -735,10 +735,10 @@
         "infoTextShopPages": "Du kannst dieses Layout sowohl für Kategorien verwenden als auch für Shopseiten wie AGB, Impressum, Fehlerseiten etc.",
         "infoTextProductDetailPages": "Das Layout ist erst in Deinem Shop zu sehen, wenn du es einem aktiven Produkt zuweist.",
         "labelCategories": "Kategorien",
-        "placeholderCategories": "Wähle Kategorien aus...",
-        "placeholderLandingPages": "Wähle Landingpages aus...",
+        "placeholderCategories": "Wähle Kategorien aus ...",
+        "placeholderLandingPages": "Wähle Landingpages aus ...",
         "labelSalesChannel": "Verkaufskanal",
-        "placeholderSalesChannel": "Wähle einen Verkaufskanal...",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal ...",
         "resetOptionSalesChannel": "Alle Verkaufskanäle",
         "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
         "labelShopPages": "Shopseiten",

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Repository;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -465,7 +465,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d', $i),
+                'technicalName' => uniqid('technical_name_'),
                 'label' => sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d', $i),

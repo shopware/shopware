@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Repository;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -23,15 +23,9 @@ class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private Context $context;
 
@@ -67,7 +61,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $expect = $data[$id];
         static::assertIsArray($record);
         static::assertEquals($id, $record['id']);
-        static::assertEquals($expect['name'], $record['name']);
+        static::assertEquals($expect['technicalName'], $record['technical_name']);
         static::assertEquals($expect['label'], $translationRecord['label']);
         static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
         static::assertEquals($expect['sourceEntity'], $record['source_entity']);
@@ -84,6 +78,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $data = $this->prepareImportExportProfileTestData($num);
 
         foreach ($requiredProperties as $property) {
+            /** @var array<string, mixed> $entry */
             $entry = array_shift($data);
             unset($entry[$property]);
 
@@ -112,7 +107,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['technicalName'], $record['technical_name']);
             static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
@@ -132,6 +127,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $incompleteData = $this->prepareImportExportProfileTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
+            /** @var array<string, mixed> $entry */
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
             $data[] = $entry;
@@ -168,7 +164,6 @@ class ImportExportProfileRepositoryTest extends TestCase
             $id = $expect['id'];
             /** @var ImportExportProfileEntity $importExportProfile */
             $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-            static::assertEquals($expect['name'], $importExportProfile->getName());
             static::assertEquals($expect['label'], $importExportProfile->getLabel());
             static::assertEquals($expect['systemDefault'], $importExportProfile->getSystemDefault());
             static::assertEquals($expect['sourceEntity'], $importExportProfile->getSourceEntity());
@@ -176,6 +171,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['delimiter'], $importExportProfile->getDelimiter());
             static::assertEquals($expect['enclosure'], $importExportProfile->getEnclosure());
             static::assertEquals($expect['mapping'], $importExportProfile->getMapping());
+            static::assertEquals($expect['technicalName'], $importExportProfile->getTechnicalName());
         }
     }
 
@@ -215,7 +211,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['technicalName'], $record['technical_name']);
             static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
@@ -231,7 +227,9 @@ class ImportExportProfileRepositoryTest extends TestCase
     {
         $upsertData = [];
         $data = $this->prepareImportExportProfileTestData();
-        $properties = array_keys(array_pop($data));
+        /** @var array<string, mixed> $last */
+        $last = array_pop($data);
+        $properties = array_keys($last);
 
         $num = \count($properties);
         $data = $this->prepareImportExportProfileTestData($num);
@@ -262,7 +260,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['technicalName'], $record['technical_name']);
             static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
@@ -337,6 +335,8 @@ class ImportExportProfileRepositoryTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportProfileTestData(int $num = 1, string $add = ''): array
     {
@@ -346,7 +346,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d %s', $i, $add),
+                'technicalName' => uniqid('technical_name_'),
                 'label' => sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
@@ -362,6 +362,8 @@ class ImportExportProfileRepositoryTest extends TestCase
 
     /**
      * Read out the contents of the import_export_profile_translation table
+     *
+     * @return array<string, array<string, string>>
      */
     protected function getTranslationRecords(): array
     {

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
@@ -13,10 +14,12 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -36,6 +39,8 @@ class ImportEntityCommand extends Command
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
      */
     public function __construct(
         private readonly ImportExportService $initiationService,
@@ -52,13 +57,20 @@ class ImportEntityCommand extends Command
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Path to import file')
             ->addArgument('expireDate', InputArgument::REQUIRED, 'PHP DateTime compatible string')
+            /** @deprecated tag:v6.7.0 - Remove argument */
             ->addArgument(
                 'profile',
                 InputArgument::OPTIONAL,
                 'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
             )
+            ->addOption(
+                'profile-technical-name',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Specify the profile to use via its technical name'
+            )
             ->addOption('rollbackOnError', 'r', InputOption::VALUE_NONE, 'Rollback database transaction on error')
-            ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occured during import')
+            ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occurred during import')
             ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data');
     }
 
@@ -67,10 +79,8 @@ class ImportEntityCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
-        $profileName = $input->getArgument('profile');
-        $profile = empty($profileName)
-            ? $this->chooseProfile($context, $io)
-            : $this->profileByName($profileName, $context);
+        $profile = $this->getProfile($input, $output, $context);
+
         $filePath = $input->getArgument('file');
         $rollbackOnError = $input->getOption('rollbackOnError');
         $dryRun = $input->getOption('dryRun');
@@ -81,7 +91,7 @@ class ImportEntityCommand extends Command
         try {
             $expireDate = new \DateTimeImmutable($expireDateString);
         } catch (\Exception) {
-            throw new \InvalidArgumentException(
+            throw ImportExportException::importCommandFailed(
                 sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
             );
         }
@@ -155,17 +165,38 @@ class ImportEntityCommand extends Command
         return self::FAILURE;
     }
 
+    private function getProfile(InputInterface $input, OutputInterface $output, Context $context): ImportExportProfileEntity
+    {
+        /** @deprecated tag:v6.7.0 - Remove argument and condition */
+        $profileName = $input->getArgument('profile');
+
+        if (!empty($profileName)) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Argument `profile` will no longer be supported. Use option `--profile-technical-name` instead.');
+
+            return $this->profileByName($profileName, $context);
+        }
+
+        $technicalName = $input->getOption('profile-technical-name');
+
+        if (!empty($technicalName)) {
+            return $this->profileByTechnicalName($technicalName, $context);
+        }
+
+        return $this->chooseProfile($context, new SymfonyStyle($input, $output));
+    }
+
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(
             new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
         );
-        $result = $this->profileRepository->search($criteria, $context);
+
+        $result = $this->profileRepository->search($criteria, $context)->getEntities();
 
         $byName = [];
-        foreach ($result->getEntities() as $profile) {
-            $byName[$profile->getName() ?? $profile->getLabel()] = $profile;
+        foreach ($result as $profile) {
+            $byName[$profile->getLabel()] = $profile;
         }
 
         $answer = $io->choice('Please choose a profile', array_keys($byName));
@@ -173,17 +204,32 @@ class ImportEntityCommand extends Command
         return $byName[$answer];
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Remove method
+     */
     private function profileByName(string $profileName, Context $context): ImportExportProfileEntity
     {
         $result = $this->profileRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('name', $profileName)),
             $context
-        );
+        )->getEntities();
 
-        if ($result->count() === 0) {
-            throw new \InvalidArgumentException(
-                sprintf('Can\'t find Import Profile by name "%s".', $profileName)
-            );
+        if ($result->first() === null) {
+            throw ImportExportException::profileSearchEmpty();
+        }
+
+        return $result->first();
+    }
+
+    private function profileByTechnicalName(string $technicalName, Context $context): ImportExportProfileEntity
+    {
+        $result = $this->profileRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName)),
+            $context
+        )->getEntities();
+
+        if ($result->first() === null) {
+            throw ImportExportException::profileSearchEmpty();
         }
 
         return $result->first();

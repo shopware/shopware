@@ -41,8 +41,9 @@ class ImportExportProfileDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-
+            /** @deprecated tag:v6.7.0 - Remove name field */
             new StringField('name', 'name'),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required()),
             (new TranslatedField('label'))->addFlags(new Required()),
             new StringField('type', 'type'),
             new BoolField('system_default', 'systemDefault'),

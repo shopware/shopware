@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Api;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +45,7 @@ class ImportExportProfileApiTest extends TestCase
         foreach ($data as $entry) {
             $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
         // read created data from db
@@ -56,7 +56,7 @@ class ImportExportProfileApiTest extends TestCase
         static::assertCount($num, $records);
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertSame($expect['name'], $record['name']);
+            static::assertSame($expect['technicalName'], $record['technical_name']);
             static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
@@ -76,7 +76,7 @@ class ImportExportProfileApiTest extends TestCase
             unset($entry[$property]);
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $response->getContent());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         }
     }
 
@@ -95,6 +95,7 @@ class ImportExportProfileApiTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+            static::assertNotFalse($response->getContent());
 
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -109,7 +110,7 @@ class ImportExportProfileApiTest extends TestCase
             for ($i = 0; $i < $num; ++$i) {
                 $importExportProfile = $content['data'][$i];
                 $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
-                static::assertSame($expect['name'], $importExportProfile['name']);
+                static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
                 static::assertSame($expect['label'], $importExportProfile['label']);
                 static::assertEquals($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
                 static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
@@ -129,10 +130,13 @@ class ImportExportProfileApiTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $ids = array_column($data, 'id');
-        $data = $this->rotateTestdata($data);
+        $data = $this->rotateTestData($data);
 
         $expectData = [];
         foreach ($ids as $idx => $id) {
+            $technicalName = uniqid('test_name_');
+            $data[$idx]['technicalName'] = $technicalName;
+
             $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
@@ -148,6 +152,7 @@ class ImportExportProfileApiTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
 
         $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -156,7 +161,7 @@ class ImportExportProfileApiTest extends TestCase
         for ($i = 0; $i < $num; ++$i) {
             $importExportProfile = $content['data'][$i];
             $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
-            static::assertSame($expect['name'], $importExportProfile['name']);
+            static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
             static::assertSame($expect['label'], $importExportProfile['label']);
             static::assertEquals($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
             static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
@@ -175,13 +180,18 @@ class ImportExportProfileApiTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $ids = array_column($data, 'id');
-        $data = $this->rotateTestdata($data);
+        $data = $this->rotateTestData($data);
 
-        $properties = array_keys(current($data));
+        /** @var array<string, mixed> $current */
+        $current = current($data);
+        $properties = array_keys($current);
         $expectProperties = $properties;
 
         $expectData = [];
         foreach ($ids as $idx => $id) {
+            $technicalName = uniqid('test_name_');
+            $data[$idx]['technicalName'] = $technicalName;
+
             $removedProperty = array_pop($properties);
             $expectData[$id] = $data[$idx];
             unset($data[$idx][$removedProperty]);
@@ -198,6 +208,7 @@ class ImportExportProfileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+            static::assertNotFalse($response->getContent());
 
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -228,17 +239,19 @@ class ImportExportProfileApiTest extends TestCase
         $data = $this->prepareImportExportProfileTestData($num);
         $this->repository->create(array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach ($data as $expect) {
             // Request details
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+            static::assertNotFalse($response->getContent());
 
-            // compare deatils with expected
+            // compare details with expected
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame($expect['name'], $content['data']['name']);
+
+            static::assertSame($expect['technicalName'], $content['data']['technicalName']);
             static::assertSame($expect['label'], $content['data']['label']);
             static::assertEquals($expect['systemDefault'], (bool) $content['data']['systemDefault']);
             static::assertSame($expect['sourceEntity'], $content['data']['sourceEntity']);
@@ -263,10 +276,12 @@ class ImportExportProfileApiTest extends TestCase
         $data = $this->prepareImportExportProfileTestData(2);
 
         // Prepare invalid search data
+        /** @var array<string, mixed> $invalidData */
         $invalidData = array_pop($data);
 
-        // Prepare valid serach data
+        // Prepare valid search data
         $this->repository->create(array_values($data), $this->context);
+        /** @var array<string, mixed> $searchData */
         $searchData = array_pop($data);
 
         $searchExcludes = ['mapping'];
@@ -280,6 +295,7 @@ class ImportExportProfileApiTest extends TestCase
                 ], json_encode($filter, \JSON_THROW_ON_ERROR));
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+                static::assertNotFalse($response->getContent());
                 $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
                 static::assertSame(0, $content['total']);
 
@@ -290,6 +306,7 @@ class ImportExportProfileApiTest extends TestCase
                 ], json_encode($filter, \JSON_THROW_ON_ERROR));
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+                static::assertNotFalse($response->getContent());
                 $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
                 static::assertSame(1, $content['total']);
             }
@@ -352,6 +369,8 @@ class ImportExportProfileApiTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportProfileTestData(int $num = 1, string $add = ''): array
     {
@@ -361,7 +380,7 @@ class ImportExportProfileApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d %s', $i, $add),
+                'technicalName' => uniqid('test_name_'),
                 'label' => sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => (($i % 2 === 0) ? true : false),
                 'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
@@ -375,15 +394,25 @@ class ImportExportProfileApiTest extends TestCase
         return $data;
     }
 
-    protected function rotateTestdata(array $data): array
+    /**
+     * @param array<string, array<string, mixed>> $data
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function rotateTestData(array $data): array
     {
-        $data[] = array_shift($data);
+        /** @var array<string, mixed> $first */
+        $first = array_shift($data);
+
+        $data[] = $first;
 
         return array_values($data);
     }
 
     /**
      * Read out the contents of the import_export_profile_translation table
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function getTranslationRecords(): array
     {

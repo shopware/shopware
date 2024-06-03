@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Commands;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Command;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,27 +24,16 @@ class ImportEntityCommandTest extends TestCase
     use IntegrationTestBehaviour;
 
     private const DEFAULT_CATEGORY_IMPORT_PROFILE = 'Default category';
-    private const DEFAULT_PRODUCT_IMPORT_PROFILE = 'Default product';
+    private const DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME = 'default_category';
+    private const DEFAULT_PRODUCT_IMPORT_PROFILE_TECHNICAL_NAME = 'default_product';
     private const TEST_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/categories.csv';
     private const TEST_INVALID_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/products_with_invalid.csv';
 
-    private EntityRepository $fileRepository;
-
-    private EntityRepository $profileRepository;
-
     private ImportEntityCommand $importEntityCommand;
-
-    private DemodataService $demoDataService;
-
-    private Context $context;
 
     protected function setUp(): void
     {
-        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
         $this->importEntityCommand = $this->getContainer()->get(ImportEntityCommand::class);
-        $this->demoDataService = $this->getContainer()->get(DemodataService::class);
-        $this->context = Context::createDefaultContext();
     }
 
     public function testImportCustomersNoInputFile(): void
@@ -89,6 +77,8 @@ class ImportEntityCommandTest extends TestCase
 
     public function testImportWithProfile(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $num = 67;
 
         $commandTester = new CommandTester($this->importEntityCommand);
@@ -96,6 +86,30 @@ class ImportEntityCommandTest extends TestCase
             'file' => self::TEST_IMPORT_FILE_PATH,
             'expireDate' => date('d.m.Y'),
             'profile' => self::DEFAULT_CATEGORY_IMPORT_PROFILE,
+        ];
+        $commandTester->execute($args);
+
+        $message = $commandTester->getDisplay();
+        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully imported %d records in \d+ seconds/', $num), $message);
+
+        $firstId = '017de84fb11a4e318fd3231317d7def4';
+        $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
+
+        $repository = $this->getContainer()->get('category.repository');
+        $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
+
+        static::assertCount(2, $result->getIds());
+    }
+
+    public function testImportWithProfileTechnicalName(): void
+    {
+        $num = 67;
+
+        $commandTester = new CommandTester($this->importEntityCommand);
+        $args = [
+            'file' => self::TEST_IMPORT_FILE_PATH,
+            'expireDate' => date('d.m.Y'),
+            '--profile-technical-name' => self::DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME,
         ];
         $commandTester->execute($args);
 
@@ -119,7 +133,7 @@ class ImportEntityCommandTest extends TestCase
         $args = [
             'file' => self::TEST_INVALID_IMPORT_FILE_PATH,
             'expireDate' => date('d.m.Y'),
-            'profile' => self::DEFAULT_PRODUCT_IMPORT_PROFILE,
+            '--profile-technical-name' => self::DEFAULT_PRODUCT_IMPORT_PROFILE_TECHNICAL_NAME,
         ];
         $commandTester->execute($args);
 
@@ -142,7 +156,7 @@ class ImportEntityCommandTest extends TestCase
         $args = [
             'file' => self::TEST_INVALID_IMPORT_FILE_PATH,
             'expireDate' => date('d.m.Y'),
-            'profile' => self::DEFAULT_PRODUCT_IMPORT_PROFILE,
+            '--profile-technical-name' => self::DEFAULT_PRODUCT_IMPORT_PROFILE_TECHNICAL_NAME,
             '-r' => true,
             '-p' => true,
         ];

@@ -3,6 +3,7 @@
  */
 
 import { mount, RouterLinkStub } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 describe('components/base/sw-button-deprecated', () => {
     it('should be a Vue.js component', async () => {
@@ -152,5 +153,47 @@ describe('components/base/sw-button-deprecated', () => {
 
         await button.trigger('click');
         expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger a route navigation for disabled router link button', async () => {
+        const router = createRouter({
+            routes: [
+                {
+                    name: 'sw.dashboard.index',
+                    path: '/sw/dashboard/index',
+                },
+                {
+                    name: 'sw.order.index',
+                    path: '/sw/order/list',
+                },
+            ],
+            history: createWebHashHistory(),
+        });
+
+        await router.push({ name: 'sw.dashboard.index' });
+
+        const wrapper = mount({
+            template: '<sw-button-deprecated :disabled="true" :router-link="{ name: \'sw.order.index\' }">Disabled router link</sw-button-deprecated>',
+        }, {
+            global: {
+                stubs: {
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                },
+                plugins: [
+                    router,
+                ],
+                mocks: {
+                    $router: router,
+                },
+            },
+        });
+
+        expect(wrapper.vm.$router.currentRoute.value.name).toBe('sw.dashboard.index');
+
+        const button = wrapper.find('.sw-button');
+        await button.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.$router.currentRoute.value.name).toBe('sw.dashboard.index');
     });
 });

@@ -12,6 +12,11 @@ const { Component } = Shopware;
 Component.register('sw-button', {
     template,
 
+    compatConfig: {
+        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+    },
+
     props: {
         routerLink: {
             type: [String, Object],

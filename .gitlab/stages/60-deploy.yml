@@ -125,27 +125,6 @@ push split repositories (github):
   variables:
     REMOTE_BASE_URL: "https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware"
 
-deploy to cloud staging:
-    stage: deploy
-    rules:
-      - when: never # We won't (and can't) deploy 6.5.x to cloud anymore
-    variables:
-      VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
-      CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.5.x-dev;swag/saas-rufus:6.5.x-dev;shopware/commercial:6.5.x-dev;'
-      CI_FAST_DOWNSTREAM: 1
-      CI_SKIP_INSTANCE_CREATING: 1
-    inherit:
-      default: false
-      variables:
-        - VERSION_ORIGIN_REF
-        - CUSTOM_VERSION
-        - CI_FAST_DOWNSTREAM
-        - CI_SKIP_INSTANCE_CREATING
-    trigger:
-      project: shopware/6/product/saas
-      branch: trunk
-      strategy: depend
-
 Publish SBP platform release:
   extends: .base-no-setup
   stage: deploy

@@ -8156,16 +8156,6 @@ parameters:
 			path: src/Core/System/SalesChannel/SalesChannelCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiCustomFieldMapper\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/StoreApiCustomFieldMapper.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiCustomFieldMapper\\:\\:\\$mapping type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/StoreApiCustomFieldMapper.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Command\\\\ValidateSnippetsCommand\\:\\:hydrateMissingSnippets\\(\\) has parameter \\$missingSnippetsArray with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Command/ValidateSnippetsCommand.php

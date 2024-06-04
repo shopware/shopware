@@ -191,6 +191,35 @@ class TranslatorTest extends TestCase
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }
 
+    public function testFallbackCatalogueLocale(): void
+    {
+        $originCatalogue = new MessageCatalogue('en-GB');
+        $fallbackCatalogue = new MessageCatalogue('en-US');
+
+        $symfonyTranslator = $this->createMock(SymfonyTranslator::class);
+        $symfonyTranslator->expects(static::any())->method('getCatalogue')->willReturnCallback(function ($locale) use ($originCatalogue, $fallbackCatalogue) {
+            return $locale === 'en-US' ? $fallbackCatalogue : $originCatalogue;
+        });
+
+        $languageCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageCodeProvider->expects(static::any())->method('getLocaleForLanguageId')->willReturn('en-GB');
+
+        $translator = new Translator(
+            $symfonyTranslator,
+            new RequestStack(),
+            $this->createMock(CacheInterface::class),
+            $this->createMock(MessageFormatterInterface::class),
+            'prod',
+            $this->createMock(Connection::class),
+            $languageCodeProvider,
+            $this->createMock(SnippetService::class),
+            false
+        );
+
+        $fallbackLocale = $translator->getCatalogue('en-US')->getFallbackCatalogue()?->getLocale();
+        static::assertSame('en-GB', $fallbackLocale);
+    }
+
     /**
      * @return iterable<string, array<int, string|Request|null>>
      */

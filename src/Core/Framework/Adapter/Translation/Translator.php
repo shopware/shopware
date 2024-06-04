@@ -116,11 +116,10 @@ class Translator extends AbstractTranslator
 
         $fallbackLocale = $this->getFallbackLocale();
 
-        $localization = mb_substr($fallbackLocale, 0, 2);
-        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $localization)) {
-            $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
+        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $fallbackLocale)) {
+            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
         } else {
-            // fallback locale and current locale has the same localization -> reset fallback
+            // fallback locale and current locale are the same -> reset fallback
             // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
             $fallbackLocale = null;
         }

@@ -10,8 +10,13 @@
     SPLITSH_ARCHIVE_URL: 'https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz'
     GIT_DEPTH: '0'
     GIT_STRATEGY: 'clone'
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_CPU_LIMIT: "16"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "2Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "16Gi"
   needs: [ ]
   before_script: [ ]
+  services: [ ]
   artifacts:
     when: on_success
     paths:
@@ -31,9 +36,13 @@ split repository:
   extends: .split-base
   rules:
     - !reference [ .rules, split, rules-label-or-scheduled-or-tag ]
+  image:
+    name: alpine:3.19
   parallel:
     matrix:
       - PACKAGE: [ 'Administration', 'Storefront', 'Core', 'Elasticsearch' ]
+  before_script:
+    - apk add git git-subtree bash
   script:
     - .gitlab/bin/split.sh split_repo "${PACKAGE}"
 

@@ -58,7 +58,7 @@
       "entry-point-card": {
         "cardTitle": "Navigation",
         "labelEntryPoint": "Einstiegspunkt",
-        "placeholderEntryPoint": "Einstiegspunkt auswählen...",
+        "placeholderEntryPoint": "Einstiegspunkt auswählen ...",
         "existingNavigationDescription": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:",
         "labelSalesChannelsAdd": "Verkaufskanalzuweisung",
         "placeholderSalesChannels": "Verkaufskanäle hinzufügen ...",
@@ -82,11 +82,11 @@
         "layoutHeadline": "Layout",
         "seoSettingsHeadline": "SEO-Einstellungen",
         "metaTitleLabel": "Meta-Titel",
-        "metaTitlePlaceholder": "Meta-Titel eingeben...",
+        "metaTitlePlaceholder": "Meta-Titel eingeben ...",
         "metaDescriptionLabel": "Meta-Beschreibung",
-        "metaDescriptionPlaceholder": "Meta-Beschreibung eingeben...",
+        "metaDescriptionPlaceholder": "Meta-Beschreibung eingeben ...",
         "seoKeywordsLabel": "SEO-Schlüsselwörter",
-        "seoKeywordsPlaceholder": "Gib ein oder mehrere Schlüsselwörter ein..."
+        "seoKeywordsPlaceholder": "Gib ein oder mehrere Schlüsselwörter ein ..."
       },
       "seo": {
         "title": "SEO",

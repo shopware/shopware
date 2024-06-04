@@ -110,7 +110,7 @@
         "placeholder": "Kunden auswählen oder anlegen ...",
         "textIdentical": "Rechnungs- und Lieferadresse sind identisch",
         "buttonAddNewAddress": "Neue Adresse hinzufügen",
-        "placeholderAddress": "Adresse auswählen..."
+        "placeholderAddress": "Adresse auswählen ..."
       },
       "detailsFooter": {
         "labelSalesChannel": "Verkaufskanäle",
@@ -247,7 +247,7 @@
       "labelSameDeliveryAndBillingAddress": "Rechnungs- und Lieferadresse sind identisch",
       "tax": "Enthaltene Steuern:",
       "shippingCostsTax": "{taxRate}%: {tax}",
-      "placeholderTagSelect": "Tags durchsuchen...",
+      "placeholderTagSelect": "Tags durchsuchen ...",
       "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
       "addTrackingCode": "Zum Hinzufügen hier klicken",
       "enterValidTrackingCode": "Tracking-Code eingeben",
@@ -280,7 +280,7 @@
       "headlineTabSelectAddress": "Adresse auswählen",
       "headlineTabCreateAddress": "Adresse erstellen",
       "currentlySelected": "Aktuelle Auswahl",
-      "searchAddressToolbarPlaceholder": "Adressen suchen...",
+      "searchAddressToolbarPlaceholder": "Adressen suchen ...",
       "emptySearchResults": "Keine Adressen gefunden."
     },
     "leavePageModal": {
@@ -378,7 +378,7 @@
       "labelOrderCard": "Bestellung",
       "promotionsField": {
         "labelPromotions": "Rabattaktionen",
-        "placeholderPromotions": "Rabattcode eingeben...",
+        "placeholderPromotions": "Rabattcode eingeben ...",
         "automaticPromotion":  "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren"
       }
@@ -542,11 +542,11 @@
       },
       "affiliateCodeFilter": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code eingeben..."
+        "placeholder": "Affiliate-Code eingeben ..."
       },
       "campaignCodeFilter": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code eingeben..."
+        "placeholder": "Kampagnen-Code eingeben ..."
       },
       "promotionCodeFilter": {
         "label": "Aktionscode",

@@ -14,7 +14,7 @@
     "list": {
       "title": "Verkaufskanäle",
       "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
-      "placeholderSearchBar": "Durchsuche alle Verkaufskanäle...",
+      "placeholderSearchBar": "Durchsuche alle Verkaufskanäle ...",
       "buttonAddSalesChannel": "Verkaufskanal anlegen",
       "columnName": "Verkaufskanal",
       "columnType": "Typ",
@@ -169,7 +169,7 @@
         "encoding": "Zeichenkodierung",
         "placeholderSelectEncoding": "Wähle eine Zeichenkodierung aus ...",
         "fileFormat": "Dateiformat",
-        "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
+        "placeholderSelectFileFormat": "Wähle ein Dateiformat aus ...",
         "accessKey": "Zugangsschlüssel",
         "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",

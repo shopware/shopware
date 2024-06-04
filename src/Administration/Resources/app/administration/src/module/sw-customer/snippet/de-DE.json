@@ -217,7 +217,7 @@
       "placeholderStreet": "Gib einen Straßennamen ein ...",
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
-      "placeholderState": "Wähle ein (Bundes-)Land aus...",
+      "placeholderState": "Wähle ein (Bundes-)Land aus ...",
       "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
@@ -265,11 +265,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code auswählen..."
+        "placeholder": "Affiliate-Code auswählen ..."
       },
       "campaignCode": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code auswählen..."
+        "placeholder": "Kampagnen-Code auswählen ..."
       },
       "customerGroupRequest": {
         "label": "Kundengruppen-Anfragen",

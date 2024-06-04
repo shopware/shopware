@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -267,11 +270,11 @@ class UpsertAddressRouteTest extends TestCase
                 ],
             ]);
 
-        $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
-        $storeApiCustomFieldMapper
-            ->method('map')
-            ->with(CustomerAddressDefinition::ENTITY_NAME, new RequestDataBag(['bla' => 'bla', 'mapped' => 1]))
-            ->willReturn(['mapped' => 1]);
+        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
+            CustomerAddressDefinition::ENTITY_NAME => [
+                ['name' => 'mapped', 'type' => 'int'],
+            ],
+        ]);
 
         $route = new UpsertAddressRoute(
             $addressRepository,
@@ -279,7 +282,7 @@ class UpsertAddressRouteTest extends TestCase
             new EventDispatcher(),
             $this->createMock(DataValidationFactoryInterface::class),
             $this->createMock(SystemConfigService::class),
-            $storeApiCustomFieldMapper,
+            $customFieldMapper,
             $this->createMock(EntityRepository::class),
         );
 
@@ -288,7 +291,7 @@ class UpsertAddressRouteTest extends TestCase
         $route->upsert('test', new RequestDataBag([
             'customFields' => [
                 'bla' => 'bla',
-                'mapped' => 1,
+                'mapped' => '1',
             ],
             'salutationId' => '1',
         ]), $this->createMock(SalesChannelContext::class), $customer);

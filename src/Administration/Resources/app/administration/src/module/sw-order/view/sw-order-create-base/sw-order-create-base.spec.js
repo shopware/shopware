@@ -22,7 +22,15 @@ async function createWrapper() {
                 'sw-order-state-select': true,
                 'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
-                'sw-order-saveable-field': true,
+                'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
+                'sw-number-field': {
+                    template: `
+                        <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
+                    `,
+                    props: {
+                        value: 0,
+                    },
+                },
                 'sw-order-state-history-card': true,
                 'sw-order-delivery-metadata': true,
                 'sw-order-document-card': true,
@@ -166,5 +174,42 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
         expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
         expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountTotal');
         expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountGrandTotal');
+    });
+
+    it('should able to edit shipping cost', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.State.commit('swOrder/setCart', {
+            token: null,
+            lineItems: [],
+            price: {
+                taxStatus: 'tax-free',
+            },
+            deliveries: [{
+                shippingCosts: {
+                    totalPrice: 50,
+                    calculatedTaxes: [],
+                },
+            }],
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const onShippingChargeEditedSpy = jest.spyOn(wrapper.vm, 'onShippingChargeEdited').mockImplementation(() => { });
+
+        let button = wrapper.find('.sw-order-create-summary__data div[role="button"]');
+        await button.trigger('click');
+
+        const saveableField = wrapper.find('.sw-order-saveable-field input');
+        await saveableField.setValue(20);
+        await saveableField.trigger('input');
+
+        button = wrapper.find('.sw-order-saveable-field sw-button[variant="primary"]');
+        await button.trigger('click');
+
+        expect(wrapper.vm.cartDelivery.shippingCosts.totalPrice).toBe(20);
+        expect(wrapper.vm.cartDelivery.shippingCosts.unitPrice).toBe(20);
+
+        expect(onShippingChargeEditedSpy).toHaveBeenCalled();
     });
 });

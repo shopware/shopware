@@ -83,6 +83,7 @@
                                     :editable="acl.can('order.editor')"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
+                                    @update:value="onShippingChargeUpdated"
                                 >
                                     {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
                                 </sw-order-saveable-field>

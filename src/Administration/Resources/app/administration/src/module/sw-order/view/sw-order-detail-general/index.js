@@ -33,6 +33,12 @@ export default {
         },
     },
 
+    data() {
+        return {
+            shippingCosts: null,
+        };
+    },
+
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',
@@ -101,10 +107,15 @@ export default {
             });
         },
 
-        onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+        onShippingChargeEdited() {
+            this.delivery.shippingCosts.unitPrice = this.shippingCosts;
+            this.delivery.shippingCosts.totalPrice = this.shippingCosts;
+
             this.saveAndRecalculate();
+        },
+
+        onShippingChargeUpdated(amount) {
+            this.shippingCosts = amount;
         },
 
         saveAndRecalculate() {

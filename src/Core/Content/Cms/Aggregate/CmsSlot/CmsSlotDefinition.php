@@ -56,7 +56,7 @@ class CmsSlotDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
 
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),

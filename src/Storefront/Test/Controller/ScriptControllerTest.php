@@ -103,6 +103,7 @@ class ScriptControllerTest extends TestCase
         static::assertNotFalse($response->getContent());
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertStringContainsString('My Test-Product', $response->getContent());
+        static::assertSame('text/plain; charset=UTF-8', $response->headers->get('content-type'));
     }
 
     public function testRedirectResponseTemplate(): void

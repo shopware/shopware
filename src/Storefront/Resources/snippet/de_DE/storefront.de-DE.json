@@ -496,6 +496,7 @@
     "filterRatingActiveLabelEndSingular": "Stern",
     "filterRatingActiveLabelEnd": "Sterne",
     "filterRatingAndMore": "min. %points%/%maxPoints%",
+    "filterRatingMinAltText": "Filter hinzufügen: Minimum Bewertung von %points% von %maxPoints% Sternen",
     "filterRangeMinLabel": "Minimal",
     "filterRangeMaxLabel": "Maximal",
     "filterRangeActiveMinLabel": "%displayName% ab",
@@ -604,6 +605,8 @@
     "reviewLoginCancelButton": "Abbrechen",
     "reviewAvgRate": "von",
     "reviewAvgRateElements": "Sternen",
+    "reviewAvgRatingAltText": "Durchschnittliche Bewertung von %points% von %maxPoints% Sternen",
+    "reviewRatingAltText": "Bewertung mit %points% von %maxPoints% Sternen",
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
   "spatial": {

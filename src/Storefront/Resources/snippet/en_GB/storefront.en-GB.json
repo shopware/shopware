@@ -496,6 +496,7 @@
     "filterRatingActiveLabelEndSingular": "star",
     "filterRatingActiveLabelEnd": "stars",
     "filterRatingAndMore": "min. %points%/%maxPoints%",
+    "filterRatingMinAltText": "Add filter: Minimum rating of %points% out of %maxPoints% stars",
     "filterRangeMinLabel": "Minimum",
     "filterRangeMaxLabel": "Maximum",
     "filterRangeActiveMinLabel": "%displayName% from",
@@ -604,6 +605,8 @@
     "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
     "reviewAvgRateElements": "stars",
+    "reviewAvgRatingAltText": "Average rating of %points% out of %maxPoints% stars",
+    "reviewRatingAltText": "Review with rating of %points% out of %maxPoints% stars",
     "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
   "spatial": {

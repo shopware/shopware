@@ -61,6 +61,11 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
                         $value = null;
                 }
 
+                // if value is nested entity, we need to set a new entity from the value
+                if($value instanceof Entity) {
+                    $entity = $value;
+                }
+
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
                 if ($value === null) {

@@ -67,6 +67,13 @@ const handleMtTabs = (context, node) => {
             });
     });
 
+    // Check if there is a comment a line before the content slot
+    const commentBeforeContentSlot = templateComments.find((comment) => {
+        return comment.loc.end.line === shorthandSyntaxContentSlot?.startTag?.loc?.start?.line - 1;
+    });
+    // Check if the comment is a codemod comment
+    const isContentSlotCodemodComment = commentBeforeContentSlot?.value?.includes('TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component.');
+
     // Check if component has children without a slot declaration
     const childrenWithoutSlot = node.children.find((child) => {
         return child.type === 'VElement' &&
@@ -93,7 +100,7 @@ const handleMtTabs = (context, node) => {
                     const startTag = child.startTag;
                     const attributes = startTag.attributes;
 
-                    const nameAttribute = attributes.find((attr) => attr.key.name === 'name');
+                    const nameAttribute = attributes.find((attr) => attr.key?.name === 'name');
                     const nameAttributeValue = nameAttribute ? nameAttribute.value.value : null;
                     const rawTextContent = child.children.find((child) => child.type === 'VText')?.value;
                     // Remove line breaks and spaces from text content
@@ -104,7 +111,7 @@ const handleMtTabs = (context, node) => {
                         return attr?.key?.name === 'route'
                     });
                     const routeAttributeExpression = attributes.find((attr) => {
-                        return attr.key.name.name === 'bind' && attr.key.argument.name === 'route';
+                        return attr.key?.name?.name === 'bind' && attr.key?.argument?.name === 'route';
                     })
 
                     let routeAttributeFallbackValue = 'TODO: change this property';
@@ -139,7 +146,7 @@ const handleMtTabs = (context, node) => {
 
                     const item = {
                         label: label,
-                        name: child.name
+                        name: child?.name
                     };
 
                     return item;
@@ -157,27 +164,12 @@ const handleMtTabs = (context, node) => {
         });
     }
 
-    if (shorthandSyntaxContentSlot) {
+    if (shorthandSyntaxContentSlot && !isContentSlotCodemodComment) {
         context.report({
             node,
             message: `[${mtComponentName}] The "content" slot is not used anymore. Please set the content manually outside the component.`,
             *fix(fixer) {
                 if (context.options.includes('disableFix')) return;
-
-                // Check if there is a comment a line before the content slot
-                const commentBeforeContentSlot = templateComments.find((comment) => {
-                    return comment.loc.end.line === shorthandSyntaxContentSlot.startTag.loc.start.line - 1;
-                });
-
-                if (commentBeforeContentSlot) {
-                    // Check if the comment is a codemod comment
-                    const isCodemodComment = commentBeforeContentSlot.value.includes('TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component.');
-
-                    if (isCodemodComment) {
-                        // If the comment is a codemod comment, do not trigger the fix
-                        return;
-                    }
-                }
 
                 const indentation = ' '.repeat(shorthandSyntaxContentSlot.startTag?.loc?.start?.column);
 
@@ -218,7 +210,7 @@ const handleMtTabs = (context, node) => {
                         return attr?.key?.name === 'route'
                     });
                     const routeAttributeExpression = attributes.find((attr) => {
-                        return attr.key.name.name === 'bind' && attr.key.argument.name === 'route';
+                        return attr?.key?.name?.name === 'bind' && attr?.key?.argument?.name === 'route';
                     })
 
                     let routeAttributeFallbackValue = 'TODO: change this property';
@@ -329,7 +321,20 @@ const mtTabsValidTests = [
             <template>
                 <sw-tabs />
             </template>`
-    }
+    },
+    {
+        name: '"mt-tabs" should not be converted if the "content" slot is already commented',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-tabs>
+                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
+                    <template #content="{ active }">
+                        The current active item is {{ active }}
+                    </template>
+                </mt-tabs>
+            </template>`,
+    },
 ]
 
 const mtTabsInvalidTests = [
@@ -463,29 +468,6 @@ const mtTabsInvalidTests = [
         code: `
             <template>
                 <mt-tabs>
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        output: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
-                    <template #content="{ active }">
-                        The current active item is {{ active }}
-                    </template>
-                </mt-tabs>
-            </template>`,
-        errors: [{ message: '[mt-tabs] The "content" slot is not used anymore. Please set the content manually outside the component.'}]
-    },
-    {
-        name: '"mt-tabs" wrong "content" slot usage - content should be set manually outside the component [should not trigger fix twice]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-tabs>
-                    <!-- TODO Codemod: The "content" slot is not used anymore. Please set the content manually outside the component. -->
                     <template #content="{ active }">
                         The current active item is {{ active }}
                     </template>

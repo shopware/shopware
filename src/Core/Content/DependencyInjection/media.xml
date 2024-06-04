@@ -75,8 +75,12 @@
         </service>
 
         <!--File Services-->
+        <service id="Shopware\Core\Content\Media\File\FileService">
+        </service>
+
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileService" />
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
             <argument>%shopware.media.url_upload_max_size%</argument>

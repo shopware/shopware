@@ -40,6 +40,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -49,6 +50,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -84,6 +86,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -95,17 +98,21 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     private bool $mediaDirCreated = false;
 
+    private string $projectDir = '';
+    private const PUBLIC_MEDIA_PATH = '/public/media';
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
-        if (!\is_dir($projectDir . '/public/media')) {
-            mkdir($projectDir . '/public/media');
+        $this->projectDir = static::getContainer()->getParameter('kernel.project_dir');
+
+        if (!\is_dir($this->projectDir . self::PUBLIC_MEDIA_PATH)) {
+            mkdir($this->projectDir . self::PUBLIC_MEDIA_PATH);
             $this->mediaDirCreated = true;
         }
 
-        \copy(self::TEST_IMAGE, static::getContainer()->getParameter('kernel.project_dir') . '/public/media/ßhopware-logö.png');
+        \copy(self::TEST_IMAGE, $this->projectDir . self::PUBLIC_MEDIA_PATH . '/ßhopware-logö.png');
     }
 
     protected function tearDown(): void
@@ -781,6 +788,78 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $newCategoryLeaf = $categories->get($categoryHomeFirstNewSecondNew);
         static::assertSame(Uuid::fromStringToHex('Main>First New'), $newCategoryLeaf->getParentId());
+    }
+
+    #[DataProvider('coverMediaUrlDataProvider')]
+    public function testImportProductsWithCoverMediaUrl(string $imageName, string $queryParameter): void
+    {
+        $productName = 'product_with_cover_media_url';
+        $csvFileName = 'product_with_cover_media_url.csv';
+        $expectedExtension = 'png';
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $filesystem = new Filesystem();
+        $filesystem->copy(
+            __DIR__ . '/fixtures/' . $imageName,
+            $this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName
+        );
+
+        $csvContent = sprintf(
+            'product_number;stock;name;price_net;price_gross;tax_id;tax_rate;tax_name;cover_media_url
+SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s',
+            EnvironmentHelper::getVariable('APP_URL') . '/media/' . $imageName . $queryParameter
+        );
+
+        $filesystem->dumpFile(__DIR__ . '/fixtures/' . $csvFileName, $csvContent);
+
+        try {
+            static::assertTrue($filesystem->exists($this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName));
+            static::assertTrue($filesystem->exists(__DIR__ . '/fixtures/' . $csvFileName));
+
+            $progress = $this->import(
+                $context,
+                ProductDefinition::ENTITY_NAME,
+                __DIR__ . '/fixtures/' . $csvFileName,
+                $csvFileName,
+                null,
+                false,
+                true
+            );
+
+            static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('name', $productName));
+            $criteria->addAssociation('cover');
+            $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+            static::assertInstanceOf(ProductEntity::class, $product);
+
+            $productMedia = $product->getCover();
+            static::assertInstanceOf(ProductMediaEntity::class, $productMedia);
+            $media = $productMedia->getMedia();
+            static::assertInstanceOf(MediaEntity::class, $media);
+            static::assertSame($imageName, $media->getFileName());
+            static::assertSame($expectedExtension, $media->getFileExtension());
+        } finally {
+            $filesystem->remove([
+                __DIR__ . '/fixtures/' . $csvFileName,
+                $this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName,
+            ]);
+        }
+    }
+
+    public static function coverMediaUrlDataProvider(): \Generator
+    {
+        yield 'import coverMediaUrl without extension' => [
+            'test-image-without-extension',
+            '',
+        ];
+        yield 'import coverMediaUrl without extension and query parameters' => [
+            'test-image-without-extension',
+            '?some=query&params=here',
+        ];
     }
 
     public function testInvalidFile(): void

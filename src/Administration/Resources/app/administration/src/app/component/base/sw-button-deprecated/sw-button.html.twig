@@ -3,10 +3,9 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button_router_link %}
 <router-link
-    v-if="routerLink"
+    v-if="routerLink && !disabled"
     :to="routerLink"
     class="sw-button"
-    :event="!disabled ? 'click' : ''"
     :class="buttonClasses"
     v-bind="$attrs"
 >
@@ -20,6 +19,23 @@
     </span>
     {% endblock %}
 </router-link>
+
+<span
+    v-else-if="routerLink && disabled"
+    class="sw-button"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_button_router_link_content %}
+    <span class="sw-button__content">
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_router_link_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</span>
 {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

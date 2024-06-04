@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -52,14 +51,6 @@ class OrderSerializer extends EntitySerializer
 
             if (!empty($entity['deliveries']['trackingCodes'])) {
                 $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
-            }
-
-            if (!empty($entity['deliveries']['shippingOrderAddress']) && $entity['deliveries']['shippingOrderAddress'] instanceof OrderAddressEntity) {
-                $entity['deliveries']['shippingOrderAddress'] = $entity['deliveries']['shippingOrderAddress']->jsonSerialize();
-            }
-
-            if (!empty($entity['deliveries']['stateMachineState']) && $entity['deliveries']['stateMachineState'] instanceof StateMachineStateEntity) {
-                $entity['deliveries']['stateMachineState'] = $entity['deliveries']['stateMachineState']->jsonSerialize();
             }
         }
 

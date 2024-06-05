@@ -27,7 +27,7 @@ class ADRValidationTest extends TestCase
             $content = $file->getContents();
 
             $errors = [];
-            if (!\str_ends_with($file->getPath(), '/adr')) {
+            if (!(\str_ends_with($file->getPath(), '/adr') || \str_contains($file->getPath(), '/adr/_superseded'))) {
                 $errors[] = \sprintf('ADR is inside directory %s. ADR must be in adr/ directory', \substr($file->getPath(), \strlen(__DIR__ . '/../../../../adr')));
             }
 

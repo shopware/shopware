@@ -1,4 +1,932 @@
 # 6.7.0.0
+## Introduced in 6.6.3.0
+## onlyAvailable flag removed
+* The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request will be removed in the next major version. The route will always filter the payment and shipping methods before calling the checkout gateway based on availability.
+## AbstractCartOrderRoute::order method signature change
+* The `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute::order` method will change its signature in the next major version. A new mandatory `request` parameter will be introduced.
+## Shopware config changes:
+### cart
+Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
+```yaml
+    cart:
+        compress: false
+        expire_days: 120
+        redis_url: false # or 'redis://localhost'
+```
+to
+```yaml
+    cart:
+        compress: false
+        expire_days: 120
+        storage:
+            type: "mysql" # or "redis"
+            # config:
+                # dsn: 'redis://localhost'
+```
+### number_range
+Replace the `redis_url` parameter in `config/packages/shopware.yaml` file:
+```yaml
+    number_range:
+        increment_storage: "SQL"
+        redis_url: false # or 'redis://localhost'
+```
+to
+```yaml
+    number_range:
+        increment_storage: "mysql" # or "redis"
+        # config:
+            # dsn: 'redis://localhost'
+```
+## Removal of deprecations
+* Removed constants `Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::{ACTION_NAME,MAIL_CONFIG_EXTENSION}` instead
+* Removed constant `Shopware\Core\Content\MailTemplate\MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION` use `Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction::ACTION_NAME` instead
+* Removed class `Shopware\Core\Content\MailTemplate\MailTemplateActions` without replacement
+## Removal of "sw-tabs":
+The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-tabs" component. In this specific component it cannot convert anything correctly, because the new "mt-tabs" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-tabs" with "mt-tabs".
+
+Following changes are necessary:
+
+### "sw-tabs" is removed
+Replace all component names from "sw-tabs" with "mt-tabs"
+
+Before:
+```html
+<sw-tabs />
+```
+After:
+```html
+<mt-tabs />
+```
+
+### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
+You need to replace the "default" slot with the "items" property. The "items" property is an array of objects which are used to render the tabs. Using the "sw-tabs-item" component is not needed anymore.
+
+Before:
+```html
+<sw-tabs>
+    <template #default="{ active }">
+        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+    </template>
+</sw-tabs>
+```
+
+After:
+```html
+<mt-tabs :items="[
+    {
+        'label': 'Tab 1',
+        'name': 'tab1'
+    },
+    {
+        'label': 'Tab 2',
+        'name': 'tab2'
+    }
+]">
+</mt-tabs>
+```
+
+### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
+The content slot is not supported anymore. You need to set the content manually outside the component. You can use the "new-item-active" event to get the active item and set it to a variable. Then you can use this variable anywere in your template.
+
+Before:
+```html
+<sw-tabs>
+    <template #content="{ active }">
+        The current active item is {{ active }}
+    </template>
+</sw-tabs>
+```
+
+After:
+```html
+<!-- setActiveItem need to be defined -->
+<mt-tabs @new-item-active="setActiveItem"></mt-tabs>
+
+The current active item is {{ activeItem }}
+```
+
+### "sw-tabs" property "isVertical" was renamed to "vertical"
+Before:
+```html
+<sw-tabs is-vertical />
+```
+
+After:
+```html
+<mt-tabs vertical />
+```
+
+### "sw-tabs" property "alignRight" was removed
+Before:
+```html
+<sw-tabs align-right />
+```
+
+After:
+```html
+<mt-tabs />
+```
+## Removal of "sw-select-field":
+The old "sw-select-field" component will be removed in the next major version. Please use the new "mt-select" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-select" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-select-field" with "mt-select".
+
+Following changes are necessary:
+
+### "sw-select-field" is removed
+Replace all component names from "sw-select-field" with "mt-select"
+
+Before:
+```html
+<sw-select-field />
+```
+After:
+```html
+<mt-select />
+```
+
+### "sw-select-field" prop "value" was renamed to "modelValue"
+Replace all occurrences of the prop "value" with "modelValue"
+
+Before:
+```html
+<sw-select-field :value="selectedValue" />
+```
+
+After:
+```html
+<mt-select :modelValue="selectedValue" />
+```
+
+### "sw-select-field" the "v-model:value" was renamed to "v-model"
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<sw-select-field v-model:value="selectedValue" />
+```
+
+After:
+```html
+<mt-select v-model="selectedValue" />
+```
+
+### "sw-select-field" the prop "options" expect a different format
+The prop "options" now expects an array of objects with the properties "label" and "value". The old format with "name" and "id" is not supported anymore.
+
+Before:
+```html
+<sw-select-field :options="[ { name: 'Option 1', id: 1 }, { name: 'Option 2', id: 2 } ]" />
+```
+
+After:
+```html
+<mt-select :options="[ { label: 'Option 1', value: 1 }, { label: 'Option 2', value: 2 } ]" />
+```
+
+### "sw-select-field" the prop "aside" was removed
+The prop "aside" was removed without replacement.
+
+Before:
+```html
+<sw-select-field :aside="true" />
+```
+
+After:
+```html
+<mt-select />
+```
+
+### "sw-select-field" the default slot was removed
+The default slot was removed. The options are now passed via the "options" prop.
+
+Before:
+```html
+<sw-select-field>
+    <option value="1">Option 1</option>
+    <option value="2">Option 2</option>
+</sw-select-field>
+```
+
+After:
+```html
+<mt-select :options="[ { label: 'Option 1', value: 1 }, { label: 'Option 2', value: 2 } ]" />
+```
+
+### "sw-select-field" the label slot was removed
+The label slot was removed. The label is now passed via the "label" prop.
+
+Before:
+```html
+<sw-select-field>
+    <template #label>
+        My Label
+    </template>
+</sw-select-field>
+```
+
+After:
+```html
+<mt-select label="My Label" />
+```
+
+### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
+The event "update:value" was renamed to "update:modelValue"
+
+Before:
+```html
+<sw-select-field @update:value="onUpdateValue" />
+```
+
+After:
+```html
+<mt-select @update:modelValue="onUpdateValue" />
+```
+## Removal of "sw-textarea-field":
+The old "sw-textarea-field" component will be removed in the next major version. Please use the new "mt-textarea" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-textarea" component. In this specific component it cannot convert anything correctly, because the new "mt-textarea" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-textarea-field" with "mt-textarea".
+
+Following changes are necessary:
+
+### "sw-textarea-field" is removed
+Replace all component names from "sw-textarea-field" with "mt-textarea"
+
+Before:
+```html
+<sw-textarea-field />
+```
+After:
+```html
+<mt-textarea />
+```
+
+### "sw-textarea-field" property "value" is replaced by "modelValue"
+Replace all occurrences of the property "value" with "modelValue"
+
+Before:
+```html
+<sw-textarea-field :value="myValue" />
+```
+After:
+```html
+<mt-textarea :modelValue="myValue" />
+```
+
+### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
+Replace all occurrences of the binding "v-model:value" with "v-model"
+
+Before:
+```html
+<sw-textarea-field v-model:value="myValue" />
+```
+
+After:
+```html
+<mt-textarea v-model="myValue" />
+```
+
+### "sw-textarea-field" slot "label" is replaced by property "label"
+Replace all occurrences of the slot "label" with the property "label"
+
+Before:
+```html
+<sw-textarea-field>
+    <template #label>
+        My Label
+    </template>
+</sw-textarea-field>
+```
+
+After:
+```html
+<mt-textarea label="My Label" />
+```
+
+### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
+Replace all occurrences of the event "update:value" with "update:modelValue"
+
+Before:
+```html
+<sw-textarea-field @update:value="onUpdateValue" />
+```
+
+After:
+```html
+<mt-textarea @update:modelValue="onUpdateValue" />
+```
+## Removal of "sw-datepicker":
+The old "sw-datepicker" component will be removed in the next major version. Please use the new "mt-datepicker" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-datepicker" component. In this specific component it cannot convert anything correctly, because the new "mt-datepicker" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-datepicker" with "mt-datepicker".
+
+Following changes are necessary:
+
+### "sw-datepicker" is removed
+Replace all component names from "sw-datepicker" with "mt-datepicker"
+
+Before:
+```html
+<sw-datepicker />
+```
+After:
+```html
+<mt-datepicker />
+```
+
+### "sw-datepicker" property "value" is replaced by "modelValue"
+Replace all occurrences of the property "value" with "modelValue"
+
+Before:
+```html
+<sw-datepicker :value="myValue" />
+```
+After:
+```html
+<mt-datepicker :modelValue="myValue" />
+```
+
+### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
+Replace all occurrences of the binding "v-model:value" with "v-model"
+
+Before:
+```html
+<sw-datepicker v-model:value="myValue" />
+```
+
+After:
+```html
+<mt-datepicker v-model="myValue" />
+```
+
+### "sw-datepicker" slot "label" is replaced by property "label"
+Replace all occurrences of the slot "label" with the property "label"
+
+Before:
+```html
+<sw-datepicker>
+    <template #label>
+        My Label
+    </template>
+</sw-datepicker>
+```
+
+After:
+```html
+<mt-datepicker label="My Label" />
+```
+
+### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
+Replace all occurrences of the event "update:value" with "update:modelValue"
+
+Before:
+```html
+<sw-datepicker @update:value="onUpdateValue" />
+```
+
+After:
+```html
+<mt-datepicker @update:modelValue="onUpdateValue" />
+```
+## Removal of "sw-password-field":
+The old "sw-password-field" component will be removed in the next major version. Please use the new "mt-password-field" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-password-field" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-password-field" with "mt-password-field".
+
+Following changes are necessary:
+
+### "sw-password-field" is removed
+Replace all component names from "sw-password-field" with "mt-password-field"
+
+Before:
+```html
+<sw-password-field>Hello World</sw-password-field>
+```
+After:
+```html
+<mt-password-field>Hello World</mt-password-field>
+```
+
+### "mt-password-field" has no property "value" anymore
+Replace all occurrences of the "value" prop with "modelValue"
+
+Before:
+```html
+<sw-password-field value="Hello World" />
+```
+After:
+```html
+<mt-password-field modelValue="Hello World" />
+```
+
+### "mt-password-field" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<sw-password-field v-model:value="myValue" />
+```
+After:
+```html
+<mt-password-field v-model="myValue" />
+```
+
+### "mt-password-field" has no property "size" with value "medium" anymore
+Replace all occurrences of the "size" prop with "default"
+
+Before:
+```html
+<sw-password-field size="medium" />
+```
+After:
+```html
+<mt-password-field size="default" />
+```
+
+### "mt-password-field" has no property "isInvalid" anymore
+Remove all occurrences of the "isInvalid" prop
+
+Before:
+```html
+<sw-password-field isInvalid />
+```
+After:
+```html
+<mt-password-field />
+```
+
+### "mt-password-field" has no event "update:value" anymore
+Replace all occurrences of the "update:value" event with "update:modelValue"
+
+Before:
+```html
+<sw-password-field @update:value="updateValue" />
+```
+
+After:
+```html
+<mt-password-field @update:modelValue="updateValue" />
+```
+
+### "mt-password-field" has no event "base-field-mounted" anymore
+Remove all occurrences of the "base-field-mounted" event
+
+Before:
+```html
+<sw-password-field @base-field-mounted="onFieldMounted" />
+```
+After:
+```html
+<mt-password-field />
+```
+
+### "mt-password-field" has no slot "label" anymore
+Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
+anymore.
+
+Before:
+```html
+<sw-password-field>
+    <template #label>
+        My Label
+    </template>
+</sw-password-field>
+```
+After:
+```html
+<mt-password-field label="My label">
+</mt-password-field>
+```
+
+### "mt-password-field" has no slot "hint" anymore
+Remove all occurrences of the "hint" slot. The slot content should be moved to the "hint" prop. Only string values are supported. Other slot content is not supported
+
+Before:
+```html
+<sw-password-field>
+    <template #hint>
+        My Hint
+    </template>
+</sw-password-field>
+```
+After:
+```html
+<mt-password-field hint="My hint">
+</mt-password-field>
+```
+## Removal of "sw-colorpicker":
+The old "sw-colorpicker" component will be removed in the next major version. Please use the new "mt-colorpicker" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-colorpicker" component. In this specific component it cannot convert anything correctly, because the new "mt-colorpicker" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-colorpicker" with "mt-colorpicker".
+
+Following changes are necessary:
+
+### "sw-colorpicker" is removed
+Replace all component names from "sw-colorpicker" with "mt-colorpicker"
+
+Before:
+```html
+<sw-colorpicker />
+```
+After:
+```html
+<mt-colorpicker />
+```
+
+### "sw-colorpicker" property "value" is replaced by "modelValue"
+Replace all occurrences of the property "value" with "modelValue"
+
+Before:
+```html
+<sw-colorpicker :value="myValue" />
+```
+After:
+```html
+<mt-colorpicker :modelValue="myValue" />
+```
+
+### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
+Replace all occurrences of the binding "v-model:value" with "v-model"
+
+Before:
+```html
+<sw-colorpicker v-model:value="myValue" />
+```
+
+After:
+```html
+<mt-colorpicker v-model="myValue" />
+```
+
+### "sw-colorpicker" slot "label" is replaced by property "label"
+Replace all occurrences of the slot "label" with the property "label"
+
+Before:
+```html
+<sw-colorpicker>
+    <template #label>
+        My Label
+    </template>
+</sw-colorpicker>
+```
+
+After:
+```html
+<mt-colorpicker label="My Label" />
+```
+
+### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
+Replace all occurrences of the event "update:value" with "update:modelValue"
+
+Before:
+```html
+<sw-colorpicker @update:value="onUpdateValue" />
+```
+
+After:
+```html
+<mt-colorpicker @update:modelValue="onUpdateValue" />
+```
+## Removal of "sw-external-link":
+The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-external-link" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-external-link" with "mt-external-link".
+
+Following changes are necessary:
+
+### "sw-external-link" is removed
+Replace all component names from "sw-external-link" with "mt-external-link"
+
+Before:
+```html
+<sw-external-link>Hello World</sw-external-link>
+```
+After:
+```html
+<mt-external-link>Hello World</mt-external-link>
+```
+
+### "sw-external-link" property "icon" is removed
+The "icon" property is removed from the "mt-external-link" component. There is no replacement for this property.
+
+Before:
+```html
+<sw-external-link icon="world">Hello World</sw-external-link>
+```
+After:
+```html
+<mt-external-link>Hello World</mt-external-link>
+```
+## Removal of "sw-skeleton-bar":
+The old "sw-skeleton-bar" component will be removed in the next major version. Please use the new "mt-skeleton-bar" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-skeleton-bar" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-skeleton-bar" with "mt-skeleton-bar".
+
+Following changes are necessary:
+
+### "sw-skeleton-bar" is removed
+Replace all component names from "sw-skeleton-bar" with "mt-skeleton-bar"
+
+Before:
+```html
+<sw-skeleton-bar>Hello World</sw-skeleton-bar>
+```
+After:
+```html
+<mt-skeleton-bar>Hello World</mt-skeleton-bar>
+```
+## Removal of "sw-email-field":
+The old "sw-email-field" component will be removed in the next major version. Please use the new "mt-email-field" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-email-field" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-email-field" with "mt-email-field".
+
+Following changes are necessary:
+
+### "sw-email-field" is removed
+Replace all component names from "sw-email-field" with "mt-email-field"
+
+Before:
+```html
+<sw-email-field>Hello World</sw-email-field>
+```
+After:
+```html
+<mt-email-field>Hello World</mt-email-field>
+```
+
+### "mt-email-field" has no property "value" anymore
+Replace all occurrences of the "value" prop with "modelValue"
+
+Before:
+```html
+<mt-email-field value="Hello World" />
+```
+After:
+```html
+<mt-email-field modelValue="Hello World" />
+```
+
+### "mt-email-field" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-email-field v-model:value="myValue" />
+```
+After:
+```html
+<mt-email-field v-model="myValue" />
+```
+
+### "mt-email-field" has no property "size" with value "medium" anymore
+Replace all occurrences of the "size" prop with "default"
+
+Before:
+```html
+<mt-email-field size="medium" />
+```
+After:
+```html
+<mt-email-field size="default" />
+```
+
+### "mt-email-field" has no property "isInvalid" anymore
+Remove all occurrences of the "isInvalid" prop
+
+Before:
+```html
+<mt-email-field isInvalid />
+```
+After:
+```html
+<mt-email-field />
+```
+
+### "mt-email-field" has no property "aiBadge" anymore
+Remove all occurrences of the "aiBadge" prop
+
+Before:
+```html
+<mt-email-field aiBadge />
+```
+After:
+```html
+<mt-email-field />
+```
+
+### "mt-email-field" has no event "update:value" anymore
+Replace all occurrences of the "update:value" event with "update:modelValue"
+
+Before:
+```html
+<mt-email-field @update:value="updateValue" />
+```
+
+After:
+```html
+<mt-email-field @update:modelValue="updateValue" />
+```
+
+### "mt-email-field" has no event "base-field-mounted" anymore
+Remove all occurrences of the "base-field-mounted" event
+
+Before:
+```html
+<mt-email-field @base-field-mounted="onFieldMounted" />
+```
+After:
+```html
+<mt-email-field />
+```
+
+### "mt-email-field" has no slot "label" anymore
+Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
+anymore.
+
+Before:
+```html
+<mt-email-field>
+    <template #label>
+        My Label
+    </template>
+</mt-email-field>
+```
+After:
+```html
+<mt-email-field label="My label">
+</mt-email-field>
+```
+## Removal of "sw-url-field":
+The old "sw-url-field" component will be removed in the next major version. Please use the new "mt-url-field" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-url-field" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-url-field" with "mt-url-field".
+
+Following changes are necessary:
+
+### "sw-url-field" is removed
+Replace all component names from "sw-url-field" with "mt-url-field"
+
+Before:
+```html
+<sw-url-field />
+```
+After:
+```html
+<mt-url-field />
+```
+
+### "mt-url-field" has no property "value" anymore
+Replace all occurrences of the "value" prop with "modelValue"
+
+Before:
+```html
+<sw-url-field value="Hello World" />
+```
+After:
+```html
+<mt-url-field modelValue="Hello World" />
+```
+
+### "mt-url-field" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<sw-url-field v-model:value="myValue" />
+```
+After:
+```html
+<mt-url-field v-model="myValue" />
+```
+
+### "mt-url-field" has no event "update:value" anymore
+Replace all occurrences of the "update:value" event with "update:modelValue"
+
+Before:
+```html
+<sw-url-field @update:value="updateValue" />
+```
+
+After:
+```html
+<mt-url-field @update:modelValue="updateValue" />
+```
+
+### "mt-url-field" has no slot "label" anymore
+Remove all occurrences of the "label" slot. The slot content should be moved to the "label" prop. Only string values are supported. Other slot content is not supported
+anymore.
+
+Before:
+```html
+<sw-url-field>
+    <template #label>
+        My Label
+    </template>
+</sw-url-field>
+```
+After:
+```html
+<mt-url-field label="My label">
+</mt-url-field>
+```
+
+### "mt-url-field" has no slot "hint" anymore
+Remove all occurrences of the "hint" slot. There is no replacement for this slot.
+
+Before:
+```html
+<sw-url-field>
+    <template #hint>
+        My Hint
+    </template>
+</sw-url-field>
+```
+
+After:
+```html
+<mt-url-field />
+```
+## Removal of "sw-progress-bar":
+The old "sw-progress-bar" component will be removed in the next major version. Please use the new "mt-progress-bar" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-progress-bar" component.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-progress-bar" with "mt-progress-bar".
+
+Following changes are necessary:
+
+### "sw-progress-bar" is removed
+Replace all component names from "sw-progress-bar" with "mt-progress-bar"
+
+Before:
+```html
+<sw-progress-bar />
+```
+After:
+```html
+<mt-progress-bar />
+```
+
+### "mt-progress-bar" has no property "value" anymore
+Replace all occurrences of the "value" prop with "modelValue"
+
+Before:
+```html
+<mt-progress-bar value="5" />
+```
+After:
+```html
+<mt-progress-bar modelValue="5" />
+```
+
+### "mt-progress-bar" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-progress-bar v-model:value="myValue" />
+```
+After:
+```html
+<mt-progress-bar v-model="myValue" />
+```
+
+### "mt-progress-bar" has no event "update:value" anymore
+Replace all occurrences of the "update:value" event with "update:modelValue"
+
+Before:
+```html
+<mt-progress-bar @update:value="updateValue" />
+```
+
+After:
+```html
+<mt-progress-bar @update:modelValue="updateValue" />
+```g
+
 ## Introduced in 6.6.2.0
 ## Removal of "sw-button":
 The old "sw-button" component will be removed in the next major version. Please use the new "mt-button" component instead.

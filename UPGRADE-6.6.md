@@ -1,3 +1,24 @@
+# 6.6.3.0
+## Configure Redis for cart storage
+When you are using Redis for cart storage, you should add the following config inside `shopware.yaml`:
+```yaml
+    cart:
+        compress: false
+        expire_days: 120
+        storage:
+            type: "redis"
+            config:
+                dsn: 'redis://localhost'
+```
+## Configure Redis for number range storage
+When you are using Redis for number range storage, you should add the following config inside `shopware.yaml`:
+```yaml
+    number_range:
+        increment_storage: "redis"
+        config:
+            dsn: 'redis://localhost'
+```
+
 # 6.6.1.0
 ## Accessibility: No empty nav element in top-bar
 There will be no empty `<nav>` tag anymore on single language and single currency shops so accessibility tools will not be confused by it.

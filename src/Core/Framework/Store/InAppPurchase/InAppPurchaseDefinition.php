@@ -3,7 +3,11 @@
 namespace Shopware\Core\Framework\Store\InAppPurchase;
 
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -42,6 +46,14 @@ class InAppPurchaseDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.6.6.0';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([
+            new ReadProtection(Context::SYSTEM_SCOPE),
+            new WriteProtection(Context::SYSTEM_SCOPE),
+        ]);
     }
 
     protected function defineFields(): FieldCollection

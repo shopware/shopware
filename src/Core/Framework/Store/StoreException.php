@@ -18,6 +18,9 @@ class StoreException extends HttpException
     public const EXTENSION_NOT_FOUND = 'FRAMEWORK__EXTENSION_NOT_FOUND';
     public const CANNOT_UPLOAD_CORRECTLY = 'FRAMEWORK__EXTENSION_CANNOT_BE_UPLOADED_CORRECTLY';
     public const EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED = 'FRAMEWORK__EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED';
+    public const INVALID_CONTEXT_SOURCE = 'FRAMEWORK__STORE_DATA_INVALID_CONTEXT_SOURCE';
+    public const MISSING_INTEGRATION_IN_CONTEXT_SOURCE = 'FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -96,6 +99,39 @@ class StoreException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::EXTENSION_RUNTIME_EXTENSION_MANAGEMENT_NOT_ALLOWED,
             'Runtime extension management is disabled'
+        );
+    }
+
+    public static function invalidContextSource(string $expectedContextSource, string $actualContextSource): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CONTEXT_SOURCE,
+            'Expected context source to be "{{ expectedContextSource }}" but got "{{ actualContextSource }}".',
+            [
+                'expectedContextSource' => $expectedContextSource,
+                'actualContextSource' => $actualContextSource,
+            ],
+        );
+    }
+
+    public static function missingIntegrationInContextSource(string $actualContextSource): StoreException
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_INTEGRATION_IN_CONTEXT_SOURCE,
+            'No integration available in context source "{{ class }}"',
+            ['class' => $actualContextSource],
+        );
+    }
+
+    public static function missingRequestParameter(string $name, string $path = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name, 'path' => $path]
         );
     }
 }

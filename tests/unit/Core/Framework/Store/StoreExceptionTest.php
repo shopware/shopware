@@ -53,4 +53,30 @@ class StoreExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__EXTENSION_CANNOT_BE_UPLOADED_CORRECTLY', $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testInvalidContextSource(): void
+    {
+        $exception = StoreException::invalidContextSource('context1', 'context2');
+
+        static::assertSame(
+            'Expected context source to be "context1" but got "context2".',
+            $exception->getMessage()
+        );
+
+        static::assertSame('FRAMEWORK__STORE_DATA_INVALID_CONTEXT_SOURCE', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    public function testMissingIntegrationInContextSource(): void
+    {
+        $exception = StoreException::missingIntegrationInContextSource('context');
+
+        static::assertSame(
+            'No integration available in context source "context"',
+            $exception->getMessage()
+        );
+
+        static::assertSame('FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
 }

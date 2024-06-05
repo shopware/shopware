@@ -236,5 +236,15 @@
         <service id="Shopware\Core\Framework\Store\InAppPurchase\InAppPurchaseDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchaseRegistry" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

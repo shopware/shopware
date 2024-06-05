@@ -1120,7 +1120,7 @@ class DefinitionValidator
         $reflectionMethods = (new \ReflectionClass($definition->getEntityClass()))->getMethods(\ReflectionMethod::IS_PUBLIC);
 
         foreach ($reflectionMethods as $reflectionMethod) {
-            if (!str_starts_with($reflectionMethod->getName(), $setter)) {
+            if ($reflectionMethod->getName() !== $setter) {
                 continue;
             }
 

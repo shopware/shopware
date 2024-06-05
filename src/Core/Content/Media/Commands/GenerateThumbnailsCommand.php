@@ -22,6 +22,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 
 #[AsCommand(
     name: 'media:generate-thumbnails',
@@ -199,6 +200,7 @@ class GenerateThumbnailsCommand extends Command
      */
     private function generateSynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
+        $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
         $totalMediaCount = $mediaIterator->getTotal();
         $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
         $this->io->progressStart($totalMediaCount);

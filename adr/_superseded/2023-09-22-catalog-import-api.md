@@ -4,6 +4,7 @@ date: 2023-09-06
 area: core
 tags: [catalog, product, category, import, api]
 ---
+## Superseded as this "project" was aborted as a lot of further issues came up while working on this approach.
 
 ## Context
 

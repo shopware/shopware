@@ -5,7 +5,7 @@ area: core
 tags: [feature-flag, workflow, major]
 ---
 
-## Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
+## Superseded by [Feature flags for major versions](../2022-01-20-feature-flags-for-major-versions.md)
 
 ## Context
 

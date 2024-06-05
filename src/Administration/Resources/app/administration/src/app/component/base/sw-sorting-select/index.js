@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sorting-select.html.twig';
+import './sw-sorting-select.scss';
 
 const { Component } = Shopware;
 

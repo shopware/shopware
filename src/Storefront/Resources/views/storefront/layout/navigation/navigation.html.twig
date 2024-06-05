@@ -12,7 +12,7 @@
 
                         {% block layout_main_navigation_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
-                                <a class="nav-link main-navigation-link{% if controllerAction is same as('home') %} active{% endif %} home-link"
+                                <a class="nav-link main-navigation-link nav-item-{{ context.salesChannel.navigationCategoryId }} {% if controllerAction is same as('home') %} active{% endif %} home-link"
                                     href="{{ path('frontend.home.page') }}"
                                     itemprop="url"
                                     title="{{ homeLabel|striptags }}">
@@ -32,7 +32,7 @@
 
                                 {% block layout_main_navigation_menu_item %}
                                     {% if category.type == 'folder' %}
-                                        <div class="nav-link main-navigation-link"
+                                        <div class="nav-link main-navigation-link nav-item-{{ category.id}}"
                                             {% if treeItem.children|length > 0 %}
                                                 data-flyout-menu-trigger="{{ category.id }}"
                                             {% endif %}
@@ -42,7 +42,7 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link{% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %}"
+                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}} {% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %}"
                                            href="{{ category_url(category) }}"
                                            itemprop="url"
                                            {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}

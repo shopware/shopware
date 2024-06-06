@@ -95,11 +95,7 @@ class Migration1707064042CartRemoveFK extends MigrationStep
     public function updateDestructive(Connection $connection): void
     {
         foreach (self::USELESS_COLUMNS as $column) {
-            try {
-                $connection->executeStatement(sprintf('ALTER TABLE `cart` DROP COLUMN `%s`', $column));
-            } catch (\Exception) {
-                // it's fine that the column has been already deleted
-            }
+            $this->dropColumnIfExists($connection, 'cart', $column);
         }
     }
 }

@@ -78,6 +78,13 @@ abstract class MigrationStep
         return !empty($exists);
     }
 
+    protected function dropColumnIfExists(Connection $connection, string $table, string $column): void
+    {
+        if ($this->columnExists($connection, $table, $column)) {
+            $connection->executeStatement(sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $column));
+        }
+    }
+
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         $exists = $connection->fetchOne(

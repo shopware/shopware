@@ -46,6 +46,7 @@
                 :columns="customerColumns"
                 :repository="customerRepository"
                 :is-loading="isLoading"
+                :is-record-disabled="customerUnavailable"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_column_select %}
@@ -55,6 +56,7 @@
                         <input
                             type="radio"
                             :checked="isChecked(item)"
+                            :disabled="customerUnavailable(item)"
                             @change="onCheckCustomer(item)"
                         >
                         <div class="sw-field__radio-state"></div>
@@ -65,14 +67,27 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_customer_grid_content_grid_column_name %}
                 <template #column-firstName="{ item }">
-                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                    <router-link
+                        v-if="!customerUnavailable(item)"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                    >
                         {{ item.firstName }} {{ item.lastName }}
                     </router-link>
+
+                    <div
+                        v-else
+                        v-tooltip.top="{
+                            message: $tc('sw-order.initialModal.tooltip.customerUnavailable'),
+                            disabled: !customerUnavailable(item),
+                        }"
+                    >
+                        {{ item.firstName }} {{ item.lastName }}
+                    </div>
                 </template>
                 {% endblock %}
 
                 <template #column-salesChannel="{ item }">
-                    {{ item.salesChannel.translated.name }}
+                    {{ item.boundSalesChannelId ? item?.boundSalesChannel.translated.name : $tc('sw-order.initialModal.customerGrid.labelAllChannel') }}
                 </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -118,6 +133,112 @@
             @on-select-existing-customer="onAddNewCustomer"
             @close="showNewCustomerModal = false"
         />
+        {% endblock %}
+
+        {% block sw_order_customer_grid_sales_channel_select_modal %}
+        <sw-modal
+            v-if="showSalesChannelSelectModal"
+            class="sw-order-customer-grid__sales-channel-selection-modal"
+            :title="$tc('sw-order.initialModal.customerGrid.titleSelectSalesChannel')"
+            @modal-close="onCloseSalesChannelSelectModal"
+        >
+            <template #default>
+                {% block sw_order_customer_grid_sales_channel_description %}
+                <p class="sw-order-customer-grid__sales-channel-selection--description">
+                    {{ $tc('sw-order.initialModal.customerGrid.descriptionSelectSalesChannel') }}
+                </p>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_customer_grid_sales_channel_select %}
+                <sw-entity-single-select
+                    class="sw-order-customer-grid__sales-channel-selection"
+                    entity="sales_channel"
+                    :criteria="salesChannelCriteria"
+                    :label="$tc('sw-order.initialModal.customerGrid.labelSalesChannel')"
+                    :placeholder="$tc('sw-order.initialModal.customerGrid.placeholderSalesChannel')"
+                    :value="customer.salesChannelId"
+                    @update:value="onSalesChannelChange"
+                />
+                {% endblock %}
+
+                {% block sw_order_customer_grid_sales_channel_notification_alert %}
+                <sw-alert
+                    class="sw-order-customer-grid__sales-channel-selection--notification-alert"
+                    variant="warning"
+                    :show-icon="false"
+                >
+                    {{ $tc('sw-order.initialModal.customerGrid.alertSelectSalesChannel') }}
+                </sw-alert>
+                {% endblock %}
+            </template>
+
+            <template #modal-footer>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_customer_grid_sales_channel_action_close %}
+                <sw-button
+                    size="small"
+                    @click="onCloseSalesChannelSelectModal"
+                >
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_customer_grid_sales_channel_action_select %}
+                <sw-button
+                    size="small"
+                    variant="primary"
+                    :is-loading="isLoading"
+                    :disabled="isSelectSalesChannelDisabled"
+                    @click="onSelectSalesChannel"
+                >
+                    {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-modal>
+        {% endblock %}
+
+        {% block sw_order_customer_grid_customer_changes_modal %}
+        <sw-modal
+            v-if="showCustomerChangesModal"
+            class="sw-order-customer-grid__customer-changes-modal"
+            :title="$tc('sw-order.initialModal.customerGrid.titleCustomerChanges')"
+            @modal-close="onCloseSalesChannelSelectModal"
+        >
+            <template #default>
+                {% block sw_order_customer_grid_customer_changes_modal_description %}
+                <p class="sw-order-customer-grid__customer-changes--description">
+                    {{ $tc('sw-order.initialModal.customerGrid.descriptionCustomerChanges') }}
+                </p>
+                {% endblock %}
+            </template>
+
+            <template #modal-footer>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_customer_grid_customer_changes_modal_action_close %}
+                <sw-button
+                    size="small"
+                    @click="onCloseCustomerChangesModal"
+                >
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_order_customer_grid_customer_changes_modal_action_changes %}
+                <sw-button
+                    size="small"
+                    variant="primary"
+                    :is-loading="isLoading"
+                    @click="onChangeCustomer"
+                >
+                    {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-modal>
         {% endblock %}
     </template>
 </sw-card>

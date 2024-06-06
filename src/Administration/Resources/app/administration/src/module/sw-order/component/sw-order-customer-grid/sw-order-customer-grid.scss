@@ -51,6 +51,13 @@ $sw-field--radio-color-border: $color-gray-300;
             display: none;
         }
     }
+
+    &__sales-channel-selection {
+        &--description {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+    }
 }
 
 .sw-field__radio-input {
@@ -100,4 +107,8 @@ $sw-field--radio-color-border: $color-gray-300;
         border: 1px solid $color-gray-300;
         border-radius: 8px;
     }
+}
+
+.sw-data-grid__row.is--disabled > .sw-data-grid__cell {
+    color: lighten($color-darkgray-200, 40%);
 }

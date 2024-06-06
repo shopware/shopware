@@ -183,6 +183,14 @@ Component.register('sw-data-grid', {
             required: false,
             default: null,
         },
+
+        isRecordDisabled: {
+            type: Function,
+            required: false,
+            default() {
+                return false;
+            },
+        },
     },
 
     data() {
@@ -553,6 +561,7 @@ Component.register('sw-data-grid', {
                 {
                     'is--inline-edit': this.isInlineEdit(item),
                     'is--selected': this.isSelected(item.id),
+                    'is--disabled': this.isRecordDisabled(item),
                 },
                 `sw-data-grid__row--${itemIndex}`,
             ];

@@ -110,7 +110,7 @@ class SystemUpdateFinishCommand extends Command
         $this->runCommand($application, $command, [
             'identifier' => 'core',
             '--all' => true,
-            '--version-selection-mode' => 'blue-green',
+            '--version-selection-mode' => 'safe',
         ], $output);
     }
 

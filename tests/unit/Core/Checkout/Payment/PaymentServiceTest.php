@@ -67,6 +67,7 @@ class PaymentServiceTest extends TestCase
         $paymentStructFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class);
         $paymentStructFactory->expects(static::once())->method('async')->willReturn($struct);
 
+        // @phpstan-ignore-next-line ignore deprecation
         $paymentHandler = $this->createMock(AsynchronousPaymentHandlerInterface::class);
         $paymentHandler->expects(static::once())->method('finalize')->with($struct, $request, $context);
 

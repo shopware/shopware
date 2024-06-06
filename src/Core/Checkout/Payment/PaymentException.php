@@ -223,7 +223,7 @@ class PaymentException extends HttpException
             'The payment method with id {{ paymentMethodId }} does not support the payment handler type {{ paymentHandlerType }}.',
             [
                 'paymentMethodId' => $paymentMethodId,
-                'paymentHandlerType' => $paymentHandlerType,
+                'paymentHandlerType' => $paymentHandlerType->name,
             ],
         );
     }

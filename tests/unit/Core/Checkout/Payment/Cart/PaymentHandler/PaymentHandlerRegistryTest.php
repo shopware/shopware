@@ -73,6 +73,7 @@ class PaymentHandlerRegistryTest extends TestCase
                     $result = $this->createMock(Result::class);
                     $result
                         ->method('fetchAssociative')
+                        // @phpstan-ignore-next-line ignore deprecations
                         ->willReturn(['handler_identifier' => $handler::class]);
                 } else {
                     $result = $this->createMock(Result::class);
@@ -98,6 +99,28 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     public function testPaymentRegistry(): void
+    {
+        $registry = new PaymentHandlerRegistry(
+            $this->registerHandler(AbstractPaymentHandler::class),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            new ServiceLocator([]),
+            $this->connection,
+        );
+
+        $abstract = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
+
+        $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
+        static::assertNull($foo);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
+    public function testOldPaymentRegistry(): void
     {
         $registry = new PaymentHandlerRegistry(
             $this->registerHandler(AbstractPaymentHandler::class),
@@ -138,6 +161,9 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertNull($foo);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
     #[DisabledFeatures(['v6.7.0.0'])]
     public function testPaymentRegistryWithoutServices(): void
     {
@@ -191,7 +217,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     public function testRegistryWithNonRegisteredPaymentHandler(): void
     {
-        $this->registerHandlerInterface(SynchronousPaymentHandlerInterface::class);
+        $this->registerHandler(AbstractPaymentHandler::class);
 
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([]),
@@ -203,10 +229,13 @@ class PaymentHandlerRegistryTest extends TestCase
             $this->connection,
         );
 
-        $sync = $registry->getPaymentMethodHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
+        $sync = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
         static::assertNull($sync);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old interfaces
+     */
     #[DisabledFeatures(['v6.7.0.0'])]
     public function testRegistryWithMismatchedExpectedType(): void
     {
@@ -315,18 +344,16 @@ class PaymentHandlerRegistryTest extends TestCase
      *
      * @return ServiceLocator<PaymentHandlerInterface>
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - all following can be removed
      */
     private function registerHandlerInterface(string $handler): ServiceLocator
     {
         $class = match ($handler) {
-            // @phpstan-ignore-next-line
             SynchronousPaymentHandlerInterface::class => new class() implements SynchronousPaymentHandlerInterface {
                 public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
                 {
                 }
             },
-            // @phpstan-ignore-next-line
             AsynchronousPaymentHandlerInterface::class => new class() implements AsynchronousPaymentHandlerInterface {
                 public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
                 {
@@ -337,7 +364,6 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            // @phpstan-ignore-next-line
             PreparedPaymentHandlerInterface::class => new class() implements PreparedPaymentHandlerInterface {
                 public function validate(Cart $cart, RequestDataBag $requestDataBag, SalesChannelContext $context): Struct
                 {
@@ -348,19 +374,16 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            // @phpstan-ignore-next-line
             RefundPaymentHandlerInterface::class => new class() implements RefundPaymentHandlerInterface {
                 public function refund(string $refundId, Context $context): void
                 {
                 }
             },
-            // @phpstan-ignore-next-line
             RecurringPaymentHandlerInterface::class => new class() implements RecurringPaymentHandlerInterface {
                 public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
                 {
                 }
             },
-            // @phpstan-ignore-next-line
             default => new class() implements PaymentHandlerInterface {
             },
         };

@@ -378,53 +378,98 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
         $this->appPaymentMethod = $appPaymentMethod;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function isSynchronous(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `synchronous` will be removed');
+
         return $this->synchronous;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function setSynchronous(bool $synchronous): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `synchronous` will be removed');
         $this->synchronous = $synchronous;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function isAsynchronous(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `asynchronous` will be removed');
+
         return $this->asynchronous;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function setAsynchronous(bool $asynchronous): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `asynchronous` will be removed');
         $this->asynchronous = $asynchronous;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function isPrepared(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `prepared` will be removed');
+
         return $this->prepared;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function setPrepared(bool $prepared): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `prepared` will be removed');
         $this->prepared = $prepared;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function isRefundable(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `refundable` will be removed');
+
         return $this->refundable;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function setRefundable(bool $refundable): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `refundable` will be removed');
         $this->refundable = $refundable;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function isRecurring(): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `recurring` will be removed');
+
         return $this->recurring;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function setRecurring(bool $recurring): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `recurring` will be removed');
         $this->recurring = $recurring;
     }
 }

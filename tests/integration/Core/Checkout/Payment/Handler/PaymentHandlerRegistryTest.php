@@ -54,13 +54,20 @@ class PaymentHandlerRegistryTest extends TestCase
         $appLifecycle->install($manifest, true, Context::createDefaultContext());
     }
 
+    public function testGetHandler(): void
+    {
+        $paymentMethod = $this->getPaymentMethod(InvoicePayment::class);
+        $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
+        static::assertInstanceOf(InvoicePayment::class, $handler);
+    }
+
     /**
-     * @param class-string<PaymentHandlerInterface|AbstractPaymentHandler> $handlerClass
+     * @param class-string<AbstractPaymentHandler> $handlerClass
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     #[DataProvider('paymentMethodDataProvider')]
-    public function testGetHandler(string $handlerName, string $handlerClass): void
+    public function testGetHandlerOld(string $handlerName, string $handlerClass): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
@@ -70,7 +77,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -88,7 +95,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -106,7 +113,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -124,7 +131,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -165,7 +172,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @return array<string, array<string|class-string<PaymentHandlerInterface|AbstractPaymentHandler>|array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>>>>
      *
-     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
     public static function paymentMethodDataProvider(): array
     {

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandler
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -32,14 +33,19 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
     {
         /** @var Entity $entity */
         foreach ($event->getEntities() as $entity) {
+            if (!Feature::isActive('v6.7.0.0')) {
+                $entity->assign([
+                    'synchronous' => $this->isSynchronous($entity),
+                    'asynchronous' => $this->isAsynchronous($entity),
+                    'prepared' => $this->isPrepared($entity),
+                    'refundable' => $this->isRefundable($entity),
+                    'recurring' => $this->isRecurring($entity),
+                ]);
+            }
+
             $entity->assign([
                 'shortName' => $this->getShortName($entity),
                 'formattedHandlerIdentifier' => $this->getHandlerIdentifier($entity),
-                'synchronous' => $this->isSynchronous($entity),
-                'asynchronous' => $this->isAsynchronous($entity),
-                'prepared' => $this->isPrepared($entity),
-                'refundable' => $this->isRefundable($entity),
-                'recurring' => $this->isRecurring($entity),
             ]);
         }
     }
@@ -74,6 +80,9 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($last);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, corresponding fields are also removed
+     */
     private function isSynchronous(Entity $entity): bool
     {
         if (($app = $entity->get('appPaymentMethod')) !== null) {
@@ -84,6 +93,9 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         return \is_a($entity->get('handlerIdentifier'), SynchronousPaymentHandlerInterface::class, true);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, corresponding fields are also removed
+     */
     private function isAsynchronous(Entity $entity): bool
     {
         if (($app = $entity->get('appPaymentMethod')) !== null) {
@@ -94,6 +106,9 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         return \is_a($entity->get('handlerIdentifier'), AsynchronousPaymentHandlerInterface::class, true);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, corresponding fields are also removed
+     */
     private function isPrepared(Entity $entity): bool
     {
         if (($app = $entity->get('appPaymentMethod')) !== null) {
@@ -104,6 +119,9 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         return \is_a($entity->get('handlerIdentifier'), PreparedPaymentHandlerInterface::class, true);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, corresponding fields are also removed
+     */
     private function isRefundable(Entity $entity): bool
     {
         if (($app = $entity->get('appPaymentMethod')) !== null) {
@@ -114,6 +132,9 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         return \is_a($entity->get('handlerIdentifier'), RefundPaymentHandlerInterface::class, true);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, corresponding fields are also removed
+     */
     private function isRecurring(Entity $entity): bool
     {
         if (($app = $entity->get('appPaymentMethod')) !== null) {

@@ -12,9 +12,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent;
@@ -25,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -37,8 +41,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PaymentRecurringProcessor::class)]
 class PaymentRecurringProcessorTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
+     */
     public function testCorrectCriteriaIsUsed(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $orderId = 'foo';
 
         $criteria = new Criteria([$orderId]);
@@ -90,8 +99,13 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor->processRecurring($orderId, Context::createDefaultContext());
     }
 
-    public function testOrderNotFoundException(): void
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
+     */
+    public function testOldOrderNotFoundException(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $repo = $this->createMock(EntityRepository::class);
         $repo
             ->expects(static::once())
@@ -208,8 +222,75 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
 
-    public function testPaymentHandlerCalled(): void
+    public function testPaymentHandlerNotSupportedException(): void
     {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('foo');
+        $paymentMethod->setHandlerIdentifier('foo_recurring_handler');
+
+        $transaction = new OrderTransactionEntity();
+        $transaction->setId('foo');
+        $transaction->setStateId('initial_state_id');
+        $transaction->setPaymentMethodId('foo');
+        $transaction->setPaymentMethod($paymentMethod);
+
+        $transactions = new OrderTransactionCollection([$transaction]);
+
+        $order = new OrderEntity();
+        $order->setId('foo');
+        $order->setTransactions($transactions);
+
+        $orderRepo = $this->createMock(EntityRepository::class);
+        $orderRepo->expects(static::never())->method('search');
+
+        $stateLoader = $this->createMock(InitialStateIdLoader::class);
+        $stateLoader
+            ->expects(static::once())
+            ->method('get')
+            ->with(OrderTransactionStates::STATE_MACHINE)
+            ->willReturn('initial_state_id');
+
+        $handler = $this->createMock(AbstractPaymentHandler::class);
+        $handler
+            ->expects(static::once())
+            ->method('supports')
+            ->with(PaymentHandlerType::RECURRING, 'bar', Context::createDefaultContext())
+            ->willReturn(false);
+
+        $registry = $this->createMock(PaymentHandlerRegistry::class);
+        $registry
+            ->expects(static::once())
+            ->method('getPaymentMethodHandler')
+            ->with('bar')
+            ->willReturn($handler);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(static::never())->method('dispatch');
+
+        $processor = new PaymentRecurringProcessor(
+            $orderRepo,
+            $this->getOrderTransactionRepository(true),
+            $stateLoader,
+            $this->createMock(OrderTransactionStateHandler::class),
+            $registry,
+            new PaymentTransactionStructFactory(),
+            $dispatcher,
+            new NullLogger(),
+        );
+
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The payment method with id bar does not support the payment handler type RECURRING.');
+
+        $processor->processRecurring('foo', Context::createDefaultContext());
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
+     */
+    public function testOldPaymentHandlerCalled(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('foo');
         $paymentMethod->setHandlerIdentifier('foo_recurring_handler');
@@ -275,6 +356,81 @@ class PaymentRecurringProcessorTest extends TestCase
     }
 
     public function testThrowingPaymentHandlerWillSetTransactionStateToFailed(): void
+    {
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('foo');
+        $paymentMethod->setHandlerIdentifier('foo_recurring_handler');
+
+        $transaction = new OrderTransactionEntity();
+        $transaction->setId('foo');
+        $transaction->setStateId('initial_state_id');
+        $transaction->setPaymentMethodId('foo');
+        $transaction->setPaymentMethod($paymentMethod);
+
+        $transactions = new OrderTransactionCollection([$transaction]);
+
+        $order = new OrderEntity();
+        $order->setId('foo');
+        $order->setTransactions($transactions);
+
+        $stateLoader = $this->createMock(InitialStateIdLoader::class);
+        $stateLoader
+            ->expects(static::once())
+            ->method('get')
+            ->with(OrderTransactionStates::STATE_MACHINE)
+            ->willReturn('initial_state_id');
+
+        $struct = new PaymentTransactionStruct($transaction->getId());
+
+        $handler = $this->createMock(AbstractPaymentHandler::class);
+        $handler
+            ->expects(static::once())
+            ->method('supports')
+            ->with(PaymentHandlerType::RECURRING, 'bar', Context::createDefaultContext())
+            ->willReturn(true);
+        $handler
+            ->expects(static::once())
+            ->method('recurring')
+            ->with($struct, Context::createDefaultContext())
+            ->willThrowException(PaymentException::recurringInterrupted($transaction->getId(), 'error_foo'));
+
+        $registry = $this->createMock(PaymentHandlerRegistry::class);
+        $registry
+            ->expects(static::once())
+            ->method('getPaymentMethodHandler')
+            ->with('bar')
+            ->willReturn($handler);
+
+        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
+        $stateHandler
+            ->expects(static::once())
+            ->method('fail')
+            ->with($transaction->getId(), Context::createDefaultContext());
+
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = new StaticEntityRepository([]);
+
+        $processor = new PaymentRecurringProcessor(
+            $orderRepository,
+            $this->getOrderTransactionRepository(true),
+            $stateLoader,
+            $stateHandler,
+            $registry,
+            new PaymentTransactionStructFactory(),
+            $this->createMock(EventDispatcherInterface::class),
+            new NullLogger(),
+        );
+
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('error_foo');
+
+        $processor->processRecurring('foo', Context::createDefaultContext());
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
+     */
+    public function testOldThrowingPaymentHandlerWillSetTransactionStateToFailed(): void
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('foo');

@@ -1,6 +1,8 @@
 name: Danger
 on:
-  pull_request_target:
+  push:
+    branches:
+      - trunk
 
 jobs:
   pr:

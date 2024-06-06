@@ -1,8 +1,8 @@
 name: PR Labeling
 on:
-  pull_request_target:
-    types:
-      - opened
+  push:
+    branches:
+      - trunk
 
 jobs:
   label:

@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - trunk
-  pull_request:
-    paths:
-      - composer.json
-      - 'changelog/**/*.md'
-      - 'src/**/snippet/**/*.json'
-      - '**.php'
-      - '.github/workflows/01-php-lint.yml'
-  workflow_dispatch:
+#  pull_request:
+#    paths:
+#      - composer.json
+#      - 'changelog/**/*.md'
+#      - 'src/**/snippet/**/*.json'
+#      - '**.php'
+#      - '.github/workflows/01-php-lint.yml'
+#  workflow_dispatch:
 
 jobs:
   build:

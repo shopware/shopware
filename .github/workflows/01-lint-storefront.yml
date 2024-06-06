@@ -6,9 +6,9 @@ on:
       - trunk
     paths:
       - src/Storefront/Resources/app/storefront/**/*
-  pull_request:
-    paths:
-      - src/Storefront/Resources/app/storefront/**/*
+#  pull_request:
+#    paths:
+#      - src/Storefront/Resources/app/storefront/**/*
 
 jobs:
   check:

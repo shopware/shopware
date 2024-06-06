@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - trunk
-  pull_request:
-  schedule:
-    - cron: '0 6 * * 4'
+#  pull_request:
+#  schedule:
+#    - cron: '0 6 * * 4'
 
 jobs:
   php:

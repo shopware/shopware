@@ -2,7 +2,7 @@ import { test as base, expect } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const FRWSalesChannelSelectionPossibility = base.extend<{ FRWSalesChannelSelectionPossibility: Task }, FixtureTypes>({
-    FRWSalesChannelSelectionPossibility: async ({ AdminFirstRunWizard }, use)=> {
+    FRWSalesChannelSelectionPossibility: async ({ AdminFirstRunWizard }, use) => {
         const task = (salesChannelName: string) => {
             return async function FRWSalesChannelSelectionPossibility() {
                 await AdminFirstRunWizard.salesChannelSelectionMultiSelect.click();

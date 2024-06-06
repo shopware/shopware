@@ -9,6 +9,7 @@ test('Journey: Customer gets a special product price depending on rules. @journe
     AddProductToCart,
 }) => {
 
+    // what is this testing? the rule is always valid
     const response = await AdminApiContext.post('./search/rule', {
         data: {
             limit: 1,
@@ -16,7 +17,7 @@ test('Journey: Customer gets a special product price depending on rules. @journe
                 {
                     type: 'equals',
                     field: 'name',
-                    value: 'Cart >= 0',
+                    value: 'Always valid (Default)',
                 },
             ],
         },
@@ -32,6 +33,12 @@ test('Journey: Customer gets a special product price depending on rules. @journe
             ruleId: rule.id,
             price: [{
                 currencyId: SalesChannelBaseConfig.eurCurrencyId,
+                gross: 99.99,
+                linked: false,
+                net: 93.45,
+            },
+            {
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
                 gross: 99.99,
                 linked: false,
                 net: 93.45,

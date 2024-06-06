@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -47,6 +49,7 @@ class RecalculationService
         protected EntityRepository $productRepository,
         protected EntityRepository $orderAddressRepository,
         protected EntityRepository $customerAddressRepository,
+        protected EntityRepository $orderLineItemRepository,
         protected Processor $processor,
         private readonly CartRuleLoader $cartRuleLoader,
         private readonly PromotionItemBuilder $promotionItemBuilder
@@ -88,7 +91,11 @@ class RecalculationService
         }
 
         // change scope to be able to write protected state fields of transactions and deliveries
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData, $order): void {
+            if (($lineItems = $order->getLineItems()) instanceof OrderLineItemCollection) {
+                $this->orderLineItemRepository->delete(array_values($lineItems->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()])), $context);
+            }
+
             $this->orderRepository->upsert([$orderData], $context);
         });
     }

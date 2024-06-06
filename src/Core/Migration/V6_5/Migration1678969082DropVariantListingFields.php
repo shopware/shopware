@@ -23,29 +23,15 @@ class Migration1678969082DropVariantListingFields extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'product', 'display_parent')) {
-            $connection->executeStatement(
-                'ALTER TABLE `product` DROP COLUMN `display_parent`'
-            );
-        }
+        $this->dropColumnIfExists($connection, 'product', 'display_parent');
 
-        if ($this->columnExists($connection, 'product', 'configurator_group_config')) {
-            $connection->executeStatement(
-                'ALTER TABLE `product` DROP COLUMN `configurator_group_config`'
-            );
-        }
+        $this->dropColumnIfExists($connection, 'product', 'configurator_group_config');
 
         if ($this->columnExists($connection, 'product', 'main_variant_id')) {
             // Maybe FK still exists, so we need to drop it first
-            try {
-                $connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.main_variant_id`');
-            } catch (\Exception) {
-                // ignore
-            }
+            $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.main_variant_id');
 
-            $connection->executeStatement(
-                'ALTER TABLE `product` DROP COLUMN `main_variant_id`'
-            );
+            $this->dropColumnIfExists($connection, 'product', 'main_variant_id');
         }
     }
 }

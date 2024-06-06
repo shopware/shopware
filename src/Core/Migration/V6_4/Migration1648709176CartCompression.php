@@ -52,6 +52,6 @@ class Migration1648709176CartCompression extends MigrationStep
             });
         } while ($affectedRows === self::UPDATE_LIMIT);
 
-        $connection->executeStatement('ALTER TABLE `cart` DROP COLUMN `cart`;');
+        $this->dropColumnIfExists($connection, 'cart', 'cart');
     }
 }

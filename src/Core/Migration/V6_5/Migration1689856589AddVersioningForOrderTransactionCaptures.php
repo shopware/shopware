@@ -49,11 +49,12 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
 
     private function reAddVersionedPrimaryKey(Connection $connection, string $tableName): void
     {
-        $sqlStatement = sprintf('
-            ALTER TABLE `%s`
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (`id`, `version_id`);
-        ', $tableName);
+        $sqlStatement = sprintf(
+            'ALTER TABLE `%s`
+             DROP PRIMARY KEY,
+             ADD PRIMARY KEY (`id`, `version_id`);',
+            $tableName
+        );
         $connection->executeStatement($sqlStatement);
     }
 }

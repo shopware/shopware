@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\Subscriber;
 
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
@@ -62,9 +61,10 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             }
 
             // if we did not use an individual code we might have
-            // just used a global one or anything else, so just quit in this case.
+            // just used a global one or anything else, so just continue in this case
+            // and go on with the next promotion if any are left in the collection
             if (!($individualCode instanceof PromotionIndividualCodeEntity)) {
-                return;
+                continue;
             }
 
             /** @var OrderCustomerEntity $customer */
@@ -105,14 +105,13 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             new EqualsFilter('code', $code)
         );
 
-        /** @var PromotionIndividualCodeCollection $result */
-        $result = $this->codesRepository->search($criteria, $context)->getEntities();
+        /** @var PromotionIndividualCodeEntity|null $promotion */
+        $promotion = $this->codesRepository->search($criteria, $context)->first();
 
-        if (\count($result->getElements()) <= 0) {
+        if (!$promotion) {
             throw new PromotionCodeNotFoundException($code);
         }
 
-        // return first element
-        return $result->first();
+        return $promotion;
     }
 }

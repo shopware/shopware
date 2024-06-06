@@ -63,6 +63,7 @@
       "baseCurrency": "Base currency",
       "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"min. cart value (net)\", the whole shopping cart will be free of tax.",
       "labelVatIdRequired": "VAT Reg.No. required",
+      "labelIsEu": "Member state of the European Union",
       "helpTextLabelVatIdRequired": "Please keep in mind the global switch in \"Settings > Login/registration\".",
       "titleOptions": "Options",
       "currencyDependentValues": "Currency dependent values",

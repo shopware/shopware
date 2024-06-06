@@ -277,21 +277,6 @@
                             :label="$tc('sw-settings-document.detail.labelDisplayCustomerVatId')"
                         />
                         {% endblock %}
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_document_detail_content_field_delivery_countries %}
-                        <sw-entity-multi-id-select
-                            v-if="showCountriesSelect"
-                            v-model:value="documentConfig.config.deliveryCountries"
-                            name="sw-field--documentConfig-config-deliveryCountries"
-                            class="sw-settings-document-detail__field_delivery_countries"
-                            :repository="countryRepository"
-                            :disabled="!acl.can('document.editor')"
-                            :help-text="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
-                            :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
-                            :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')"
-                        />
-                        {% endblock %}
                     </sw-container>
                 </sw-card>
                 {% endblock %}

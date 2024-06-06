@@ -290,17 +290,10 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
             '.sw-settings-document-detail__field_additional_note_delivery',
         );
-        const deliveryCountriesSelect = wrapper.find(
-            '.sw-settings-document-detail__field_delivery_countries',
-        );
 
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('value')).toBe('true');
         expect(displayAdditionalNoteDeliveryCheckbox.attributes('label'))
             .toBe('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery');
-        expect(deliveryCountriesSelect.attributes('help-text'))
-            .toBe('sw-settings-document.detail.helpTextDisplayDeliveryCountries');
-        expect(deliveryCountriesSelect.attributes('label'))
-            .toBe('sw-settings-document.detail.labelDeliveryCountries');
     });
 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
@@ -363,33 +356,6 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 },
             }),
         );
-    });
-
-    // eslint-disable-next-line max-len
-    it('should be have countries in country select when have toggle display intra-community delivery checkbox', async () => {
-        const wrapper = await createWrapper({}, ['document.editor']);
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isShowDisplayNoteDelivery: true,
-            documentConfig: {
-                config: {
-                    deliveryCountries: [
-                        '0110c22a5a92481aa8722a782dfc2573',
-                        '0143d24eb0264eb89cc34f50d427b828',
-                    ],
-                },
-            },
-        });
-
-        const displayAdditionalNoteDeliveryCheckbox = wrapper.find(
-            '.sw-settings-document-detail__field_additional_note_delivery input',
-        );
-
-        await displayAdditionalNoteDeliveryCheckbox.setChecked();
-
-        expect(displayAdditionalNoteDeliveryCheckbox.element.checked).toBe(true);
-        expect(wrapper.vm.documentConfig.config.deliveryCountries).toHaveLength(2);
     });
 
     it('should have assignment card at the top of the page', async () => {

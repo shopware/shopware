@@ -55,8 +55,10 @@ class Migration1716196653AddTechnicalNameToImportExportProfile extends Migration
     /**
      * @param array<int, array<string, string>> $technicalNames
      */
-    private function generateTechnicalName(string $name, array $technicalNames): string
+    private function generateTechnicalName(?string $name, array $technicalNames): string
     {
+        $name = $name ?? 'Unnamed profile';
+
         $technicalName = $this->getTechnicalName($name);
 
         // Check if the name already exists, if yes, add a number to the end

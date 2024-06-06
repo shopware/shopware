@@ -154,6 +154,7 @@ export default {
                 cloneChildren: false,
                 overwrites: {
                     label: `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || item.translated.label}`,
+                    technicalName: `${item.technicalName}-copy-${Date.now()}`,
                     systemDefault: false,
                 },
             };

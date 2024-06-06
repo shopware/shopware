@@ -16,7 +16,7 @@ test('Journey: Customer gets a special product price depending on the amount of 
             filter: [{
                 type: 'equals',
                 field: 'name',
-                value: 'Cart >= 0',
+                value: 'Always valid (Default)',
             }],
         },
     });
@@ -35,6 +35,12 @@ test('Journey: Customer gets a special product price depending on the amount of 
                 gross: 99.99,
                 linked: false,
                 net: 84.03,
+            },
+            {
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                gross: 99.99,
+                linked: false,
+                net: 84.03,
             }],
             quantityStart: 1,
             quantityEnd: 10,
@@ -48,6 +54,12 @@ test('Journey: Customer gets a special product price depending on the amount of 
             ruleId: rule.id,
             price: [{
                 currencyId: SalesChannelBaseConfig.eurCurrencyId,
+                gross: 89.99,
+                linked: false,
+                net: 75.62,
+            },
+            {
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
                 gross: 89.99,
                 linked: false,
                 net: 75.62,

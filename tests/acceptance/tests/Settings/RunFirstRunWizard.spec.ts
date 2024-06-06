@@ -1,11 +1,19 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
 test('Journey: Merchant is able to be guided through the First Run Wizard.', async ({
+    FRWSalesChannelSelectionPossibility,
     ShopAdmin,
     DefaultSalesChannel,
     AdminFirstRunWizard,
-    FRWSalesChannelSelectionPossibility,
+    AdminApiContext,
 }) => {
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (isSaaSInstance(AdminApiContext)) {
+        // eslint-disable-next-line playwright/no-skipped-test
+        test.skip('Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+    }
+
     await ShopAdmin.goesTo(AdminFirstRunWizard);
 
     //LanguagePack part

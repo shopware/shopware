@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -708,6 +709,64 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(19.0, $firstTax->getTaxRate());
         static::assertNotNull($lastTax);
         static::assertSame(5.0, $lastTax->getTaxRate());
+    }
+
+    public function testDeleteLineItemsAfterRecalculateOrderWitchInactiveProducts(): void
+    {
+        // Arrange
+        $inactiveProductId = Uuid::randomHex();
+
+        $cart = $this->generateDemoCart($inactiveProductId);
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
+        static::assertNotNull($lineItemWithInactiveProduct);
+
+        $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
+
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+                ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false,
+            ],
+        ];
+        
+        // Act
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, $options);
+
+        // Assert
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $versionContext)
+            ->get($orderId);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
+        static::assertNotNull($order);
+        static::assertNull($lineItemWithInactiveProduct);
     }
 
     public function testRecalculateOrderWithInactiveProduct(): void

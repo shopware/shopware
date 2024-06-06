@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -115,12 +116,14 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->cartPersister->delete($context->getToken(), $context);
 
         // @deprecated tag:v6.7.0 - remove post payment completely
-        try {
-            Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
-                $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
-            });
-        } catch (PaymentException) {
-            throw CartException::invalidPaymentButOrderStored($orderId);
+        if (!Feature::isActive('v6.7.0.0')) {
+            try {
+                Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
+                    $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+                });
+            } catch (PaymentException) {
+                throw CartException::invalidPaymentButOrderStored($orderId);
+            }
         }
 
         return new CartOrderRouteResponse($orderEntity);

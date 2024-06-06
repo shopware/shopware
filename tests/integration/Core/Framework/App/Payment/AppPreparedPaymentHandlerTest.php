@@ -34,7 +34,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $response = ValidateResponse::create(['preOrderPayment' => ['test' => 'response']]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $returnValue = $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $returnValue = $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
         static::assertInstanceOf(ArrayStruct::class, $returnValue);
         static::assertSame(['test' => 'response'], $returnValue->all());
 
@@ -80,7 +80,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $customerId = $this->createCustomer();
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
 
-        $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
 
         static::assertSame(0, $this->getRequestCount());
     }
@@ -99,7 +99,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->expectException(AppException::class);
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
-        $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
     public function testValidateWithUnsignedResponse(): void
@@ -117,7 +117,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->expectException(ServerException::class);
         $this->expectExceptionMessage('Could not verify the authenticity of the response');
-        $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
     public function testValidateWithWronglySignedResponse(): void
@@ -135,7 +135,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->expectException(ServerException::class);
         $this->expectExceptionMessage('Could not verify the authenticity of the response');
-        $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
     public function testValidateWithErrorResponse(): void
@@ -149,7 +149,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->expectException(ServerException::class);
         $this->expectExceptionMessage('Could not verify the authenticity of the response');
-        $this->preparedPaymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
+        $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
     public function testCapture(): void

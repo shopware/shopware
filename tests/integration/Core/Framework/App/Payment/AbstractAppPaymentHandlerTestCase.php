@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
@@ -56,6 +57,8 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     protected PaymentService $paymentService;
 
     protected PreparedPaymentService $preparedPaymentService;
+
+    protected PaymentProcessor $paymentProcessor;
 
     protected PaymentRefundProcessor $paymentRefundProcessor;
 
@@ -110,6 +113,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->paymentProcessor = $this->getContainer()->get(PaymentProcessor::class);
         $this->preparedPaymentService = $this->getContainer()->get(PreparedPaymentService::class);
         $this->paymentRefundProcessor = $this->getContainer()->get(PaymentRefundProcessor::class);
         $this->context = Context::createDefaultContext();

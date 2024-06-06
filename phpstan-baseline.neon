@@ -1936,31 +1936,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with string will always evaluate to true\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getPayload\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getProductId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getQuantity\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getReferencedId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with arguments 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Price\\\\\\\\Struct\\\\\\\\CalculatedPrice', Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice and string will always evaluate to true\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php

@@ -128,12 +128,6 @@ class PaymentHandlerRegistry
             return null;
         }
 
-        if (Feature::isActive('v6.7.0.0')) {
-            if (!$handler instanceof AbstractPaymentHandler) {
-                return null;
-            }
-        }
-
         return $this->handlers[$handlerIdentifier];
     }
 

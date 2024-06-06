@@ -177,21 +177,6 @@ class PaymentHandlerRegistryTest extends TestCase
     public static function paymentMethodDataProvider(): array
     {
         return [
-            'app async' => [
-                'app\\testPayments_async',
-                AppPaymentHandler::class,
-                [AsynchronousPaymentHandlerInterface::class],
-            ],
-            'app sync with payurl' => [
-                'app\\testPayments_syncTracked',
-                AppPaymentHandler::class,
-                [SynchronousPaymentHandlerInterface::class],
-            ],
-            'app sync' => [
-                'app\\testPayments_sync',
-                AppPaymentHandler::class,
-                [SynchronousPaymentHandlerInterface::class],
-            ],
             'normal async' => [
                 AsyncTestPaymentHandler::class,
                 AsyncTestPaymentHandler::class,

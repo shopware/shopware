@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\App\Payment\Handler;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -18,6 +20,7 @@ use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Checkout\Payment\Cart\RefundPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
@@ -56,11 +59,17 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('core')]
 class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymentHandlerInterface
 {
+    /**
+     * @param EntityRepository<OrderTransactionCaptureRefundCollection> $refundRepository
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly StateMachineRegistry $stateMachineRegistry,
         private readonly PaymentPayloadService $payloadService,
         private readonly EntityRepository $refundRepository,
         private readonly EntityRepository $orderTransactionRepository,
+        private readonly EntityRepository $appRepository,
         private readonly Connection $connection,
     ) {
     }
@@ -279,8 +288,12 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
             return;
         }
 
-        if ($response->getStatus() === null) {
+        if (!$response->getStatus()) {
             return;
+        }
+
+        if ($response->getStatus() === StateMachineTransitionActions::ACTION_CANCEL) {
+            throw PaymentException::customerCanceled($entityId, $response->getErrorMessage() ?? '');
         }
 
         $this->stateMachineRegistry->transition(
@@ -330,11 +343,25 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
 
     private function getApp(AppPaymentMethodEntity $appPaymentMethod): AppEntity
     {
-        if (!$appPaymentMethod->getApp()) {
+        if ($appPaymentMethod->getApp()) {
+            return $appPaymentMethod->getApp();
+        }
+
+        $appId = $appPaymentMethod->getAppId();
+        if (!$appId) {
             throw AppException::interrupted('Loaded data invalid');
         }
 
-        return $appPaymentMethod->getApp();
+        $app = $this->appRepository
+            ->search(new Criteria([$appId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        if (!$app) {
+            throw AppException::interrupted('Loaded data invalid');
+        }
+
+        return $app;
     }
 
     /**

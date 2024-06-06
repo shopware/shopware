@@ -193,6 +193,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
             <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="app.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

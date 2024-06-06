@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Product\Cart;
+namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,26 +38,20 @@ class ProductLineItemCommandValidatorTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
+    private AbstractSalesChannelContextFactory $contextFactory;
 
     private SalesChannelContext $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<OrderLineItemCollection>
      */
-    private $lineItemRepository;
+    private EntityRepository $lineItemRepository;
 
     protected function setUp(): void
     {
@@ -83,8 +79,6 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $orderId = $this->orderProduct($id, 5, $this->context);
 
-        static::assertNotNull($orderId);
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
@@ -109,8 +103,6 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $orderId = $this->orderProduct($id, 5, $this->context);
 
-        static::assertNotNull($orderId);
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
@@ -130,10 +122,11 @@ class ProductLineItemCommandValidatorTest extends TestCase
         ], $context);
 
         $lineItems = $this->lineItemRepository->search($criteria, $context);
-        $first = $lineItems->first();
-
+        $first = $lineItems->getEntities()->first();
+        static::assertNotNull($first);
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
+        static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
         static::assertEquals(10, $first->getQuantity());
     }
@@ -147,17 +140,15 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $orderId = $this->orderProduct($id, 5, $this->context);
 
-        static::assertNotNull($orderId);
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
         $lineItems = $this->lineItemRepository->search($criteria, $context);
 
         static::assertCount(1, $lineItems);
-        /** @var OrderLineItemEntity $first */
-        $first = $lineItems->first();
 
+        $first = $lineItems->getEntities()->first();
+        static::assertNotNull($first);
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
@@ -180,17 +171,14 @@ class ProductLineItemCommandValidatorTest extends TestCase
 
         $orderId = $this->orderProduct($id, 5, $this->context);
 
-        static::assertNotNull($orderId);
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
         $lineItems = $this->lineItemRepository->search($criteria, $context);
 
         static::assertCount(1, $lineItems);
-        /** @var OrderLineItemEntity $first */
-        $first = $lineItems->first();
-
+        $first = $lineItems->getEntities()->first();
+        static::assertNotNull($first);
         static::assertEquals($id, $first->getReferencedId());
         static::assertEquals($id, $first->getProductId());
         static::assertIsArray($first->getPayload());

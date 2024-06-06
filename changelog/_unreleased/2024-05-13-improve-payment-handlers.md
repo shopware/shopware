@@ -5,6 +5,7 @@ issue: NEXT-31047
 # Core
 * Added new `AbstractPaymentHandler` to replace all existing payment handler interfaces
 * Deprecated `AsyncPaymentHandlerInterface`, `PreparedPaymentHandlerInterface`, `SyncPaymentHandlerInterface`, `RefundPaymentHandlerInterface`, `RecurringPaymentHandlerInterface`
+* Deprecated runtime fields `synchronous`, `asynchronous`, `prepared`, `refund`, `recurring` in `PaymentMethodEntity`
 ___
 # Next Major Version Changes
 ## Prepared payments: Capture removed

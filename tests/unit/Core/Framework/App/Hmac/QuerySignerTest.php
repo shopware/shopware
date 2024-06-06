@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
+use Shopware\Core\Framework\Store\InAppPurchase;
 
 /**
  * @internal
@@ -23,6 +24,8 @@ class QuerySignerTest extends TestCase
 {
     public function testSignUri(): void
     {
+        InAppPurchase::registerPurchases(['purchase-1' => 'extension-1', 'purchase-2' => 'extension-1', 'purchase-3' => 'extension-2']);
+
         $context = new Context(new AdminApiSource(null));
 
         $localeProvider = $this->createMock(LocaleProvider::class);
@@ -51,6 +54,7 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('shop-url', $url);
         static::assertArrayHasKey('timestamp', $url);
         static::assertArrayHasKey('sw-version', $url);
+        static::assertArrayHasKey('in-app-purchases', $url);
         static::assertArrayHasKey('sw-context-language', $url);
         static::assertArrayHasKey('sw-user-language', $url);
         static::assertArrayHasKey('shopware-shop-signature', $url);
@@ -59,6 +63,7 @@ class QuerySignerTest extends TestCase
         static::assertSame('http://shop.url', $url['shop-url']);
         static::assertIsNumeric($url['timestamp']);
         static::assertSame('1.0.0', $url['sw-version']);
+        static::assertSame('purchase-1,purchase-2', $url['in-app-purchases']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
     }

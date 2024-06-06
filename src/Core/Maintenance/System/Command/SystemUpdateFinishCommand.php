@@ -18,7 +18,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -31,8 +30,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class SystemUpdateFinishCommand extends Command
 {
-    public function __construct(private readonly ContainerInterface $container, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly string $shopwareVersion
+    ) {
         parent::__construct();
     }
 
@@ -67,25 +69,21 @@ class SystemUpdateFinishCommand extends Command
         $output->writeln('Run Post Update');
         $output->writeln('');
 
-        /** @var EventDispatcherInterface $eventDispatcher */
-        $eventDispatcher = $this->container->get('event_dispatcher');
-
         $context = Context::createCLIContext();
-        $systemConfigService = $this->container->get(SystemConfigService::class);
-        $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
+        $oldVersion = $this->systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
 
         if ($input->getOption('skip-asset-build')) {
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
-        $eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
+        $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
 
         if (!$input->getOption('skip-migrations')) {
             $this->runMigrations($output);
         }
 
         $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion);
-        $eventDispatcher->dispatch($updateEvent);
+        $this->eventDispatcher->dispatch($updateEvent);
 
         $output->writeln($updateEvent->getPostUpdateMessage());
 
@@ -100,8 +98,7 @@ class SystemUpdateFinishCommand extends Command
 
     private function runMigrations(OutputInterface $output): void
     {
-        $application = $this->getApplication();
-        \assert($application !== null);
+        $application = $this->getConsoleApplication();
         $command = $application->find('database:migrate');
 
         $this->runCommand($application, $command, [
@@ -117,25 +114,28 @@ class SystemUpdateFinishCommand extends Command
         ], $output);
     }
 
-    private function installAssets(OutputInterface $output): int
+    private function installAssets(OutputInterface $output): void
     {
-        $application = $this->getApplication();
-        \assert($application !== null);
+        $application = $this->getConsoleApplication();
         $command = $application->find('assets:install');
 
-        return $this->runCommand($application, $command, [], $output);
+        $this->runCommand($application, $command, [], $output);
     }
 
     /**
      * @param array<string, string|bool|null> $arguments
      */
-    private function runCommand(Application $application, Command $command, array $arguments, OutputInterface $output): int
+    private function runCommand(Application $application, Command $command, array $arguments, OutputInterface $output): void
     {
         \array_unshift($arguments, $command->getName());
 
-        return $application->doRun(
-            new ArrayInput($arguments),
-            $output
-        );
+        $application->doRun(new ArrayInput($arguments), $output);
+    }
+
+    private function getConsoleApplication(): Application
+    {
+        $application = $this->getConsoleApplication();
+
+        return $application;
     }
 }

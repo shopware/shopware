@@ -26,9 +26,9 @@ class ImportExportProfileEntity extends Entity
     protected $name;
 
     /**
-     * @var string
+     * @deprecated tag:v6.7.0 - will not be nullable
      */
-    protected $technicalName;
+    protected ?string $technicalName = null;
 
     /**
      * @var string
@@ -110,13 +110,27 @@ class ImportExportProfileEntity extends Entity
         $this->name = $name;
     }
 
-    public function getTechnicalName(): string
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
     {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
         return $this->technicalName;
     }
 
-    public function setTechnicalName(string $technicalName): void
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
     {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
         $this->technicalName = $technicalName;
     }
 

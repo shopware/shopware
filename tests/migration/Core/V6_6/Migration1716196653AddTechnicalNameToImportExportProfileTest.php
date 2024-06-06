@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1716196653AddTechnicalNameToImportExportProfile;
@@ -22,6 +23,8 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
@@ -112,6 +115,11 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
         yield 'single profile' => [
             'names' => ['Default Profile'],
             'expectedTechnicalNames' => ['default_profile'],
+        ];
+
+        yield 'single profile with null name' => [
+            'names' => [null],
+            'expectedTechnicalNames' => ['unnamed_profile'],
         ];
 
         yield 'multiple profiles with different names' => [

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
@@ -69,6 +70,8 @@ class PaymentHandlerRegistryTest extends TestCase
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetHandlerOld(string $handlerName, string $handlerClass): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         static::assertInstanceOf($handlerClass, $handler);
@@ -82,6 +85,8 @@ class PaymentHandlerRegistryTest extends TestCase
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethod->getId());
 
@@ -100,6 +105,8 @@ class PaymentHandlerRegistryTest extends TestCase
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getSyncPaymentHandler($paymentMethod->getId());
 
@@ -118,6 +125,8 @@ class PaymentHandlerRegistryTest extends TestCase
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getPreparedPaymentHandler($paymentMethod->getId());
 
@@ -136,6 +145,8 @@ class PaymentHandlerRegistryTest extends TestCase
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getRefundPaymentHandler($paymentMethod->getId());
 

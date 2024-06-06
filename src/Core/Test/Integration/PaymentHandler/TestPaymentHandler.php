@@ -48,7 +48,18 @@ class TestPaymentHandler extends AbstractPaymentHandler
 
     public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
     {
+        if ($request->request->getBoolean('fail')) {
+            throw PaymentException::asyncProcessInterrupted(
+                $transaction->getOrderTransactionId(),
+                'Async Test Payment failed'
+            );
+        }
+
         $this->transactionStateHandler->process($transaction->getOrderTransactionId(), $context);
+
+        if ($request->request->getBoolean('noredirect')) {
+            return null;
+        }
 
         return new RedirectResponse(self::REDIRECT_URL);
     }
@@ -59,6 +70,13 @@ class TestPaymentHandler extends AbstractPaymentHandler
             throw PaymentException::customerCanceled(
                 $transaction->getOrderTransactionId(),
                 'Async Test Payment canceled'
+            );
+        }
+
+        if ($request->query->getBoolean('fail')) {
+            throw PaymentException::asyncFinalizeInterrupted(
+                $transaction->getOrderTransactionId(),
+                'Async Test Payment failed'
             );
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -121,6 +122,10 @@ final class StornoRenderer extends AbstractDocumentRenderer
                         'stornoNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
+                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                        $config->jsonSerialize(),
+                        $order,
+                    ),
                 ]);
 
                 if ($operation->isStatic()) {
@@ -234,5 +239,36 @@ final class StornoRenderer extends AbstractDocumentRenderer
             $order->getSalesChannelId(),
             $operation->isPreview()
         );
+    }
+
+    /**
+     * @param  array<string, mixed> $config
+     */
+    private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
+    {
+        if (empty($config['displayAdditionalNoteDelivery'])) {
+            return false;
+        }
+
+        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        $orderDelivery = $order->getDeliveries()?->first();
+        if (!$orderDelivery) {
+            return false;
+        }
+
+        $shippingAddress = $orderDelivery->getShippingOrderAddress();
+        $country = $shippingAddress?->getCountry();
+        if ($country === null) {
+            return false;
+        }
+
+        $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
+        $isPartOfEu = $country->getIsEu();
+
+        return $isCompanyTaxFree && $isPartOfEu;
     }
 }

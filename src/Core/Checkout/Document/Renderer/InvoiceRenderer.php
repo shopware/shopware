@@ -174,7 +174,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
      */
     private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
-        if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
+        if (empty($config['displayAdditionalNoteDelivery'])) {
             return false;
         }
 
@@ -195,7 +195,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         }
 
         $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
+        $isPartOfEu = $country->getIsEu();
 
-        return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
+        return $isCompanyTaxFree && $isPartOfEu;
     }
 }

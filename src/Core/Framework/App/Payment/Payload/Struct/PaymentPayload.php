@@ -46,9 +46,7 @@ class PaymentPayload implements PaymentPayloadInterface
         $this->orderTransaction = $this->removeApp($orderTransaction);
 
         // @deprecated tag:v6.7.0 - will be removed, use `requestData` instead
-        if ($this->returnUrl !== null) {
-            $this->queryParameters = $requestData;
-        }
+        $this->queryParameters = $requestData;
     }
 
     public function getOrderTransaction(): OrderTransactionEntity

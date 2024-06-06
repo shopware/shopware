@@ -9,11 +9,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,6 +26,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -531,8 +535,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testPreparedPaymentStructForwarded(): void
     {
-        $this->createCustomerAndLogin(null, null, PreparedTestPaymentHandler::class);
-        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
+        $this->createCustomerAndLogin(null, null, TestPaymentHandler::class);
 
         $this->browser
             ->request(
@@ -554,8 +557,16 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order'
             );
 
-        static::assertNotNull(PreparedTestPaymentHandler::$preOrderPaymentStruct);
-        static::assertSame(PreparedTestPaymentHandler::TEST_STRUCT_CONTENT, PreparedTestPaymentHandler::$preOrderPaymentStruct->all());
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+
+        /** @var EntityRepository<OrderTransactionCollection> $transactionRepo */
+        $transactionRepo = $this->getContainer()->get('order_transaction.repository');
+        $transaction = $transactionRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($transaction);
+        static::assertContains('testValue', $transaction->getCustomFieldsValue(PaymentProcessor::VALIDATION_FIELD));
     }
 
     public function testTaxProviderAppliedIfGiven(): void

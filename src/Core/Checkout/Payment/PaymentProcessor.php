@@ -36,6 +36,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('checkout')]
 class PaymentProcessor
 {
+    public const VALIDATION_FIELD = 'validateStruct';
+
     /**
      * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
      *
@@ -78,7 +80,7 @@ class PaymentProcessor
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $returnUrl);
-            $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue('validateStruct') ?? []);
+            $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue(self::VALIDATION_FIELD) ?? []);
 
             return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validateStruct);
         } catch (\Throwable $e) {
@@ -166,7 +168,10 @@ class PaymentProcessor
                 return null;
             }
 
-            return $paymentHandler->validate($cart, $dataBag, $salesChannelContext);
+            $struct = $paymentHandler->validate($cart, $dataBag, $salesChannelContext);
+            $cart->getTransactions()->first()?->setValidationStruct($struct);
+
+            return $struct;
         } catch (\Throwable $e) {
             $customer = $salesChannelContext->getCustomer();
             $customerId = $customer !== null ? $customer->getId() : '';

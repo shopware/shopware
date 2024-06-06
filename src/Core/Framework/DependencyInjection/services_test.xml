@@ -19,6 +19,11 @@
     <services>
         <defaults public="true"/>
 
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method"/>
+        </service>
+
         <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>

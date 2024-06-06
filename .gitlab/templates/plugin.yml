@@ -100,7 +100,7 @@ workflow:
         echo "Checking out ${MERGE_REF_PATH::-4}merge"
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
-  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep 'v6.5' | tail --lines=1 | cut --delimiter='/' --fields=3)"
+  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep v6.5 | tail -n 1 | cut -d '/' -f 3)"
   - PLATFORM_VERSION="${LATEST_TAG#"v"}"
   - composer config version "$PLATFORM_VERSION"
   - composer update
@@ -201,7 +201,6 @@ build and validate zip:
     before_script:
       - *setup_platform_and_plugin_files
     script:
-        - source /root/.bashrc # Workaround until Gitlab fixes the Gitlab Kubernetes runner
         - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --git-commit "${CI_COMMIT_SHA}"
         - mv ${PLUGIN_NAME}-${CI_COMMIT_SHA}.zip ${PLUGIN_NAME}.zip
         - shopware-cli extension validate "${PLUGIN_NAME}.zip"

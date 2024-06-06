@@ -3,21 +3,26 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
  */
+#[CoversClass(QuerySigner::class)]
+#[Package('core')]
 class QuerySignerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private string $secret;
+    private AppEntity $app;
 
     private QuerySigner $querySigner;
 
@@ -25,14 +30,17 @@ class QuerySignerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->secret = 'lksf#$osck$FSFDSF#$#F43jjidjsfisj-333';
+        $this->app = new AppEntity();
+        $this->app->setId('app-id');
+        $this->app->setAppSecret('lksf#$osck$FSFDSF#$#F43jjidjsfisj-333');
+
         $this->querySigner = $this->getContainer()->get(QuerySigner::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 
     public function testSignUri(): void
     {
-        $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->secret, Context::createDefaultContext());
+        $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->app, Context::createDefaultContext());
         parse_str($signedUri->getQuery(), $signedQuery);
 
         static::assertArrayHasKey('shop-id', $signedQuery);
@@ -60,9 +68,11 @@ class QuerySignerTest extends TestCase
         static::assertArrayHasKey('sw-user-language', $signedQuery);
         static::assertSame('en-GB', $signedQuery['sw-user-language']);
 
+        static::assertNotNull($this->app->getAppSecret());
+
         static::assertArrayHasKey('shopware-shop-signature', $signedQuery);
         static::assertSame(
-            hash_hmac('sha256', Uri::withoutQueryValue($signedUri, 'shopware-shop-signature')->getQuery(), $this->secret),
+            \hash_hmac('sha256', Uri::withoutQueryValue($signedUri, 'shopware-shop-signature')->getQuery(), $this->app->getAppSecret()),
             $signedQuery['shopware-shop-signature']
         );
     }

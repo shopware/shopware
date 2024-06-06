@@ -1,18 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton;
+namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\App\Payload\Source;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[CoversClass(AppAction::class)]
+#[Package('core')]
 class AppActionTest extends TestCase
 {
     public function testAsPayload(): void
@@ -24,13 +29,15 @@ class AppActionTest extends TestCase
         $action = 'detail';
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex()];
+        $app = new AppEntity();
+        $app->setAppSecret('s3cr3t');
         $result = new AppAction(
-            $targetUrl,
+            $app,
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -61,12 +68,12 @@ class AppActionTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex()];
         new AppAction(
-            $targetUrl,
+            new AppEntity(),
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
     }
@@ -82,12 +89,12 @@ class AppActionTest extends TestCase
         $ids = [Uuid::randomHex()];
 
         $action = new AppAction(
-            $targetUrl,
+            new AppEntity(),
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -105,12 +112,12 @@ class AppActionTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex()];
         new AppAction(
-            $targetUrl,
+            new AppEntity(),
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
     }
@@ -126,12 +133,12 @@ class AppActionTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex()];
         new AppAction(
-            $targetUrl,
+            new AppEntity(),
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
     }
@@ -147,12 +154,12 @@ class AppActionTest extends TestCase
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex(), 'test'];
         new AppAction(
-            $targetUrl,
+            new AppEntity(),
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            's3cr3t',
             Uuid::randomHex()
         );
     }
@@ -167,13 +174,15 @@ class AppActionTest extends TestCase
         $action = 'detail';
         $shopId = Random::getAlphanumericString(12);
         $ids = [Uuid::randomHex()];
+        $app = new AppEntity();
+        $app->setAppSecret('');
         new AppAction(
-            $targetUrl,
+            $app,
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $action,
             $ids,
-            '',
             Uuid::randomHex()
         );
     }

@@ -54,7 +54,7 @@ class Executor
             'language' => $context->getLanguageId(),
         ];
 
-        $appSecret = $action->getAppSecret();
+        $appSecret = $action->getApp()->getAppSecret();
 
         if (!$appSecret || str_starts_with($action->getTargetUrl(), '/')) {
             $content = $this->executeSubRequest($action);

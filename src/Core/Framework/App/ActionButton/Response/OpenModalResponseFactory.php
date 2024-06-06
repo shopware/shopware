@@ -34,9 +34,9 @@ class OpenModalResponseFactory implements ActionButtonResponseFactoryInterface
     {
         $this->validate($payload, $action->getActionId());
 
-        $appSecret = $action->getAppSecret();
+        $appSecret = $action->getApp()->getAppSecret();
         if ($appSecret) {
-            $payload['iframeUrl'] = (string) $this->signer->signUri($payload['iframeUrl'], $appSecret, $context);
+            $payload['iframeUrl'] = (string) $this->signer->signUri($payload['iframeUrl'], $action->getApp(), $context);
         }
 
         $response = new OpenModalResponse();

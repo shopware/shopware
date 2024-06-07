@@ -74,6 +74,8 @@ parameters:
 
         # tag:v6.7.0 - does not fully understand overwrite multiple definitions of DefaultPayment
         - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container

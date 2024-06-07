@@ -49,13 +49,13 @@ abstract class AbstractPaymentHandler
         RefundPaymentTransactionStruct $transaction,
         Context $context
     ): void {
-        PaymentException::paymentHandlerTypeUnsupported($this, PaymentHandlerType::REFUND);
+        throw PaymentException::paymentHandlerTypeUnsupported($this, PaymentHandlerType::REFUND);
     }
 
     public function recurring(
         PaymentTransactionStruct $transaction,
         Context $context
     ): void {
-        PaymentException::paymentHandlerTypeUnsupported($this, PaymentHandlerType::RECURRING);
+        throw PaymentException::paymentHandlerTypeUnsupported($this, PaymentHandlerType::RECURRING);
     }
 }

@@ -71,7 +71,7 @@ class PaymentRecurringProcessor
                 throw PaymentException::paymentTypeUnsupported($transaction->getPaymentMethodId(), PaymentHandlerType::RECURRING);
             }
 
-            $struct = $this->paymentTransactionStructFactory->build($transaction->getId());
+            $struct = $this->paymentTransactionStructFactory->build($transaction->getId(), $context);
             $paymentHandler->recurring($struct, $context);
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);

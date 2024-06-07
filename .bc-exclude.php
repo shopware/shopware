@@ -15,6 +15,11 @@ return [
         '**/src/Core/Framework/Adapter/Asset/AssetInstallCommand.php', // symfony configure
         '**/src/Core/Framework/App/Payment/Payload/Struct/RecurringPayPayload.php', // missed internal
         '**/src/Core/Framework/App/Payment/Payload/Struct/SyncPayPayload.php', // missed internal
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/CashPayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php', // duplicate class declarations for compatibility reasons
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

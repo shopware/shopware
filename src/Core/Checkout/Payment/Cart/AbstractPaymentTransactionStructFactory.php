@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -39,7 +40,7 @@ abstract class AbstractPaymentTransactionStructFactory
      *
      * @phpstan-ignore-next-line
      */
-    public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct
+    public function build(string $orderTransactionId, Context $context, ?string $returnUrl = null): PaymentTransactionStruct
     {
         return new PaymentTransactionStruct($orderTransactionId, $returnUrl);
     }

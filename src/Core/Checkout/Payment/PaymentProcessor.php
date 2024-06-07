@@ -79,7 +79,7 @@ class PaymentProcessor
             }
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
-            $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $returnUrl);
+            $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
             $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue(self::VALIDATION_FIELD) ?? []);
 
             return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validateStruct);
@@ -130,7 +130,7 @@ class PaymentProcessor
         }
 
         try {
-            $transactionStruct = $this->paymentTransactionStructFactory->build($transactionId);
+            $transactionStruct = $this->paymentTransactionStructFactory->build($transactionId, $context->getContext());
             $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
         } catch (\Throwable $e) {
             if ($e instanceof PaymentException && $e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {

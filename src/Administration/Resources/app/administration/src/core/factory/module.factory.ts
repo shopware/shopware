@@ -253,7 +253,8 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
                 && route.alias.length > 0
                 && (!route.coreRoute)
             ) {
-                route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
+                const aliasPrefix = module.routePrefixPath ? module.routePrefixPath : splitModuleId.join('/');
+                route.alias = `/${aliasPrefix}/${route.alias}`;
             }
 
             route.isChildren = false;

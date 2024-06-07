@@ -512,4 +512,52 @@ describe('core/factory/module.factory.js', () => {
 
         expect(module).toBe(false);
     });
+
+    it('should use the alia route', () => {
+        const module = register('sw-example-route', {
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-manufacturer-list',
+                    },
+                    path: 'index',
+                    alias: 'foo',
+                },
+            },
+        });
+
+        expect(module.routes.has('sw.example.route.index')).toBe(true);
+
+        const route = module.routes.get('sw.example.route.index');
+
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(route.path).toBe('/sw/example/route/index');
+        expect(route.alias).toBe('/sw/example/route/foo');
+        expect(route.name).toBe('sw.example.route.index');
+    });
+
+    it('should use the routePrefixPath even for alias routes', () => {
+        const module = register('sw-example-route', {
+            routePrefixPath: 'good-route',
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-manufacturer-list',
+                    },
+                    path: 'index',
+                    alias: 'foo',
+                },
+            },
+        });
+
+        expect(module.routes.has('sw.example.route.index')).toBe(true);
+
+        const route = module.routes.get('sw.example.route.index');
+
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(route.path).toBe('/good-route/index');
+        expect(route.alias).toBe('/good-route/foo');
+
+        expect(route.name).toBe('sw.example.route.index');
+    });
 });

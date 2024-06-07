@@ -14,6 +14,7 @@ import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import resetFilters from '../_helper_/restartFilters';
+import { sendTimeoutExpired } from '../_helper_/allowedErrors';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
@@ -122,6 +123,7 @@ global.allowedErrors = [
         method: 'warn',
         msg: 'No extension found for origin ""',
     },
+    sendTimeoutExpired,
 ];
 
 global.flushPromises = flushPromises;

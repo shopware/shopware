@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
@@ -38,8 +37,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(DispatchEntitiesQueryBuilder::class)]
 class DispatchEntitiesQueryBuilderTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     private DispatchEntitiesQueryBuilder $queryHelper;
 
     private MockObject&Connection $connection;

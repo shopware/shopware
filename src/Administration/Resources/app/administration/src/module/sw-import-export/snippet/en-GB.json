@@ -229,6 +229,9 @@
             "startImportLabel": "Start import",
             "startImportDryrunLabel": "Start dry run",
             "startExportLabel": "Start export"
+        },
+        "errors": {
+            "CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME": "The technical name is not unique."
         }
     },
   "sw-privileges": {

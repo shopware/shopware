@@ -206,12 +206,23 @@ export default {
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                 });
                 return this.loadProfiles();
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSaveError', 0),
-                });
+            }).catch((exception) => {
+                this.onError(exception);
             }).finally(() => {
                 this.isLoading = false;
+            });
+        },
+
+        onError(error) {
+            const errorCode = error?.response?.data?.errors?.[0]?.code ?? null;
+            let errorDetails = '';
+
+            if (errorCode !== null && this.$te(`sw-import-export.errors.${errorCode}`)) {
+                errorDetails = this.$tc(`sw-import-export.errors.${errorCode}`);
+            }
+
+            this.createNotificationError({
+                message: `${this.$tc('sw-import-export.profile.messageSaveError', 0)} ${errorDetails}`,
             });
         },
 

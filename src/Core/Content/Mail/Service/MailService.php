@@ -192,7 +192,7 @@ class MailService extends AbstractMailService
             return null;
         }
 
-        if($this->isTestMode()) {
+        if ($this->isTestMode()) {
             $headers = $mail->getHeaders();
             $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? null);
             $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannelId);
@@ -330,11 +330,11 @@ class MailService extends AbstractMailService
     private function isTestMode(array $data = []): bool
     {
         $stagingMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG);
-        if($stagingMode) {
+        if ($stagingMode) {
             return true;
-        } else {
-            return !empty($data['testMode']);
         }
+
+        return !empty($data['testMode']);
     }
 
     /**

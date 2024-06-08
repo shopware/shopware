@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -65,6 +64,9 @@ class ProductReviewSaveRouteTest extends TestCase
             'title' => 'foo',
             'content' => 'bar',
             'points' => 3,
+            'name' => 'Should be overwritten by customer name',
+            'lastName' => 'Should be overwritten by customer name',
+            'email' => 'Should be overwritten by customer mail',
         ]);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -74,11 +76,10 @@ class ProductReviewSaveRouteTest extends TestCase
         $customer->setFirstName('Max');
         $customer->setLastName('Mustermann');
         $customer->setEmail('foo@example.com');
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId('test');
+        $salesChannelId = 'test';
 
         $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects(static::exactly(4))->method('getSalesChannel')->willReturn($salesChannel);
+        $salesChannelContext->expects(static::once())->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->expects(static::exactly(4))->method('getContext')->willReturn($context);
 
         $this->validator->expects(static::once())->method('getViolations')->willReturn(new ConstraintViolationList());
@@ -90,7 +91,7 @@ class ProductReviewSaveRouteTest extends TestCase
                 [
                     'productId' => $productId,
                     'customerId' => $customer->getId(),
-                    'salesChannelId' => $salesChannel->getId(),
+                    'salesChannelId' => $salesChannelId,
                     'languageId' => $context->getLanguageId(),
                     'externalUser' => $customer->getFirstName(),
                     'externalEmail' => $customer->getEmail(),
@@ -104,7 +105,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $event = new ReviewFormEvent(
             $context,
-            $salesChannel->getId(),
+            $salesChannelId,
             new MailRecipientStruct(['noreply@example.com' => 'noreply@example.com']),
             new RequestDataBag([
                 'title' => 'foo',

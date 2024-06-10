@@ -1,6 +1,6 @@
 ---
 title: Changed extension icon overflow to hidden
-issue: NEXT-0000
+issue: NEXT-36564
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

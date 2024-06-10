@@ -1,6 +1,6 @@
 ---
 title: Add event to select variant on product detail load
-issue: NEXT-0000
+issue: NEXT-36288
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

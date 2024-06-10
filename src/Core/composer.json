@@ -81,7 +81,7 @@
         "psr/http-message": "^1.1 || ^2.0",
         "psr/log": "^3.0.0",
         "ramsey/uuid": "^4.7",
-        "shopware/conflicts": "*",
+        "shopware/conflicts": ">= 0.1.7",
         "symfony/asset": "~6.4.0",
         "symfony/cache": "~6.4.4",
         "symfony/cache-contracts": "~3.1.0",

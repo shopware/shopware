@@ -83,7 +83,7 @@ class MakerCommand extends Command
             $directory = $plugin->getPath();
 
             if ($directory === null) {
-                $io->error('Plugin bnase path is null');
+                $io->error('Plugin base path is null');
 
                 return self::FAILURE;
             }

@@ -95,7 +95,7 @@
         "scssphp/scssphp": "^v1.11.0",
         "setasign/fpdi": "^2.3.7",
         "shopware/conflicts": ">=0.1.7",
-        "shyim/opensearch-php-dsl": "^1.0.5",
+        "shyim/opensearch-php-dsl": "^1.0.1",
         "squirrelphp/twig-php-syntax": "^1.7.0",
         "symfony/asset": "~6.4.0",
         "symfony/cache": "~6.4.4",

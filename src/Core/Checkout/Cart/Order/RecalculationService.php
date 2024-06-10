@@ -97,8 +97,10 @@ class RecalculationService
             if (($lineItems = $order->getLineItems()) instanceof OrderLineItemCollection) {
                 $this->orderLineItemRepository->delete(
                     array_values($lineItems->fmap(
-                        static fn (OrderLineItemEntity $lineItem) => !in_array($lineItem->getId(), $orderDataLineItemIds, true) ? ['id' => $lineItem->getId()] : null
-                    )), $context);
+                        static fn (OrderLineItemEntity $lineItem) => !\in_array($lineItem->getId(), $orderDataLineItemIds, true) ? ['id' => $lineItem->getId()] : null
+                    )),
+                    $context
+                );
             }
 
             $this->orderRepository->upsert([$orderData], $context);

@@ -6,7 +6,7 @@
       "description": "Verwalte hier die Anzeige von Produkte.",
       "buttonSave": "Speichern",
       "messageSaveSuccess": "Konfiguration gespeichert.",
-      "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden.",
+      "messageSaveError": "Die Konfiguration konnte nicht gelöscht werden. \"{message}\"",
       "labelDefaultSorting": "Standard-Sortierung",
       "placeholderDefaultSorting": "Wähle eine Standard-Sortierung ...",
       "productSortingCriteriaGrid": {

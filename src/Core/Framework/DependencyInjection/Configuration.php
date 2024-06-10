@@ -46,6 +46,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
                 ->append($this->createStagingNode())
+                ->append($this->createSystemConfigNode())
             ->end();
 
         return $treeBuilder;
@@ -838,6 +839,16 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createSystemConfigNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('system_config');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->variablePrototype()->end();
 
         return $rootNode;
     }

@@ -8,7 +8,7 @@
             </p>
 
             {% block staging_info_admin_url_wrapper %}
-                {% block set staging_info_admin_url_base %}
+                {% block staging_info_admin_url_base %}
                     {# When having a custom SHOPWARE_ADMINISTRATION_PATH_NAME defined this block can be extended #}
                     {% set adminBaseUrl = app.request.attributes.get('sw-sales-channel-absolute-base-url') ~ '/admin#/sw' %}
                 {% endblock %}

@@ -302,6 +302,7 @@
         "admin:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
+            "@npm:admin run unit-setup",
             "@npm:admin run unit-watch"
         ],
         "bc-check": [

@@ -710,6 +710,49 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(5.0, $lastTax->getTaxRate());
     }
 
+    public function testDeleteLineItemsAfterRecalculateOrderWitchInactiveProducts(): void
+    {
+        // Arrange
+        $inactiveProductId = Uuid::randomHex();
+
+        $cart = $this->generateDemoCart($inactiveProductId);
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        static::assertNotNull($order->getLineItems()->get($inactiveProductId));
+
+        $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
+
+        // Act
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+
+        // Assert
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        static::assertNotNull($order);
+        static::assertNull($order->getLineItems()->get($inactiveProductId));
+    }
+
     public function testRecalculateOrderWithInactiveProduct(): void
     {
         $inactiveProductId = Uuid::randomHex();

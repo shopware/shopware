@@ -8,4 +8,4 @@ author_github: JasperP98
 
 # Core
 
-* Cleanup line items on recalculation because otherwise the line items are not recalculated correctly
+* Changed line item recalculation to fix a calculation error by deleting removed line items.

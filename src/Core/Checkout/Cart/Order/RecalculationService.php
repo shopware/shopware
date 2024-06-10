@@ -92,8 +92,13 @@ class RecalculationService
 
         // change scope to be able to write protected state fields of transactions and deliveries
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData, $order): void {
+            $orderDataLineItemIds = array_column($orderData['lineItems'], 'id');
+
             if (($lineItems = $order->getLineItems()) instanceof OrderLineItemCollection) {
-                $this->orderLineItemRepository->delete(array_values($lineItems->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()])), $context);
+                $this->orderLineItemRepository->delete(
+                    array_values($lineItems->fmap(
+                        static fn (OrderLineItemEntity $lineItem) => !in_array($lineItem->getId(), $orderDataLineItemIds, true) ? ['id' => $lineItem->getId()] : null
+                    )), $context);
             }
 
             $this->orderRepository->upsert([$orderData], $context);

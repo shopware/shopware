@@ -33,6 +33,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -741,7 +742,7 @@ class RecalculationServiceTest extends TestCase
         $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
 
         // Act
-        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext);
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, [ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false, ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => false]);
 
         // Assert
         /** @var OrderEntity $order */

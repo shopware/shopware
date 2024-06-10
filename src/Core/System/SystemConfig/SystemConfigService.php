@@ -53,6 +53,7 @@ class SystemConfigService implements ResetInterface
         private readonly ConfigReader $configReader,
         private readonly AbstractSystemConfigLoader $loader,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SymfonySystemConfigService $symfonySystemConfigService,
         private readonly bool $fineGrainedCache
     ) {
     }
@@ -212,6 +213,8 @@ class SystemConfigService implements ResetInterface
             $merged[$key] = $value;
         }
 
+        $merged = $this->symfonySystemConfigService->override($merged, $salesChannelId, $inherit, false);
+
         $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
         $this->eventDispatcher->dispatch($event);
 
@@ -231,6 +234,23 @@ class SystemConfigService implements ResetInterface
      */
     public function setMultiple(array $values, ?string $salesChannelId = null): void
     {
+        foreach ($values as $key => $value) {
+            if ($this->symfonySystemConfigService->has($key)) {
+                /**
+                 * The administration setting pages are always sending the full configuration.
+                 * This means when the user wants to change an allowed configuration, we also get the read-only configuration,
+                 *
+                 * Therefore, when the value of that field is the same as the statically configured one, we just drop that value and don't throw an exception
+                 */
+                if ($this->symfonySystemConfigService->get($key, $salesChannelId) === $value) {
+                    unset($values[$key]);
+                    continue;
+                }
+
+                throw SystemConfigException::systemConfigKeyIsManagedBySystems($key);
+            }
+        }
+
         $event = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
         $this->eventDispatcher->dispatch($event);
 

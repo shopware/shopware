@@ -567,3 +567,6 @@ shopware:
             domain_rewrite: []
         elasticsearch:
             check_for_existence: true
+
+    system_config:
+        default: []

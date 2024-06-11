@@ -10,8 +10,8 @@ class ReferenceVersion extends Field
 {
     public const TYPE = 'reference-version';
 
-    public function __construct(public string $entity)
+    public function __construct(public string $entity, public ?string $storageName = null)
     {
-        parent::__construct(type: self::TYPE, api: true);
+        parent::__construct(type: self::TYPE, api: true, storageName: $storageName);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('core')]
@@ -56,6 +58,22 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof AssociationField) {
+            if ($value === null || !\in_array($field->getReferenceClass(), [OrderDeliveryDefinition::class], true)) {
+                return;
+            }
+
+            if ($field instanceof OneToManyAssociationField) {
+                if ($value instanceof Collection) {
+                    $value = $value->first();
+                }
+
+                $definition = $field->getReferenceDefinition();
+                $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
+
+                $result = $entitySerializer->serialize($config, $definition, $value);
+                yield $field->getPropertyName() => iterator_to_array($result);
+            }
+
             return;
         }
 

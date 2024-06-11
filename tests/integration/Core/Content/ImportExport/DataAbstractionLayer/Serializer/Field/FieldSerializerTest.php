@@ -3,12 +3,20 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -18,137 +26,110 @@ class FieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testPriceField(): void
+    public function testEmptyValidOneToManyAssociation(): void
     {
-        $priceField = new PriceField('price', 'price');
+        $fieldSerializer = $this->getFieldSerializer();
 
-        $fieldSerializer = new PriceSerializer($this->getContainer()->get('currency.repository'));
         $config = new Config([], [], []);
 
-        static::assertNull($this->first($fieldSerializer->serialize($config, $priceField, [])));
+        $field = new OneToManyAssociationField('deliveries', OrderDeliveryEntity::class, 'order_delivery');
+        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
+        $field->compile($registry);
 
-        $value = [
-            [
-                'currencyId' => Defaults::CURRENCY,
-                'gross' => 11,
-                'net' => 10,
-            ],
-        ];
-
-        $serialized = $fieldSerializer->serialize($config, $priceField, $value);
-        $actual = $serialized instanceof \Traversable ? iterator_to_array($serialized) : (array) $serialized;
-
-        static::assertArrayHasKey('price', $actual);
-        $actualPrice = $actual['price'];
-
-        static::assertNotEmpty($actualPrice);
-
-        static::assertArrayHasKey('EUR', $actualPrice);
-        static::assertArrayHasKey('DEFAULT', $actualPrice);
-
-        static::assertSame($actualPrice['EUR'], $actualPrice['DEFAULT']);
-        static::assertSame($value[0]['gross'], $actualPrice['EUR']['gross']);
-        static::assertSame($value[0]['net'], $actualPrice['EUR']['net']);
-
-        static::assertEmpty($fieldSerializer->deserialize($config, $priceField, ''));
-        static::assertEmpty($fieldSerializer->deserialize($config, $priceField, []));
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'gross' => '',
-                'net' => '',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertNull($actual);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'gross' => '    ',
-                'net' => '6.5',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertNull($actual);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'gross' => '124.234',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertNull($actual);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'net' => '124.234',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertNull($actual);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'net' => '124.234',
-                'gross' => '122.798',
-                'linked' => '0',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertIsArray($actual);
-        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
-        $actualPrice = $actual[Defaults::CURRENCY];
-
-        static::assertFalse($actualPrice['linked']);
-        static::assertSame(124.234, $actualPrice['net']);
-        static::assertSame(122.798, $actualPrice['gross']);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'net' => '124',
-                'gross' => '122',
-                'linked' => '0',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertIsArray($actual);
-        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
-        $actualPrice = $actual[Defaults::CURRENCY];
-
-        static::assertFalse($actualPrice['linked']);
-        static::assertSame(124.0, $actualPrice['net']);
-        static::assertSame(122.0, $actualPrice['gross']);
-
-        $serializedPrice = [
-            'DEFAULT' => [
-                'net' => '0',
-                'gross' => '0',
-                'linked' => '0',
-            ],
-        ];
-        $actual = $fieldSerializer->deserialize($config, $priceField, $serializedPrice);
-        static::assertIsArray($actual);
-        static::assertArrayHasKey(Defaults::CURRENCY, $actual);
-        $actualPrice = $actual[Defaults::CURRENCY];
-
-        static::assertFalse($actualPrice['linked']);
-        static::assertSame(0.0, $actualPrice['net']);
-        static::assertSame(0.0, $actualPrice['gross']);
+        $result = \iterator_to_array($fieldSerializer->serialize($config, $field, []));
+        static::assertSame(['deliveries' => []], $result);
     }
 
-    /**
-     * @param iterable<mixed>|null $iterable
-     */
-    private function first(?iterable $iterable): mixed
+    public function testValidOneToManyAssociation(): void
     {
-        if ($iterable === null) {
-            return null;
-        }
+        $fieldSerializer = $this->getFieldSerializer();
 
-        foreach ($iterable as $value) {
-            return $value;
-        }
+        $config = new Config([], [], []);
 
-        return null;
+        $field = new OneToManyAssociationField('deliveries', OrderDeliveryEntity::class, 'order_delivery');
+        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderDeliveryEntity::class => OrderDeliveryDefinition::class], []);
+        $field->compile($registry);
+
+        $delivery = new OrderDeliveryEntity();
+        $deliveryId = Uuid::randomHex();
+        $delivery->setId($deliveryId);
+
+        $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
+        static::assertSame([
+            'deliveries' => [
+                '_uniqueIdentifier' => $deliveryId,
+                'versionId' => null,
+                'translated' => [],
+                'orderId' => null,
+                'orderVersionId' => null,
+                'shippingOrderAddressId' => null,
+                'shippingOrderAddressVersionId' => null,
+                'shippingMethodId' => null,
+                'trackingCodes' => null,
+                'shippingCosts' => null,
+                'stateId' => null,
+                'customFields' => null,
+                'id' => $deliveryId,
+            ],
+        ], $result);
+    }
+
+    public function testInvalidEntityOneToManyAssociation(): void
+    {
+        $fieldSerializer = $this->getFieldSerializer();
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('deliveries', OrderEntity::class, 'order_delivery');
+        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $field->compile($registry);
+
+        $delivery = new OrderDeliveryEntity();
+        $deliveryId = Uuid::randomHex();
+        $delivery->setId($deliveryId);
+
+        $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
+        static::assertEmpty($result);
+    }
+
+    public function testInvalidPropertyNameOneToManyAssociation(): void
+    {
+        $fieldSerializer = $this->getFieldSerializer();
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('foo', OrderEntity::class, 'order_delivery');
+        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $field->compile($registry);
+
+        $delivery = new OrderDeliveryEntity();
+        $deliveryId = Uuid::randomHex();
+        $delivery->setId($deliveryId);
+
+        $result = \iterator_to_array($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection([$delivery])));
+        static::assertEmpty($result);
+    }
+
+    public function testNullValueOneToManyAssociation(): void
+    {
+        $fieldSerializer = $this->getFieldSerializer();
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('deliveries', OrderEntity::class, 'order_delivery');
+        $registry = new DefinitionInstanceRegistry($this->getContainer(), [OrderEntity::class => OrderDefinition::class], []);
+        $field->compile($registry);
+
+        $result = \iterator_to_array($fieldSerializer->serialize($config, $field, null));
+        static::assertEmpty($result);
+    }
+
+    private function getFieldSerializer(): FieldSerializer
+    {
+        $fieldSerializer = new FieldSerializer();
+        $serializerRegistry = new SerializerRegistry([new EntitySerializer()], [$fieldSerializer]);
+        $fieldSerializer->setRegistry($serializerRegistry);
+
+        return $fieldSerializer;
     }
 }

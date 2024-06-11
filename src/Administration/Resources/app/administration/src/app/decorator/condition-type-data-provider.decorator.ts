@@ -217,7 +217,18 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
-
+    ruleConditionService.addCondition('orderAffiliateCode', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderAffiliateCodeRule',
+        scopes: ['checkout'],
+        group: 'order',
+    });
+    ruleConditionService.addCondition('orderCampaignCode', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderCampaignCodeRule',
+        scopes: ['checkout'],
+        group: 'order',
+    });
     ruleConditionService.addCondition('cartCartAmount', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.cartAmountRule',

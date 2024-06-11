@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Maker\Command;
 
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
@@ -46,7 +47,7 @@ class MakerCommand extends Command
 
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new ShopwareStyle($input, $output);
 
         foreach ($this->getDefinition()->getArguments() as $argument) {
             if ($input->getArgument($argument->getName())) {

@@ -737,21 +737,36 @@ class RecalculationServiceTest extends TestCase
             ->search($criteria, $this->context)
             ->get($orderId);
 
-        static::assertNotNull($order->getLineItems()->get($inactiveProductId));
+        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
+        static::assertNotNull($lineItemWithInactiveProduct);
 
         $this->getContainer()->get('product.repository')->update([['id' => $inactiveProductId, 'active' => false]], $this->context);
 
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ...OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+                ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false,
+            ],
+        ];
+        
         // Act
-        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, [ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false, ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => false]);
+        $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, $options);
 
         // Assert
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
-            ->search($criteria, $this->context)
+            ->search($criteria, $versionContext)
             ->get($orderId);
 
+        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
+        )->first();
+
         static::assertNotNull($order);
-        static::assertNull($order->getLineItems()->get($inactiveProductId));
+        static::assertNull($lineItemWithInactiveProduct);
     }
 
     public function testRecalculateOrderWithInactiveProduct(): void

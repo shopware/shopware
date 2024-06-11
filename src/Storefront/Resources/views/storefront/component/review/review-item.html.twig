@@ -30,7 +30,8 @@
                 {% block component_review_item_info_points %}
                     <div class="col-md-auto product-detail-review-item-points">
                         {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
-                            points: review.points
+                            points: review.points,
+                            altText: 'detail.reviewRatingAltText'|trans({ '%points%': review.points, '%maxPoints%': 5 })
                         } %}
                     </div>
                 {% endblock %}

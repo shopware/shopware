@@ -9,29 +9,36 @@
 
     {% set blank = 5 - full - half %}
 
+    {% if altText is not defined %}
+        {% set altText = 'detail.reviewAvgRatingAltText'|trans({ '%points%': points|round(1, 'floor'), '%maxPoints%': 5 }) %}
+    {% endif %}
+
     {% block component_review_rating_output %}
         <div class="product-review-rating">
-        {% if full > 0 %}
-            {% for star in range(1,full) %}
-                {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                    type: 'full'
-                } %}
-            {% endfor %}
-        {% endif %}
+            {% if full > 0 %}
+                {% for star in range(1,full) %}
+                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                        type: 'full'
+                    } %}
+                {% endfor %}
+            {% endif %}
 
-        {% if half %}
-            {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                type: 'half'
-            } %}
-        {% endif %}
-
-        {% if blank > 0 %}
-            {% for star in range(1,blank) %}
+            {% if half %}
                 {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
-                    type: 'blank'
+                    type: 'half'
                 } %}
-            {% endfor %}
-        {% endif %}
+            {% endif %}
+
+            {% if blank > 0 %}
+                {% for star in range(1,blank) %}
+                    {% sw_include '@Storefront/storefront/component/review/point.html.twig' with {
+                        type: 'blank'
+                    } %}
+                {% endfor %}
+            {% endif %}
+            <p class="product-review-rating-alt-text visually-hidden">
+                {{ altText }}
+            </p>
         </div>
     {% endblock %}
 {% endblock %}

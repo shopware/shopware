@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Maker\DependencyInjection\CompilerPass;
 
@@ -30,34 +30,35 @@ class CreateGeneretorScafoldingCommandPassTest extends TestCase
         $pass = new CreateGeneretorScafoldingCommandPass();
         $pass->process($builder);
 
-        self::assertTrue($builder->hasDefinition('make.auto_command.demo_scafolding_generator'));
+        static::assertTrue($builder->hasDefinition('make.auto_command.demo_scafolding_generator'));
     }
 }
 
+/**
+ * @internal
+ */
 class DemoScafoldingGenerator implements ScaffoldingGenerator
 {
     public function hasCommandOption(): bool
     {
-        // TODO: Implement hasCommandOption() method.
+        return true;
     }
 
     public function getCommandOptionName(): string
     {
-        // TODO: Implement getCommandOptionName() method.
+        return '';
     }
 
     public function getCommandOptionDescription(): string
     {
-        // TODO: Implement getCommandOptionDescription() method.
+        return '';
     }
 
     public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, SymfonyStyle $io): void
     {
-        // TODO: Implement addScaffoldConfig() method.
     }
 
     public function generateStubs(PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void
     {
-        // TODO: Implement generateStubs() method.
     }
 }

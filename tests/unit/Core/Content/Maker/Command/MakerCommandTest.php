@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Maker\Command;
 
@@ -23,29 +23,29 @@ class MakerCommandTest extends TestCase
     public function testExecute(): void
     {
         $maker = $this->createMock(ScaffoldingGenerator::class);
-        $maker->expects($this->once())
+        $maker->expects(static::once())
             ->method('hasCommandOption')
             ->willReturn(true);
-        $maker->expects($this->once())
+        $maker->expects(static::once())
             ->method('getCommandOptionName')
             ->willReturn('plugin-name');
-        $maker->expects($this->once())
+        $maker->expects(static::once())
             ->method('getCommandOptionDescription')
             ->willReturn('Plugin Name');
-        $maker->expects($this->once())
+        $maker->expects(static::once())
             ->method('addScaffoldConfig');
 
         $scafoldingCollection = $this->createMock(ScaffoldingCollector::class);
-        $scafoldingCollection->expects($this->once())
+        $scafoldingCollection->expects(static::once())
             ->method('collect')
             ->willReturn(new StubCollection());
 
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
-        $scaffoldingWriter->expects($this->once())
+        $scaffoldingWriter->expects(static::once())
             ->method('write');
 
         $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects($this->once())
+        $pluginService->expects(static::once())
             ->method('getPluginByName')
             ->willReturn($this->getPluginEntity());
 
@@ -57,7 +57,7 @@ class MakerCommandTest extends TestCase
         $tester->execute([]);
     }
 
-    private function getPluginEntity()
+    private function getPluginEntity(): PluginEntity
     {
         $plugin = new PluginEntity();
         $plugin->setActive(true);
@@ -68,7 +68,9 @@ class MakerCommandTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ExamplePlugin extends Plugin
 {
-
 }

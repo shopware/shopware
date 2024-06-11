@@ -25,6 +25,7 @@ class CreateGeneretorScafoldingCommandPass implements CompilerPassInterface
             }
 
             $class = $container->getParameterBag()->resolveValue($def->getClass());
+
             if (!is_subclass_of($class, ScaffoldingGenerator::class)) {
                 throw new \InvalidArgumentException(sprintf('Service "%s" must implement interface "%s".', $id, ScaffoldingGenerator::class));
             }
@@ -42,7 +43,7 @@ class CreateGeneretorScafoldingCommandPass implements CompilerPassInterface
             $commandDefinition->addTag('console.command', $tagAttributes);
 
             $container->setDefinition(
-                sprintf('make.auto_command.%s', self::asCommand($ref->getShortName())),
+                sprintf('make.auto_command.%s', self::asSnake($ref->getShortName())),
                 $commandDefinition
             );
         }
@@ -50,23 +51,15 @@ class CreateGeneretorScafoldingCommandPass implements CompilerPassInterface
 
     private static function asCommand(string $value): string
     {
-        $snakeCaseConverter = new CamelCaseToSnakeCaseNameConverter();
-
-        $value = str_replace('_', '-', $snakeCaseConverter->normalize($value));
+        $value = str_replace('_', '-', self::asSnake($value));
 
         return str_replace('-generator', '', $value);
     }
 
-    /**
-     * (e.g. `BlogPostType` -> `blog_post_type`).
-     */
     private static function asSnake(string $value): string
     {
-        $value = trim($value);
-        $value = (string) preg_replace('/[^a-zA-Z0-9_]/', '_', $value);
-        $value = (string) preg_replace('/(?<=\\w)([A-Z])/', '_$1', $value);
-        $value = (string) preg_replace('/_{2,}/', '_', $value);
+        $snakeCaseConverter = new CamelCaseToSnakeCaseNameConverter();
 
-        return strtolower($value);
+        return $snakeCaseConverter->normalize($value);
     }
 }

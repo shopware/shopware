@@ -116,4 +116,3 @@ class MakerCommand extends Command
         }
     }
 }
-

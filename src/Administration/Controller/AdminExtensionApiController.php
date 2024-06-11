@@ -52,8 +52,7 @@ class AdminExtensionApiController extends AbstractController
             throw new AppByNameNotFoundException($appName);
         }
 
-        $appSecret = $app->getAppSecret();
-        if ($appSecret === null) {
+        if ($app->getAppSecret() === null) {
             throw new MissingAppSecretException();
         }
 
@@ -70,12 +69,12 @@ class AdminExtensionApiController extends AbstractController
         }
 
         $action = new AppAction(
-            $targetUrl,
+            $app,
             $this->appPayloadServiceHelper->buildSource($app),
+            $targetUrl,
             $requestDataBag->getString('entity'),
             $requestDataBag->getString('action'),
             $ids->all(),
-            $appSecret,
             Uuid::randomHex()
         );
 
@@ -97,12 +96,7 @@ class AdminExtensionApiController extends AbstractController
             throw new AppByNameNotFoundException($appName);
         }
 
-        $secret = $app->getAppSecret();
-        if ($secret === null) {
-            throw new MissingAppSecretException();
-        }
-
-        $uri = $this->querySigner->signUri($requestDataBag->get('uri'), $secret, $context)->__toString();
+        $uri = $this->querySigner->signUri($requestDataBag->get('uri'), $app, $context)->__toString();
 
         return new JsonResponse([
             'uri' => $uri,

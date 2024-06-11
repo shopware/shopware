@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\ActionButton;
 
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -34,6 +35,7 @@ class AppActionLoader
         $criteria = new Criteria([$actionId]);
         $criteria->addAssociation('app.integration');
 
+        /** @var ActionButtonEntity $actionButton */
         $actionButton = $this->actionButtonRepo->search($criteria, $context)->getEntities()->first();
 
         if ($actionButton === null) {
@@ -49,15 +51,13 @@ class AppActionLoader
             throw new ActionNotFoundException();
         }
 
-        $secret = $app->getAppSecret();
-
         return new AppAction(
-            $actionButton->getUrl(),
+            $app,
             $source,
+            $actionButton->getUrl(),
             $actionButton->getEntity(),
             $actionButton->getAction(),
             $ids,
-            $secret,
             $actionId
         );
     }

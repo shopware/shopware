@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -24,8 +26,13 @@ class QuerySigner
     ) {
     }
 
-    public function signUri(string $uri, string $secret, Context $context): UriInterface
+    public function signUri(string $uri, AppEntity $app, Context $context): UriInterface
     {
+        $secret = $app->getAppSecret();
+        if ($secret === null) {
+            throw AppException::appSecretMissing($app->getName());
+        }
+
         $uri = Uri::withQueryValues(new Uri($uri), [
             'shop-id' => $this->shopIdProvider->getShopId(),
             'shop-url' => $this->shopUrl,

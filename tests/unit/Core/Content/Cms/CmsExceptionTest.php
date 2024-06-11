@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Cms;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
@@ -16,41 +15,23 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(CmsException::class)]
 class CmsExceptionTest extends TestCase
 {
-    #[DataProvider('exceptionDataProvider')]
-    public function testItThrowsException(CmsException $exception, int $statusCode, string $errorCode, string $message): void
+    public function testDeletionOfDefault(): void
     {
-        $exceptionWasThrown = false;
+        $exception = CmsException::deletionOfDefault(['id1', 'id2', 'id3']);
 
-        try {
-            throw $exception;
-        } catch (CmsException $cmsException) {
-            static::assertEquals($statusCode, $cmsException->getStatusCode());
-            static::assertEquals($errorCode, $cmsException->getErrorCode());
-            static::assertEquals($message, $cmsException->getMessage());
-
-            $exceptionWasThrown = true;
-        } finally {
-            static::assertTrue($exceptionWasThrown, 'Excepted exception with error code ' . $errorCode . ' to be thrown.');
-        }
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CmsException::DELETION_OF_DEFAULT_CODE, $exception->getErrorCode());
+        static::assertSame('The cms pages with ids "id1, id2, id3" are assigned as a default and therefore can not be deleted.', $exception->getMessage());
+        static::assertSame(['pages' => 'id1, id2, id3'], $exception->getParameters());
     }
 
-    /**
-     * @return array<string, array{exception: CmsException, statusCode: int, errorCode: string, message: string}>
-     */
-    public static function exceptionDataProvider(): iterable
+    public function testOverallDefaultSystemConfigDeletion(): void
     {
-        yield CmsException::DELETION_OF_DEFAULT_CODE => [
-            'exception' => CmsException::deletionOfDefault(['id1', 'id2', 'id3']),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CmsException::DELETION_OF_DEFAULT_CODE,
-            'message' => 'The cms pages with ids "id1, id2, id3" are assigned as a default and therefore can not be deleted.',
-        ];
+        $exception = CmsException::overallDefaultSystemConfigDeletion('cmsPageId');
 
-        yield CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE => [
-            'exception' => CmsException::overallDefaultSystemConfigDeletion('cmsPageId'),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE,
-            'message' => 'The cms page with id "cmsPageId" is assigned as a default to all sales channels and therefore can not be deleted.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
+        static::assertSame('The cms page with id "cmsPageId" is assigned as a default to all sales channels and therefore can not be deleted.', $exception->getMessage());
+        static::assertSame(['cmsPageId' => 'cmsPageId'], $exception->getParameters());
     }
 }

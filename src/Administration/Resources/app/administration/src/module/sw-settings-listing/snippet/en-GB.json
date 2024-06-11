@@ -6,7 +6,7 @@
       "description": "Manage the display of products here.",
       "buttonSave": "Save",
       "messageSaveSuccess": "Configuration saved.",
-      "messageSaveError": "Configuration could not be saved.",
+      "messageSaveError": "Configuration could not be saved due to: \"{message}\"",
       "labelDefaultSorting": "Default sorting",
       "placeholderDefaultSorting": "Select a default sorting...",
       "productSortingCriteriaGrid": {

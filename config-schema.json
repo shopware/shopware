@@ -104,6 +104,9 @@
                 },
                 "staging": {
                     "$ref": "#/definitions/staging"
+                },
+                "system_config": {
+                    "type": "object"
                 }
             },
             "title": "Shopware"

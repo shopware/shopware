@@ -12,6 +12,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
+use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -36,6 +37,7 @@ class SystemConfigServiceTest extends TestCase
             $this->getContainer()->get(ConfigReader::class),
             $this->getContainer()->get(SystemConfigLoader::class),
             $this->getContainer()->get('event_dispatcher'),
+            new SymfonySystemConfigService([]),
             false
         );
     }

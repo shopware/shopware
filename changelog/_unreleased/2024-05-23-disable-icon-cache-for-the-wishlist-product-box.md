@@ -1,6 +1,6 @@
 ---
 title: Disable icon cache for the wishlist product box
-issue: NEXT-0000
+issue: NEXT-36529
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

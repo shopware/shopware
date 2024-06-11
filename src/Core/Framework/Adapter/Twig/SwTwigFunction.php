@@ -3,59 +3,65 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
-if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) {
+#[Package('core')]
+class SwTwigFunction
+{
     /**
      * Returns the attribute value for a given array/object.
      *
      * @param mixed  $object            The object or array from where to get the item
      * @param mixed  $item              The item to get from the array or object
-     * @param array  $arguments         An array of arguments to pass if the item is an object method
+     * @param array<mixed>  $arguments         An array of arguments to pass if the item is an object method
      * @param string $type              The type of attribute (@see \Twig\Template constants)
      * @param bool   $isDefinedTest     Whether this is only a defined check
      * @param bool   $ignoreStrictCheck Whether to ignore the strict attribute check or not
      * @param int    $lineno            The template line where the attribute was called
+     * @param bool   $sandboxed         When true the extension use SandboxExtension
      *
      * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
      *
      * @internal
      */
-    function sw_get_attribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
+    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
     {
         try {
             if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
 
-                if ($type === Template::METHOD_CALL) {
+                if ($type === Template::METHOD_CALL) { // @phpstan-ignore-next-line
                     return $object->$item(...$arguments);
                 }
 
                 $getter = 'get' . ucfirst((string) $item);
                 $isGetter = 'is' . ucfirst((string) $item);
 
-                if (method_exists($object, $getter)) {
+                if (method_exists($object, $getter)) { // @phpstan-ignore-next-line
                     return $object->$getter();
-                } elseif (method_exists($object, $isGetter)) {
+                } elseif (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
                     return $object->$isGetter();
-                } elseif (method_exists($object, $item)) {
+                } elseif (method_exists($object, $item)) { // @phpstan-ignore-next-line
                     return $object->$item();    // property()
                 }
             }
 
-            return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+            return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } catch (\Throwable) {
-            return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+            return CoreExtension::getAttribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
     }
-}
 
-if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_escape_filter')) {
     /**
      * Escapes a string.
      *
@@ -64,10 +70,14 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_escape_filter')) 
      * @param ?string $charset    The charset
      * @param bool   $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
      *
-     * @return string
+     * @return string|Markup
      */
-    function sw_escape_filter(Environment $env, mixed $string, string $strategy = 'html', $charset = null, $autoescape = false)
+    public static function escapeFilter(Environment $env, mixed $string, string $strategy = 'html', $charset = null, $autoescape = false)
     {
+        if ($string === null) {
+            $string = '';
+        }
+
         if (\is_int($string)) {
             $string = (string) $string;
         }
@@ -79,7 +89,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_escape_filter')) 
             return $strings[$string][$strategy];
         }
 
-        $result = twig_escape_filter($env, $string, $strategy, $charset, $autoescape);
+        $result = $env->getRuntime(EscaperRuntime::class)->escape($string, $strategy, $charset, $autoescape);
 
         if (!$isString) {
             return $result;

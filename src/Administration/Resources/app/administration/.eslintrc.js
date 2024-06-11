@@ -28,6 +28,7 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
+    'sw-core-rules/require-package-annotation': ['warn'],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],

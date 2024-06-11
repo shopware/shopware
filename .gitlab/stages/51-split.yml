@@ -3,14 +3,19 @@
 .split-base:
   stage: split
   tags:
-    - shopware-multi-arch
+    - shopware-amd64
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   variables:
     GIT_DEPTH: '0'
     GIT_STRATEGY: 'clone'
+    KUBERNETES_SERVICE_CPU_REQUEST: "2"
+    KUBERNETES_SERVICE_CPU_LIMIT: "16"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "2Gi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "16Gi"
   needs: [ ]
   before_script: [ ]
+  services: [ ]
   artifacts:
     when: on_success
     paths:
@@ -30,9 +35,13 @@ split repository:
   extends: .split-base
   rules:
     - !reference [ .rules, split, rules-label-or-scheduled-or-tag ]
+  image:
+    name: alpine:3.19
   parallel:
     matrix:
       - PACKAGE: [ 'Administration', 'Storefront', 'Core', 'Elasticsearch' ]
+  before_script:
+    - apk add git git-subtree bash
   script:
     - .github/bin/split.bash split_repo "${PACKAGE}"
 

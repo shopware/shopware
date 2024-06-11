@@ -166,6 +166,7 @@ class Framework extends Bundle
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
         CacheValueCompressor::$compress = $this->container->getParameter('shopware.cache.cache_compression');
+        CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
     }
 
     /**

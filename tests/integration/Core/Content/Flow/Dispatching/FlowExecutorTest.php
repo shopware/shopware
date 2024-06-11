@@ -130,9 +130,9 @@ class FlowExecutorTest extends TestCase
                 ->price(100)
                 ->tax('t1')
                 ->visibility()
-                ->add('height', 3)
-                ->add('width', 3)
-                ->add('length', 3)
+                ->add('height', 3000)
+                ->add('width', 3000)
+                ->add('length', 3000)
                 ->build(),
         ], $this->salesChannelContext->getContext());
 

@@ -5,17 +5,28 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Ser
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -46,6 +57,93 @@ class FieldSerializerTest extends TestCase
         $config = new Config([], [], []);
 
         static::assertSame($expected, $fieldSerializer->deserialize($config, $field, $inputValue));
+    }
+
+    public function testOrderDeliverySerialize(): void
+    {
+        $fieldSerializer = new FieldSerializer();
+        $registry = new SerializerRegistry([new EntitySerializer()], [new FieldSerializer()]);
+        $fieldSerializer->setRegistry($registry);
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $orderDeliveryDefinition = new OrderDeliveryDefinition();
+        $orderDeliveryDefinition->compile($definitionRegistry);
+
+        $definitionRegistry->method('getByClassOrEntityName')->willReturn($orderDeliveryDefinition);
+
+        $field->compile($definitionRegistry);
+
+        $deliveryId = Uuid::randomHex();
+        $deliveries = new OrderDeliveryCollection([(new OrderDeliveryEntity())->assign(['id' => $deliveryId])]);
+
+        static::assertSame([
+            '_uniqueIdentifier' => $deliveryId,
+            'versionId' => null,
+            'translated' => [],
+            'orderId' => null,
+            'orderVersionId' => null,
+            'shippingOrderAddressId' => null,
+            'shippingOrderAddressVersionId' => null,
+            'shippingMethodId' => null,
+            'trackingCodes' => null,
+            'shippingCosts' => null,
+            'stateId' => null,
+            'customFields' => null,
+            'id' => $deliveryId,
+        ], $this->first($fieldSerializer->serialize($config, $field, $deliveries)));
+    }
+
+    public function testEmptyOrderDeliverySerialize(): void
+    {
+        $fieldSerializer = new FieldSerializer();
+        $registry = new SerializerRegistry([new EntitySerializer()], [new FieldSerializer()]);
+        $fieldSerializer->setRegistry($registry);
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $orderDeliveryDefinition = new OrderDeliveryDefinition();
+        $orderDeliveryDefinition->compile($definitionRegistry);
+
+        $definitionRegistry->method('getByClassOrEntityName')->willReturn($orderDeliveryDefinition);
+
+        $field->compile($definitionRegistry);
+
+        static::assertNull($this->first($fieldSerializer->serialize($config, $field, null)));
+
+        static::assertSame([], $this->first($fieldSerializer->serialize($config, $field, new OrderDeliveryCollection())));
+    }
+
+    public function testUnhandledOneToManyAssociationField(): void
+    {
+        $fieldSerializer = new FieldSerializer();
+        $registry = new SerializerRegistry([new EntitySerializer()], [new FieldSerializer()]);
+        $fieldSerializer->setRegistry($registry);
+
+        $config = new Config([], [], []);
+
+        $field = new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id');
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        $orderDeliveryDefinition = new OrderDeliveryDefinition();
+        $orderDeliveryDefinition->compile($definitionRegistry);
+
+        $definitionRegistry->method('getByClassOrEntityName')->willReturn($orderDeliveryDefinition);
+
+        $field->compile($definitionRegistry);
+
+        $documents = new DocumentCollection([(new DocumentEntity())->assign(['id' => Uuid::randomHex()])]);
+
+        static::assertNull($this->first($fieldSerializer->serialize($config, $field, $documents)));
     }
 
     /**

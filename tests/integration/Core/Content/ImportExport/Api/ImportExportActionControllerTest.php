@@ -268,7 +268,7 @@ class ImportExportActionControllerTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => 'Foobar' . $i,
+                'technicalName' => 'foobar' . $i,
                 'label' => 'Foobar' . $i,
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => 'product',

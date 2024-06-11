@@ -62,6 +62,15 @@ class ThemeAssetPackageTest extends TestCase
 
         $request = Request::create('http://localhost');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'salesChannelId');
+
+        yield 'Storefront without theme id' => [
+            'path/to/file',
+            $request,
+            'http://localhost/path/to/file?v1',
+        ];
+
+        $request = Request::create('http://localhost');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'salesChannelId');
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'themeId');
 
         yield 'theme path prefix is applied on storefront requests' => [

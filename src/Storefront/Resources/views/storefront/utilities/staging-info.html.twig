@@ -6,6 +6,27 @@
             <p class="m-0 fw-bold">
                 {{ 'general.stagingModeDescription'|trans }}
             </p>
+
+            {% block staging_info_admin_url_wrapper %}
+                {% set adminBaseUrl = app.request.attributes.get('sw-sales-channel-absolute-base-url') ~ '/admin#/sw' %}
+                {% if activeRoute is same as ('frontend.navigation.page') %}
+                    {% set quickViewUrl = adminBaseUrl ~ '/category/index/' ~ app.request.attributes.get('navigationId') %}
+                {% elseif activeRoute is same as ('frontend.detail.page') %}
+                    {% set quickViewUrl = adminBaseUrl ~ '/product/detail/' ~ app.request.attributes.get('productId') %}
+                {% elseif activeRoute is same as ('frontend.landing.page') %}
+                    {% set quickViewUrl = adminBaseUrl ~ '/category/landingPage/' ~ app.request.attributes.get('landingPageId') %}
+                {% endif %}
+
+                {% if quickViewUrl %}
+                    {% sw_icon 'link' style { class : 'flex-shrink-0 ms-2 me-2'} %}
+
+                    <p class="m-0 fw-bold">
+                        <a href="{{ quickViewUrl }}" target="_blank" class="text-white">
+                            {{ page.metaInformation.metaTitle }}
+                        </a>
+                    </p>
+                {% endif %}
+            {% endblock %}
         </div>
     {% endif %}
 {% endblock %}

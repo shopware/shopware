@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -16,43 +15,36 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(MailException::class)]
 class MailExceptionTest extends TestCase
 {
-    public function testItThrowsException(): void
+    public function testGivenMailAgentIsInvalid(): void
     {
-        $testCases = [
-            [
-                'exception' => MailException::givenMailAgentIsInvalid('john'),
-                'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'errorCode' => 'MAIL__GIVEN_AGENT_INVALID',
-                'message' => 'Invalid mail agent given "john"',
-            ],
-            [
-                'exception' => MailException::givenSendMailOptionIsInvalid('blah', ['foo', 'bar']),
-                'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'errorCode' => 'MAIL__GIVEN_OPTION_INVALID',
-                'message' => 'Given sendmail option "blah" is invalid. Available options: foo, bar',
-            ],
-            [
-                'exception' => MailException::mailBodyTooLong(5),
-                'statusCode' => Response::HTTP_BAD_REQUEST,
-                'errorCode' => 'MAIL__MAIL_BODY_TOO_LONG',
-                'message' => 'Mail body is too long. Maximum allowed length is 5',
-            ],
-        ];
+        $exception = MailException::givenMailAgentIsInvalid('john');
 
-        foreach ($testCases as $testCase) {
-            $this->runTestCase(
-                $testCase['exception'],
-                $testCase['statusCode'],
-                $testCase['errorCode'],
-                $testCase['message']
-            );
-        }
+        static::assertInstanceOf(MailException::class, $exception);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MailException::GIVEN_AGENT_INVALID, $exception->getErrorCode());
+        static::assertSame('Invalid mail agent given "john"', $exception->getMessage());
+        static::assertSame(['agent' => 'john'], $exception->getParameters());
     }
 
-    private function runTestCase(ShopwareHttpException $exception, int $statusCode, string $errorCode, string $message): void
+    public function testGivenSendMailOptionIsInvalid(): void
     {
-        static::assertEquals($statusCode, $exception->getStatusCode());
-        static::assertEquals($errorCode, $exception->getErrorCode());
-        static::assertEquals($message, $exception->getMessage());
+        $exception = MailException::givenSendMailOptionIsInvalid('blah', ['foo', 'bar']);
+
+        static::assertInstanceOf(MailException::class, $exception);
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MailException::GIVEN_OPTION_INVALID, $exception->getErrorCode());
+        static::assertSame('Given sendmail option "blah" is invalid. Available options: foo, bar', $exception->getMessage());
+        static::assertSame(['option' => 'blah', 'validOptions' => 'foo, bar'], $exception->getParameters());
+    }
+
+    public function testMailBodyTooLong(): void
+    {
+        $exception = MailException::mailBodyTooLong(5);
+
+        static::assertInstanceOf(MailException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MailException::MAIL_BODY_TOO_LONG, $exception->getErrorCode());
+        static::assertSame('Mail body is too long. Maximum allowed length is 5', $exception->getMessage());
+        static::assertSame(['maxContentLength' => 5], $exception->getParameters());
     }
 }

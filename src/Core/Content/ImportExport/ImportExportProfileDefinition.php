@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
@@ -39,10 +40,8 @@ class ImportExportProfileDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-
-            new StringField('name', 'name'),
             (new TranslatedField('label'))->addFlags(new Required()),
             new StringField('type', 'type'),
             new BoolField('system_default', 'systemDefault'),
@@ -56,5 +55,14 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);
+
+        if (Feature::isActive('v6.7.0.0')) {
+            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new Required()));
+        } else {
+            $fields->add(new StringField('technical_name', 'technicalName'));
+            $fields->add(new StringField('name', 'name'));
+        }
+
+        return $fields;
     }
 }

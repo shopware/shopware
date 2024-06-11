@@ -46,6 +46,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
                 ->append($this->createStagingNode())
+                ->append($this->createSystemConfigNode())
             ->end();
 
         return $treeBuilder;
@@ -395,6 +396,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
+                ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
                 ->arrayNode('tagging')
                     ->children()
                         ->booleanNode('each_snippet')
@@ -537,6 +539,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
+                ->scalarNode('compression_method')->defaultValue('gzip')->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
@@ -836,6 +839,16 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createSystemConfigNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('system_config');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->variablePrototype()->end();
 
         return $rootNode;
     }

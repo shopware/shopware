@@ -9,13 +9,11 @@ use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 use Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
@@ -23,26 +21,20 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[CoversClass(SystemUpdateFinishCommand::class)]
 class SystemUpdateFinishCommandTest extends TestCase
 {
-    private ContainerBuilder $container;
-
     private CollectingEventDispatcher $eventDispatcher;
 
     private StaticSystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
-        $this->container = new ContainerBuilder();
         $this->eventDispatcher = new CollectingEventDispatcher();
-        $this->container->set('event_dispatcher', $this->eventDispatcher);
         $this->systemConfigService = new StaticSystemConfigService();
         $this->systemConfigService->set(UpdateController::UPDATE_PREVIOUS_VERSION_KEY, '6.4.0.0');
-
-        $this->container->set(SystemConfigService::class, $this->systemConfigService);
     }
 
     public function testRunCommand(): void
     {
-        $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
+        $command = new SystemUpdateFinishCommand($this->eventDispatcher, $this->systemConfigService, '6.5.0.0');
 
         $application = $this->createMock(Application::class);
         $application
@@ -78,7 +70,7 @@ class SystemUpdateFinishCommandTest extends TestCase
 
     public function testRunCommandSkipAssetBuild(): void
     {
-        $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
+        $command = new SystemUpdateFinishCommand($this->eventDispatcher, $this->systemConfigService, '6.5.0.0');
 
         $application = $this->createMock(Application::class);
         $migrationCommand = $this->createMock(Command::class);
@@ -110,7 +102,7 @@ class SystemUpdateFinishCommandTest extends TestCase
 
     public function testSkipAll(): void
     {
-        $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
+        $command = new SystemUpdateFinishCommand($this->eventDispatcher, $this->systemConfigService, '6.5.0.0');
         $application = $this->createMock(Application::class);
         $application
             ->expects(static::never())

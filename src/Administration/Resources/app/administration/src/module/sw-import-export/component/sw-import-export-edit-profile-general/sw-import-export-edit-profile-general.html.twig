@@ -27,6 +27,18 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_import_export_edit_profile_general_container_technical_name %}
+        <sw-text-field
+            v-model:value="profile.technicalName"
+            :label="$tc('sw-import-export.profile.technicalNameFieldLabel')"
+            required
+            :disabled="profile.systemDefault"
+            :error="technicalNameError"
+            :placeholder="profile.technicalName"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_general_container_object_type %}
         <span
             v-tooltip="{

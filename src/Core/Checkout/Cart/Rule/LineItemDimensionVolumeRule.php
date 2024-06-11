@@ -72,6 +72,6 @@ class LineItemDimensionVolumeRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        return RuleComparison::numeric($deliveryInformation->getVolume(), $this->amount, $this->operator);
+        return RuleComparison::numeric($deliveryInformation->getVolume(), $this->amount * self::VOLUME_FACTOR, $this->operator);
     }
 }

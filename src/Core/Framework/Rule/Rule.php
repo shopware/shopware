@@ -25,6 +25,12 @@ abstract class Rule extends Struct
 
     public const OPERATOR_EMPTY = 'empty';
 
+    /**
+     * Factor to convert from m^3 to mm^3.
+     * The product volume is calculated in cubic millimeters, but the rule value is stored in cubic meters.
+     */
+    public const VOLUME_FACTOR = 1000 * 1000 * 1000;
+
     protected string $_name;
 
     protected string $operator;

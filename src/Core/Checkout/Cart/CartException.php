@@ -50,6 +50,8 @@ class CartException extends HttpException
     public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
     public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
     public const CART_LINE_ITEM_INVALID = 'CHECKOUT__CART_LINE_ITEM_INVALID';
+    private const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
+    public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
 
     public static function deserializeFailed(): self
     {
@@ -57,6 +59,15 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::DESERIALIZE_FAILED_CODE,
             'Failed to deserialize cart.'
+        );
+    }
+
+    public static function invalidCompressionMethod(string $method): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_COMPRESSION_METHOD,
+            \sprintf('Invalid cache compression method: %s', $method),
         );
     }
 
@@ -392,6 +403,16 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CART_LINE_ITEM_INVALID,
             'Line item is invalid: ' . $reason
+        );
+    }
+
+    public static function unsupportedValue(string $type, string $class): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VALUE_NOT_SUPPORTED,
+            'Unsupported value of type {{ type }} in {{ class }}',
+            ['type' => $type, 'class' => $class]
         );
     }
 

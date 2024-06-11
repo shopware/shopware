@@ -43,9 +43,9 @@ class CartVolumeRuleTest extends TestCase
     }
 
     #[DataProvider('matchTestDataProvider')]
-    public function testMatch(string $operator, float $volume, bool $expectedResult): void
+    public function testMatch(string $operator, float $ruleVolume, bool $expectedResult): void
     {
-        $cartVolumeRule = new CartVolumeRule($operator, $volume);
+        $cartVolumeRule = new CartVolumeRule($operator, $ruleVolume);
 
         $cart = Generator::createCartWithDelivery();
         $context = $this->createMock(SalesChannelContext::class);
@@ -56,122 +56,124 @@ class CartVolumeRuleTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{0:string, 1:float, 2:bool}>
+     * More context: The ruleVolume is stored in cubic meters and the product volume is calculated in cubic millimeters.
+     *
+     * @return \Generator<array{operator:string, ruleVolume:float, expectedResult:bool}>
      */
     public static function matchTestDataProvider(): \Generator
     {
-        yield '>= 4000.0 true' => [
-            Rule::OPERATOR_GTE,
-            4000.0,
-            true,
+        yield 'Check with >= operator and 4000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => true,
         ];
 
-        yield '>= 5000.0 true' => [
-            Rule::OPERATOR_GTE,
-            5000.0,
-            true,
+        yield 'Check with >= operator and 5000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => true,
         ];
 
-        yield '>= 6000.0 false' => [
-            Rule::OPERATOR_GTE,
-            6000.0,
-            false,
+        yield 'Check with >= operator and 6000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleVolume' => 0.000006,
+            'expectedResult' => false,
         ];
 
-        yield '<= 4000.0 false' => [
-            Rule::OPERATOR_LTE,
-            4000.0,
-            false,
+        yield 'Check with <= operator and 4000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => false,
         ];
 
-        yield '<= 5000.0 true' => [
-            Rule::OPERATOR_LTE,
-            5000.0,
-            true,
+        yield 'Check with <= operator and 5000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => true,
         ];
 
-        yield '<= 6000.0 true' => [
-            Rule::OPERATOR_LTE,
-            6000.0,
-            true,
+        yield 'Check with <= operator and 6000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleVolume' => 0.000006,
+            'expectedResult' => true,
         ];
 
-        yield '> 4000.0 true' => [
-            Rule::OPERATOR_GT,
-            4000.0,
-            true,
+        yield 'Check with > operator and 4000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_GT,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => true,
         ];
 
-        yield '> 5000.0 false' => [
-            Rule::OPERATOR_GT,
-            5000.0,
-            false,
+        yield 'Check with > operator and 5000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_GT,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => false,
         ];
 
-        yield '> 6000.0 false' => [
-            Rule::OPERATOR_GT,
-            6000.0,
-            false,
+        yield 'Check with > operator and 6000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_GT,
+            'ruleVolume' => 6000.0,
+            'expectedResult' => false,
         ];
 
-        yield '< 4000.0 false' => [
-            Rule::OPERATOR_LT,
-            4000.0,
-            false,
+        yield 'Check with < operator and 4000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => false,
         ];
 
-        yield '< 5000.0 false' => [
-            Rule::OPERATOR_LT,
-            5000.0,
-            false,
+        yield 'Check with < operator and 5000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => false,
         ];
 
-        yield '< 6000.0 true' => [
-            Rule::OPERATOR_LT,
-            6000.0,
-            true,
+        yield 'Check with < operator and 6000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_LT,
+            'ruleVolume' => 0.000006,
+            'expectedResult' => true,
         ];
 
-        yield '= 4000.0 false' => [
-            Rule::OPERATOR_EQ,
-            4000.0,
-            false,
+        yield 'Check with = operator and 4000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => false,
         ];
 
-        yield '= 5000.0 true' => [
-            Rule::OPERATOR_EQ,
-            5000.0,
-            true,
+        yield 'Check with = operator and 5000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => true,
         ];
 
-        yield '= 6000.0 false' => [
-            Rule::OPERATOR_EQ,
-            6000.0,
-            false,
+        yield 'Check with = operator and 6000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleVolume' => 0.000006,
+            'expectedResult' => false,
         ];
 
-        yield '!= 4000.0 true' => [
-            Rule::OPERATOR_NEQ,
-            4000.0,
-            true,
+        yield 'Check with != operator and 4000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleVolume' => 0.000004,
+            'expectedResult' => true,
         ];
 
-        yield '!= 5000.0 false' => [
-            Rule::OPERATOR_NEQ,
-            5000.0,
-            false,
+        yield 'Check with != operator and 5000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => false,
         ];
 
-        yield '!= 6000.0 true' => [
-            Rule::OPERATOR_NEQ,
-            6000.0,
-            true,
+        yield 'Check with != operator and 6000.0 mm^3 volume, should return true' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleVolume' => 0.000006,
+            'expectedResult' => true,
         ];
 
-        yield 'empty 5000.0 false' => [
-            Rule::OPERATOR_EMPTY,
-            5000.0,
-            false,
+        yield 'Check with empty operator and 5000.0 mm^3 volume, should return false' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleVolume' => 0.000005,
+            'expectedResult' => false,
         ];
     }
 

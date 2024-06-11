@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -35,5 +36,17 @@ class FileInfoHelper
         }
 
         return $guessedMimeType;
+    }
+
+    public static function getExtension(string $mimeType): string
+    {
+        $mimeTypesDetector = new MimeTypes();
+        $extensions = $mimeTypesDetector->getExtensions($mimeType);
+
+        if (!isset($extensions[0])) {
+            throw MediaException::invalidMimeType($mimeType);
+        }
+
+        return $extensions[0];
     }
 }

@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,7 +28,7 @@ class RedisCartPersisterTest extends TestCase
     public function testDecorated(): void
     {
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new RedisCartPersister(new RedisStub(), new CollectingEventDispatcher(), $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister(new RedisStub(), new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
         $this->expectException(DecorationPatternException::class);
         $persister->getDecorated();
     }
@@ -47,7 +47,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $persister->save($cart, $context);
 
@@ -66,7 +66,7 @@ class RedisCartPersisterTest extends TestCase
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, false, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
         $persister->save($cart, $context);
 
         static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
@@ -80,15 +80,13 @@ class RedisCartPersisterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
-        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
-
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
 
         $redis = new RedisStub();
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $persister->save($cart, $context);
 
@@ -114,7 +112,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $this->expectException($exceptionClass);
-        (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90))->load($token, $context);
+        (new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90))->load($token, $context);
     }
 
     /**
@@ -139,7 +137,7 @@ class RedisCartPersisterTest extends TestCase
         $redis = new RedisStub();
         $redis->set(RedisCartPersister::PREFIX . $token, 'test');
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -162,22 +160,23 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($compressedRedis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $compressor = new CartCompressor(false, 'gzip');
+        $persister = new RedisCartPersister($compressedRedis, $dispatcher, $cartSerializationCleaner, $compressor, 90);
 
         $persister->save($cart, $context);
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
-        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
+        [$compression, $content] = $compressor->serialize(['cart' => $cart, 'rule_ids' => []]);
 
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
 
         $uncompressedRedis = new RedisStub();
-        $uncompressedRedis->set(RedisCartPersister::PREFIX . $token, \serialize(['compressed' => true, 'content' => $content]));
+        $uncompressedRedis->set(RedisCartPersister::PREFIX . $token, \serialize(['compressed' => $compression, 'content' => $content]));
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, false, 90))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, $cartSerializationCleaner, $compressor, 90))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -191,16 +190,18 @@ class RedisCartPersisterTest extends TestCase
 
         $dispatcher = $this->createMock(EventDispatcher::class);
 
-        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
+        $compressor = new CartCompressor(false, 'gzip');
+
+        [$compression, $cart] = $compressor->serialize(['cart' => $cart, 'rule_ids' => []]);
 
         $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
 
         $redis = new RedisStub();
-        $redis->set(RedisCartPersister::PREFIX . $oldToken, \serialize(['compressed' => true, 'content' => $content]));
+        $redis->set(RedisCartPersister::PREFIX . $oldToken, \serialize(['compressed' => $compression, 'content' => $cart]));
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, $compressor, 90);
 
         $persister->replace($oldToken, $newToken, $context);
 
@@ -223,7 +224,7 @@ class RedisCartPersisterTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getRuleIds')->willReturn(['test']);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $persister->save($cart, $context);
 
@@ -243,7 +244,7 @@ class RedisCartPersisterTest extends TestCase
 
         $redis = new RedisStub();
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -267,7 +268,7 @@ class RedisCartPersisterTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, true, 90);
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $persister->save($cart, $context);
 

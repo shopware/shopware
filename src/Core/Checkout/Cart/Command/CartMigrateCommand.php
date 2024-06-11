@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
@@ -38,9 +38,9 @@ class CartMigrateCommand extends Command
     public function __construct(
         private $redis,
         private readonly Connection $connection,
-        private readonly bool $compress,
         private readonly int $expireDays,
-        private readonly RedisConnectionFactory $factory
+        private readonly RedisConnectionFactory $factory,
+        private readonly CartCompressor $cartCompressor
     ) {
         parent::__construct();
     }
@@ -128,12 +128,14 @@ class CartMigrateCommand extends Command
 
             $value = \unserialize($value);
 
-            $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize($value['content']);
+            $content = $this->cartCompressor->unserialize($value['content'], (int) $value['compressed']);
+
+            [$newCompression, $newCart] = $this->cartCompressor->serialize($content['cart']);
 
             $migratedCart = [];
             $migratedCart['token'] = substr($key, \strlen(RedisCartPersister::PREFIX));
-            $migratedCart['payload'] = $this->compress ? CacheValueCompressor::compress($content['cart']) : serialize($content['cart']);
-            $migratedCart['compressed'] = $this->compress ? 1 : 0;
+            $migratedCart['payload'] = $newCart;
+            $migratedCart['compressed'] = $newCompression;
             $migratedCart['rule_ids'] = \json_encode($content['rule_ids'], \JSON_THROW_ON_ERROR);
             $migratedCart['created_at'] = $created;
 
@@ -186,16 +188,16 @@ class CartMigrateCommand extends Command
             foreach ($rows as $row) {
                 $key = RedisCartPersister::PREFIX . $row['token'];
 
-                $cart = $row['compressed'] ? CacheValueCompressor::uncompress($row['payload']) : unserialize((string) $row['payload']);
+                $cart = $this->cartCompressor->unserialize($row['payload'], (int) $row['compressed']);
 
                 $content = ['cart' => $cart, 'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR)];
 
-                $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
+                [$newCompression, $newCart] = $this->cartCompressor->serialize($content);
 
                 $values[$key] = $row['token'];
                 $value = \serialize([
-                    'compressed' => $this->compress,
-                    'content' => $content,
+                    'compressed' => $newCompression,
+                    'content' => $newCart,
                 ]);
 
                 $this->redis->set($key, $value, ['EX' => $this->expireDays * 86400]);

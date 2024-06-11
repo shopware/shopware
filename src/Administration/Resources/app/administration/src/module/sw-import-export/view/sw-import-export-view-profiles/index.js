@@ -62,6 +62,12 @@ export default {
                     primary: true,
                 },
                 {
+                    property: 'technicalName',
+                    dataIndex: 'technicalName',
+                    label: 'sw-import-export.profile.technicalNameColumn',
+                    allowResize: true,
+                },
+                {
                     property: 'systemDefault',
                     dataIndex: 'systemDefault',
                     label: 'sw-import-export.profile.typeColumn',
@@ -148,6 +154,7 @@ export default {
                 cloneChildren: false,
                 overwrites: {
                     label: `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || item.translated.label}`,
+                    technicalName: `${item.technicalName}-copy-${Date.now()}`,
                     systemDefault: false,
                 },
             };

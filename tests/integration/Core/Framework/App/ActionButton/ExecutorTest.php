@@ -7,15 +7,18 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -25,6 +28,8 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 /**
  * @internal
  */
+#[CoversClass(Executor::class)]
+#[Package('core')]
 class ExecutorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -36,8 +41,12 @@ class ExecutorTest extends TestCase
 
     private string $schemaLocation;
 
+    private AppEntity $app;
+
     protected function setUp(): void
     {
+        $this->app = new AppEntity();
+        $this->app->setAppSecret('s3cr3t');
         $this->executor = $this->getContainer()->get(Executor::class);
         $this->schemaLocation = $this->getContainer()->getParameter('kernel.project_dir') . self::SCHEMA_LOCATION;
     }
@@ -48,12 +57,12 @@ class ExecutorTest extends TestCase
         static::assertIsString($appUrl);
 
         $action = new AppAction(
-            'https://test.com/my-action',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://test.com/my-action',
             'product',
             'detail',
             [Uuid::randomHex()],
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -72,12 +81,10 @@ class ExecutorTest extends TestCase
         $message = $this->parseSchemaErrors($result);
 
         static::assertTrue($result->isValid(), $message);
-
-        $appSecret = $action->getAppSecret();
-        static::assertNotNull($appSecret);
+        static::assertNotNull($this->app->getAppSecret());
 
         static::assertSame(
-            hash_hmac('sha256', $body, $appSecret),
+            hash_hmac('sha256', $body, $this->app->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
 
@@ -92,12 +99,12 @@ class ExecutorTest extends TestCase
         static::assertIsString($appUrl);
 
         $action = new AppAction(
-            'https://brokenServer.com',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://brokenServer.com',
             'product',
             'detail',
             [],
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -114,12 +121,12 @@ class ExecutorTest extends TestCase
 
         $targetUrl = 'https://my-server.com';
         $action = new AppAction(
-            $targetUrl,
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            $targetUrl,
             'product',
             'detail',
             [],
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -131,12 +138,11 @@ class ExecutorTest extends TestCase
 
         static::assertSame($targetUrl, (string) $request->getUri());
 
-        $appSecret = $action->getAppSecret();
-        static::assertNotNull($appSecret);
+        static::assertNotNull($this->app->getAppSecret());
 
         $body = $request->getBody()->getContents();
         static::assertSame(
-            hash_hmac('sha256', $body, $appSecret),
+            hash_hmac('sha256', $body, $this->app->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
 
@@ -158,12 +164,12 @@ class ExecutorTest extends TestCase
         static::assertIsString($shopUrl);
 
         $action = new AppAction(
-            $targetUrl,
+            $this->app,
             new Source($shopUrl, $shopId, $appVersion),
+            $targetUrl,
             $entity,
             $actionName,
             $affectedIds,
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -197,11 +203,10 @@ class ExecutorTest extends TestCase
         static::assertTrue(Uuid::isValid($data['meta']['reference']));
         static::assertSame($context->getLanguageId(), $data['meta']['language']);
 
-        $appSecret = $action->getAppSecret();
-        static::assertNotNull($appSecret);
+        static::assertNotNull($this->app->getAppSecret());
 
         static::assertSame(
-            hash_hmac('sha256', $body, $appSecret),
+            hash_hmac('sha256', $body, $this->app->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
 
@@ -216,12 +221,12 @@ class ExecutorTest extends TestCase
         static::assertIsString($appUrl);
 
         $action = new AppAction(
-            'https://brokenServer.com',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://brokenServer.com',
             'product',
             'detail',
             [],
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -242,11 +247,10 @@ class ExecutorTest extends TestCase
 
         static::assertTrue($result->isValid(), $message);
 
-        $appSecret = $action->getAppSecret();
-        static::assertNotNull($appSecret);
+        static::assertNotNull($this->app->getAppSecret());
 
         static::assertSame(
-            hash_hmac('sha256', $body, $appSecret),
+            hash_hmac('sha256', $body, $this->app->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
 
@@ -261,12 +265,12 @@ class ExecutorTest extends TestCase
         static::assertIsString($appUrl);
 
         $action = new AppAction(
-            'https://brokenServer.com',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://brokenServer.com',
             'product',
             'detail',
             [],
-            's3cr3t',
             Uuid::randomHex()
         );
 
@@ -281,14 +285,13 @@ class ExecutorTest extends TestCase
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
 
-        $appSecret = 's3cr3t';
         $action = new AppAction(
-            'https://brokenServer.com',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://brokenServer.com',
             'product',
             'detail',
             [],
-            $appSecret,
             Uuid::randomHex()
         );
 
@@ -297,7 +300,8 @@ class ExecutorTest extends TestCase
             'payload' => [],
         ];
 
-        $this->signResponse($appSecret, $responseData);
+        static::assertNotNull($this->app->getAppSecret());
+        $this->signResponse($this->app->getAppSecret(), $responseData);
 
         static::expectException(AppException::class);
         $this->executor->execute($action, Context::createDefaultContext());
@@ -319,16 +323,17 @@ class ExecutorTest extends TestCase
         static::assertIsString($appUrl);
 
         $action = new AppAction(
-            'https://test.com/my-action',
+            $this->app,
             new Source($appUrl, Random::getAlphanumericString(12), '1.0.0'),
+            'https://test.com/my-action',
             'product',
             'detail',
             [Uuid::randomHex()],
-            's3cr3t',
             Uuid::randomHex()
         );
 
-        $this->signResponse('123455');
+        static::assertNotNull($this->app->getAppSecret());
+        $this->signResponse($this->app->getAppSecret());
 
         static::expectException(AppException::class);
         static::expectExceptionMessage('Detected APP_URL change');

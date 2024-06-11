@@ -86,7 +86,6 @@ async function createWrapper(privileges = []) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-alert': true,
-                'sw-custom-field-type-select': true,
             },
         },
     });
@@ -107,13 +106,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
-        const modalSwitchField = wrapper.find('.sw-custom-field-detail__switch');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeFalsy();
         expect(technicalNameField.attributes('disabled')).toBeFalsy();
         expect(modalPositionField.attributes('disabled')).toBeFalsy();
-        expect(modalSwitchField.attributes('disabled')).toBeFalsy();
         expect(modalSaveButton.attributes('disabled')).toBeFalsy();
     });
 
@@ -124,13 +121,11 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
         const modalPositionField = wrapper.find('.sw-custom-field-detail__modal-position');
-        const modalSwitchField = wrapper.find('.sw-custom-field-detail__switch');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
         expect(modalTypeField.attributes('disabled')).toBeDefined();
         expect(technicalNameField.attributes('disabled')).toBeDefined();
         expect(modalPositionField.attributes('disabled')).toBeDefined();
-        expect(modalSwitchField.attributes('disabled')).toBeDefined();
         expect(modalSaveButton.attributes('disabled')).toBeDefined();
     });
 

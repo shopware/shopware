@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
-use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 

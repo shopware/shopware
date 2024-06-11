@@ -45,6 +45,7 @@ class MappingService extends AbstractMappingService
 
     public function createTemplate(Context $context, string $profileId): string
     {
+        /** @var ImportExportProfileEntity|null $profile */
         $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->getEntities()->first();
         if ($profile === null) {
             throw ImportExportException::profileNotFound($profileId);
@@ -69,7 +70,7 @@ class MappingService extends AbstractMappingService
             $context,
             $expireDate,
             null,
-            $profile->getSourceEntity() . ':' . $profile->getName() . '.csv',
+            $profile->getSourceEntity() . ':' . $profile->getTechnicalName() . '.csv',
             ImportExportLogEntity::ACTIVITY_TEMPLATE
         );
 

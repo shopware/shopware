@@ -16,20 +16,21 @@
             {% block component_filter_rating_select_list_item_label_rating %}
                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
                     points: points,
-                    style: 'text-primary'
+                    style: 'text-primary',
+                    altText: 'listing.filterRatingMinAltText'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize,
                 } %}
             {% endblock %}
 
             {% block component_filter_rating_select_list_item_label_text %}
-                    <span class="filter-rating-select-item-label-text">
-                        {{ 'listing.filterRatingAndMore'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize }}
-                    </span>
+                <span class="filter-rating-select-item-label-text" aria-hidden="true">
+                    {{ 'listing.filterRatingAndMore'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize }}
+                </span>
             {% endblock %}
-            </label>
+        </label>
     {% endblock %}
 
     {% block component_filter_rating_select_list_item_checkmark %}
-        <span class="filter-rating-select-item-checkmark">
+        <span class="filter-rating-select-item-checkmark" aria-hidden="true">
             {% block component_filter_rating_select_list_item_checkmark_icon %}
                 {% sw_icon 'checkmark' style {pack: 'solid', size: 'xs'} %}
             {% endblock %}

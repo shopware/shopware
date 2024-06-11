@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Kernel;
 use Shopware\Core\Migration\V6_5\Migration1670854818RemoveEventActionTable;
-use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Tests\Unit\Core\DevOps\System\Command\OpenApiValidationCommandTest;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;

@@ -32,7 +32,6 @@ export default {
     data() {
         return {
             fieldTypes: {},
-            required: false,
             disableCartExpose: true,
         };
     },
@@ -77,20 +76,6 @@ export default {
         },
     },
 
-    watch: {
-        required(value) {
-            if (value) {
-                this.currentCustomField.config.validation = 'required';
-
-                return;
-            }
-
-            if (this.currentCustomField.config.hasOwnProperty('validation')) {
-                this.$delete(this.currentCustomField.config, 'validation');
-            }
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -109,10 +94,6 @@ export default {
 
             if (!this.currentCustomField.name) {
                 this.currentCustomField.name = `${this.set.name.toLowerCase()}_`;
-            }
-
-            if (this.currentCustomField.config.hasOwnProperty('validation')) {
-                this.required = (this.currentCustomField.config.validation === 'required');
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('customFieldPosition')) {

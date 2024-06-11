@@ -344,13 +344,15 @@ describe('Test product filters get disabled if a combination is not possible', (
 
         // Filter by min. 3/5 stars
         cy.get('@ratingList').within(() => {
-            // First element(4 stars) should be disabled since we have only a product with a 3 star rating
-            cy.get('.filter-rating-select-list-item').should('have.length', 4).eq(0).should('satisfy', ($el) => {
-                const classList = Array.from($el[0].classList);
-                return classList.includes('disabled');
-            });
-            cy.get('.filter-rating-select-list-item').eq(1).click();
-            cy.get('.filter-rating-select-list-item').eq(1).within(() => {
+            cy.get('.filter-rating-select-list-item').should('have.length', 5);
+
+            // First element (5 stars) and second element (4 stars) should be disabled since we have only a product with a 3-star rating
+            cy.get('.filter-rating-select-list-item').contains('min. 5/5').parent().should('have.class', 'disabled', true);
+            cy.get('.filter-rating-select-list-item').contains('min. 4/5').parent().should('have.class', 'disabled', true);
+
+            // Click on the 3-star rating filter
+            cy.get('.filter-rating-select-list-item').contains('min. 3/5').parent().click();
+            cy.get('.filter-rating-select-list-item').contains('min. 3/5').parent().within(() => {
                 cy.get('.filter-rating-select-item-checkmark').should('have.css', 'opacity', "1");
             });
         });

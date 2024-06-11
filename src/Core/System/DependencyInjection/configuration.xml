@@ -45,6 +45,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigLoader" />
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService"/>
             <argument>%shopware.cache.tagging.each_config%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -54,9 +55,18 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService">
+            <argument>%shopware.system_config%</argument>
+        </service>
+
         <service id="Shopware\Core\System\SystemConfig\SystemConfigLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\ConfiguredSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-1500">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SymfonySystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-1000">

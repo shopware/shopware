@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -43,7 +44,7 @@ class RedisCartPersisterTest extends TestCase
         $client = $factory->create($redisUrl);
         static::assertInstanceOf(\Redis::class, $client);
         $this->redis = $client;
-        $this->persister = new RedisCartPersister($this->redis, new CollectingEventDispatcher(), $this->createMock(CartSerializationCleaner::class), false, 30);
+        $this->persister = new RedisCartPersister($this->redis, new CollectingEventDispatcher(), $this->createMock(CartSerializationCleaner::class), new CartCompressor(false, 'gzip'), 30);
     }
 
     protected function tearDown(): void
@@ -91,5 +92,37 @@ class RedisCartPersisterTest extends TestCase
 
         static::expectException(CartTokenNotFoundException::class);
         $this->persister->load($token, $context);
+    }
+
+    public function testLoadGzipCompressedCart(): void
+    {
+        $token = Uuid::randomHex();
+
+        $cart = new Cart($token);
+        $compressed = ['content' => gzcompress(serialize(['cart' => $cart, 'rule_ids' => []]), 9), 'compressed' => 1];
+
+        $this->redis->set(RedisCartPersister::PREFIX . $token, serialize($compressed));
+
+        $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
+
+        static::assertEquals($cart, $loaded);
+    }
+
+    public function testLoadZstdCompressedCart(): void
+    {
+        if (!\function_exists('zstd_compress')) {
+            static::markTestSkipped('zstd extension is not installed');
+        }
+
+        $token = Uuid::randomHex();
+
+        $cart = new Cart($token);
+        $compressed = ['content' => \zstd_compress(serialize(['cart' => $cart, 'rule_ids' => []]), 9), 'compressed' => 2];
+
+        $this->redis->set(RedisCartPersister::PREFIX . $token, serialize($compressed));
+
+        $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
+
+        static::assertEquals($cart, $loaded);
     }
 }

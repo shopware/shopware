@@ -106,7 +106,7 @@
         },
         "store": {
           "modalTitle": "Shopware Store",
-          "loadStatusCollect": "Store-Informationen werden abgerufen...",
+          "loadStatusCollect": "Store-Informationen werden abgerufen ...",
           "takeMinutes": "Dies kann ein paar Minuten dauern.",
           "alreadyActivated": "Store ist bereits erfolgreich aktiviert.",
           "enablingStore": "Aktivieren des Shopware-Stores ... ",

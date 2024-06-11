@@ -16,6 +16,11 @@ class ScriptResponse
     private readonly ResponseCacheConfiguration $cache;
 
     /**
+     * @var array<string, string>
+     */
+    private array $headers = [];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -24,6 +29,26 @@ class ScriptResponse
     ) {
         $this->body = new ArrayFacade([]);
         $this->cache = new ResponseCacheConfiguration();
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function setHeader(string $name, string $value): void
+    {
+        $this->inner?->headers->set($name, $value);
+        $this->headers[$name] = $value;
+    }
+
+    public function removeHeader(string $name): void
+    {
+        $this->inner?->headers->remove($name);
+        unset($this->headers[$name]);
     }
 
     public function getCode(): int

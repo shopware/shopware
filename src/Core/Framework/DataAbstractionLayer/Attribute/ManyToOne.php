@@ -15,7 +15,8 @@ class ManyToOne extends Field
         public OnDelete $onDelete = OnDelete::NO_ACTION,
         public string $ref = 'id',
         public bool|array $api = false,
+        public ?string $storageName = null,
     ) {
-        parent::__construct(type: self::TYPE, api: $api);
+        parent::__construct(type: self::TYPE, api: $api, storageName: $storageName);
     }
 }

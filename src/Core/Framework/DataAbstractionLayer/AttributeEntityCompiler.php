@@ -209,13 +209,19 @@ class AttributeEntityCompiler
      */
     private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement $field, \ReflectionProperty $property): array
     {
-        $storage = self::snake_case($property->getName());
+        if ($field->storageName) {
+            $storage = self::snake_case($field->storageName);
+            $storageFk = $storage;
+        } else {
+            $storage = self::snake_case($property->getName());
+            $storageFk = $storage . '_id';
+        }
 
         return match (true) {
             $field instanceof Translations => [$entity . '_translation', $entity . '_id'],
             $field instanceof ForeignKey => [$storage, $property->getName(), $field->entity],
-            $field instanceof OneToOne => [$property->getName(), $field->column ?? $storage . '_id', $field->ref, $field->entity, false],
-            $field instanceof ManyToOne => [$property->getName(), $storage . '_id', $field->entity, $field->ref],
+            $field instanceof OneToOne => [$property->getName(), $storageFk, $field->ref, $field->entity, false],
+            $field instanceof ManyToOne => [$property->getName(), $storageFk, $field->entity, $field->ref],
             $field instanceof OneToMany => [$property->getName(), $field->entity, $field->ref, 'id'],
             $field instanceof ManyToMany => [$property->getName(), $field->entity, self::mappingName($entity, $field), $entity . '_id', $field->entity . '_id'],
             $field instanceof AutoIncrement, $field instanceof Version => [],

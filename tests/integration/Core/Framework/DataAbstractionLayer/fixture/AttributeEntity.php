@@ -73,6 +73,9 @@ class AttributeEntity extends EntityStruct
     #[Serialized(serializer: PriceFieldSerializer::class, api: true)]
     public ?PriceCollection $serialized = null;
 
+    #[Serialized(serializer: PriceFieldSerializer::class, api: true, storageName: 'serialized_storage')]
+    public ?PriceCollection $storageSerialized = null;
+
     #[Required]
     #[Field(type: FieldType::STRING, translated: true)]
     public string $transString;
@@ -107,6 +110,39 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::TIME_ZONE, translated: true)]
     public ?string $transTimeZone = null;
 
+    #[Field(type: FieldType::STRING, translated: true, storageName: 'string_storage')]
+    public ?string $storageString = null;
+
+    #[Field(type: FieldType::TEXT, storageName: 'text_storage')]
+    public ?string $storageText = null;
+
+    #[Field(type: FieldType::INT, storageName: 'int_storage')]
+    public ?int $storageInt;
+
+    #[Field(type: FieldType::FLOAT, storageName: 'float_storage')]
+    public ?float $storageFloat;
+
+    #[Field(type: FieldType::BOOL, storageName: 'bool_storage')]
+    public ?bool $storageBool;
+
+    #[Field(type: FieldType::DATETIME, storageName: 'datetime_storage')]
+    public ?\DateTimeImmutable $storageDatetime = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[Field(type: FieldType::JSON, storageName: 'json_storage')]
+    public ?array $storageJson = null;
+
+    #[Field(type: FieldType::DATE, storageName: 'date_storage')]
+    public ?\DateTimeImmutable $storageDate = null;
+
+    #[Field(type: FieldType::DATE_INTERVAL, storageName: 'date_interval_storage')]
+    public ?DateInterval $storageDateInterval = null;
+
+    #[Field(type: FieldType::TIME_ZONE, storageName: 'time_zone_storage')]
+    public ?string $storageTimeZone = null;
+
     #[ForeignKey(entity: 'currency')]
     public ?string $currencyId = null;
 
@@ -116,8 +152,14 @@ class AttributeEntity extends EntityStruct
     #[ManyToOne(entity: 'currency', onDelete: OnDelete::RESTRICT)]
     public ?CurrencyEntity $currency = null;
 
+    #[ManyToOne(entity: 'currency', onDelete: OnDelete::RESTRICT, storageName: 'currency_storage_id')]
+    public ?CurrencyEntity $currencyStorage = null;
+
     #[OneToOne(entity: 'currency', onDelete: OnDelete::SET_NULL)]
     public ?CurrencyEntity $follow = null;
+
+    #[OneToOne(entity: 'currency', storageName: 'follow_storage_id', onDelete: OnDelete::SET_NULL)]
+    public ?CurrencyEntity $followStorage = null;
 
     /**
      * @var array<string, AttributeEntityAgg>

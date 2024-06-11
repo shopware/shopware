@@ -85,6 +85,7 @@ class AttributeEntityIntegrationTest extends TestCase
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
                 'transString' => 'transString',
+                'storageString' => 'storageString',
             ],
         ], $context);
 
@@ -105,12 +106,14 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string', $record->string);
         static::assertSame('transString', $record->getTranslation('transString'));
+        static::assertSame('storageString', $record->storageString);
 
         $result = $this->repository('attribute_entity')->update([
             [
                 'id' => $ids->get('first-key'),
                 'string' => 'string-updated',
                 'transString' => 'transString-updated',
+                'storageString' => 'storageString-updated',
             ],
         ], $context);
 
@@ -131,6 +134,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string-updated', $record->string);
         static::assertSame('transString-updated', $record->getTranslation('transString'));
+        static::assertSame('storageString-updated', $record->storageString);
 
         $result = $this->repository('attribute_entity')->delete([
             ['id' => $ids->get('first-key')],
@@ -218,6 +222,73 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertEquals(new DateInterval('P1D'), $record->transDateInterval);
         static::assertEquals('Europe/Berlin', $record->transTimeZone);
         static::assertEquals(['key' => 'value'], $record->transJson);
+    }
+
+    public function testStorage(): void
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('first-key'),
+            'string' => 'string',
+            'text' => 'text',
+            'int' => 1,
+            'float' => 1.1,
+            'bool' => true,
+            'datetime' => new \DateTimeImmutable('2020-01-01 15:15:15'),
+            'date' => new \DateTimeImmutable('2020-01-01 00:00:00'),
+            'dateInterval' => new \DateInterval('P1D'),
+            'timeZone' => 'Europe/Berlin',
+            'json' => ['key' => 'value'],
+            'transString' => 'transString',
+            'serialized' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
+            ],
+            'storageSerialized' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
+            ],
+            'storageString' => 'string',
+            'storageText' => 'text',
+            'storageInt' => 1,
+            'storageFloat' => 1.1,
+            'storageBool' => true,
+            'storageDatetime' => new \DateTimeImmutable('2020-01-01 15:15:15'),
+            'storageDate' => new \DateTimeImmutable('2020-01-01 00:00:00'),
+            'storageDateInterval' => new \DateInterval('P1D'),
+            'storageTimeZone' => 'Europe/Berlin',
+            'storageJson' => ['key' => 'value'],
+        ];
+
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
+        $written = $result->getPrimaryKeys('attribute_entity');
+        static::assertContains($ids->get('first-key'), $written);
+
+        $search = $this->repository('attribute_entity')
+            ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
+
+        static::assertCount(1, $search);
+        static::assertTrue($search->has($ids->get('first-key')));
+
+        $record = $search->get($ids->get('first-key'));
+
+        static::assertInstanceOf(AttributeEntity::class, $record);
+
+        static::assertEquals('string', $record->storageString);
+        static::assertEquals('text', $record->storageText);
+        static::assertEquals(1, $record->storageInt);
+        static::assertEquals(1.1, $record->storageFloat);
+        static::assertTrue($record->storageBool);
+        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->storageDatetime);
+        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->storageDate);
+        static::assertEquals(new DateInterval('P1D'), $record->storageDateInterval);
+        static::assertEquals('Europe/Berlin', $record->storageTimeZone);
+        static::assertEquals(['key' => 'value'], $record->storageJson);
+        static::assertEquals(
+            new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
+            $record->storageSerialized
+        );
     }
 
     public function testOneToOne(): void

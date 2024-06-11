@@ -14,8 +14,9 @@ class Serialized extends Field
     public function __construct(
         public string $serializer = StringFieldSerializer::class,
         public bool|array $api = false,
-        public bool $translated = false
+        public bool $translated = false,
+        public ?string $storageName = null
     ) {
-        parent::__construct(type: self::TYPE, translated: $translated, api: $api);
+        parent::__construct(type: self::TYPE, translated: $translated, api: $api, storageName: $storageName);
     }
 }

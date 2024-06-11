@@ -10,7 +10,7 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
-themeFiles = require(themeFilesConfigPath);
+const themeFiles = require(themeFilesConfigPath);
 
 server.then(() => {
     const fullUrl = themeFiles.domainUrl || process.env.APP_URL;

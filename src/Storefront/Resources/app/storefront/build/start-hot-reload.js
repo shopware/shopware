@@ -13,7 +13,7 @@ const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json
 const themeFiles = require(themeFilesConfigPath);
 
 server.then(() => {
-    const fullUrl = themeFiles.domainUrl || process.env.APP_URL;
+    const fullUrl = themeFiles.domainUrl;
     const proxyUrl = new URL(process.env.PROXY_URL || process.env.APP_URL);
     const proxyPort = process.env.STOREFRONT_PROXY_PORT;
 

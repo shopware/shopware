@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('content')]
 class CreateGeneretorScafoldingCommandPass implements CompilerPassInterface
@@ -40,13 +41,18 @@ class CreateGeneretorScafoldingCommandPass implements CompilerPassInterface
 
             $commandDefinition->addTag('console.command', $tagAttributes);
 
-            $container->setDefinition(sprintf('make.auto_command.%s', self::asSnake(self::asCommand($ref->getShortName()))), $commandDefinition);
+            $container->setDefinition(
+                sprintf('make.auto_command.%s', self::asCommand($ref->getShortName())),
+                $commandDefinition
+            );
         }
     }
 
     private static function asCommand(string $value): string
     {
-        $value = str_replace('_', '-', self::asSnake($value));
+        $snakeCaseConverter = new CamelCaseToSnakeCaseNameConverter();
+
+        $value = str_replace('_', '-', $snakeCaseConverter->normalize($value));
 
         return str_replace('-generator', '', $value);
     }

@@ -27,6 +27,7 @@ class AppException extends HttpException
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
     public const FEATURES_REQUIRE_APP_SECRET = 'FRAMEWORK__APP_FEATURES_REQUIRE_APP_SECRET';
+    public const APP_SECRET_MISSING = 'FRAMEWORK__APP_SECRET_MISSING';
     public const ACTION_BUTTON_PROCESS_EXCEPTION = 'FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED';
     public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
     public const XML_PARSE_ERROR = 'FRAMEWORK_APP__XML_PARSE_ERROR';
@@ -155,6 +156,16 @@ class AppException extends HttpException
             self::FEATURES_REQUIRE_APP_SECRET,
             'App "{{ appName }}" could not be installed/updated because it uses features {{ features }} but has no secret',
             ['appName' => $appName, 'features' => $featuresAsString],
+        );
+    }
+
+    public static function appSecretMissing(string $appName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SECRET_MISSING,
+            'App secret is missing for app {{ appName }}',
+            ['appName' => $appName]
         );
     }
 

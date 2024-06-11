@@ -26,7 +26,7 @@ class FeatureCallSilentTokenTest extends TestCase
 
         $code = <<<'PHP'
 // line 1
-\Shopware\Core\Framework\Feature::callSilentIfInactive('v6.5.0.0', function () use(&$context) { echo "test";
+\Shopware\Core\Framework\Feature::callSilentIfInactive('v6.5.0.0', function () use(&$context) { yield "test";
 });
 PHP;
 

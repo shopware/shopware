@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
 use Shopware\Core\Framework\Log\Package;
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\Node;
 
 #[Package('core')]
+#[YieldReady]
 class FeatureCallSilentToken extends Node
 {
     public function __construct(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Maker\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Maker\Command\MakerCommand;
 use Shopware\Core\Framework\Plugin;
@@ -13,6 +14,10 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
+#[CoversClass(MakerCommand::class)]
 class MakerCommandTest extends TestCase
 {
     public function testExecute(): void

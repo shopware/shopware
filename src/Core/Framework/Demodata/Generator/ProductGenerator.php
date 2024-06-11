@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -192,7 +191,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             $id = Uuid::randomHex();
             $variants[] = [
                 'id' => $id,
-                'productNumber' => $id,
+                'productNumber' => 'SW_' . $id,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),
@@ -259,10 +258,12 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getTaxes(Context $context): TaxCollection
     {
-        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = $this->registry->getRepository('tax');
 
-        return $taxRepository->search(new Criteria(), $context)->getEntities();
+        $taxCollection = $taxRepository->search(new Criteria(), $context)->getEntities();
+        \assert($taxCollection instanceof TaxCollection);
+
+        return $taxCollection;
     }
 
     /**
@@ -284,7 +285,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         return [
             'id' => Uuid::randomHex(),
-            'productNumber' => Uuid::randomHex(),
+            'productNumber' => 'SW_' . Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
             'name' => $this->faker->format('productName'),

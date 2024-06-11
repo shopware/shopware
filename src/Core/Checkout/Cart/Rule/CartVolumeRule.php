@@ -36,7 +36,7 @@ class CartVolumeRule extends Rule
             throw new UnsupportedValueException(\gettype($this->volume), self::class);
         }
 
-        return RuleComparison::numeric($this->calculateCartVolume($scope->getCart()), $this->volume, $this->operator);
+        return RuleComparison::numeric($this->calculateCartVolume($scope->getCart()), $this->volume * self::VOLUME_FACTOR, $this->operator);
     }
 
     public function getConstraints(): array

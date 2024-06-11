@@ -61,7 +61,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem = $this->createLineItemWithVolume($lineItemVolume);
+        $lineItem = $this->createLineItemWithVolume($lineItemVolume * Rule::VOLUME_FACTOR);
         if ($lineItemWithoutDeliveryInfo) {
             $lineItem = $this->createLineItem();
         }
@@ -122,14 +122,14 @@ class LineItemDimensionVolumeRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1);
+        $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1 * Rule::VOLUME_FACTOR);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = self::createLineItem();
         }
 
-        $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2);
+        $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2 * Rule::VOLUME_FACTOR);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = self::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -162,12 +162,12 @@ class LineItemDimensionVolumeRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1);
+        $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1 * Rule::VOLUME_FACTOR);
         if ($lineItem1WithoutDeliveryInfo) {
             $lineItem1 = $this->createLineItem();
         }
 
-        $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2);
+        $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2 * Rule::VOLUME_FACTOR);
         if ($lineItem2WithoutDeliveryInfo) {
             $lineItem2 = $this->createLineItem();
         }
@@ -178,7 +178,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         ]);
         $containerLineItem = $this->createLineItem();
         if ($containerLineItemVolume !== null) {
-            $containerLineItem = $this->createLineItemWithVolume($containerLineItemVolume);
+            $containerLineItem = $this->createLineItemWithVolume($containerLineItemVolume * Rule::VOLUME_FACTOR);
         }
         $containerLineItem->setChildren($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));

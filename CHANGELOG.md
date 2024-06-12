@@ -1,6 +1,20 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.11
+*  [NEXT-31896 - Fix promotion individual code redeemer if first assigned promotion is not instance of PromotionIndividualCodeEntity](./changelog/release-6-5-8-11/2023-10-21-fix-promotion-used-logic.md) ([Wolfgang Kreminger](https://github.com/r4pt0s))
+*  [NEXT-30469 - Enable iFrame full screen for sdk modules](./changelog/release-6-5-8-11/2024-02-23-enable-iframe-full-screen-for-sdk-modules.md)
+*  [NEXT-34676 - Change the order of product price sorting in ProductDetailRoute](./changelog/release-6-5-8-11/2024-04-16-update-product-detail-route.md)
+*  [NEXT-35571 - Block twig update to 3.9](./changelog/release-6-5-8-11/2024-04-23-block-twig-update.md)
+*  [NEXT-36143 - Resolve extension parameters in Shopware compiler passes](./changelog/release-6-5-8-11/2024-04-23-resolve-parameters-in-compiler-passes.md) ([Philip Standt](https://github.com/Ocarthon))
+*  [NEXT-36088 - Add database profiler on CLI if "--profile" option is used.](./changelog/release-6-5-8-11/2024-05-08-add-database-profiling-for-cli.md) ([Andreas Allacher](https://github.com/AndreasA))
+*  [NEXT-35996 - Decode custom fields in Store API mapper](./changelog/release-6-5-8-11/2024-05-10-decode-custom-fields-in-store-api-mapper.md)
+*  [NEXT-31160 - Fix medium usage is not detected in slot configs](./changelog/release-6-5-8-11/2024-05-10-fix-medium-usage-is-not-detected-in-slot-configs.md)
+*  [NEXT-29683 - Search by document numbers does not work for orders with many documents](./changelog/release-6-5-8-11/2024-05-13-search-by-document-numbers-does-not-work-for-orders-with-many-documents.md)
+*  [NEXT-36288 - Add event to select variant on product detail load](./changelog/release-6-5-8-11/2024-05-16-add-event-to-select-variant-on-product-detail-load.md) ([Max](https://github.com/aragon999))
+*  [NEXT-36275 - Check variant listing configuration](./changelog/release-6-5-8-11/2024-05-22-check-variant-listing-configuration.md)
+*  [NEXT-36279 - Broken initial pagination of property values in the administration](./changelog/release-6-5-8-11/2024-05-29-broken-initial-pagination-of-property-values-in-the-administration.md)
+
 ## 6.5.8.10
 *  [NEXT-30575 - Remove HTML sanitization from mail header and mail footer fields](./changelog/release-6-5-8-10/2024-01-04-remove-html-sanitization-from-mail-header-and-mail-footer-fields.md) ([Marcus Müller](https://github.com/M-arcus))
 *  [NEXT-35318 - Add heading elements for account login page to improve accessibility & SEO](./changelog/release-6-5-8-10/2024-04-15-heading-elements-on-registration-page.md) ([Jesper Ingels](https://github.com/jesperingels))

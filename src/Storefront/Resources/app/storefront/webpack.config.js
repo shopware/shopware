@@ -421,14 +421,12 @@ const mergedCoreConfig = merge([
                     hot: false,
                     compress: false,
                     allowedHosts: 'all',
-                    port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
-                    host: '127.0.0.1',
+                    webSocketServer: 'sockjs',
                     client: {
                         webSocketURL: {
-                            hostname: '0.0.0.0',
-                            protocol: 'ws',
-                            port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                            pathname: '/__webpack_ws/',
                         },
+                        webSocketTransport: 'sockjs',
                         logging: 'warn',
                         overlay: {
                             warnings: false,

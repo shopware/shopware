@@ -74,7 +74,7 @@
           "de-DE": "Primärfarbe"
         },
         "type": "color",
-        "value": "#0b539b",
+        "value": "#0042a0",
         "editable": true,
         "block": "themeColors",
         "order": 100
@@ -85,7 +85,7 @@
           "de-DE": "Sekundärfarbe"
         },
         "type": "color",
-        "value": "#3d444d",
+        "value": "#474a57",
         "editable": true,
         "block": "themeColors",
         "order": 200
@@ -118,7 +118,7 @@
           "de-DE": "Erfolg"
         },
         "type": "color",
-        "value": "#3cc261",
+        "value": "#007e4e",
         "editable": true,
         "block": "statusColors",
         "order": 100
@@ -129,7 +129,7 @@
           "de-DE": "Information"
         },
         "type": "color",
-        "value": "#26b6cf",
+        "value": "#005b99",
         "editable": true,
         "block": "statusColors",
         "order": 200
@@ -140,7 +140,7 @@
           "de-DE": "Hinweis"
         },
         "type": "color",
-        "value": "#ffbd5d",
+        "value": "#974200",
         "editable": true,
         "block": "statusColors",
         "order": 300
@@ -151,7 +151,7 @@
           "de-DE": "Fehler"
         },
         "type": "color",
-        "value": "#e52427",
+        "value": "#c20017",
         "editable": true,
         "block": "statusColors",
         "order": 400
@@ -217,7 +217,7 @@
           "de-DE": "Kaufen-Button"
         },
         "type": "color",
-        "value": "#0b539b",
+        "value": "#0042a0",
         "editable": true,
         "block": "eCommerce",
         "order": 200

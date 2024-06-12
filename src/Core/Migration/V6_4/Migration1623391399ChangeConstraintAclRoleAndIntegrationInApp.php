@@ -21,17 +21,12 @@ class Migration1623391399ChangeConstraintAclRoleAndIntegrationInApp extends Migr
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `app` DROP FOREIGN KEY `fk.app.integration_id`');
+        $this->dropForeignKeyIfExists($connection, 'app', 'fk.app.integration_id');
 
         $connection->executeStatement('ALTER TABLE `app` ADD CONSTRAINT `fk.app.integration_id` FOREIGN KEY (`integration_id`) REFERENCES `integration` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
 
-        $connection->executeStatement('ALTER TABLE `app` DROP FOREIGN KEY `fk.app.acl_role_id`;');
+        $this->dropForeignKeyIfExists($connection, 'app', 'fk.app.acl_role_id');
 
         $connection->executeStatement('ALTER TABLE `app` ADD CONSTRAINT `fk.app.acl_role_id` FOREIGN KEY (`acl_role_id`) REFERENCES `acl_role` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

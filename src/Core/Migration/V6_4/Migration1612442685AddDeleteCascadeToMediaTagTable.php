@@ -21,7 +21,7 @@ class Migration1612442685AddDeleteCascadeToMediaTagTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `media_tag` DROP FOREIGN KEY `fk.media_tag.id`;');
+        $this->dropForeignKeyIfExists($connection, 'media_tag', 'fk.media_tag.id');
         $connection->executeStatement('ALTER TABLE `media_tag` ADD CONSTRAINT `fk.media_tag.media_id` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;');
     }
 

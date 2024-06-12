@@ -21,7 +21,7 @@ class Migration1612442686AddDeleteCascadeToCustomerTagTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `customer_tag` DROP FOREIGN KEY `fk.customer_tag.customer_id`;');
+        $this->dropForeignKeyIfExists($connection, 'customer_tag', 'fk.customer_tag.customer_id');
         $connection->executeStatement('ALTER TABLE `customer_tag` ADD CONSTRAINT `fk.customer_tag.customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;');
     }
 

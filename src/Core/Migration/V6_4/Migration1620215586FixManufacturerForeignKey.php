@@ -21,7 +21,7 @@ class Migration1620215586FixManufacturerForeignKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.product_manufacturer_id`;');
+        $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.product_manufacturer_id');
         $connection->executeStatement('ALTER TABLE `product` ADD FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE;');
     }
 

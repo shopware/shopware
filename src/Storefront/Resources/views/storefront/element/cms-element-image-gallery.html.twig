@@ -132,7 +132,6 @@
                         data-gallery-slider="true"
                         data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'
                     {% endif %}>
-
                     {% block element_image_gallery_inner_col %}
                         <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
                              {% if zoomModal %}data-zoom-modal="true"{% endif %}>
@@ -181,6 +180,7 @@
                                                                                     {% if image.config.spatial.arReady %}
                                                                                         <div class="ar-button button"
                                                                                              data-spatial-ar-viewer
+                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                                              data-spatial-model-url="{{ image.url }}">
                                                                                             {% sw_icon 'augmented' style {
                                                                                                 'size': 'fluid'
@@ -189,6 +189,19 @@
                                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                     {% endif %}
                                                                                 </div>
+
+                                                                                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                {% block element_image_gallery_qr_code_modal %}
+                                                                                    {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig'
+                                                                                        with {
+                                                                                            "qrCodeOptions": {
+                                                                                                "params": {
+                                                                                                    "autostartAr": image.id
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    %}
+                                                                                {% endblock %}
                                                                             {% elseif image.getMediaType().getName() === 'VIDEO' %}
                                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
@@ -295,6 +308,7 @@
                                                                     {% if image.config.spatial.arReady %}
                                                                         <div class="ar-button button"
                                                                              data-spatial-ar-viewer
+                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                              data-spatial-model-url="{{ image.url }}">
                                                                             {% sw_icon 'augmented' style {
                                                                                 'size': 'fluid'
@@ -303,6 +317,18 @@
                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                     {% endif %}
                                                                 </div>
+                                                                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                {% block element_image_gallery_qr_code_modal_single %}
+                                                                    {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig'
+                                                                        with {
+                                                                        "qrCodeOptions": {
+                                                                            "params": {
+                                                                                "autostartAr": image.id
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    %}
+                                                                {% endblock %}
                                                             {% elseif mediaItems|first.getMediaType().getName() === 'VIDEO' %}
                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
@@ -609,6 +635,7 @@
                                                                                                         {% if image.config.spatial.arReady %}
                                                                                                             <div class="ar-button button mb-2"
                                                                                                                  data-spatial-ar-viewer
+                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                                                                  data-spatial-model-url="{{ image.url }}">
                                                                                                                 {% sw_icon 'augmented' style {
                                                                                                                     'size': 'fluid'
@@ -748,11 +775,4 @@
             {% endif %}
         {% endblock %}
     </div>
-
-    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
-    {% block element_image_gallery_qr_code_modal %}
-        {% if page.product.media.hasSpatialObjects() %}
-            {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig' %}
-        {% endif %}
-    {% endblock %}
 {% endblock %}

@@ -21,16 +21,46 @@ describe('SpatialArViewerPlugin', () => {
 
         document.body.innerHTML = `
             <div data-spatial-ar-viewer
+                 data-spatial-ar-viewer-options='{ "spatialArId": "1" }'
                  data-spatial-model-url="testurl">
             </div>
-            <div class="ar-qr-modal"></div>
+            <div class="ar-qr-modal">
+                <canvas data-ar-model-id="1"></canvas>
+            </div>
+            <div class="ar-qr-modal-open-session">
+                <button class="ar-btn-open-session" data-modal-open-ar-session-autostart="1"></button>
+            </div>
         `;
+
+        window.autostartingARView = null;
+
+        delete window.location;
+        window.location = {
+            ancestorOrigins: null,
+            hash: null,
+            host: 'test.com',
+            port: '80',
+            protocol: 'http:',
+            hostname: 'test.com',
+            href: 'http://test.com?autostartAr=1',
+            origin: 'http://test.com',
+            pathname: null,
+            search: '?autostartAr=1',
+            assign: null,
+            reload: null,
+            replace: null,
+        };
 
         jest.spyOn(SpatialObjectLoaderUtil.prototype, 'loadSingleObjectByUrl').mockReturnValue(Promise.resolve('123'));
         iosQuickLook.mockReturnValue(Promise.resolve('123'));
         supportsAr.mockReturnValue(true);
 
-        SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'));
+        SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
+            spatialArId : "1"
+        });
+        SpatialArViewerPluginObject.model = "1";
+        const modalShowSpy = jest.spyOn(window.bootstrap.Modal.prototype, 'show')
+            .mockReturnValue({});
     });
 
     afterEach(() => {
@@ -38,6 +68,7 @@ describe('SpatialArViewerPlugin', () => {
     });
 
     test('SpatialArViewerPlugin is instantiated', () => {
+        SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'));
         expect(SpatialArViewerPluginObject instanceof SpatialArViewerPlugin).toBe(true);
     });
 
@@ -84,6 +115,18 @@ describe('SpatialArViewerPlugin', () => {
             expect(startWebXRViewSpy).toHaveBeenCalled();
         });
 
+        test('should start AR session if open ar button is clicked', async () => {
+            supportWebXR.mockReturnValue(Promise.resolve(true));
+            SpatialArViewerPluginObject.model = "1";
+            const startARViewSpy = jest.spyOn(SpatialArViewerPluginObject, 'startARView');
+
+            expect(startARViewSpy).not.toHaveBeenCalled();
+
+            document.querySelector('.ar-btn-open-session')?.click();
+
+            expect(startARViewSpy).toHaveBeenCalled();
+        });
+
         test('should call startIOSQuickLook if WebXR is not supported but IOSQuickLook does', async () => {
             supportWebXR.mockReturnValue(Promise.resolve(false));
             supportQuickLook.mockReturnValue(true);
@@ -105,6 +148,15 @@ describe('SpatialArViewerPlugin', () => {
 
             await SpatialArViewerPluginObject.startARView();
 
+            expect(modalShowSpy).toHaveBeenCalled();
+
+            SpatialArViewerPluginObject = await new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
+                spatialArId : "1"
+            });
+
+            modalShowSpy.mockClear()
+
+            await SpatialArViewerPluginObject.startARView();
             expect(modalShowSpy).toHaveBeenCalled();
         });
     });

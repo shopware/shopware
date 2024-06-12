@@ -615,7 +615,9 @@
     "arSupportInFollowingDevices": "Das \"Erweiterte Realität\"-Erlebnis wird von den folgenden Geräten unterstützt:",
     "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
     "moveTheDeviceToStart": "Bewegen Sie das Gerät zum Start",
-    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren"
+    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
+    "openAugmentedRealityView": "Augmented Reality Ansicht öffnen",
+    "openArView": "AR-Ansicht öffnen"
   },
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",

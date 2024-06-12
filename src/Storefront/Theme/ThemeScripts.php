@@ -20,6 +20,8 @@ readonly class ThemeScripts
      * @internal
      */
     public function __construct(
+        private StorefrontPluginRegistryInterface $pluginRegistry,
+        private ThemeFileResolver $themeFileResolver,
         private AbstractThemePathBuilder $themePathBuilder,
         private SystemConfigService $systemConfig,
         private RequestStack $requestStack
@@ -50,7 +52,25 @@ readonly class ThemeScripts
         $themePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
         /** @var array<int, string> $scripts */
-        $scripts = $this->systemConfig->get(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.' . $themePrefix) ?? [];
+        $scripts = $this->systemConfig->get(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.' . $themePrefix);
+        if ($scripts !== null) {
+            return $scripts;
+        }
+        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME, SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME)
+            ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+
+        if ($themeName === null) {
+            return [];
+        }
+        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeName);
+        $resolvedFiles = $this->themeFileResolver->resolveFiles(
+            $themeConfig,
+            $this->pluginRegistry->getConfigurations(),
+            false
+        );
+
+        $scripts = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
+        $this->systemConfig->set(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.' . $themePrefix, $scripts);
 
         return $scripts;
     }

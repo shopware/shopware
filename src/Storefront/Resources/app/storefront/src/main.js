@@ -109,11 +109,11 @@ PluginManager.register('SpatialZoomGallerySliderViewerPlugin', () => import('src
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialArViewerPlugin', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
+PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('PageQrcodeGeneratorPlugin', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
+PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');

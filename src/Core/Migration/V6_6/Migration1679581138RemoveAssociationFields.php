@@ -26,8 +26,6 @@ class Migration1679581138RemoveAssociationFields extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'media_default_folder', 'association_fields')) {
-            $connection->executeStatement('ALTER TABLE `media_default_folder` DROP COLUMN `association_fields`');
-        }
+        $this->dropColumnIfExists($connection, 'media_default_folder', 'association_fields');
     }
 }

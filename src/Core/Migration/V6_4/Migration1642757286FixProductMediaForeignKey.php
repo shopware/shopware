@@ -21,9 +21,7 @@ class Migration1642757286FixProductMediaForeignKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
-            ALTER TABLE `product` DROP FOREIGN KEY `fk.product.product_media_id`
-        ');
+        $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.product_media_id');
     }
 
     public function updateDestructive(Connection $connection): void

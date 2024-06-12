@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -17,8 +18,9 @@ class MigrationStepTest extends TestCase
     public function testDropForeignKey(): void
     {
         $connection = $this->getConnection();
+        $step = $this->getStep();
 
-        $this->getStep()->dropTableIfExists($connection, 'test_table');
+        $step->doDropTableIfExists($connection, 'test_table');
 
         $this->getConnection()->executeStatement(<<<'SQL'
 CREATE TABLE `test_table` (
@@ -31,21 +33,22 @@ ALTER TABLE `test_table`
     ADD CONSTRAINT `fk.test_table.user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 SQL);
 
-        // table does not exists
-        static::assertFalse($this->getStep()->dropForeignKeyIfExists($connection, 'test', 'test'));
-        // column does not exists
-        static::assertFalse($this->getStep()->dropForeignKeyIfExists($connection, 'user', 'test'));
+        // table does not exist
+        static::assertFalse($step->doDropForeignKeyIfExists($connection, 'test', 'test'));
+        // column does not exist
+        static::assertFalse($step->doDropForeignKeyIfExists($connection, 'user', 'test'));
 
-        static::assertTrue($this->getStep()->dropForeignKeyIfExists($connection, 'test_table', 'fk.test_table.user_id'));
+        static::assertTrue($step->doDropForeignKeyIfExists($connection, 'test_table', 'fk.test_table.user_id'));
 
-        $this->getStep()->dropTableIfExists($connection, 'test_table');
+        $step->doDropTableIfExists($connection, 'test_table');
     }
 
     public function testDropIndex(): void
     {
         $connection = $this->getConnection();
+        $step = $this->getStep();
 
-        $this->getStep()->dropTableIfExists($connection, 'test_table');
+        $step->doDropTableIfExists($connection, 'test_table');
 
         $this->getConnection()->executeStatement(<<<'SQL'
 CREATE TABLE `test_table` (
@@ -58,22 +61,98 @@ ALTER TABLE `test_table`
     ADD INDEX `idx.user_id` (`user_id`);
 SQL);
 
-        // table does not exists
-        static::assertFalse($this->getStep()->dropIndexIfExists($connection, 'test', 'test'));
-        // column does not exists
-        static::assertFalse($this->getStep()->dropIndexIfExists($connection, 'user', 'test'));
+        // table does not exist
+        static::assertFalse($step->doDropIndexIfExists($connection, 'test', 'test'));
+        // column does not exist
+        static::assertFalse($step->doDropIndexIfExists($connection, 'user', 'test'));
 
-        static::assertTrue($this->getStep()->dropIndexIfExists($connection, 'test_table', 'idx.user_id'));
+        static::assertTrue($step->doDropIndexIfExists($connection, 'test_table', 'idx.user_id'));
 
-        $this->getStep()->dropTableIfExists($connection, 'test_table');
+        $step->doDropTableIfExists($connection, 'test_table');
     }
 
-    public function getStep(): ExampleStep
+    public function testDropColumn(): void
+    {
+        $connection = $this->getConnection();
+        $step = $this->getStep();
+
+        $step->doDropTableIfExists($connection, 'test_table');
+
+        $this->getConnection()->executeStatement(<<<'SQL'
+CREATE TABLE `test_table` (
+    `id` BINARY(16) NOT NULL,
+    `user_id` BINARY(16) NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL);
+
+        // table does not exist
+        static::assertFalse($step->doDropColumnIfExists($connection, 'test', 'test'));
+
+        // column does not exist
+        static::assertFalse($step->doDropColumnIfExists($connection, 'test_table', 'test'));
+
+        static::assertTrue($step->doDropColumnIfExists($connection, 'test_table', 'user_id'));
+
+        $step->doDropTableIfExists($connection, 'test_table');
+    }
+
+    public function testDropTable(): void
+    {
+        $connection = $this->getConnection();
+        $step = $this->getStep();
+
+        $step->doDropTableIfExists($connection, 'test_table');
+
+        $this->getConnection()->executeStatement(
+            <<<'SQL'
+CREATE TABLE `test_table` (
+    `id` BINARY(16) NOT NULL,
+    `user_id` BINARY(16) NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL
+        );
+
+        $step->doDropTableIfExists($connection, 'test_table');
+
+        static::assertFalse($connection->fetchOne('SHOW TABLES like \'test_table\''));
+    }
+
+    public function testAddColumn(): void
+    {
+        $connection = $this->getConnection();
+        $step = $this->getStep();
+
+        $step->doDropTableIfExists($connection, 'test_table');
+
+        $this->getConnection()->executeStatement(
+            <<<'SQL'
+CREATE TABLE `test_table` (
+    `id` BINARY(16) NOT NULL,
+    `user_id` BINARY(16) NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL
+        );
+
+        static::assertTrue($step->doAddColumn($connection, 'test_table', 'test_column', 'VARCHAR(255)'));
+
+        static::assertFalse($step->doAddColumn($connection, 'test_table', 'test_column', 'VARCHAR(255)'));
+
+        $step->doDropTableIfExists($connection, 'test_table');
+
+        $this->expectException(TableNotFoundException::class);
+        $this->expectExceptionMessageMatches('/SQLSTATE\[42S02\]\: Base table or view not found\: 1146 Table .*foo\' doesn\'t exist/');
+        static::assertTrue($step->doAddColumn($connection, 'foo', 'test_column', 'VARCHAR(255)'));
+    }
+
+    private function getStep(): ExampleStep
     {
         return new ExampleStep();
     }
 
-    public function getConnection(): Connection
+    private function getConnection(): Connection
     {
         return self::getContainer()->get(Connection::class);
     }
@@ -93,25 +172,28 @@ class ExampleStep extends MigrationStep
     {
     }
 
-    public function updateDestructive(Connection $connection): void
+    public function doDropTableIfExists(Connection $connection, string $table): void
     {
+        $this->dropTableIfExists($connection, $table);
     }
 
-    // @phpstan-ignore-next-line
-    public function dropTableIfExists(Connection $connection, string $table): void
+    public function doDropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
     {
-        parent::dropTableIfExists($connection, $table);
+        return $this->dropForeignKeyIfExists($connection, $table, $column);
     }
 
-    // @phpstan-ignore-next-line
-    public function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
+    public function doDropIndexIfExists(Connection $connection, string $table, string $index): bool
     {
-        return parent::dropForeignKeyIfExists($connection, $table, $column);
+        return $this->dropIndexIfExists($connection, $table, $index);
     }
 
-    // @phpstan-ignore-next-line
-    public function dropIndexIfExists(Connection $connection, string $table, string $index): bool
+    public function doDropColumnIfExists(Connection $connection, string $table, string $column): bool
     {
-        return parent::dropIndexIfExists($connection, $table, $index);
+        return $this->dropColumnIfExists($connection, $table, $column);
+    }
+
+    public function doAddColumn(Connection $connection, string $table, string $column, string $type): bool
+    {
+        return $this->addColumn($connection, $table, $column, $type);
     }
 }

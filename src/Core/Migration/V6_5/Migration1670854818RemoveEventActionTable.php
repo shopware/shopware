@@ -23,8 +23,8 @@ class Migration1670854818RemoveEventActionTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TABLE IF EXISTS `event_action_sales_channel`');
-        $connection->executeStatement('DROP TABLE IF EXISTS `event_action_rule`');
-        $connection->executeStatement('DROP TABLE IF EXISTS `event_action`');
+        $this->dropTableIfExists($connection, 'event_action_sales_channel');
+        $this->dropTableIfExists($connection, 'event_action_rule');
+        $this->dropTableIfExists($connection, 'event_action');
     }
 }

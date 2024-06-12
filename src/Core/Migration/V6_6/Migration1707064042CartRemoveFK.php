@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1707064042CartRemoveFK extends MigrationStep
 {
-    private const FK_DROPS = [
+    private const OBSOLETE_FOREIGN_KEYS = [
         'fk.cart.country_id',
         'fk.cart.currency_id',
         'fk.cart.payment_method_id',
@@ -21,7 +21,7 @@ class Migration1707064042CartRemoveFK extends MigrationStep
         'fk.cart.customer_id',
     ];
 
-    private const USELESS_COLUMNS = [
+    private const OBSOLETE_COLUMNS = [
         'price',
         'line_item_count',
         'currency_id',
@@ -40,20 +40,12 @@ class Migration1707064042CartRemoveFK extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        foreach (self::FK_DROPS as $fk) {
-            try {
-                $connection->executeStatement(sprintf('ALTER TABLE `cart` DROP FOREIGN KEY `%s`', $fk));
-            } catch (\Exception) {
-                // it's fine that the FK has been already deleted
-            }
+        foreach (self::OBSOLETE_FOREIGN_KEYS as $fk) {
+            $this->dropForeignKeyIfExists($connection, 'cart', $fk);
         }
 
-        foreach (self::FK_DROPS as $fk) {
-            try {
-                $connection->executeStatement(sprintf('ALTER TABLE `cart` DROP INDEX `%s`', $fk));
-            } catch (\Exception) {
-                // it's fine that the index has been already deleted
-            }
+        foreach (self::OBSOLETE_FOREIGN_KEYS as $fk) {
+            $this->dropIndexIfExists($connection, 'cart', $fk);
         }
 
         try {
@@ -94,12 +86,8 @@ class Migration1707064042CartRemoveFK extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        foreach (self::USELESS_COLUMNS as $column) {
-            try {
-                $connection->executeStatement(sprintf('ALTER TABLE `cart` DROP COLUMN `%s`', $column));
-            } catch (\Exception) {
-                // it's fine that the column has been already deleted
-            }
+        foreach (self::OBSOLETE_COLUMNS as $column) {
+            $this->dropColumnIfExists($connection, 'cart', $column);
         }
     }
 }

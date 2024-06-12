@@ -3,6 +3,7 @@ import { test } from '@fixtures/AcceptanceTest';
 test('Shop administrator should be able to upload an image to the product gallery within a product. @product' , async ({
     ShopAdmin,
     AdminProductDetail,
+    ProductData,
     UploadImage,
     SaveProduct,
     IdProvider,
@@ -11,7 +12,7 @@ test('Shop administrator should be able to upload an image to the product galler
     const imageId = IdProvider.getIdPair().id;
     const imageName = `image-${ imageId }`;
 
-    await ShopAdmin.goesTo(AdminProductDetail);
+    await ShopAdmin.goesTo(AdminProductDetail.url(ProductData.id));
     await ShopAdmin.attemptsTo(UploadImage(imageName));
     await ShopAdmin.attemptsTo(SaveProduct());
 

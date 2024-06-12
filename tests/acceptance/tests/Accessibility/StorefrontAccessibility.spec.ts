@@ -9,6 +9,7 @@ test('The Storefront should implement accessibility best practices. @accessibili
     ConfirmTermsAndConditions,
     SubmitOrder,
     ProductData,
+    CategoryData,
     StorefrontProductDetail,
     StorefrontCategory,
     StorefrontAccountLogin,
@@ -21,29 +22,29 @@ test('The Storefront should implement accessibility best practices. @accessibili
 }) => {
 
     await test.step('Login Page Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountLogin);
+        await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Login', false));
     });
 
     await test.step('Account Page Accessibility', async () => {
         await ShopCustomer.attemptsTo(Login());
-        await ShopCustomer.goesTo(StorefrontAccount);
+        await ShopCustomer.goesTo(StorefrontAccount.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account', false));
     });
 
     await test.step('Category Page Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontCategory);
+        await ShopCustomer.goesTo(StorefrontCategory.url(CategoryData.id));
         await ShopCustomer.attemptsTo(ValidateAccessibility('Category', false));
     });
 
     await test.step('Product Detail Page Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontProductDetail);
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
         await ShopCustomer.attemptsTo(ValidateAccessibility('Product', false));
     });
 
     await test.step('Cart Page Accessibility', async () => {
         await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '5'));
-        await ShopCustomer.goesTo(StorefrontCheckoutCart);
+        await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Cart', false));
     });
 
@@ -58,22 +59,22 @@ test('The Storefront should implement accessibility best practices. @accessibili
     });
 
     await test.step('Account Order Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountOrder);
+        await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Order', false));
     });
 
     await test.step('Account Profile Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountProfile);
+        await ShopCustomer.goesTo(StorefrontAccountProfile.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Profile', false));
     });
 
     await test.step('Account Addresses Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountAddresses);
+        await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', false));
     });
 
     await test.step('Account Payment Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountPayment);
+        await ShopCustomer.goesTo(StorefrontAccountPayment.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Payment', false));
     });
 });

@@ -179,6 +179,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
@@ -231,6 +232,7 @@ class RecalculationServiceTest extends TestCase
             $productRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $this->createMock(Processor::class),
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
@@ -267,6 +269,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $this->orderConverter,
             $this->createMock(CartService::class),
+            $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,
@@ -324,6 +327,7 @@ class RecalculationServiceTest extends TestCase
             $productRepository,
             $entityRepository,
             $entityRepository,
+            $entityRepository,
             $processor,
             $this->cartRuleLoader,
             $this->createMock(PromotionItemBuilder::class)
@@ -362,6 +366,7 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $this->orderConverter,
             $this->createMock(CartService::class),
+            $entityRepository,
             $entityRepository,
             $entityRepository,
             $entityRepository,

@@ -732,12 +732,13 @@ class RecalculationServiceTest extends TestCase
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)
             ->get($orderId);
 
-        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
             static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
         )->first();
 
@@ -751,21 +752,21 @@ class RecalculationServiceTest extends TestCase
                 ProductCartProcessor::KEEP_INACTIVE_PRODUCT => false,
             ],
         ];
-        
+
         // Act
         $this->getContainer()->get(RecalculationService::class)->recalculateOrder($orderId, $versionContext, $options);
 
         // Assert
-        /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $versionContext)
             ->get($orderId);
 
-        $lineItemWithInactiveProduct = $order->getLineItems()->filter(
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $lineItemWithInactiveProduct = $order->getLineItems()?->filter(
             static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $inactiveProductId
         )->first();
 
-        static::assertNotNull($order);
         static::assertNull($lineItemWithInactiveProduct);
     }
 

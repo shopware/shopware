@@ -3,8 +3,11 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -18,7 +21,9 @@ readonly class ThemeScripts
     public function __construct(
         private StorefrontPluginRegistryInterface $pluginRegistry,
         private ThemeFileResolver $themeFileResolver,
-        private RequestStack $requestStack
+        private RequestStack $requestStack,
+        private AbstractThemePathBuilder $themePathBuilder,
+        private CacheInterface $cache
     ) {
     }
 
@@ -36,22 +41,29 @@ readonly class ThemeScripts
         $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME, SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME)
             ?? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
 
-        if ($themeName === null) {
+        $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
+
+        if ($themeName === null || $themeId === null) {
             return [];
         }
 
-        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeName);
+        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $path = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
-        if ($themeConfig === null) {
-            return [];
-        }
+        return $this->cache->get('theme_scripts_' . $path, function (ItemInterface $item) use ($themeName) {
+            $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeName);
 
-        $resolvedFiles = $this->themeFileResolver->resolveFiles(
-            $themeConfig,
-            $this->pluginRegistry->getConfigurations(),
-            false
-        );
+            if ($themeConfig === null) {
+                return [];
+            }
 
-        return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
+            $resolvedFiles = $this->themeFileResolver->resolveFiles(
+                $themeConfig,
+                $this->pluginRegistry->getConfigurations(),
+                false
+            );
+
+            return $resolvedFiles[ThemeFileResolver::SCRIPT_FILES]->getPublicPaths('js');
+        });
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Maker\Command;
+namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[Package('content')]
+#[Package('core')]
 class MakerCommand extends Command
 {
     public function __construct(
@@ -56,6 +56,7 @@ class MakerCommand extends Command
 
             $value = $io->ask($argument->getDescription(), null, function ($value) {
                 if ($value === null || $value === '') {
+                    // @phpstan-ignore-next-line RuntimeException is fine in console IO validators
                     throw new \RuntimeException('This value should not be blank');
                 }
 
@@ -73,7 +74,7 @@ class MakerCommand extends Command
         try {
             $pluginName = $input->getArgument('plugin-name');
 
-            if ($pluginName === null) {
+            if ($pluginName === null || $pluginName === '') {
                 $io->error('Plugin name is required');
 
                 return self::FAILURE;
@@ -89,7 +90,6 @@ class MakerCommand extends Command
                 return self::FAILURE;
             }
 
-            /** @var class-string $classString */
             $classString = $plugin->getBaseClass();
 
             $ref = new \ReflectionClass($classString);

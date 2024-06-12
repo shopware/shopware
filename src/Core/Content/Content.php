@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content;
 
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
-use Shopware\Core\Content\Maker\DependencyInjection\CompilerPass\CreateGeneretorScafoldingCommandPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
@@ -42,9 +41,7 @@ class Content extends Bundle
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
-        $loader->load('maker.xml');
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new CreateGeneretorScafoldingCommandPass());
     }
 }

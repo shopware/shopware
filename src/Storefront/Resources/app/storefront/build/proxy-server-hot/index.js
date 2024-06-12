@@ -7,7 +7,7 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
-module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
+module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri, socketPath }) {
     const proxyUrl = proxyPort !== 80 && proxyPort !== 443 ? `${proxyHost}:${proxyPort}`: proxyHost;
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
@@ -23,7 +23,7 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
             const requestHost = client_req.hostname || client_req.headers.host;
             if (requestHost.split(':')[0] !== proxyHost) {
                 //noinspection ExceptionCaughtLocallyJS
-                throw 'Rejecting request "' + client_req.method + ' ' + proxyHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
+                throw 'Rejecting request "' + client_req.method + ' ' + requestHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
             }
 
             const requestOptions = {
@@ -41,15 +41,14 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
 
             // Assets
             if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
-                requestOptions.host = '127.0.0.1';
-                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
-                requestOptions.path = requestOptions.path.substr(20);
+                requestOptions.path = requestOptions.path.substring(20);
+                requestOptions.socketPath = socketPath;
             }
 
             // Hot reload updates
-            if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
-                requestOptions.host = '127.0.0.1';
-                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+            if (client_req.url.indexOf('/__webpack_ws/') === 0) {
+                requestOptions.path = '/ws/' + requestOptions.path.substring(14);
+                requestOptions.socketPath = socketPath;
             }
 
             // pipe a new request to the client request
@@ -113,9 +112,7 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
         const responseBody = responseData
             .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
             // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`)
-            // Replace json_encoded urls in data attributes ie `dataurl`, `filterUrl` @see https://regex101.com/r/4DZTJP/1/
-            .replace(/http[s]?\:(\\\\\/|\\\/)*[\w\.]*(\:\d*)?(\\\\\/|\\\/)widgets/gm,'/widgets');
+            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`);
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

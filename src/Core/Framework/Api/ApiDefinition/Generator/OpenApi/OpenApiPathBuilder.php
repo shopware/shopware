@@ -14,11 +14,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('core')]
 class OpenApiPathBuilder
 {
     private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
+
+    private CamelCaseToSnakeCaseNameConverter $converter;
+
+    /**
+     * @internal
+     */
+    public function __construct()
+    {
+        $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
+    }
 
     /**
      * @return PathItem[]
@@ -461,7 +472,7 @@ class OpenApiPathBuilder
 
     private function getResponseDataParameter(): Parameter
     {
-        $responseDataParameter = new Parameter([
+        return new Parameter([
             'name' => '_response',
             'in' => 'query',
             'schema' => [
@@ -470,26 +481,22 @@ class OpenApiPathBuilder
             'allowEmptyValue' => true,
             'description' => 'Data format for response. Empty if none is provided.',
         ]);
-
-        return $responseDataParameter;
     }
 
     private function getIdParameter(EntityDefinition $definition): Parameter
     {
-        $idParameter = new Parameter([
+        return new Parameter([
             'name' => 'id',
             'in' => 'path',
             'schema' => ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$'],
             'description' => 'Identifier for the ' . $definition->getEntityName(),
             'required' => true,
         ]);
-
-        return $idParameter;
     }
 
     private function snakeCaseToCamelCase(string $input): string
     {
-        return str_replace('_', '', ucwords($input, '_'));
+        return $this->converter->denormalize($input);
     }
 
     private function isExperimental(EntityDefinition $definition): bool

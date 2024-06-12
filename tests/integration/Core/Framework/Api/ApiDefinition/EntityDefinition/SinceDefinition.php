@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition;
+namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;

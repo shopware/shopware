@@ -302,6 +302,8 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">

@@ -19,7 +19,7 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
 
     await ShopCustomer.attemptsTo(Login());
 
-    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
         `${ProductData.translated.name} | ${ProductData.productNumber}`
     );

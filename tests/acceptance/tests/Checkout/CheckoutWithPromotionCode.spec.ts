@@ -20,7 +20,7 @@ test('Registered shop customer should be able to use promotion code during check
 
     await ShopCustomer.attemptsTo(Login());
 
-    await ShopCustomer.goesTo(StorefrontCheckoutCart);
+    await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
 
     // Value of test product with price of €10 and quantity of 10.
     await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toHaveText('€100.00*');

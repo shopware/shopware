@@ -52,7 +52,8 @@
     "next": "Nächstes",
     "previous": "Vorheriges",
     "formSubmit": "Absenden",
-    "listPricePreviously": "vorher %price%"
+    "listPricePreviously": "vorher %price%",
+    "skipToContentLink": "Zum Hauptinhalt springen"
   },
   "header": {
     "logoLink": "Zur Startseite gehen",

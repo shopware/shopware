@@ -211,6 +211,11 @@ class TestExtensionDefinition extends EntityDefinition
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
         ]);
     }
+
+    public function since(): ?string
+    {
+        return '6.4.3.0';
+    }
 }
 
 /**

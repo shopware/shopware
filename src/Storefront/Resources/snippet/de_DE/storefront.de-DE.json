@@ -612,12 +612,12 @@
   },
   "spatial": {
     "scanQrCode": "QR-Code scannen",
-    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um den Artikel im \"Erweiterte Realität\"-Modus anzuzeigen",
-    "arSupportInFollowingDevices": "Das \"Erweiterte Realität\"-Erlebnis wird von den folgenden Geräten unterstützt:",
+    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um das Produkt im Modus \"Augmented Reality\" anzuzeigen",
+    "arSupportInFollowingDevices": "Das \"Augmented-Reality-Erlebnis\" wird von den folgenden Geräten unterstützt:",
     "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
-    "moveTheDeviceToStart": "Bewegen Sie das Gerät zum Start",
+    "moveTheDeviceToStart": "Bewegen Sie das Gerät, um zu beginnen",
     "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren",
-    "openAugmentedRealityView": "Augmented Reality Ansicht öffnen",
+    "openAugmentedRealityView": "Augmented-Reality-Ansicht öffnen",
     "openArView": "AR-Ansicht öffnen"
   },
   "wishlist": {

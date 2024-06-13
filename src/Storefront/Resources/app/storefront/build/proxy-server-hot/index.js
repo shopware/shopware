@@ -112,7 +112,8 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
         const responseBody = responseData
             .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
             // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`);
+            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`)
+            .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\(\'XDEBUG_IGNORE\'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'')
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

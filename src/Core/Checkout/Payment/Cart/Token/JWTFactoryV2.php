@@ -81,10 +81,6 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token);
         }
 
-        if (!$this->has($token)) {
-            throw PaymentException::tokenInvalidated($token);
-        }
-
         $errorUrl = $jwtToken->claims()->get('eul');
 
         /** @var \DateTimeImmutable $expires */
@@ -97,7 +93,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             $jwtToken->claims()->get('sub'),
             $jwtToken->claims()->get('ful'),
             $expires->getTimestamp(),
-            $errorUrl
+            $errorUrl,
+            !$this->has($token),
         );
     }
 

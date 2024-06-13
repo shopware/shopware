@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
@@ -141,6 +142,22 @@ class PaymentService
 
         $transaction = $this->getPaymentTransactionStruct($transactionId, $context);
 
+        if ($token->isInvalidated()) {
+            // Token was already handled
+            // Check current state of the transaction to determine if we need to throw an exception
+            $stateName = $transaction->getOrderTransaction()->getStateMachineState()->getTechnicalName();
+            if ($stateName === OrderTransactionStates::STATE_PAID  || $stateName === OrderTransactionStates::STATE_PARTIALLY_PAID) {
+                return $token;
+            }
+
+            if ($stateName === OrderTransactionStates::STATE_FAILED || $stateName === OrderTransactionStates::STATE_CANCELLED) {
+                $token->setException(PaymentException::tokenInvalidated($paymentToken));
+                return $token;
+            }
+
+            throw PaymentException::tokenInvalidated($paymentToken);
+        }
+
         $paymentHandler = $this->getPaymentHandlerById($token->getPaymentMethodId());
 
         try {
@@ -178,6 +195,7 @@ class PaymentService
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->setTitle('payment-service::load-transaction');
         $criteria->addAssociation('order');
+        $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
 
         $this->eventDispatcher->dispatch(new FinalizePaymentOrderTransactionCriteriaEvent($orderTransactionId, $criteria, $context));

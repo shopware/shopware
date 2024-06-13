@@ -50,6 +50,11 @@ class TokenStruct extends Struct
      */
     protected $expires;
 
+    /**
+     * @var bool
+     */
+    protected bool $invalidated;
+
     public function __construct(
         ?string $id = null,
         ?string $token = null,
@@ -57,7 +62,8 @@ class TokenStruct extends Struct
         ?string $transactionId = null,
         ?string $finishUrl = null,
         ?int $expires = null,
-        ?string $errorUrl = null
+        ?string $errorUrl = null,
+        bool $invalidated = false,
     ) {
         $this->id = $id;
         $this->token = $token;
@@ -66,6 +72,7 @@ class TokenStruct extends Struct
         $this->finishUrl = $finishUrl;
         $this->expires = $expires ?? 1800;
         $this->errorUrl = $errorUrl;
+        $this->invalidated = $invalidated;
     }
 
     public function getId(): ?string
@@ -111,6 +118,11 @@ class TokenStruct extends Struct
     public function isExpired(): bool
     {
         return $this->expires < time();
+    }
+
+    public function isInvalidated(): bool
+    {
+        return $this->invalidated;
     }
 
     /**

@@ -41,14 +41,6 @@ Build:
     - when: always
   before_script: []
   script:
-    - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
-    - >
-      if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-          PLATFORM_VERSION='6.6.99.99'
-      else
-          PLATFORM_VERSION="${LATEST_TAG#"v"}"
-      fi
-    - composer config version "$PLATFORM_VERSION"
     - !reference [.scripts, init, composer]
     - bin/console debug:container --parameter 'kernel.shopware_version'
     - mkdir -p config/jwt custom/plugins || true

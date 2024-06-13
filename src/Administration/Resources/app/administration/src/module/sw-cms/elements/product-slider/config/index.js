@@ -95,37 +95,6 @@ export default {
                 value: 'cheapestPrice:DESC',
             }];
         },
-
-        productStreamCriteria() {
-            const criteria = new Criteria(1, 10);
-            const sorting = this.element.config.productStreamSorting.value;
-
-            if (!sorting || sorting === 'random') {
-                return criteria;
-            }
-
-            const field = sorting.split(':')[0];
-            const direction = sorting.split(':')[1];
-
-            criteria.addSorting(Criteria.sort(field, direction, false));
-
-            return criteria;
-        },
-
-        productStreamPreviewColumns() {
-            return [
-                {
-                    property: 'name',
-                    label: this.$tc('sw-category.base.products.columnNameLabel'),
-                    dataIndex: 'name',
-                    sortable: false,
-                }, {
-                    property: 'manufacturer.name',
-                    label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
-                    sortable: false,
-                },
-            ];
-        },
     },
 
     created() {

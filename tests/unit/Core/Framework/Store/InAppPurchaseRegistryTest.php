@@ -1,24 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
+namespace Shopware\Tests\Unit\Core\Framework\Store;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\InAppPurchaseCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Shopware\Core\Framework\Store\InAppPurchaseRegistry;
 
 /**
  * @internal
  */
-#[CoversClass(InAppPurchaseCompilerPass::class)]
+#[CoversClass(InAppPurchaseRegistry::class)]
 #[Package('checkout')]
-class InAppPurchaseCompilerPassTest extends TestCase
+class InAppPurchaseRegistryTest extends TestCase
 {
-    protected function setUp(): void
+    protected function tearDown(): void
     {
         InAppPurchase::reset();
     }
@@ -35,15 +34,8 @@ class InAppPurchaseCompilerPassTest extends TestCase
                 'active-feature-3' => 'extension-2',
             ]);
 
-        $builder = $this->createMock(ContainerBuilder::class);
-        $builder
-            ->expects(static::once())
-            ->method('get')
-            ->with(Connection::class)
-            ->willReturn($connection);
-
-        $compilerPass = new InAppPurchaseCompilerPass();
-        $compilerPass->process($builder);
+        $registry = new InAppPurchaseRegistry($connection);
+        $registry->register();
 
         static::assertTrue(InAppPurchase::isActive('active-feature-1'));
         static::assertTrue(InAppPurchase::isActive('active-feature-2'));
@@ -64,15 +56,8 @@ class InAppPurchaseCompilerPassTest extends TestCase
             ->method('fetchAllKeyValue')
             ->willThrowException(new ConnectionException());
 
-        $builder = $this->createMock(ContainerBuilder::class);
-        $builder
-            ->expects(static::once())
-            ->method('get')
-            ->with(Connection::class)
-            ->willReturn($connection);
-
-        $compilerPass = new InAppPurchaseCompilerPass();
-        $compilerPass->process($builder);
+        $registry = new InAppPurchaseRegistry($connection);
+        $registry->register();
 
         static::assertEmpty(InAppPurchase::all());
     }

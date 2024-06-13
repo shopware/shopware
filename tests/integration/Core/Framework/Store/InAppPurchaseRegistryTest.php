@@ -1,24 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DependencyInjection\CompilerPass;
+namespace Shopware\Tests\Integration\Core\Framework\Store;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\InAppPurchaseCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Store\InAppPurchaseRegistry;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(InAppPurchaseCompilerPass::class)]
-class InAppPurchaseCompilerPassTest extends TestCase
+#[CoversClass(InAppPurchaseRegistry::class)]
+class InAppPurchaseRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -32,7 +31,7 @@ class InAppPurchaseCompilerPassTest extends TestCase
         $this->setUpExtensions();
     }
 
-    public function testCompilerPass(): void
+    public function testRegister(): void
     {
         $expiresAt = (new \DateTime())->add(new \DateInterval('P1D'));
 
@@ -68,7 +67,8 @@ class InAppPurchaseCompilerPassTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->compile();
+        $registry = new InAppPurchaseRegistry($this->getContainer()->get(Connection::class));
+        $registry->register();
 
         static::assertTrue(InAppPurchase::isActive('active-app-feature'));
         static::assertFalse(InAppPurchase::isActive('inactive-app-feature'));
@@ -78,14 +78,6 @@ class InAppPurchaseCompilerPassTest extends TestCase
         static::assertSame(['active-app-feature', 'active-plugin-feature'], InAppPurchase::all());
         static::assertSame(['active-app-feature'], InAppPurchase::getByExtension($this->ids->get('app')));
         static::assertSame(['active-plugin-feature'], InAppPurchase::getByExtension($this->ids->get('plugin')));
-    }
-
-    private function compile(): void
-    {
-        $container = new ContainerBuilder();
-        $container->set(Connection::class, $this->getContainer()->get(Connection::class));
-        $container->addCompilerPass(new InAppPurchaseCompilerPass());
-        $container->compile();
     }
 
     private function setUpExtensions(): void

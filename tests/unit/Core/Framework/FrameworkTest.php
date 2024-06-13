@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\Store\InAppPurchaseRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -31,6 +32,7 @@ class FrameworkTest extends TestCase
         $registry->expects(static::once())->method('register');
 
         $container->set(FeatureFlagRegistry::class, $registry);
+        $container->set(InAppPurchaseRegistry::class, $this->createMock(InAppPurchaseRegistry::class));
         $container->set(DefinitionInstanceRegistry::class, $this->createMock(DefinitionInstanceRegistry::class));
         $container->set(SalesChannelDefinitionInstanceRegistry::class, $this->createMock(SalesChannelDefinitionInstanceRegistry::class));
         $container->set(ExtensionRegistry::class, $this->createMock(ExtensionRegistry::class));

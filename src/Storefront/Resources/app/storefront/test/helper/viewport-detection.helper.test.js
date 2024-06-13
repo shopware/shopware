@@ -24,8 +24,10 @@ describe('viewport-detection.helper', () => {
     beforeEach(() => {
         window.getComputedStyle = jest.fn(() => {
             return {
-                content: getContent(),
-            };
+                getPropertyValue: jest.fn(() => {
+                    return getContent();
+                }),
+            }
         });
     });
 

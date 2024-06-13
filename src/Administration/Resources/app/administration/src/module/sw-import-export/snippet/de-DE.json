@@ -229,6 +229,9 @@
             "startImportLabel": "Import starten",
             "startImportDryrunLabel": "Testlauf starten",
             "startExportLabel": "Export starten"
+        },
+        "errors": {
+            "CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME": "Der technische Name ist nicht eindeutig."
         }
     },
   "sw-privileges": {

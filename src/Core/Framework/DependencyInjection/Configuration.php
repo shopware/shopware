@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createDompdfSection())
                 ->append($this->createStockSection())
                 ->append($this->createUsageDataSection())
+                ->append($this->createMessengerSection())
             ->end();
 
         return $treeBuilder;
@@ -788,6 +789,22 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ->end();
+
+        return $rootNode;
+    }
+
+    private function createMessengerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('messenger');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('routing_overwrite')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end();
 
         return $rootNode;
     }

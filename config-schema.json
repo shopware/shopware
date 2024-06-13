@@ -99,6 +99,9 @@
                 "stock": {
                     "$ref": "#/definitions/stock"
                 },
+                "messenger": {
+                    "$ref": "#/definitions/messenger"
+                },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
                 }
@@ -179,6 +182,20 @@
                 "enable_stock_management": {
                     "type": "boolean",
                     "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
+                }
+            }
+        },
+        "messenger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "routing_overwrite": {
+                    "type": "array",
+                    "title": "Allows to overwrite the routing configuration of the messenger component",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

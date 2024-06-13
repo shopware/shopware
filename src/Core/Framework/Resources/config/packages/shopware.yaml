@@ -526,3 +526,6 @@ shopware:
             dispatch_enabled: true
             base_uri: 'https://data.shopware.io'
             batch_size: 50
+
+    messenger:
+        routing_overwrite:

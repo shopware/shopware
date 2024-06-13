@@ -353,7 +353,7 @@ class AddressControllerTest extends TestCase
                 static::assertArrayHasKey('messages', $data);
 
                 static::assertFalse($data['success']);
-                static::assertEquals($data['messages']['type'], 'danger');
+                static::assertSame('danger', $data['messages']['type']);
             },
             0,
             true

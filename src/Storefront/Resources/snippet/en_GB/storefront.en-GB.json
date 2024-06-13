@@ -69,6 +69,7 @@
     "VIOLATION::IS_BLANK_ERROR": "Input should not be empty.",
     "VIOLATION::TOO_LOW_ERROR": "Input should not be empty.",
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Input is invalid",
+    "VIOLATION::TOO_LONG_ERROR": "Input must be {{ limit }} characters or fewer",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",

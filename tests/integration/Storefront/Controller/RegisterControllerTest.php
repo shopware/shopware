@@ -368,8 +368,9 @@ class RegisterControllerTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'storefrontUrl' => 'http://localhost',
-
             'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
                 'countryId' => $this->getValidCountryId(),
                 'street' => 'Musterstrasse 13',
                 'zipcode' => '48599',
@@ -423,6 +424,7 @@ class RegisterControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->getEntities()->first();
+
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $product = [

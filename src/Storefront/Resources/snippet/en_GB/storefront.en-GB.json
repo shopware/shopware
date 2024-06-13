@@ -612,8 +612,8 @@
   },
   "spatial": {
     "scanQrCode": "Scan QR-Code",
-    "pointToQrCode": "Point the mobile device at the QR code to display the item in \"Augmented Reality\"-mode",
-    "arSupportInFollowingDevices": "The \"Augmented Reality\" experience is supported on the following devices:",
+    "pointToQrCode": "Point the mobile device at the QR code to display the product in \"Augmented Reality\" mode",
+    "arSupportInFollowingDevices": "The \"Augmented Reality experience\" is supported on the following devices:",
     "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
     "moveTheDeviceToStart": "Move the device to start",
     "tapToPlaceTheObject": "Tap to place the object",

@@ -1,6 +1,6 @@
 ---
 title: Fix cms form data not cleared from localstorage after submission
-issue: 00000
+issue: NEXT-36738
 author: Paik Paustian
 author_email: mail@paik.dev
 author_github: hype09

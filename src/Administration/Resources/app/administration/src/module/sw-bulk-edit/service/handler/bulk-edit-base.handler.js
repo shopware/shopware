@@ -476,7 +476,11 @@ class BulkEditBaseHandler {
             }
         });
 
-        if (existAssociations.total > Object.keys(mappedExistAssociations).length) {
+        // Associations at key can be more than one, so they must be counted properly
+        const mappedExistAssociationsLen =
+            Object.keys(mappedExistAssociations).reduce((acc, key) => acc + mappedExistAssociations[key].length, 0);
+
+        if (existAssociations.total > mappedExistAssociationsLen) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 

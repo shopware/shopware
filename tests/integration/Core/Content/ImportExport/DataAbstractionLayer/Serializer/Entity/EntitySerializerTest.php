@@ -1,12 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serializer\Entity;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
-use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -56,26 +59,7 @@ class EntitySerializerTest extends TestCase
         /** @var EntityDefinition $productDefinition */
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
-        [$expectedData, $importData] = require __DIR__ . '/../../../fixtures/ensure_ids_for_products.php';
-
-        $serializer = new EntitySerializer();
-        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
-        $serializer->setRegistry($serializerRegistry);
-        $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
-        $return = \is_array($return) ? $return : iterator_to_array($return);
-
-        static::assertSame($expectedData, $return);
-    }
-
-    public function testEnsureIdFieldsWithInvalidCharacter(): void
-    {
-        static::expectExceptionObject(new InvalidIdentifierException('invalid|string_with_pipe'));
-
-        /** @var EntityDefinition $productDefinition */
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
-
-        [$expectedData, $importData] = require __DIR__ . '/../../../fixtures/ensure_ids_for_products.php';
-        $importData['id'] = 'invalid|string_with_pipe';
+        [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
 
         $serializer = new EntitySerializer();
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
@@ -91,7 +75,7 @@ class EntitySerializerTest extends TestCase
         /** @var EntityDefinition $productDefinition */
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
-        [$expectedData, $importData] = require __DIR__ . '/../../../fixtures/ensure_ids_for_products.php';
+        [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
         $importData['tax'] = [
             'id' => Uuid::randomHex(),
         ];
@@ -116,6 +100,72 @@ class EntitySerializerTest extends TestCase
         $return = \is_array($return) ? $return : iterator_to_array($return);
 
         static::assertSame($expectedData, $return);
+    }
+
+    /**
+     * @param array{0: array<string, string>, 1: string} $value
+     */
+    #[DataProvider('brokenValues')]
+    public function testDeserializeShouldAddErrorColumn(array $value, string $expectedErrorMessage): void
+    {
+        $mapping = new MappingCollection([
+            new Mapping('id', 'id'),
+            new Mapping('active', 'active'),
+            new Mapping('stock', 'stock'),
+            new Mapping('variant_restrictions', 'variantRestrictions'),
+            new Mapping('release_date', 'releaseDate'),
+        ]);
+
+        $entity = \array_merge([
+            'id' => Uuid::randomHex(),
+            'active' => 'true',
+            'stock' => '10',
+            'variantRestrictions' => '{}',
+            'releaseDate' => '2021-03-05',
+        ], $value);
+
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+
+        $entitySerializer = new EntitySerializer();
+        $entitySerializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
+
+        $result = $entitySerializer->deserialize(new Config($mapping, [], []), $productDefinition, $entity);
+        $result = \is_array($result) ? $result : iterator_to_array($result);
+
+        static::assertArrayHasKey('_error', $result);
+        static::assertInstanceOf(ImportExportException::class, $result['_error']);
+        static::assertSame($expectedErrorMessage, $result['_error']->getMessage());
+    }
+
+    /**
+     * @return iterable<array{0: array<string, string>, 1: string}>
+     */
+    public static function brokenValues(): iterable
+    {
+        yield 'invalid Uuid' => [
+            ['id' => '1ab98a64fcb64d|2cb08321a122deacc1'],
+            'Deserialization failed for field "id" with value "1ab98a64fcb64d|2cb08321a122deacc1" to type "uuid"',
+        ];
+
+        yield 'invalid Boolean' => [
+            ['active' => 'invalidBoolean'],
+            'Deserialization failed for field "active" with value "invalidBoolean" to type "boolean"',
+        ];
+
+        yield 'invalid Integer' => [
+            ['stock' => 'asd12asd'],
+            'Deserialization failed for field "stock" with value "asd12asd" to type "integer"',
+        ];
+
+        yield 'invalid JSON' => [
+            ['variantRestrictions' => '{"key": "value"'],
+            'Deserialization failed for field "variantRestrictions" with value "{"key": "value"" to type "json"',
+        ];
+
+        yield 'invalid Date' => [
+            ['releaseDate' => '2024-02-39'],
+            'Deserialization failed for field "releaseDate" with value "2024-02-39" to type "date"',
+        ];
     }
 
     public function testEntityExtensionSerialization(): void

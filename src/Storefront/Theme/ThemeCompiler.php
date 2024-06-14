@@ -234,7 +234,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $distPath = $configuration->getBasePath();
             $isVendor = str_contains($configuration->getBasePath(), 'vendor/');
             $isTechnicalName = str_contains($configuration->getBasePath(), $configuration->getTechnicalName());
-            if (!$isVendor && !$isTechnicalName) {
+            if (!$isVendor && !$isTechnicalName && !is_dir($distPath)) {
                 $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
                 $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
             }

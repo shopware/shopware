@@ -41,6 +41,7 @@ class AttributeEntityDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $fields = [];
+
         foreach ($this->meta['fields'] as $field) {
             if (!isset($field['class'])) {
                 continue;

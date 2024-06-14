@@ -75,6 +75,7 @@ class AttributeEntityCompiler
         ManyToMany::class,
         ManyToOne::class,
         OneToOne::class,
+        ReferenceVersion::class,
     ];
 
     private const ASSOCIATIONS = [
@@ -292,6 +293,10 @@ class AttributeEntityCompiler
             }
         }
 
+        if ($this->getAttribute($property, ReferenceVersion::class)) {
+            $flags[Required::class] = ['class' => Required::class];
+        }
+
         if ($association = $this->getAttribute($property, ...self::ASSOCIATIONS)) {
             $association = $association->newInstance();
 
@@ -301,6 +306,10 @@ class AttributeEntityCompiler
                 OnDelete::RESTRICT => ['class' => RestrictDelete::class],
                 default => null
             };
+
+            if ($flags['cascade'] === null) {
+                unset($flags['cascade']);
+            }
         }
 
         if ($field->type === AutoIncrement::TYPE) {

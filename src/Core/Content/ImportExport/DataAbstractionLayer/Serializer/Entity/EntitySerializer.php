@@ -63,7 +63,11 @@ class EntitySerializer extends AbstractEntitySerializer
             }
 
             $serializer = $this->serializerRegistry->getFieldSerializer($field);
-            $value = $serializer->deserialize($config, $field, $value);
+            try {
+                $value = $serializer->deserialize($config, $field, $value);
+            } catch (\Throwable $e) {
+                yield '_error' => $e;
+            }
 
             if ($value === null) {
                 continue;

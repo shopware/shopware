@@ -275,6 +275,14 @@ class EntityForeignKeyResolver
             $pk = $primaryKeys->first();
             $property = $pk->getPropertyName();
             $affected = array_column($affected, $property);
+
+            // prevent infinite loop when entity points to itself
+            if ($root === $association->getReferenceDefinition()) {
+                $flatIds = array_column($ids, $property);
+
+                /** @var list<string> $affected */
+                $affected = array_diff($affected, $flatIds);
+            }
         }
 
         // prevent circular reference for many to many

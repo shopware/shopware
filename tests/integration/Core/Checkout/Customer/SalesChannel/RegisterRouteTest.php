@@ -976,6 +976,8 @@ class RegisterRouteTest extends TestCase
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
                 'company' => 'Test Company',
                 'department' => 'Test Department',
             ],
@@ -1131,6 +1133,8 @@ class RegisterRouteTest extends TestCase
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
                 'company' => 'Test Company 1',
                 'department' => 'Test Department 1',
             ],
@@ -1303,6 +1307,8 @@ class RegisterRouteTest extends TestCase
             'birthdayDay' => 22,
             'storefrontUrl' => $storefrontUrl,
             'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
                 'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
@@ -1312,8 +1318,8 @@ class RegisterRouteTest extends TestCase
                 'additionalAddressLine2' => 'Additional address line 2',
             ],
             'shippingAddress' => [
-                'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',
                 'title' => 'Prof.',

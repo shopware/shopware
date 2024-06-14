@@ -88,7 +88,20 @@ async function createWrapper(
                     },
                 },
                 productCustomFields: {
-                    test: 'customFields.test',
+                    test: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'product',
+                        },
+                    },
+                    countryTest: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'country',
+                        },
+                    },
                 },
             },
             stubs,
@@ -168,9 +181,16 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 isJsonField: () => false,
             },
         });
+
         await flushPromises();
 
-        expect(wrapper.vm.fieldDefinition).toBe('customFields.test');
+        expect(wrapper.vm.fieldDefinition).toStrictEqual({
+            value: 'customFields.test',
+            config: {
+                customFieldType: 'entity',
+                entity: 'product',
+            },
+        });
     });
 
     it('should fire event when trigger value for boolean type', async () => {
@@ -339,6 +359,53 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(entityMultiIdSelect.exists()).toBe(true);
         expect(entityMultiIdSelect.attributes().criteria).toBeDefined();
         expect(entityMultiIdSelect.attributes()['advanced-selection-component']).toBeUndefined();
+    });
+
+    it('should render a single entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
+    });
+
+    it('should render a multiple entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+            condition: {
+                type: 'equalsAny',
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-multi-id-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
     });
 });
 

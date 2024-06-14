@@ -85,7 +85,8 @@ To display a dismissible button set the value of "dismissible" to true.
 
 {% block utilities_alert %}
     <div role="alert"
-         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} alert-has-icon{% endif %}">
+         {# @deprecated tag:v6.7.0 - Class `alert-has-icon` will be removed. Use helper classes `d-flex align-items-center` directly in the template like documented by Bootstrap. #}
+         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} {% if feature('ACCESSIBILITY_TWEAKS') %}d-flex align-items-center{% else %}alert-has-icon{% endif %}{% endif %}">
         {% block utilities_alert_icon %}
             {% if icon != 'false' %}
                 {% set iconCacheSystem = config('core.storefrontSettings.iconCache') %}
@@ -120,7 +121,8 @@ To display a dismissible button set the value of "dismissible" to true.
                 {% endblock %}
 
                 {% block utilities_alert_content %}
-                    <div class="alert-content">
+                    {# @deprecated tag:v6.7.0 - The inner container `alert-content` will be removed. #}
+                    {% if not feature('v6.7.0.0') %}<div class="alert-content">{% endif %}
                         {% if list|length > 1 %}
                             <ul class="alert-list">
                                 {% for entry in list %}
@@ -134,16 +136,17 @@ To display a dismissible button set the value of "dismissible" to true.
                         {% else %}
                             {{ content|sw_sanitize }}
                         {% endif %}
-                    </div>
+                    {# @deprecated tag:v6.7.0 - The inner container `alert-content` will be removed. #}
+                    {% if not feature('v6.7.0.0') %}</div>{% endif %}
                 {% endblock %}
 
                 {% block utilities_alert_dismissible %}
                     {% if dismissible %}
                         <button type="button"
-                                class="close"
+                                class="btn-close"
                                 data-bs-dismiss="alert"
                                 aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true"></span>
                         </button>
                     {% endif %}
                 {% endblock %}

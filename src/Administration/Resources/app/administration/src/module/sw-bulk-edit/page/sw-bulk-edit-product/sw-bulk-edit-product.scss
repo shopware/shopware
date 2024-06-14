@@ -130,6 +130,16 @@
         border: 1px solid $color-module-purple-900;
         background: $color-module-purple-50;
         font-size: $font-size-xs;
+
+        .sw-alert__actions:empty {
+            display: none;
+        }
+
+        .sw-alert__icon {
+            position: unset;
+            margin-top: 28px;
+            margin-left: 26px;
+        }
     }
 
     &__inheritance .sw-alert__body {

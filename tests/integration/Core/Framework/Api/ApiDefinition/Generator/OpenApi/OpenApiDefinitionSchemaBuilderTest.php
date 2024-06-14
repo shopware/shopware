@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator\OpenApi;
+namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SinceDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
+use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition\SinceDefinition;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = $this->getContainer()->get(OpenApiDefinitionSchemaBuilder::class);
+        $this->service = new OpenApiDefinitionSchemaBuilder();
     }
 
     public function testFieldIsMarkedAsNew(): void

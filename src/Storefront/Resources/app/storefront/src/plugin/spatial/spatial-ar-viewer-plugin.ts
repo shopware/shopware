@@ -22,6 +22,8 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     private supportsAr: boolean;
 
+    public static options: object;
+
     async init() {
         await loadThreeJs();
 
@@ -51,7 +53,19 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     public async startARView(): Promise<void> {
         if (!this.model || !this.supportsAr) {
-            const qrModalTemplate = document.querySelector('.ar-qr-modal');
+            let qrModalTemplate;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (this.options?.spatialArId) {
+                qrModalTemplate = document.querySelector(
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
+                    `.ar-qr-modal [data-ar-model-id='${this.options?.spatialArId}']`
+                )?.closest('.ar-qr-modal');
+            }
+            else {
+                qrModalTemplate = document.querySelector('.ar-qr-modal');
+            }
+            qrModalTemplate?.closest('body')?.appendChild(qrModalTemplate);
+
             if (qrModalTemplate) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
                 new bootstrap.Modal(qrModalTemplate).show();
@@ -82,5 +96,37 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     private onReady(): void {
         this.el.classList.add('spatial-ar-ready');
+        const qrParams = new URLSearchParams(window.location.search);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (!(qrParams.has('autostartAr') && this.options?.spatialArId)) {
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (window.autostartingARView == null && qrParams.get('autostartAr') == this.options?.spatialArId) {
+            window.autostartingARView = true;
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (!this.options?.spatialArId) {
+                return;
+            }
+
+            const qrModalOpenArSession = document.querySelector(
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions
+                `.ar-qr-modal-open-session [data-modal-open-ar-session-autostart='${this.options?.spatialArId}']`
+            )?.closest('.ar-qr-modal-open-session');
+
+            if (!qrModalOpenArSession) {
+                return;
+            }
+
+            qrModalOpenArSession.getElementsByClassName('ar-btn-open-session')[0]?.addEventListener('click', () => {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                this.startARView().then();
+            });
+            qrModalOpenArSession?.closest('body')?.appendChild(qrModalOpenArSession);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+            new bootstrap.Modal(qrModalOpenArSession).show();
+        }
     }
 }

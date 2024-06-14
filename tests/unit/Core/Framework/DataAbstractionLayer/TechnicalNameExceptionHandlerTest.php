@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler;
 use Shopware\Core\Framework\Log\Package;
@@ -52,6 +53,22 @@ class TechnicalNameExceptionHandlerTest extends TestCase
         static::assertInstanceOf(ShippingException::class, $e);
         static::assertSame(ShippingException::SHIPPING_METHOD_DUPLICATE_TECHNICAL_NAME, $e->getErrorCode());
         static::assertSame('The technical name "shipping_test" is not unique.', $e->getMessage());
+    }
+
+    public function testImportExportException(): void
+    {
+        $dbalE = new \Exception(
+            'An exception occurred while executing a query: SQLSTATE[23000]: '
+            . 'Integrity constraint violation: '
+            . '1062 Duplicate entry \'import_export_test\' for key \'import_export_profile.uniq.import_export_profile.technical_name\''
+        );
+
+        $handler = new TechnicalNameExceptionHandler();
+        $e = $handler->matchException($dbalE);
+
+        static::assertInstanceOf(ImportExportException::class, $e);
+        static::assertSame(ImportExportException::DUPLICATE_TECHNICAL_NAME, $e->getErrorCode());
+        static::assertSame('The technical name "import_export_test" is not unique.', $e->getMessage());
     }
 
     public function testUnrelatedException(): void

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Adapter\Messenger\MessageBus;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -18,6 +19,8 @@ class DefaultTransportCompilerPassTest extends TestCase
 {
     public function testCompiler(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $config = [
             'routing' => [
                 ProductIndexingMessage::class => 'foo',

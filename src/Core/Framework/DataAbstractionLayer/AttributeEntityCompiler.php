@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
@@ -55,7 +56,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
+ */
 #[Package('core')]
 class AttributeEntityCompiler
 {
@@ -70,6 +75,7 @@ class AttributeEntityCompiler
         ManyToMany::class,
         ManyToOne::class,
         OneToOne::class,
+        ReferenceVersion::class,
     ];
 
     private const ASSOCIATIONS = [
@@ -79,20 +85,17 @@ class AttributeEntityCompiler
         OneToOne::class,
     ];
 
-    private static function snake_case(string $name): string
-    {
-        return strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
-    }
+    private CamelCaseToSnakeCaseNameConverter $converter;
 
-    private static function camel_case(string $name): string
+    public function __construct()
     {
-        return lcfirst(str_replace('_', '', ucwords($name, '_')));
+        $this->converter = new CamelCaseToSnakeCaseNameConverter();
     }
 
     /**
      * @param class-string<object> $class
      *
-     * @return array<array<string, mixed>>
+     * @return list<array{type: 'entity'|'mapping', since?: string|null, parent: string|null, entity_class: class-string<object>, entity_name: string, fields: list<FieldArray>}>
      */
     public function compile(string $class): array
     {
@@ -104,7 +107,6 @@ class AttributeEntityCompiler
             return [];
         }
 
-        /** @var Entity $instance */
         $instance = $collection[0]->newInstance();
 
         $properties = $reflection->getProperties();
@@ -137,7 +139,11 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return \ReflectionAttribute<object>
+     * @template TClassList of object
+     *
+     * @param class-string<TClassList> $list
+     *
+     * @return \ReflectionAttribute<TClassList>|null
      */
     private function getAttribute(\ReflectionProperty $property, string ...$list): ?\ReflectionAttribute
     {
@@ -152,7 +158,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
@@ -161,7 +167,6 @@ class AttributeEntityCompiler
         if (!$attribute) {
             return null;
         }
-        /** @var Field $field */
         $field = $attribute->newInstance();
 
         $field->nullable = $property->getType()?->allowsNull() ?? true;
@@ -176,6 +181,9 @@ class AttributeEntityCompiler
         ];
     }
 
+    /**
+     * @return class-string<DalField>
+     */
     private function getFieldClass(Field $field): string
     {
         return match ($field->type) {
@@ -205,15 +213,15 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<mixed>
+     * @return list<string|false>
      */
     private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement $field, \ReflectionProperty $property): array
     {
         if ($field->storageName) {
-            $storage = self::snake_case($field->storageName);
+            $storage = $this->converter->normalize($field->storageName);
             $storageFk = $storage;
         } else {
-            $storage = self::snake_case($property->getName());
+            $storage = $this->converter->normalize($property->getName());
             $storageFk = $storage . '_id';
         }
 
@@ -240,7 +248,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array<string, array<bool|string>|string>|null>
      */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
@@ -260,7 +268,6 @@ class AttributeEntityCompiler
         }
 
         if ($inherited = $this->getAttribute($property, Inherited::class)) {
-            /** @var Inherited $instance */
             $instance = $inherited->newInstance();
             $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
         }
@@ -282,7 +289,6 @@ class AttributeEntityCompiler
         if ($protection = $this->getAttribute($property, Protection::class)) {
             $protection = $protection->newInstance();
 
-            /** @var Protection $protection */
             $flags[WriteProtected::class] = ['class' => WriteProtected::class, 'args' => $protection->write];
         }
 
@@ -293,16 +299,23 @@ class AttributeEntityCompiler
             }
         }
 
+        if ($this->getAttribute($property, ReferenceVersion::class)) {
+            $flags[Required::class] = ['class' => Required::class];
+        }
+
         if ($association = $this->getAttribute($property, ...self::ASSOCIATIONS)) {
             $association = $association->newInstance();
 
-            /** @var OneToMany|ManyToMany|ManyToOne|OneToOne $association */
             $flags['cascade'] = match ($association->onDelete) {
                 OnDelete::CASCADE => ['class' => CascadeDelete::class],
                 OnDelete::SET_NULL => ['class' => SetNullOnDelete::class],
                 OnDelete::RESTRICT => ['class' => RestrictDelete::class],
                 default => null
             };
+
+            if ($flags['cascade'] === null) {
+                unset($flags['cascade']);
+            }
         }
 
         if ($field->type === AutoIncrement::TYPE) {
@@ -313,7 +326,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{type: 'mapping', parent: null, entity_class: class-string<ArrayEntity>, entity_name: string, fields: list<FieldArray>}
      */
     private function mapping(string $entity, \ReflectionProperty $property): array
     {
@@ -322,11 +335,10 @@ class AttributeEntityCompiler
         if (!$attribute) {
             throw DataAbstractionLayerException::canNotFindAttribute(ManyToMany::class, $property->getName());
         }
-        /** @var ManyToMany $field */
         $field = $attribute->newInstance();
 
-        $srcProperty = self::camel_case($entity);
-        $refProperty = self::camel_case($field->entity);
+        $srcProperty = $this->converter->denormalize($entity);
+        $refProperty = $this->converter->denormalize($field->entity);
 
         $fields = [
             [
@@ -334,8 +346,8 @@ class AttributeEntityCompiler
                 'translated' => false,
                 'args' => [$entity . '_id', $srcProperty . 'Id', $entity],
                 'flags' => [
-                    ['class' => PrimaryKey::class],
-                    ['class' => Required::class],
+                    PrimaryKey::class => ['class' => PrimaryKey::class],
+                    Required::class => ['class' => Required::class],
                 ],
             ],
             [
@@ -343,8 +355,8 @@ class AttributeEntityCompiler
                 'translated' => false,
                 'args' => [$field->entity . '_id', $refProperty . 'Id', $field->entity],
                 'flags' => [
-                    ['class' => PrimaryKey::class],
-                    ['class' => Required::class],
+                    PrimaryKey::class => ['class' => PrimaryKey::class],
+                    Required::class => ['class' => Required::class],
                 ],
             ],
             [

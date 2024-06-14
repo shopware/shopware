@@ -570,3 +570,7 @@ shopware:
 
     system_config:
         default: []
+
+    messenger:
+        routing_overwrite:
+

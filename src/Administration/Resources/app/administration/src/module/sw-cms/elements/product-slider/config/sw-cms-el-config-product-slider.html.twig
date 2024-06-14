@@ -85,35 +85,13 @@
                     </sw-alert>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_element_product_slider_config_content_product_stream_preview %}
-                    <sw-modal
+                    <sw-product-stream-modal-preview
                         v-if="showProductStreamPreview"
-                        :title="productStream.name"
-                        class="sw-cms-el-config-product-slider__product-stream-preview-modal"
+                        :filters="productStream.apiFilter"
+                        :default-limit="element.config.productStreamLimit.value"
+                        :default-sorting="element.config.productStreamSorting.value"
                         @modal-close="onCloseProductStreamModal"
-                    >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_element_product_slider_config_content_product_stream_preview_grid %}
-                        <sw-product-stream-grid-preview
-                            :filters="productStream.apiFilter"
-                            :columns="productStreamPreviewColumns"
-                            :criteria="productStreamCriteria"
-                        />
-                        {% endblock %}
-                        <template #modal-footer>
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_element_product_slider_config_content_product_stream_preview_action_close %}
-                            <sw-button
-                                size="small"
-                                @click="onCloseProductStreamModal"
-                            >
-                                {{ $tc('global.sw-modal.labelClose') }}
-                            </sw-button>
-                            {% endblock %}
-                        </template>
-                    </sw-modal>
-                    {% endblock %}
+                    />
 
                     <sw-container
                         columns="1fr 1fr"

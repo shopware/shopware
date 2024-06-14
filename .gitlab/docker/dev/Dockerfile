@@ -10,6 +10,7 @@ RUN git clone https://github.com/shopware/production.git . \
 COPY --chown=www-data:www-data . /app/custom/platform
 
 RUN echo ${COMPOSER_CACHE_DIR} &&  ls -las ${COMPOSER_CACHE_DIR} \
+    && composer config -d /app/custom/platform/src/Core version 6.6.9999999.9999999-dev \
     && composer config repositories.custom-packages '{"type": "path", "url": "custom/packages/*", "options": { "symlink": false } }' \
     && composer config minimum-stability dev \
     && composer config prefer-stable true \

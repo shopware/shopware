@@ -3,7 +3,7 @@
 use Shopware\Core\Framework\Uuid\Uuid;
 
 if (!function_exists('convertToUuid')) {
-    function convertToUuid($name): string
+    function convertToUuid(string $name): string
     {
         return Uuid::fromStringToHex($name);
     }

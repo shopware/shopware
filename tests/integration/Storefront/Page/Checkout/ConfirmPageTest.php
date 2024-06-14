@@ -111,7 +111,6 @@ class ConfirmPageTest extends TestCase
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-
         $customer = $context->getCustomer();
         static::assertNotNull($customer);
         $activeBillingAddress = $customer->getActiveBillingAddress();

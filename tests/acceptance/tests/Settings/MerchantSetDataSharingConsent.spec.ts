@@ -11,13 +11,13 @@ test('Journey: Merchant is able accept or decline the data sharing consent.', as
     // eslint-disable-next-line playwright/no-conditional-in-test
     if (await isSaaSInstance(AdminApiContext)) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip('Skipping test for merchants consent process, because it is disabled on SaaS instances.');
+        test.skip(true,'Skipping test for merchants consent process, because it is disabled on SaaS instances.');
     }
     let consentResponsePromise: Promise<Response>;
     let response: Response;
 
     await test.step('Validate the initial consent state', async () => {
-        await ShopAdmin.goesTo(AdminDashboard);
+        await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).toBeVisible();
         await ShopAdmin.expects(AdminDashboard.dataSharingTermsAgreementLabel).toBeVisible();
     });
@@ -51,7 +51,7 @@ test('Journey: Merchant is able accept or decline the data sharing consent.', as
     });
 
     await test.step('Validate the declining of the consent and hiding of the consent banner on dashboard page', async () => {
-        await ShopAdmin.goesTo(AdminDashboard);
+        await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).toBeVisible();
 
         consentResponsePromise = AdminDashboard.page.waitForResponse('**/api/usage-data/hide-consent-banner');
@@ -64,7 +64,7 @@ test('Journey: Merchant is able accept or decline the data sharing consent.', as
         await AdminDashboard.dataSharingSettingsLink.click();
         await ShopAdmin.expects(AdminDataSharing.dataSharingTermsAgreementLabel).toBeVisible();
         await ShopAdmin.expects(AdminDataSharing.dataSharingAgreeButton).toBeVisible();
-        await ShopAdmin.goesTo(AdminDashboard);
+        await ShopAdmin.goesTo(AdminDashboard.url());
         await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).not.toBeVisible();
     });
 });

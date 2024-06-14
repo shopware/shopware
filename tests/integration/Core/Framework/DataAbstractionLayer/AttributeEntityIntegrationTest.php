@@ -85,6 +85,7 @@ class AttributeEntityIntegrationTest extends TestCase
                 'id' => $ids->create('first-key'),
                 'string' => 'string',
                 'transString' => 'transString',
+                'differentName' => 'storageString',
             ],
         ], $context);
 
@@ -105,12 +106,14 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string', $record->string);
         static::assertSame('transString', $record->getTranslation('transString'));
+        static::assertSame('storageString', $record->differentName);
 
         $result = $this->repository('attribute_entity')->update([
             [
                 'id' => $ids->get('first-key'),
                 'string' => 'string-updated',
                 'transString' => 'transString-updated',
+                'differentName' => 'storageString-updated',
             ],
         ], $context);
 
@@ -131,6 +134,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame($ids->get('first-key'), $record->id);
         static::assertSame('string-updated', $record->string);
         static::assertSame('transString-updated', $record->getTranslation('transString'));
+        static::assertSame('storageString-updated', $record->differentName);
 
         $result = $this->repository('attribute_entity')->delete([
             ['id' => $ids->get('first-key')],
@@ -166,6 +170,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'serialized' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
             ],
+            'differentName' => 'string',
             'transString' => 'string',
             'transText' => 'text',
             'transInt' => 1,
@@ -218,6 +223,7 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertEquals(new DateInterval('P1D'), $record->transDateInterval);
         static::assertEquals('Europe/Berlin', $record->transTimeZone);
         static::assertEquals(['key' => 'value'], $record->transJson);
+        static::assertEquals('string', $record->differentName);
     }
 
     public function testOneToOne(): void

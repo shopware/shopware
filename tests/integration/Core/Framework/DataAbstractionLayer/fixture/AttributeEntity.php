@@ -107,6 +107,9 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::TIME_ZONE, translated: true)]
     public ?string $transTimeZone = null;
 
+    #[Field(type: FieldType::STRING, translated: true, column: 'another_column_name')]
+    public ?string $differentName = null;
+
     #[ForeignKey(entity: 'currency')]
     public ?string $currencyId = null;
 

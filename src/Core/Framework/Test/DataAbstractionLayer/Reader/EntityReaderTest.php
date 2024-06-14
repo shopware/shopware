@@ -47,7 +47,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityReaderTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
     private Connection $connection;
@@ -88,6 +90,7 @@ class EntityReaderTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
 
         $this->connection->executeStatement('DROP TABLE `non_id_primary_key_test`');

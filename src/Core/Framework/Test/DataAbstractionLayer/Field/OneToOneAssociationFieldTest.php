@@ -33,13 +33,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class OneToOneAssociationFieldTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private EntityRepository $repository;
 
@@ -139,6 +138,7 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         parent::tearDown();
 
         $this->connection->rollBack();

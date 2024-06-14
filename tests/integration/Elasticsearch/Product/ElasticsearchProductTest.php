@@ -163,13 +163,6 @@ class ElasticsearchProductTest extends TestCase
         parent::setUp();
     }
 
-    protected function tearDown(): void
-    {
-        $this->removeExtension(ProductExtension::class);
-
-        parent::tearDown();
-    }
-
     #[BeforeClass]
     public static function startTransactionBefore(): void
     {

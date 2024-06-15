@@ -66,38 +66,64 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             SELECT LOWER(HEX(order.id)) as id,
                    GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
                    GROUP_CONCAT(DISTINCT country_translation.name SEPARATOR " ") as country,
-                   GROUP_CONCAT(DISTINCT order_address.city SEPARATOR " ") as city,
-                   GROUP_CONCAT(DISTINCT order_address.street SEPARATOR " ") as street,
-                   GROUP_CONCAT(DISTINCT order_address.zipcode SEPARATOR " ") as zipcode,
-                   GROUP_CONCAT(DISTINCT order_address.phone_number SEPARATOR " ") as phone_number,
-                   GROUP_CONCAT(DISTINCT order_address.additional_address_line1 SEPARATOR " ") as additional_address_line1,
-                   GROUP_CONCAT(DISTINCT order_address.additional_address_line2 SEPARATOR " ") as additional_address_line2,
-                   GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(document.config, "$.documentNumber")) SEPARATOR " ") as documentNumber,
-                   order_customer.first_name,
-                   order_customer.last_name,
-                   order_customer.email,
-                   order_customer.company,
-                   order_customer.customer_number,
+                   GROUP_CONCAT(DISTINCT order_address_select.city SEPARATOR " ") as city,
+                   GROUP_CONCAT(DISTINCT order_address_select.street SEPARATOR " ") as street,
+                   GROUP_CONCAT(DISTINCT order_address_select.zipcode SEPARATOR " ") as zipcode,
+                   GROUP_CONCAT(DISTINCT order_address_select.phone_number SEPARATOR " ") as phone_number,
+                   GROUP_CONCAT(DISTINCT order_address_select.additional_address_line1 SEPARATOR " ") as additional_address_line1,
+                   GROUP_CONCAT(DISTINCT order_address_select.additional_address_line2 SEPARATOR " ") as additional_address_line2,
+                   GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(document_select.config, "$.documentNumber")) SEPARATOR " ") as documentNumber,
+                   order_customer_select.first_name,
+                   order_customer_select.last_name,
+                   order_customer_select.email,
+                   order_customer_select.company,
+                   order_customer_select.customer_number,
                    `order`.order_number,
                    `order`.amount_total,
-                   order_delivery.tracking_codes
+                   order_delivery_select.tracking_codes
             FROM `order`
-                LEFT JOIN order_customer
-                    ON `order`.id = order_customer.order_id
-                LEFT JOIN order_address
-                    ON `order`.id = order_address.order_id
+                LEFT JOIN (SELECT DISTINCT id,
+                                           order_id,
+                                           first_name,
+                                           last_name,
+                                           email,
+                                           company,
+                                           customer_number
+                           FROM order_customer
+                           WHERE order_customer.order_id IN (:ids)) order_customer_select
+                    ON `order`.id = order_customer_select.order_id
+                LEFT JOIN (SELECT DISTINCT id,
+                                           order_id,
+                                           country_id,
+                                           city,
+                                           street,
+                                           zipcode,
+                                           phone_number,
+                                           additional_address_line1,
+                                           additional_address_line2
+                           FROM order_address
+                           WHERE order_address.order_id IN (:ids)) order_address_select
+                    ON `order`.id = order_address_select.order_id
                 LEFT JOIN country
-                    ON order_address.country_id = country.id
+                    ON order_address_select.country_id = country.id
                 LEFT JOIN country_translation
                     ON country.id = country_translation.country_id
                 LEFT JOIN order_tag
                     ON `order`.id = order_tag.order_id
                 LEFT JOIN tag
                     ON order_tag.tag_id = tag.id
-                LEFT JOIN order_delivery
-                    ON `order`.id = order_delivery.order_id
-                LEFT JOIN document
-                    ON `order`.id = document.order_id
+                LEFT JOIN (SELECT DISTINCT id,
+                                           order_id,
+                                           tracking_codes
+                           FROM order_delivery
+                           WHERE order_delivery.order_id IN (:ids)) order_delivery_select
+                    ON `order`.id = order_delivery_select.order_id
+                LEFT JOIN (SELECT DISTINCT id,
+                                           order_id,
+                                           config
+                           FROM document
+                           WHERE document.order_id IN (:ids)) document_select
+                    ON `order`.id = document_select.order_id
             WHERE order.id IN (:ids) AND `order`.version_id = :versionId
             GROUP BY order.id
         ',

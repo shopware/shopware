@@ -27,7 +27,8 @@ class ReferenceVersionField extends FkField
 
     public function __construct(
         string $definition,
-        ?string $storageName = null
+        ?string $storageName = null,
+        ?string $propertyName = null
     ) {
         $entity = $definition;
         if (\is_subclass_of($definition, EntityDefinition::class)) {
@@ -36,9 +37,11 @@ class ReferenceVersionField extends FkField
 
         $storageName ??= $entity . '_version_id';
 
-        $propertyName = explode('_', $storageName);
-        $propertyName = array_map('ucfirst', $propertyName);
-        $propertyName = lcfirst(implode('', $propertyName));
+        if ($propertyName === null) {
+            $buildPropertyName = explode('_', $storageName);
+            $buildPropertyName = array_map('ucfirst', $buildPropertyName);
+            $propertyName = lcfirst(implode('', $buildPropertyName));
+        }
 
         parent::__construct($storageName, $propertyName, VersionDefinition::class);
 

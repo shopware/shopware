@@ -126,6 +126,7 @@
         :tax-rate="productTaxRate"
         :disabled="!allowEdit"
         @modal-close="onMaintainCurrenciesClose"
+        @update-prices="updatePrices"
     />
     {% endblock %}
 </div>

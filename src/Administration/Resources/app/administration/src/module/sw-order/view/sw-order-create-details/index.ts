@@ -189,6 +189,14 @@ export default Component.wrapComponentConfig({
         promotionCodeTags: {
             handler: 'handlePromotionCodeTags',
         },
+
+        'context.languageId'(languageId: string) {
+            if (!languageId) {
+                return;
+            }
+
+            State.commit('context/setApiLanguageId', languageId);
+        },
     },
 
     created() {

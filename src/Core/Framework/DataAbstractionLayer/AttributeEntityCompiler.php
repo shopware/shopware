@@ -76,6 +76,7 @@ class AttributeEntityCompiler
         ManyToOne::class,
         OneToOne::class,
         ReferenceVersion::class,
+        CustomFieldsAttr::class,
     ];
 
     private const ASSOCIATIONS = [

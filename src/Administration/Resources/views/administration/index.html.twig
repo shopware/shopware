@@ -4,6 +4,8 @@
     <script nonce="{{ cspNonce }}" type="text/javascript">
         window._features_ = {{ features|json_encode|raw }};
 
+        window._inAppPurchases_ = {{ inAppPurchases|json_encode|raw }};
+
         window.__sw__ = {
             assetPath: '{{ asset('', 'asset') }}',
         };

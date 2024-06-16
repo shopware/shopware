@@ -26,6 +26,12 @@ class InAppPurchaseTest extends TestCase
         static::assertSame(['purchase1', 'purchase2'], InAppPurchase::all());
     }
 
+    public function testAllPurchases(): void
+    {
+        InAppPurchase::registerPurchases(['purchase1' => 'extension-1', 'purchase2' => 'extension-2']);
+        static::assertSame(['purchase1' => 'extension-1', 'purchase2' => 'extension-2'], InAppPurchase::allPurchases());
+    }
+
     public function testIsActive(): void
     {
         static::assertFalse(InAppPurchase::isActive('activePurchase'));

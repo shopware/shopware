@@ -22,6 +22,14 @@ final class InAppPurchase
      */
     public static function all(): array
     {
+        return \array_keys(self::$activePurchases);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function allPurchases(): array
+    {
         return self::$activePurchases;
     }
 
@@ -41,7 +49,7 @@ final class InAppPurchase
 
     public static function isActive(string $identifier): bool
     {
-        return \in_array($identifier, self::$activePurchases, true);
+        return \in_array($identifier, \array_keys(self::$activePurchases), true);
     }
 
     /**
@@ -49,7 +57,7 @@ final class InAppPurchase
      */
     public static function registerPurchases(array $inAppPurchases = []): void
     {
-        self::$activePurchases = \array_keys($inAppPurchases);
+        self::$activePurchases = $inAppPurchases;
 
         // group by extension id, which is the value of the array
         self::$extensionPurchases = [];

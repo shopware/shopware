@@ -160,6 +160,7 @@ declare global {
         _features_: {
             [featureName: string]: boolean;
         };
+        _inAppPurchases_: Record<string, string>;
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
         // Only available with Vite
@@ -169,6 +170,8 @@ declare global {
     const _features_: {
         [featureName: string]: boolean;
     };
+
+    const _inAppPurchases_: Record<string, string>;
 
     /**
      * Define global container for the bottle.js containers

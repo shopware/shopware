@@ -16,8 +16,9 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
     ],
     'strict' => [
-        '^phpstan\/phpstan.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
-        '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
+        '^symplify\/phpstan-rules$'  => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
+        '^rector\/type-perfect$'  => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
         '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
@@ -119,7 +120,7 @@ return (new Config())
 
                 if ($filesWithIgnoredErrors) {
                     $context->failure(
-                        'Some files you touched in your MR contain ignored phpstan errors. Please be nice and fix all ignored errors for the following files:<br>'
+                        'Some files you touched in your MR contain ignored PHPStan errors. Please be nice and fix all ignored errors for the following files:<br>'
                         . implode('<br>', $filesWithIgnoredErrors)
                     );
                 }

@@ -30,6 +30,8 @@ parameters:
         constantHassers: false
         containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+    type_perfect:
+        no_mixed: true
 
     excludePaths:
         - src/WebInstaller/Resources/

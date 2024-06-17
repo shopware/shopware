@@ -107,7 +107,7 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
 
         if (!Feature::isActive('v6.7.0.0')) {
             $container
-                // @phpstan-ignore-next-line
+                // @phpstan-ignore-next-line classConstant.deprecatedInterface
                 ->registerForAutoconfiguration(SynchronousPaymentHandlerInterface::class)
                 ->addTag('shopware.payment.method.sync');
         }

@@ -43,15 +43,15 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
         $paymentMethods = [
-            // @phpstan-ignore-next-line ignore deprecation
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface
             $this->getPaymentMethod(SynchronousPaymentHandlerInterface::class),
-            // @phpstan-ignore-next-line ignore deprecation
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface
             $this->getPaymentMethod(AsynchronousPaymentHandlerInterface::class),
-            // @phpstan-ignore-next-line ignore deprecation
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface
             $this->getPaymentMethod(RefundPaymentHandlerInterface::class),
-            // @phpstan-ignore-next-line ignore deprecation
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface
             $this->getPaymentMethod(PreparedPaymentHandlerInterface::class),
-            // @phpstan-ignore-next-line ignore deprecation
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface
             $this->getPaymentMethod(RecurringPaymentHandlerInterface::class),
         ];
 
@@ -114,7 +114,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
     public function testFormatHandlerIdentifier(): void
     {
         $paymentMethods = [
-            // @phpstan-ignore-next-line ignore deprecation - tag:v6.7.0 remove ignore
+            // @phpstan-ignore-next-line classConstant.deprecatedInterface - tag:v6.7.0 remove ignore
             $this->getPaymentMethod(AppPaymentHandler::class),
         ];
 
@@ -174,23 +174,23 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
     {
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
-        // @phpstan-ignore-next-line ignore deprecation
+        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $method1 = $this->getPaymentMethod(SynchronousPaymentHandlerInterface::class);
         $method1->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['payUrl' => 'foo']));
 
-        // @phpstan-ignore-next-line ignore deprecation
+        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $method2 = $this->getPaymentMethod(AsynchronousPaymentHandlerInterface::class);
         $method2->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['payUrl' => 'foo', 'finalizeUrl' => 'bar']));
 
-        // @phpstan-ignore-next-line ignore deprecation
+        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $method3 = $this->getPaymentMethod(RefundPaymentHandlerInterface::class);
         $method3->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['refundUrl' => 'foo']));
 
-        // @phpstan-ignore-next-line ignore deprecation
+        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $method4 = $this->getPaymentMethod(PreparedPaymentHandlerInterface::class);
         $method4->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['validateUrl' => 'foo', 'captureUrl' => 'bar']));
 
-        // @phpstan-ignore-next-line ignore deprecation
+        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $method5 = $this->getPaymentMethod(RecurringPaymentHandlerInterface::class);
         $method5->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['recurringUrl' => 'foo']));
 

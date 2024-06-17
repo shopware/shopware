@@ -135,7 +135,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $grouped = FetchModeHelper::group($grouped, static fn ($row) => $row['id']);
+        $grouped = FetchModeHelper::group($grouped, static fn ($row): string => (string) $row['id']);
 
         $filters = [];
         foreach ($grouped as $options) {

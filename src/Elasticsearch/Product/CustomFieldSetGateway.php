@@ -65,7 +65,7 @@ class CustomFieldSetGateway
     /**
      * @param array<string> $fieldSetIds
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function fetchFieldSetEntityMappings(array $fieldSetIds): array
     {
@@ -81,7 +81,7 @@ class CustomFieldSetGateway
             ['ids' => ArrayParameterType::STRING]
         );
 
-        return FetchModeHelper::group($fieldSets, fn (array $row) => $row['entity_name']);
+        return FetchModeHelper::group($fieldSets, static fn (array $row): string => (string) $row['entity_name']);
     }
 
     /**

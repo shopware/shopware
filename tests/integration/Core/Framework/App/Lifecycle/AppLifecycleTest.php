@@ -30,6 +30,7 @@ use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -67,7 +68,7 @@ class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     /**
      * @var EntityRepository<AppCollection>

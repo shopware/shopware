@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -91,7 +92,7 @@ class VersioningTest extends TestCase
 
     private Processor $processor;
 
-    private OrderPersister $orderPersister;
+    private OrderPersisterInterface $orderPersister;
 
     private Context $context;
 

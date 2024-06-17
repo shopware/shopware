@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Service;
+namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
-use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -26,10 +25,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionStoreLicensesService
-     */
-    private $extensionLicensesService;
+    private AbstractExtensionStoreLicensesService $extensionLicensesService;
 
     protected function setUp(): void
     {
@@ -41,7 +37,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'localhost');
         $context = $this->getContextWithStoreToken();
 
-        $this->setCancelationResponses();
+        $this->setCancellationResponses();
 
         $this->extensionLicensesService->cancelSubscription(1, $context);
 
@@ -102,7 +98,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
         $this->getStoreRequestHandler()->append(new Response(200, [], $licenseBody));
     }
 
-    private function setCancelationResponses(): void
+    private function setCancellationResponses(): void
     {
         $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json') ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $licenses[0]['extension']['name'] = 'TestApp';

@@ -95,6 +95,12 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should render a fallback image if config is not resolved to data', async () => {
         const wrapper = await createWrapper();
 

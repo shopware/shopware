@@ -24,13 +24,11 @@ function getBlockCollection(blocks) {
 async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) {
     localStorage.clear();
 
-    if (Shopware.State.get('cmsPageState')) {
-        Shopware.State.unregisterModule('cmsPageState');
-    }
+    Shopware.Store.unregister('cmsPageState');
 
-    Shopware.State.registerModule('cmsPageState', {
-        namespaced: true,
-        state: {
+    Shopware.Store.register({
+        id: 'cmsPageState',
+        state: () => ({
             isSystemDefaultLanguage: true,
             currentPageType: 'product_list',
             selectedBlock: {
@@ -53,7 +51,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     mobile: true,
                 },
             },
-        },
+        }),
     });
 
     return mount(await wrapTestComponent('sw-cms-sidebar', {

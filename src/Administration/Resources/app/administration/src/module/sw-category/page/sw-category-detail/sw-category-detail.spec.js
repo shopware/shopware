@@ -57,16 +57,11 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
 
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
             actions: {
                 resetCmsPageState: () => {},
-            },
-            mutations: {
                 setCurrentMappingEntity: () => {},
                 setCurrentMappingTypes: () => {},
                 setCurrentDemoEntity: () => {},

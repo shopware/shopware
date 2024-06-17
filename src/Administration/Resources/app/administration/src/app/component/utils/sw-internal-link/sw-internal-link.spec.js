@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 // initial component setup
 const setup = async (propOverride) => {
@@ -15,7 +15,26 @@ const setup = async (propOverride) => {
         global: {
             stubs: {
                 'sw-icon': true,
-                RouterLink: RouterLinkStub,
+                RouterLink: {
+                    name: 'RouterLinkStub',
+
+                    props: {
+                        to: {
+                            type: [String, Object],
+                            required: true,
+                        },
+                        custom: {
+                            type: Boolean,
+                            default: false,
+                        },
+                    },
+
+                    render(h) {
+                        // mock reasonable return values to mimic vue-router's useLink
+                        const children = this.$slots?.default;
+                        return this.custom ? children : h('a', undefined, children);
+                    },
+                },
             },
         },
         slots: {
@@ -50,13 +69,13 @@ describe('components/utils/sw-internal-link', () => {
     it('should add custom target to link', async () => {
         const wrapper = await setup({ target: '_blank' });
 
-        expect(wrapper.findComponent(RouterLinkStub).props().to).toEqual({ name: 'sw.product.index' });
+        expect(wrapper.findComponent({ name: 'RouterLinkStub' }).props().to).toEqual({ name: 'sw.product.index' });
     });
 
     it('should add inline class if it is an inline link', async () => {
         const wrapper = await setup({ inline: true });
 
-        expect(wrapper.findComponent(RouterLinkStub).classes()).toContain('sw-internal-link--inline');
+        expect(wrapper.findComponent({ name: 'RouterLinkStub' }).classes()).toContain('sw-internal-link--inline');
     });
 
     it('should allow links without router-links', async () => {

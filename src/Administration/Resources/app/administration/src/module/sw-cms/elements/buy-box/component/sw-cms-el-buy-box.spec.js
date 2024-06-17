@@ -61,6 +61,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/buy-box/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should show skeleton if page type is product page', async () => {
         const wrapper = await createWrapper();
 

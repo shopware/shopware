@@ -5,7 +5,7 @@ import './sw-cms-block.scss';
  * @package buyers-experience
  */
 
-const { Filter, State } = Shopware;
+const { Filter, Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -116,7 +116,7 @@ export default {
         },
 
         isVisible() {
-            const view = State.get('cmsPageState').currentCmsDeviceView;
+            const view = Store.get('cmsPageState').currentCmsDeviceView;
 
             return (view === 'desktop' && !this.block.visibility.desktop) ||
                 (view === 'tablet-landscape' && !this.block.visibility.tablet) ||

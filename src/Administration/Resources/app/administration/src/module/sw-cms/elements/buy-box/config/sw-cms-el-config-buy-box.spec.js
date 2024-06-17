@@ -76,6 +76,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/buy-box/config', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should show product selector if page type is not product detail', async () => {
         const wrapper = await createWrapper();
         const productSelector = wrapper.find('sw-entity-single-select-stub');

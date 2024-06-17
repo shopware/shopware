@@ -93,13 +93,13 @@ async function createWrapper() {
 
 describe('src/module/sw-cms/elements/image/config', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentMappingTypes: {},
                 currentDemoEntity: null,
-            },
-            mutations: {
+            }),
+            actions: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
                 },

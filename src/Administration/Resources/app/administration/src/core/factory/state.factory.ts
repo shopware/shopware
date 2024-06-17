@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */

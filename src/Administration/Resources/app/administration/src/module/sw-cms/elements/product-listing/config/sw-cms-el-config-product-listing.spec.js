@@ -135,6 +135,12 @@ async function createWrapper(activeTab = 'sorting') {
 }
 
 describe('src/module/sw-cms/elements/product-listing/config', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

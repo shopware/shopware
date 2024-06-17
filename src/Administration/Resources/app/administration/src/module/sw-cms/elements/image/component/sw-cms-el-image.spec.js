@@ -81,6 +81,12 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/image/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should show default image if there is no config value', async () => {
         const wrapper = await createWrapper();
 

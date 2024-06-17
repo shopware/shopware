@@ -310,7 +310,7 @@ Component.register('sw-text-editor', {
                 nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPageState'),
         };
     },
 

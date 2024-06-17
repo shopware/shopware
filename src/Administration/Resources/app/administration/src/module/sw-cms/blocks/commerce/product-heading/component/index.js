@@ -1,7 +1,7 @@
 import template from './sw-cms-block-product-heading.html.twig';
 import './sw-cms-block-product-heading.scss';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 /**
  * @private
@@ -12,7 +12,7 @@ export default {
 
     computed: {
         currentDeviceView() {
-            return State.get('cmsPageState').currentCmsDeviceView;
+            return Store.get('cmsPageState').currentCmsDeviceView;
         },
 
         currentDeviceViewClass() {

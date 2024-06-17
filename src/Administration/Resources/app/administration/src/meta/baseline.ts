@@ -448,7 +448,6 @@ const missingTests = [
     'src/module/sw-cms/index.js',
     'src/module/sw-cms/mixin/sw-cms-element.mixin.js',
     'src/module/sw-cms/mixin/sw-cms-state.mixin.js',
-    'src/module/sw-cms/state/cms-page.state.js',
     'src/module/sw-customer/component/sw-customer-address-form-options/index.js',
     'src/module/sw-customer/constant/sw-customer.constant.js',
     'src/module/sw-customer/default-search-configuration.js',

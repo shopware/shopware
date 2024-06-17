@@ -160,12 +160,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     let wrapper;
 
     beforeAll(() => {
-        if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
             actions: {
                 resetCmsPageState: () => {},
             },

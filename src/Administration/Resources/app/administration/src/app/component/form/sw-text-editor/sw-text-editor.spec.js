@@ -15,17 +15,6 @@ async function createWrapper(allowInlineDataMapping = true) {
         props: {
             allowInlineDataMapping,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentMappingTypes: {
-                        string: [
-                            'category.type',
-                        ],
-                    },
-                },
-            };
-        },
         global: {
             stubs: {
                 'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
@@ -111,6 +100,17 @@ describe('src/app/component/form/sw-text-editor', () => {
     let wrapper;
 
     beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                currentMappingTypes: {
+                    string: [
+                        'category.type',
+                    ],
+                },
+            }),
+        });
+
         // 'Implement' innerText in JSDOM: https://github.com/jsdom/jsdom/issues/1245
         Object.defineProperty(global.Element.prototype, 'innerText', {
             get() {

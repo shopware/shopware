@@ -188,7 +188,7 @@
         "symfony/expression-language": "~7.1.1",
         "symfony/phpunit-bridge": "~7.1.1",
         "symfony/var-dumper": "~7.1.1",
-        "symplify/phpstan-rules": "12.4.9",
+        "symplify/phpstan-rules": "13.0.0",
         "tomasvotruba/type-coverage": "^0.2.1"
     },
     "suggest": {

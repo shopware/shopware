@@ -307,15 +307,7 @@ rules:
     # rules from https://github.com/symplify/phpstan-rules
     # domain
     - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
-    - Symplify\PHPStanRules\Rules\ForbiddenParamTypeRemovalRule
     - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
-
-    # paths
-    - Symplify\PHPStanRules\Rules\NoMissingDirPathRule
-    - Symplify\PHPStanRules\Rules\NoArrayAccessOnObjectRule
-
-    # dead-code
-    - Symplify\PHPStanRules\Rules\NoIssetOnObjectRule
 
     # explicit naming
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
@@ -323,13 +315,10 @@ rules:
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
     # complexity rules
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedPropertyFetcherRule
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedMethodCallerRule
     - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

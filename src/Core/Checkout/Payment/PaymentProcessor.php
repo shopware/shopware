@@ -80,9 +80,9 @@ class PaymentProcessor
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
-            $validateStruct = new ArrayStruct($transaction->getCustomFieldsValue(self::VALIDATION_FIELD) ?? []);
+            $validationStruct = new ArrayStruct($transaction->getValidationData());
 
-            return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validateStruct);
+            return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validationStruct);
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());

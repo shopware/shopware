@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
-use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -566,7 +565,7 @@ class CartOrderRouteTest extends TestCase
         $transaction = $transactionRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($transaction);
-        static::assertContains('testValue', $transaction->getCustomFieldsValue(PaymentProcessor::VALIDATION_FIELD));
+        static::assertContains('testValue', $transaction->getValidationData());
     }
 
     public function testTaxProviderAppliedIfGiven(): void

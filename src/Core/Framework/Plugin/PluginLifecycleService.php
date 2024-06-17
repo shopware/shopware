@@ -163,7 +163,7 @@ class PluginLifecycleService implements EventSubscriberInterface
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName()) {
+            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
                 $this->executor->remove($plugin->getComposerName(), $plugin->getName());
             }
 
@@ -509,6 +509,10 @@ class PluginLifecycleService implements EventSubscriberInterface
 
     private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
     {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return;
+        }
+
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
             throw new PluginComposerJsonInvalidException(
@@ -670,6 +674,10 @@ class PluginLifecycleService implements EventSubscriberInterface
 
     private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
     {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return false;
+        }
+
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
             throw new PluginComposerJsonInvalidException(

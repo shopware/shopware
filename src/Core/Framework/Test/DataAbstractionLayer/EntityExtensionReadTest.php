@@ -31,7 +31,9 @@ use Shopware\Core\System\Language\LanguageEntity;
  */
 class EntityExtensionReadTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
     private Connection $connection;
@@ -117,6 +119,7 @@ class EntityExtensionReadTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('
             ALTER TABLE `product`
@@ -133,11 +136,6 @@ class EntityExtensionReadTest extends TestCase
             DROP COLUMN `oneToOneInherited`;
         ');
         $this->connection->beginTransaction();
-
-        $this->removeExtension(ProductExtension::class);
-        $this->removeExtension(ProductExtensionSelfReferenced::class);
-        $this->removeExtension(ToOneProductExtension::class);
-        $this->removeExtension(OneToOneInheritedProductExtension::class);
 
         parent::tearDown();
     }

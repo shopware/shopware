@@ -47,7 +47,9 @@ use Shopware\Core\System\User\UserDefinition;
  */
 class JsonApiEncoderTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
     private Connection $connection;
@@ -90,12 +92,11 @@ class JsonApiEncoderTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
 
         $this->connection->executeStatement('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
-
-        $this->removeExtension(ProductExtension::class);
 
         parent::tearDown();
     }

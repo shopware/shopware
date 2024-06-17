@@ -45,7 +45,8 @@
             "roundedTotal": "Rounded total:",
             "totalNet": "Net total:",
             "shippingCosts": "Shipping costs",
-            "inclVAT": "Incl. VAT"
+            "inclVAT": "Incl. VAT",
+            "exclVAT": "Excl. VAT"
         },
         "paymentShippingInfo": {
             "paymentMethod": "<strong>Payment method:</strong> %paymentMethod%",

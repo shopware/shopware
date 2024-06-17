@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,6 +22,11 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
         $id = 'messenger.transport.' . $defaultName;
         $container->addAliases(['messenger.default_transport' => $id]);
 
+        if (Feature::isActive('v6.7.0.0')) {
+            return;
+        }
+
+        // @deprecated tag:v6.7.0 - remove all code below, overwrites are now handled via shopware.messenger.routing_overwrites
         $config = $this->getConfig($container, 'framework');
 
         if (!\array_key_exists('messenger', $config)) {

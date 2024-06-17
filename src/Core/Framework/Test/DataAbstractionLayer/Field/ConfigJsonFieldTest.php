@@ -23,7 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ConfigJsonFieldTest extends TestCase
 {
     use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     /**
@@ -57,6 +59,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }

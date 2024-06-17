@@ -27,13 +27,12 @@ use Shopware\Core\Framework\Test\TestDataCollection;
  */
 class PriceFieldTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private static string $otherCurrencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
@@ -58,6 +57,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
         $this->connection->beginTransaction();

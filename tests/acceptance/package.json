@@ -24,8 +24,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@playwright/test": "1.44.0",
-    "@shopware-ag/acceptance-test-suite": "1.4.0",
+    "@playwright/test": "1.44.1",
+    "@shopware-ag/acceptance-test-suite": "2.0.1",
     "@shopware/api-client": "^0.0.0-canary-20230823113412"
   }
 }

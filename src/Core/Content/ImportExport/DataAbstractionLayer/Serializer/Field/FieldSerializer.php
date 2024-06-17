@@ -191,25 +191,35 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof DateField || $field instanceof DateTimeField) {
-            return new \DateTimeImmutable((string) $value);
+            try {
+                return new \DateTimeImmutable((string) $value);
+            } catch (\Throwable) {
+                throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'date');
+            }
         }
 
         if ($field instanceof BoolField) {
-            $value = mb_strtolower((string) $value);
-
-            return !($value === '0' || $value === 'false' || $value === 'n' || $value === 'no');
+            return ScalarTypeSerializer::deserializeBool($config, $field, (string) $value);
         }
 
         if ($field instanceof JsonField) {
-            return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+            try {
+                return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\Throwable) {
+                throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'json');
+            }
         }
 
         if ($field instanceof IntField) {
-            return (int) $value;
+            return ScalarTypeSerializer::deserializeInt($config, $field, $value);
         }
 
         if ($field instanceof IdField || $field instanceof FkField) {
-            return $this->normalizeId((string) $value);
+            try {
+                return $this->normalizeId((string) $value);
+            } catch (\Throwable) {
+                throw ImportExportException::deserializationFailed($field->getPropertyName(), $value, 'uuid');
+            }
         }
 
         return $value;

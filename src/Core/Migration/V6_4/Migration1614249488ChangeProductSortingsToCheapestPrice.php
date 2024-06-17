@@ -27,7 +27,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `product` DROP `listing_prices`');
+        $this->dropColumnIfExists($connection, 'product', 'listing_prices');
     }
 
     private function migrateSortings(Connection $connection): void

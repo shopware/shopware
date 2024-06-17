@@ -151,11 +151,12 @@ $offcanvas-border-width: 0 !default;
 $offcanvas-border-color: transparent !default;
 $offcanvas-backdrop-opacity: 1 !default;
 
-
 // Alerts
-$alert-padding-x: 0 !default;
-$alert-padding-y: 0 !default;
-$alert-border-width: 0 !default;
+// @deprecated tag:v6.7.0 - The alert padding will be on the actual Bootstrap `.alert` container instead of the custom `.alert-content-container` class.
+$alert-padding-x: if(feature('ACCESSIBILITY_TWEAKS'), 0.5rem, 0) !default;
+$alert-padding-y: if(feature('ACCESSIBILITY_TWEAKS'), 0.5rem, 0) !default;
+// @deprecated tag:v6.7.0 - The alert border will be 1px.
+$alert-border-width: if(feature('ACCESSIBILITY_TWEAKS'), 1px, 0) !default;
 
 // Badges
 $badge-border-radius: 50px !default;

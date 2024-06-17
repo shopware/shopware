@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Messenger;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -16,10 +17,15 @@ class MessageBus implements MessageBusInterface
 {
     /**
      * @param array<string, string|string[]> $routing
+     * @param array<string, string|string[]> $overwrite
      */
     public function __construct(
         private readonly MessageBusInterface $decorated,
-        private readonly array $routing
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.0. Use $overwrite instead
+         */
+        private readonly array $routing,
+        private readonly array $overwrite
     ) {
     }
 
@@ -32,13 +38,23 @@ class MessageBus implements MessageBusInterface
             return $this->decorated->dispatch($message, $stamps);
         }
 
-        $transports = $this->getTransports($message);
+        $transports = $this->getTransports($message, $this->overwrite, true);
+        if (!empty($transports)) {
+            $stamps[] = new TransportNamesStamp($transports);
 
-        if (empty($transports)) {
             return $this->decorated->dispatch($message, $stamps);
         }
 
-        $stamps[] = new TransportNamesStamp($transports);
+        if (Feature::isActive('v6.7.0.0')) {
+            return $this->decorated->dispatch($message, $stamps);
+        }
+
+        $transports = $this->getTransports($message, $this->routing, false);
+        if (!empty($transports)) {
+            $stamps[] = new TransportNamesStamp($transports);
+
+            return $this->decorated->dispatch($message, $stamps);
+        }
 
         return $this->decorated->dispatch($message, $stamps);
     }
@@ -52,16 +68,28 @@ class MessageBus implements MessageBusInterface
     }
 
     /**
+     * @param array<string, string|string[]> $overwrites
+     *
      * @return array<string>|string|null
      */
-    private function getTransports(object $message): array|string|null
+    private function getTransports(object $message, array $overwrites, bool $inherited): array|string|null
     {
         $class = $message::class;
 
-        if (!\array_key_exists($class, $this->routing)) {
+        if (\array_key_exists($class, $overwrites)) {
+            return $overwrites[$class];
+        }
+
+        if (!$inherited) {
             return null;
         }
 
-        return $this->routing[$class];
+        foreach ($overwrites as $class => $transports) {
+            if ($message instanceof $class) {
+                return $transports;
+            }
+        }
+
+        return null;
     }
 }

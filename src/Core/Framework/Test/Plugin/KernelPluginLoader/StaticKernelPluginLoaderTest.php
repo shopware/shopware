@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
@@ -58,6 +57,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testNonExistingPluginIsSkipped(): void
     {
         $active = $this->getActivePlugin();
+        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
         $active->setBaseClass('SomeNotExistingBaseClass');
 
         $plugins = [$active->jsonSerialize()];
@@ -235,8 +235,11 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testExpectExceptionWithFakePlugin(): void
     {
-        $fakePluginData = $this->getFakePlugin()->jsonSerialize();
-        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$fakePluginData]);
+        $plugin = $this->getActivePlugin();
+        // @phpstan-ignore-next-line -> phpstan enforces correct base class strings
+        $plugin->setBaseClass(SwagTestFake::class);
+
+        $loader = new StaticKernelPluginLoader($this->classLoader, null, [$plugin->jsonSerialize()]);
 
         $this->expectException(KernelPluginLoaderException::class);
         $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Plugin class "SwagTestPlugin\SwagTestFake" must extend "Shopware\Core\Framework\Plugin"');
@@ -385,13 +388,5 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
         $loader->initializePlugins(TEST_PROJECT_DIR);
-    }
-
-    private function getFakePlugin(): PluginEntity
-    {
-        $plugin = $this->getActivePlugin();
-        $plugin->setBaseClass(SwagTestFake::class);
-
-        return $plugin;
     }
 }

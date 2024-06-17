@@ -184,6 +184,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $cart->addErrors(new ProductNotFoundError($item->getLabel() ?: $item->getId()));
 
         $items->remove($item->getId());
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            foreach ($delivery->getPositions() as $position) {
+                if ($position->getIdentifier() !== $item->getId()) {
+                    continue;
+                }
+
+                $delivery->getPositions()->remove($position->getIdentifier());
+            }
+        }
     }
 
     private function validateParents(LineItem $item, CartDataCollection $data, LineItemCollection $items): void

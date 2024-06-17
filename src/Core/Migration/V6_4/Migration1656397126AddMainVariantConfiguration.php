@@ -30,11 +30,7 @@ class Migration1656397126AddMainVariantConfiguration extends MigrationStep
 
         if (!EntityDefinitionQueryHelper::columnExists($connection, 'product', 'variant_listing_config')) {
             // Will be dropped anyway in future migrations: Shopware\Core\Migration\V6_5\Migration1678969082DropVariantListingFields
-            try {
-                $connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.main_variant_id`');
-            } catch (\Throwable $e) {
-                // ignore when missing
-            }
+            $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.main_variant_id');
 
             $connection->executeStatement(
                 'ALTER TABLE `product` ADD COLUMN `variant_listing_config` JSON
@@ -43,10 +39,5 @@ class Migration1656397126AddMainVariantConfiguration extends MigrationStep
                         END) VIRTUAL'
             );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

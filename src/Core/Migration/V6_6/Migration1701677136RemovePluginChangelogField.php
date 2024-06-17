@@ -23,8 +23,6 @@ class Migration1701677136RemovePluginChangelogField extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'plugin_translation', 'changelog')) {
-            $connection->executeStatement('ALTER TABLE `plugin_translation` DROP COLUMN `changelog`');
-        }
+        $this->dropColumnIfExists($connection, 'plugin_translation', 'changelog');
     }
 }

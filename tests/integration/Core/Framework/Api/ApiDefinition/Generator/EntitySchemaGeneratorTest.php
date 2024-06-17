@@ -1,31 +1,30 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
+namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\Generator;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
 
 /**
  * @internal
  */
 final class EntitySchemaGeneratorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testAllEntriesHaveProtectionHints(): void
     {
         $definitionRegistry = new DefinitionInstanceRegistry(
-            $this->getContainer(),
+            self::getContainer(),
             ['simple' => SimpleDefinition::class],
             ['simple' => 'simple.repository']
         );
         $definitionRegistry->register(new SimpleDefinition(), 'simple');
 
-        $generator = new EntitySchemaGenerator();
-        $definitions = $generator->getSchema($definitionRegistry->getDefinitions());
+        $definitions = (new EntitySchemaGenerator())->getSchema($definitionRegistry->getDefinitions());
 
         static::assertNotEmpty($definitions);
 
@@ -44,9 +43,7 @@ final class EntitySchemaGeneratorTest extends TestCase
         );
         $definitionRegistry->register(new SimpleDefinition(), 'simple');
 
-        $generator = new EntitySchemaGenerator();
-        /** @var array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}> */
-        $definitions = $generator->getSchema($definitionRegistry->getDefinitions());
+        $definitions = (new EntitySchemaGenerator())->getSchema($definitionRegistry->getDefinitions());
 
         foreach ($definitions as $definition) {
             static::assertFalse($definition['write-protected'] && $definition['read-protected']);

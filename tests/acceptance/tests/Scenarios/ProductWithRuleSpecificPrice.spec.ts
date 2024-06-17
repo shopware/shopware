@@ -50,7 +50,7 @@ test('Journey: Customer gets a special product price depending on rules. @journe
 
     expect(priceResponse.ok()).toBeTruthy();
 
-    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
     await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
         `${ProductData.translated.name} | ${ProductData.productNumber}`
     );

@@ -69,6 +69,66 @@
             />
         </template>
 
+        <template v-else-if="isEntityCustomField(fieldName)">
+            {% block sw_product_stream_value_entity_single_value_custom_field %}
+            <sw-entity-single-select
+                v-if="!isMultiSelectValue"
+                v-model:value="actualCondition.value"
+                size="medium"
+                :entity="getCustomFieldEntityName(fieldName)"
+                :criteria="isProductEntity ? productCriteria : customFieldCriteria"
+                :context="context"
+                :disabled="disabled"
+                :display-variants="isProductEntity"
+                show-clearable-button
+                @select-collapsed="onSelectCollapsed"
+                @search-term-change="setSearchTerm"
+            >
+                <template #selection-label-property="{ item }">
+                    <slot
+                        name="selection-label-property"
+                        v-bind="{ item }"
+                    >
+                        {{ item.translated?.name || item.name }}
+                    </slot>
+                </template>
+            </sw-entity-single-select>
+            {% endblock %}
+
+            {% block sw_product_stream_value_entity_multi_value_custom_field %}
+            <sw-entity-multi-id-select
+                v-else-if="isMultiSelectValue"
+                v-model:value="multiValue"
+                size="medium"
+                :repository="entityCustomFieldRepository"
+                :criteria="customFieldCriteria"
+                :context="context"
+                :disabled="disabled"
+                @select-collapsed="onSelectCollapsed"
+                @search-term-change="setSearchTerm"
+            >
+                <template #result-label-property="{ item, searchTerm, highlightSearchTerm }">
+                    <slot
+                        name="result-label-property"
+                        v-bind="{ item, searchTerm, highlightSearchTerm }"
+                    >
+                        <sw-product-variant-info
+                            v-if="isProductEntity"
+                            highlighted
+                            :variations="item.variation"
+                            :search-term="searchTerm"
+                        >
+                            {{ item.translated?.name || item.name }}
+                        </sw-product-variant-info>
+                        <template v-else>
+                            {{ item.translated?.name || item.name }}
+                        </template>
+                    </slot>
+                </template>
+            </sw-entity-multi-id-select>
+            {% endblock %}
+        </template>
+
         <template v-else-if="fieldType === 'uuid'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_entity_single_value %}

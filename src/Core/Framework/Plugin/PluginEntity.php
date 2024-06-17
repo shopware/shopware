@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
 #[Package('core')]
@@ -16,7 +17,7 @@ class PluginEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @var class-string<Plugin>
      */
     protected $baseClass;
 
@@ -127,11 +128,17 @@ class PluginEntity extends Entity
      */
     protected $autoload;
 
+    /**
+     * @return class-string<Plugin>
+     */
     public function getBaseClass(): string
     {
         return $this->baseClass;
     }
 
+    /**
+     * @param class-string<Plugin> $baseClass
+     */
     public function setBaseClass(string $baseClass): void
     {
         $this->baseClass = $baseClass;

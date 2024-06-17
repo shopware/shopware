@@ -1627,16 +1627,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Category/SalesChannel/CategoryListRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\SalesChannel\\\\CategoryListRouteTest\\:\\:\\$route is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/SalesChannel/CategoryListRouteTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Content/Test/Category/SalesChannel/CategoryRouteTest.php
 
@@ -1834,11 +1824,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Subscriber\\\\ProductCategoryPathsSubscriberTest\\:\\:testCategoryPathToAssignment\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Subscriber/ProductCategoryPathsSubscriberTest.php
-
-		-
-			message: "#^Function convertToUuid\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/fixtures/ensure_ids_for_products.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\LandingPage\\\\SalesChannel\\\\LandingPageRouteTest\\:\\:createData\\(\\) has parameter \\$override with no value type specified in iterable type array\\.$#"
@@ -5980,16 +5965,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:\\$sitemaps type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Sitemap/SitemapPage.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Migration\\\\Migration1595492054SeoUrlTemplateDataTest\\:\\:customTemplateProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Migration/Migration1595492054SeoUrlTemplateDataTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Migration\\\\Migration1595492054SeoUrlTemplateDataTest\\:\\:testMigrationHasNoEffectWithCustomProductTemplate\\(\\) has parameter \\$templates with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Migration/Migration1595492054SeoUrlTemplateDataTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\AbstractResolvedConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"

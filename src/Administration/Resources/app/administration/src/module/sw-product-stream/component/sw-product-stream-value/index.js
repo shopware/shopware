@@ -57,6 +57,10 @@ export default {
             return this.repositoryFactory.create(this.definition.entity);
         },
 
+        entityCustomFieldRepository() {
+            return this.repositoryFactory.create(this.getCustomFieldEntityName(this.fieldName));
+        },
+
         componentClasses() {
             return [
                 this.growthClass,
@@ -343,6 +347,20 @@ export default {
             return criteria;
         },
 
+        customFieldCriteria() {
+            if (this.isProductEntity) {
+                return this.productCriteria;
+            }
+
+            const criteria = new Criteria(1, 25);
+
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('name', this.searchTerm), 500);
+            }
+
+            return criteria;
+        },
+
         visibilitiesLabelCallback() {
             return (item) => {
                 if (!item) {
@@ -355,6 +373,10 @@ export default {
 
                 return `${item.salesChannel.translated.name}: ${item.product.translated.name}`;
             };
+        },
+
+        isProductEntity() {
+            return this.getCustomFieldEntityName(this.fieldName) === 'product';
         },
     },
 
@@ -477,6 +499,20 @@ export default {
             }
 
             return Object.values(category.breadcrumb).join(' / ');
+        },
+
+        isEntityCustomField(fieldName) {
+            const strippedFieldName = fieldName?.replace(/customFields\./, '');
+            const customField = this.productCustomFields[strippedFieldName];
+
+            return customField?.config?.customFieldType === 'entity';
+        },
+
+        getCustomFieldEntityName(fieldName) {
+            const strippedFieldName = fieldName.replace(/customFields\./, '');
+            const customField = this.productCustomFields[strippedFieldName];
+
+            return customField.config.entity;
         },
     },
 };

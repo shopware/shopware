@@ -150,4 +150,16 @@ describe('Form Preserver tests', () => {
         expect(Storage.getItem(`test.cars2`)).toBe('volvo,audi');
     });
 
+    test.each(['submit', 'reset'])('form preserver clears storage on form submission / reset', (eventType) => {
+        const element = document.querySelector(`[name=checkboxtest]`);
+        element.checked = true;
+        element.dispatchEvent(new Event('change'));
+
+        expect(Storage.getItem(`test.checkboxtest`)).toBe('true');
+
+        const form = document.querySelector('#test');
+        form.dispatchEvent(new Event(eventType));
+
+        expect(Storage.getItem('test.checkboxtest')).toBeNull();
+    });
 });

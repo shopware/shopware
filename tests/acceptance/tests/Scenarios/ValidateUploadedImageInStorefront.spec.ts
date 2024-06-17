@@ -48,12 +48,12 @@ test('Shop customer should be able to see the uploaded image in the storefront. 
     await ShopCustomer.attemptsTo(Login());
 
     await test.step('Logged-In shop customer should be able to see the cover image on the product listing page.', async () => {
-        await ShopCustomer.goesTo(StorefrontHome);
+        await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.productImages.getByAltText(`alt-${MediaData.id}`)).toBeVisible();
     });
 
     await test.step('Logged-In shop customer should be able to see an image on the product detail page.', async () => {
-        await ShopCustomer.goesTo(StorefrontProductDetail);
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
         await ShopCustomer.expects(StorefrontProductDetail.productSingleImage.getByAltText(`alt-${MediaData.id}`)).toBeVisible();
     });
 
@@ -76,7 +76,7 @@ test('Shop customer should be able to see the uploaded image in the storefront. 
     });
 
     await test.step('Logged-In shop customer should be able to see the cover image within the account order page.', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountOrder);
+        await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await StorefrontAccountOrder.orderExpandButton.click();
         await ShopCustomer.expects(StorefrontAccountOrder.cartLineItemImages.getByAltText(`alt-${MediaData.id}`)).toBeVisible();
     });
@@ -84,14 +84,14 @@ test('Shop customer should be able to see the uploaded image in the storefront. 
     await ShopCustomer.attemptsTo(Logout());
 
     await test.step('Shop customer should be able to see the cover image on the checkout register page.', async () => {
-        await ShopCustomer.goesTo(StorefrontProductDetail);
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
         await ShopCustomer.attemptsTo(AddProductToCart(ProductData));
-        await ShopCustomer.goesTo(StorefrontCheckoutRegister);
+        await ShopCustomer.goesTo(StorefrontCheckoutRegister.url());
         await ShopCustomer.expects(StorefrontCheckoutRegister.cartLineItemImages.getByAltText(`alt-${MediaData.id}`)).toBeVisible();
     });
 
     await test.step('Shop customer should be able to see the cover image on the cart page.', async () => {
-        await ShopCustomer.goesTo(StorefrontCheckoutCart);
+        await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
         await ShopCustomer.expects(StorefrontCheckoutCart.cartLineItemImages.getByAltText(`alt-${MediaData.id}`)).toBeVisible();
     });
 

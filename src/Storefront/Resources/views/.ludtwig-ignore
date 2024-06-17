@@ -25,6 +25,7 @@
 /storefront/page/account/addressbook/index.html.twig
 /storefront/component/address/address-editor-modal-create-address.html.twig
 /storefront/component/address/address-editor-modal-list.html.twig
+/storefront/utilities/alert.html.twig
 
 # -------------------------------------------
 # Ludtwig related parser errors below.

@@ -139,7 +139,7 @@ PHP legacy:
     - php vendor/bin/phpunit
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
-      --testsuite storefront,content,framework,migration
+      --testsuite content,framework,migration
       --order-by default
 
 PHP bench:
@@ -183,7 +183,6 @@ Open Api Schema validation:
   image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
   stage: unit
   timeout: 10m
-  allow_failure: true
   needs: [build image]
   tags:
     - shopware-amd64
@@ -192,15 +191,9 @@ Open Api Schema validation:
     TEST_WEB_INSTALLER: 1
     DATABASE_URL: mysql://root:app@database:3306/root
   services:
-    - name: mysql:8
+    - name: mariadb:10.11
       alias: database
-      pull_policy: always
-      entrypoint:
-        [
-          "sh",
-          "-c",
-          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON",
-        ]
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
     - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
       alias: shopware.test
       entrypoint: ["sh", "-c", "bin/console system:generate-jwt && /entrypoint"]
@@ -220,16 +213,18 @@ Open Api Schema validation:
     - !reference [.scripts, init, composer]
     - composer run init:db
     - mkdir -p config/jwt || true
-    - bin/console system:generate-jwt || true
   script:
     - export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
     - export OPENAPI_ACCESS_KEY=$(mysql -u root -h database -papp root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
     - printf "OPENAPI_JSON_URL=http://shopware.test:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
+    - mkdir api-types
+    - touch api-types/storeApiSchema.json
+    - touch api-types/adminApiSchema.json
     - npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
     - npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
     - npm i -g @redocly/cli@latest
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
 PHP unit coverage:
   extends: .base-no-setup
@@ -329,7 +324,7 @@ PHP Full:
     - name: redis:7.0
       alias: redis
   variables:
-    TEST_SUITES: "integration storefront content devops framework unit migration migration-tests"
+    TEST_SUITES: "integration content devops framework unit migration migration-tests"
     APP_ENV: test
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     ALLOW_FAILURE: "false"
@@ -365,7 +360,7 @@ PHP Full:
         PREFER_LOWEST: "prefer lowest"
         # Don't run devops tests with lowest dependencies, as phpstan has known issues with mismatched in installed package versions: https://github.com/phpstan/phpdoc-parser/issues/188
         # Also running devops tests don't provide value with prefer lowest, as the scripts are always executed with the latest dependencies
-        TEST_SUITES: "integration storefront content framework unit migration migration-tests"
+        TEST_SUITES: "integration content framework unit migration migration-tests"
       - MYSQL_IMAGE: mariadb:10.11
         ONLY_CORE: "only core"
         TEST_SUITES: "integration content framework migration"

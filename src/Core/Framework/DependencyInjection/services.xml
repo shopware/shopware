@@ -366,7 +366,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
             <tag name="twig.extension"/>
         </service>
-
+        
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
             <tag name="twig.extension" />
         </service>
@@ -662,6 +662,7 @@ base-uri 'self';
         <service id="messenger.bus.shopware" class="Shopware\Core\Framework\Adapter\Messenger\MessageBus" decorates="messenger.default_bus">
             <argument type="service" id=".inner"/>
             <argument type="collection"></argument>
+            <argument>%shopware.messenger.routing_overwrite%</argument>
         </service>
 
         <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">

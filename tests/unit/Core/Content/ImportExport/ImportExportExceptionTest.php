@@ -208,5 +208,13 @@ class ImportExportExceptionTest extends TestCase
             'errorCode' => 'CONTENT__IMPORT_EXPORT__UNKNOWN_ACTIVITY',
             'message' => 'The activity "foo" could not be processed.',
         ];
+
+        yield [
+            'exceptionFunction' => fn () => ImportExportException::duplicateTechnicalName('foo'),
+            'deprecated' => false,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME',
+            'message' => 'The technical name "foo" is not unique.',
+        ];
     }
 }

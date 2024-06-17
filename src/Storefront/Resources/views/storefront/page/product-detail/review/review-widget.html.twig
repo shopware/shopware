@@ -31,7 +31,9 @@
                             } %}
 
                             {% if productReviewCount > 0 %}
-                                <p class="h6">
+                                {# The visible headline is aria-hidden because it is redundant for the screen reader. #}
+                                {# The average rating alternative text is already part of `rating.html.twig`. #}
+                                <p class="h6" aria-hidden="true">
                                     {{ productAvgRating }} {{ 'detail.reviewAvgRate'|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ 'detail.reviewAvgRateElements'|trans }}
                                 </p>
                             {% endif %}

@@ -28,7 +28,7 @@ class ExtensionRule implements Rule
     /**
      * @param InClassNode $node
      *
-     * @return array<array-key, RuleError|string>
+     * @return array<RuleError|string>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -36,7 +36,7 @@ class ExtensionRule implements Rule
 
         $extension = $this->isExtension($node);
 
-        $internal = $this->isInternal($node);
+        $internal = $this->isInternal($node->getDocComment()?->getText() ?? '');
 
         if (!$extension && !$example) {
             return [];
@@ -44,11 +44,9 @@ class ExtensionRule implements Rule
 
         $errors = [];
         if ($internal) {
-            $errors[] = [
-                RuleErrorBuilder::message('Extension / Example classes should not be marked as internal')
-                    ->line($node->getDocComment()?->getStartLine() ?? 0)
-                    ->build(),
-            ];
+            $errors[] = RuleErrorBuilder::message('Extension / Example classes should not be marked as internal')
+                ->line($node->getDocComment()?->getStartLine() ?? 0)
+                ->build();
         }
 
         if ($extension) {
@@ -59,7 +57,7 @@ class ExtensionRule implements Rule
     }
 
     /**
-     * @return array<array-key, RuleError|string>
+     * @return array<RuleError|string>
      */
     private function validateExtension(InClassNode $node): array
     {
@@ -69,28 +67,37 @@ class ExtensionRule implements Rule
         try {
             $nameConstant = $node->getClassReflection()->getConstant('NAME');
         } catch (MissingConstantFromReflectionException) {
-            $errors[] = [
-                RuleErrorBuilder::message('Extension classes should have a public NAME constant')
-                    ->line($node->getLine())
-                    ->build(),
-            ];
+            $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
+                ->line($node->getLine())
+                ->build();
         }
 
         if ($nameConstant && !$nameConstant->isPublic()) {
-            $errors[] = [
-                RuleErrorBuilder::message('Extension classes should have a public NAME constant')
-                    ->line($node->getLine())
-                    ->build(),
-            ];
+            $errors[] = RuleErrorBuilder::message('Extension classes should have a public NAME constant')
+                ->line($node->getLine())
+                ->build();
+        }
+
+        // is final?
+        if (!$node->getClassReflection()->isFinal()) {
+            $errors[] = RuleErrorBuilder::message('Extension classes should be final')
+                ->line($node->getLine())
+                ->build();
+        }
+
+        $constructor = $node->getClassReflection()->getConstructor();
+        $internal = $this->isInternal($constructor->getDocComment() ?? '');
+        if (!$internal) {
+            $errors[] = RuleErrorBuilder::message('Extension classes constructor should be marked as internal')
+                ->line($node->getLine())
+                ->build();
         }
 
         return $errors;
     }
 
-    private function isInternal(InClassNode $node): bool
+    private function isInternal(string $doc): bool
     {
-        $doc = $node->getDocComment()?->getText() ?? '';
-
         return \str_contains($doc, '@internal') || \str_contains($doc, 'reason:becomes-internal');
     }
 

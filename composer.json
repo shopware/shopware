@@ -556,6 +556,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Shopware\\Tests\\Examples\\": "tests/examples/",
             "Shopware\\Tests\\Unit\\": "tests/unit/",
             "Shopware\\Tests\\Integration\\": "tests/integration/",
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",

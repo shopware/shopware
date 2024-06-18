@@ -6,7 +6,9 @@ use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.7.0
+ * @template T
+ *
+ * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
  */
 #[Package('core')]
 abstract class Extension implements StoppableEventInterface
@@ -29,14 +31,20 @@ abstract class Extension implements StoppableEventInterface
         return static::name() . self::POST;
     }
 
+    /**
+     * @var T
+     */
     public mixed $result = null;
 
     private bool $propagationStopped = false;
 
     /**
-     * @return mixed
+     * @return T
      */
-    abstract public function result();
+    public function result()
+    {
+        return $this->result();
+    }
 
     /**
      * @return array<string, mixed>

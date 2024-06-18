@@ -22,7 +22,7 @@
 
                     {% block page_product_detail_configurator_select_option %}
                         <option value="{{ option.id }}"{% if selected %} selected="selected"{% endif %}>
-                            {{ option.translated.name }}
+                            {{ option.translated.name|sw_sanitize }}
                         </option>
                     {% endblock %}
                 {% endfor %}

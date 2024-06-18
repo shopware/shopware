@@ -622,6 +622,7 @@ class ElasticsearchProductTest extends TestCase
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            // Foo Stilk is ignored because it is not a prefix
             $criteria->addFilter(new PrefixFilter('product.name', 'Sti'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
@@ -2946,7 +2947,8 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame($ids->get('product-2'), $result[4]);
             static::assertSame($ids->get('product-3'), $result[5]);
             static::assertSame($ids->get('product-4'), $result[6]);
-            static::assertSame($ids->get('cf1'), $result[7]);
+            static::assertSame($ids->get('zanother-product-3b'), $result[7]);
+            static::assertSame($ids->get('cf1'), $result[8]);
 
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -2955,7 +2957,8 @@ class ElasticsearchProductTest extends TestCase
 
             $result = array_reverse($searcher->search($this->productDefinition, $criteria, $context)->getIds());
 
-            static::assertSame($ids->get('cf1'), $result[7]);
+            static::assertSame($ids->get('cf1'), $result[8]);
+            static::assertSame($ids->get('zanother-product-3b'), $result[7]);
             static::assertSame($ids->get('product-4'), $result[6]);
             static::assertSame($ids->get('product-3'), $result[5]);
             static::assertSame($ids->get('product-2'), $result[4]);
@@ -3395,6 +3398,14 @@ class ElasticsearchProductTest extends TestCase
                 ->category('c1')
                 ->category('c3')
                 ->property('red', 'color')
+                ->build(),
+            (new ProductBuilder($this->ids, 'zanother-product-3b'))
+                ->name('Foo Sti')
+                ->manufacturer('m2')
+                ->price(100, 100, 'default', 100, 100)
+                ->purchasePrice(100)
+                ->stock(100)
+                ->property('silver', 'color')
                 ->build(),
             (new ProductBuilder($this->ids, 'product-4'))
                 ->name('Grouped 1')

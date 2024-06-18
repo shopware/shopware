@@ -608,7 +608,9 @@
     "reviewAvgRateElements": "stars",
     "reviewAvgRatingAltText": "Average rating of %points% out of %maxPoints% stars",
     "reviewRatingAltText": "Review with rating of %points% out of %maxPoints% stars",
-    "reviewNotPublicYetAlert": "Your review has not been approved yet"
+    "reviewNotPublicYetAlert": "Your review has not been approved yet",
+    "unavailable": "Unavailable",
+    "unavailableTooltip": "This option is currently unavailable."
   },
   "spatial": {
     "scanQrCode": "Scan QR-Code",

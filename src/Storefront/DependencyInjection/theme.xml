@@ -35,7 +35,6 @@
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
             <argument>%storefront.theme.auto_prefix_css%</argument>
         </service>
@@ -66,9 +65,9 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
-            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
@@ -136,8 +135,8 @@
 
         <service id="Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler">
             <argument type="service" id="shopware.filesystem.theme"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
 
             <tag name="messenger.message_handler" />
         </service>

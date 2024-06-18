@@ -20,7 +20,6 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
         '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
-        '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
         '^shopware\/core$' => 'The shopware core packages should be required in any version, so use `*` constraint, the version constraint will be automatically synced during the release process',
         '^ext-.*$' => 'PHP extension version ranges should be required in any version, so use `*` constraint',
     ],

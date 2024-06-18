@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Console\Application;
+use Composer\InstalledVersions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
@@ -25,6 +26,8 @@ class CommandExecutor
 
     public function require(string $pluginComposerName, string $pluginName): void
     {
+        $lockState = $this->lockComposerPackage();
+
         $output = new BufferedOutput();
         $input = new ArrayInput(
             [
@@ -32,12 +35,14 @@ class CommandExecutor
                 'packages' => [$pluginComposerName],
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
-                '--update-with-all-dependencies' => null,
+                '--update-with-dependencies' => null,
                 '--no-scripts' => null,
             ]
         );
 
         $exitCode = $this->application->run($input, $output);
+
+        $this->unlockComposerPackage($lockState);
 
         if ($exitCode === 0) {
             // Composer reverts the files, when the require command fails. We don't need a reset on an error case
@@ -82,5 +87,36 @@ class CommandExecutor
         if (\function_exists('opcache_reset')) {
             opcache_reset();
         }
+    }
+
+    /**
+     * We lock the composer/composer package to the current version to prevent composer from updating itself.
+     */
+    private function lockComposerPackage(): ?string
+    {
+        $composerJsonPath = $this->projectDir . '/composer.json';
+        $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
+
+        $before = $composerJson['require']['composer/composer'] ?? null;
+
+        $composerJson['require']['composer/composer'] = InstalledVersions::getVersion('composer/composer');
+
+        file_put_contents($composerJsonPath, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+
+        return $before;
+    }
+
+    private function unlockComposerPackage(?string $beforeState): void
+    {
+        $composerJsonPath = $this->projectDir . '/composer.json';
+        $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, flags: \JSON_THROW_ON_ERROR);
+
+        if ($beforeState !== null) {
+            $composerJson['require']['composer/composer'] = $beforeState;
+        } else {
+            unset($composerJson['require']['composer/composer']);
+        }
+
+        file_put_contents($composerJsonPath, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
     }
 }

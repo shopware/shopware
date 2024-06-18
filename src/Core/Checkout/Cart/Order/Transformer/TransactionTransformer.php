@@ -7,13 +7,12 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('checkout')]
 class TransactionTransformer
 {
     /**
-     * @return array<int, array<string, string|CalculatedPrice|array|null>>
+     * @return array<int, array<string, string|CalculatedPrice|array<array-key, mixed>|null>>
      */
     public static function transformCollection(
         TransactionCollection $transactions,
@@ -29,7 +28,7 @@ class TransactionTransformer
     }
 
     /**
-     * @return array<string, string|CalculatedPrice|array|null>
+     * @return array<string, string|CalculatedPrice|array<array-key, mixed>|null>
      */
     public static function transform(
         Transaction $transaction,

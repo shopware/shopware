@@ -76,6 +76,7 @@ parameters:
         - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
         - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
         - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container

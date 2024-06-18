@@ -1,4 +1,5 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
+import RetryHelper from '../../../../core/helper/retry.helper';
 
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
@@ -85,9 +86,11 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
-        return this.syncService.sync(syncPayload, {}, {
-            'single-operation': 1,
-            'sw-language-id': Shopware.Context.api.languageId,
+        return RetryHelper.retry(() => {
+            return this.syncService.sync(syncPayload, {}, {
+                'single-operation': 1,
+                'sw-language-id': Shopware.Context.api.languageId,
+            });
         });
     }
 

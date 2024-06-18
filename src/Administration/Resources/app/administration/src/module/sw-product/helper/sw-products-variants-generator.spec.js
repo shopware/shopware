@@ -27,6 +27,12 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 },
             };
         });
+        Shopware.Service().register('cacheApiService', () => {
+            return {
+                indexProducts() {
+                },
+            };
+        });
         variantsGenerator = new VariantsGenerator();
     });
 

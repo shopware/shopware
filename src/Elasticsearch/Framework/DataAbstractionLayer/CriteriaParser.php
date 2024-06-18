@@ -640,16 +640,11 @@ class CriteriaParser
         $query = new PrefixQuery($accessor, $value);
 
         if ($field instanceof TranslatedField) {
-            $multiMatchFields = [];
+            $query = new DisMaxQuery();
 
             foreach ($context->getLanguageIdChain() as $languageId) {
-                $multiMatchFields[] = $this->getTranslatedFieldName($accessor, $languageId) . '.search';
+                $query->addQuery(new WildcardQuery($this->getTranslatedFieldName($accessor, $languageId), $value . '*'));
             }
-
-            $query = new MultiMatchQuery($multiMatchFields, $value, [
-                'type' => 'phrase_prefix',
-                'slop' => 5,
-            ]);
         }
 
         return $this->createNestedQuery(

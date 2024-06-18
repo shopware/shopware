@@ -41,7 +41,9 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 class JsonFieldTest extends TestCase
 {
     use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -68,6 +70,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }

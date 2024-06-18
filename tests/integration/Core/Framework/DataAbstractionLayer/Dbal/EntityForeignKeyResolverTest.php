@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -10,12 +11,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -177,6 +181,35 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertArrayHasKey('shipping_method', $affected);
         static::assertContains($ids->get('shipping-method'), $affected['shipping_method']);
         static::assertArrayNotHasKey('sales_channel', $affected);
+    }
+
+    public function testItAllowsDeletionWithSelfReferencingEntity(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $builder = new ProductBuilder($ids, 'product');
+        $builder->price(100);
+
+        /** @var EntityRepository $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $productRepository->create([$builder->build()], $context);
+
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        // self referencing is not allowed over the application anymore, but we still want to support the deletion
+        $connection->executeStatement('UPDATE product SET parent_id = :id WHERE id = :id', [
+            'id' => $ids->getBytes('product'),
+        ]);
+        static::assertIsString($productRepository->searchIds(new Criteria([$ids->get('product')]), $context)->firstId());
+
+        $deleteIds = [
+            'id' => $ids->get('product'),
+        ];
+        $productRepository->delete([$deleteIds], $context);
+
+        static::assertNull($productRepository->searchIds(new Criteria([$ids->get('product')]), $context)->firstId());
     }
 
     private function getStateId(string $state, string $machine): string

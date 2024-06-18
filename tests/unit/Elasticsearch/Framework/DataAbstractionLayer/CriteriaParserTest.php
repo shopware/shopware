@@ -379,14 +379,23 @@ class CriteriaParserTest extends TestCase
         yield 'PrefixFilter translated field' => [
             new PrefixFilter('name', 'foo'),
             [
-                'multi_match' => [
-                    'query' => 'foo',
-                    'fields' => [
-                        'name.' . self::SECOND_LANGUAGE . '.search',
-                        'name.' . Defaults::LANGUAGE_SYSTEM . '.search',
+                'dis_max' => [
+                    'queries' => [
+                        [
+                            'wildcard' => [
+                                'name.' . self::SECOND_LANGUAGE => [
+                                    'value' => 'foo*',
+                                ],
+                            ],
+                        ],
+                        [
+                            'wildcard' => [
+                                'name.' . Defaults::LANGUAGE_SYSTEM => [
+                                    'value' => 'foo*',
+                                ],
+                            ],
+                        ],
                     ],
-                    'type' => 'phrase_prefix',
-                    'slop' => 5,
                 ],
             ],
         ];

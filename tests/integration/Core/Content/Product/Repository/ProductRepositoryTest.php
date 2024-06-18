@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -305,6 +306,47 @@ class ProductRepositoryTest extends TestCase
         $variant = $this->repository->search(new Criteria([$variantId]), $this->context)->getEntities()->get($variantId);
         static::assertNotNull($variant);
         static::assertNull($variant->getName());
+    }
+
+    /**
+     * @param array<string, mixed> $relationData
+     */
+    #[DataProvider('dataProviderSelfReferences')]
+    public function testParentCanNotReferenceItself(string $id, array $relationData): void
+    {
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+        $this->repository->create([$data], $this->context);
+
+        $e = null;
+
+        try {
+            $this->repository->update([$relationData], $this->context);
+        } catch (WriteException $e) {
+        }
+
+        static::assertInstanceOf(WriteException::class, $e);
+        $exception = $e->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        $violation = $exception->getViolations()->get(0);
+        static::assertSame(ParentRelationValidator::VIOLATION_PARENT_RELATION_DOES_NOT_ALLOW_SELF_REFERENCES, $violation->getCode());
+    }
+
+    public static function dataProviderSelfReferences(): \Generator
+    {
+        $id = Uuid::randomHex();
+        yield 'over parent FK field' => [$id, ['id' => $id, 'parentId' => $id]];
+
+        yield 'over parent association' => [$id, ['id' => $id, 'parent' => ['id' => $id]]];
+
+        yield 'over children association' => [$id, ['id' => $id, 'children' => [['id' => $id]]]];
     }
 
     public function testSearchKeywordIndexerConsidersUpdate(): void

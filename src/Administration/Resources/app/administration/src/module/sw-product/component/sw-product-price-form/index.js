@@ -154,5 +154,9 @@ export default {
 
             return tax.name;
         },
+
+        updatePrices(index) {
+            this.product.price.splice(index, 1);
+        },
     },
 };

@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
 
     steps:
       - name: Get Composer Cache Directory

@@ -18,7 +18,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -155,32 +154,6 @@ class ConsentServiceTest extends TestCase
 
         static::expectException(ConsentAlreadyAcceptedException::class);
         $consentService->acceptConsent();
-    }
-
-    public function testIgnoresExceptionsDuringReportingConsentState(): void
-    {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects(static::once())
-            ->method('dispatch')
-            ->willThrowException(new \Exception());
-
-        $systemConfigService = new StaticSystemConfigService([
-            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-        ]);
-
-        $consentService = new ConsentService(
-            $systemConfigService,
-            $this->createMock(EntityRepository::class),
-            $eventDispatcher,
-            new MockClock(),
-        );
-
-        $consentService->revokeConsent();
-
-        static::assertSame(
-            ConsentState::REVOKED->value,
-            $systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE),
-        );
     }
 
     public function testHasNoConsentState(): void

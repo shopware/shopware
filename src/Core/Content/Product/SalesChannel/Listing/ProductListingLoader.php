@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,16 +52,11 @@ class ProductListingLoader
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
         // allows full service decoration
-        $result = $this->extensions->publish(
+        return $this->extensions->publish(
+            name: ResolveListingExtension::NAME,
             extension: new ResolveListingExtension($origin, $context),
             function: $this->_load(...)
         );
-
-        if (!$result instanceof EntitySearchResult) {
-            throw FrameworkException::extensionResultNotSet(ResolveListingExtension::class);
-        }
-
-        return $result;
     }
 
     /**
@@ -73,19 +67,18 @@ class ProductListingLoader
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $clone = clone $criteria;
 
-        $ids = $this->extensions->publish(
+        $idResult = $this->extensions->publish(
+            name: ResolveListingIdsExtension::NAME,
             extension: new ResolveListingIdsExtension($clone, $context),
             function: $this->resolveIds(...)
         );
 
-        if (!$ids instanceof IdSearchResult) {
-            throw FrameworkException::extensionResultNotSet(ResolveListingIdsExtension::class);
-        }
-
         $aggregations = $this->productRepository->aggregate($clone, $context);
 
+        /** @var list<string> $ids */
+        $ids = $idResult->getIds();
         // no products found, no need to continue
-        if (empty($ids->getIds())) {
+        if (empty($ids)) {
             return new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -96,17 +89,14 @@ class ProductListingLoader
             );
         }
 
-        /** @var list<string> $keys */
-        $keys = $ids->getIds();
-
-        $mapping = $this->resolvePreviews($keys, $clone, $context);
+        $mapping = $this->resolvePreviews($ids, $clone, $context);
 
         $searchResult = $this->resolveData($clone, $mapping, $context);
 
-        $this->addExtensions($ids, $searchResult, $mapping);
+        $this->addExtensions($idResult, $searchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context->getContext());
-        $result->addState(...$ids->getStates());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $searchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result->addState(...$idResult->getStates());
 
         return $result;
     }
@@ -287,7 +277,7 @@ class ProductListingLoader
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      *
      * @return array<string, string>
      */

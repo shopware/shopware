@@ -42,16 +42,20 @@ class ProductListingLoaderExtensionsTests extends TestCase
         $example = new ResolveListingIdsExample($client);
 
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ResolveListingIdsExtension::pre(), $example);
+        $dispatcher->addListener(ResolveListingIdsExtension::NAME . '.pre', $example);
 
         $extension = new ResolveListingIdsExtension(
             new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
 
-        $result = (new ExtensionDispatcher($dispatcher))->publish($extension, function () {
-            return IdSearchResult::fromIds(['core-id'], new Criteria(), Context::createDefaultContext());
-        });
+        $result = (new ExtensionDispatcher($dispatcher))->publish(
+            name: ResolveListingIdsExtension::NAME,
+            extension: $extension,
+            function: static function () {
+                return IdSearchResult::fromIds(['core-id'], new Criteria(), Context::createDefaultContext());
+            }
+        );
 
         static::assertInstanceOf(IdSearchResult::class, $result);
 
@@ -66,12 +70,11 @@ class ProductListingLoaderExtensionsTests extends TestCase
             ->method('get')
             ->willReturn(new Response(200, [], json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR)));
 
-        $example = new ResolveListingExample(
-            $client,
-            new StaticEntityRepository([
-                [(new ProductEntity())->assign(['id' => 'plugin-id'])],
-            ]),
-        );
+        /** @var StaticEntityRepository<ProductCollection> $productRepo */
+        $productRepo = new StaticEntityRepository([
+            [(new ProductEntity())->assign(['id' => 'plugin-id'])],
+        ]);
+        $example = new ResolveListingExample($client, $productRepo);
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber($example);
@@ -81,18 +84,22 @@ class ProductListingLoaderExtensionsTests extends TestCase
             $this->createMock(SalesChannelContext::class),
         );
 
-        $result = (new ExtensionDispatcher($dispatcher))->publish($extension, function () {
-            return new EntitySearchResult(
-                'product',
-                1,
-                new ProductCollection([
-                    (new ProductEntity())->assign(['id' => 'plugin-id']),
-                ]),
-                new AggregationResultCollection(),
-                new Criteria(),
-                Context::createDefaultContext()
-            );
-        });
+        $result = (new ExtensionDispatcher($dispatcher))->publish(
+            name: ResolveListingExtension::NAME,
+            extension: $extension,
+            function: function () {
+                return new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([
+                        (new ProductEntity())->assign(['id' => 'plugin-id']),
+                    ]),
+                    new AggregationResultCollection(),
+                    new Criteria(),
+                    Context::createDefaultContext()
+                );
+            }
+        );
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
 

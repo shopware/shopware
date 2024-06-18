@@ -2,12 +2,11 @@
 
 namespace Shopware\Tests\Examples;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class ResolveListingExample implements EventSubscriberInterface
@@ -19,9 +18,12 @@ readonly class ResolveListingExample implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityRepository<ProductCollection> $repository
+     */
     public function __construct(
         // you can inject your own services
-        private Client $client,
+        private ClientInterface $client,
         private EntityRepository $repository
     ) {
     }
@@ -38,7 +40,7 @@ readonly class ResolveListingExample implements EventSubscriberInterface
         ];
 
         // do an api call against your own server or another storage, or whatever you want
-        $ids = $this->client->get('https://your-api.com/listing-ids', [
+        $ids = $this->client->request('GET', 'https://your-api.com/listing-ids', [
             'query' => [
                 'criteria' => json_encode($criteria),
                 'context' => json_encode($context),
@@ -49,10 +51,7 @@ readonly class ResolveListingExample implements EventSubscriberInterface
 
         $criteria = new Criteria($data['ids']);
 
-        $result = $this->repository->search($criteria, $event->context->getContext());
-
-        /** @var EntitySearchResult<ProductCollection> $result */
-        $event->result = $result;
+        $event->result = $this->repository->search($criteria, $event->context->getContext());
 
         // stop the event propagation, so the core function will not be executed
         $event->stopPropagation();

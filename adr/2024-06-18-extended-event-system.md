@@ -61,3 +61,116 @@ To address these challenges, we have decided to transition to an event-based ext
 ## Conclusion
 
 The transition to an event-based extension system represents a strategic shift aimed at simplifying our extension framework, improving maintainability, and providing a more consistent and flexible platform for third-party developers. While this change requires an initial investment in refactoring and training, the long-term benefits of reduced complexity, improved compatibility, and a unified extension approach make it a worthwhile endeavor.
+
+## Example
+
+The following example demonstrates how an event-based extension can be implemented in the context of resolving product listings:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\Extension;
+
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\Extension;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+/**
+ * @extends Extension<EntitySearchResult<ProductCollection>>
+ */
+#[Package('inventory')]
+final class ResolveListingExtension extends Extension
+{
+    public const NAME = 'listing-loader.resolve';
+
+    /**
+     * @internal shopware owns the __constructor, but the properties are public API
+     */
+    public function __construct(
+        /**
+         * @public
+         *
+         * @description The criteria which should be used to load the products. Is also containing the selected customer filter
+         */
+        public readonly Criteria $criteria,
+        /**
+         * @public
+         *
+         * @description Allows you to access to the current customer/sales-channel context
+         */
+        public readonly SalesChannelContext $context
+    ) {
+    }
+
+    public static function name(): string
+    {
+        return self::NAME;
+    }
+}
+```
+
+In this example, the `ResolveListingExtension` class represents an event-based extension point for resolving product listings. Developers can subscribe to this event and provide custom logic for loading product data based on specific criteria and context. This approach allows for more modular and flexible extensions compared to traditional patterns like decoration or Adapter.
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Examples;
+
+use GuzzleHttp\ClientInterface;
+use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+readonly class ResolveListingExample implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'listing-loader.resolve-listing-ids.pre' => 'replace',
+        ];
+    }
+
+    /**
+     * @param EntityRepository<ProductCollection> $repository
+     */
+    public function __construct(
+        // you can inject your own services
+        private ClientInterface $client,
+        private EntityRepository $repository
+    ) {
+    }
+
+    public function replace(ResolveListingExtension $event): void
+    {
+        $criteria = $event->criteria;
+
+        // building a json aware array for the API call
+        $context = [
+            'salesChannelId' => $event->context->getSalesChannelId(),
+            'currencyId' => $event->context->getCurrency(),
+            'languageId' => $event->context->getLanguageId(),
+        ];
+
+        // do an api call against your own server or another storage, or whatever you want
+        $ids = $this->client->request('GET', 'https://your-api.com/listing-ids', [
+            'query' => [
+                'criteria' => json_encode($criteria),
+                'context' => json_encode($context),
+            ],
+        ]);
+
+        $data = json_decode($ids->getBody()->getContents(), true);
+
+        $criteria = new Criteria($data['ids']);
+
+        $event->result = $this->repository->search($criteria, $event->context->getContext());
+
+        // stop the event propagation, so the core function will not be executed
+        $event->stopPropagation();
+    }
+}
+```

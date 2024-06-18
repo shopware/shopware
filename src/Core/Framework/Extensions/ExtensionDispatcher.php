@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @experimental stableVersion:v6.7.0
+ * @experimental stableVersion:v6.7.0 feature:EXTENSION_SYSTEM
  */
 #[Package('core')]
 final class ExtensionDispatcher
@@ -19,9 +19,26 @@ final class ExtensionDispatcher
     ) {
     }
 
-    public function publish(Extension $extension, callable $function): mixed
+    public static function pre(string $name): string
     {
-        $this->dispatcher->dispatch($extension, $extension::pre());
+        return $name . '.pre';
+    }
+
+    public static function post(string $name): string
+    {
+        return $name . '.post';
+    }
+
+    /**
+     * @template TExtensionType of mixed
+     *
+     * @param Extension<TExtensionType> $extension
+     *
+     * @return TExtensionType
+     */
+    public function publish(string $name, Extension $extension, callable $function): mixed
+    {
+        $this->dispatcher->dispatch($extension, self::pre($name));
 
         if (!$extension->isPropagationStopped()) {
             $extension->result = $function(...$extension->getParams());
@@ -29,7 +46,7 @@ final class ExtensionDispatcher
 
         $extension->resetPropagation();
 
-        $this->dispatcher->dispatch($extension, $extension::post());
+        $this->dispatcher->dispatch($extension, self::post($name));
 
         return $extension->result();
     }

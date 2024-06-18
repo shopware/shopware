@@ -35,9 +35,4 @@ final class ResolveListingExtension extends Extension
         public readonly SalesChannelContext $context
     ) {
     }
-
-    public static function name(): string
-    {
-        return self::NAME;
-    }
 }

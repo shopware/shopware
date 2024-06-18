@@ -11,6 +11,7 @@ use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\Consent\ConsentStateChangedEvent;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -53,7 +54,7 @@ class ConsentReporterTest extends TestCase
             true
         );
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     public function testReportConsentAddsShopIdToPayload(): void
@@ -79,7 +80,7 @@ class ConsentReporterTest extends TestCase
             true
         );
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     public function testReportConsentAddsContentStateToPayload(): void
@@ -101,7 +102,7 @@ class ConsentReporterTest extends TestCase
             true
         );
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     public function testReportConsentAddsShopwareVersionToPayload(): void
@@ -127,7 +128,7 @@ class ConsentReporterTest extends TestCase
             true
         );
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     public function testReportConsentAddsLicenseHostToPayload(): void
@@ -151,7 +152,7 @@ class ConsentReporterTest extends TestCase
             true
         );
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     public function testReportConsentDoesNotSendRequestInDevEnvironment(): void
@@ -170,7 +171,30 @@ class ConsentReporterTest extends TestCase
         $httpClient->expects(static::never())
             ->method('request');
 
-        $reporter->reportConsent(ConsentState::REQUESTED);
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+    }
+
+    public function testReportConsentDoesNotThrowExceptionIfGatewayIsNotAvailable(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects(static::once())
+            ->method('request')
+            ->willThrowException(new TransportException('Gateway not available'));
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->method('getShopId')
+            ->willReturn('shopId');
+
+        $reporter = new ConsentReporter(
+            $httpClient,
+            $shopIdProvider,
+            new StaticSystemConfigService(),
+            $this->createMock(InstanceService::class),
+            'APP_URL',
+            true
+        );
+
+        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
     }
 
     private static function assertPayloadContains(string $key, mixed $value, string $body): void

@@ -219,7 +219,6 @@ class PaymentRefundProcessorTest extends TestCase
     {
         Feature::skipTestIfActive('v6.7.0.0', $this);
 
-        // @phpstan-ignore-next-line classConstant.deprecatedInterface
         $handlerMock = $this->createMock(RefundPaymentHandlerInterface::class);
         $handlerMock
             ->expects(static::once())

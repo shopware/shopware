@@ -73,7 +73,6 @@ class PaymentHandlerRegistryTest extends TestCase
                     $result = $this->createMock(Result::class);
                     $result
                         ->method('fetchAssociative')
-                        // @phpstan-ignore-next-line classConstant.deprecatedInterface
                         ->willReturn(['handler_identifier' => $handler::class]);
                 } else {
                     $result = $this->createMock(Result::class);

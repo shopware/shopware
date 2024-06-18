@@ -30,6 +30,7 @@ jobs:
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
 
     services:
       elasticsearch:

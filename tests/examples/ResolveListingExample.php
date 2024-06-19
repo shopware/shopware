@@ -14,7 +14,7 @@ readonly class ResolveListingExample implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'listing-loader.resolve-listing-ids.pre' => 'replace',
+            'listing-loader.resolve.pre' => 'replace',
         ];
     }
 

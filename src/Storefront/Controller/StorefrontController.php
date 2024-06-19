@@ -106,6 +106,10 @@ abstract class StorefrontController extends AbstractController
 
         $response->headers->set('Content-Type', 'text/html');
 
+        if ($parameters['statusCode'] ?? null) {
+            $response->setStatusCode($parameters['statusCode']);
+        }
+
         return $response;
     }
 

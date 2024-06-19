@@ -86,6 +86,7 @@ class AuthController extends StorefrontController
             'waitTime' => $request->get('waitTime'),
             'errorSnippet' => $request->get('errorSnippet'),
             'data' => $data,
+            'statusCode' => (bool) $request->get('loginError') ? 401 : 200
         ]);
     }
 

@@ -41,7 +41,7 @@ parameters:
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$package\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$package\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupBuilderResult.php
 
@@ -56,12 +56,12 @@ parameters:
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupServiceRegistry.php
 
 		-
-			message: "#^Anonymous variable in a `\\$item\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$item\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
 
 		-
-			message: "#^Anonymous variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/LineItemCollection.php
 
@@ -136,12 +136,12 @@ parameters:
 			path: src/Core/Checkout/Cart/Tax/Struct/TaxRule.php
 
 		-
-			message: "#^Anonymous variable in a `\\$item\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$item\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php
 
 		-
-			message: "#^Anonymous variable in a `\\$result\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$result\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php
 
@@ -401,7 +401,7 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/PromotionCartDeletedInformationError.php
 
 		-
-			message: "#^Anonymous variable in a `\\$discountLineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$discountLineItem\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 5
 			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
 
@@ -1086,7 +1086,7 @@ parameters:
 			path: src/Core/Content/Media/Aggregate/MediaThumbnailSize/MediaThumbnailSizeEntity.php
 
 		-
-			message: "#^Anonymous variable in a `\\$sliderItems\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$sliderItems\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
 
@@ -1276,21 +1276,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductTranslation/ProductTranslationEntity.php
 
 		-
-			message: "#^Anonymous variable in a `\\$customField\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Anonymous variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Anonymous variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
@@ -1333,6 +1318,21 @@ parameters:
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:prepare\\(\\) has parameter \\$lineItems with no value type specified in iterable type iterable\\.$#"
 			count: 1
+			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
+
+		-
+			message: "#^Mixed variable in a `\\$customField\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 2
+			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
+
+		-
+			message: "#^Mixed variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 2
+			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
+
+		-
+			message: "#^Mixed variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 2
 			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
 
 		-
@@ -1391,42 +1391,42 @@ parameters:
 			path: src/Core/Content/Product/Exception/VariantNotFoundException.php
 
 		-
-			message: "#^Anonymous variable in a `\\$a\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$a\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 3
 			path: src/Core/Content/Product/ProductVariationBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$b\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$b\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 3
 			path: src/Core/Content/Product/ProductVariationBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$option\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$option\\-\\>get\\('group'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Product/ProductVariationBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$group\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$group\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 5
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: "#^Anonymous variable in a `\\$group\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$group\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: "#^Anonymous variable in a `\\$origin\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$origin\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: "#^Anonymous variable in a `\\$sorted\\[\\$groupId\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$sorted\\[\\$groupId\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: "#^Anonymous variable in a `\\$sorted\\[\\$groupId\\]\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$sorted\\[\\$groupId\\]\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
@@ -1966,11 +1966,6 @@ parameters:
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$product\\-\\>getStreams\\(\\)\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Test/Product/DataAbstractionLayer/ProductStreamUpdaterTest.php
-
-		-
 			message: "#^Cannot call method getStreamIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/ProductStreamUpdaterTest.php
@@ -2146,21 +2141,6 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/ProductListRouteTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$browser\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 22
-			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$browser\\-\\>getResponse\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 11
-			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$ids\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 5
-			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\ProductSearchRouteTest\\:\\:getProductSearchConfigId\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
@@ -2256,6 +2236,21 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
 
 		-
+			message: "#^Mixed variable in a `\\$browser\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 22
+			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
+
+		-
+			message: "#^Mixed variable in a `\\$browser\\-\\>getResponse\\(\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 11
+			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
+
+		-
+			message: "#^Mixed variable in a `\\$ids\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 5
+			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
+
+		-
 			message: "#^PHPDoc tag @var for variable \\$entites has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
@@ -2296,32 +2291,32 @@ parameters:
 			path: src/Core/Content/Test/Product/SalesChannel/Review/RatingMatrixTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$optionElements\\[\\$optionId\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Cannot call method getVariation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			count: 1
+			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
+
+		-
+			message: "#^Mixed variable in a `\\$optionElements\\[\\$optionId\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$price\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$price\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 5
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$productEntity\\-\\>get\\('sortedProperties'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$productEntity\\-\\>get\\('sortedProperties'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$sortedProperties\\[\\$expectedGroupKey\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$sortedProperties\\[\\$expectedGroupKey\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 3
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$sortedProperties\\[\\$expectedGroupKey\\]\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
-
-		-
-			message: "#^Cannot call method getVariation\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
+			message: "#^Mixed variable in a `\\$sortedProperties\\[\\$expectedGroupKey\\]\\-\\>get\\('options'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Subscriber/ProductLoadedSubscriberTest.php
 
@@ -2551,7 +2546,7 @@ parameters:
 			path: src/Core/Content/Test/Sitemap/SalesChannel/SitemapRouteTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$connection\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$connection\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/DevOps/Locust/setup.php
 
@@ -2671,13 +2666,13 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/NamespaceHierarchyBuilder.php
 
 		-
-			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TokenParser\\\\IncludeTokenParser\\:\\:parseArguments\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
 			path: src/Core/Framework/Adapter/Twig/TokenParser/IncludeTokenParser.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TokenParser\\\\IncludeTokenParser\\:\\:parseArguments\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
+			message: "#^Mixed variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 3
 			path: src/Core/Framework/Adapter/Twig/TokenParser/IncludeTokenParser.php
 
 		-
@@ -2821,11 +2816,6 @@ parameters:
 			path: src/Core/Framework/Api/OAuth/ScopeRepository.php
 
 		-
-			message: "#^Anonymous variable in a `\\$relationship\\['tmp'\\]\\['definition'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/Record.php
-
-		-
 			message: "#^Cannot call method jsonSerialize\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/Record.php
@@ -2886,6 +2876,11 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/Record.php
 
 		-
+			message: "#^Mixed variable in a `\\$relationship\\['tmp'\\]\\['definition'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 1
+			path: src/Core/Framework/Api/Serializer/Record.php
+
+		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\Record\\:\\:\\$attributes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/Record.php
@@ -2924,6 +2919,7 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\QueryBuilder\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/QueryBuilder.php
+
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -4230,7 +4226,7 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/ConfigJsonFieldTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$entity\\-\\>get\\('updatedAt'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$entity\\-\\>get\\('updatedAt'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/CreateAtAndUpdatedAtFieldTest.php
 
@@ -4275,13 +4271,13 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/Flag/ApiAwareFlagTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$fieldException\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 5
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\WriteProtectedFlagTest\\:\\:getValidationExceptionMessage\\(\\) should return string but returns string\\|Stringable\\.$#"
+			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/Flag/WriteProtectedFlagTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\Flag\\\\WriteProtectedFlagTest\\:\\:getValidationExceptionMessage\\(\\) should return string but returns string\\|Stringable\\.$#"
-			count: 1
+			message: "#^Mixed variable in a `\\$fieldException\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 5
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/Flag/WriteProtectedFlagTest.php
 
 		-
@@ -4475,11 +4471,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$entity\\-\\>get\\('categories'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\Aggregate\\\\\\\\CustomerAddress\\\\\\\\CustomerAddressCollection' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
@@ -4497,6 +4488,11 @@ parameters:
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Pricing\\\\\\\\Price' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price will always evaluate to true\\.$#"
 			count: 1
+			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
+
+		-
+			message: "#^Mixed variable in a `\\$entity\\-\\>get\\('categories'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
+			count: 2
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php
 
 		-
@@ -4623,8 +4619,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\LockValidatorTest\\:\\:\\$testDefinition \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\) does not accept object\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
-
-
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Filesystem\\\\Adapter\\\\MemoryAdapterFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -4987,7 +4981,7 @@ parameters:
 			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
 
 		-
-			message: "#^Anonymous variable in a `\\$oldBag\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$oldBag\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 3
 			path: src/Core/Framework/Test/TestSessionStorage.php
 
@@ -5342,12 +5336,12 @@ parameters:
 			path: src/Core/Migration/Traits/Translations.php
 
 		-
-			message: "#^Anonymous variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\Datadog\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Integration/Datadog.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\Datadog\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
+			message: "#^Mixed variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Profiling/Integration/Datadog.php
 
@@ -5362,12 +5356,12 @@ parameters:
 			path: src/Core/Profiling/Integration/ProfilerInterface.php
 
 		-
-			message: "#^Anonymous variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\Tideways\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Integration/Tideways.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\Tideways\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
+			message: "#^Mixed variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/Profiling/Integration/Tideways.php
 
@@ -5497,7 +5491,7 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/ResponseFields.php
 
 		-
-			message: "#^Anonymous variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/CachedSalesChannelContextFactory.php
 
@@ -5912,7 +5906,7 @@ parameters:
 			path: src/Storefront/DependencyInjection/StorefrontExtension.php
 
 		-
-			message: "#^Anonymous variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Storefront/Event/CartMergedSubscriber.php
 
@@ -5927,12 +5921,12 @@ parameters:
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
 
 		-
-			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Storefront/Framework/Twig/TokenParser/IconTokenParser.php
 
 		-
-			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Storefront/Framework/Twig/TokenParser/ThumbnailTokenParser.php
 
@@ -6272,17 +6266,17 @@ parameters:
 			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('invalidate'\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$this\\-\\>cacheInvalidator\\-\\>expects\\(static\\:\\:once\\(\\)\\)\\-\\>method\\('invalidate'\\)\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
 
@@ -6417,47 +6411,47 @@ parameters:
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/TabsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareField\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareField\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_categories'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_categories'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_cms_page'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_cms_page'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_content'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_content'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_og_image'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_og_image'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_description'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_description'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_title'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_seo_meta_title'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_slot_config'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_slot_config'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_title'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
+			message: "#^Mixed variable in a `\\$actualCmsAwareFields\\['sw_title'\\]\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 

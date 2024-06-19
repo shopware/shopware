@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
+use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -39,7 +40,7 @@ class OrderPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private OrderPersister $orderPersister;
+    private OrderPersisterInterface $orderPersister;
 
     private Processor $cartProcessor;
 

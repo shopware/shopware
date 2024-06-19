@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Rule;
+namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -8,12 +8,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -51,7 +51,7 @@ class ScriptRuleTest extends TestCase
 
     private AppStateService $appStateService;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     private Context $context;
 
@@ -167,7 +167,6 @@ class ScriptRuleTest extends TestCase
                 Context::createDefaultContext()
             );
 
-            $groupId = Uuid::randomHex();
             $id = Uuid::randomHex();
             $this->conditionRepository->create([
                 [
@@ -183,7 +182,7 @@ class ScriptRuleTest extends TestCase
 
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = iterator_to_array($stackException->getErrors(), false);
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);
@@ -332,7 +331,7 @@ class ScriptRuleTest extends TestCase
                 'scriptId' => $this->scriptId,
                 'value' => [
                     'customerGroupIds' => [Uuid::randomHex(), $groupId],
-                    'operator' => CustomerGroupRule::OPERATOR_EQ,
+                    'operator' => Rule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

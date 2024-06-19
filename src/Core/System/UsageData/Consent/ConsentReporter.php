@@ -34,7 +34,7 @@ class ConsentReporter implements EventSubscriberInterface
         ];
     }
 
-    public function reportConsent(ConsentState $consentState): void
+    public function reportConsent(ConsentStateChangedEvent $event): void
     {
         if (!$this->dispatchEnabled) {
             return;
@@ -42,21 +42,24 @@ class ConsentReporter implements EventSubscriberInterface
 
         $payload = [
             'app_url' => $this->appUrl,
-            'consent_state' => $consentState->value,
+            'consent_state' => $event->getState()->value,
             'license_host' => $this->systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN),
             'shop_id' => $this->shopIdProvider->getShopId(),
             'shopware_version' => $this->instanceService->getShopwareVersion(),
         ];
 
-        $this->client->request(
-            Request::METHOD_POST,
-            '/v1/consent',
-            [
-                'headers' => [
-                    'Shopware-Shop-Id' => $this->shopIdProvider->getShopId(),
-                ],
-                'body' => json_encode($payload, \JSON_THROW_ON_ERROR),
-            ]
-        );
+        try {
+            $this->client->request(
+                Request::METHOD_POST,
+                '/v1/consent',
+                [
+                    'headers' => [
+                        'Shopware-Shop-Id' => $this->shopIdProvider->getShopId(),
+                    ],
+                    'body' => json_encode($payload, \JSON_THROW_ON_ERROR),
+                ]
+            );
+        } catch (\Throwable) {
+        }
     }
 }

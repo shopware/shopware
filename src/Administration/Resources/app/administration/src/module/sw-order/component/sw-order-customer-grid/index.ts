@@ -182,7 +182,7 @@ export default Component.wrapComponentConfig({
             );
 
             if (!isExists && this.customer?.salesChannel?.languageId) {
-                State.commit('context/setApiLanguageId', this.customer.salesChannel.languageId);
+                State.commit('context/setLanguageId', this.customer.salesChannel.languageId);
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

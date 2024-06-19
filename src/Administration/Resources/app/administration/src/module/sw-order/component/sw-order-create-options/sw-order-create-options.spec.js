@@ -104,6 +104,14 @@ const contextResponse = {
     },
 };
 
+const contextState = {
+    namespaced: true,
+    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    mutations: {
+        setLanguageId: jest.fn(),
+    },
+};
+
 Shopware.Component.register('sw-order-create-options', swOrderCreateOptions);
 Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
 
@@ -226,6 +234,12 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
                 context,
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', contextState);
     });
 
     it('should show address option correctly', async () => {
@@ -408,5 +422,28 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await flushPromises();
 
         expect(shippingCostField.element.value).toBe('100');
+    });
+
+    it('should be set context language when language selected', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            context: {
+                languageId: null,
+                billingAddressId: '1',
+                shippingAddressId: '2',
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+
+        await wrapper.setProps({
+            context: {
+                languageId: '1234',
+                billingAddressId: '1',
+                shippingAddressId: '2',
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
     });
 });

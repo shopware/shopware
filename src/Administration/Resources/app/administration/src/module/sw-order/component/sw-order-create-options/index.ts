@@ -140,6 +140,14 @@ export default Component.wrapComponentConfig({
             },
         },
 
+        'context.languageId'(languageId: string) {
+            if (!languageId) {
+                return;
+            }
+
+            State.commit('context/setLanguageId', languageId);
+        },
+
         isSameAsBillingAddress(value): void {
             if (!value) {
                 return;

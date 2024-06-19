@@ -10,6 +10,14 @@ import orderStore from 'src/module/sw-order/state/order.store';
 
 Shopware.Component.register('sw-order-create-details', swOrderCreateDetails);
 
+const contextState = {
+    namespaced: true,
+    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    mutations: {
+        setLanguageId: jest.fn(),
+    },
+};
+
 async function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
@@ -46,6 +54,12 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
             token: null,
             lineItems: [],
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', contextState);
     });
 
     it('should be show successful notification', async () => {
@@ -124,5 +138,24 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
 
         wrapper.vm.createNotificationWarning.mockRestore();
+    });
+
+    it('should be set context language when language selected', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            context: {
+                languageId: null,
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).not.toHaveBeenCalled();
+
+        await wrapper.setData({
+            context: {
+                languageId: '1234',
+            },
+        });
+
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
     });
 });

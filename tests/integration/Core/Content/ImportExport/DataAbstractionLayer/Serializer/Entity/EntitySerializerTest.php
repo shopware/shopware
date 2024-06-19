@@ -222,10 +222,6 @@ class EntitySerializerTest extends TestCase
         $return = $serializer->serialize(new Config([], [], []), $productDefinition, $exportData);
         $return = iterator_to_array($return);
 
-        // teardown test extension (definition can't be removed from the definitionRegistry, but shouldn't cause problems)
-        $this->removeExtension(TestExtension::class);
-        $this->getContainer()->set(TestExtension::class, null);
-
         // cleanup test extension db table
         $connection->rollBack(); // rollback the transaction
         $migration->updateDestructive($connection); // remove the extension db table

@@ -36,15 +36,6 @@ class EntityProtectionValidatorTest extends TestCase
         $this->registerDefinitionWithExtensions(UserAccessKeyDefinition::class, UserAccessKeyExtension::class);
     }
 
-    protected function tearDown(): void
-    {
-        $this->removeExtension(
-            PluginProtectionExtension::class,
-            SystemConfigExtension::class,
-            UserAccessKeyExtension::class
-        );
-    }
-
     #[DataProvider('blockedApiRequest')]
     #[Group('slow')]
     public function testItBlocksApiAccess(string $method, string $url): void

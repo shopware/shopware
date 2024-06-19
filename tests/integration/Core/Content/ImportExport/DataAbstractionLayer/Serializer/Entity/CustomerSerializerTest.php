@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serializer\Entity;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CustomerSerializer;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
  * @internal
  */
 #[Package('services-settings')]
+#[CoversClass(CustomerSerializer::class)]
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -82,6 +84,13 @@ class CustomerSerializerTest extends TestCase
                     ],
                 ],
             ],
+            'boundSalesChannel' => [
+                'translations' => [
+                    'DEFAULT' => [
+                        'name' => $salesChannel['name'],
+                    ],
+                ],
+            ],
         ];
 
         $deserialized = $this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer);
@@ -90,12 +99,10 @@ class CustomerSerializerTest extends TestCase
 
         $deserialized = \iterator_to_array($deserialized);
 
-        static::assertSame($this->customerGroupId, $deserialized['groupId']);
         static::assertSame($this->customerGroupId, $deserialized['group']['id']);
-        static::assertSame($this->paymentMethodId, $deserialized['defaultPaymentMethodId']);
         static::assertSame($this->paymentMethodId, $deserialized['defaultPaymentMethod']['id']);
-        static::assertSame($salesChannel['id'], $deserialized['salesChannelId']);
         static::assertSame($salesChannel['id'], $deserialized['salesChannel']['id']);
+        static::assertSame($salesChannel['id'], $deserialized['boundSalesChannel']['id']);
     }
 
     public function testSupportsOnlyCountry(): void

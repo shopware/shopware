@@ -24,7 +24,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class WriteProtectedFlagTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -82,6 +84,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
 
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');

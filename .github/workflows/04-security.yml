@@ -12,6 +12,8 @@ jobs:
   php:
     runs-on: ubuntu-latest
     name: "Composer dependencies"
+    env:
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
     steps:
       - name: Clone platform
         uses: actions/checkout@v4

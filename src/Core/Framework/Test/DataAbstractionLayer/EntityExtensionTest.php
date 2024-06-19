@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Assoc
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\InvalidReferenceExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -43,33 +42,20 @@ use Shopware\Core\System\Tax\TaxEntity;
  */
 class EntityExtensionTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $priceRepository;
+    private EntityRepository $priceRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
-    /**
-     * @var EntityWriter
-     */
-    private $writer;
+    private EntityWriter $writer;
 
     protected function setUp(): void
     {
@@ -83,11 +69,10 @@ class EntityExtensionTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         parent::tearDown();
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
-
-        $this->removeExtension(ScalarExtension::class, ScalarRuntimeExtension::class, AssociationExtension::class, ReferenceVersionExtension::class, InvalidReferenceExtension::class);
     }
 
     public function testICanWriteAndReadManyToOneAssociationExtension(): void

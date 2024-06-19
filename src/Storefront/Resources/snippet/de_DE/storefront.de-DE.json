@@ -608,7 +608,9 @@
     "reviewAvgRateElements": "Sternen",
     "reviewAvgRatingAltText": "Durchschnittliche Bewertung von %points% von %maxPoints% Sternen",
     "reviewRatingAltText": "Bewertung mit %points% von %maxPoints% Sternen",
-    "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
+    "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet",
+    "unavailable": "Nicht verfügbar",
+    "unavailableTooltip": "Diese Option ist zurzeit nicht verfügbar."
   },
   "spatial": {
     "scanQrCode": "QR-Code scannen",

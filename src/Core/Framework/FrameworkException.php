@@ -15,6 +15,7 @@ class FrameworkException extends HttpException
     private const INVALID_EVENT_DATA = 'FRAMEWORK__INVALID_EVENT_DATA';
 
     private const INVALID_COMPRESSION_METHOD = 'FRAMEWORK__INVALID_COMPRESSION_METHOD';
+    private const EXTENSION_RESULT_NOT_SET = 'FRAMEWORK__EXTENSION_RESULT_NOT_SET';
 
     public static function projectDirNotExists(string $dir, ?\Throwable $e = null): self
     {
@@ -51,6 +52,16 @@ class FrameworkException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_COMPRESSION_METHOD,
             \sprintf('Invalid cache compression method: %s', $method),
+        );
+    }
+
+    public static function extensionResultNotSet(string $extension): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EXTENSION_RESULT_NOT_SET,
+            'Extension result not set for extension "{{ extension }}".',
+            ['extension' => $extension]
         );
     }
 }

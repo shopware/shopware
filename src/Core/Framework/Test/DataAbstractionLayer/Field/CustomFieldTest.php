@@ -33,7 +33,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CustomFieldTest extends TestCase
 {
     use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     /**
@@ -73,6 +75,7 @@ class CustomFieldTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `attribute_test_translation`');
         $this->connection->executeStatement('DROP TABLE `attribute_test`');

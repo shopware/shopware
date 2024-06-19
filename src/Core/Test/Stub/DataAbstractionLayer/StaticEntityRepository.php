@@ -90,6 +90,10 @@ class StaticEntityRepository extends EntityRepository
             return $result;
         }
 
+        if (\is_array($result)) {
+            $result = new EntityCollection($result);
+        }
+
         if ($result instanceof EntityCollection) {
             /** @var TEntityCollection $result */
             return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);

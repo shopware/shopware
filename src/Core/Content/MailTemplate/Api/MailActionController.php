@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -72,14 +73,18 @@ class MailActionController extends AbstractController
     #[Route(path: '/api/_action/mail-template/build', name: 'api.action.mail_template.build', methods: ['POST'])]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
-        $contents = [];
         $data = $post->all();
-        $templateData = $data['mailTemplateType']['templateData'];
+        $templateData = $data['mailTemplateType']['templateData'] ?? [];
+        $template = $data['mailTemplate']['contentHtml'] ?? null;
+
+        if (!\is_string($template)) {
+            throw MailTemplateException::invalidMailTemplateContent();
+        }
 
         $this->templateRenderer->enableTestMode();
-        $contents['text/html'] = $this->templateRenderer->render($data['mailTemplate']['contentHtml'], $templateData, $context);
+        $renderedTemplate = $this->templateRenderer->render($template, $templateData, $context);
         $this->templateRenderer->disableTestMode();
 
-        return new JsonResponse($contents['text/html']);
+        return new JsonResponse($renderedTemplate);
     }
 }

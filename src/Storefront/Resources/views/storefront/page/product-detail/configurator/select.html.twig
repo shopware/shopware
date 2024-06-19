@@ -15,14 +15,22 @@
                 {% for option in group.options %}
 
                     {% set selected = false %}
+                    {% set optionName = option.translated.name %}
 
                     {% if option.id in page.product.optionIds %}
                         {% set selected = true %}
                     {% endif %}
 
+                    {% if not option.combinable %}
+                        {% set optionName =  optionName ~ ' (' ~ ('detail.unavailable'|trans|sw_sanitize) ~ ')' %}
+                    {% endif %}
+
                     {% block page_product_detail_configurator_select_option %}
-                        <option value="{{ option.id }}"{% if selected %} selected="selected"{% endif %}>
-                            {{ option.translated.name }}
+                        <option value="{{ option.id }}"
+                            {% if selected %} selected="selected"{% endif %}
+                            {% if not option.combinable %}title="{{ 'detail.unavailableTooltip'|trans|striptags }}"{% endif %}
+                        >
+                            {{ optionName }}
                         </option>
                     {% endblock %}
                 {% endfor %}

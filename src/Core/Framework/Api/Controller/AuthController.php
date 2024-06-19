@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -49,7 +50,11 @@ class AuthController extends AbstractController
         $psr7Request = $this->psrHttpFactory->createRequest($request);
         $psr7Response = $this->psrHttpFactory->createResponse($response);
 
-        $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+        try {
+            $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
+        } catch (OAuthServerException $e) {
+            throw new OAuthServerException($e->getMessage(), $e->getCode(), $e->getErrorType(), 401);
+        }
 
         $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
 

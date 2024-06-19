@@ -102,9 +102,6 @@ class ConsentService
     {
         $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_CONSENT_STATE, $consentState->value);
 
-        try {
-            $this->dispatcher->dispatch(new ConsentStateChangedEvent($consentState));
-        } catch (\Throwable) {
-        }
+        $this->dispatcher->dispatch(new ConsentStateChangedEvent($consentState));
     }
 }

@@ -20,11 +20,12 @@ class ConsentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    protected function setUp(): void
+    public function testStoresAndReportsRequestedConsentState(): void
     {
+        $consentStateReported = false;
         /** @var MockHttpClient $client */
         $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
-        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+        $client->setResponseFactory(function (string $method, string $url) use (&$consentStateReported): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);
@@ -32,12 +33,17 @@ class ConsentServiceTest extends TestCase
                 return new MockResponse($body);
             }
 
+            if (\str_ends_with($url, '/v1/consent')) {
+                $body = json_encode(['success' => true]);
+                static::assertIsString($body);
+                $consentStateReported = true;
+
+                return new MockResponse($body);
+            }
+
             return new MockResponse();
         });
-    }
 
-    public function testStoresRequestedConsentState(): void
-    {
         $this->getContainer()->get(ConsentService::class)
             ->requestConsent();
 
@@ -45,5 +51,6 @@ class ConsentServiceTest extends TestCase
             ->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE);
 
         static::assertSame(ConsentState::REQUESTED->value, $consentState);
+        static::assertTrue($consentStateReported);
     }
 }

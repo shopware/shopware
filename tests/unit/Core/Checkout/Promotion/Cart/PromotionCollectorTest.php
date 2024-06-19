@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -20,122 +21,136 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
-use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
-use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromotions;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 #[Package('buyers-experience')]
 #[CoversClass(PromotionCollector::class)]
-final class PromotionCollectorTest extends TestCase
+class PromotionCollectorTest extends TestCase
 {
+    private readonly PromotionGatewayInterface&MockObject $gateway;
+
+    private readonly PromotionCollector $promotionCollector;
+
+    private readonly SalesChannelContext&MockObject $context;
+
     protected function setUp(): void
     {
         $this->gateway = $this->createMock(PromotionGatewayInterface::class);
-        $this->itemBuilder = new PromotionItemBuilder();
-        $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
-
         $this->promotionCollector = new PromotionCollector(
             $this->gateway,
-            $this->itemBuilder,
-            $this->htmlSanitizer,
+            new PromotionItemBuilder(),
+            $this->createMock(HtmlSanitizer::class),
         );
 
-        $this->cart = $this->createMock(Cart::class);
         $this->context = $this->createMock(SalesChannelContext::class);
     }
 
     public function testCollectWithExistingPromotionAndDifferentDiscount(): void
     {
-        // Arrange
-        $original = new Cart('16d71f1837774b6790cc841c5e213c06');
-        $lineItem = new LineItem('ba3bf911830d4fdfa182bb7c8e89ec71', LineItem::PRODUCT_LINE_ITEM_TYPE, '54873487dacd4ba0a6e567677002cc02');
-        $lineItem2 = new LineItem($lineItem2Id = '77a4e83ed44a4b22993a675010347075', LineItem::DISCOUNT_LINE_ITEM, $code = 'promotions-code');
-        $lineItem2->setPayloadValue('discountId', $discountId1 = '7f659f15b82c40049bef621631ac5335');
-        $lineItem2->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($lineItem2Id));
-        $original->setLineItems(new LineItemCollection([$lineItem, $lineItem2]));
+        $discountId1 = Uuid::randomHex();
+        $discountId2 = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
 
+        $cart = $this->prepareCart([$discountId1, $discountId2], $promotionId);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        $promotionFirst = $promotions->first();
+        $promotionLast = $promotions->last();
+
+        static::assertNotNull($promotionFirst);
+        static::assertNotNull($promotionLast);
+
+        static::assertCount(2, $promotions);
+        static::assertSame($promotionId, $promotionFirst->getPayloadValue('promotionId'));
+        static::assertSame($discountId1, $promotionFirst->getPayloadValue('discountId'));
+        static::assertNotNull($promotionFirst->getExtension(OrderConverter::ORIGINAL_ID));
+
+        static::assertSame($promotionId, $promotionLast->getPayloadValue('promotionId'));
+        static::assertSame($discountId2, $promotionLast->getPayloadValue('discountId'));
+        static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
+    }
+
+    /**
+     * @param string[] $discountIds
+     */
+    private function prepareCart(array $discountIds, string $promotionId): Cart
+    {
+        $code = 'promotions-code';
+
+        $lineItem1 = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $lineItemId2 = Uuid::randomHex();
+        $lineItem2 = new LineItem($lineItemId2, LineItem::DISCOUNT_LINE_ITEM, $code);
+        $lineItem2->setPayloadValue('discountId', $discountIds[0]);
+        $lineItem2->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($lineItemId2));
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$lineItem1, $lineItem2]));
+
+        $promotion = $this->createPromotion($promotionId, $code, $discountIds);
+
+        $promotionData = new CartExtension();
+        $promotionData->addCode($code);
+        $cart->addExtension(CartExtension::KEY, $promotionData);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $this->context->method('getSalesChannel')->willReturn($salesChannel);
+
+        $this->gateway->method('get')->willReturn(
+            new PromotionCollection([$promotion]),
+            new PromotionCollection(),
+        );
+
+        return $cart;
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    private function createPromotionDiscountCollection(array $ids, PromotionEntity $promotion): PromotionDiscountCollection
+    {
+        $discounts = [];
+        foreach ($ids as $id) {
+            $discount = new PromotionDiscountEntity();
+            $discount->setId($id);
+            $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+            $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+            $discount->setValue(10.0);
+            $discount->setPromotionId($promotion->getId());
+
+            $discounts[] = $discount;
+        }
+
+        return new PromotionDiscountCollection($discounts);
+    }
+
+    /**
+     * @param string[] $discountIds
+     */
+    private function createPromotion(string $promotionId, string $code, array $discountIds): PromotionEntity
+    {
         $promotion = new PromotionEntity();
-        $promotion->setId($promotionId = '16d71f1837774b6790cc841c5e213c06');
+        $promotion->setId($promotionId);
         $promotion->setCode($code);
         $promotion->setUseIndividualCodes(true);
         $promotion->setPriority(1);
 
-        $discount1 = new PromotionDiscountEntity();
-        $discount1->setId($discountId1);
-        $discount1->setScope(PromotionDiscountEntity::SCOPE_CART);
-        $discount1->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
-        $discount1->setValue(10.0);
-        $discount1->setPromotionId($promotion->getId());
+        $promotion->setDiscounts($this->createPromotionDiscountCollection($discountIds, $promotion));
 
-        $discount2 = new PromotionDiscountEntity();
-        $discount2->setId($discountId2 = '03fe425351754bffa2ceab9607883e96');
-        $discount2->setScope(PromotionDiscountEntity::SCOPE_CART);
-        $discount2->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
-        $discount2->setValue(15.0);
-        $discount2->setPromotionId($promotion->getId());
-
-        $promotion->setDiscounts(new PromotionDiscountCollection([$discount1, $discount2]));
-
-        $promotionData = new CartExtension();
-        $promotionData->addCode($code);
-        $original->addExtension(CartExtension::KEY, $promotionData);
-
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($salesChannelId = 'd3d1d39d521f45c7895ff575b2c23e1e');
-        $this->context->method('getSalesChannel')->willReturn($salesChannel);
-
-        $criteria1 = (new Criteria())->addFilter(new PermittedGlobalCodePromotions([$code], $salesChannelId));
-        $criteria1->addAssociations([
-            'personaRules',
-            'personaCustomers',
-            'cartRules',
-            'orderRules',
-            'discounts.discountRules',
-            'discounts.promotionDiscountPrices',
-            'setgroups',
-            'setgroups.setGroupRules'
-        ]);
-
-        $criteria2 = (new Criteria())->addFilter(new PermittedAutomaticPromotions($salesChannelId));
-        $criteria2->addAssociations([
-            'personaRules',
-            'personaCustomers',
-            'cartRules',
-            'orderRules',
-            'discounts.discountRules',
-            'discounts.promotionDiscountPrices',
-            'setgroups',
-            'setgroups.setGroupRules'
-        ]);
-
-        $this->gateway->method('get')
-            ->willReturnCallback(static function ($criteria) use ($criteria1, $criteria2, $promotion) {
-                if ($criteria == $criteria1) {
-                    return new PromotionCollection([$promotion]);
-                }
-                if ($criteria == $criteria2) {
-                    return new PromotionCollection();
-                }
-            });
-
-        // Act
-        $this->promotionCollector->collect($data = new CartDataCollection(), $original, $this->context, new CartBehavior());
-
-        // Assert
-        $promotions = $data->get(PromotionProcessor::DATA_KEY);
-        $this->assertCount(2, $promotions);
-        $this->assertSame($promotionId, $promotions->first()->getPayloadValue('promotionId'));
-        $this->assertSame($discountId1, $promotions->first()->getPayloadValue('discountId'));
-        $this->assertNotNull($promotions->first()->getExtension(OrderConverter::ORIGINAL_ID));
-
-        $this->assertSame($promotionId, $promotions->last()->getPayloadValue('promotionId'));
-        $this->assertSame($discountId2, $promotions->last()->getPayloadValue('discountId'));
-        $this->assertNull($promotions->last()->getExtension(OrderConverter::ORIGINAL_ID));
+        return $promotion;
     }
 }

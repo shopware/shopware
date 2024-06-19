@@ -66,10 +66,10 @@
     "wishlist": "Merkzettel"
   },
   "error": {
-    "VIOLATION::TOO_LONG_ERROR": "Die Eingabe darf höchstens {{ limit }} Zeichen lang sein.",
     "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",
     "VIOLATION::TOO_LOW_ERROR": "Die Eingabe darf nicht leer sein.",
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Die Eingabe ist ungültig",
+    "VIOLATION::TOO_LONG_ERROR": "Die Eingabe darf höchstens {{ limit }} Zeichen lang sein.",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Das Passwort ist nicht korrekt.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur.",

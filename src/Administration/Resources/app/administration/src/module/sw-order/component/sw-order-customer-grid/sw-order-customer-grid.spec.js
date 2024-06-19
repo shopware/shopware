@@ -19,7 +19,7 @@ const contextState = {
     state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
     mutations: {
         resetLanguageToDefault: jest.fn(),
-        setApiLanguageId: jest.fn(),
+        setLanguageId: jest.fn(),
     },
     getters: {
         isSystemDefaultLanguage: () => false,
@@ -313,7 +313,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     });
 
     it('should set the customer language id when customer has a language id', async () => {
-        customers[0].languageId = '1234';
+        customers[0].salesChannel.languageId = '1234';
         setCustomerData(customers);
 
         const wrapper = await createWrapper();
@@ -322,7 +322,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
 
-        expect(contextState.mutations.setApiLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+        expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
     });
 
     it('should reset language to default if system language exists in customer sales channel languages', async () => {

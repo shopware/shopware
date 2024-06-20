@@ -28,9 +28,9 @@
         "php": "~8.2.0 || ~8.3.0",
         "doctrine/dbal": "^3.7",
         "shopware/core": "*",
-        "symfony/framework-bundle": "~7.0.8",
-        "symfony/http-foundation": "~7.0.8",
-        "symfony/routing": "~7.0.8",
-        "symfony/mime": "~7.0.8"
+        "symfony/framework-bundle": "~7.1.1",
+        "symfony/http-foundation": "~7.1.1",
+        "symfony/routing": "~7.1.1",
+        "symfony/mime": "~7.1.1"
     }
 }

@@ -9,12 +9,12 @@ test('Journey: Merchant is able to be guided through the First Run Wizard.', asy
     AdminApiContext,
 }) => {
     // eslint-disable-next-line playwright/no-conditional-in-test
-    if (isSaaSInstance(AdminApiContext)) {
+    if (await isSaaSInstance(AdminApiContext)) {
         // eslint-disable-next-line playwright/no-skipped-test
-        test.skip('Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+        test.skip(true,'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
     }
 
-    await ShopAdmin.goesTo(AdminFirstRunWizard);
+    await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
     //LanguagePack part
     await ShopAdmin.expects(AdminFirstRunWizard.installLanguagePackButton).toBeVisible();

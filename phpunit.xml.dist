@@ -138,9 +138,6 @@
     </php>
     <testsuites>
         <!-- Legacy -->
-        <testsuite name="storefront">
-            <directory>src/Storefront/Test</directory>
-        </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
         </testsuite>
@@ -169,7 +166,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit</directory>
-            <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>

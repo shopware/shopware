@@ -16,27 +16,19 @@ use Symfony\Contracts\Service\ResetInterface;
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     /**
-     * @var array<string, string|null>
-     */
-    private array $cacheCustomerGroups = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private array $cachePaymentMethods = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private array $cacheSalesChannels = [];
-
-    /**
      * @internal
+     *
+     * @param array<string, string|null> $cacheCustomerGroups
+     * @param array<string, string|null> $cachePaymentMethods
+     * @param array<string, string|null> $cacheSalesChannels
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
+        private array $cacheCustomerGroups = [],
+        private array $cachePaymentMethods = [],
+        private array $cacheSalesChannels = [],
     ) {
     }
 
@@ -55,7 +47,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             $id = $entity['group']['id'] ?? $this->getCustomerGroupId($name, $context);
 
             if ($id) {
-                $deserialized['groupId'] = $id;
                 $deserialized['group']['id'] = $id;
             }
         }
@@ -65,7 +56,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name, $context);
 
             if ($id) {
-                $deserialized['defaultPaymentMethodId'] = $id;
                 $deserialized['defaultPaymentMethod']['id'] = $id;
             }
         }
@@ -75,8 +65,16 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             $id = $entity['salesChannel']['id'] ?? $this->getSalesChannelId($name, $context);
 
             if ($id) {
-                $deserialized['salesChannelId'] = $id;
                 $deserialized['salesChannel']['id'] = $id;
+            }
+        }
+
+        if (!isset($deserialized['boundSalesChannelId']) && isset($entity['boundSalesChannel'])) {
+            $name = $entity['boundSalesChannel']['translations']['DEFAULT']['name'] ?? null;
+            $id = $entity['boundSalesChannel']['id'] ?? $this->getSalesChannelId($name, $context);
+
+            if ($id) {
+                $deserialized['boundSalesChannel']['id'] = $id;
             }
         }
 

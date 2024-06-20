@@ -21,11 +21,6 @@ class Migration1618389817RemoveTaxFreeFromColumnInCountryTable extends Migration
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `country` DROP COLUMN `tax_free_from`');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
+        $this->dropColumnIfExists($connection, 'country', 'tax_free_from');
     }
 }

@@ -12,8 +12,6 @@
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
     "create-test": "node src/scripts/create-spec-file/index.mjs",
     "dev": "ADMIN_VITE=$(jq -r '.ADMIN_VITE' \"$PROJECT_ROOT/var/config_js_features.json\") && [ \"$ADMIN_VITE\" = true ] && npm run vite || npm run webpack",
-    "webpack": "mode=development webpack-dev-server",
-    "webpack:inspect": "mode=development node --inspect ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
     "generate-component-import-resolver-map": "ts-node --transpileOnly ./scripts/componentImportResolver/generate.ts",
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
@@ -40,7 +38,9 @@
     "unit-setup": "npm run generate-component-import-resolver-map",
     "unit-watch": "jest --config jest.config.js --watch",
     "vite": "vite",
-    "vite:build": "vite build"
+    "vite:build": "vite build",
+    "webpack": "mode=development webpack-dev-server",
+    "webpack:inspect": "mode=development node --inspect ./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "browserslist": [
     "last 2 versions",
@@ -95,6 +95,7 @@
     "optional-chaining-codemod": "1.7.0",
     "patch-package": "6.5.1",
     "path-browserify": "^1.0.1",
+    "pinia": "^2.1.7",
     "postcss": "8.4.20",
     "process": "^0.11.10",
     "raw-loader": "4.0.2",
@@ -141,7 +142,7 @@
     "@babel/register": "7.21.0",
     "@lhci/cli": "0.11.0",
     "@shopware-ag/eslint-config-base": "2.0.0",
-    "@shopware-ag/jest-preset-sw6-admin": "4.2.5",
+    "@shopware-ag/jest-preset-sw6-admin": "4.3.2",
     "@testing-library/jest-dom": "5.16.5",
     "@types/lodash": "4.14.192",
     "@types/node": "18.15.10",
@@ -222,6 +223,9 @@
   "engines": {
     "node": "^20.0.0",
     "npm": ">=10.0.0"
+  },
+  "dependenciesComments": {
+    "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },
   "overrides": {
     "vue": "3.3.4",

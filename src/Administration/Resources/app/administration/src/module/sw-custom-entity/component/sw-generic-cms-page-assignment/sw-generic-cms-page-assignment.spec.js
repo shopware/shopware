@@ -79,17 +79,15 @@ async function createWrapper() {
  */
 describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentPage: null,
-            },
-            mutations: {
-                setCurrentPage(state, page) {
-                    state.currentPage = page;
+            }),
+            actions: {
+                setCurrentPage(page) {
+                    this.currentPage = page;
                 },
             },
         });

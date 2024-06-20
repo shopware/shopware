@@ -50,6 +50,12 @@ async function createWrapper(propsOverride) {
 }
 
 describe('module/sw-cms/elements/product-name/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should map to a product name if the component is in a product page', async () => {
         const wrapper = await createWrapper();
 

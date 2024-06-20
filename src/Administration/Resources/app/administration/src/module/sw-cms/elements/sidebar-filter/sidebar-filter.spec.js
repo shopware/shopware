@@ -27,6 +27,12 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 

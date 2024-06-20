@@ -69,7 +69,7 @@ test('Journey: Customer gets a special product price depending on the amount of 
     });
     expect(priceResponseAdvanced.ok()).toBeTruthy();
 
-    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
     await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '12'));
     await ShopCustomer.expects(StorefrontCheckoutCart.unitPriceInfo).toContainText('€89.99*')
 });

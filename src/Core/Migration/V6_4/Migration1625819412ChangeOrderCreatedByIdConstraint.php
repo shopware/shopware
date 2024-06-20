@@ -21,17 +21,12 @@ class Migration1625819412ChangeOrderCreatedByIdConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `order` DROP FOREIGN KEY `fk.order.created_by_id`');
+        $this->dropForeignKeyIfExists($connection, 'order', 'fk.order.created_by_id');
 
         $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.order.created_by_id` FOREIGN KEY (`created_by_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
 
-        $connection->executeStatement('ALTER TABLE `order` DROP FOREIGN KEY `fk.order.updated_by_id`');
+        $this->dropForeignKeyIfExists($connection, 'order', 'fk.order.updated_by_id');
 
         $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

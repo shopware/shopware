@@ -50,6 +50,10 @@ class DomainExceptionRule implements Rule
         RedisReverseProxyGateway::class => ReverseProxyException::class,
     ];
 
+    private const GLOBAL_EXCEPTIONS = [
+        'Shopware\Core\Framework\FrameworkException::extensionResultNotSet',
+    ];
+
     /**
      * @var array<string>
      */
@@ -151,6 +155,13 @@ class DomainExceptionRule implements Rule
         if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
             $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
             if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
+                return [];
+            }
+        }
+
+        if (method_exists($node->name, 'toString')) {
+            $full = $exceptionClass . '::' . $node->name->toString();
+            if (\in_array($full, self::GLOBAL_EXCEPTIONS, true)) {
                 return [];
             }
         }

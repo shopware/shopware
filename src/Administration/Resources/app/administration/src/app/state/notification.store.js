@@ -1,8 +1,9 @@
+import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
+
 /**
  * @package admin
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
-
-import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const { Application, State } = Shopware;
 const { debug } = Shopware.Utils;

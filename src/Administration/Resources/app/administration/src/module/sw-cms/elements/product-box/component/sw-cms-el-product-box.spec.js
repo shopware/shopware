@@ -68,6 +68,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/product-box/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should display skeleton when product data is null', async () => {
         const wrapper = await createWrapper();
 

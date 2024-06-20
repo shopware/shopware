@@ -41,15 +41,12 @@ class Migration1610523548FixCustomerColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
-        $connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
+        $this->removeTrigger($connection, 'customer_double_opt_in_insert');
+        $this->removeTrigger($connection, 'customer_double_opt_in_update');
 
-        $connection->executeStatement(
-            'ALTER TABLE `customer`
-            DROP COLUMN `doubleOptInRegistration`,
-            DROP COLUMN `doubleOptInEmailSentDate`,
-            DROP COLUMN `doubleOptInConfirmDate`'
-        );
+        $this->dropColumnIfExists($connection, 'customer', 'doubleOptInRegistration');
+        $this->dropColumnIfExists($connection, 'customer', 'doubleOptInEmailSentDate');
+        $this->dropColumnIfExists($connection, 'customer', 'doubleOptInConfirmDate');
     }
 
     private function addInsertTrigger(Connection $connection): void

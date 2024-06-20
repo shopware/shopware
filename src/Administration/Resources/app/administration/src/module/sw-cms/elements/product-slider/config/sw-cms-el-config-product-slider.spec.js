@@ -68,7 +68,7 @@ async function createWrapper(customCmsElementConfig) {
                 'sw-label': true,
                 'sw-modal': true,
                 'sw-block-field': true,
-                'sw-product-stream-grid-preview': true,
+                'sw-product-stream-modal-preview': true,
                 'sw-entity-single-select': true,
                 'sw-alert': true,
                 'sw-number-field': true,
@@ -105,6 +105,12 @@ async function createWrapper(customCmsElementConfig) {
 }
 
 describe('module/sw-cms/elements/product-slider/config', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -211,19 +217,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         expect(wrapper.vm.element.config.products.value).toEqual([]);
     });
 
-    it('should build correct sorting criteria for stream preview including selected sorting option', async () => {
-        const wrapper = await createWrapper({
-            products: {
-                value: 'de8de156da134dabac24257f81ff282f',
-                source: 'product_stream',
-            },
-        });
-
-        const expectedSortingCriteria = [{ field: 'name', order: 'ASC', naturalSorting: false }];
-
-        expect(wrapper.vm.productStreamCriteria.sortings).toEqual(expectedSortingCriteria);
-    });
-
     it('should render product stream preview modal', async () => {
         const wrapper = await createWrapper({
             products: {
@@ -240,9 +233,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-cms-el-config-product-slider__product-stream-preview-modal')
-            .exists()).toBeTruthy();
-        expect(wrapper.find('sw-product-stream-grid-preview-stub')
+        expect(wrapper.find('sw-product-stream-modal-preview-stub')
             .exists()).toBeTruthy();
     });
 });

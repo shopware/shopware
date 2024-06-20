@@ -246,7 +246,7 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = $crawler->filterXPath('//div[@class="alert-content"]')->text();
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -304,7 +304,7 @@ class CheckoutControllerTest extends TestCase
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
 
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn (Crawler $node) => $node->text()));
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content-container"]')->each(static fn (Crawler $node) => $node->text()));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }

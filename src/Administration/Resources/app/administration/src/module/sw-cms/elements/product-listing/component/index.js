@@ -22,7 +22,7 @@ export default {
 
     computed: {
         currentDemoProducts() {
-            return Shopware.State.get('cmsPageState').currentDemoProducts;
+            return Shopware.Store.get('cmsPageState').currentDemoProducts;
         },
 
         demoProductElement() {

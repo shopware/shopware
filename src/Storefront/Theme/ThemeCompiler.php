@@ -143,7 +143,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // Reset cache buster state for improving performance in getMetadata
-        $this->cacheInvalidator->invalidate(['theme-metaData'], true);
+        $this->cacheInvalidator->invalidate([
+            'theme-metaData',
+            'theme_scripts_' . $themePrefix,
+        ], true);
     }
 
     /**

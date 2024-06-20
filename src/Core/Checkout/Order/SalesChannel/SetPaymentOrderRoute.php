@@ -57,9 +57,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @phpstan-ignore-next-line setter name is misleading, but kept for BC
-     */
     #[Route(path: '/store-api/order/payment', name: 'store-api.order.set-payment', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {

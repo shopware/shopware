@@ -1,12 +1,12 @@
 /**
  * @package admin
+ * @deprecated tag:v6.8.0 - Will be removed use store.init.ts instead
  */
 
 import VuexModules from 'src/app/state/index';
 import type { FullState } from 'src/core/factory/state.factory';
 import type { Module, Store } from 'vuex';
 import { createStore } from 'vuex';
-import Vue from 'vue';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
@@ -23,8 +23,6 @@ function initVuexState(state: FullState) {
         strict: false,
     });
 
-    Vue.use(store);
-
     registerProperties(state, store);
 
     return state;
@@ -36,9 +34,36 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
     state._registerPrivateProperty('_store', store);
     state._registerProperty('list', () => Object.keys(store.state));
-    state._registerProperty('get', <N extends keyof VuexRootState>(name: N) => store.state[name]);
+    state._registerProperty('get', <N extends keyof VuexRootState | 'cmsPageState'>(name: N) => {
+        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
+        if (name === 'cmsPageState') {
+            Shopware.Utils.debug.warn('Core', 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get instead.');
+
+            return Shopware.Store.get('cmsPageState');
+        }
+
+        // @ts-expect-error
+        return store.state[name];
+    });
     state._registerGetterMethod('getters', () => store.getters);
-    state._registerProperty('commit', (...args: Parameters<typeof store.commit>) => store.commit(...args));
+    state._registerProperty('commit', (...args: Parameters<typeof store.commit>) => {
+        const type = args[0] as unknown as string;
+        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
+        if (type.startsWith('cmsPageState/')) {
+            Shopware.Utils.debug.warn('Core', 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get instead.');
+
+            const cmsPageState = Shopware.Store.get('cmsPageState');
+            const property = type.substring('cmsPageState/'.length);
+
+            // @ts-expect-error - This is unsafe but should work
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            cmsPageState[property](args[1]);
+
+            return;
+        }
+
+        store.commit(...args);
+    });
     state._registerProperty('dispatch', (...args: Parameters<typeof store.dispatch>) => store.dispatch(...args));
     state._registerProperty('watch', (...args: Parameters<typeof store.watch>) => store.watch(...args));
     state._registerProperty('subscribe', (...args: Parameters<typeof store.subscribe>) => store.subscribe(...args));

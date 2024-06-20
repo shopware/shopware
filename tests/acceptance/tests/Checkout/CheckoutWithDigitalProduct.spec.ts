@@ -18,7 +18,7 @@ test('Registered shop customer should be able to buy a digital product. @checkou
 }) => {
     await ShopCustomer.attemptsTo(Login());
 
-    await ShopCustomer.goesTo(StorefrontProductDetail);
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(DigitalProductData.product));
 
     await ShopCustomer.attemptsTo(AddProductToCart(DigitalProductData.product));
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
@@ -38,7 +38,7 @@ test('Registered shop customer should be able to buy a digital product. @checkou
     });
 
     await test.step('Verify that customer can access the digital product.', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountOrder);
+        await ShopCustomer.goesTo(StorefrontAccountOrder.url());
 
         // Download the digital product and check if the content is equal to what was uploaded.
         await ShopCustomer.attemptsTo(DownloadDigitalProductFromOrderAndExpectContentToBe(DigitalProductData.fileContent))

@@ -1,31 +1,74 @@
 {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
 {% block spatial_ar_qr_code_modal %}
-    <div class="modal ar-qr-modal" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header p-2">
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
-                    {% block spatial_ar_qr_code_modal_header %}
-                        <h5 class="modal-title text-center w-100">{{ 'spatial.scanQrCode'|trans|striptags }}</h5>
-                        <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                    {% endblock %}
-                </div>
-                <div class="modal-body">
-                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
-                    {% block spatial_ar_qr_code_modal_body %}
-                        <div class="text-center">
-                            <span>{{ 'spatial.pointToQrCode'|trans|striptags }}</span>
-                        </div>
-                        <div class="text-center m-3">
-                            <div class="arQRCode mx-auto" style="max-width: 256px" data-page-qrcode-generator></div>
-                        </div>
-                        <div class="text-center">
-                            <span>{{ 'spatial.arSupportInFollowingDevices'|trans|striptags }}</span>
-                            <span>{{ 'spatial.arSupportDevices'|trans|striptags }}</span>
-                        </div>
-                    {% endblock %}
+    {% block spatial_ar_qr_code_modal_show_qr %}
+        <div class="modal ar-qr-modal" tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header p-2">
+                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_header %}
+                            <h5 class="modal-title text-center w-100">{{ 'spatial.scanQrCode'|trans|striptags }}</h5>
+                            <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-body">
+                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_body %}
+                            <div class="text-center">
+                                <span>{{ 'spatial.pointToQrCode'|trans|striptags }}</span>
+                            </div>
+                            <div class="text-center m-3">
+                                <div class="arQRCode mx-auto" style="max-width: 256px" data-page-qrcode-generator {% if qrCodeOptions %} data-page-qrcode-generator-options="{{ qrCodeOptions|json_encode|escape('html_attr') }}"{% endif %}></div>
+                            </div>
+                            <div class="text-center">
+                                <span>{{ 'spatial.arSupportInFollowingDevices'|trans|striptags }}</span>
+                                <span>{{ 'spatial.arSupportDevices'|trans|striptags }}</span>
+                            </div>
+                        {% endblock %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endblock %}
+    {% block spatial_ar_qr_code_modal_open_ar_session %}
+        <div class="modal is-fullscreen ar-qr-modal-open-session" tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header p-2">
+                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_open_ar_session_header %}
+                            <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-body">
+                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_open_ar_session_body %}
+                            <div class="ar-splash-screen text-center m-3 position-relative">
+                                <div class="floor-splash-icon text-center my-3 mx-auto position-absolute mt-2">
+                                    {% sw_icon 'floor-ar-splash' style {
+                                        size: 'fluid'
+                                    } %}
+                                </div>
+                                <div class="cube-splash-icon text-center my-3 mx-auto position-absolute">
+                                    {% sw_icon 'cube-3d-shade' style {
+                                        size: 'fluid',
+                                        color: '#000'
+                                    } %}
+                                </div>
+                                <button class="ar-btn-open-session btn btn-primary mx-auto position-absolute mb-2"
+                                    {% if qrCodeOptions.params.autostartAr %}data-modal-open-ar-session-autostart="{{ qrCodeOptions.params.autostartAr }}"{% endif %}>
+                                    <div class="ar-btn-icon-with-label">
+                                        {% sw_icon 'augmented' style {
+                                            size: 'sm'
+                                        } %}
+                                        <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+                                    </div>
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
 {% endblock %}

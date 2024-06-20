@@ -14,6 +14,18 @@ function setCustomerData(customers) {
 
 const customers = generateCustomers();
 
+const contextState = {
+    namespaced: true,
+    state: { api: { languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b', systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' } },
+    mutations: {
+        resetLanguageToDefault: jest.fn(),
+        setApiLanguageId: jest.fn(),
+    },
+    getters: {
+        isSystemDefaultLanguage: () => false,
+    },
+};
+
 function generateCustomers() {
     const items = [];
 
@@ -103,10 +115,8 @@ async function createWrapper() {
                 },
             },
         },
-
     });
 }
-
 
 describe('src/module/sw-order/view/sw-order-customer-grid', () => {
     beforeAll(() => {
@@ -146,6 +156,12 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
                 },
             },
         });
+
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', contextState);
     });
 
     it('should show empty state view when there is no customer', async () => {
@@ -294,5 +310,41 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         expect(firstRowRadioField.element.checked).toBeTruthy();
+    });
+
+    it('should set the customer language id when customer has a language id', async () => {
+        customers[0].languageId = '1234';
+        setCustomerData(customers);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+        await firstRow.find('.sw-field__radio-input input').setChecked(true);
+
+        expect(contextState.mutations.setApiLanguageId).toHaveBeenCalledWith(expect.anything(), '1234');
+    });
+
+    it('should reset language to default if system language exists in customer sales channel languages', async () => {
+        customers[0].salesChannel.languages = [
+            {
+                id: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            },
+        ];
+        setCustomerData(customers);
+
+        Shopware.State.commit('swOrder/setCartToken', 'token');
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customers[0]));
+
+        const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+        await firstRow.find('.sw-field__radio-input input').setChecked(true);
+
+        await flushPromises();
+
+        expect(contextState.mutations.resetLanguageToDefault).toHaveBeenCalled();
     });
 });

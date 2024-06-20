@@ -36,10 +36,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('core')]
 class OpenApiDefinitionSchemaBuilder
 {
+    private CamelCaseToSnakeCaseNameConverter $converter;
+
+    /**
+     * @internal
+     */
+    public function __construct()
+    {
+        $this->converter = new CamelCaseToSnakeCaseNameConverter(null, false);
+    }
+
     /**
      * @return Schema[]
      */
@@ -220,13 +231,14 @@ class OpenApiDefinitionSchemaBuilder
 
     private function snakeCaseToCamelCase(string $input): string
     {
-        return str_replace('_', '', ucwords($input, '_'));
+        return $this->converter->denormalize($input);
     }
 
     private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
-            || preg_match('#translations$#i', $field->getPropertyName())) {
+            || preg_match('#translations$#i', $field->getPropertyName())
+        ) {
             return false;
         }
 
@@ -513,12 +525,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isDeprecated(Field $field): bool
     {
-        $deprecated = $field->getFlag(Deprecated::class);
-        if ($deprecated) {
-            return true;
-        }
-
-        return false;
+        return $field->getFlag(Deprecated::class) !== null;
     }
 
     private function getRelationShipEntity(Property $relationship): string

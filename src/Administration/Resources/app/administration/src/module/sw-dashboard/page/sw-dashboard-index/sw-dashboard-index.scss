@@ -160,4 +160,8 @@ $content-max-width: 960px;
     .sw-card {
         max-width: $content-max-width !important;
     }
+
+    .sw-dashboard__before-content {
+        margin-top: 32px;
+    }
 }

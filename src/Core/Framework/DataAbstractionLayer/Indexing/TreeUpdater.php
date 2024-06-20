@@ -38,7 +38,7 @@ class TreeUpdater
      */
     public function batchUpdate(array $updateIds, string $entity, Context $context/* , bool $recursive = false */): void
     {
-        $recursive = func_get_arg(3) ?? true;
+        $recursive = \func_num_args() > 3 ? func_get_arg(3) : false;
 
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
         if (empty($updateIds)) {

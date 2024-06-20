@@ -157,10 +157,7 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        onShippingChargeEdited(amount: number): void {
-            const positiveAmount = Math.abs(amount);
-            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
-            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
+        onShippingChargeEdited(): void {
             this.isLoading = true;
 
             State.dispatch('swOrder/modifyShippingCosts', {
@@ -212,6 +209,12 @@ export default Component.wrapComponentConfig({
             return price.sort((prev: CalculatedTax, current: CalculatedTax) => {
                 return prev.taxRate - current.taxRate;
             });
+        },
+
+        onShippingChargeUpdated(amount: number): void {
+            const positiveAmount = Math.abs(amount);
+            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
+            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
         },
     },
 });

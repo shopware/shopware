@@ -29,6 +29,10 @@ class OrderAddressDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order_address';
 
+    public const MAX_LENGTH_FIRST_NAME = 50;
+
+    public const MAX_LENGTH_LAST_NAME = 60;
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -67,8 +71,8 @@ class OrderAddressDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
             new FkField('salutation_id', 'salutationId', SalutationDefinition::class),
-            (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
-            (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('first_name', 'firstName', self::MAX_LENGTH_FIRST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
+            (new StringField('last_name', 'lastName', self::MAX_LENGTH_LAST_NAME))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('street', 'street'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('zipcode', 'zipcode'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('city', 'city'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

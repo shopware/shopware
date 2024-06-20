@@ -25,7 +25,8 @@ export default {
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            /* @deprecated: tag:v6.7.0 - Will be removed use cmsPageStateStore instead. */
+            cmsPageState: Shopware.Store.get('cmsPageState'),
         };
     },
 
@@ -34,6 +35,9 @@ export default {
             return {
                 'is--disabled': this.disabled,
             };
+        },
+        cmsPageStateStore() {
+            return Shopware.Store.get('cmsPageState');
         },
     },
 
@@ -44,7 +48,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.cmsPageState.selectedSection) {
-                this.$store.dispatch('cmsPageState/setSection', this.section);
+                this.cmsPageStateStore.setSection(this.section);
             }
         },
 
@@ -53,7 +57,7 @@ export default {
                 return;
             }
 
-            this.$store.dispatch('cmsPageState/setSection', this.section);
+            this.cmsPageStateStore.setSection(this.section);
 
             this.$parent.$parent.$emit('page-config-open', 'itemConfig');
         },

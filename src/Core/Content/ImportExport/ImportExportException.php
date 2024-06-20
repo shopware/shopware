@@ -41,6 +41,8 @@ class ImportExportException extends HttpException
     public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
     final public const PROFILE_SEARCH_EMPTY = 'CONTENT__IMPORT_EXPORT__PROFILE_SEARCH_EMPTY';
     final public const IMPORT_COMMAND_FAILED = 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED';
+    final public const DUPLICATE_TECHNICAL_NAME = 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME';
+    final public const DESERIALIZE_FAILED = 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED';
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -288,6 +290,26 @@ class ImportExportException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::IMPORT_COMMAND_FAILED,
             $message
+        );
+    }
+
+    public static function duplicateTechnicalName(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DUPLICATE_TECHNICAL_NAME,
+            'The technical name "{{ technicalName }}" is not unique.',
+            ['technicalName' => $technicalName]
+        );
+    }
+
+    public static function deserializationFailed(string $field, ?string $value, string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DESERIALIZE_FAILED,
+            'Deserialization failed for field "{{ field }}" with value "{{ value }}" to type "{{ type }}"',
+            ['field' => $field, 'value' => $value, 'type' => $type]
         );
     }
 }

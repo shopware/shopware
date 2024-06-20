@@ -79,6 +79,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/elements/manufacturer-logo/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should map to a product manufacturer media if the component is in a product page', async () => {
         const wrapper = await createWrapper();
 

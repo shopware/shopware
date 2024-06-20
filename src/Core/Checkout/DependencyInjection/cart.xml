@@ -357,6 +357,7 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="order_line_item.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>

@@ -318,6 +318,10 @@ describe('app/plugins/shortcut.plugin', () => {
         const onSaveMock = jest.fn();
         let testString = 'foo';
 
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+
         Shopware.Component.register('base-component', {
             name: 'base-component',
             template: `

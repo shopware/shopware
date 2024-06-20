@@ -169,7 +169,7 @@ Component.register('sw-maintain-currencies-modal', {
                 return price.currencyId === currencyId;
             });
 
-            this.$delete(this.prices, indexOfPrice);
+            this.$emit('update-prices', indexOfPrice);
 
             this.createdComponent();
         },

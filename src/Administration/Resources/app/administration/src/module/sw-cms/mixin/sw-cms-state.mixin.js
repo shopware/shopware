@@ -7,7 +7,7 @@ const { Mixin } = Shopware;
 Mixin.register('cms-state', {
     computed: {
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
         selectedBlock: {

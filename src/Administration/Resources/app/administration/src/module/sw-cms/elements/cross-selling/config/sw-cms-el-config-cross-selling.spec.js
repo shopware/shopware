@@ -73,6 +73,12 @@ async function createWrapper(customCmsElementConfig) {
 }
 
 describe('module/sw-cms/elements/cross-selling/config', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should display a message if it is product page layout type', async () => {
         const wrapper = await createWrapper();
 

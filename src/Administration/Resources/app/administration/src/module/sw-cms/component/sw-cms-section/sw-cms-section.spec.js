@@ -5,23 +5,6 @@ import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
 async function createWrapper() {
-    if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
-        Shopware.State.unregisterModule('cmsPageState');
-    }
-
-    Shopware.State.registerModule('cmsPageState', {
-        namespaced: true,
-        state: {
-            selectedBlock: {
-                id: '1a2b',
-                sectionPosition: 'main',
-                type: 'foo-bar',
-            },
-            isSystemDefaultLanguage: true,
-            currentCmsDeviceView: 'desktop',
-        },
-    });
-
     return mount(await wrapTestComponent('sw-cms-section', {
         sync: true,
     }), {
@@ -89,6 +72,23 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-section', () => {
+    beforeEach(() => {
+        Shopware.Store.unregister('cmsPageState');
+
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                selectedBlock: {
+                    id: '1a2b',
+                    sectionPosition: 'main',
+                    type: 'foo-bar',
+                },
+                isSystemDefaultLanguage: true,
+                currentCmsDeviceView: 'desktop',
+            }),
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 

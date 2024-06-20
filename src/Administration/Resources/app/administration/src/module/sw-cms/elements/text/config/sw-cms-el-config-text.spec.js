@@ -45,11 +45,11 @@ async function createWrapper() {
 
 describe('src/module/sw-cms/elements/text/config', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentMappingTypes: {},
-            },
+            }),
         });
     });
 

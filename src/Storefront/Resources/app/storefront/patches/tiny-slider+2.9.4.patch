@@ -1,0 +1,39 @@
+diff --git a/node_modules/tiny-slider/dist/tiny-slider.js b/node_modules/tiny-slider/dist/tiny-slider.js
+index 1b5d912..e589ed5 100644
+--- a/node_modules/tiny-slider/dist/tiny-slider.js
++++ b/node_modules/tiny-slider/dist/tiny-slider.js
+@@ -563,7 +563,8 @@ var tns = function (options) {
+     freezable: true,
+     onInit: false,
+     useLocalStorage: true,
+-    nonce: false
++    nonce: false,
++    ariaLive: true,
+   }, options || {});
+   var doc = document,
+       win = window,
+@@ -1567,8 +1568,11 @@ var tns = function (options) {
+     // == slides ==
+     updateSlideStatus(); // == live region ==
+ 
+-    outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">slide <span class="current">' + getLiveRegionStr() + '</span>  of ' + slideCount + '</div>');
+-    liveregionCurrent = outerWrapper.querySelector('.tns-liveregion .current'); // == autoplayInit ==
++    if (options.ariaLive) {
++      outerWrapper.insertAdjacentHTML('afterbegin', '<div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">slide <span class="current">' + getLiveRegionStr() + '</span>  of ' + slideCount + '</div>');
++      liveregionCurrent = outerWrapper.querySelector('.tns-liveregion .current');
++    }
++    // == autoplayInit ==
+ 
+     if (hasAutoplay) {
+       var txt = autoplay ? 'stop' : 'start';
+@@ -2428,6 +2432,10 @@ var tns = function (options) {
+   }
+ 
+   function updateLiveRegion() {
++    if (!options.ariaLive) {
++      return;
++    }
++
+     var str = getLiveRegionStr();
+ 
+     if (liveregionCurrent.innerHTML !== str) {

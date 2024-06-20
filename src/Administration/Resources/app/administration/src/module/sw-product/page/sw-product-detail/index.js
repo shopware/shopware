@@ -94,10 +94,6 @@ export default {
 
         ...mapPageErrors(errorConfiguration),
 
-        ...mapState('cmsPageState', [
-            'currentPage',
-        ]),
-
         identifier() {
             return this.productTitle;
         },
@@ -348,6 +344,14 @@ export default {
 
             return routes.includes(this.$route.name);
         },
+
+        cmsPageState() {
+            return Shopware.Store.get('cmsPageState');
+        },
+
+        currentPage() {
+            return Shopware.Store.get('cmsPageState').currentPage;
+        },
     },
 
     watch: {
@@ -387,7 +391,7 @@ export default {
                 scope: this,
             });
 
-            Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+            this.cmsPageState.resetCmsPageState();
 
             // when create
             if (!this.productId) {

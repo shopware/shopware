@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import { tns } from 'tiny-slider/src/tiny-slider.module';
+import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
 import Iterator from 'src/helper/iterator.helper';
@@ -41,6 +41,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             gutter: 10,
             startIndex: 1,
             preventScrollOnTouch: 'force',
+            ariaLive: false,
             responsive: {
                 xs: {},
                 sm: {},

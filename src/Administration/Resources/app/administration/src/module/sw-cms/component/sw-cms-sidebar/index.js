@@ -78,7 +78,7 @@ export default {
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
 
             const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
                 return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
@@ -267,8 +267,9 @@ export default {
         },
 
         onCloseBlockConfig() {
-            Shopware.State.commit('cmsPageState/removeSelectedBlock');
-            Shopware.State.commit('cmsPageState/removeSelectedSection');
+            const store = Shopware.Store.get('cmsPageState');
+            store.removeSelectedBlock();
+            store.removeSelectedSection();
         },
 
         isDisabledPageType(pageType) {
@@ -530,7 +531,7 @@ export default {
         },
 
         onSectionDelete(sectionId) {
-            Shopware.State.commit('cmsPageState/removeSelectedSection');
+            Shopware.Store.get('cmsPageState').removeSelectedSection();
             this.page.sections.remove(sectionId);
             this.$emit('page-save');
         },
@@ -543,7 +544,7 @@ export default {
             section.blocks.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                Shopware.State.commit('cmsPageState/removeSelectedBlock');
+                Shopware.Store.get('cmsPageState').removeSelectedBlock();
             }
 
             this.$emit('page-save', true);

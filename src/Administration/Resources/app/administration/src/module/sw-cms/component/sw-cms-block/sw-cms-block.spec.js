@@ -32,15 +32,12 @@ async function createWrapper() {
 }
 describe('module/sw-cms/component/sw-cms-block', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentCmsDeviceView: 'desktop',
-            },
+            }),
         });
     });
 

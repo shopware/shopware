@@ -58,6 +58,10 @@ class AttributeEntityDefinition extends EntityDefinition
             }
 
             foreach ($field['flags'] ?? [] as $flag) {
+                if (!isset($flag['class'])) {
+                    continue;
+                }
+
                 $flagInstance = new $flag['class'](...$flag['args'] ?? []);
 
                 if ($flagInstance instanceof Flag) {

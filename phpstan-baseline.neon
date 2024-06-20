@@ -3791,21 +3791,6 @@ parameters:
 			path: src/Core/Framework/Test/Adapter/Twig/Extension/PhpSyntaxExtensionTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
 			message: "#^Call to an undefined method object\\:\\:internalSetEntityData\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/TwigFieldVisibilityTest.php

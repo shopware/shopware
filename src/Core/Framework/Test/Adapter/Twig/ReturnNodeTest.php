@@ -15,12 +15,15 @@ class ReturnNodeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @param array<string, int> $data
+     */
     #[DataProvider('nodeProvider')]
-    public function testNode(string $template, $expected, array $data = []): void
+    public function testNode(string $template, string $expected, array $data = []): void
     {
         $file = __DIR__ . '/fixtures/return-node/' . $template;
 
-        $content = file_get_contents($file);
+        $content = (string) file_get_contents($file);
 
         $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
 
@@ -35,5 +38,6 @@ class ReturnNodeTest extends TestCase
         yield 'Test assign' => ['assign-case.html.twig', '1'];
         yield 'Test if case' => ['if-case.html.twig', '1', ['x' => 1]];
         yield 'Test else case' => ['if-case.html.twig', '2', ['x' => 2]];
+        yield 'Test array case' => ['array-case.html.twig', '2'];
     }
 }

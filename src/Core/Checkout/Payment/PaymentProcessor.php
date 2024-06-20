@@ -66,6 +66,9 @@ class PaymentProcessor
         ?string $errorUrl = null,
     ): ?RedirectResponse {
         $transaction = $this->getCurrentOrderTransaction($orderId, $salesChannelContext->getContext());
+        if (!$transaction) {
+            return null;
+        }
 
         try {
             $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
@@ -181,7 +184,7 @@ class PaymentProcessor
         }
     }
 
-    private function getCurrentOrderTransaction(string $orderId, Context $context): OrderTransactionEntity
+    private function getCurrentOrderTransaction(string $orderId, Context $context): ?OrderTransactionEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)));
@@ -192,6 +195,14 @@ class PaymentProcessor
         $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$transaction) {
+            // check, if there are no transactions at all or just not with non-initial state
+            $criteria->resetFilters();
+            $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+
+            if ($this->orderTransactionRepository->searchIds($criteria, $context)->firstId()) {
+                return null;
+            }
+
             throw PaymentException::invalidOrder($orderId);
         }
 

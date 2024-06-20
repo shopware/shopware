@@ -189,6 +189,16 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
+     * @param callable(Criteria, Context): (ResultTypes)|ResultTypes ...$searches
+     */
+    public function addSearch(...$searches): void
+    {
+        foreach ($searches as $search) {
+            $this->searches[] = $search;
+        }
+    }
+
+    /**
      * @param mixed[][] $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection

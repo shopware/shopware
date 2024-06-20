@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -329,7 +331,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     }
 
     /**
-     * @return array{token: string, transactionId: string, paymentMethodId: string}
+     * @return array{token: TokenStruct, transactionId: string, paymentMethodId: string}
      */
     private function prepareTransaction(): array
     {
@@ -405,7 +407,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ];
     }
 
-    private function getToken(string $returnUrl): string
+    private function getToken(string $returnUrl): TokenStruct
     {
         $query = \parse_url($returnUrl, \PHP_URL_QUERY);
         static::assertIsString($query);
@@ -413,9 +415,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         \parse_str($query, $params);
 
         $token = $params['_sw_payment_token'];
-
+        static::assertNotEmpty($token);
         static::assertIsString($token);
 
-        return $token;
+        return $this->getContainer()->get(JWTFactoryV2::class)->parseToken($token);
     }
 }

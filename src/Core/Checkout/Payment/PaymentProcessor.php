@@ -83,7 +83,7 @@ class PaymentProcessor
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
-            $validationStruct = new ArrayStruct($transaction->getValidationData());
+            $validationStruct = $transaction->getValidationData() ? new ArrayStruct($transaction->getValidationData()) : null;
 
             return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validationStruct);
         } catch (\Throwable $e) {
@@ -100,21 +100,10 @@ class PaymentProcessor
         }
     }
 
-    public function finalize(string $paymentToken, Request $request, SalesChannelContext $context): TokenStruct
+    public function finalize(TokenStruct $token, Request $request, SalesChannelContext $context): TokenStruct
     {
-        $token = $this->tokenFactory->parseToken($paymentToken);
-
-        if ($token->isExpired()) {
-            $token->setException(PaymentException::tokenExpired($paymentToken));
-            if ($token->getToken() !== null) {
-                $this->tokenFactory->invalidateToken($token->getToken());
-            }
-
-            return $token;
-        }
-
         if ($token->getPaymentMethodId() === null) {
-            throw PaymentException::invalidToken($paymentToken);
+            throw PaymentException::invalidToken($token->getToken() ?: '');
         }
 
         $transactionId = $token->getTransactionId();
@@ -129,6 +118,11 @@ class PaymentProcessor
 
         // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
         if (!$paymentHandler instanceof AbstractPaymentHandler) {
+            $paymentToken = $token->getToken();
+            if ($paymentToken === null) {
+                throw PaymentException::invalidToken('');
+            }
+
             return $this->paymentService->finalizeTransaction($paymentToken, $request, $context);
         }
 
@@ -143,10 +137,12 @@ class PaymentProcessor
                 $this->transactionStateHandler->fail($transactionId, $context->getContext());
             }
 
-            // @deprecated tag:v6.7.0 - always execute content, remove condition
-            if ($e instanceof \Exception) {
-                $token->setException($e);
+            // @deprecated tag:v6.7.0 - remove, $token will accept Throwable
+            if (!$e instanceof \Exception) {
+                $e = new \Exception($e->getMessage(), $e->getCode(), $e);
             }
+
+            $token->setException($e);
         } finally {
             if ($token->getToken() !== null) {
                 $this->tokenFactory->invalidateToken($token->getToken());

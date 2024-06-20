@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -44,6 +45,7 @@ class StoreClient
         private readonly ExtensionLoader $extensionLoader,
         protected readonly ClientInterface $client,
         private readonly InstanceService $instanceService,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -158,8 +160,11 @@ class StoreClient
         array $extensions,
         string $hostName
     ): array {
+        $uri = $this->requestStack->getCurrentRequest()?->headers->get('referer');
+
         $query = $this->getQueries($context);
         $query['hostName'] = $hostName;
+        $query['uri'] = $uri;
 
         $response = $this->client->request(
             Request::METHOD_POST,
@@ -167,7 +172,10 @@ class StoreClient
             [
                 'query' => $query,
                 'headers' => $this->getHeaders($context),
-                'json' => ['plugins' => $extensions],
+                'json' => [
+                    'plugins' => $extensions,
+                    'uri' => $uri,
+                ],
             ]
         );
 

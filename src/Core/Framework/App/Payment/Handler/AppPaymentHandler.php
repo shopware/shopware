@@ -133,7 +133,6 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
 
         $payUrl = $appPaymentMethod->getPayUrl();
         if ($payUrl) {
-            /** @var PaymentResponse $response */
             $response = $this->requestAppServer($payUrl, PaymentResponse::class, $payload, $app, $context);
 
             // @deprecated tag:v6.7.0 - remove complete if statement, there are no default payment states for app payments anymore
@@ -190,8 +189,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $criteria->addAssociation('transactionCapture.transaction.paymentMethod.appPaymentMethod.app');
         $criteria->addAssociation('transactionCapture.positions');
 
-        /** @var OrderTransactionCaptureRefundEntity|null $refund */
-        $refund = $this->refundRepository->search($criteria, $context)->first();
+        $refund = $this->refundRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$refund) {
             throw PaymentException::unknownRefund($transaction->getRefundId());
@@ -322,8 +320,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
         $criteria->addSorting(new FieldSorting('createdAt'));
 
-        /** @var OrderTransactionEntity|null $orderTransaction */
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
+        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$orderTransaction) {
             throw AppException::invalidTransaction($orderTransactionId);

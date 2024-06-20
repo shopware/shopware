@@ -169,6 +169,10 @@
             </sw-tabs>
             {% endblock %}
 
+            <sw-extension-component-section
+                position-identifier="sw-customer-detail__before-content"
+            />
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_content_view %}
             <template v-if="isLoading">

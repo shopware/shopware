@@ -59,12 +59,12 @@ jest.useFakeTimers();
 
 describe('module/sw-cms/component/sw-cms-slot', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 isSystemDefaultLanguage: true,
                 currentPageType: 'product_list',
-            },
+            }),
         });
     });
 

@@ -114,6 +114,12 @@ async function createWrapper(propsOverride, dataOverride) {
 }
 
 describe('src/module/sw-cms/elements/image-gallery/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should map to product media if the component is in a product page', async () => {
         const wrapper = await createWrapper(null, {
             cmsPageState: {

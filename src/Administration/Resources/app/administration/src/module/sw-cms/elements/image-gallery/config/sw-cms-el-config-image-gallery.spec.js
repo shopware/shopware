@@ -155,13 +155,13 @@ async function createWrapper(activeTab = 'content') {
 
 describe('src/module/sw-cms/elements/image-gallery/config', () => {
     beforeAll(() => {
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 currentMappingTypes: {},
                 currentDemoEntity: null,
-            },
-            mutations: {
+            }),
+            actions: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
                 },

@@ -312,7 +312,7 @@ export default {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
-            this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
+            this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
 
             this.resetCmsPageState();
 
@@ -347,12 +347,12 @@ export default {
 
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
-                Shopware.State.commit('cmsPageState/setDefaultMediaFolderId', folderId);
+                this.cmsPageState.setDefaultMediaFolderId(folderId);
             });
         },
 
         resetCmsPageState() {
-            Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+            this.cmsPageState.resetCmsPageState();
         },
 
         getDefaultFolderId() {
@@ -371,9 +371,10 @@ export default {
         },
 
         beforeDestroyedComponent() {
-            Shopware.State.commit('cmsPageState/removeCurrentPage');
-            Shopware.State.commit('cmsPageState/removeSelectedBlock');
-            Shopware.State.commit('cmsPageState/removeSelectedSection');
+            const store = this.cmsPageState;
+            store.removeCurrentPage();
+            store.removeSelectedBlock();
+            store.removeSelectedSection();
         },
 
         loadPage(pageId) {
@@ -383,11 +384,11 @@ export default {
                 this.page = { sections: [] };
                 this.page = page;
 
-                Shopware.State.commit('cmsPageState/setCurrentPageType', page.type);
+                this.cmsPageState.setCurrentPageType(page.type);
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
-                    Shopware.State.commit('cmsPageState/setCurrentPage', this.page);
+                    this.cmsPageState.setCurrentPage(this.page);
 
                     this.updateDataMapping();
                     this.pageOrigin = cloneDeep(this.page);
@@ -437,10 +438,10 @@ export default {
             const mappingEntity = this.cmsPageTypeSettings.entity;
 
             if (!mappingEntity) {
-                Shopware.State.commit('cmsPageState/removeCurrentMappingEntity');
-                Shopware.State.commit('cmsPageState/removeCurrentMappingTypes');
-                Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
-                Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
+                this.cmsPageState.removeCurrentMappingEntity();
+                this.cmsPageState.removeCurrentMappingTypes();
+                this.cmsPageState.removeCurrentDemoEntity();
+                this.cmsPageState.removeCurrentDemoProducts();
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityRepo = null;
@@ -449,11 +450,8 @@ export default {
             }
 
             if (this.cmsPageState.currentMappingEntity !== mappingEntity) {
-                Shopware.State.commit('cmsPageState/setCurrentMappingEntity', mappingEntity);
-                Shopware.State.commit(
-                    'cmsPageState/setCurrentMappingTypes',
-                    this.cmsService.getEntityMappingTypes(mappingEntity),
-                );
+                this.cmsPageState.setCurrentMappingEntity(mappingEntity);
+                this.cmsPageState.setCurrentMappingTypes(this.cmsService.getEntityMappingTypes(mappingEntity));
 
                 this.currentMappingEntity = mappingEntity;
                 this.currentMappingEntityRepo = this.repositoryFactory.create(mappingEntity);
@@ -467,7 +465,7 @@ export default {
                 return;
             }
 
-            Shopware.State.commit('cmsPageState/setCurrentCmsDeviceView', view);
+            this.cmsPageState.setCurrentCmsDeviceView(view);
 
             if (view === 'form') {
                 this.setSelectedBlock(null, null);
@@ -476,7 +474,7 @@ export default {
 
         setSelectedBlock(sectionId, block = null) {
             this.selectedBlockSectionId = sectionId;
-            this.$store.dispatch('cmsPageState/setBlock', block);
+            this.cmsPageState.setBlock(block);
         },
 
         onChangeLanguage() {
@@ -485,7 +483,7 @@ export default {
             return this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
                 const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
-                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
+                this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
         },
@@ -509,7 +507,7 @@ export default {
             const context = { ...Shopware.Context.api, inheritance: true };
 
             const response = await this.productRepository.search(criteria, context);
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', response[0]);
+            this.cmsPageState.setCurrentDemoEntity(response[0]);
         },
 
         async loadDemoCategory(entityId) {
@@ -523,7 +521,7 @@ export default {
             const category = response[0];
 
             this.demoEntityId = category.id;
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
+            this.cmsPageState.setCurrentDemoEntity(category);
 
             this.loadDemoCategoryProducts(category);
 
@@ -542,13 +540,13 @@ export default {
                 entity.products.source,
             ).search(productCriteria);
 
-            Shopware.State.commit('cmsPageState/setCurrentDemoProducts', products);
+            this.cmsPageState.setCurrentDemoProducts(products);
         },
 
         async loadDemoCategoryMedia(entity) {
             entity.media = await this.repositoryFactory.create('media').get(entity.mediaId);
 
-            Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
+            this.cmsPageState.setCurrentDemoEntity(entity);
         },
 
         loadFirstDemoEntity() {
@@ -561,9 +559,10 @@ export default {
 
         onDemoEntityChange(demoEntityId) {
             const demoMappingType = this.cmsPageTypeSettings?.entity;
+            const store = this.cmsPageState;
 
-            Shopware.State.commit('cmsPageState/removeCurrentDemoEntity');
-            Shopware.State.commit('cmsPageState/removeCurrentDemoProducts');
+            store.removeCurrentDemoEntity();
+            store.removeCurrentDemoProducts();
 
             if (demoMappingType === 'product') {
                 if (demoEntityId) {
@@ -608,7 +607,7 @@ export default {
         },
 
         onCloseBlockConfig() {
-            this.$store.commit('cmsPageState/removeSelectedItem');
+            this.cmsPageState.removeSelectedItem();
         },
 
         pageConfigOpen(mode = null) {
@@ -967,7 +966,7 @@ export default {
         onPageTypeChange(pageType) {
             // if pageType wasn't passed along just assume the page was directly mutated
             if (typeof pageType === 'string') {
-                Shopware.State.commit('cmsPageState/setCurrentPageType', pageType);
+                this.cmsPageState.setCurrentPageType(pageType);
                 this.page.type = pageType;
             }
 

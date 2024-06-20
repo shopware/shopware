@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 describe('components/base/sw-button-deprecated', () => {
@@ -72,7 +72,6 @@ describe('components/base/sw-button-deprecated', () => {
             slots: { default: 'Router-link text' },
             global: {
                 stubs: {
-                    RouterLink: RouterLinkStub,
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 },
             },

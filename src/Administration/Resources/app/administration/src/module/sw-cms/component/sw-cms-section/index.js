@@ -101,7 +101,7 @@ export default {
         },
 
         sectionMobileAndHidden() {
-            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
@@ -142,7 +142,7 @@ export default {
         },
 
         isVisible() {
-            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
+            const view = Shopware.Store.get('cmsPageState').currentCmsDeviceView;
 
             return (view === 'desktop' && !this.section.visibility.desktop) ||
                 (view === 'tablet-landscape' && !this.section.visibility.tablet) ||
@@ -196,7 +196,7 @@ export default {
         },
 
         onBlockSelection(block) {
-            Shopware.State.dispatch('cmsPageState/setBlock', block);
+            Shopware.Store.get('cmsPageState').setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -208,7 +208,7 @@ export default {
             this.section.blocks.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                Shopware.State.commit('cmsPageState/removeSelectedBlock');
+                Shopware.Store.get('cmsPageState').removeSelectedBlock();
             }
 
             this.updateBlockPositions();

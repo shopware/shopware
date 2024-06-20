@@ -360,7 +360,7 @@ class SalesChannelProxyController extends AbstractController
 
         $payload[SalesChannelContextService::PERMISSIONS] = $requestPermissions
             ? \array_fill_keys($requestPermissions, true)
-            : [self::ADMIN_ORDER_PERMISSIONS];
+            : self::ADMIN_ORDER_PERMISSIONS;
 
         $this->contextPersister->save($contextToken, $payload, $salesChannelId);
     }

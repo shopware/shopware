@@ -46,17 +46,24 @@ class ThumbnailServiceTest extends TestCase
 
     private EntityRepository $thumbnailRepository;
 
+    private bool $remoteThumbnailsEnable = false;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->thumbnailRepository = $this->getContainer()->get('media_thumbnail.repository');
         $this->context = Context::createDefaultContext();
+        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
 
         $this->thumbnailService = $this->getContainer()->get(ThumbnailService::class);
     }
 
     public function testThumbnailGeneration(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -109,6 +116,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGeneratorThrowsExceptionIfFileDoesNotExist(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -122,6 +133,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGeneratorThrowsExceptionIfFileIsNoImage(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -140,6 +155,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testItUsesOriginalImageIfItsSmallerThanGeneratedThumbnail(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolder();
 
@@ -196,6 +215,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testItUsesFolderConfigGenerateThumbnails(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
@@ -217,6 +240,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testDeleteThumbnailsWithSavedThumbnails(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $mediaId = Uuid::randomHex();
         $mediaExtension = 'png';
 
@@ -282,6 +309,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testThumbnailGenerationThrowsExceptionIfFileTypeIsNotImage(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
         $media->setMediaType(new DocumentType());
@@ -295,6 +326,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testThumbnailGenerationThrowsExceptionIfFileIsVectorGraphic(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
         static::assertInstanceOf(MediaType::class, $media->getMediaType());
@@ -305,6 +340,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testThumbnailGenerationThrowsExceptionIfFileIsAnimated(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPng();
         static::assertInstanceOf(MediaType::class, $media->getMediaType());
@@ -315,6 +354,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGenerateThumbnails(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -377,6 +420,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGenerateThumbnailsWithSmallerImageSizeThanThumbnailSize(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolderHugeThumbnails();
 
@@ -441,6 +488,10 @@ class ThumbnailServiceTest extends TestCase
 
     public function testGenerateThumbnailsWithSkipDeleteMessage(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -516,6 +567,10 @@ class ThumbnailServiceTest extends TestCase
     #[DataProvider('strictModeConditionsProvider')]
     public function testUpdateThumbnailStrictMode(bool $strict): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 

@@ -46,12 +46,17 @@ class ThumbnailService
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityIndexer $indexer,
         private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
     public function generate(MediaCollection $collection, Context $context): int
     {
+        if ($this->remoteThumbnailsEnable) {
+            throw MediaException::thumbnailGenerationDisabled();
+        }
+
         $delete = [];
 
         $generate = [];
@@ -118,6 +123,10 @@ class ThumbnailService
      */
     public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
     {
+        if ($this->remoteThumbnailsEnable) {
+            throw MediaException::thumbnailGenerationDisabled();
+        }
+
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 
@@ -182,6 +191,10 @@ class ThumbnailService
 
     public function deleteThumbnails(MediaEntity $media, Context $context): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            throw MediaException::thumbnailGenerationDisabled();
+        }
+
         $this->deleteAssociatedThumbnails($media, $context);
     }
 

@@ -321,7 +321,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('remote_thumbnails')
                     ->children()
                         ->booleanNode('enable')->end()
-                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}')->end()
+                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
                     ->end()
                 ->end()
                 ->booleanNode('enable_url_upload_feature')->end()

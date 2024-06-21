@@ -16,6 +16,8 @@ use Twig\Template;
 #[Package('core')]
 class SwTwigFunction
 {
+    public static mixed $macroResult = null;
+
     /**
      * Returns the attribute value for a given array/object.
      *
@@ -96,6 +98,24 @@ class SwTwigFunction
         }
 
         $strings[$string][$strategy] = $result;
+
+        return $result;
+    }
+
+    /**
+     * @param array<array-key, mixed> $args
+     * @param array<array-key, mixed> $context
+     *
+     * @return mixed
+     */
+    public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
+    {
+        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
+
+        if (self::$macroResult !== null) {
+            $result = self::$macroResult;
+            self::$macroResult = null;
+        }
 
         return $result;
     }

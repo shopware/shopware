@@ -7,9 +7,11 @@ test('Shop administrator should be able to create product variants. @product', a
     AdminProductDetail,
     GenerateVariants,
 }) => {
+
     await ShopAdmin.goesTo(AdminProductDetail.url(ProductData.id));
     await ShopAdmin.page.waitForLoadState('domcontentloaded');
 
+    await test.slow();
     await ShopAdmin.attemptsTo(GenerateVariants());
 
     /**

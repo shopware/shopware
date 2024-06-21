@@ -21,7 +21,9 @@ class MediaUrlLoader
      * @internal
      */
     public function __construct(
-        private readonly AbstractMediaUrlGenerator $generator
+        private readonly AbstractMediaUrlGenerator $generator,
+        private readonly RemoteThumbnailLoader $remoteThumbnailLoader,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -33,6 +35,12 @@ class MediaUrlLoader
      */
     public function loaded(iterable $entities): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            $this->remoteThumbnailLoader->load($entities);
+
+            return;
+        }
+
         $mapping = $this->map($entities);
 
         if (empty($mapping)) {

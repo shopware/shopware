@@ -274,6 +274,9 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        remote_thumbnails:
+            enable: false
+            pattern: '{mediaUrl}/{mediaPath}?width={width}'
 
     dal:
         batch_size: 125

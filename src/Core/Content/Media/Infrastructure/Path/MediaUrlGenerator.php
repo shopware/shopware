@@ -26,7 +26,7 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             $url = $this->filesystem->publicUrl($value->path);
 
             if ($value->updatedAt !== null) {
-                $url .= '?' . $value->updatedAt->getTimestamp();
+                $url .= '?ts=' . $value->updatedAt->getTimestamp();
             }
 
             $urls[$key] = $url;

@@ -318,6 +318,12 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('media'))->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode('remote_thumbnails')
+                    ->children()
+                        ->booleanNode('enable')->end()
+                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}')->end()
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)

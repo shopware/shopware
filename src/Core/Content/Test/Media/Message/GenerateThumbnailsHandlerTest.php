@@ -39,6 +39,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
      */
     private $handler;
 
+    private bool $remoteThumbnailsEnable = false;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
@@ -46,10 +48,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->handler = $this->getContainer()->get(GenerateThumbnailsHandler::class);
+
+        $this->remoteThumbnailsEnable = $this->getContainer()->getParameter('shopware.media.remote_thumbnails.enable');
     }
 
     public function testGenerateThumbnails(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -105,6 +113,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
     public function testUpdateThumbnails(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
+
         $this->setFixtureContext($this->context);
         $media = $this->getPngWithFolder();
 
@@ -158,6 +170,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
     public function testDiffersBetweenUpdateAndGenerateMessage(): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
+
         $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
             ->disableOriginalConstructor()->getMock();
 

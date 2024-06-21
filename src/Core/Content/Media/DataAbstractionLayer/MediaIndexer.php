@@ -29,7 +29,8 @@ class MediaIndexer extends EntityIndexer
         private readonly EntityRepository $repository,
         private readonly EntityRepository $thumbnailRepository,
         private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -64,6 +65,10 @@ class MediaIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
+
         $ids = $message->getData();
 
         $ids = array_unique(array_filter($ids));

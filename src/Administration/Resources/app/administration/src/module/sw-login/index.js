@@ -8,6 +8,9 @@ import './view/sw-login-recovery';
 import './view/sw-login-recovery-info';
 import './view/sw-login-recovery-recovery';
 
+import de from './snippet/de.json';
+import en from './snippet/en.json';
+
 const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -19,6 +22,11 @@ Module.register('sw-login', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#F19D12',
+
+    snippets: {
+        'de-DE': de,
+        'en-GB': en,
+    },
 
     routes: {
         index: {

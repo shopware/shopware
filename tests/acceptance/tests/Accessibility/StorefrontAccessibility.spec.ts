@@ -20,6 +20,7 @@ test('The Storefront should implement accessibility best practices. @accessibili
     StorefrontAccountAddresses,
     StorefrontAccountPayment,
 }) => {
+    await test.slow();
 
     await test.step('Login Page Accessibility', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());

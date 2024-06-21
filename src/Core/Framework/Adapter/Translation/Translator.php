@@ -393,6 +393,7 @@ class Translator extends AbstractTranslator
     {
         $newCatalogue = clone $catalog;
 
+        // Recursively loading fallback snippets
         $currentCatalogue = $newCatalogue;
         do {
             $loadedSnippets = $this->loadSnippets($currentCatalogue, $snippetSetId, $fallbackLocale);
@@ -400,7 +401,7 @@ class Translator extends AbstractTranslator
             if (!empty($loadedSnippets)) {
                 $currentCatalogue->add($loadedSnippets);
             }
-        } while ($currentCatalogue = $currentCatalogue?->getFallbackCatalogue());
+        } while ($currentCatalogue = $currentCatalogue->getFallbackCatalogue());
 
         return $newCatalogue;
     }

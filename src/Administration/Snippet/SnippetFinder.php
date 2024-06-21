@@ -129,7 +129,6 @@ class SnippetFinder implements SnippetFinderInterface
             $finder->name(sprintf('%s.json', $locale));
         }
 
-
         $iterator = $finder->getIterator();
         $files = [];
 

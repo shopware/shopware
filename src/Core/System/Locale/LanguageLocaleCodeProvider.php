@@ -24,6 +24,10 @@ class LanguageLocaleCodeProvider implements ResetInterface
     {
     }
 
+    public function getLanguageLocalePrefix(string $languageId): string {
+        return explode('-', $this->getLocaleForLanguageId($languageId))[0];
+    }
+
     public function getLocaleForLanguageId(string $languageId): string
     {
         $languages = $this->getLanguages();

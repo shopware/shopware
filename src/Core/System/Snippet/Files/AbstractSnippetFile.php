@@ -42,7 +42,7 @@ abstract class AbstractSnippetFile
     abstract public function getAuthor(): string;
 
     /**
-     * Returns a boolean which determines if its a base language file
+     * Returns a boolean which determines if it's a base language file
      */
     abstract public function isBase(): bool;
 

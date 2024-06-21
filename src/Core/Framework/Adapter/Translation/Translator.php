@@ -120,14 +120,14 @@ class Translator extends AbstractTranslator
     {
         $catalog = $this->translator->getCatalogue($locale);
 
-        $fallbackLocale = $this->getFallbackLocale();
-
-        $localization = mb_substr($fallbackLocale, 0, 2);
-        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $localization)) {
-            $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
+        $fallbackLocale = $this->getFallbackLocale($catalog->getLocale());
+        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $fallbackLocale)) {
+            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
         } else {
-            // fallback locale and current locale has the same localization -> reset fallback
-            // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
+            /**
+             * fallback locale and current locale has the same localization -> reset fallback
+             * or locale is symfony style locale, so we shouldn't add shopware fallbacks as it may lead to circular references
+             */
             $fallbackLocale = null;
         }
 
@@ -136,7 +136,7 @@ class Translator extends AbstractTranslator
             $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
+        return $this->getCustomizedCatalogue($catalog, $fallbackLocale);
     }
 
     public static function tag(?string $id): string
@@ -169,10 +169,17 @@ class Translator extends AbstractTranslator
 
         $this->dispatcher->dispatch(new AddCacheTagEvent(self::tag($this->snippetSetId)));
 
-        // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
-        // We use the locale from the catalogue here as that may be the fallback locale,
-        // so we always format the translations in the actual locale of the catalogue
+        /**
+         * The formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
+         * We use the locale from the catalogue here as that may be the fallback locale,
+         * so we always format the translations in the actual locale of the catalogue
+         */
         $formatLocale = Locale::getFallback($catalogue->getLocale()) ?? $catalogue->getLocale();
+
+        while (!$catalogue->has($id, $domain) && $catalogue->getFallbackCatalogue() !== null) {
+            $domain = 'storefront';
+            $catalogue = $catalogue->getFallbackCatalogue();
+        }
 
         return $this->formatter->format($catalogue->get($id, $domain), $formatLocale, $parameters);
     }
@@ -308,7 +315,7 @@ class Translator extends AbstractTranslator
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
+    private function getCustomizedCatalogue(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
         try {
             $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
@@ -325,12 +332,9 @@ class Translator extends AbstractTranslator
             return $this->isCustomized[$snippetSetId];
         }
 
-        $snippets = $this->loadSnippets($catalog, $snippetSetId, $fallbackLocale);
+        $newCatalogue = $this->buildMergedCatalogue($catalog, $snippetSetId, $fallbackLocale);
 
-        $newCatalog = clone $catalog;
-        $newCatalog->add($snippets);
-
-        return $this->isCustomized[$snippetSetId] = $newCatalog;
+        return $this->isCustomized[$snippetSetId] = $newCatalogue;
     }
 
     /**
@@ -356,13 +360,17 @@ class Translator extends AbstractTranslator
         });
     }
 
-    private function getFallbackLocale(): string
+    private function getFallbackLocale(?string $locale): string
     {
+        if ($locale) {
+            return explode('-', $locale)[0];
+        }
+
         try {
-            return $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
+            return $this->languageLocaleProvider->getLanguageLocalePrefix(Defaults::LANGUAGE_SYSTEM);
         } catch (ConnectionException) {
             // this allows us to use the translator even if there's no db connection yet
-            return 'en-GB';
+            return 'en';
         }
     }
 
@@ -379,5 +387,21 @@ class Translator extends AbstractTranslator
         }
 
         $this->salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+    }
+
+    private function buildMergedCatalogue(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): MessageCatalogueInterface
+    {
+        $newCatalogue = clone $catalog;
+
+        $currentCatalogue = $newCatalogue;
+        do {
+            $loadedSnippets = $this->loadSnippets($currentCatalogue, $snippetSetId, $fallbackLocale);
+
+            if (!empty($loadedSnippets)) {
+                $currentCatalogue->add($loadedSnippets);
+            }
+        } while ($currentCatalogue = $currentCatalogue?->getFallbackCatalogue());
+
+        return $newCatalogue;
     }
 }

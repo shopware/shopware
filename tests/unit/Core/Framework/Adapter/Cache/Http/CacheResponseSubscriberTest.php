@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
@@ -52,6 +53,7 @@ class CacheResponseSubscriberTest extends TestCase
                 ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
+            CustomerLoginEvent::class => 'onCustomerLogin',
         ];
 
         static::assertSame($expected, CacheResponseSubscriber::getSubscribedEvents());
@@ -64,6 +66,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -98,6 +101,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -127,6 +131,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -156,6 +161,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -189,6 +195,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -270,6 +277,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            $requestStack,
             false,
             null,
             null
@@ -306,6 +314,32 @@ class CacheResponseSubscriberTest extends TestCase
             ->willReturn($cart);
 
         $subscriber->setResponseCache($event);
+    }
+
+    public function testOnCustomerLogin(): void
+    {
+        $requestStack = new RequestStack();
+
+        $subscriber = new CacheResponseSubscriber(
+            $this->createMock(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            $requestStack,
+            false,
+            null,
+            null
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $request = new Request();
+        $requestStack->push($request);
+
+        $event = new CustomerLoginEvent($salesChannelContext, new CustomerEntity(), 'token');
+        $subscriber->onCustomerLogin($event);
+
+        static::assertSame($salesChannelContext, $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
     }
 
     /**
@@ -352,6 +386,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             $reverseProxyEnabled,
             null,
             null
@@ -422,6 +457,7 @@ class CacheResponseSubscriberTest extends TestCase
             1,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -442,6 +478,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -485,6 +522,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -517,6 +555,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -561,6 +600,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null
@@ -597,6 +637,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             '5',
             '6'
@@ -681,6 +722,7 @@ class CacheResponseSubscriberTest extends TestCase
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
+            new RequestStack(),
             false,
             null,
             null

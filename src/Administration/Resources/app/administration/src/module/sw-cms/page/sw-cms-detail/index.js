@@ -235,6 +235,7 @@ export default {
 
             criteria
                 .getAssociation('categories')
+                .setPage(1)
                 .setLimit(25);
             criteria
                 .getAssociation('landingPages')

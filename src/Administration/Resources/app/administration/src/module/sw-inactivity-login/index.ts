@@ -1,8 +1,8 @@
 import './page/index';
 
 import type { RouteLocationNamedRaw } from 'vue-router';
-import deDE from './snippet/de-DE.json';
-import enGB from './snippet/en-GB.json';
+import de from './snippet/de.json';
+import en from './snippet/en.json';
 
 const { Module } = Shopware;
 
@@ -21,8 +21,8 @@ Module.register('sw-inactivity-login', {
     color: '#F19D12',
 
     snippets: {
-        'de-DE': deDE,
-        'en-GB': enGB,
+        'de-DE': de,
+        'en-GB': en,
     },
 
     routes: {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -47,6 +49,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly RequestStack $requestStack,
         private readonly bool $reverseProxyEnabled,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError
@@ -65,6 +68,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
                 ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
+            CustomerLoginEvent::class => 'onCustomerLogin',
         ];
     }
 
@@ -215,6 +219,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         return false;
+    }
+
+    public function onCustomerLogin(CustomerLoginEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
     }
 
     private function buildCacheHash(SalesChannelContext $context): string

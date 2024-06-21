@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
+import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
 const hasOrderTodayMock = [
     {},
@@ -43,7 +43,7 @@ async function createWrapper(privileges = [], repository = {}) {
                 $i18n: {
                     locale: 'en-GB',
                     messages: {
-                        'en-GB': dictionary,
+                        en: dictionary,
                     },
                 },
             },

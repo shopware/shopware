@@ -155,7 +155,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         onInput(event) {
-            let val = Number.parseFloat(event.target.value);
+            let val = this.getNumberFromString(event.target.value);
 
             if (!Number.isNaN(val)) {
                 if (this.max && val > this.max) {

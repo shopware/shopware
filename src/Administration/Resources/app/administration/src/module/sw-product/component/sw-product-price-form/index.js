@@ -140,6 +140,9 @@ export default {
             this.displayMaintainCurrencies = false;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed without replacement
+         */
         keymonitor(event) {
             if (event.key === ',') {
                 const value = event.currentTarget.value;

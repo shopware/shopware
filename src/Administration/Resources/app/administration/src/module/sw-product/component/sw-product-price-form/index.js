@@ -140,13 +140,6 @@ export default {
             this.displayMaintainCurrencies = false;
         },
 
-        keymonitor(event) {
-            if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
-            }
-        },
-
         getTaxLabel(tax) {
             if (this.$te(`global.tax-rates.${tax.name}`)) {
                 return this.$tc(`global.tax-rates.${tax.name}`);

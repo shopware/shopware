@@ -268,16 +268,12 @@ Component.register('sw-price-field', {
 
         onPriceGrossInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.priceForCurrency.gross = value;
-
                 this.onPriceGrossChangeDebounce(value);
             }
         },
 
         onPriceNetInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.priceForCurrency.net = value;
-
                 this.onPriceNetChangeDebounce(value);
             }
         },
@@ -386,13 +382,6 @@ Component.register('sw-price-field', {
 
         convertPrice(value) {
             return value * this.currency.factor;
-        },
-
-        keymonitor(event) {
-            if (event.key === ',') {
-                const value = event.target.value;
-                event.target.value = value.replace(/,/, '.');
-            }
         },
 
         onCloseModal() {

@@ -48,7 +48,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => ['addSeoInformation', 10000],
+            KernelEvents::RESPONSE => ['addSeoInformation', 11000],
         ];
     }
 

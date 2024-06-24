@@ -107,6 +107,23 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertIsArray($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
     }
 
+    public function testEnabledNoAuthentication(): void
+    {
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $this->browser->request('GET', '/store-api/test/store-api-seo-resolver/no-auth-required', ['sales-channel-id' => $this->ids->get('sales-channel')]);
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('seoUrls', $response);
+        static::assertNull($response['seoUrls']);
+
+        static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
+    }
+
     private function createData(): void
     {
         $product = [

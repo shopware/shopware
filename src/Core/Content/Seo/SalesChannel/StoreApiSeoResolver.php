@@ -45,10 +45,14 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     ) {
     }
 
+    /**
+     * This subscriber has to trigger before the {@see \Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener},
+     * because it requires access to the `StoreApiResponse`'s struct object, which is not available after encoding it.
+     */
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => ['addSeoInformation', 10000],
+            KernelEvents::RESPONSE => ['addSeoInformation', 11000],
         ];
     }
 
@@ -60,14 +64,24 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getRequest()->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+        $request = $event->getRequest();
+
+        if (!$request->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+            return;
+        }
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$context instanceof SalesChannelContext) {
+            // This is likely the case for routes with the `auth_required` option set to `false`,
+            // where the sales-channel-id and context is not resolved by access-token by the other listeners.
             return;
         }
 
         $dataBag = new SeoResolverData();
 
         $this->find($dataBag, $response->getObject());
-        $this->enrich($dataBag, $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
+        $this->enrich($dataBag, $context);
     }
 
     private function find(SeoResolverData $data, Struct $struct): void

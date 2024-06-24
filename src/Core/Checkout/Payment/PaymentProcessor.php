@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Framework\Context;
@@ -36,15 +35,12 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('checkout')]
 class PaymentProcessor
 {
-    public const VALIDATION_FIELD = 'validateStruct';
-
     /**
      * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
      *
      * @internal
      */
     public function __construct(
-        private readonly PaymentTransactionChainProcessor $paymentProcessor,
         private readonly TokenFactoryInterfaceV2 $tokenFactory,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly EntityRepository $orderTransactionRepository,
@@ -78,7 +74,7 @@ class PaymentProcessor
 
             // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
             if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                return $this->paymentProcessor->process($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
+                return $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
             }
 
             $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
@@ -90,7 +86,7 @@ class PaymentProcessor
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
-                $errorCode = $e instanceof HttpException ? $e->getStatusCode() : PaymentException::PAYMENT_PROCESS_ERROR;
+                $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;
                 $errorUrl .= (parse_url($errorUrl, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $errorCode;
 
                 return new RedirectResponse($errorUrl);
@@ -102,13 +98,8 @@ class PaymentProcessor
 
     public function finalize(TokenStruct $token, Request $request, SalesChannelContext $context): TokenStruct
     {
-        if ($token->getPaymentMethodId() === null) {
+        if ($token->getPaymentMethodId() === null || $token->getTransactionId() === null) {
             throw PaymentException::invalidToken($token->getToken() ?: '');
-        }
-
-        $transactionId = $token->getTransactionId();
-        if ($transactionId === null) {
-            throw PaymentException::asyncProcessInterrupted((string) $transactionId, 'Payment JWT didn\'t contain a valid orderTransactionId');
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($token->getPaymentMethodId());
@@ -127,14 +118,14 @@ class PaymentProcessor
         }
 
         try {
-            $transactionStruct = $this->paymentTransactionStructFactory->build($transactionId, $context->getContext());
+            $transactionStruct = $this->paymentTransactionStructFactory->build($token->getTransactionId(), $context->getContext());
             $paymentHandler->finalize($request, $transactionStruct, $context->getContext());
         } catch (\Throwable $e) {
             if ($e instanceof PaymentException && $e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
-                $this->transactionStateHandler->cancel($transactionId, $context->getContext());
+                $this->transactionStateHandler->cancel($token->getTransactionId(), $context->getContext());
             } else {
-                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
-                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $token->getTransactionId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
+                $this->transactionStateHandler->fail($token->getTransactionId(), $context->getContext());
             }
 
             // @deprecated tag:v6.7.0 - remove, $token will accept Throwable
@@ -172,9 +163,10 @@ class PaymentProcessor
 
             return $struct;
         } catch (\Throwable $e) {
-            $customer = $salesChannelContext->getCustomer();
-            $customerId = $customer !== null ? $customer->getId() : '';
-            $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
+            $this->logger->error(
+                'An error occurred during processing the validation of the payment. The order has not been placed yet.',
+                ['customerId' => $salesChannelContext->getCustomer()?->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]
+            );
 
             throw $e;
         }
@@ -205,7 +197,7 @@ class PaymentProcessor
         return $transaction;
     }
 
-    public function getReturnUrl(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
+    private function getReturnUrl(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
     {
         $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
 

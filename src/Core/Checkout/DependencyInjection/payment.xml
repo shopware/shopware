@@ -45,7 +45,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\PaymentProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="order_transaction.repository"/>

@@ -19,8 +19,7 @@ class PaymentResponseTest extends TestCase
 {
     public function testResponse(): void
     {
-        $response = new PaymentResponse();
-        $response->assign([
+        $response = PaymentResponse::create([
             'status' => StateMachineTransitionActions::ACTION_PAID,
             'message' => 'test message',
             'redirectUrl' => 'http://test.com',
@@ -33,8 +32,7 @@ class PaymentResponseTest extends TestCase
 
     public function testFailMessage(): void
     {
-        $response = new PaymentResponse();
-        $response->assign([
+        $response = PaymentResponse::create([
             'status' => StateMachineTransitionActions::ACTION_FAIL,
         ]);
 

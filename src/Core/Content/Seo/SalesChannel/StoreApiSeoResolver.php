@@ -60,14 +60,24 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getRequest()->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+        $request = $event->getRequest();
+
+        if (!$request->headers->has(PlatformRequest::HEADER_INCLUDE_SEO_URLS)) {
+            return;
+        }
+
+        /** @var SalesChannelContext|null $context */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        // This is likely the case for routes with the `auth_required` option set to `false`.
+        if (null === $context) {
             return;
         }
 
         $dataBag = new SeoResolverData();
 
         $this->find($dataBag, $response->getObject());
-        $this->enrich($dataBag, $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT));
+        $this->enrich($dataBag, $context);
     }
 
     private function find(SeoResolverData $data, Struct $struct): void

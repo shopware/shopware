@@ -32,7 +32,7 @@ class RefundResponse extends AbstractResponse
         }
 
         if ($this->status === StateMachineTransitionActions::ACTION_FAIL) {
-            return 'Payment was reported as failed.';
+            return 'Refund was reported as failed.';
         }
 
         return null;

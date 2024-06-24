@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload;
 
-use GuzzleHttp\Client;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use GuzzleHttp\ClientInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +20,7 @@ class PaymentPayloadService
 {
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
     ) {
     }
 
@@ -42,7 +40,7 @@ class PaymentPayloadService
     ): AbstractResponse {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
-        $response = $this->client->post($url, $optionRequest);
+        $response = $this->client->request('POST', $url, $optionRequest);
 
         $content = $response->getBody()->getContents();
 
@@ -57,14 +55,6 @@ class PaymentPayloadService
         $payload->setSource($this->helper->buildSource($app));
         $encoded = $this->helper->encode($payload);
         $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
-
-        if (!$jsonPayload) {
-            if ($payload instanceof PaymentPayloadInterface) {
-                throw PaymentException::asyncProcessInterrupted($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
-            }
-
-            throw PaymentException::validatePreparedPaymentInterrupted(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
-        }
 
         $secret = $app->getAppSecret();
         if ($secret === null) {

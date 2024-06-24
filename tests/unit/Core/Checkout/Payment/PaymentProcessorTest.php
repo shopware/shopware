@@ -190,7 +190,7 @@ class PaymentProcessorTest extends TestCase
             'error-url',
         );
 
-        static::assertSame('error-url?error-code=' . PaymentException::PAYMENT_UNKNOWN_PAYMENT_METHOD, $response->getTargetUrl());
+        static::assertSame('error-url?error-code=' . PaymentException::PAYMENT_UNKNOWN_PAYMENT_METHOD, $response?->getTargetUrl());
     }
 
     public function testPayWithoutHandlerAndErrorUrl(): void

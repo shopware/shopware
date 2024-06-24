@@ -21,19 +21,9 @@ class PaymentTransactionStruct extends Struct
         return $this->orderTransactionId;
     }
 
-    public function setOrderTransactionId(string $orderTransactionId): void
-    {
-        $this->orderTransactionId = $orderTransactionId;
-    }
-
     public function getReturnUrl(): ?string
     {
         return $this->returnUrl;
-    }
-
-    public function setReturnUrl(?string $returnUrl): void
-    {
-        $this->returnUrl = $returnUrl;
     }
 
     public function getRecurring(): ?RecurringDataStruct

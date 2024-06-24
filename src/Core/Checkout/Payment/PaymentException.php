@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -236,7 +237,7 @@ class PaymentException extends HttpException
             'The payment handler {{ handlerClass }} does not support the payment handler type {{ paymentHandlerType }}.',
             [
                 'handlerClass' => $handler::class,
-                'paymentHandlerType' => $paymentHandlerType,
+                'paymentHandlerType' => $paymentHandlerType->name,
             ],
         );
     }
@@ -306,18 +307,33 @@ class PaymentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getRefundId(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('refundId') ?? '';
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getOrderTransactionId(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('orderTransactionId');
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function getOrderId(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Use getParameter directly');
+
         return $this->getParameter('orderId');
     }
 }

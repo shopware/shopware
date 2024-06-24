@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -430,6 +431,7 @@ class PaymentRecurringProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testOldThrowingPaymentHandlerWillSetTransactionStateToFailed(): void
     {
         $paymentMethod = new PaymentMethodEntity();

@@ -249,8 +249,8 @@
                     v-if="!isLoading"
                     :disabled="!acl.can('shipping.editor')"
                 />
-                {% endblock %}
                 <sw-skeleton v-else />
+                {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_price_matrices %}
@@ -259,8 +259,8 @@
                     ref="priceMatrices"
                     :disabled="!acl.can('shipping.editor')"
                 />
-                {% endblock %}
                 <sw-skeleton v-else />
+                {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_detail_custom_field_sets %}

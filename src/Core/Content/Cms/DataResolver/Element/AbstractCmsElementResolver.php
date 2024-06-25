@@ -29,47 +29,42 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         }
 
         $value = $entity;
-        $parts = explode('.', $path);
+        $entityPath = explode('.', $path);
 
-        // if property does not exist, try to omit the first key as it may contains the entity name.
+        // if property does not exist, try to omit the first key as it may contain the entity name.
         // E.g. `product.description` does not exist, but will be found if the first part is omitted.
         $smartDetect = true;
 
-        while (\count($parts) > 0) {
-            $part = array_shift($parts);
+        while (\count($entityPath) > 0) {
+            $entityPathPart = array_shift($entityPath);
 
             if ($value === null) {
                 break;
             }
 
             try {
+                $parentValue = $value;
                 switch (true) {
                     case \is_array($value):
-                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+                        $value = \array_key_exists($entityPathPart, $value) ? $value[$entityPathPart] : null;
 
                         break;
                     case $value instanceof Entity:
-                        $value = $value->get($part);
+                        $value = $value->get($entityPathPart);
 
                         break;
                     case $value instanceof Struct:
                         $value = $value->getVars();
-                        $value = \array_key_exists($part, $value) ? $value[$part] : null;
+                        $value = \array_key_exists($entityPathPart, $value) ? $value[$entityPathPart] : null;
 
                         break;
                     default:
                         $value = null;
                 }
 
-                // if value is nested entity, we need to set a new entity from the value
-                if($value instanceof Entity) {
-                    $entity = $value;
-                }
-
-                // if we are at the destination entity and it does not have a value for the field
-                // on it's on, then try to get the translation fallback
-                if ($value === null) {
-                    $value = $entity->getTranslation($part);
+                // On the last element, try to get the translation if nothing else was found
+                if ($value === null && $parentValue instanceof Entity) {
+                    $value = $parentValue->getTranslation($entityPathPart);
                 }
             } catch (\InvalidArgumentException $ex) {
                 if (!$smartDetect) {

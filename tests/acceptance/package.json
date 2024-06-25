@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@playwright/test": "1.44.1",
-    "@shopware-ag/acceptance-test-suite": "2.0.1",
+    "@shopware-ag/acceptance-test-suite": "2.1.0",
     "@shopware/api-client": "^0.0.0-canary-20230823113412"
   }
 }

@@ -1,6 +1,6 @@
 ---
 title: Add mediaUpdatedAt to thumbnailPattern for disabled thumbnail generation
-issue: NEXT-0000
+issue: NEXT-36983
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect

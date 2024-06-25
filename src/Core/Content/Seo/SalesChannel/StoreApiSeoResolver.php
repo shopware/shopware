@@ -66,11 +66,11 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             return;
         }
 
-        /** @var SalesChannelContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        // This is likely the case for routes with the `auth_required` option set to `false`.
-        if (null === $context) {
+        if (!$context instanceof SalesChannelContext) {
+            // This is likely the case for routes with the `auth_required` option set to `false`,
+            // where the sales-channel-id and context is not resolved by access-token by the other listeners.
             return;
         }
 

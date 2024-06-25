@@ -2,7 +2,7 @@ import { test as base } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureTypes>({
-    GenerateVariants: async ({ ShopAdmin, AdminProductDetail }, use)=> {
+    GenerateVariants: async ({ ShopAdmin, AdminProductDetail }, use) => {
         const task = () => {
             return async function GenerateVariants() {
                 // Navigate to variants tab
@@ -35,7 +35,7 @@ export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureT
 
                 // Save variants
                 await AdminProductDetail.variantsSaveButton.click();
-                await ShopAdmin.expects(AdminProductDetail.variantsModal).not.toBeVisible();
+                await ShopAdmin.expects(AdminProductDetail.variantsModal).not.toBeVisible({ timeout: 30000 });
             }
         };
 

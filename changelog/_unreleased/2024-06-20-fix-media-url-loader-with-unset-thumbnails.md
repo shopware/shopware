@@ -1,6 +1,6 @@
 ---
 title: Fix media url loader with unset thumbnails
-issue: NEXT-00000
+issue: NEXT-36982
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

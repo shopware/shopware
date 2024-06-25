@@ -21,7 +21,7 @@
 
         {% block page_account_order_document_item_detail_date %}
             <div class="col-9 col-md-4 document-item document-item-date">
-                {{ document.createdAt|format_date(pattern='dd/MM/Y HH:mm', locale=app.request.locale) }}
+                {{ document.createdAt|format_date(locale=app.request.locale) }}
             </div>
         {% endblock %}
 

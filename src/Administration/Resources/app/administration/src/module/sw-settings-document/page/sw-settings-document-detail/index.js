@@ -164,6 +164,7 @@ export default {
                     config: {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
                     },
                 },
                 {

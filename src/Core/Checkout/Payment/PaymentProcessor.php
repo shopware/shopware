@@ -65,6 +65,8 @@ class PaymentProcessor
         if (!$transaction) {
             return null;
         }
+        $token = $this->getToken($transaction, $finishUrl, $errorUrl, $salesChannelContext);
+        $returnUrl = $this->getReturnUrl($token);
 
         try {
             $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
@@ -77,29 +79,37 @@ class PaymentProcessor
                 return $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag($request->request->all()), $salesChannelContext, $finishUrl, $errorUrl);
             }
 
-            $returnUrl = $this->getReturnUrl($transaction, $finishUrl, $errorUrl, $salesChannelContext);
             $transactionStruct = $this->paymentTransactionStructFactory->build($transaction->getId(), $salesChannelContext->getContext(), $returnUrl);
             $validationStruct = $transaction->getValidationData() ? new ArrayStruct($transaction->getValidationData()) : null;
 
-            return $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validationStruct);
+            $response = $paymentHandler->pay($request, $transactionStruct, $salesChannelContext->getContext(), $validationStruct);
+            if ($response instanceof RedirectResponse) {
+                $token = null;
+            }
+
+            return $response;
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
             $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
                 $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;
-                $errorUrl .= (parse_url($errorUrl, \PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $errorCode;
 
-                return new RedirectResponse($errorUrl);
+                return new RedirectResponse(\sprintf('%s%serror-code=%s', $errorUrl, parse_url($errorUrl, \PHP_URL_QUERY) ? '&' : '?', $errorCode));
             }
 
             throw $e;
+        } finally {
+            if ($token) {
+                // has been nulled, if response is RedirectResponse, therefore we have a finalize step
+                $this->tokenFactory->invalidateToken($token);
+            }
         }
     }
 
     public function finalize(TokenStruct $token, Request $request, SalesChannelContext $context): TokenStruct
     {
         if ($token->getPaymentMethodId() === null || $token->getTransactionId() === null) {
-            throw PaymentException::invalidToken($token->getToken() ?: '');
+            throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 
         $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($token->getPaymentMethodId());
@@ -197,7 +207,7 @@ class PaymentProcessor
         return $transaction;
     }
 
-    private function getReturnUrl(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
+    private function getToken(OrderTransactionEntity $transaction, ?string $finishUrl, ?string $errorUrl, SalesChannelContext $salesChannelContext): string
     {
         $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
 
@@ -215,8 +225,11 @@ class PaymentProcessor
             $errorUrl
         );
 
-        $token = $this->tokenFactory->generateToken($tokenStruct);
+        return $this->tokenFactory->generateToken($tokenStruct);
+    }
 
+    private function getReturnUrl(string $token): string
+    {
         $parameter = ['_sw_payment_token' => $token];
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);

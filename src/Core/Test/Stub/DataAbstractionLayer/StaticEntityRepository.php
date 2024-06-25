@@ -193,9 +193,7 @@ class StaticEntityRepository extends EntityRepository
      */
     public function addSearch(...$searches): void
     {
-        foreach ($searches as $search) {
-            $this->searches[] = $search;
-        }
+        $this->searches = \array_merge($this->searches, $searches);
     }
 
     /**

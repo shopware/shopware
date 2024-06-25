@@ -350,19 +350,19 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
     public function getTechnicalName(): ?string
     {
         if (!$this->technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `technical_name` will be required');
         }
 
         return $this->technicalName;
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - property type will not be nullable
      */
     public function setTechnicalName(?string $technicalName): void
     {
         if (!$technicalName) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `technical_name` will be required');
         }
 
         $this->technicalName = $technicalName;
@@ -383,7 +383,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function isSynchronous(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `synchronous` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `synchronous` will be removed');
 
         return $this->synchronous;
     }
@@ -393,7 +393,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function setSynchronous(bool $synchronous): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `synchronous` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `synchronous` will be removed');
         $this->synchronous = $synchronous;
     }
 
@@ -402,7 +402,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function isAsynchronous(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `asynchronous` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `asynchronous` will be removed');
 
         return $this->asynchronous;
     }
@@ -412,7 +412,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function setAsynchronous(bool $asynchronous): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `asynchronous` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `asynchronous` will be removed');
         $this->asynchronous = $asynchronous;
     }
 
@@ -421,7 +421,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function isPrepared(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `prepared` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `prepared` will be removed');
 
         return $this->prepared;
     }
@@ -431,7 +431,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function setPrepared(bool $prepared): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `prepared` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `prepared` will be removed');
         $this->prepared = $prepared;
     }
 
@@ -440,7 +440,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function isRefundable(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `refundable` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `refundable` will be removed');
 
         return $this->refundable;
     }
@@ -450,7 +450,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function setRefundable(bool $refundable): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `refundable` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `refundable` will be removed');
         $this->refundable = $refundable;
     }
 
@@ -459,7 +459,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function isRecurring(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `recurring` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `recurring` will be removed');
 
         return $this->recurring;
     }
@@ -469,7 +469,7 @@ class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
      */
     public function setRecurring(bool $recurring): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `recurring` will be removed');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Property `recurring` will be removed');
         $this->recurring = $recurring;
     }
 }

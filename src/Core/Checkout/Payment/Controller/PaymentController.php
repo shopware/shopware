@@ -102,7 +102,7 @@ class PaymentController extends AbstractController
 
         $transactionId = $token->getTransactionId();
         if ($transactionId === null) {
-            throw PaymentException::invalidToken($token->getToken() ?: '');
+            throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 
         $criteria = new Criteria();
@@ -113,7 +113,7 @@ class PaymentController extends AbstractController
         $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
         if ($order === null) {
-            throw PaymentException::invalidToken($token->getToken() ?: '');
+            throw PaymentException::invalidToken($token->getToken() ?? '');
         }
 
         return $this->orderConverter->assembleSalesChannelContext($order, $context);

@@ -48,8 +48,8 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
     {
         $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());
-        $orderId = $request->get('orderId');
-        $orderCurrencyId = $this->getCurrencyFromOrder($orderId, $context->getContext());
+        /** @var array{orderId: string, finishUrl: ?string, errorUrl: ?string} $data */
+        $orderCurrencyId = $this->getCurrencyFromOrder($data['orderId'], $context->getContext());
 
         if ($context->getCurrency()->getId() !== $orderCurrencyId) {
             $context = $this->contextService->get(
@@ -63,11 +63,11 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         }
 
         $response = $this->paymentProcessor->pay(
-            $request->get('orderId'),
+            $data['orderId'],
             $request,
             $context,
-            $request->get('finishUrl'),
-            $request->get('errorUrl')
+            $data['finishUrl'] ?? null,
+            $data['errorUrl'] ?? null,
         );
 
         return new HandlePaymentMethodRouteResponse($response);

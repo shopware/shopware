@@ -33,6 +33,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -118,6 +119,11 @@ class PaymentProcessorTest extends TestCase
             ->with('payment.finalize.transaction', ['_sw_payment_token' => 'token'])
             ->willReturn('return-url');
 
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('invalidateToken')
+            ->with('token');
+
         $response = $this->processor->pay(
             'order-id',
             $request,
@@ -127,6 +133,62 @@ class PaymentProcessorTest extends TestCase
         );
 
         static::assertNull($response);
+    }
+
+    public function testPayWithRedirectResponse(): void
+    {
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId('order-transaction-id');
+        $orderTransaction->setPaymentMethodId('payment-method-id');
+        $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
+
+        $request = new Request();
+        $salesChannelContext = Generator::createSalesChannelContext();
+
+        $struct = new PaymentTransactionStruct('order-transaction-id', 'return-url');
+        $this->structFactory
+            ->expects(static::once())
+            ->method('build')
+            ->with('order-transaction-id', $salesChannelContext->getContext(), 'return-url')
+            ->willReturn($struct);
+
+        $handler = $this->createMock(AbstractPaymentHandler::class);
+        $handler
+            ->expects(static::once())
+            ->method('pay')
+            ->with($request, $struct, $salesChannelContext->getContext(), null)
+            ->willReturn(new RedirectResponse('redirect-url'));
+
+        $this->paymentHandlerRegistry->expects(static::once())
+            ->method('getPaymentMethodHandler')
+            ->with('payment-method-id')
+            ->willReturn($handler);
+
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('generateToken')
+            ->willReturn('token');
+
+        $this->router
+            ->expects(static::once())
+            ->method('generate')
+            ->with('payment.finalize.transaction', ['_sw_payment_token' => 'token'])
+            ->willReturn('return-url');
+
+        $this->tokenGenerator
+            ->expects(static::never())
+            ->method('invalidateToken');
+
+        $response = $this->processor->pay(
+            'order-id',
+            $request,
+            $salesChannelContext,
+            'finish-url',
+            'error-url',
+        );
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('redirect-url', $response->getTargetUrl());
     }
 
     public function testPayWithoutTransaction(): void
@@ -182,6 +244,16 @@ class PaymentProcessorTest extends TestCase
             ->with('payment-method-id')
             ->willReturn(null);
 
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('generateToken')
+            ->willReturn('token');
+
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('invalidateToken')
+            ->with('token');
+
         $response = $this->processor->pay(
             'order-id',
             $request,
@@ -207,6 +279,16 @@ class PaymentProcessorTest extends TestCase
             ->method('getPaymentMethodHandler')
             ->with('payment-method-id')
             ->willReturn(null);
+
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('generateToken')
+            ->willReturn('token');
+
+        $this->tokenGenerator
+            ->expects(static::once())
+            ->method('invalidateToken')
+            ->with('token');
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.7.0 - will be removed, PaymentTransactionStruct instead with new payment handlers
+ * @deprecated tag:v6.7.0 - will be removed, PaymentTransactionStruct with new payment handlers instead
  */
 #[Package('checkout')]
 class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInterface
@@ -42,33 +42,33 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
         protected OrderEntity $order,
         protected ?RecurringDataStruct $recurring = null
     ) {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
     }
 
     public function getOrderTransaction(): OrderTransactionEntity
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->orderTransaction;
     }
 
     public function getOrder(): OrderEntity
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->order;
     }
 
     public function getRecurring(): ?RecurringDataStruct
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->recurring;
     }
 
     public function isRecurring(): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->recurring !== null;
     }
@@ -78,7 +78,7 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function jsonSerialize(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitJsonSerialize();
     }
@@ -88,13 +88,13 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitConvertDateTimePropertiesToJsonStringRepresentation($array);
     }
 
     public function addExtension(string $name, Struct $extension): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitAddExtension($name, $extension);
     }
 
@@ -103,7 +103,7 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function addArrayExtension(string $name, array $extension): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitAddArrayExtension($name, $extension);
     }
 
@@ -112,13 +112,13 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function addExtensions(array $extensions): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitAddExtensions($extensions);
     }
 
     public function getExtension(string $name): ?Struct
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitGetExtension($name);
     }
@@ -132,21 +132,21 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function getExtensionOfType(string $name, string $type): ?Struct
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitGetExtensionOfType($name, $type);
     }
 
     public function hasExtension(string $name): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitHasExtension($name);
     }
 
     public function hasExtensionOfType(string $name, string $type): bool
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitHasExtensionOfType($name, $type);
     }
@@ -156,7 +156,7 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function getExtensions(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->traitGetExtensions();
     }
@@ -166,13 +166,13 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     public function setExtensions(array $extensions): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitSetExtensions($extensions);
     }
 
     public function removeExtension(string $name): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
         $this->traitRemoveExtension($name);
     }
 }

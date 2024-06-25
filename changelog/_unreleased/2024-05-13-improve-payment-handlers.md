@@ -22,13 +22,11 @@ ___
 
 
 ## Payment: Capture step of prepared payments removed
-* The method `capture` has been removed from the `PreparedPaymentHandler` interface.
-* Also for apps, this method is no longer being called
-* Use `pay` instead
+* The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
+* Use the `pay` method instead for capturing previously validated payments.
 
 ## App System: Payment: payment states
-* Previously, for asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`.
-* This is no longer the case. Payment states are now no longer set by default.
+* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
 
 ## App system: Payment:  finalize step
 * The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls

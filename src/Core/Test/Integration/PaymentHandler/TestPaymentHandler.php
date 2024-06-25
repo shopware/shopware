@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore this is only a fixture for the payment handler integration tests
  */
 #[Package('checkout')]
 class TestPaymentHandler extends AbstractPaymentHandler

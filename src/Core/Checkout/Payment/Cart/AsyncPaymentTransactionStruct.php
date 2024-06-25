@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.7.0 - will be removed, use PaymentTransactionStruct instead with new payment handlers
+ * @deprecated tag:v6.7.0 - will be removed, use PaymentTransactionStruct with new payment handlers instead
  */
 #[Package('checkout')]
 class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
@@ -20,14 +20,14 @@ class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
         protected string $returnUrl,
         protected ?RecurringDataStruct $recurringData = null
     ) {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         parent::__construct($orderTransaction, $order, $recurringData);
     }
 
     public function getReturnUrl(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct instead with new payment handlers');
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The specific payment structs will be removed, use PaymentTransactionStruct with new payment handlers instead');
 
         return $this->returnUrl;
     }

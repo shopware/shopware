@@ -23,7 +23,6 @@ if (Feature::isActive('v6.7.0.0')) {
     /**
      * @deprecated tag:v6.7.0 - reason:becomes-internal
      */
-    // @phpstan-ignore-next-line
     #[Package('checkout')]
     class PrePayment extends DefaultPayment implements RecurringPaymentHandlerInterface
     {

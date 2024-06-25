@@ -124,13 +124,6 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $app = $this->getApp($appPaymentMethod);
 
         $payload = $this->buildPayload($orderTransaction, $order, $request->request->all(), $transaction->getReturnUrl(), new ArrayStruct(), $transaction->getRecurring());
-
-        $captureUrl = $appPaymentMethod->getCaptureUrl();
-        if ($captureUrl) {
-            $response = $this->requestAppServer($captureUrl, PaymentResponse::class, $payload, $app, $context);
-            $this->transitionState($orderTransaction->getId(), $response, $context);
-        }
-
         $payUrl = $appPaymentMethod->getPayUrl();
         if ($payUrl) {
             $response = $this->requestAppServer($payUrl, PaymentResponse::class, $payload, $app, $context);

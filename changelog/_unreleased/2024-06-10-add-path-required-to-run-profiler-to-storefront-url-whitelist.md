@@ -1,6 +1,6 @@
 ---
 title: Add path required to run profiler to storefront url whitelist
-issue: NEXT-00000
+issue: NEXT-36872
 author: Benedikt Brunner
 author_email: benedikt.brunner@pickware.de
 author_github: Benedikt-Brunner

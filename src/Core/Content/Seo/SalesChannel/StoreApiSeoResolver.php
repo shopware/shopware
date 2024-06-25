@@ -45,6 +45,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     ) {
     }
 
+    /**
+     * This subscriber has to trigger before the {@see \Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener},
+     * because it requires access to the `StoreApiResponse`'s struct object, which is not available after encoding it.
+     */
     public static function getSubscribedEvents(): array
     {
         return [

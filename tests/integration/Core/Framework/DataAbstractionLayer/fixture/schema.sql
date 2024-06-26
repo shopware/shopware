@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `attribute_entity_order`;
 DROP TABLE IF EXISTS `attribute_entity_currency`;
 DROP TABLE IF EXISTS `attribute_entity_translation`;
 DROP TABLE IF EXISTS `attribute_entity_agg`;
@@ -71,4 +72,15 @@ CREATE TABLE `attribute_entity_agg` (
     `created_at` DATETIME(3) NOT NULL,
     `updated_at` DATETIME(3) NULL,
     PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `attribute_entity_order` (
+    `attribute_entity_id` BINARY(16) NOT NULL,
+    `order_id` BINARY(16) NOT NULL,
+    `order_version_id` BINARY(16) NOT NULL,
+    PRIMARY KEY (`attribute_entity_id`,`order_id`, `order_version_id`),
+    KEY `fk.attribute_entity_order.attribute_entity_id` (`attribute_entity_id`),
+    KEY `fk.attribute_entity_order.order_id` (`order_id`, `order_version_id`),
+    CONSTRAINT `fk.attribute_entity_order.attribute_entity_id` FOREIGN KEY (`attribute_entity_id`) REFERENCES `attribute_entity` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk.attribute_entity_order.order_id` FOREIGN KEY (`order_id`, `order_version_id`) REFERENCES `order` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

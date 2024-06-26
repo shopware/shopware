@@ -9,6 +9,7 @@ import Vue, { compatUtils } from 'vue';
 import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
+import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -192,6 +193,7 @@ config.global.plugins = [
             };
         },
     },
+    VirtualCallStackPlugin,
 ];
 
 global.allowedErrors = [

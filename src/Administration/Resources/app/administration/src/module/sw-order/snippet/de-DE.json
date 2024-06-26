@@ -520,6 +520,14 @@
         "label": "Verkaufskanäle",
         "placeholder": "Verkaufskanäle auswählen ..."
       },
+      "orderNumberFilter": {
+        "label": "Bestellnummer",
+        "placeholder": "Bestellnummer eingeben ..."
+      },
+      "customerNumberFilter": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
+      },
       "billingCountryFilter": {
         "label": "Rechnungsland",
         "placeholder": "Rechnungsländer auswählen ..."

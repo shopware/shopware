@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -44,6 +45,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly PreparedPaymentService $preparedPaymentService,
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly CartContextHasher $cartContextHasher,
     ) {
     }
 
@@ -55,6 +57,12 @@ class CartOrderRoute extends AbstractCartOrderRoute
     #[Route(path: '/store-api/checkout/order', name: 'store-api.checkout.cart.order', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        $hash = $data->getAlnum('hash');
+
+        if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
+            throw CartException::hashMismatch($cart->getToken());
+        }
+
         // we use this state in stock updater class, to prevent duplicate available stock updates
         $context->addState('checkout-order-route');
 

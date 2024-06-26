@@ -368,6 +368,7 @@ shopware:
             - user.recovery.request
             - customer.recovery.request
         error_code_log_levels:
+            CHECKOUT__CART_HASH_MISMATCH: notice
             CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
             CHECKOUT__CUSTOMER_NOT_FOUND: notice

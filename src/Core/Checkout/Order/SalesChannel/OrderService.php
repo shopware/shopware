@@ -53,7 +53,7 @@ class OrderService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartService $cartService,
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly StateMachineRegistry $stateMachineRegistry
+        private readonly StateMachineRegistry $stateMachineRegistry,
     ) {
     }
 

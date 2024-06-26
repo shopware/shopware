@@ -1153,6 +1153,7 @@ class OrderConverterTest extends TestCase
             'affiliateCode' => null,
             'campaignCode' => null,
             'source' => null,
+            'hash' => null,
         ];
     }
 

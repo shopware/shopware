@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -21,6 +23,8 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class CartCalculatorTest extends TestCase
 {
+    public const EXPECTED_HASH = '0e7471dd6822e878f04962fc750993c42ccfe121672409e8ef92237658055942';
+
     public function testCalculate(): void
     {
         $context = Generator::createSalesChannelContext();
@@ -35,7 +39,7 @@ class CartCalculatorTest extends TestCase
             ->with($context, $cart, static::equalTo($behavior))
             ->willReturn($result);
 
-        $calculator = new CartCalculator($cartRuleLoader);
+        $calculator = new CartCalculator($cartRuleLoader, new CartContextHasher(new EventDispatcher()));
         $calculatedCart = $calculator->calculate($cart, $context);
 
         static::assertFalse($calculatedCart->isModified());
@@ -44,6 +48,26 @@ class CartCalculatorTest extends TestCase
         foreach ($calculatedCart->getLineItems() as $lineItem) {
             static::assertFalse($lineItem->isModified());
         }
+    }
+
+    public function testSetHash(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $behavior = new CartBehavior($context->getPermissions());
+        $cart = $this->getCart();
+        $result = new RuleLoaderResult($cart, new RuleCollection());
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->expects(static::once())
+            ->method('loadByCart')
+            ->with($context, $cart, static::equalTo($behavior))
+            ->willReturn($result);
+
+        $calculator = new CartCalculator($cartRuleLoader, new CartContextHasher(new EventDispatcher()));
+        $calculatedCart = $calculator->calculate($cart, $context);
+
+        static::assertSame(self::EXPECTED_HASH, $calculatedCart->getHash());
     }
 
     private function getCart(): Cart

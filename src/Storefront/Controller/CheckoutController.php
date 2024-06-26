@@ -63,7 +63,7 @@ class CheckoutController extends StorefrontController
         private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
         private readonly SystemConfigService $config,
         private readonly AbstractLogoutRoute $logoutRoute,
-        private readonly AbstractCartLoadRoute $cartLoadRoute
+        private readonly AbstractCartLoadRoute $cartLoadRoute,
     ) {
     }
 

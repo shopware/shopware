@@ -93,6 +93,7 @@
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "Diese Bestellung konnte nicht gefunden werden.",
+    "CHECKOUT__CART_HASH_MISMATCH": "Produkte oder Preise in Deinem Warenkorb haben sich möglicherweise geändert. Bitte überprüfe den Warenkorb, bevor Du die Bestellung aufgibst.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "Die angegebene Menge (%quantity%) ist ungültig."
   },
   "account": {

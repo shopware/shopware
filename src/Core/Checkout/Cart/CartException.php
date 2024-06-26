@@ -52,6 +52,7 @@ class CartException extends HttpException
     public const CART_LINE_ITEM_INVALID = 'CHECKOUT__CART_LINE_ITEM_INVALID';
     private const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
+    public const CART_HASH_MISMATCH = 'CHECKOUT__CART_HASH_MISMATCH';
 
     public static function deserializeFailed(): self
     {
@@ -419,5 +420,15 @@ class CartException extends HttpException
     public static function addressNotFound(string $id): ShopwareHttpException
     {
         return new AddressNotFoundException($id);
+    }
+
+    public static function hashMismatch(string $token): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_HASH_MISMATCH,
+            'Content hash mismatch for cart token: {{ token }}',
+            ['token' => $token]
+        );
     }
 }

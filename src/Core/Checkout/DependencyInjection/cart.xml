@@ -74,6 +74,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\CartCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartFactory">
@@ -122,6 +123,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\PreparedPaymentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -153,6 +155,10 @@
         <service id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\CartContextHasher">
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <!-- Tax calculation -->
@@ -475,7 +481,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <tag name="kernel.reset" method="reset"/>

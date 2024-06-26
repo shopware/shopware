@@ -104,6 +104,7 @@
             v-else-if="showFilter(filter, 'string-filter')"
             :filter="filter"
             :active="!!activeFilters[filter.name]"
+            :criteria-filter-type="filter.criteriaFilterType"
             @filter-update="updateFilter"
             @filter-reset="resetFilter"
         />

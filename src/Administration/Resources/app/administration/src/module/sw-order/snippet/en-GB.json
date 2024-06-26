@@ -520,6 +520,14 @@
         "label": "Sales Channels",
         "placeholder": "Select Sales Channels..."
       },
+      "orderNumberFilter": {
+        "label": "Order number",
+        "placeholder": "Enter order number..."
+      },
+      "customerNumberFilter": {
+        "label": "Customer number",
+        "placeholder": "Enter customer number..."
+      },
       "billingCountryFilter": {
         "label": "Billing country",
         "placeholder": "Select billing countries..."

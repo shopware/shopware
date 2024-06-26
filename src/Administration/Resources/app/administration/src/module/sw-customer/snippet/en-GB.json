@@ -233,6 +233,10 @@
       "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {
+      "customerNumber": {
+        "label": "Customer number",
+        "placeholder": "Enter customer number..."
+      },
       "salutation": {
         "label": "Salutation",
         "placeholder": "Select salutation..."

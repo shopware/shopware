@@ -56,7 +56,7 @@ class MediaUrlLoader
 
             $entity->assign(['url' => $urls[$entity->getUniqueIdentifier()]]);
 
-            if (!$entity->has('thumbnails')) {
+            if (!$entity->has('thumbnails') || $entity->get('thumbnails') === null) {
                 continue;
             }
 
@@ -91,7 +91,7 @@ class MediaUrlLoader
 
             $mapped[$entity->getUniqueIdentifier()] = UrlParams::fromMedia($entity);
 
-            if (!$entity->has('thumbnails')) {
+            if (!$entity->has('thumbnails') || $entity->get('thumbnails') === null) {
                 continue;
             }
 

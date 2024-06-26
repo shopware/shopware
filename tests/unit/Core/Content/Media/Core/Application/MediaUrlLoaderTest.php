@@ -38,10 +38,14 @@ class MediaUrlLoaderTest extends TestCase
         $actual = [$entity->get('id') => $entity->get('url')];
 
         if ($entity->has('thumbnails')) {
-            static::assertIsIterable($entity->get('thumbnails'));
-            foreach ($entity->get('thumbnails') as $thumbnail) {
-                static::assertInstanceOf(Entity::class, $thumbnail);
-                $actual[$thumbnail->get('id')] = $thumbnail->get('url');
+            if ($entity->get('thumbnails') !== null) {
+                static::assertIsIterable($entity->get('thumbnails'));
+                foreach ($entity->get('thumbnails') as $thumbnail) {
+                    static::assertInstanceOf(Entity::class, $thumbnail);
+                    $actual[$thumbnail->get('id')] = $thumbnail->get('url');
+                }
+            } else {
+                $actual[$ids->get('thumbnail')] = null;
             }
         }
 
@@ -89,6 +93,20 @@ class MediaUrlLoaderTest extends TestCase
                 'private' => false,
             ]),
             [$ids->get('media') => 'http://localhost:8000/foo/bar.png?ts=946684800'],
+        ];
+
+        yield 'Test with unset thumbnails' => [
+            $ids,
+            (new PartialEntity())->assign([
+                'id' => $ids->get('media'),
+                'path' => '/foo/bar.png',
+                'private' => false,
+                'thumbnails' => null,
+            ]),
+            [
+                $ids->get('media') => 'http://localhost:8000/foo/bar.png',
+                $ids->get('thumbnail') => null,
+            ],
         ];
 
         yield 'Test with thumbnails' => [

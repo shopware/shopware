@@ -80,14 +80,14 @@ class RemoteThumbnailLoader implements ResetInterface
 
             $thumbnails = new MediaThumbnailCollection();
             foreach ($thumbnailSizes as $size) {
-                $url = $this->getUrl($baseUrl, $path, $size['width'], $size['height']);
+                $url = $this->getUrl($baseUrl, $path, $size['width'], $size['height'], $updatedAt);
 
                 $thumbnail = new MediaThumbnailEntity();
                 $thumbnail->assign([
                     'id' => Uuid::randomHex(),
                     'width' => $size['width'],
                     'height' => $size['height'],
-                    'url' => $updatedAt === null ? $url : $url . (str_contains($url, '?') ? '&' : '?') . 'ts=' . $updatedAt->getTimestamp(),
+                    'url' => $url,
                 ]);
 
                 $thumbnails->add($thumbnail);
@@ -163,11 +163,11 @@ class RemoteThumbnailLoader implements ResetInterface
         return \rtrim($this->filesystem->publicUrl(''), '/');
     }
 
-    private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height): string
+    private function getUrl(string $mediaUrl, string $mediaPath, string $width, string $height, ?\DateTimeInterface $mediaUpdatedAt): string
     {
         return str_replace(
-            ['{mediaUrl}', '{mediaPath}', '{width}', '{height}'],
-            [$mediaUrl, $mediaPath, $width, $height],
+            ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
+            [$mediaUrl, $mediaPath, $width, $height, $mediaUpdatedAt?->getTimestamp() ?: ''],
             $this->pattern
         );
     }

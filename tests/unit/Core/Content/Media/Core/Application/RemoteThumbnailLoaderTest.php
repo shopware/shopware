@@ -41,7 +41,7 @@ class RemoteThumbnailLoaderTest extends TestCase
             new MediaUrlGenerator($filesystem),
             $connection,
             $prefixFilesystem,
-            '{mediaUrl}/{mediaPath}?width={width}'
+            '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
         $loader->load([$entity]);
@@ -80,9 +80,9 @@ class RemoteThumbnailLoaderTest extends TestCase
             [
                 'media' => 'http://localhost:8000/foo/bar.png',
                 'thumbnails' => [
-                    'http://localhost:8000/foo/bar.png?width=200',
-                    'http://localhost:8000/foo/bar.png?width=400',
-                    'http://localhost:8000/foo/bar.png?width=600',
+                    'http://localhost:8000/foo/bar.png?width=200&ts=',
+                    'http://localhost:8000/foo/bar.png?width=400&ts=',
+                    'http://localhost:8000/foo/bar.png?width=600&ts=',
                 ],
             ],
         ];
@@ -151,7 +151,7 @@ class RemoteThumbnailLoaderTest extends TestCase
             new MediaUrlGenerator($filesystem),
             $connection,
             $this->createMock(PrefixFilesystem::class),
-            '{mediaUrl}/{mediaPath}?width={width}'
+            '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
         $loader->load([$entity]);

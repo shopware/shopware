@@ -276,7 +276,7 @@ shopware:
         url_upload_max_size: 0
         remote_thumbnails:
             enable: false
-            pattern: '{mediaUrl}/{mediaPath}?width={width}'
+            pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
 
     dal:
         batch_size: 125

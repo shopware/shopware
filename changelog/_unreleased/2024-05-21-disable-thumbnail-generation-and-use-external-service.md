@@ -27,6 +27,7 @@ This pattern supports the following variables:
    *  `mediaPath`: The path of the media file relative to the mediaUrl.
    *  `width`: The width of the thumbnail.
    *  `height`: The height of the thumbnail.
+   *  `mediaUpdatedAt`: The unix timestamp of the last media change.
 
 For example, consider a scenario where you want to generate a thumbnail with a width of 80px.
-With the pattern set as `{mediaUrl}/{mediaPath}?width={width}`, the resulting URL would be `https://yourshop.example/abc/123/456.jpg?width=80`.
+With the pattern set as `{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}`, the resulting URL would be `https://yourshop.example/abc/123/456.jpg?width=80&ts=1718954838`.

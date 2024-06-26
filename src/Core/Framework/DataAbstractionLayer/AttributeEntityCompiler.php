@@ -56,7 +56,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -89,12 +88,9 @@ class AttributeEntityCompiler
 
     private CamelCaseToSnakeCaseNameConverter $converter;
 
-    private ContainerBuilder $container;
-
-    public function __construct(ContainerBuilder $container)
+    public function __construct()
     {
         $this->converter = new CamelCaseToSnakeCaseNameConverter();
-        $this->container = $container;
     }
 
     /**
@@ -350,9 +346,6 @@ class AttributeEntityCompiler
         $srcProperty = $this->converter->denormalize($entity);
         $refProperty = $this->converter->denormalize($field->entity);
 
-        /** @var DefinitionInstanceRegistry $registry */
-        $registry = $this->container->get(DefinitionInstanceRegistry::class);
-
         $fields = [
             [
                 'class' => FkField::class,
@@ -386,25 +379,13 @@ class AttributeEntityCompiler
             ],
         ];
 
-        // If the target entity is versioned, we need to add the [entity]_version_id field
-        if ($registry->getByClassOrEntityName($field->entity)->isVersionAware()) {
-            $fields[] = [
-                'class' => ReferenceVersionField::class,
-                'translated' => false,
-                'args' => [$field->entity],
-                'flags' => [
-                    PrimaryKey::class => ['class' => PrimaryKey::class],
-                    Required::class => ['class' => Required::class],
-                ],
-            ];
-        }
-
         return [
             'type' => 'mapping',
             'parent' => null,
             'entity_class' => ArrayEntity::class,
             'entity_name' => self::mappingName($entity, $field),
             'fields' => $fields,
+            'entity' => $field->entity,
         ];
     }
 }

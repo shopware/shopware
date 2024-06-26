@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;

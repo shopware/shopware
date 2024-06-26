@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -44,6 +47,13 @@ class AttributeMappingDefinition extends MappingEntityDefinition
             }
 
             $fields[] = $instance;
+        }
+
+        // Check if the target entity is a version aware entity, since we need to
+        // add a version field to the mapping entity in that case
+        $entity = $this->meta['entity'];
+        if ($this->registry->getByClassOrEntityName($entity)->isVersionAware()) {
+            $fields[] = (new ReferenceVersionField($entity))->addFlags(new PrimaryKey(), new Required());
         }
 
         return new FieldCollection($fields);

@@ -10,3 +10,4 @@ author_github:  @mromeike
   from `10_000` to `11_000`
 * Added a check for availability of `sw-sales-channel-context` before accessing it
   in `src/Core/Content/Seo/SalesChannel/StoreApiSeoResolver.php`
+* Added tests covering the `auth_required=false` store-api route edge-case

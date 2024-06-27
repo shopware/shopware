@@ -8,7 +8,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 class RefundResponse extends AbstractResponse
 {
     /**
@@ -20,24 +20,21 @@ class RefundResponse extends AbstractResponse
      */
     protected ?string $status = null;
 
-    /**
-     * This message is not used on successful outcomes.
-     * The message should be provided on failure.
-     * Refund will fail if provided.
-     */
-    protected ?string $message = null;
-
     public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function getMessage(): ?string
+    public function getErrorMessage(): ?string
     {
-        return $this->message;
-    }
+        if (parent::getErrorMessage()) {
+            return parent::getErrorMessage();
+        }
 
-    public function validate(string $transactionId): void
-    {
+        if ($this->status === StateMachineTransitionActions::ACTION_FAIL) {
+            return 'Refund was reported as failed.';
+        }
+
+        return null;
     }
 }

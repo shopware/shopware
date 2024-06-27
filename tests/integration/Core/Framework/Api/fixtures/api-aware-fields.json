@@ -1384,6 +1384,7 @@
     "order_transaction.orderId",
     "order_transaction.orderVersionId",
     "order_transaction.paymentMethodId",
+    "order_transaction.validationData",
     "order_transaction.amount",
     "order_transaction.stateId",
     "order_transaction.stateMachineState",

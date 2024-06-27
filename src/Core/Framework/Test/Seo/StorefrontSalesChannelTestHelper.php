@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Seo;
 
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
@@ -31,13 +33,13 @@ trait StorefrontSalesChannelTestHelper
         /** @var Container $container */
         $container = $this->getContainer();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $container->get('sales_channel.repository');
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
+        TestCase::assertNotNull($salesChannel);
 
         $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $browser->setServerParameter($header, $salesChannel->getAccessKey());

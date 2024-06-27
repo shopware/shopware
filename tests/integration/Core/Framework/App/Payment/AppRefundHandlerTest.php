@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 
@@ -23,7 +25,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = RefundResponse::create($transactionId, [
+        $response = RefundResponse::create([
             'status' => 'complete',
         ]);
 
@@ -68,7 +70,7 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = RefundResponse::create($transactionId, [
+        $response = RefundResponse::create([
             'message' => 'FOO_BAR_ERROR_MESSAGE',
         ]);
 
@@ -77,8 +79,8 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
         } catch (\Throwable $e) {
-            static::assertInstanceOf(PaymentException::class, $e);
-            static::assertSame('The refund process was interrupted due to the following error:
+            static::assertInstanceOf(AppException::class, $e);
+            static::assertSame('The app payment process was interrupted due to the following error:
 FOO_BAR_ERROR_MESSAGE', $e->getMessage());
 
             $this->assertRefundState(OrderTransactionCaptureRefundStates::STATE_FAILED, $refundId);
@@ -97,7 +99,7 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         $captureId = $this->createCapture($transactionId);
         $refundId = $this->createRefund($captureId);
 
-        $response = RefundResponse::create($transactionId, []);
+        $response = RefundResponse::create([]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
@@ -108,9 +110,8 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
         } catch (\Throwable $e) {
-            static::assertInstanceOf(PaymentException::class, $e);
-            static::assertSame('The refund process was interrupted due to the following error:
-Invalid app response', $e->getMessage());
+            static::assertInstanceOf(ServerException::class, $e);
+            static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
 
             $this->assertRefundState(OrderTransactionCaptureRefundStates::STATE_FAILED, $refundId);
 
@@ -128,7 +129,7 @@ Invalid app response', $e->getMessage());
         $captureId = $this->createCapture($transactionId);
         $refundId = $this->createRefund($captureId);
 
-        $response = RefundResponse::create($transactionId, []);
+        $response = RefundResponse::create([]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
@@ -139,9 +140,8 @@ Invalid app response', $e->getMessage());
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
         } catch (\Throwable $e) {
-            static::assertInstanceOf(PaymentException::class, $e);
-            static::assertSame('The refund process was interrupted due to the following error:
-Invalid app response', $e->getMessage());
+            static::assertInstanceOf(ServerException::class, $e);
+            static::assertSame('Could not verify the authenticity of the response', $e->getMessage());
 
             $this->assertRefundState(OrderTransactionCaptureRefundStates::STATE_FAILED, $refundId);
 
@@ -161,7 +161,7 @@ Invalid app response', $e->getMessage());
 
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = RefundResponse::create($transactionId, [
+        $response = RefundResponse::create([
             'status' => 'complete',
         ]);
 

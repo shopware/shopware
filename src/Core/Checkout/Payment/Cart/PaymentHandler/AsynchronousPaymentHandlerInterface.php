@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, extend AbstractPaymentHandler instead
+ */
 #[Package('checkout')]
 interface AsynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {

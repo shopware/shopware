@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 trait CreateFromTrait
 {
-    #[\ReturnTypeWillChange]
     public static function createFrom(Struct $object): static
     {
         try {

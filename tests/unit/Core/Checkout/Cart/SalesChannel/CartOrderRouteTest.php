@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -43,7 +44,7 @@ class CartOrderRouteTest extends TestCase
 
     private OrderPersister&MockObject $orderPersister;
 
-    private CartContextHasher $CartContextHasher;
+    private CartContextHasher $cartContextHasher;
 
     private SalesChannelContext $context;
 
@@ -54,7 +55,7 @@ class CartOrderRouteTest extends TestCase
         $this->cartCalculator = $this->createMock(CartCalculator::class);
         $this->orderRepository = $this->createMock(EntityRepository::class);
         $this->orderPersister = $this->createMock(OrderPersister::class);
-        $this->CartContextHasher = new CartContextHasher(new EventDispatcher());
+        $this->cartContextHasher = new CartContextHasher(new EventDispatcher());
 
         $this->route = new CartOrderRoute(
             $this->cartCalculator,
@@ -63,9 +64,10 @@ class CartOrderRouteTest extends TestCase
             $this->createMock(AbstractCartPersister::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(PreparedPaymentService::class),
+            $this->createMock(PaymentProcessor::class),
             $this->createMock(TaxProviderProcessor::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $this->CartContextHasher
+            $this->cartContextHasher
         );
 
         $this->context = Generator::createSalesChannelContext();
@@ -134,7 +136,7 @@ class CartOrderRouteTest extends TestCase
         $cart = new Cart('token');
         $cart->setPrice($cartPrice);
         $cart->add(new LineItem('id', 'type'));
-        $cart->setHash($this->CartContextHasher->generate($cart, $this->context));
+        $cart->setHash($this->cartContextHasher->generate($cart, $this->context));
 
         $data = new RequestDataBag();
         $data->set('hash', $cart->getHash());
@@ -204,7 +206,7 @@ class CartOrderRouteTest extends TestCase
         $cart2->add(new LineItem('2', 'type'));
 
         $data = new RequestDataBag();
-        $data->set('hash', $this->CartContextHasher->generate($cart2, $this->context));
+        $data->set('hash', $this->cartContextHasher->generate($cart2, $this->context));
 
         static::expectException(CartException::class);
 

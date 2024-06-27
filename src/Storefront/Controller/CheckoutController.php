@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -59,7 +59,7 @@ class CheckoutController extends StorefrontController
         private readonly CheckoutConfirmPageLoader $confirmPageLoader,
         private readonly CheckoutFinishPageLoader $finishPageLoader,
         private readonly OrderService $orderService,
-        private readonly PaymentService $paymentService,
+        private readonly PaymentProcessor $paymentProcessor,
         private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
         private readonly SystemConfigService $config,
         private readonly AbstractLogoutRoute $logoutRoute,
@@ -197,7 +197,7 @@ class CheckoutController extends StorefrontController
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
             $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
-            $response = Profiler::trace('handle-payment', fn (): ?RedirectResponse => $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl));
+            $response = Profiler::trace('handle-payment', fn (): ?RedirectResponse => $this->paymentProcessor->pay($orderId, $request, $context, $finishUrl, $errorUrl));
 
             return $response ?? new RedirectResponse($finishUrl);
         } catch (PaymentException|IllegalTransitionException|FlowException) {

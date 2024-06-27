@@ -39,6 +39,8 @@ class TokenStruct extends Struct
     protected $errorUrl;
 
     /**
+     * @deprecated tag:v6.7.0 - will be of type Throwable|null and strictly typed
+     *
      * @var \Exception|null
      */
     protected $exception;
@@ -111,11 +113,21 @@ class TokenStruct extends Struct
         return $this->expires < time();
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - return type will be Throwable
+     *
+     * @phpstan-ignore-next-line nothing to throw for extended types
+     */
     public function getException(): ?\Exception
     {
         return $this->exception;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - param `exception` will be of type Throwable
+     *
+     * @phpstan-ignore-next-line nothing to throw for extended types
+     */
     public function setException(?\Exception $exception): void
     {
         $this->exception = $exception;

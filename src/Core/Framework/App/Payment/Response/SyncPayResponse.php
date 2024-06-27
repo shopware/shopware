@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @deprecated tag:v6.7.0 - will be removed, only exists for RecurringPayResponse
  */
-#[Package('core')]
+#[Package('checkout')]
 class SyncPayResponse extends AbstractResponse
 {
     /**
@@ -26,16 +29,31 @@ class SyncPayResponse extends AbstractResponse
 
     public function getStatus(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'SyncPayPayload will be removed, use PaymentPayload instead'
+        );
+
         return $this->status;
     }
 
     public function getMessage(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'SyncPayPayload will be removed, use PaymentPayload instead'
+        );
+
         return $this->message;
     }
 
     public function validate(string $transactionId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'SyncPayPayload will be removed, use PaymentPayload instead'
+        );
+
         // no status & message = open
         // message = fail
         // status = status

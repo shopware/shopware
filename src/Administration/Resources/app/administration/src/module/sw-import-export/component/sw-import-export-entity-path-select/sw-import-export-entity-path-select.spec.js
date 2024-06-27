@@ -667,6 +667,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'transactions.stateId',
             'transactions.stateMachineState',
             'transactions.updatedAt',
+            'transactions.validationData',
             'transactions.versionId',
         ]);
     });

@@ -7,16 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 class ValidateResponse extends AbstractResponse
 {
-    /**
-     * This message is not used on successful outcomes.
-     * The message should be provided on failure.
-     * Payment will fail if provided.
-     */
-    protected ?string $message = null;
-
     /**
      * This will be sent with the capture call for the app to identify the verified payment
      *
@@ -24,20 +17,11 @@ class ValidateResponse extends AbstractResponse
      */
     protected array $preOrderPayment = [];
 
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
     /**
      * @return mixed[]
      */
     public function getPreOrderPayment(): array
     {
         return $this->preOrderPayment;
-    }
-
-    public function validate(string $transactionId): void
-    {
     }
 }

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class TransactionTransformer
 {
     /**
-     * @return array<int, array<string, string|CalculatedPrice>>
+     * @return array<int, array<string, string|CalculatedPrice|array<array-key, mixed>|null>>
      */
     public static function transformCollection(
         TransactionCollection $transactions,
@@ -28,7 +28,7 @@ class TransactionTransformer
     }
 
     /**
-     * @return array<string, string|CalculatedPrice>
+     * @return array<string, string|CalculatedPrice|array<array-key, mixed>|null>
      */
     public static function transform(
         Transaction $transaction,
@@ -39,6 +39,7 @@ class TransactionTransformer
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
             'stateId' => $stateId,
+            'validationData' => $transaction->getValidationStruct()?->jsonSerialize(),
         ];
     }
 }

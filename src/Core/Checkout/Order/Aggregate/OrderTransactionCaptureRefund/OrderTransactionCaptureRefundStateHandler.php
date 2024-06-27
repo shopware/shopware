@@ -50,7 +50,7 @@ class OrderTransactionCaptureRefundStateHandler
             new Transition(
                 OrderTransactionCaptureRefundDefinition::ENTITY_NAME,
                 $transactionCaptureRefundId,
-                StateMachineTransitionActions::ACTION_COMPLETE,
+                StateMachineTransitionActions::ACTION_PROCESS,
                 'stateId'
             ),
             $context

@@ -72,6 +72,12 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
+        # tag:v6.7.0 - does not fully understand overwrite multiple definitions of DefaultPayment
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -175,7 +181,7 @@ parameters:
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
         # Internal deprecations of Shopware are handled in other places
-        - '#deprecated.*class Shopware\\#'
+        - '#deprecated.*(class|interface) Shopware\\#'
 
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'

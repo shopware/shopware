@@ -6,23 +6,31 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Framework\App\Payload\Source;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
+use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @internal only for use by the app-system
- */
-#[Package('core')]
-class SyncPayPayload implements PaymentPayloadInterface
+#[Package('checkout')]
+class PaymentPayload implements PaymentPayloadInterface
 {
     use CloneTrait;
-    use JsonSerializableTrait;
+    use JsonSerializableTrait {
+        jsonSerialize as protected traitJsonSerialize;
+    }
     use RemoveAppTrait;
 
     protected Source $source;
 
     protected OrderTransactionEntity $orderTransaction;
+
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `requestData` instead
+     *
+     * @var mixed[]
+     */
+    protected array $queryParameters;
 
     /**
      * @param mixed[] $requestData
@@ -31,19 +39,14 @@ class SyncPayPayload implements PaymentPayloadInterface
         OrderTransactionEntity $orderTransaction,
         protected OrderEntity $order,
         protected array $requestData = [],
+        protected ?string $returnUrl = null,
+        protected ?Struct $validateStruct = null,
         protected ?RecurringDataStruct $recurring = null,
     ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
-    }
 
-    public function setSource(Source $source): void
-    {
-        $this->source = $source;
-    }
-
-    public function getSource(): Source
-    {
-        return $this->source;
+        // @deprecated tag:v6.7.0 - will be removed, use `requestData` instead
+        $this->queryParameters = $requestData;
     }
 
     public function getOrderTransaction(): OrderTransactionEntity
@@ -64,8 +67,42 @@ class SyncPayPayload implements PaymentPayloadInterface
         return $this->requestData;
     }
 
+    public function getReturnUrl(): ?string
+    {
+        return $this->returnUrl;
+    }
+
+    public function getValidateStruct(): ?Struct
+    {
+        return $this->validateStruct;
+    }
+
     public function getRecurring(): ?RecurringDataStruct
     {
         return $this->recurring;
+    }
+
+    public function getSource(): Source
+    {
+        return $this->source;
+    }
+
+    public function setSource(Source $source): void
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        $payload = $this->traitJsonSerialize();
+
+        if (Feature::isActive('v6.7.0.0')) {
+            unset($payload['queryParameters']);
+        }
+
+        return $payload;
     }
 }

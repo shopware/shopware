@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,6 +25,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PaymentTransactionChainProcessor
 {
@@ -52,6 +56,11 @@ class PaymentTransactionChainProcessor
         ?string $finishUrl = null,
         ?string $errorUrl = null
     ): ?RedirectResponse {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
         $criteria->addAssociation('transactions.paymentMethod');

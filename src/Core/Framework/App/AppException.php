@@ -32,6 +32,8 @@ class AppException extends HttpException
     public const INSTALLATION_FAILED = 'FRAMEWORK__APP_INSTALLATION_FAILED';
     public const XML_PARSE_ERROR = 'FRAMEWORK_APP__XML_PARSE_ERROR';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
+    final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
+    final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
 
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
 
@@ -236,6 +238,30 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE,
             'The checkout gateway payload is invalid'
+        );
+    }
+
+    public static function interrupted(string $errorMessage, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_INTERRUPTED,
+            'The app payment process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
+            [
+                'errorMessage' => $errorMessage,
+            ],
+            $e
+        );
+    }
+
+    public static function invalidTransaction(string $transactionId, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_INVALID_TRANSACTION_ID,
+            'The transaction with id {{ transactionId }} is invalid or could not be found.',
+            ['transactionId' => $transactionId],
+            $e
         );
     }
 }

@@ -188,9 +188,16 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
+        $cacheDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', 'localCache');
+
+        // if relative convert to absolute
+        if (!realpath($cacheDir) && strpos($cacheDir, '/') !== 0) {
+            $cacheDir = $this->getProjectDir() . '/' . ltrim($cacheDir, '/');
+        }
+
         return sprintf(
             '%s/var/cache/%s_h%s%s',
-            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
+            $cacheDir,
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''

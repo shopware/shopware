@@ -122,7 +122,7 @@ class CategoryListRouteTest extends TestCase
                     [
                         'id' => $this->ids->create('category2'),
                         'name' => 'Test2',
-                        'active' => true,
+                        'active' => false,
                     ],
                     [
                         'id' => $this->ids->create('category3'),

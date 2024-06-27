@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('Shop administrator should be able to upload an image to the product gallery within a product. @product' , async ({
+test('Shop administrator should be able to upload an image to the product gallery within a product. @product', async ({
     ShopAdmin,
     AdminProductDetail,
     ProductData,
@@ -8,9 +8,10 @@ test('Shop administrator should be able to upload an image to the product galler
     SaveProduct,
     IdProvider,
 }) => {
+    await test.slow();
 
     const imageId = IdProvider.getIdPair().id;
-    const imageName = `image-${ imageId }`;
+    const imageName = `image-${imageId}`;
 
     await ShopAdmin.goesTo(AdminProductDetail.url(ProductData.id));
     await ShopAdmin.attemptsTo(UploadImage(imageName));

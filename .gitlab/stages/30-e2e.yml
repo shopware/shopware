@@ -116,7 +116,7 @@ Changed E2E:
 acceptance:
   extends:
     - .long-running
-  image: mcr.microsoft.com/playwright:v1.44.0-jammy
+  image: mcr.microsoft.com/playwright:v1.45.0-jammy
   needs: [build image]
   tags:
     - shopware-amd64

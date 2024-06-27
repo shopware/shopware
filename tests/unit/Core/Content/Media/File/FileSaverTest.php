@@ -183,4 +183,63 @@ class FileSaverTest extends TestCase
             true,
         ];
     }
+
+    public function testFileNameUniqueWithRemoteThumbnailsEnable(): void
+    {
+        $fileSaver = new FileSaver(
+            $this->mediaRepository,
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(ThumbnailService::class),
+            $this->createMock(MetadataLoader::class),
+            $this->createMock(TypeDetector::class),
+            $this->messageBus,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SqlMediaLocationBuilder::class),
+            $this->createMock(AbstractMediaPathStrategy::class),
+            ['png'],
+            ['png'],
+            true
+        );
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setMimeType('image/png');
+        $media->setFileName('foo');
+        $media->setFileExtension('png');
+        $media->setPrivate(true);
+
+        $mediaCollection = new MediaCollection([$media]);
+
+        $mediaId = Uuid::randomHex();
+        $currentMedia = new MediaEntity();
+        $currentMedia->setId($mediaId);
+        $currentMedia->setPrivate(false);
+        $currentMedia->setPath('');
+        $mediaCollection->set($mediaId, $currentMedia);
+
+        $mediaSearchResult = $this->createMock(EntitySearchResult::class);
+        $mediaSearchResult->method('getEntities')->willReturn($mediaCollection);
+        $this->mediaRepository->method('search')->willReturn($mediaSearchResult);
+
+        $file = tmpfile();
+        static::assertIsResource($file);
+        $tempMeta = stream_get_meta_data($file);
+        $mediaFile = new MediaFile($tempMeta['uri'] ?? '', 'image/png', 'png', 0);
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
+
+        $message = new GenerateThumbnailsMessage();
+        $message->setMediaIds([$mediaId]);
+        $message->setContext($context);
+
+        $this->mediaRepository
+            ->expects(static::once())
+            ->method('update')
+            ->with(static::callback(static fn (array $payload) => $payload[0]['id'] === $currentMedia->getId() && $payload[0]['fileName'] === 'foo'));
+
+        $fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
+
+        static::assertEmpty($this->messageBus->getMessages());
+    }
 }

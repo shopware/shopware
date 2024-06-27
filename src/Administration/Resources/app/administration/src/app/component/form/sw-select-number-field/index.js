@@ -16,7 +16,7 @@ const { Component } = Shopware;
  *     <option value="5">Label #5</option>
  * </sw-select-number-field>
  */
-Component.extend('sw-select-number-field', 'sw-select-field', {
+Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
 
     inheritAttrs: false,
 

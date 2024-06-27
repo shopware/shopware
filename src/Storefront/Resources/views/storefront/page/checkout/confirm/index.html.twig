@@ -212,6 +212,9 @@
               data-form-add-history="true"
               data-form-add-history-options="{{ formAddHistoryOptions|json_encode }}"
               method="post">
+
+            <input type="text" name="hash" hidden="hidden" value="{{ page.cart.getHash }}" />
+
             {% block page_checkout_confirm_form_submit %}
                 <div class="d-grid">
                     <button id="confirmFormSubmit"

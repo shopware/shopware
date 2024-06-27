@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Constraint\Constraint;
+use PHPUnit\Framework\Constraint\IsInstanceOf;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\ScriptException;
@@ -45,13 +48,18 @@ class ScriptExecutorTest extends TestCase
 
         $context = Context::createDefaultContext();
         foreach ($hooks as $hook) {
-            $this->executor->execute(new TestHook($hook, $context, ['object' => $object]));
+            $this->executor->execute(new TestHook($hook, $context, ['object' => $object], [RepositoryFacadeHookFactory::class]));
         }
 
         static::assertNotEmpty($expected);
 
         foreach ($expected as $key => $value) {
             static::assertTrue($object->has($key));
+            if ($value instanceof Constraint) {
+                static::assertThat($object->get($key), $value);
+
+                continue;
+            }
             static::assertEquals($value, $object->get($key));
         }
     }
@@ -209,6 +217,10 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
+        ];
+        yield 'Test include with function call and complex return type' => [
+            ['include-with-complex-return-type-case'],
+            ['return' => new IsInstanceOf(EntitySearchResult::class)],
         ];
     }
 }

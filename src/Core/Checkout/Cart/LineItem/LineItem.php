@@ -553,6 +553,25 @@ class LineItem extends Struct
         return $this->modifiedByApp;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getHashContent(): array
+    {
+        $content = [
+            'quantity' => $this->getQuantity(),
+            'price' => $this->getPrice()?->getTotalPrice(),
+            'referenceId' => $this->getReferencedId(),
+            'children' => [],
+        ];
+
+        foreach ($this->getChildren() as $child) {
+            $content['children'][$child->getId()] = $child->getHashContent();
+        }
+
+        return $content;
+    }
+
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();

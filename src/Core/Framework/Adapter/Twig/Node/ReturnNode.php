@@ -14,18 +14,13 @@ class ReturnNode extends Node implements NodeOutputInterface
 {
     public function compile(Compiler $compiler): void
     {
-        $compiler
-            ->addDebugInfo($this)
-            ->write('yield ');
+        $compiler->addDebugInfo($this);
 
         if ($this->hasNode('expr')) {
+            $compiler->raw('SwTwigFunction::$macroResult = ');
             $compiler->subcompile($this->getNode('expr'));
             $compiler->raw(";\n");
-            $compiler->write("return;\n");
-
-            return;
         }
-        $compiler->raw(";\n");
         $compiler->write("return;\n");
     }
 }

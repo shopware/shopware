@@ -95,7 +95,7 @@ class CheckoutControllerTest extends TestCase
             $this->offcanvasCartPageLoaderMock,
             $this->configMock,
             $this->logoutRouteMock,
-            $this->cartLoadRouteMock
+            $this->cartLoadRouteMock,
         );
     }
 

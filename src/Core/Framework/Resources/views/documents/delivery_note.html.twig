@@ -25,7 +25,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
 
 {% block document_recipient %}
     {% if config.displayCompanyAddress and config.companyAddress is not empty %}
-        {{ config.companyAddress }}<br><br>
+        {{ config.companyName }} {{ config.companyAddress }}<br><br>
     {% endif %}
 
     {% sw_include '@Framework/snippets/render.html.twig' with {

@@ -47,7 +47,8 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         private readonly MessageBusInterface $messageBus,
         private readonly DeleteFileHandler $deleteFileHandler,
         private readonly Connection $connection,
-        private readonly EntityRepository $mediaRepository
+        private readonly EntityRepository $mediaRepository,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -132,7 +133,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
                 $publicPaths[] = $mediaEntity->getPath();
             }
 
-            if (!$mediaEntity->getThumbnails()) {
+            if ($this->remoteThumbnailsEnable || !$mediaEntity->getThumbnails()) {
                 continue;
             }
 
@@ -143,6 +144,10 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
         $this->performFileDelete($context, $publicPaths, Visibility::PUBLIC);
         $this->performFileDelete($context, $privatePaths, Visibility::PRIVATE);
+
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
 
         $this->thumbnailRepository->delete($thumbnails, $context);
     }

@@ -1,0 +1,12 @@
+{% apply spaceless %}
+    {% macro foo() %}
+        {% return [1, 2] %}
+    {% endmacro %}
+
+    {% set foo = _self.foo() %}
+
+    {% if foo is empty %}
+        should not be empty
+    {% endif %}
+    {{ foo[1] }}
+{% endapply  %}

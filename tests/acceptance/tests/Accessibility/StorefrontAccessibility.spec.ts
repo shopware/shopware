@@ -1,15 +1,14 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test('The Storefront should implement accessibility best practices. @accessibility', async ({
+test('The Storefront should implement accessibility best practices.', { tag: '@Accessibility' }, async ({
     ShopCustomer,
+    TestDataService,
     ValidateAccessibility,
     Login,
     AddProductToCart,
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,
     SubmitOrder,
-    ProductData,
-    CategoryData,
     StorefrontProductDetail,
     StorefrontCategory,
     StorefrontAccountLogin,
@@ -21,6 +20,10 @@ test('The Storefront should implement accessibility best practices. @accessibili
     StorefrontAccountPayment,
 }) => {
     await test.slow();
+
+    const product = await TestDataService.createBasicProduct();
+    const category = await TestDataService.createCategory();
+    await TestDataService.assignProductCategory(product.id, category.id);
 
     await test.step('Login Page Accessibility', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
@@ -34,17 +37,17 @@ test('The Storefront should implement accessibility best practices. @accessibili
     });
 
     await test.step('Category Page Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontCategory.url(CategoryData.id));
+        await ShopCustomer.goesTo(StorefrontCategory.url(category.id));
         await ShopCustomer.attemptsTo(ValidateAccessibility('Category', false));
     });
 
     await test.step('Product Detail Page Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
+        await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.attemptsTo(ValidateAccessibility('Product', false));
     });
 
     await test.step('Cart Page Accessibility', async () => {
-        await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '5'));
+        await ShopCustomer.attemptsTo(AddProductToCart(product, '5'));
         await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Cart', false));
     });

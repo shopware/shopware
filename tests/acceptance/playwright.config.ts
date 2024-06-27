@@ -65,26 +65,26 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
-            name: 'setup',
+            name: 'Setup',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@setup/,
+            grep: /@Setup/,
         },
         {
             name: 'Platform',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            dependencies: ['setup'],
-            grepInvert: /@install|@update|@setup.*/,
+            dependencies: ['Setup'],
+            grepInvert: /@Install|@Update|@Setup.*/,
         },
         {
             name: 'Install',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@install/,
+            grep: /@Install/,
             retries: 0,
         },
         {
@@ -93,7 +93,7 @@ export default defineConfig({
                 ...devices['Desktop Chrome'],
             },
             dependencies: [],
-            grep: /@update/,
+            grep: /@Update/,
             retries: 0,
         },
     ],

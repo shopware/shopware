@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
 
-test ('New Customers must be able to register in the Storefront', async ({
+test ('New Customers must be able to register in the Storefront.', { tag: '@Registration' }, async ({
     ShopCustomer,
     StorefrontAccountLogin,
     StorefrontAccount,

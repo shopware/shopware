@@ -69,6 +69,11 @@ class AttributeEntityDefinition extends EntityDefinition implements AttributeCon
         return new FieldCollection($fields);
     }
 
+    /**
+     * @throws \ReflectionException
+     *
+     * @return array<string, Constraint[]>
+     */
     public function getConstraints(): array
     {
         $constraints = [];
@@ -77,7 +82,7 @@ class AttributeEntityDefinition extends EntityDefinition implements AttributeCon
             $property = new \ReflectionProperty($this->meta['entity_class'], $field['name']);
             $propertyConstraints = $property->getAttributes(Constraint::class, \ReflectionAttribute::IS_INSTANCEOF);
 
-            $constraints[$field['name']] = array_map(static fn($constraint) => $constraint->newInstance(), $propertyConstraints);
+            $constraints[$field['name']] = array_map(static fn ($constraint) => $constraint->newInstance(), $propertyConstraints);
         }
 
         return $constraints;

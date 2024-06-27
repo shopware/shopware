@@ -32,7 +32,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -184,7 +183,7 @@ class EntityWriter implements EntityWriterInterface
 
         $entityConstraints = [];
 
-        if($definition instanceof AttributeConstraintAwareInterface) {
+        if ($definition instanceof AttributeConstraintAwareInterface) {
             $entityConstraints = $definition->getConstraints();
         }
 

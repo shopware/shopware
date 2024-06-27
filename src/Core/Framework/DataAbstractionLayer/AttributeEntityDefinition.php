@@ -6,9 +6,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 
 #[Package('core')]
-class AttributeEntityDefinition extends EntityDefinition
+class AttributeEntityDefinition extends EntityDefinition implements AttributeConstraintAwareInterface
 {
     /**
      * @param array<string, mixed> $meta
@@ -66,5 +67,19 @@ class AttributeEntityDefinition extends EntityDefinition
         }
 
         return new FieldCollection($fields);
+    }
+
+    public function getConstraints(): array
+    {
+        $constraints = [];
+
+        foreach ($this->meta['fields'] as $field) {
+            $property = new \ReflectionProperty($this->meta['entity_class'], $field['name']);
+            $propertyConstraints = $property->getAttributes(Constraint::class, \ReflectionAttribute::IS_INSTANCEOF);
+
+            $constraints[$field['name']] = array_map(static fn($constraint) => $constraint->newInstance(), $propertyConstraints);
+        }
+
+        return $constraints;
     }
 }

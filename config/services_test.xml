@@ -44,5 +44,9 @@
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
             <tag name="shopware.entity"/>
         </service>
+
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\DummyEntity">
+            <tag name="shopware.entity"/>
+        </service>
     </services>
 </container>

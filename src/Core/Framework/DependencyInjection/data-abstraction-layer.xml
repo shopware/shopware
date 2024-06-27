@@ -204,6 +204,7 @@
             <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory">

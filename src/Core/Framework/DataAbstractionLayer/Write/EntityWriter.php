@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeConstraintAwareInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
@@ -28,7 +29,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -49,7 +53,8 @@ class EntityWriter implements EntityWriterInterface
         private readonly EntityWriteGatewayInterface $gateway,
         private readonly LanguageLoaderInterface $languageLoader,
         private readonly DefinitionInstanceRegistry $registry,
-        private readonly EntityWriteResultFactory $factory
+        private readonly EntityWriteResultFactory $factory,
+        private readonly DataValidator $validator
     ) {
     }
 
@@ -175,6 +180,24 @@ class EntityWriter implements EntityWriterInterface
 
         if (!$rawData) {
             return [];
+        }
+
+        $entityConstraints = [];
+
+        if($definition instanceof AttributeConstraintAwareInterface) {
+            $entityConstraints = $definition->getConstraints();
+        }
+
+        $dataValidationDefinition = new DataValidationDefinition();
+
+        foreach ($entityConstraints as $fieldName => $constraints) {
+            foreach ($constraints as $constraint) {
+                $dataValidationDefinition->add($fieldName, $constraint);
+            }
+        }
+
+        foreach ($rawData as $data) {
+            $this->validator->validate($data, $dataValidationDefinition);
         }
 
         $commandQueue = new WriteCommandQueue();

@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints\Ip;
 /**
  * @internal
  */
-#[EntityAttribute('dummy_entity')]
+#[EntityAttribute('dummy_entity', since: '6.6.3.0')]
 class DummyEntity extends Entity
 {
     #[PrimaryKey]

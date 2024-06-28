@@ -2,6 +2,7 @@
  * @package admin
  */
 
+import { compatUtils } from '@vue/compat';
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
 
@@ -12,6 +13,17 @@ const { Component } = Shopware;
  */
 Component.register('sw-inheritance-switch', {
     template,
+
+    inject: {
+        restoreInheritanceHandler: {
+            from: 'restoreInheritanceHandler',
+            default: null,
+        },
+        removeInheritanceHandler: {
+            from: 'removeInheritanceHandler',
+            default: null,
+        },
+    },
 
     props: {
         isInherited: {
@@ -39,6 +51,12 @@ Component.register('sw-inheritance-switch', {
                 return;
             }
             this.$emit('inheritance-restore');
+
+            if (!compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                if (this.restoreInheritanceHandler) {
+                    this.restoreInheritanceHandler();
+                }
+            }
         },
 
         onClickRemoveInheritance() {
@@ -46,6 +64,12 @@ Component.register('sw-inheritance-switch', {
                 return;
             }
             this.$emit('inheritance-remove');
+
+            if (!compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                if (this.removeInheritanceHandler) {
+                    this.removeInheritanceHandler();
+                }
+            }
         },
     },
 });

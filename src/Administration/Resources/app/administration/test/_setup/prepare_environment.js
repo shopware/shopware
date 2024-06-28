@@ -3,7 +3,7 @@
  */
 
 import { config, enableAutoUnmount } from '@vue/test-utils';
-import Vue from 'vue';
+import Vue, { compatUtils } from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
@@ -20,6 +20,10 @@ import { sendTimeoutExpired } from '../_helper_/allowedErrors';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
+config.global.config.compilerOptions = {
+    ...config.global.config.compilerOptions,
+    whitespace: 'preserve',
+};
 
 // enable autoUnmount for wrapper after each test
 enableAutoUnmount(afterEach);
@@ -32,17 +36,17 @@ const directiveRegistry = Shopware.Directive.getDirectiveRegistry();
 directiveRegistry.forEach((value, key) => {
     if (key === 'tooltip') {
         global.Vue.directive('tooltip', {
-            bind(el, binding) {
+            beforeMount(el, binding) {
                 el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
                 el.setAttribute('tooltip-mock-message', binding.value.message);
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
             },
-            inserted(el, binding) {
+            mounted(el, binding) {
                 el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
                 el.setAttribute('tooltip-mock-message', binding.value.message);
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
             },
-            update(el, binding) {
+            updated(el, binding) {
                 el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
                 el.setAttribute('tooltip-mock-message', binding.value.message);
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
@@ -62,7 +66,9 @@ directiveRegistry.forEach((value, key) => {
 // Add all filters
 const filterRegistry = Shopware.Filter.getRegistry();
 filterRegistry.forEach((value, key) => {
-    global.Vue.filter(key, value);
+    if (compatUtils.checkCompatEnabled('FILTERS')) {
+        global.Vue.filter(key, value);
+    }
 });
 
 // Add services
@@ -186,6 +192,27 @@ global.allowedErrors = [
             return msg.includes('you tried to publish is already registered');
         },
     },
+    {
+        method: 'warn',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('has already been registered in target app');
+        },
+    },
+    {
+        method: 'warn',
+        msgCheck: (msg0, msg1) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
+                msg1?.includes('is deprecated and will be removed in v6.7.0.0. Please use');
+        },
+    },
     sendTimeoutExpired,
 ];
 
@@ -194,8 +221,10 @@ global.wrapTestComponent = wrapTestComponent;
 global.resetFilters = resetFilters;
 
 let consoleHasError = false;
+let consoleHasWarning = false;
 let errorArgs = null;
-const { error } = console;
+let warnArgs = null;
+const { error, warn } = console;
 
 global.console.error = (...args) => {
     let silenceError = false;
@@ -242,8 +271,55 @@ global.console.error = (...args) => {
     }
 };
 
-// Mute warnings for now as they are expected due to compat options
-global.console.warn = () => {};
+if (!process.env.DISABLE_JEST_COMPAT_MODE) {
+    // Mute warnings for now as they are expected due to compat options
+    global.console.warn = () => {};
+} else {
+    global.console.warn = (...args) => {
+        let silenceWarning = false;
+        // eslint-disable-next-line array-callback-return
+        global.allowedErrors.some(allowedError => {
+            if (allowedError.method !== 'warn') {
+                return;
+            }
+
+            if (typeof allowedError.msg === 'string') {
+                if (typeof args[0] === 'string') {
+                    const shouldBeSilenced = args[0].includes(allowedError.msg);
+
+                    if (shouldBeSilenced) {
+                        silenceWarning = true;
+                    }
+                }
+                return;
+            }
+
+            if (typeof allowedError.msgCheck === 'function') {
+                if (allowedError.msgCheck) {
+                    const shouldBeSilenced = allowedError.msgCheck(args[0], args[1]);
+
+                    if (shouldBeSilenced) {
+                        silenceWarning = true;
+                    }
+                }
+
+                return;
+            }
+
+            const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
+
+            if (shouldBeSilenced) {
+                silenceWarning = true;
+            }
+        });
+
+        if (!silenceWarning) {
+            consoleHasWarning = true;
+            warnArgs = args;
+            warn(...args);
+        }
+    };
+}
 
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {
@@ -255,7 +331,7 @@ beforeEach(() => {
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
     if (consoleHasError) {
-    // reset variable for next test
+        // reset variable for next test
         consoleHasError = false;
 
         if (errorArgs) {
@@ -263,6 +339,17 @@ afterEach(() => {
         }
 
         throw new Error('A console.error occurred without any arguments.');
+    }
+
+    if (consoleHasWarning) {
+        // reset variable for next test
+        consoleHasWarning = false;
+
+        if (warnArgs) {
+            throw new Error(...warnArgs);
+        }
+
+        throw new Error('A console.warn occurred without any arguments.');
     }
 });
 

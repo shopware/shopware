@@ -1,3 +1,4 @@
+import { compatUtils } from '@vue/compat';
 import template from './sw-sidebar.html.twig';
 import './sw-sidebar.scss';
 
@@ -17,6 +18,18 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    provide() {
+        if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            return {};
+        }
+
+        return {
+            registerSidebarItem: this.registerSidebarItem,
+        };
+    },
 
     props: {
         propagateWidth: {

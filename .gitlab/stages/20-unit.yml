@@ -31,6 +31,14 @@ Jest (Administration):
         coverage_format: cobertura
         path: build/artifacts/jest/cobertura-coverage.xml
 
+Jest (Administration with disabled compat mode):
+  extends: Jest (Administration)
+  script:
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - npm --prefix $ADMIN_PATH run unit-setup
+    - npm --prefix $ADMIN_PATH run unit:disabled-compat -- --silent --maxWorkers=6 --no-cache | grep -A 5 -E '^(All files|Fail|    )'
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+
 Jest (Storefront):
   extends: .base-with-node
   stage: unit

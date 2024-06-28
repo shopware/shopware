@@ -16,7 +16,7 @@
     {% block sw_form_field_renderer_scope_slots %}
     <!-- eslint-disable vue/v-slot-style -->
     <template
-        v-for="(slot, slotName) in $scopedSlots"
+        v-for="(slot, slotName) in getScopedSlots()"
         #[slotName]="slotData"
     >
         <!-- eslint-enable vue/v-slot-style -->

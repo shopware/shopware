@@ -1,4 +1,5 @@
 import './sw-label.scss';
+import { compatUtils } from '@vue/compat';
 import template from './sw-label.html.twig';
 
 const { Component } = Shopware;
@@ -64,6 +65,11 @@ Component.register('sw-label', {
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+        light: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -81,7 +87,11 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            return !!this.$listeners.dismiss && this.dismissable;
+            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return !!this.$listeners.dismiss && this.dismissable;
+            }
+
+            return !!this.$attrs.dismiss && this.dismissable;
         },
     },
 });

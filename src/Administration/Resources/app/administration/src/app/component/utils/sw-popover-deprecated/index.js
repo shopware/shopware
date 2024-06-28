@@ -31,6 +31,12 @@ Component.register('sw-popover-deprecated', {
             required: false,
             default: '',
         },
+
+        popoverConfigExtension: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {

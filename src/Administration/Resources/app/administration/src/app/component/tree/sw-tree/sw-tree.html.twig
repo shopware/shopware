@@ -33,7 +33,7 @@
             <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
             <sw-button
                 class="sw-tree-actions__delete_categories"
-                :disabled="!allowDeleteCategories"
+                :disabled="!allowDeleteCategories || undefined"
                 variant="danger"
                 size="small"
                 @click="onDeleteElements(null)"
@@ -77,7 +77,6 @@
                 :selected-items-path-ids="selectedItemsPathIds"
                 :checked-item-ids="checkedItemIds"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_slot_items %}
                 <sw-tree-item

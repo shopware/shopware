@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -22,23 +23,25 @@ async function createWrapper() {
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'sw-checkbox-field': true,
+                'sw-confirm-field': true,
+                'sw-tree-item': await wrapTestComponent('sw-tree-item', { sync: true }),
+                'sw-vnode-renderer': true,
+                'sw-skeleton': true,
             },
             provide: {
                 getItems: () => {},
             },
             directives: {
-                droppable: {},
-                draggable: {},
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },

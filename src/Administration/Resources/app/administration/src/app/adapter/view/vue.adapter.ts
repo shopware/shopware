@@ -250,12 +250,14 @@ export default class VueAdapter extends ViewAdapter {
 
         // Disable compat for meteor components
         meteorComponents.forEach((componentName) => {
+            // @ts-expect-error - compatConfig is not typed
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
             MeteorImport[componentName].compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
         });
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            // @ts-expect-error - compatConfig is not typed
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
         });

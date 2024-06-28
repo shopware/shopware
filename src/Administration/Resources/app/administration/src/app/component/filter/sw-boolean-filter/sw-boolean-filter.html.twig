@@ -14,10 +14,10 @@
             :placeholder="filter.placeholder"
             @update:value="changeValue"
         >
-            <option :value="true">
+            <option :value="'true'">
                 {{ $tc('sw-boolean-filter.active') }}
             </option>
-            <option :value="false">
+            <option :value="'false'">
                 {{ $tc('sw-boolean-filter.inactive') }}
             </option>
         </sw-select-field>

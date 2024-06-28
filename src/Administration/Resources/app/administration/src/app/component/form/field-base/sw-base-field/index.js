@@ -2,6 +2,7 @@
  * @package admin
  */
 
+import { compatUtils } from '@vue/compat';
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
@@ -131,6 +132,15 @@ Component.register('sw-base-field', {
 
         showLabel() {
             return !!this.label || this.$slots.label?.()[0]?.children.length > 0;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

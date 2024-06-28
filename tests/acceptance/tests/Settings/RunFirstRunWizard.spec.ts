@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
-test('Journey: Merchant is able to be guided through the First Run Wizard.', async ({
+test('Merchant is able to be guided through the First Run Wizard.', { tag: '@FirstRunWizard' }, async ({
     FRWSalesChannelSelectionPossibility,
     ShopAdmin,
     DefaultSalesChannel,

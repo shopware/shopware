@@ -638,12 +638,11 @@ export default {
             });
         }, 500),
 
-        changeInterval() {
-            this.disableGenerateByCronjob = this.productExport.interval === 0;
+        changeInterval(value) {
+            this.productExport.interval = value;
 
-            if (this.disableGenerateByCronjob) {
-                this.productExport.generateByCronjob = false;
-            }
+            this.disableGenerateByCronjob = this.productExport.interval === 0;
+            this.productExport.generateByCronjob = !this.disableGenerateByCronjob;
         },
 
         createCategoryCollections() {

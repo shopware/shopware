@@ -1,4 +1,5 @@
 import './sw-select-result.scss';
+import { compatUtils } from '@vue/compat';
 import template from './sw-select-result.html.twig';
 
 const { Component } = Shopware;
@@ -66,7 +67,11 @@ Component.register('sw-select-result', {
         },
 
         hasDescriptionSlot() {
-            return !!this.$slots.description || !!this.$scopedSlots.description;
+            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return !!this.$slots.description || !!this.$scopedSlots.description;
+            }
+
+            return !!this.$slots.description;
         },
     },
 
@@ -80,14 +85,24 @@ Component.register('sw-select-result', {
 
     methods: {
         createdComponent() {
-            this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+                this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+                this.$parent.$parent.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+            } else {
+                Shopware.Utils.EventBus.on('active-item-change', this.checkIfActive);
+                Shopware.Utils.EventBus.on('item-select-by-keyboard', this.checkIfSelected);
+            }
         },
 
         destroyedComponent() {
-            this.$parent.$parent.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
+                this.$parent.$parent.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+            } else {
+                Shopware.Utils.EventBus.off('active-item-change', this.checkIfActive);
+                Shopware.Utils.EventBus.off('item-select-by-keyboard', this.checkIfSelected);
+            }
         },
 
         checkIfSelected(selectedItemIndex) {
@@ -103,7 +118,11 @@ Component.register('sw-select-result', {
                 return;
             }
 
-            this.$parent.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
+            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
+            } else {
+                Shopware.Utils.EventBus.emit('item-select', this.item);
+            }
         },
 
         onMouseEnter() {

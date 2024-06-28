@@ -40,7 +40,7 @@
             <input
                 v-model="colorValue"
                 class="sw-colorpicker__input"
-                spellcheck="false"
+                :spellcheck="false"
                 :disabled="disabled"
                 :readonly="readonly"
                 @click="onClickInput"
@@ -143,7 +143,7 @@
                         v-model.lazy="hexValue"
                         class="sw-colorpicker__colorpicker-input is--hex"
                         type="text"
-                        spellcheck="false"
+                        :spellcheck="false"
                     >
                     <span
                         v-if="colorLabels"

@@ -34,6 +34,8 @@ Component.register('sw-colorpicker-deprecated', {
         Mixin.getByName('remove-api-error'),
     ],
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: String,

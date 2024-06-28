@@ -502,20 +502,18 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  * *Note that the position variable has a higher priority as the modifier
  */
 Shopware.Directive.register('tooltip', {
-    // @ts-expect-error
-    bind: (el: HTMLElement, binding) => {
+    beforeMount: (el: HTMLElement, binding) => {
         createOrUpdateTooltip(el, binding);
     },
 
-    unbind: (el: HTMLElement) => {
+    unmounted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             tooltip!.hideTooltip();
         }
     },
 
-    // @ts-expect-error
-    update: (el: HTMLElement, binding) => {
+    updated: (el: HTMLElement, binding) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
@@ -523,7 +521,7 @@ Shopware.Directive.register('tooltip', {
     /**
      * Initialize the tooltip once it has been inserted to the DOM.
      */
-    inserted: (el: HTMLElement) => {
+    mounted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

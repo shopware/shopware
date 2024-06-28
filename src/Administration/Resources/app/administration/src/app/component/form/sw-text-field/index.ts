@@ -1,3 +1,5 @@
+// @ts-expect-error
+import { compatUtils } from '@vue/compat';
 import template from './sw-text-field.html.twig';
 
 const { Component } = Shopware;
@@ -56,16 +58,28 @@ Component.register('sw-text-field', {
                 this.$emit('update:modelValue', value);
             },
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
 
         handleUpdateModelValue(event: unknown) {

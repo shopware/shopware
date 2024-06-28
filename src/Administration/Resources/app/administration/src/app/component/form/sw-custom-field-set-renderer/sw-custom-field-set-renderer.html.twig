@@ -107,8 +107,8 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                             <sw-form-field-renderer
-                                v-model:value="customFields[customField.name]"
                                 v-bind="customField"
+                                v-model:value="customFields[customField.name]"
                                 :disabled="disabled"
                                 :required="customField.config.validation === 'required'"
                             />

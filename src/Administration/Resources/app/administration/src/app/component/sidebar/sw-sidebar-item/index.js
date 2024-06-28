@@ -1,3 +1,4 @@
+import { compatUtils } from '@vue/compat';
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.scss';
 
@@ -21,6 +22,15 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sidebar-item', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        registerSidebarItem: {
+            from: 'registerSidebarItem',
+            default: null,
+        },
+    },
 
     props: {
         title: {
@@ -112,18 +122,24 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         createdComponent() {
-            let parent = this.$parent;
+            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+                let parent = this.$parent;
 
-            while (parent) {
-                if (parent.$options.name === 'sw-sidebar') {
-                    parent.registerSidebarItem(this);
-                    return;
+                while (parent) {
+                    if (parent.$options.name === 'sw-sidebar') {
+                        parent.registerSidebarItem(this);
+                        return;
+                    }
+
+                    parent = parent.$parent;
                 }
 
-                parent = parent.$parent;
+                throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
             }
 
-            throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
+            if (this.registerSidebarItem) {
+                this.registerSidebarItem(this);
+            }
         },
 
         openContent() {

@@ -542,7 +542,7 @@ function register<
 >;
 
 function register(componentName: string, componentConfiguration: unknown): unknown {
-/* eslint-enable max-len,@typescript-eslint/ban-types */
+    /* eslint-enable max-len,@typescript-eslint/ban-types */
     if (!componentName || !componentName.length) {
         warn(
             'ComponentFactory',

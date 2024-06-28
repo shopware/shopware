@@ -70,7 +70,7 @@
                 class="sw-file-input__button"
                 variant="ghost"
                 size="small"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="onChooseButtonClick"
             >
                 {{ $tc('global.sw-file-input.buttonChoose') }}

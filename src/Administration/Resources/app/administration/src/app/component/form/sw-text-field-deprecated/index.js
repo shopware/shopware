@@ -1,3 +1,4 @@
+import { compatUtils } from '@vue/compat';
 import template from './sw-text-field-deprecated.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -67,20 +68,53 @@ Component.register('sw-text-field-deprecated', {
 
     computed: {
         hasPrefix() {
-            return this.$scopedSlots.hasOwnProperty('prefix');
+            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.hasOwnProperty('prefix');
+            }
+
+            return this.$slots.hasOwnProperty('prefix');
         },
 
         hasSuffix() {
-            return this.$scopedSlots.hasOwnProperty('suffix');
+            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.hasOwnProperty('suffix');
+            }
+
+            return this.$slots.hasOwnProperty('suffix');
         },
 
         additionalListeners() {
+            if (!compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return {};
+            }
+
             const additionalListeners = { ...this.$listeners };
 
             delete additionalListeners.input;
             delete additionalListeners.change;
 
             return additionalListeners;
+        },
+
+        listeners() {
+            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
+        filteredInputAttributes() {
+            // Filter attributes and remove "size" attribute
+            return Object.keys(this.$attrs).reduce((acc, key) => {
+                const filteredValues = ['size'];
+
+                if (!filteredValues.includes(key)) {
+                    acc[key] = this.$attrs[key];
+                }
+
+                return acc;
+            }, {});
         },
     },
 

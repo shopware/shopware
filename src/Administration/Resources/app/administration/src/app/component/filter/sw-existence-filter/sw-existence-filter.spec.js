@@ -30,6 +30,8 @@ async function createWrapper() {
                 schema: {
                     localField: 'id',
                 },
+                optionHasCriteria: true,
+                optionNoCriteria: false,
             },
             active: true,
         },

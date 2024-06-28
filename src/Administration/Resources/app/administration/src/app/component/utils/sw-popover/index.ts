@@ -1,3 +1,5 @@
+// @ts-expect-error
+import { compatUtils } from '@vue/compat';
 import template from './sw-popover.html.twig';
 
 const { Component } = Shopware;
@@ -35,6 +37,16 @@ Component.register('sw-popover', {
             );
 
             return false;
+        },
+
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        listeners(): Record<string, Function | Function[]> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

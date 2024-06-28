@@ -1,3 +1,4 @@
+import { compatUtils } from '@vue/compat';
 import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -323,6 +324,16 @@ Component.register('sw-form-field-renderer', {
             this.createRepository('currency').get(systemCurrencyId).then(response => {
                 this.currency = response;
             });
+        },
+
+        getScopedSlots() {
+            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$scopedSlots,
+                };
+            }
+
+            return this.$slots;
         },
     },
 });

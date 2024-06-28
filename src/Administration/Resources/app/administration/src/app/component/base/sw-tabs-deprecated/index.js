@@ -2,8 +2,11 @@
  * @package admin
  */
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { compatUtils } from '@vue/compat';
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
+
 
 const { Component } = Shopware;
 const util = Shopware.Utils;
@@ -28,6 +31,12 @@ Component.register('sw-tabs-deprecated', {
     template,
 
     inject: ['feature'],
+
+    provide() {
+        return {
+            onNewItemActive: this.registerOnNewItemActiveHandler,
+        };
+    },
 
     extensionApiDevtoolInformation: {
         property: 'ui.tabs',
@@ -77,6 +86,7 @@ Component.register('sw-tabs-deprecated', {
             firstScroll: false,
             scrollbarOffset: '',
             hasRoutes: false,
+            onNewItemActiveHandlers: [],
         };
     },
 
@@ -104,19 +114,37 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderLength() {
-            if (this.$children[this.activeItem]) {
-                const activeChildren = this.$children[this.activeItem];
+            const children = Shopware.Utils.VueHelper.getCompatChildren();
+
+            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+                if (this.$children[this.activeItem]) {
+                    const activeChildren = this.$children[this.activeItem];
+                    return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
+                }
+            } else if (children[this.activeItem]) {
+                const activeChildren = children[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
             }
+
             return 0;
         },
 
         activeTabHasErrors() {
-            return this.$children[this.activeItem]?.hasError ?? false;
+            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+                return this.$children[this.activeItem]?.hasError ?? false;
+            }
+
+            const children = Shopware.Utils.VueHelper.getCompatChildren();
+            return children[this.activeItem]?.hasError ?? false;
         },
 
         activeTabHasWarnings() {
-            return this.$children[this.activeItem]?.hasWarning ?? false;
+            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+                return this.$children[this.activeItem]?.hasWarning ?? false;
+            }
+
+            const children = Shopware.Utils.VueHelper.getCompatChildren();
+            return children[this.activeItem]?.hasWarning ?? false;
         },
 
         sliderClasses() {
@@ -127,10 +155,15 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderMovement() {
-            if (this.$children[this.activeItem]) {
-                const activeChildren = this.$children[this.activeItem];
+            const children = compatUtils.isCompatEnabled('INSTANCE_CHILDREN')
+                ? this.$children
+                : Shopware.Utils.VueHelper.getCompatChildren();
+
+            if (children[this.activeItem]) {
+                const activeChildren = children[this.activeItem];
                 return this.isVertical ? activeChildren.$el.offsetTop : activeChildren.$el.offsetLeft;
             }
+
             return 0;
         },
 
@@ -251,12 +284,24 @@ Component.register('sw-tabs-deprecated', {
         beforeDestroyComponent() {
             const tabContent = this.$refs.swTabContent;
 
-            tabContent.removeEventListener('scroll', this.scrollEventHandler);
+            if (tabContent) {
+                tabContent.removeEventListener('scroll', this.scrollEventHandler);
+            }
             this.$device.removeResizeListener(this);
 
             if (this.tabContentMutationObserver) {
                 this.tabContentMutationObserver.disconnect();
             }
+        },
+
+        registerOnNewItemActiveHandler(callback) {
+            this.onNewItemActiveHandlers.push(callback);
+        },
+
+        onNewItemActiveHandler(callback) {
+            this.onNewItemActiveHandlers.forEach((handler) => {
+                handler(callback);
+            });
         },
 
         onTabBarResize() {
@@ -277,7 +322,11 @@ Component.register('sw-tabs-deprecated', {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                const firstActiveTabItem = this.$children.find((child) => {
+                const children = compatUtils.isCompatEnabled('INSTANCE_CHILDREN')
+                    ? this.$children
+                    : Shopware.Utils.VueHelper.getCompatChildren();
+
+                const firstActiveTabItem = children.find((child) => {
                     return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
                 });
 
@@ -285,7 +334,7 @@ Component.register('sw-tabs-deprecated', {
                     return;
                 }
 
-                this.activeItem = this.$children.indexOf(firstActiveTabItem);
+                this.activeItem = children.indexOf(firstActiveTabItem);
                 if (!this.firstScroll) {
                     this.scrollToItem(firstActiveTabItem);
                 }
@@ -320,6 +369,7 @@ Component.register('sw-tabs-deprecated', {
 
         setActiveItem(item) {
             this.$emit('new-item-active', item);
+            this.onNewItemActiveHandler(item);
             this.active = item.name;
             this.updateActiveItem();
         },

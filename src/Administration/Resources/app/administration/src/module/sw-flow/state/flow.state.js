@@ -280,7 +280,7 @@ export default {
         },
 
         hasAvailableAction: (state) => (actionName) => {
-            return state.originAvailableActions.some(name => name === actionName);
+            return state.originAvailableActions?.some(name => name === actionName) ?? false;
         },
     },
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -69,6 +70,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
             CustomerLoginEvent::class => 'onCustomerLogin',
+            CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
     }
 
@@ -229,6 +231,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
+    }
+
+    public function onCustomerLogout(CustomerLogoutEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $context = clone $event->getSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     private function buildCacheHash(SalesChannelContext $context): string

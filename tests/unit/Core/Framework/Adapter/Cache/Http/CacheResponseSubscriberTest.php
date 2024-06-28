@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
@@ -54,6 +55,7 @@ class CacheResponseSubscriberTest extends TestCase
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
             CustomerLoginEvent::class => 'onCustomerLogin',
+            CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
 
         static::assertSame($expected, CacheResponseSubscriber::getSubscribedEvents());
@@ -760,5 +762,36 @@ class CacheResponseSubscriberTest extends TestCase
             $response->headers->getCookies()[$cookiesAmount - 1]->getName(),
             $assertEqualsErrorMessage
         );
+    }
+
+    public function testRequestContextGetsUpdatedWhileLogout(): void
+    {
+        $customer = new CustomerEntity();
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => $customer]);
+        $event = new CustomerLogoutEvent($context, $customer);
+
+        $requestStack = new RequestStack();
+        $request = new Request();
+
+        $requestStack->push($request);
+
+        $subscriber = new CacheResponseSubscriber(
+            $this->createStub(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver(new EventDispatcher()),
+            $requestStack,
+            false,
+            null,
+            null
+        );
+
+        $subscriber->onCustomerLogout($event);
+
+        $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        static::assertInstanceOf(SalesChannelContext::class, $requestContext);
+        static::assertNull($requestContext->getCustomer());
+        static::assertNull($requestContext->getCustomerId());
     }
 }

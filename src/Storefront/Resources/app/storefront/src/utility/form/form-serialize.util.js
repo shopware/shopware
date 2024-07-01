@@ -39,7 +39,9 @@ export default class FormSerializeUtil {
      */
     static serializeJson(form, strict = true) {
         const formData = FormSerializeUtil.serialize(form, strict);
-        if (Object.keys(formData).length === 0) return {};
+        if (Object.keys(formData).length === 0) {
+            return {};
+        }
         const json = {};
 
         Iterator.iterate(formData, (value, key) => json[key] = value);

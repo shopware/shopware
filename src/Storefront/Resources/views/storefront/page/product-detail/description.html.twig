@@ -7,9 +7,9 @@
     {% block page_product_detail_description_container %}
         <div class="product-detail-description tab-pane-container">
             {% block page_product_detail_description_title %}
-                <div class="h3 product-detail-description-title">
+                <h2 class="product-detail-description-title">
                     {{ 'detail.descriptionTitle'|trans|sw_sanitize }} "{{ page.product.translated.name }}"
-                </div>
+                </h2>
             {% endblock %}
 
             {% block page_product_detail_description_content %}

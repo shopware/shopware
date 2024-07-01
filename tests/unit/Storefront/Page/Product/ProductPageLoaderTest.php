@@ -71,12 +71,22 @@ class ProductPageLoaderTest extends TestCase
 
         /** @deprecated tag:v6.7.0 - Remove only everything below this line */
         $reviewsDeprecated = $page->getReviews();
+        static::assertNotNull($reviewsDeprecated);
         static::assertCount(1, $reviewsDeprecated);
         $firstReview = $reviewsDeprecated->first();
         static::assertInstanceOf(ProductReviewEntity::class, $firstReview);
         static::assertSame('this product changed my life', $firstReview->getComment());
         $crossSellingDeprecated = $page->getCrossSellings();
+        static::assertNotNull($crossSellingDeprecated);
         static::assertCount(0, $crossSellingDeprecated);
+
+        $page->assign([
+            'reviewLoaderResult' => null,
+            'crossSellings' => null,
+        ]);
+
+        static::assertNull($page->getReviews());
+        static::assertNull($page->getCrossSellings());
     }
 
     /**

@@ -42,7 +42,7 @@ class ProductPage extends Page
     /**
      * @deprecated tag:v6.7.0 - Property will be removed as it is not used anymore
      *
-     * @var ReviewLoaderResult
+     * @var ReviewLoaderResult|null
      */
     protected $reviewLoaderResult;
 
@@ -56,7 +56,7 @@ class ProductPage extends Page
     /**
      * @deprecated tag:v6.7.0 - Property will be removed as it is not used anymore
      *
-     * @var CrossSellingElementCollection
+     * @var CrossSellingElementCollection|null
      */
     protected $crossSellings;
 
@@ -103,7 +103,7 @@ class ProductPage extends Page
     /**
      * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
      */
-    public function getReviews(): ReviewLoaderResult
+    public function getReviews(): ?ReviewLoaderResult
     {
         Feature::triggerDeprecationOrThrow(
             'v6.7.0.0',
@@ -138,7 +138,7 @@ class ProductPage extends Page
     /**
      * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
      */
-    public function getCrossSellings(): CrossSellingElementCollection
+    public function getCrossSellings(): ?CrossSellingElementCollection
     {
         Feature::triggerDeprecationOrThrow(
             'v6.7.0.0',

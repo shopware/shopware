@@ -66,12 +66,22 @@ class ProductPageLoaderTest extends TestCase
 
         static::assertEquals($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
         $reviewsDeprecated = $page->getReviews();
+        static::assertNotNull($reviewsDeprecated);
         static::assertCount(1, $reviewsDeprecated);
         $firstReview = $reviewsDeprecated->first();
         static::assertInstanceOf(ProductReviewEntity::class, $firstReview);
         static::assertSame('this product changed my life', $firstReview->getComment());
         $crossSellingDeprecated = $page->getCrossSellings();
+        static::assertNotNull($crossSellingDeprecated);
         static::assertCount(0, $crossSellingDeprecated);
+
+        $page->assign([
+            'reviewLoaderResult' => null,
+            'crossSellings' => null,
+        ]);
+
+        static::assertNull($page->getReviews());
+        static::assertNull($page->getCrossSellings());
     }
 
     /**

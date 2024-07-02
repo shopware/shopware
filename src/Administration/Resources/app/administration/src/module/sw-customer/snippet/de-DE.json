@@ -235,6 +235,10 @@
       "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {
+      "customerNumber": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
+      },
       "salutation": {
         "label": "Anrede",
         "placeholder": "Anrede auswählen ..."

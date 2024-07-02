@@ -1,8 +1,6 @@
 /**
  * @package admin
  */
-
-import { compatUtils } from '@vue/compat';
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 
@@ -14,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-block-field', {
     template,
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         size: {
@@ -49,7 +49,7 @@ Component.register('sw-block-field', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

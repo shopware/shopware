@@ -1,8 +1,6 @@
 /**
  * @package admin
  */
-
-import { compatUtils } from '@vue/compat';
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
@@ -127,7 +125,7 @@ Component.register('sw-tabs-item', {
 
     methods: {
         createdComponent() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$on('new-item-active', this.checkIfActive);
             } else {
                 this.onNewItemActive(this.checkIfActive);

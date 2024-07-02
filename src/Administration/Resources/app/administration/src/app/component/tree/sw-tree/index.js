@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
 
@@ -51,7 +50,7 @@ Component.register('sw-tree', {
     compatConfig: Shopware.compatConfig,
 
     provide() {
-        if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
             return {
                 getItems: this.getItems,
             };
@@ -669,7 +668,7 @@ Component.register('sw-tree', {
                 return;
             }
 
-            const batchDeleteIsFunction = compatUtils.checkCompatEnabled('INSTANCE_LISTENERS')
+            const batchDeleteIsFunction = this.checkCompatEnabled('INSTANCE_LISTENERS')
                 ? typeof this.$listeners['batch-delete'] === 'function'
                 : typeof this.$attrs.onBatchDelete === 'function';
 
@@ -695,7 +694,7 @@ Component.register('sw-tree', {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount += 1;
                 }
-                if (compatUtils.checkCompatEnabled('INSTANCE_SET')) {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.checkedElements, item.id, item.id);
                 } else {
                     this.checkedElements[item.id] = item.id;
@@ -705,7 +704,7 @@ Component.register('sw-tree', {
                 if (item.childCount > 0) {
                     this.checkedElementsChildCount -= 1;
                 }
-                if (compatUtils.checkCompatEnabled('INSTANCE_DELETE')) {
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
                     this.$delete(this.checkedElements, item.id);
                 } else {
                     delete this.checkedElements[item.id];

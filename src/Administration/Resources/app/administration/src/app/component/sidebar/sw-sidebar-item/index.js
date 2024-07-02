@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.scss';
 
@@ -122,7 +121,7 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         createdComponent() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 let parent = this.$parent;
 
                 while (parent) {

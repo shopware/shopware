@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -327,7 +326,7 @@ Component.register('sw-form-field-renderer', {
         },
 
         getScopedSlots() {
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return {
                     ...this.$scopedSlots,
                 };

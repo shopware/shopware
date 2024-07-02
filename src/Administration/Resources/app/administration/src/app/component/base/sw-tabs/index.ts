@@ -1,7 +1,5 @@
 import type { PropType } from 'vue';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/components/navigation/mt-tabs/mt-tabs';
-// @ts-expect-error
-import { compatUtils } from '@vue/compat';
 import template from './sw-tabs.html.twig';
 
 const { Component } = Shopware;
@@ -119,7 +117,7 @@ Component.register('sw-tabs', {
         // eslint-disable-next-line @typescript-eslint/ban-types
         listeners(): Record<string, Function | Function[]> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 
@@ -146,7 +144,7 @@ Component.register('sw-tabs', {
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return {
                     ...this.$slots,
                     ...this.$scopedSlots,

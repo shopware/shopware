@@ -421,6 +421,7 @@ interface LegacyPublicProperties {
     $off(event?: string | string[], fn?: Function): this;
     $children: LegacyPublicProperties[];
     $listeners: Record<string, Function | Function[]>;
+    isCompatEnabled: (key: string) => boolean;
     /* eslint-enable @typescript-eslint/ban-types */
 }
 

@@ -3,7 +3,6 @@
  */
 
 import './sw-single-select.scss';
-import { compatUtils } from '@vue/compat';
 import template from './sw-single-select.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -149,7 +148,7 @@ Component.register('sw-single-select', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-button.html.twig';
 
 const { Component } = Shopware;
@@ -16,6 +15,7 @@ Component.register('sw-button', {
     compatConfig: {
         // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
         INSTANCE_ATTRS_CLASS_STYLE: false,
+        ...Shopware.compatConfig,
     },
 
     props: {
@@ -45,7 +45,7 @@ Component.register('sw-button', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

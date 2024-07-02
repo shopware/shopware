@@ -4,8 +4,6 @@
 
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
-// @ts-expect-error
-import { compatUtils } from '@vue/compat';
 
 /**
  * @private
@@ -96,7 +94,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
     methods: {
         handleRestoreInheritance() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 return;
             }
 
@@ -111,7 +109,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
 
         handleRemoveInheritance() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 return;
             }
 
@@ -126,7 +124,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
 
         beforeDestroyComponent() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 // remove event listener
                 this.$off('inheritance-restore');
                 this.$off('inheritance-remove');
@@ -135,7 +133,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
 
         setFunctionsForEvents(prop: string, propValue: () => void) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 switch (prop) {
                     case 'restoreInheritance': {
                         this.$off('inheritance-restore');

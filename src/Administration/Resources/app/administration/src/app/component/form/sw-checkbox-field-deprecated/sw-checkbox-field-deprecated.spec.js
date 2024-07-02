@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,6 +40,9 @@ const createWrapper = async (data = defaultData) => {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
             },
         },
         attachTo: document.body,
@@ -130,6 +134,9 @@ describe('app/component/form/sw-checkbox-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-inheritance-switch': true,
                 },
             },
         });
@@ -151,6 +158,9 @@ describe('app/component/form/sw-checkbox-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-inheritance-switch': true,
                 },
             },
             slots: {

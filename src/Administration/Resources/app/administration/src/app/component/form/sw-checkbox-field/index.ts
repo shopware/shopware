@@ -1,5 +1,3 @@
-// @ts-expect-error
-import { compatUtils } from '@vue/compat';
 import template from './sw-checkbox-field.html.twig';
 
 const { Component } = Shopware;
@@ -35,7 +33,7 @@ Component.register('sw-checkbox-field', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 
@@ -46,7 +44,7 @@ Component.register('sw-checkbox-field', {
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return {
                     ...this.$slots,
                     ...this.$scopedSlots,

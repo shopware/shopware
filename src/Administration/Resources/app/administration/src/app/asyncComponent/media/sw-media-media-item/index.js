@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 
@@ -70,7 +69,7 @@ export default {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

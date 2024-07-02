@@ -84,4 +84,30 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $interpreter->interpret($term, Context::createDefaultContext());
     }
+
+    public function testMaxCharacterCount(): void
+    {
+        $term = 'This is a very long search term that should be cut off at some point to prevent the keyword query from exploding';
+        $keywordLoader = static::createMock(KeywordLoader::class);
+
+        $keywordLoader->expects(static::once())->method('fetch')
+            ->with(static::callback(function ($tokenSlops) {
+                $tokens = array_keys($tokenSlops);
+                $chars = implode('', $tokens);
+
+                static::assertEquals(ProductSearchTermInterpreter::MAX_CHARACTER_COUNT, mb_strlen($chars));
+
+                return true;
+            }));
+
+        $interpreter = new ProductSearchTermInterpreter(
+            static::createMock(Connection::class),
+            new Tokenizer(3),
+            static::createMock(LoggerInterface::class),
+            new TokenFilter(static::createMock(Connection::class)),
+            $keywordLoader,
+        );
+
+        $interpreter->interpret($term, Context::createDefaultContext());
+    }
 }

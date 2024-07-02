@@ -36,6 +36,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     {
         $tokens = $this->tokenizer->tokenize($word);
         $tokens = $this->tokenFilter->filter($tokens, $context);
+        $originalTokens = $tokens;
 
         if (empty($tokens)) {
             return new SearchPattern(new SearchTerm(''));
@@ -58,7 +59,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $pattern->setBooleanClause($this->getConfigBooleanClause($context));
         $pattern->setTokenTerms($matches);
 
-        $scoring = $this->score($tokens, ArrayNormalizer::flatten($matches));
+        $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches));
         // only use the 8 best matches, otherwise the query might explode
         $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
 
@@ -172,21 +173,22 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     /**
      * @param array<string> $tokens
+     * @param array<string> $originalTokens
      * @param array<string> $matches
      *
      * @return array<string, float>
      */
-    private function score(array $tokens, array $matches): array
+    private function score(array $tokens, array $originalTokens, array $matches): array
     {
         $scoring = [];
+
         foreach ($matches as $match) {
-            $score = 1;
-
             $matchSegments = $this->tokenizer->tokenize($match);
+            $exactMatch = \count($originalTokens) === \count($matchSegments)
+                && \count(array_diff($originalTokens, $matchSegments)) === 0;
+            $exactTokenMatches = array_intersect($originalTokens, $matchSegments);
 
-            if (\count($matchSegments) > 1) {
-                $score += \count($matchSegments) * 4;
-            }
+            $score = ($exactMatch ? 2 : 1) + \count($exactTokenMatches) * 4;
 
             foreach ($tokens as $token) {
                 $levenshtein = levenshtein($match, (string) $token);

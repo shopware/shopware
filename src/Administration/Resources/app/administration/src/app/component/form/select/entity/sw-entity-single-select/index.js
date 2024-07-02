@@ -141,6 +141,12 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: false,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: undefined,
+        },
     },
 
     data() {
@@ -192,6 +198,15 @@ Component.register('sw-entity-single-select', {
             }
 
             return this.searchTerm;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

@@ -472,7 +472,13 @@ Component.register('sw-data-grid', {
         },
 
         findPreviewSlots() {
-            const scopedSlots = Array.from(Object.keys(this.$scopedSlots));
+            let scopedSlots = [];
+
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                scopedSlots = Array.from(Object.keys(this.$scopedSlots));
+            } else {
+                scopedSlots = Object.keys(this.$slots);
+            }
 
             this.hasPreviewSlots = scopedSlots.some((scopedSlot) => {
                 return scopedSlot.includes('preview-');

@@ -6,10 +6,11 @@
     :is-loading="isLoading"
     :disable-auto-close="disableAutoClose"
     v-bind="$attrs"
+    :disabled="disabled"
     @clear="clearInput"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_entity_single_select_base %}

@@ -98,6 +98,14 @@ Component.register('sw-category-tree-field', {
                 return [...acc, ...pathIds];
             }, []);
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     watch: {

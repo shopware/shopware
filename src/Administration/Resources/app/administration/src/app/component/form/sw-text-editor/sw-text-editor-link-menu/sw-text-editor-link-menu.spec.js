@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -83,6 +84,23 @@ async function createWrapper(buttonConfig) {
                 },
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-loader': true,
+                'router-link': true,
+                'mt-button': true,
+                'sw-icon': true,
+                'mt-select': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'mt-switch': true,
+                'sw-label': true,
+                'sw-tree': true,
+                'sw-checkbox-field': true,
+                'sw-tree-item': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'mt-email-field': true,
+                'mt-floating-ui': true,
             },
         },
         props: {
@@ -223,8 +241,8 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(wrapper.text()).toContain('sw-text-editor-toolbar.link.linkTo');
         expect(categoryTreeFieldElement.element.placeholder).toBe('sw-text-editor-toolbar.link.placeholderCategory');
 
-        const asyncComponentWrapper = wrapper.findComponent('.sw-category-tree-field');
-        const categoryTreeField = asyncComponentWrapper.vm.$children[0];
+        const categoryTreeField = wrapper.findComponent({ name: 'sw-category-tree-field__wrapped' }).vm;
+
         expect(categoryTreeField.categoryCriteria).toStrictEqual(
             expect.objectContaining({
                 limit: 25,

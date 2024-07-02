@@ -44,6 +44,7 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
                     'sw-field--switch-padded': this.padded,
                     'sw-field--switch-no-margin-top': this.noMarginTop,
                     ...this.swCheckboxFieldClasses,
+                    [this.$attrs.class]: !!this.$attrs.class,
                 },
                 `sw-field--${this.size}`,
             ];

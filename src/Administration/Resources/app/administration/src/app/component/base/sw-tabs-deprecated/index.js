@@ -3,7 +3,6 @@
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { compatUtils } from '@vue/compat';
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
 
@@ -116,7 +115,7 @@ Component.register('sw-tabs-deprecated', {
         sliderLength() {
             const children = Shopware.Utils.VueHelper.getCompatChildren();
 
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 if (this.$children[this.activeItem]) {
                     const activeChildren = this.$children[this.activeItem];
                     return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
@@ -130,7 +129,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         activeTabHasErrors() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 return this.$children[this.activeItem]?.hasError ?? false;
             }
 
@@ -139,7 +138,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         activeTabHasWarnings() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 return this.$children[this.activeItem]?.hasWarning ?? false;
             }
 
@@ -155,7 +154,7 @@ Component.register('sw-tabs-deprecated', {
         },
 
         sliderMovement() {
-            const children = compatUtils.isCompatEnabled('INSTANCE_CHILDREN')
+            const children = this.isCompatEnabled('INSTANCE_CHILDREN')
                 ? this.$children
                 : Shopware.Utils.VueHelper.getCompatChildren();
 
@@ -322,7 +321,7 @@ Component.register('sw-tabs-deprecated', {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                const children = compatUtils.isCompatEnabled('INSTANCE_CHILDREN')
+                const children = this.isCompatEnabled('INSTANCE_CHILDREN')
                     ? this.$children
                     : Shopware.Utils.VueHelper.getCompatChildren();
 

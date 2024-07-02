@@ -1,5 +1,3 @@
-// @ts-expect-error
-import { compatUtils } from '@vue/compat';
 import template from './sw-number-field.html.twig';
 
 const { Component } = Shopware;
@@ -66,7 +64,7 @@ Component.register('sw-number-field', {
         // eslint-disable-next-line @typescript-eslint/ban-types
         listeners(): Record<string, Function | Function[]> {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 
@@ -77,7 +75,7 @@ Component.register('sw-number-field', {
     methods: {
         getSlots() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return {
                     ...this.$slots,
                     ...this.$scopedSlots,

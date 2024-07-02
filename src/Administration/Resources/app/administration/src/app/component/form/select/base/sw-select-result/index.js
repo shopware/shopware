@@ -1,5 +1,4 @@
 import './sw-select-result.scss';
-import { compatUtils } from '@vue/compat';
 import template from './sw-select-result.html.twig';
 
 const { Component } = Shopware;
@@ -67,7 +66,7 @@ Component.register('sw-select-result', {
         },
 
         hasDescriptionSlot() {
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return !!this.$slots.description || !!this.$scopedSlots.description;
             }
 
@@ -85,7 +84,7 @@ Component.register('sw-select-result', {
 
     methods: {
         createdComponent() {
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
                 this.$parent.$parent.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
                 this.$parent.$parent.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
@@ -96,7 +95,7 @@ Component.register('sw-select-result', {
         },
 
         destroyedComponent() {
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 this.$parent.$parent.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
                 this.$parent.$parent.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
             } else {
@@ -118,7 +117,7 @@ Component.register('sw-select-result', {
                 return;
             }
 
-            if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 this.$parent.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
             } else {
                 Shopware.Utils.EventBus.emit('item-select', this.item);

@@ -177,6 +177,18 @@ config.global.stubs = {
     ...config.global.stubs,
 };
 
+// Add global plugins
+config.global.plugins = [
+    // isCompatEnabled method plugin
+    {
+        install: (app) => {
+            app.config.globalProperties.isCompatEnabled = function (key) {
+                return this.$options.compatConfig?.[key] ?? !window._features_.DISABLE_VUE_COMPAT;
+            };
+        },
+    },
+];
+
 global.allowedErrors = [
     {
         method: 'warn',
@@ -356,6 +368,3 @@ afterEach(() => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
-// This is here to always get the Vue 3 version of templates
-window._features_ = {};

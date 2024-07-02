@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -360,7 +359,7 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+                            if (this.isCompatEnabled('INSTANCE_SET')) {
                                 this.$set(this.sets, index, newSet);
                             } else {
                                 // eslint-disable-next-line vue/no-mutating-props

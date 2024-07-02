@@ -1,5 +1,3 @@
-// @ts-expect-error
-import { compatUtils } from '@vue/compat';
 import template from './sw-select-field.html.twig';
 
 const { Component } = Shopware;
@@ -13,6 +11,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         options: {
@@ -40,7 +40,7 @@ Component.register('sw-select-field', {
 
         listeners(): { [key: string]: unknown } {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 
@@ -50,12 +50,15 @@ Component.register('sw-select-field', {
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
     },
 });

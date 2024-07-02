@@ -1,8 +1,6 @@
 /**
  * @package admin
  */
-
-import { compatUtils } from '@vue/compat';
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
 
@@ -52,7 +50,7 @@ Component.register('sw-inheritance-switch', {
             }
             this.$emit('inheritance-restore');
 
-            if (!compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 if (this.restoreInheritanceHandler) {
                     this.restoreInheritanceHandler();
                 }
@@ -65,7 +63,7 @@ Component.register('sw-inheritance-switch', {
             }
             this.$emit('inheritance-remove');
 
-            if (!compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 if (this.removeInheritanceHandler) {
                     this.removeInheritanceHandler();
                 }

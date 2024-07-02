@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-text-field-deprecated.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -68,7 +67,7 @@ Component.register('sw-text-field-deprecated', {
 
     computed: {
         hasPrefix() {
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.hasOwnProperty('prefix');
             }
 
@@ -76,7 +75,7 @@ Component.register('sw-text-field-deprecated', {
         },
 
         hasSuffix() {
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.hasOwnProperty('suffix');
             }
 
@@ -84,7 +83,7 @@ Component.register('sw-text-field-deprecated', {
         },
 
         additionalListeners() {
-            if (!compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return {};
             }
 
@@ -97,7 +96,7 @@ Component.register('sw-text-field-deprecated', {
         },
 
         listeners() {
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

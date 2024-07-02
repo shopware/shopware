@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-switch-field.html.twig';
 
 const { Component } = Shopware;
@@ -12,6 +11,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-switch-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         value: {
@@ -52,7 +53,7 @@ Component.register('sw-switch-field', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

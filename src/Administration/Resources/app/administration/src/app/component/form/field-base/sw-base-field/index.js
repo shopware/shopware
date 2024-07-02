@@ -1,8 +1,6 @@
 /**
  * @package admin
  */
-
-import { compatUtils } from '@vue/compat';
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
@@ -15,6 +13,8 @@ const utils = Shopware.Utils;
 Component.register('sw-base-field', {
     template,
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -136,7 +136,7 @@ Component.register('sw-base-field', {
 
         listeners() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;
             }
 

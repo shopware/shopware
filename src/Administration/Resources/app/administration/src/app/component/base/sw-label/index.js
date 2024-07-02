@@ -1,5 +1,4 @@
 import './sw-label.scss';
-import { compatUtils } from '@vue/compat';
 import template from './sw-label.html.twig';
 
 const { Component } = Shopware;
@@ -87,7 +86,7 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            if (compatUtils.isCompatEnabled('INSTANCE_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return !!this.$listeners.dismiss && this.dismissable;
             }
 

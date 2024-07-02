@@ -1,4 +1,3 @@
-import { compatUtils } from '@vue/compat';
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
@@ -308,7 +307,7 @@ Component.register('sw-tree-item', {
         },
 
         parentScope() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 let parentNode = this.$parent;
 
                 // eslint-disable-next-line
@@ -359,7 +358,7 @@ Component.register('sw-tree-item', {
 
         contentSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.content;
             }
 
@@ -368,7 +367,7 @@ Component.register('sw-tree-item', {
 
         actionsSlot() {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.actions;
             }
 
@@ -462,7 +461,7 @@ Component.register('sw-tree-item', {
 
             this.dragEl = dragElement;
 
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$parent.startDrag(this);
             } else {
                 this.treeStartDrag(this);
@@ -470,7 +469,7 @@ Component.register('sw-tree-item', {
         },
 
         dragEnd() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$parent.endDrag();
             } else {
                 this.treeEndDrag();
@@ -482,7 +481,7 @@ Component.register('sw-tree-item', {
                 return;
             }
 
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$parent.moveDrag(dragData, dropData);
             } else {
                 this.treeMoveDrag(dragData, dropData);
@@ -490,7 +489,7 @@ Component.register('sw-tree-item', {
         },
 
         startDrag(draggedComponent) {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 return this.$parent.$parent.startDrag(draggedComponent);
             }
 
@@ -498,7 +497,7 @@ Component.register('sw-tree-item', {
         },
 
         endDrag() {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$parent.endDrag();
             } else {
                 this.treeEndDrag();
@@ -506,7 +505,7 @@ Component.register('sw-tree-item', {
         },
 
         moveDrag(draggedComponent, droppedComponent) {
-            if (compatUtils.isCompatEnabled('INSTANCE_CHILDREN')) {
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
             }
             return this.treeMoveDrag(draggedComponent, droppedComponent);
@@ -606,7 +605,7 @@ Component.register('sw-tree-item', {
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.content({ item, openTreeItem, getName });
             }
 
@@ -615,7 +614,7 @@ Component.register('sw-tree-item', {
 
         renderActionsSlotNode({ item, openTreeItem }) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
                 return this.$scopedSlots.actions({ item, openTreeItem });
             }
 

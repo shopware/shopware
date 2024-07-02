@@ -76,6 +76,7 @@ class AttributeEntityCompiler
         ManyToOne::class,
         OneToOne::class,
         ReferenceVersion::class,
+        CustomFieldsAttr::class,
     ];
 
     private const ASSOCIATIONS = [
@@ -219,17 +220,25 @@ class AttributeEntityCompiler
     {
         $storage = $this->converter->normalize($property->getName());
 
+        if ($field->column) {
+            $column = $field->column;
+        } else {
+            $column = $this->converter->normalize($property->getName());
+        }
+
+        $fk = $column . '_id';
+
         return match (true) {
             $field instanceof Translations => [$entity . '_translation', $entity . '_id'],
-            $field instanceof ForeignKey => [$storage, $property->getName(), $field->entity],
-            $field instanceof OneToOne => [$property->getName(), $field->column ?? ($storage . '_id'), $field->ref, $field->entity, false],
-            $field instanceof ManyToOne => [$property->getName(), $storage . '_id', $field->entity, $field->ref],
+            $field instanceof ForeignKey => [$column, $property->getName(), $field->entity],
+            $field instanceof OneToOne => [$property->getName(), $fk, $field->ref, $field->entity, false],
+            $field instanceof ManyToOne => [$property->getName(), $fk, $field->entity, $field->ref],
             $field instanceof OneToMany => [$property->getName(), $field->entity, $field->ref, 'id'],
             $field instanceof ManyToMany => [$property->getName(), $field->entity, self::mappingName($entity, $field), $entity . '_id', $field->entity . '_id'],
             $field instanceof AutoIncrement, $field instanceof Version => [],
-            $field instanceof ReferenceVersion => [$field->entity, $storage],
-            $field instanceof Serialized => [$storage, $property->getName(), $field->serializer],
-            default => [$storage, $property->getName()]
+            $field instanceof ReferenceVersion => [$field->entity, $column],
+            $field instanceof Serialized => [$column, $property->getName(), $field->serializer],
+            default => [$column, $property->getName()]
         };
     }
 
@@ -313,6 +322,9 @@ class AttributeEntityCompiler
         }
 
         if ($field->type === AutoIncrement::TYPE) {
+            unset($flags[Required::class]);
+        }
+        if ($field->type === CustomFieldsAttr::TYPE) {
             unset($flags[Required::class]);
         }
 

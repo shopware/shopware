@@ -1533,6 +1533,7 @@
     "attribute_entity.createdAt",
     "attribute_entity.updatedAt",
     "attribute_entity.translated",
+    "attribute_entity.customFields",
     "attribute_entity_translation.createdAt",
     "attribute_entity_translation.updatedAt",
     "attribute_entity_translation.attributeEntityId",

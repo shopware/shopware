@@ -139,11 +139,11 @@ class ProductPageTest extends TestCase
 
         $request = new Request([], [], ['productId' => $product->getId()]);
 
-        $page = $this->getPageLoader()->load($request, $context);
+        $reviews = $this->getPageLoader()->load($request, $context)->getReviews();
+        static::assertNotNull($reviews);
+        static::assertCount(6, $reviews);
 
-        static::assertCount(6, $page->getReviews());
-
-        $matrix = $page->getReviews()->getMatrix();
+        $matrix = $reviews->getMatrix();
 
         static::assertEquals(3.333, \round($matrix->getAverageRating(), 3));
         static::assertEquals(6, $matrix->getTotalReviewCount());
@@ -160,14 +160,14 @@ class ProductPageTest extends TestCase
 
         $request = new Request([], [], ['productId' => $product->getId()]);
 
-        $page = $this->getPageLoader()->load($request, $context);
-
-        static::assertCount(7, $page->getReviews());
-        static::assertInstanceOf(ProductReviewEntity::class, $page->getReviews()->getCustomerReview());
+        $reviews = $this->getPageLoader()->load($request, $context)->getReviews();
+        static::assertNotNull($reviews);
+        static::assertCount(7, $reviews);
+        static::assertInstanceOf(ProductReviewEntity::class, $reviews->getCustomerReview());
         static::assertNotNull($context->getCustomer());
-        static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
+        static::assertEquals($context->getCustomer()->getId(), $reviews->getCustomerReview()->getCustomerId());
 
-        $matrix = $page->getReviews()->getMatrix();
+        $matrix = $reviews->getMatrix();
         static::assertEquals(3.429, \round($matrix->getAverageRating(), 3));
         static::assertEquals(7, $matrix->getTotalReviewCount());
     }

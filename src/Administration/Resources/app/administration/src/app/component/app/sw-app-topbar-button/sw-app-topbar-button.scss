@@ -1,0 +1,12 @@
+$topbar-button-text-color: #2d2e32;
+
+.sw-app-topbar-button {
+    .sw-button {
+        background: #fff;
+        color: $topbar-button-text-color;
+
+        svg {
+            color: $topbar-button-text-color;
+        }
+    }
+}

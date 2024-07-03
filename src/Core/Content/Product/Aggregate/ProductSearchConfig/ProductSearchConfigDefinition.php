@@ -49,6 +49,7 @@ class ProductSearchConfigDefinition extends EntityDefinition
         return [
             'andLogic' => true,
             'minSearchLength' => 2,
+            'maxCharacterCount' => 60,
             'excludedTerms' => [],
         ];
     }
@@ -65,6 +66,7 @@ class ProductSearchConfigDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new BoolField('and_logic', 'andLogic'))->addFlags(new Required()),
             (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required()),
+            (new IntField('max_character_count', 'maxCharacterCount'))->addFlags(new Required()),
             new ListField('excluded_terms', 'excludedTerms', StringField::class),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),
             (new OneToManyAssociationField('configFields', ProductSearchConfigFieldDefinition::class, 'product_search_config_id', 'id'))->addFlags(new CascadeDelete()),

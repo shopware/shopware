@@ -11,12 +11,14 @@ const mockData = [
     {
         andLogic: false,
         minSearchLength: 4,
+        maxCharacterCount: 80,
         excludedTerms: [],
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
     },
     {
         andLogic: true,
         minSearchLength: 4,
+        maxCharacterCount: 80,
         excludedTerms: [],
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c',
     },
@@ -150,6 +152,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         wrapper.vm.productSearchConfigs = {
             andLogic: true,
             minSearchLength: 2,
+            maxCharacterCount: 60,
         };
 
         await wrapper.vm.onSaveSearchSettings();
@@ -188,6 +191,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
         expect(wrapper.vm.productSearchConfigs.andLogic).toBe(mockData[0].andLogic);
         expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
+        expect(wrapper.vm.productSearchConfigs.maxCharacterCount).toBe(mockData[0].maxCharacterCount);
         expect(wrapper.vm.productSearchConfigs.excludedTerms).toHaveLength(0);
         expect(wrapper.vm.productSearchConfigs.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
     });

@@ -16,6 +16,8 @@
       "labelSearchOrCondition": "“ODER”-Suche",
       "textSearchOrConditionExplain": "Suchergebnisse beinhalten einen der eingegebenen Suchbegriffe.\nBeispiel: \"Jeans Sommer\" findet Suchergebnisse, die entweder den Suchbegriff \"Jeans\" oder den Suchbegriff \"Sommer\" enthalten.",
       "labelMinimalSearchTerm": "Minimale Suchbegrifflänge",
+      "labelMaximalCharacterCount": "Maximale Anzahl an Zeichen",
+      "helpTextMaximalCharacterCount": "Die maximale Anzahl an Zeichen, die für die Suche verwendet werden. Alle Zeichen, die diese Grenze überschreiten, werden ignoriert.",
       "labelExcludedSearchTerms": "Ausgeschlossene Suchbegriffe",
       "textEmptyStateExcludedSearchTerms": "Bisher keine Suchbegriffe ausgeschlossen",
       "buttonAddExcludedSearch": "Suchbegriff ausschließen",

@@ -32,6 +32,7 @@ export default {
             productSearchConfigs: {
                 andLogic: true,
                 minSearchLength: 2,
+                maxCharacterCount: 60,
             },
             isLoading: false,
             currentSalesChannelId: null,
@@ -145,6 +146,7 @@ export default {
             const defaultConfig = this.productSearchRepository.create();
             defaultConfig.andLogic = this.defaultConfig.andLogic;
             defaultConfig.minSearchLength = this.defaultConfig.minSearchLength;
+            defaultConfig.maxCharacterCount = this.defaultConfig.maxCharacterCount;
             defaultConfig.excludedTerms = [];
             defaultConfig.languageId = Shopware.Context.api.languageId;
             return defaultConfig;

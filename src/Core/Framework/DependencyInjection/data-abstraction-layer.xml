@@ -96,6 +96,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Limiter\CharacterLimiter"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader"/>
         </service>
 

@@ -16,6 +16,8 @@
       "labelSearchOrCondition": "“OR” Search",
       "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain either the search term \"jeans\" or the search term \"summer\".",
       "labelMinimalSearchTerm": "Minimal search term length",
+      "labelMaximalCharacterCount": "Maximal character count",
+      "helpTextMaximalCharacterCount": "The maximum number of characters used for searching. Any characters exceeding this limit will be ignored.",
       "labelExcludedSearchTerms": "Excluded search terms",
       "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
       "buttonAddExcludedSearch": "Exclude search term",

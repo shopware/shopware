@@ -549,6 +549,12 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Limiter\CharacterLimiter">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">
             <argument>%shopware.dal.max_rule_prices%</argument>
             <argument type="service" id="logger"/>

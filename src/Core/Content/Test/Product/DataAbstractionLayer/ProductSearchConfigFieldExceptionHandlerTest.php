@@ -28,6 +28,7 @@ class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'andLogic' => true,
             'minSearchLength' => 3,
+            'maxCharacterCount' => 60,
             'configFields' => [
                 ['id' => $ids->get('field-1'), 'field' => 'test'],
                 ['id' => $ids->get('field-2'), 'field' => 'test'],

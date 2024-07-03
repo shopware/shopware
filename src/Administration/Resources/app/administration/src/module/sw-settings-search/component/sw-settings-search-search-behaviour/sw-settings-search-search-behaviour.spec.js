@@ -11,6 +11,7 @@ async function createWrapper(privileges = []) {
             searchBehaviourConfigs: {
                 andLogic: true,
                 minSearchLength: 2,
+                maxCharacterCount: 60,
             },
         },
 
@@ -81,6 +82,9 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         const minSearchLengthElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
         expect(minSearchLengthElement.attributes().disabled).toBeDefined();
 
+        const maxCharacterCountElement = wrapper.find('.sw-settings-search__search-behaviour-max-character-count input');
+        expect(maxCharacterCountElement.attributes().disabled).toBeDefined();
+
         await orBehaviourElement.trigger('click');
         expect(orBehaviourElement.element.checked).toBeFalsy();
         expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
@@ -108,5 +112,29 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         await minSearchLengthElement.setValue(0);
         await minSearchLengthElement.trigger('change');
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(1);
+    });
+
+    it('should be able to change maximal character count between limit value', async () => {
+        const wrapper = await createWrapper([
+            'product_search_config.editor',
+        ]);
+        await flushPromises();
+
+        expect(wrapper.vm.searchBehaviourConfigs.maxCharacterCount).toBe(60);
+
+        const maxCharacterCountElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
+        await maxCharacterCountElement.setValue(25);
+        await maxCharacterCountElement.trigger('change');
+        expect(wrapper.vm.searchBehaviourConfigs.maxCharacterCount).toBe(25);
+
+        // take the max value if the current value bigger than the max value.
+        await maxCharacterCountElement.setValue(101);
+        await maxCharacterCountElement.trigger('change');
+        expect(wrapper.vm.searchBehaviourConfigs.maxCharacterCount).toBe(100);
+
+        // take the min value if the current value smaller than the min value.
+        await maxCharacterCountElement.setValue(19);
+        await maxCharacterCountElement.trigger('change');
+        expect(wrapper.vm.searchBehaviourConfigs.maxCharacterCount).toBe(20);
     });
 });

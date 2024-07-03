@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Limiter\CharacterLimiter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 
 /**
@@ -27,6 +28,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
             new TokenFilter(static::createMock(Connection::class)),
+            new CharacterLimiter(static::createMock(Connection::class)),
             static::createMock(KeywordLoader::class),
         );
 
@@ -44,6 +46,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             static::createMock(Tokenizer::class),
             static::createMock(LoggerInterface::class),
             new TokenFilter(static::createMock(Connection::class)),
+            new CharacterLimiter(static::createMock(Connection::class)),
             static::createMock(KeywordLoader::class),
         );
 
@@ -79,6 +82,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
             new TokenFilter(static::createMock(Connection::class)),
+            new CharacterLimiter(static::createMock(Connection::class)),
             $keywordLoader,
         );
 
@@ -95,7 +99,7 @@ class ProductSearchTermInterpreterTest extends TestCase
                 $tokens = array_keys($tokenSlops);
                 $chars = implode('', $tokens);
 
-                static::assertEquals(ProductSearchTermInterpreter::MAX_CHARACTER_COUNT, mb_strlen($chars));
+                static::assertEquals(60, mb_strlen($chars));
 
                 return true;
             }));
@@ -105,6 +109,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             new Tokenizer(3),
             static::createMock(LoggerInterface::class),
             new TokenFilter(static::createMock(Connection::class)),
+            new CharacterLimiter(static::createMock(Connection::class)),
             $keywordLoader,
         );
 

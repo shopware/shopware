@@ -29,6 +29,11 @@ class ProductSearchConfigEntity extends Entity
     protected $minSearchLength;
 
     /**
+     * @var int
+     */
+    protected $maxCharacterCount;
+
+    /**
      * @var array|null
      */
     protected $excludedTerms;
@@ -71,6 +76,16 @@ class ProductSearchConfigEntity extends Entity
     public function setMinSearchLength(int $minSearchLength): void
     {
         $this->minSearchLength = $minSearchLength;
+    }
+
+    public function getMaxCharacterCount(): int
+    {
+        return $this->maxCharacterCount;
+    }
+
+    public function setMaxCharacterCount(int $maxCharacterCount): void
+    {
+        $this->maxCharacterCount = $maxCharacterCount;
     }
 
     public function getExcludedTerms(): ?array

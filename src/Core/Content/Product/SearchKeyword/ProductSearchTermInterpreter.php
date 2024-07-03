@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Limiter\AbstractCharacterLimiter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
@@ -18,8 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('buyers-experience')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
-    public const MAX_CHARACTER_COUNT = 60;
-
     private const RELEVANT_KEYWORD_COUNT = 8;
 
     /**
@@ -30,6 +29,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         private readonly TokenizerInterface $tokenizer,
         private readonly LoggerInterface $logger,
         private readonly AbstractTokenFilter $tokenFilter,
+        private readonly AbstractCharacterLimiter $characterLimiter,
         private readonly KeywordLoader $keywordLoader
     ) {
     }
@@ -43,7 +43,8 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             return new SearchPattern(new SearchTerm(''));
         }
 
-        $tokens = $this->limitCharacterCount($tokens, $context);
+        $tokens = $this->characterLimiter->limit($tokens, $context);
+        $tokens = $this->tokenFilter->filter($tokens, $context);
 
         $tokenSlops = $this->slop($tokens);
 
@@ -72,37 +73,6 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         }
 
         return $pattern;
-    }
-
-    /**
-     * @param list<string> $tokens
-     *
-     * @return list<string>
-     */
-    private function limitCharacterCount(array $tokens, Context $context): array
-    {
-        if (mb_strlen(implode('', $tokens)) <= self::MAX_CHARACTER_COUNT) {
-            return $tokens;
-        }
-
-        $word = '';
-        $availableCount = self::MAX_CHARACTER_COUNT;
-
-        foreach ($tokens as $token) {
-            if (mb_strlen($token) > $availableCount) {
-                $word .= mb_substr($token, 0, $availableCount);
-
-                break;
-            }
-
-            $word .= $token . ' ';
-            $availableCount -= mb_strlen($token);
-        }
-
-        $tokens = explode(' ', trim($word));
-        $tokens = $this->tokenFilter->filter($tokens, $context);
-
-        return $tokens;
     }
 
     /**

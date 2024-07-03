@@ -26,6 +26,9 @@ class ProductSearchConfigHydrator extends EntityHydrator
         if (isset($row[$root . '.minSearchLength'])) {
             $entity->minSearchLength = (int) $row[$root . '.minSearchLength'];
         }
+        if (isset($row[$root . '.maxCharacterCount'])) {
+            $entity->maxCharacterCount = (int) $row[$root . '.maxCharacterCount'];
+        }
         if (\array_key_exists($root . '.excludedTerms', $row)) {
             $entity->excludedTerms = $definition->decode('excludedTerms', self::value($row, $root, 'excludedTerms'));
         }

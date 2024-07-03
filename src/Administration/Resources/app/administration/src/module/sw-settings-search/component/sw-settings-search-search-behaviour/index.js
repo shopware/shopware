@@ -29,8 +29,16 @@ export default {
 
     data: () => {
         return {
-            min: 1,
-            max: 20,
+            limits: {
+                minSearchLength: {
+                    min: 1,
+                    max: 20,
+                },
+                maxCharacterCount: {
+                    min: 20,
+                    max: 100,
+                },
+            },
         };
     },
 

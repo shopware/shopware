@@ -1,3 +1,4 @@
+import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
@@ -120,7 +121,7 @@ Component.register('sw-text-editor', {
             type: Array,
             required: false,
             default() {
-                return [
+                return reactive([
                     {
                         type: 'paragraph',
                         title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.format'),
@@ -279,7 +280,7 @@ Component.register('sw-text-editor', {
                         icon: 'regular-redo-xs',
                         position: 'middle',
                     },
-                ];
+                ]);
             },
         },
 

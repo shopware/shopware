@@ -207,6 +207,11 @@ async function createWrapper(props) {
                 },
                 validationService: {},
                 mediaService: {},
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
             },
         },
     });

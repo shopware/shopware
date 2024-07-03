@@ -153,13 +153,23 @@
         :expand-on-loading="true"
     >
         <template #content>
-            <sw-switch-field
+            <sw-inherit-wrapper
                 v-model:value="arReady"
-                :disabled="!editable"
-                :label="$tc('sw-media.sidebar.actions.ar')"
-                class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                :inherited-value="defaultArReady"
                 @update:value="toggleAR"
-            />
+            >
+                <template #content="props">
+                    <sw-switch-field
+                        :map-inheritance="props"
+                        :help-text="buildAugmentedRealityTooltip('sw-media.sidebar.actions.arHelpText')"
+                        :label="$tc('sw-media.sidebar.actions.ar')"
+                        :disabled="props.isInherited || !editable"
+                        :value="props.currentValue"
+                        class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                        @update:value="props.updateCurrentValue"
+                    />
+                </template>
+            </sw-inherit-wrapper>
         </template>
     </sw-media-collapse>
     {% endblock %}

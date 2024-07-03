@@ -923,6 +923,7 @@
     "cms_block.cmsSectionVersionId",
     "cms_block.createdAt",
     "cms_block.updatedAt",
+    "cms_slot.id",
     "cms_slot.versionId",
     "cms_slot.type",
     "cms_slot.slot",

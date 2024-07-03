@@ -1,4 +1,145 @@
 # 6.7.0.0
+## Introduced in 6.6.4.0
+## Removal of Storefront `sw-skin-alert` SCSS mixin
+The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,
+we modify the appearance inside the `alert-*` modifier classes directly with the Bootstrap CSS variables like it is documented: https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
+
+Before:
+```scss
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    @include sw-skin-alert($value, $white);
+  }
+}
+```
+
+After:
+```scss
+@each $state, $value in $theme-colors {
+  .alert-#{$state} {
+    --#{$prefix}alert-border-color: #{$value};
+    --#{$prefix}alert-bg: #{$white};
+    --#{$prefix}alert-color: #{$body-color};
+  }
+}
+```
+
+## Removal of Storefront alert class `alert-has-icon` styling
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the class `alert-has-icon` will be removed. Helper classes `d-flex align-items-center` will be used instead.
+
+```diff
+- <div class="alert alert-info alert-has-icon">
++ <div class="alert alert-info d-flex align-items-center">
+    {% sw_icon 'info' %}
+    <div class="alert-content-container">
+        An important info
+    </div>
+</div>
+```
+
+## Removal of Storefront alert inner container `alert-content`
+As of v6.7.0, the superfluous inner container `alert-content` will be removed to have lesser elements and be more aligned with Bootstraps alert structure.
+When rendering an alert using the include template `Resources/views/storefront/utilities/alert.html.twig`, the inner container `alert-content` will no longer be present in the HTML output.
+
+The general usage of `Resources/views/storefront/utilities/alert.html.twig` and all include parameters remain the same.
+
+Before:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        <div class="alert-content">                                                    
+            Your shopping cart is empty.
+        </div>                
+    </div>
+</div>
+```
+
+After:
+```html
+<div role="alert" class="alert alert-info d-flex align-items-center">
+    <span class="icon icon-info"><svg></svg></span>                                                    
+    <div class="alert-content-container">
+        Your shopping cart is empty.
+    </div>
+</div>
+```
+## Removal of "sw-popover":
+The old "sw-popover" component will be removed in the next major version. Please use the new "mt-floating-ui" component instead.
+
+We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-floating-ui" component. This component is much different from the old "sw-popover" component, so the codemod will not be able to convert all occurrences. You will have to manually adjust some parts of your codebase. For this you can look at the Storybook documentation for the Meteor Component Library.
+
+If you don't want to use the codemod, you can manually replace all occurrences of "sw-popover" with "mt-floating-ui".
+
+Following changes are necessary:
+
+### "sw-popover" is removed
+Replace all component names from "sw-popover" with "mt-floating-ui"
+
+Before:
+```html
+<sw-popover />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "zIndex" anymore
+The property "zIndex" is removed without a replacement.
+
+Before:
+```html
+<sw-popover :zIndex="myZIndex" />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "resizeWidth" anymore
+The property "resizeWidth" is removed without a replacement.
+
+Before:
+```html
+<sw-popover :resizeWidth="myWidth" />
+```
+
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" has no property "popoverClass" anymore
+The property "popoverClass" is removed without a replacement.
+
+Before:
+```html
+<sw-popover popoverClass="my-class" />
+```
+After:
+```html
+<mt-floating-ui />
+```
+
+### "mt-floating-ui" is not open by default anymore
+The "open" property is removed. You have to control the visibility of the popover by yourself with the property "isOpened".
+
+Before:
+```html
+<sw-popover />
+```
+After:
+```html
+<mt-floating-ui :isOpened="myVisibility" />
+```
+## Removal of deprecations
+* Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
+* Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
+* Removed `name` field from `ImportExportProfileEntity`.
+## All Vuex stores will be transitioned to Pinia
+* All Shopware states will become Pinia Stores and will be available via `Shopware.Store`
+
 ## Introduced in 6.6.3.0
 ## onlyAvailable flag removed
 * The `onlyAvailable` flag in the `Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute` in the request will be removed in the next major version. The route will always filter the payment and shipping methods before calling the checkout gateway based on availability.

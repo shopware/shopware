@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-inheritance-switch', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: {
         restoreInheritanceHandler: {
             from: 'restoreInheritanceHandler',

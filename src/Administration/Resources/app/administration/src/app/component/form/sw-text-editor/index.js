@@ -37,6 +37,8 @@ const { Component } = Shopware;
 Component.register('sw-text-editor', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

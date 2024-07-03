@@ -55,6 +55,11 @@ async function createWrapper() {
                         },
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({
+                        'core.store.media.defaultEnableAugmentedReality': 'false',
+                    }),
+                },
             },
             stubs: {
                 'sw-upload-listener': true,

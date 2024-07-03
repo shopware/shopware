@@ -43,6 +43,11 @@ async function createWrapper() {
             },
             provide: {
                 repositoryFactory: {},
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
             },
         },
     });

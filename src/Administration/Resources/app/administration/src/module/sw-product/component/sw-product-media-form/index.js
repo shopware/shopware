@@ -12,7 +12,7 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -268,8 +268,10 @@ export default {
         /**
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
-        isArReady(productMedia) {
-            return !!productMedia.media?.config?.spatial?.arReady;
+        async isArReady(productMedia) {
+            const values = await this.systemConfigApiService.getValues('core.media');
+
+            return productMedia.media?.config?.spatial?.arReady ?? values['core.media.defaultEnableAugmentedReality'];
         },
 
         removeFile(productMedia) {

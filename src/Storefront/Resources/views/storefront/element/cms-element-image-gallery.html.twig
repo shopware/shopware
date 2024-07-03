@@ -54,6 +54,8 @@
         }) %}
     {% endif %}
 
+    {% set defaultEnableAugmentedReality = config('core.media.defaultEnableAugmentedReality') %}
+
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
             {% if config.verticalAlign.value %}
@@ -178,7 +180,7 @@
                                                                                     >
                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                     </span>
-                                                                                    {% if image.config.spatial.arReady %}
+                                                                                    {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                         <div class="ar-button button"
                                                                                              data-spatial-ar-viewer
                                                                                              data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
@@ -306,7 +308,7 @@
                                                                     >
                                                                     {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                     </span>
-                                                                    {% if image.config.spatial.arReady %}
+                                                                    {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                         <div class="ar-button button"
                                                                              data-spatial-ar-viewer
                                                                              data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
@@ -633,7 +635,7 @@
                                                                                                         >
                                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                                     </span>
-                                                                                                        {% if image.config.spatial.arReady %}
+                                                                                                        {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                                             <div class="ar-button button mb-2"
                                                                                                                  data-spatial-ar-viewer
                                                                                                                  data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'

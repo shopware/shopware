@@ -69,7 +69,10 @@ const { types } = Shopware.Utils;
  */
 Component.register('sw-form-field-renderer', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory', 'feature'],
 

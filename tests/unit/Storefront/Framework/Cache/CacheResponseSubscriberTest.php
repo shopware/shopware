@@ -558,15 +558,16 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'post request' => [$postRequest];
     }
 
-    #[DataProvider('cookiesUntouchedProvider')]
+    /**
+     * @dataProvider cookiesUntouchedProvider
+     */
     public function testCookiesAreUntouched(Request $request, ?Response $response = null): void
     {
         $subscriber = new CacheResponseSubscriber(
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new EventDispatcher()),
-            new RequestStack(),
+            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
             false,
             null,
             null
@@ -599,13 +600,7 @@ class CacheResponseSubscriberTest extends TestCase
         $salesChannelRequest->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'foo');
         $salesChannelRequest->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, 'logged-in');
 
-        $maintenanceRequest = clone $salesChannelRequest;
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
-        $maintenanceRequest->server->set('REMOTE_ADDR', self::IP);
-
         yield 'no sales channel context' => [new Request()];
-        yield 'maintenance request' => [$maintenanceRequest];
         yield 'not found response' => [$salesChannelRequest, new Response('', Response::HTTP_NOT_FOUND)];
     }
 

@@ -1,6 +1,6 @@
 ---
 title: Improve wishlist user experience
-issue: NEXT-00000
+issue: NEXT-37104
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

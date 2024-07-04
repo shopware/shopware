@@ -243,10 +243,10 @@ export default {
                     technicalName = this.transaction.stateMachineState.technicalName;
                     break;
                 case 'order_delivery':
-                    technicalName = this.delivery.stateMachineState.technicalName;
+                    technicalName = this.delivery.stateMachineState?.technicalName;
                     break;
                 case 'order':
-                    technicalName = this.order.stateMachineState.technicalName;
+                    technicalName = this.order.stateMachineState?.technicalName;
                     break;
                 default:
                     return null;

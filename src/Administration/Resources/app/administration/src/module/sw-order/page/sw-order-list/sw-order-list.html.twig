@@ -195,6 +195,7 @@
                 {% block sw_order_list_grid_columns_state %}
                 <template #column-stateMachineState.name="{ item }">
                     <div
+                        v-if="item.stateMachineState"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
@@ -229,11 +230,10 @@
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-deliveries[0].stateMachineState.name="{ item }">
                     <div
-                        v-if="item.deliveries && item.deliveries[0]"
+                        v-if="item.deliveries && item.deliveries[0] && item.deliveries[0].stateMachineState"
                         class="sw-order-list__state"
                     >
                         <sw-color-badge
-                            v-if="item.deliveries && item.deliveries[0]"
                             :color="getVariantFromDeliveryState(item)"
                             rounded
                         />
@@ -431,6 +431,7 @@
                         {% block sw_order_list_bulk_edit_grid_columns_state %}
                         <template #column-stateMachineState.name="{ item }">
                             <sw-label
+                                v-if="item.stateMachineState"
                                 :variant="getVariantFromOrderState(item)"
                                 appearance="pill"
                             >
@@ -456,7 +457,7 @@
                         {% block sw_order_list_bulk_edit_grid_columns_delivery_state %}
                         <template #column-deliveries[0].stateMachineState.name="{ item }">
                             <sw-label
-                                v-if="item.deliveries && item.deliveries[0]"
+                                v-if="item.deliveries && item.deliveries[0] && item.deliveries[0].stateMachineState"
                                 :variant="getVariantFromDeliveryState(item)"
                                 appearance="pill"
                             >

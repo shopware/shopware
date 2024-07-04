@@ -56,24 +56,24 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
     {
         yield 'one url' => [
             'content' => 'Test content with url ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA1_ID . '#.',
-            'expected' => 'Test content with url http://foo.text:8000/media/12/34/cat.pdf?' . strtotime(self::DATETIME) . '.',
+            'expected' => 'Test content with url http://foo.text:8000/media/12/34/cat.pdf?ts=' . strtotime(self::DATETIME) . '.',
         ];
 
         yield 'two urls' => [
             'content' => 'Test URL 1: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA1_ID . '# and URL 2: '
                 . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA2_ID . '#',
-            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?' . strtotime(self::DATETIME) . ' and URL 2: http://foo.text:8000/media/56/78/dog.pdf?' . strtotime(self::DATETIME),
+            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?ts=' . strtotime(self::DATETIME) . ' and URL 2: http://foo.text:8000/media/56/78/dog.pdf?ts=' . strtotime(self::DATETIME),
         ];
 
         yield 'two equal urls' => [
             'content' => 'Test URL 1: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA1_ID . '# and URL 2: '
                 . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA1_ID . '#',
-            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?' . strtotime(self::DATETIME) . ' and URL 2: http://foo.text:8000/media/12/34/cat.pdf?' . strtotime(self::DATETIME),
+            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?ts=' . strtotime(self::DATETIME) . ' and URL 2: http://foo.text:8000/media/12/34/cat.pdf?ts=' . strtotime(self::DATETIME),
         ];
 
         yield 'product urls left untouched' => [
             'content' => 'Test URL 1: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/mediaId/' . self::MEDIA1_ID . '# and URL 2: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/detail/' . self::PRODUCT_ID . '#',
-            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?' . strtotime(self::DATETIME) . ' and URL 2: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/detail/' . self::PRODUCT_ID . '#',
+            'expected' => 'Test URL 1: http://foo.text:8000/media/12/34/cat.pdf?ts=' . strtotime(self::DATETIME) . ' and URL 2: ' . MediaUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/detail/' . self::PRODUCT_ID . '#',
         ];
 
         yield 'handle not found' => [

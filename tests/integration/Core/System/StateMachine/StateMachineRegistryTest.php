@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\StateMachine;
+namespace Shopware\Tests\Integration\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
@@ -95,9 +95,9 @@ EOF;
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
         static::assertNotNull($stateMachine->getStates());
-        static::assertEquals(3, $stateMachine->getStates()->count());
+        static::assertCount(3, $stateMachine->getStates());
         static::assertNotNull($stateMachine->getTransitions());
-        static::assertEquals(4, $stateMachine->getTransitions()->count());
+        static::assertCount(4, $stateMachine->getTransitions());
     }
 
     public function testStateMachineAvailableTransitionShouldIncludeReOpenAndReTourTransition(): void
@@ -111,16 +111,15 @@ EOF;
         $reopenActionExisted = false;
         $retourActionExisted = false;
 
-        /** @var StateMachineTransitionEntity $transition */
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
+                static::assertSame(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
             }
         }
 
@@ -139,8 +138,8 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
     }
 
     public function testStateMachineRegistryUnnecessaryTransition(): void
@@ -154,8 +153,8 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
-        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
 
     private function createOrderWithPartiallyReturnedDeliveryState(): string
@@ -166,9 +165,11 @@ EOF;
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
-        /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
+        $orderStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order.state']);
+        $orderOpen = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderStates::STATE_OPEN, 'id' => $orderStateMachineId]);
+
+        $deliveryStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $deliveryStateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -195,7 +196,7 @@ EOF;
                 'lastName' => 'Mustermann',
             ],
             'orderNumber' => Uuid::randomHex(),
-            'stateId' => Uuid::fromBytesToHex($stateMachineId),
+            'stateId' => Uuid::fromBytesToHex($orderOpen),
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
@@ -230,8 +231,8 @@ EOF;
                     'id' => $orderDeliveryId,
                     'shippingMethodId' => $this->getValidShippingMethodId(),
                     'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'shippingDateEarliest' => date(\DATE_ISO8601),
-                    'shippingDateLatest' => date(\DATE_ISO8601),
+                    'shippingDateEarliest' => date(\DATE_ATOM),
+                    'shippingDateLatest' => date(\DATE_ATOM),
                     'stateId' => $returnedPartially,
                     'shippingOrderAddress' => [
                         'salutationId' => $this->getValidSalutationId(),

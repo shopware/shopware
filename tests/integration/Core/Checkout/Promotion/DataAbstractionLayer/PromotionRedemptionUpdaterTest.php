@@ -22,10 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -38,7 +36,6 @@ use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestT
 class PromotionRedemptionUpdaterTest extends TestCase
 {
     use CustomerTestTrait;
-    use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
     private TestDataCollection $ids;
@@ -234,22 +231,22 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherA);
-        static::assertEquals('1', $actualVoucherA['order_count']);
+        static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherD);
-        static::assertEquals('2', $actualVoucherD['order_count']);
+        static::assertSame('2', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(2, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
         // VoucherB is used twice, it's mean group by works
-        static::assertEquals('2', $actualVoucherB['order_count']);
+        static::assertSame('2', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(2, $customerCount[$this->ids->get('customer')]);
     }
 
     /**
@@ -264,18 +261,6 @@ class PromotionRedemptionUpdaterTest extends TestCase
             'customerId' => Uuid::fromBytesToHex($customer['id']),
             'customerName' => $customer['first_name'] . ' ' . $customer['last_name'],
         ];
-    }
-
-    /**
-     * @param array<mixed> $options
-     */
-    private function createSalesChannelContext(array $options = []): SalesChannelContext
-    {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-
-        $token = Uuid::randomHex();
-
-        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
     private function createOrder(string $customerId): void
@@ -295,7 +280,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                 ],
-                'stateId' => $this->fetchFirstIdFromTable('state_machine'),
+                'stateId' => $this->fetchFirstIdFromTable('state_machine_state'),
                 'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,

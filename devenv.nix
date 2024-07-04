@@ -21,7 +21,7 @@ in {
   ];
 
   # Fix .env loading
-  process.implementation = "honcho";
+  process.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
 

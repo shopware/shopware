@@ -104,6 +104,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            // 404 pages should not be cached by reverse proxy, as the cache hit rate would be super low,
+            // and there is no way to invalidate once the url becomes available
+            // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
+            // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
+            // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
+            return;
+        }
+
         $route = $request->attributes->get('_route');
         if ($route === 'frontend.checkout.configure') {
             $this->setCurrencyCookie($request, $response);

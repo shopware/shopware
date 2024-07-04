@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -60,6 +61,11 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                'sw-product-variant-info': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-loader': true,
             },
         },
     });

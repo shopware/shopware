@@ -175,8 +175,17 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' },
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
-                const element = wrapper.find(selector);
-                expect(element.attributes().disabled).toBeTruthy();
+                await flushPromises();
+                const element = wrapper.findComponent(selector);
+
+                // Condition for different types of components
+                if (element.attributes().hasOwnProperty('disabled')) {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(element.attributes().disabled).toBeTruthy();
+                } else {
+                    // eslint-disable-next-line jest/no-conditional-expect
+                    expect(element.props().disabled).toBeTruthy();
+                }
             });
         });
 

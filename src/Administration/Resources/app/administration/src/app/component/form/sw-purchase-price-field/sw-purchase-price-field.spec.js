@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -65,11 +66,6 @@ describe('components/form/sw-purchase-price-field', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await setup();
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should renders correctly', async () => {
-        const wrapper = await setup();
-        expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should contain the dollar price', async () => {

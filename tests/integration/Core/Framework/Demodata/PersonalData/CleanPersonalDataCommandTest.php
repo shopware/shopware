@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\PersonalData;
+namespace Shopware\Tests\Integration\Core\Framework\Demodata\PersonalData;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -238,7 +238,7 @@ class CleanPersonalDataCommandTest extends TestCase
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
-            'stateId' => $this->fetchFirstIdFromTable('state_machine'),
+            'stateId' => $this->fetchFirstIdFromTable('state_machine_state'),
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,

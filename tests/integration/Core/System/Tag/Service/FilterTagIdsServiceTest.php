@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Tag\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -337,6 +338,11 @@ class FilterTagIdsServiceTest extends TestCase
      */
     private function getOrderFixture(string $orderId, string $orderVersionId): array
     {
+        $stateId = $this->getContainer()->get('state_machine_state.repository')
+            ->searchIds((new Criteria())->addFilter(new EqualsFilter('stateMachine.technicalName', OrderStates::STATE_MACHINE)), Context::createDefaultContext())
+            ->firstId();
+        static::assertIsString($stateId);
+
         return [
             'id' => $orderId,
             'versionId' => $orderVersionId,
@@ -391,7 +397,7 @@ class FilterTagIdsServiceTest extends TestCase
                 ],
             ],
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'stateId' => Uuid::randomHex(),
+            'stateId' => $stateId,
             'orderDateTime' => new \DateTime(),
         ];
     }

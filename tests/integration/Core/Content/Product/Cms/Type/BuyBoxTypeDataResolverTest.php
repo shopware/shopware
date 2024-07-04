@@ -282,7 +282,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>  $additionalData
+     * @param array<string, mixed> $additionalData
      */
     private function createProduct(string $productId, array $additionalData = []): void
     {

@@ -27,8 +27,8 @@ class CachedSitemapRoute extends AbstractSitemapRoute
     /**
      * @internal
      *
-     *  @param AbstractCacheTracer<SitemapRouteResponse> $tracer
-     *  @param array<string> $states
+     * @param AbstractCacheTracer<SitemapRouteResponse> $tracer
+     * @param array<string> $states
      */
     public function __construct(
         private readonly AbstractSitemapRoute $decorated,

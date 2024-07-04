@@ -20,7 +20,7 @@ class FieldConfigCollection extends Collection
     }
 
     /**
-     * @param string|int  $key
+     * @param string|int $key
      * @param FieldConfig $element
      */
     public function set($key, $element): void

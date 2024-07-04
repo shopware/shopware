@@ -94,7 +94,7 @@ class GetJSFilesPerAreaCommand extends Command
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         /**
          * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator> $files
-         * @var SplFileInfo                                             $file
+         * @var SplFileInfo $file
          */
         foreach ($files as $file) {
             $fileName = $file->getFilename();

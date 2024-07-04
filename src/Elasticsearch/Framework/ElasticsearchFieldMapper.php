@@ -24,12 +24,12 @@ class ElasticsearchFieldMapper
      *
      * This method is typically used in the context of product definitions, where each item represents a database record to be indexed in Elasticsearch.
      *
-     * @param string $field                                       The field to be translated.
-     * @param array<int|string, array<string, string|null>> $items            An array of items with language information.
-     * @param array<int|string, array<string, string|null>> $fallbackItems    An array of fallback items to inherit values from if the child item has null values.
-     * @param bool $stripText                                     (Optional) Indicates whether to strip text values.
+     * @param string $field The field to be translated.
+     * @param array<int|string, array<string, string|null>> $items An array of items with language information.
+     * @param array<int|string, array<string, string|null>> $fallbackItems An array of fallback items to inherit values from if the child item has null values.
+     * @param bool $stripText (Optional) Indicates whether to strip text values.
      *
-     * @return array<string, string|null>                         An array where language IDs are keys and translated values are values.
+     * @return array<string, string|null> An array where language IDs are keys and translated values are values.
      *
      * @example
      *
@@ -79,10 +79,10 @@ class ElasticsearchFieldMapper
      *
      * This method is commonly used to handle associations, such as product names and descriptions in different languages.
      *
-     * @param array<int, array{id: string, languageId?: string}> $items     An array of items with language information.
-     * @param string[] $translatedFields                                    An array of fields to be translated.
+     * @param array<int, array{id: string, languageId?: string}> $items An array of items with language information.
+     * @param string[] $translatedFields An array of fields to be translated.
      *
-     * @return array<int, array<string, array<string, string>>>             An array of items with nested arrays containing translated values.
+     * @return array<int, array<string, array<string, string>>> An array of items with nested arrays containing translated values.
      *
      * @example
      *

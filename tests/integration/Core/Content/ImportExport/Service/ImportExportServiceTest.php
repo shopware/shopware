@@ -235,9 +235,9 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>                                                          $profile
+     * @param array<string, mixed> $profile
      * @param ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT $task
-     * @param ImportExportLogEntity::ACTIVITY_*|null                                        $activity
+     * @param ImportExportLogEntity::ACTIVITY_*|null $activity
      */
     #[DataProvider('profileProvider')]
     public function testPrepareImportAndPrepareExportWithVariousProfileTypesAndActivities(array $profile, string $task, bool $shouldThrowException, ?string $activity = null): void

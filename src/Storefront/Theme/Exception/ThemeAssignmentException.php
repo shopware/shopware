@@ -56,7 +56,7 @@ class ThemeAssignmentException extends ShopwareHttpException
     }
 
     /**
-     * @param  array<string, array<int, string>> $assignmentMapping
+     * @param array<string, array<int, string>> $assignmentMapping
      */
     private function formatAssignments(array $assignmentMapping): string
     {

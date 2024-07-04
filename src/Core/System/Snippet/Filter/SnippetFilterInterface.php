@@ -16,7 +16,7 @@ interface SnippetFilterInterface
     public function supports(string $name): bool;
 
     /**
-     * @param SnippetArray             $snippets
+     * @param SnippetArray $snippets
      * @param true|string|list<string> $requestFilterValue
      *
      * @return SnippetArray

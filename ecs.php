@@ -94,6 +94,7 @@ return static function (ECSConfig $ecsConfig): void {
         StandaloneLineConstructorParamFixer::class,
     ]);
 
+    $ecsConfig->ruleWithConfiguration(PhpdocAlignFixer::class, ['align' => 'left']);
     $ecsConfig->ruleWithConfiguration(PhpdocOrderFixer::class, ['order' => ['param', 'throws', 'return']]);
     $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);
     $ecsConfig->ruleWithConfiguration(MethodArgumentSpaceFixer::class, ['on_multiline' => 'ensure_fully_multiline']);
@@ -139,7 +140,6 @@ return static function (ECSConfig $ecsConfig): void {
         StandaloneLineInMultilineArrayFixer::class => null,
         AssignmentInConditionSniff::class => null,
         PhpdocToCommentFixer::class => null,
-        PhpdocAlignFixer::class => null,
         PhpdocAnnotationWithoutDotFixer::class => null,
         PhpdocNoPackageFixer::class => null,
         StandaloneLineConstructorParamFixer::class => null,

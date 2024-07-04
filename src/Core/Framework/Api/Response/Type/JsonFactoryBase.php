@@ -37,7 +37,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
      * @template TEntityCollection of EntityCollection
      *
      * @param EntitySearchResult<covariant TEntityCollection> $searchResult
-     * @param array<string, mixed>                 $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return array{first?: string, prev?: string, next?: string, last?: string}
      */
@@ -96,7 +96,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     }
 
     /**
-     * @param array<string, mixed>  $parameters
+     * @param array<string, mixed> $parameters
      */
     protected function buildPaginationUrl(string $uri, array $parameters, int $limit, int $page): string
     {

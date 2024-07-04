@@ -31,8 +31,9 @@ class RedisConnectionFactory
     }
 
     /**
-     * @param array<string, mixed> $options
      * Don't type hint the native return types, as symfony might change them in the future
+     *
+     * @param array<string, mixed> $options
      *
      * @return \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay
      */

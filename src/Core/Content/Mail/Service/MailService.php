@@ -237,11 +237,9 @@ class MailService extends AbstractMailService
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param array<string, mixed> $data
-     * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     * @param array<string, mixed> $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return array{'text/plain': string, 'text/html': string}
-     * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     * @return array{'text/plain': string, 'text/html': string} e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
      */

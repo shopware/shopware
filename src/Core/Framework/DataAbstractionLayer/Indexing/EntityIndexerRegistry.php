@@ -244,7 +244,7 @@ class EntityIndexerRegistry
     }
 
     /**
-     * @param array<string>                $skip
+     * @param array<string> $skip
      * @param array{offset: int|null}|null $offset
      */
     private function iterateIndexer(string $name, ?array $offset, array $skip): ?EntityIndexingMessage

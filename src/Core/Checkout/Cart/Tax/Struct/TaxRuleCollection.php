@@ -21,7 +21,7 @@ class TaxRuleCollection extends Collection
 
     /**
      * @param string|int $key
-     * @param TaxRule    $taxRule
+     * @param TaxRule $taxRule
      */
     public function set($key, $taxRule): void
     {

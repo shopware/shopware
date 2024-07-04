@@ -32,7 +32,7 @@ class FetchModeHelper
     /**
      * User-land implementation of PDO::FETCH_GROUP
      *
-     * @phpstan-template CReturn
+     * @template CReturn
      *
      * @param list<array<string, string|null>> $result
      * @param callable(array<string, string|null>):CReturn|null $mapper

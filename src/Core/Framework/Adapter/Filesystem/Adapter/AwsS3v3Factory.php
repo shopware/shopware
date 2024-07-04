@@ -53,7 +53,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
     }
 
     /**
-     * @param  array<string, mixed> $definition
+     * @param array<string, mixed> $definition
      *
      * @return S3Config
      */

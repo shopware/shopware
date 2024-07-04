@@ -55,7 +55,7 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string>   $ids
+     * @param array<string> $ids
      */
     public function update(array $ids, Context $context): void
     {
@@ -217,7 +217,7 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param list<string>    $accessors
+     * @param list<string> $accessors
      */
     private function buildCriteria(array $accessors, Criteria $criteria, Context $context): void
     {

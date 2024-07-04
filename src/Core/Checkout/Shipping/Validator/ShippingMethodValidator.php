@@ -142,8 +142,8 @@ class ShippingMethodValidator implements EventSubscriberInterface
      * Gets a value from an array. It also does clean checks if
      * the key is set, and also provides the option for default values.
      *
-     * @param array<string, mixed> $data  the data array
-     * @param string               $key   the requested key in the array
+     * @param array<string, mixed> $data the data array
+     * @param string $key the requested key in the array
      * @param array<string, mixed> $dbRow the db row of from the database
      *
      * @return mixed the object found in the key, or the default value

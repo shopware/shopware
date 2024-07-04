@@ -186,10 +186,10 @@ class PromotionValidator implements EventSubscriberInterface
      * Validates the provided Promotion data and adds
      * violations to the provided list of violations, if found.
      *
-     * @param array<string, mixed>    $promotion     the current promotion from the database as array type
-     * @param array<string, mixed>    $payload       the incoming delta-data
+     * @param array<string, mixed> $promotion the current promotion from the database as array type
+     * @param array<string, mixed> $payload the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
-     * @param int                     $index         the index of this promotion in the command queue
+     * @param int $index the index of this promotion in the command queue
      *
      * @throws \Exception
      */
@@ -289,8 +289,8 @@ class PromotionValidator implements EventSubscriberInterface
      * Validates the provided PromotionDiscount data and adds
      * violations to the provided list of violations, if found.
      *
-     * @param array<string, mixed>    $discount      the discount as array from the database
-     * @param array<string, mixed>    $payload       the incoming delta-data
+     * @param array<string, mixed> $discount the discount as array from the database
+     * @param array<string, mixed> $payload the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
      */
     private function validateDiscount(array $discount, array $payload, ConstraintViolationList $violationList, int $index): void
@@ -328,8 +328,8 @@ class PromotionValidator implements EventSubscriberInterface
      * Gets a value from an array. It also does clean checks if
      * the key is set, and also provides the option for default values.
      *
-     * @param array<string, mixed> $data  the data array
-     * @param string               $key   the requested key in the array
+     * @param array<string, mixed> $data the data array
+     * @param string $key the requested key in the array
      * @param array<string, mixed> $dbRow the db row of from the database
      *
      * @return mixed the object found in the key, or the default value
@@ -375,11 +375,11 @@ class PromotionValidator implements EventSubscriberInterface
      * This helper function builds an easy violation
      * object for our validator.
      *
-     * @param string $message      the error message
-     * @param mixed  $invalidValue the actual invalid value
+     * @param string $message the error message
+     * @param mixed $invalidValue the actual invalid value
      * @param string $propertyPath the property path from the root value to the invalid value without initial slash
-     * @param string $code         the error code of the violation
-     * @param int    $index        the position of this entity in the command queue
+     * @param string $code the error code of the violation
+     * @param int $index the position of this entity in the command queue
      *
      * @return ConstraintViolationInterface the built constraint violation
      */

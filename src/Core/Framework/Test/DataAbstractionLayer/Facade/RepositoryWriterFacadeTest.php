@@ -45,7 +45,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     /**
      * @param array<int, mixed> $payload
-     * @param callable(Context, ContainerInterface): void  $expectation
+     * @param callable(Context, ContainerInterface): void $expectation
      */
     #[DataProvider('testCases')]
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void

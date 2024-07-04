@@ -132,7 +132,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param array<string, array<string, Criteria>>               $searches
+     * @param array<string, array<string, Criteria>> $searches
      *
      * @return array<string, EntitySearchResult<EntityCollection>>
      */

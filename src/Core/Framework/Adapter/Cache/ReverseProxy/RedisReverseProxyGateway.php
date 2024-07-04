@@ -43,9 +43,9 @@ return final
 LUA;
 
     /**
-     * @param string[]                                                                         $hosts
-     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay                           $redis       Cannot be natively typed, as symfony might change the type in the future
-     * @param array{'method': string, 'headers': array<string, string>}                        $singlePurge
+     * @param string[] $hosts
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis Cannot be natively typed, as symfony might change the type in the future
+     * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
     public function __construct(

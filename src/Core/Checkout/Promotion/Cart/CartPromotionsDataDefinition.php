@@ -48,8 +48,8 @@ class CartPromotionsDataDefinition extends Struct
      * Adds the provided list of promotions
      * to the existing list of promotions for this code.
      *
-     * @param string $code       the promotion code
-     * @param array  $promotions a list of promotion entities for this code
+     * @param string $code the promotion code
+     * @param array $promotions a list of promotion entities for this code
      */
     public function addCodePromotions(string $code, array $promotions): void
     {

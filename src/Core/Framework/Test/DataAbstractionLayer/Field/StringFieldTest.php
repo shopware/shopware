@@ -27,7 +27,7 @@ class StringFieldTest extends TestCase
 
     /**
      * @param bool|string|null $input
-     * @param Flag[]           $flags
+     * @param Flag[] $flags
      */
     #[DataProvider('stringFieldDataProvider')]
     public function testStringFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void

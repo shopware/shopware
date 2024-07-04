@@ -32,7 +32,7 @@ class SourceResolver implements ResetInterface
     private array $appFilesystemCache = [];
 
     /**
-     * @param iterable<Source>                $sources
+     * @param iterable<Source> $sources
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(

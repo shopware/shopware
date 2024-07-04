@@ -52,7 +52,7 @@ class LineItemCollection extends Collection
 
     /**
      * @param int|string $key
-     * @param LineItem   $lineItem
+     * @param LineItem $lineItem
      */
     public function set($key, $lineItem): void
     {

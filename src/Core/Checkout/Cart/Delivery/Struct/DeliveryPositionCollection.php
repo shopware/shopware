@@ -24,7 +24,7 @@ class DeliveryPositionCollection extends Collection
     }
 
     /**
-     * @param string|int       $key
+     * @param string|int $key
      * @param DeliveryPosition $deliveryPosition
      */
     public function set($key, $deliveryPosition): void

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Struct\Collection;
 class FilterCollection extends Collection
 {
     /**
-     * @param string|int  $key
+     * @param string|int $key
      * @param Filter|null $element
      */
     public function set($key, $element): void

@@ -877,7 +877,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, string>>$documentTypes
+     * @param array<int, array<string, string>> $documentTypes
      *
      * @return array<array{mailTemplateId: string, documentTypeIds: array<int, string>, recipient: array<string, string|array<string, string>>}>
      */

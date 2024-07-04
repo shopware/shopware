@@ -22,6 +22,8 @@ Component.register('sw-select-rule-create', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',

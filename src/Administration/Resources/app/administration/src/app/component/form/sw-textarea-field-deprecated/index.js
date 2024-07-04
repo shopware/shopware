@@ -15,7 +15,10 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-textarea-field-deprecated', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     emits: [
         'update:value',

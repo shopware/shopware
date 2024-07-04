@@ -12,7 +12,7 @@ const { Component } = Shopware;
 Component.register('sw-checkbox-field', {
     template,
 
-    props: {},
+    compatConfig: Shopware.compatConfig,
 
     computed: {
         useMeteorComponent() {

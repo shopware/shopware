@@ -142,8 +142,6 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
-                'sw-entity-multi-id-select',
-                'sw-entity-single-select',
                 'sw-tagged-field',
                 // for backwards compatibility with old custom fields
                 'sw-field',

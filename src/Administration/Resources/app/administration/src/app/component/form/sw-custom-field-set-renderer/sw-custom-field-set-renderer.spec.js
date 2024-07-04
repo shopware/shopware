@@ -74,6 +74,7 @@ async function createWrapper(props) {
                 },
                 'sw-skeleton': await wrapTestComponent('sw-skeleton'),
                 'sw-skeleton-bar': await wrapTestComponent('sw-skeleton-bar'),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-button-process': true,
                 'sw-media-collapse': true,
                 'mt-tabs': true,
@@ -98,6 +99,7 @@ async function createWrapper(props) {
                 'sw-context-button': true,
                 'mt-switch': true,
                 'mt-checkbox': true,
+                'sw-product-variant-info': true,
             },
             provide: {
                 repositoryFactory: {
@@ -116,6 +118,19 @@ async function createWrapper(props) {
                                         fileName: 'media_before',
                                         fileExtension: 'jpg',
                                         id: uuid.get('media before'),
+                                    },
+                                ]);
+                            }
+
+                            if (entity === 'country') {
+                                return Promise.resolve([
+                                    {
+                                        id: uuid.get('Germany'),
+                                        name: 'Germany',
+                                    },
+                                    {
+                                        id: uuid.get('Vietnam'),
+                                        name: 'Vietnam',
                                     },
                                 ]);
                             }
@@ -177,6 +192,22 @@ async function createWrapper(props) {
                                         },
                                     ],
                                 });
+                            }
+
+                            if (entity === 'country') {
+                                if (id === uuid.get('Germany')) {
+                                    return Promise.resolve({
+                                        id: uuid.get('Germany'),
+                                        name: 'Germany',
+                                    });
+                                }
+
+                                if (id === uuid.get('Vietnam')) {
+                                    return Promise.resolve({
+                                        id: uuid.get('Vietnam'),
+                                        name: 'Vietnam',
+                                    });
+                                }
                             }
 
                             if (id === uuid.get('custom_clothing')) {
@@ -528,6 +559,40 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 await customField.find('input[type="text"]').setValue('#48e8e8');
                 await customField.find('input[type="text"]').trigger('change');
                 await flushPromises();
+            },
+        },
+        {
+            testFieldLabel: 'entity single select',
+            customFieldType: 'select',
+            customFieldConfigType: 'entity',
+            fieldName: 'custom_first_tab_i_am_an_entity_single_select',
+            entityCustomFieldValueBefore: uuid.get('Germany'),
+            entityCustomFieldValueAfter: uuid.get('Vietnam'),
+            componentName: 'sw-entity-single-select',
+            componentLabel: 'I am an entity single select field',
+            componentConfigAddition: {
+                entity: 'country',
+            },
+            domFallbackValue: '',
+            fallbackValue: [],
+            domFieldValueSelectorExpectation: (domFieldValue, domFieldValueBefore) => {
+                expect(domFieldValue.text()).toBe(domFieldValueBefore);
+            },
+            domFieldValueSelectorBefore: '.sw-entity-single-select__selection-text',
+            domFieldValueBefore: 'Germany',
+            domFieldValueSelectorAfter: '.sw-entity-single-select__selection-text',
+            domFieldValueAfter: 'Vietnam',
+            changeValueFunction: async (customField) => {
+                // open select field
+                await customField.find('.sw-entity-single-select__selection').trigger('click');
+                await flushPromises();
+
+                // check if second option exists
+                const secondChoiceOption = customField.find('.sw-select-option--1');
+                expect(secondChoiceOption.isVisible()).toBe(true);
+
+                // click on second option
+                await secondChoiceOption.trigger('click');
             },
         },
     ];

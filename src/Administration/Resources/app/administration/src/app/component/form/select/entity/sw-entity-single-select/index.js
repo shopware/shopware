@@ -72,8 +72,8 @@ Component.register('sw-entity-single-select', {
         criteria: {
             type: Object,
             required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
+            default(props) {
+                return new Criteria(1, props.resultLimit);
             },
         },
         context: {
@@ -241,7 +241,7 @@ Component.register('sw-entity-single-select', {
          * Fetches the selected entity from the server
          */
         loadSelected() {
-            if (!this.value) {
+            if (!this.value || this.value.length === 0) {
                 if (this.resetOption) {
                     this.singleSelection = {
                         id: null,

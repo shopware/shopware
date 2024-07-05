@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -197,13 +198,18 @@ class NavigationRoute extends AbstractNavigationRoute
         return array_values(array_diff($haveToBeIncluded, $included));
     }
 
+    protected function getValidSalesChannelIds(SalesChannelEntity $salesChannel): array
+    {
+        return array_filter([
+            $salesChannel->getFooterCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+            $salesChannel->getNavigationCategoryId(),
+        ]);
+    }
+    
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = array_filter([
-            $context->getSalesChannel()->getFooterCategoryId(),
-            $context->getSalesChannel()->getServiceCategoryId(),
-            $context->getSalesChannel()->getNavigationCategoryId(),
-        ]);
+        $ids = $this->getSalesChannelIds($context->getSalesChannel());
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {

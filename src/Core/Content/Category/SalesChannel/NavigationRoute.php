@@ -209,7 +209,7 @@ class NavigationRoute extends AbstractNavigationRoute
     
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = $this->getSalesChannelIds($context->getSalesChannel());
+        $ids = $this->getValidSalesChannelIds($context->getSalesChannel());
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {

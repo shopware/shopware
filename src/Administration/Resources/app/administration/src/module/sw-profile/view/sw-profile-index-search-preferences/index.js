@@ -49,9 +49,12 @@ export default {
             }
 
             return defaultSearchPreferences.reduce((accumulator, currentValue) => {
-                const value = this.userSearchPreferences.find((item) => {
+                let value = this.userSearchPreferences.find((item) => {
                     return Object.keys(item)[0] === Object.keys(currentValue)[0];
                 });
+                if (value) {
+                    value = Shopware.Utils.object.deepMergeObject(currentValue, value);
+                }
 
                 accumulator.push(value || currentValue);
 

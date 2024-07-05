@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PaymentPayloadService
 {
+    public const PAYMENT_REQUEST_TIMEOUT = 20;
+
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
         private readonly ClientInterface $client,
@@ -67,6 +69,7 @@ class PaymentPayloadService
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
             ],
+            'timeout' => self::PAYMENT_REQUEST_TIMEOUT,
             'headers' => [
                 'Content-Type' => 'application/json',
             ],

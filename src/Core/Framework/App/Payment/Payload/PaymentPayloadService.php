@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class PaymentPayloadService
 {
+    public const PAYMENT_REQUEST_TIMEOUT = 20;
+
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
         private readonly Client $client,
@@ -85,6 +87,7 @@ class PaymentPayloadService
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
             ],
+            'timeout' => self::PAYMENT_REQUEST_TIMEOUT,
             'headers' => [
                 'Content-Type' => 'application/json',
             ],

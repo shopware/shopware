@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -11,6 +12,7 @@ trait EntityCustomFieldsTrait
     /**
      * @var array<mixed>|null
      */
+    #[CustomFields]
     protected $customFields;
 
     /**

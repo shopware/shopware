@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -30,6 +30,8 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 #[Entity('attribute_entity', since: '6.6.3.0')]
 class AttributeEntity extends EntityStruct
 {
+    use EntityCustomFieldsTrait;
+
     #[PrimaryKey]
     #[Field(type: FieldType::UUID)]
     public string $id;
@@ -123,26 +125,20 @@ class AttributeEntity extends EntityStruct
     public ?CurrencyEntity $follow = null;
 
     /**
-     * @var array<string, AttributeEntityAgg>
+     * @var array<string, AttributeEntityAgg>|null
      */
     #[OneToMany(entity: 'attribute_entity_agg', ref: 'attribute_entity_id', onDelete: OnDelete::CASCADE)]
     public ?array $aggs = null;
 
     /**
-     * @var array<string, CurrencyEntity>
+     * @var array<string, CurrencyEntity>|null
      */
     #[ManyToMany(entity: 'currency', onDelete: OnDelete::CASCADE)]
     public ?array $currencies = null;
 
     /**
-     * @var array<string, ArrayEntity>
+     * @var array<string, ArrayEntity>|null
      */
     #[Translations]
-    public array $translations;
-
-    /**
-     * @var array<string, mixed>
-     */
-    #[CustomFields]
-    public array $customFields;
+    public ?array $translations = null;
 }

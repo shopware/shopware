@@ -137,10 +137,8 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        if ($request->get('search') === $product->getProductNumber()) {
-            $productId = $product->getId();
-
-            return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
+        if ($request->get('search') === mb_strtolower($product->getProductNumber())) {
+            return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
         }
 
         return null;

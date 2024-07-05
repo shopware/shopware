@@ -69,6 +69,7 @@ class PaymentPayloadServiceTest extends TestCase
                     AuthMiddleware::APP_SECRET => 'secret',
                     AuthMiddleware::VALIDATED_RESPONSE => true,
                 ],
+                'timeout' => PaymentPayloadService::PAYMENT_REQUEST_TIMEOUT,
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],

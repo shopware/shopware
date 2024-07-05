@@ -181,13 +181,16 @@
                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                                     </span>
                                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                        <div class="ar-button button"
+                                                                                        <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                                              data-spatial-ar-viewer
                                                                                              data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                                              data-spatial-model-url="{{ image.url }}">
-                                                                                            {% sw_icon 'augmented' style {
-                                                                                                'size': 'fluid'
-                                                                                            } %}
+
+                                                                                                {% sw_icon 'augmented' style {
+                                                                                                    'size': 'fluid'
+                                                                                                } %}
+                                                                                                <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+
                                                                                         </div>
                                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                     {% endif %}
@@ -309,13 +312,16 @@
                                                                     {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
                                                                     </span>
                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                        <div class="ar-button button"
+                                                                        <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                              data-spatial-ar-viewer
                                                                              data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                              data-spatial-model-url="{{ image.url }}">
-                                                                            {% sw_icon 'augmented' style {
-                                                                                'size': 'fluid'
-                                                                            } %}
+
+                                                                                {% sw_icon 'augmented' style {
+                                                                                    'size': 'fluid'
+                                                                                } %}
+                                                                                <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+
                                                                         </div>
                                                                         {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                     {% endif %}
@@ -418,7 +424,7 @@
                                                                     {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                     {% block element_image_gallery_inner_thumbnails_item_inner_spatial %}
                                                                         {% if image.isSpatialObject() %}
-                                                                            {% sw_icon 'placeholder' style {
+                                                                            {% sw_icon '3d-placeholder' style {
                                                                                 'size': 'fluid'
                                                                             } %}
                                                                             <span class="badge bg-secondary m-1 position-absolute bottom-0 end-0">3D</span>
@@ -634,15 +640,18 @@
                                                                                                                 data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
                                                                                                         >
                                                                                                         {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
-                                                                                                    </span>
+                                                                                                        </span>
                                                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
-                                                                                                            <div class="ar-button button mb-2"
+                                                                                                            <div class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                                                                  data-spatial-ar-viewer
                                                                                                                  data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
                                                                                                                  data-spatial-model-url="{{ image.url }}">
-                                                                                                                {% sw_icon 'augmented' style {
-                                                                                                                    'size': 'fluid'
-                                                                                                                } %}
+
+                                                                                                                    {% sw_icon 'augmented' style {
+                                                                                                                        'size': 'fluid'
+                                                                                                                    } %}
+                                                                                                                    <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+
                                                                                                             </div>
                                                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                                         {% endif %}
@@ -723,7 +732,7 @@
                                                                                                     {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                                                     {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_spatial %}
                                                                                                         {% if image.isSpatialObject() %}
-                                                                                                            {% sw_icon 'placeholder' style {
+                                                                                                            {% sw_icon '3d-placeholder' style {
                                                                                                                 'size': 'fluid',
                                                                                                                 'class': ''
                                                                                                             } %}

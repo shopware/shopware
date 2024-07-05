@@ -85,7 +85,12 @@ Shopware.Service().list().forEach(serviceKey => {
 // Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
-        return Vue.set(target, propertyName, value);
+        if (compatUtils.isCompatEnabled('GLOBAL_SET')) {
+            return Vue.set(target, propertyName, value);
+        }
+
+        // eslint-disable-next-line no-return-assign
+        return target[propertyName] = value;
     },
     deleteReactive(target, propertyName) {
         Vue.delete(target, propertyName);

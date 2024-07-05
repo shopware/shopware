@@ -1,7 +1,7 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
-
 import { mount } from '@vue/test-utils';
 
 const selector = {
@@ -26,6 +26,13 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-icon': {
                     template: '<div></div>',
                 },
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-label': true,
+                'sw-button': true,
+                'mt-floating-ui': true,
             },
         },
         props: {

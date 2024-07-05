@@ -194,6 +194,8 @@
     "imitateCustomerModal": {
       "modalTitle": "Anmelden als {firstname} {lastname}",
       "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
+      "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
+      "modalInfoLogout": "abzumelden",
       "labelCancel": "Schließen"
     },
     "addressForm": {
@@ -238,7 +240,7 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationImitateCustomerErrorMessage": "Bei der Anmeldung als Kunde ist ein Fehler aufgetreten.",
+      "notificationImitateCustomerErrorMessage": "Bei der Anmeldung als Kunde ist ein Fehler aufgetreten. Bitte stelle sicher, das Pop-Ups Fenster erlaubt sind.",
       "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {

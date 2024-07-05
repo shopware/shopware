@@ -30,7 +30,7 @@
       }
     },
     "card": {
-      "buttonImitateCustomer": "Login as customer",
+      "buttonImitateCustomer": "Log in as customer",
       "placeholderTitle": "Title",
       "placeholderFirstName": "First name",
       "placeholderLastName": "Last name",
@@ -194,6 +194,8 @@
     "imitateCustomerModal": {
       "modalTitle": "Log in as {firstname} {lastname}",
       "modalDescription": "Choose the Sales Channel in which you would like to log in as {firstname} {lastname}.",
+      "modalInfo": "Please remember to {logout} after you have finished your work.",
+      "modalInfoLogout": "log out",
       "labelCancel": "Close"
     },
     "addressForm": {
@@ -238,7 +240,7 @@
       "messageSaveError": "Customer could not be saved.",
       "messageSaveSuccess": "Customer \"{name}\" has been saved.",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
-      "notificationImitateCustomerErrorMessage": "There was an error logging in as a customer.",
+      "notificationImitateCustomerErrorMessage": "There was an error logging in as a customer. Please make sure that opening popups windows are allowed.",
       "labelCreatedByAdmin": "Created by admin"
     },
     "filter": {

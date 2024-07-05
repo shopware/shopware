@@ -1,15 +1,18 @@
+import ApiService from 'src/core/service/api.service';
 import template from './sw-customer-imitate-customer-modal.html.twig';
 import './sw-customer-imitate-customer-modal.scss';
-import ApiService from '../../../../core/service/api.service';
 
-const { Service, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'contextStoreService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -48,7 +51,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return Shopware.State.get('session').currentUser;
         },
 
         salesChannelDomainCriteria() {
@@ -76,13 +79,13 @@ export default {
         },
 
         async onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {
-            Service('contextStoreService').generateImitateCustomerToken(
+            this.contextStoreService.generateImitateCustomerToken(
                 this.customer.id,
                 salesChannelId,
             ).then((response) => {
                 const handledResponse = ApiService.handleResponse(response);
 
-                Service('contextStoreService').redirectToSalesChannelUrl(
+                this.contextStoreService.redirectToSalesChannelUrl(
                     salesChannelDomainUrl,
                     handledResponse.token,
                     this.customer.id,

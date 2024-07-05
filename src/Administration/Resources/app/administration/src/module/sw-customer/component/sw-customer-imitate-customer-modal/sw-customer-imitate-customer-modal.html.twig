@@ -6,6 +6,14 @@
     class="sw-customer-imitate-customer-modal"
     @modal-close="onCancel"
 >
+    <sw-alert>
+        <i18n-t keypath="sw-customer.imitateCustomerModal.modalInfo" tag="p">
+            <template #logout>
+                <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
+            </template>
+        </i18n-t>
+    </sw-alert>
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_imitate_customer_modal_description %}
     <div class="imitate-customer-modal-description">
@@ -41,7 +49,7 @@
                 </div>
                 <sw-icon
                     name="regular-external-link-s"
-                    size="20px"
+                    size="16px"
                 />
             </div>
         </sw-context-menu-item>

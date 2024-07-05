@@ -95,6 +95,10 @@ class ImitateCustomerTokenGenerator
         $iv = substr($data, 0, 16);
         $encrypted = substr($data, 16);
 
+        if (\strlen($iv) !== 16) {
+            throw CustomerException::invalidImitationToken($token);
+        }
+
         $decrypted = openssl_decrypt($encrypted, self::OPENSSL_CIPHER_ALGORITHM, $this->appSecret, 0, $iv);
 
         if ($decrypted === false) {

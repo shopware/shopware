@@ -117,7 +117,7 @@ export default {
                 }
             }
 
-            return this.acl.can('api_proxy_imitate-customer');
+            return this.acl.can('customer.editor');
         },
 
         hasSingleBoundSalesChannelUrl() {

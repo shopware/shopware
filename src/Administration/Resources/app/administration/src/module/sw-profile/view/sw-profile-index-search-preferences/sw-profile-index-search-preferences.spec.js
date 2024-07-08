@@ -346,6 +346,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                     documents: {
                         documentNumber: { _score: 80, _searchable: true },
                         documentInvoice: { _score: 80, _searchable: true },
+                        extraUserPreference: { _score: 80, _searchable: true },
                     },
                 },
             },
@@ -360,6 +361,10 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                             _searchable: true,
                         }),
                         documentInvoice: expect.objectContaining({
+                            _score: 80,
+                            _searchable: true,
+                        }),
+                        extraUserPreference: expect.objectContaining({
                             _score: 80,
                             _searchable: true,
                         }),

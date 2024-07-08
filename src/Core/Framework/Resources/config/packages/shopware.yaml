@@ -529,3 +529,6 @@ shopware:
 
     messenger:
         routing_overwrite:
+
+    search:
+        term_max_length: 300

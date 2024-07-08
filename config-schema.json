@@ -199,6 +199,16 @@
                 }
             }
         },
+        "search": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "term_max_length": {
+                    "type": "integer",
+                    "title": "The maximum length of the search term"
+                }
+            }
+        },
         "mail": {
             "type": "object",
             "additionalProperties": false,

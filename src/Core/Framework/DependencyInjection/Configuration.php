@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStagingNode())
                 ->append($this->createSystemConfigNode())
                 ->append($this->createMessengerSection())
+                ->append($this->createSearchSection())
             ->end();
 
         return $treeBuilder;
@@ -921,6 +922,19 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->scalarPrototype()->end()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSearchSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('search');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->integerNode('term_max_length')->defaultValue(300)->end()
             ->end();
 
         return $rootNode;

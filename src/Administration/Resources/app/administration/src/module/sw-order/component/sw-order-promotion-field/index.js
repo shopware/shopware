@@ -133,20 +133,26 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.orderLineItemRepository
-                .syncDeleted(this.automaticPromotions.map(promotion => promotion.id), this.versionContext)
-                .then(() => {
-                    this.automaticPromotions.forEach((promotion) => {
-                        this.createNotificationSuccess({
-                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
-                                promotion: promotion.label,
-                            }),
-                        });
+            const deletionPromises = [];
+
+            this.automaticPromotions.forEach((promotion) => {
+                deletionPromises.push(
+                    this.orderLineItemRepository.delete(promotion.id, this.versionContext),
+                );
+            });
+
+            return Promise.all(deletionPromises).then(() => {
+                this.automaticPromotions.forEach((promotion) => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-order.detailBase.textPromotionRemoved', 0, {
+                            promotion: promotion.label,
+                        }),
                     });
-                }).catch((error) => {
-                    this.$emit('loading-change', false);
-                    this.$emit('error', error);
                 });
+            }).catch((error) => {
+                this.$emit('loading-change', false);
+                this.$emit('error', error);
+            });
         },
 
         toggleAutomaticPromotions(state) {

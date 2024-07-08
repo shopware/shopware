@@ -72,6 +72,9 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
         $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `is_eu`');
     }
 
+    /**
+     * @return string[]
+     */
     private function getEuCountryCodes(): array
     {
         return [

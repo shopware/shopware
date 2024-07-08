@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -16,13 +17,13 @@ use Shopware\Core\Migration\V6_6\Migration1717601705AddIntraCommunityLabelDocume
 #[CoversClass(Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno::class)]
 class Migration1717601705AddIntraCommunityLabelDocumentConfigToStornoTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testDisplayAdditionalNoteDeliverySettingIsNotSetByDefault(): void
@@ -39,13 +40,14 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStornoTest extend
             ['technicalName' => 'storno']
         );
 
+        static::assertIsArray($documentBaseConfig);
         static::assertFalse(json_decode($documentBaseConfig['config'], true)['displayAdditionalNoteDelivery']);
-        $expected = [
+        $expected = json_encode([
             'foo' => 'bar',
             'displayAdditionalNoteDelivery' => false,
-        ];
+        ], \JSON_THROW_ON_ERROR);
 
-        static::assertJsonStringEqualsJsonString(json_encode($expected), $documentBaseConfig['config']);
+        static::assertJsonStringEqualsJsonString($expected, $documentBaseConfig['config']);
     }
 
     private function setDefaultStornoDocumentConfigValues(): void

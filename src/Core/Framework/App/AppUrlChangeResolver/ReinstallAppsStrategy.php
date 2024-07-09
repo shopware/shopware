@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -30,7 +30,7 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
     final public const STRATEGY_NAME = 'reinstall-apps';
 
     public function __construct(
-        AbstractAppLoader $appLoader,
+        AppLoader $appLoader,
         EntityRepository $appRepository,
         AppRegistrationService $registrationService,
         private readonly ShopIdProvider $shopIdProvider,

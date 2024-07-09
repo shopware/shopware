@@ -3,10 +3,9 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -16,6 +15,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * @package content
@@ -44,14 +45,19 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
-            $this->createAppLoader(),
+            new StaticSourceResolver([
+                'SwagExampleTest' => new StaticFilesystem(),
+            ]),
         );
 
         static::assertNull(
             $customEntityLifecycleService->updatePlugin(Uuid::randomHex(), 'not/given')
         );
+
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
+
         static::assertNull(
-            $customEntityLifecycleService->updateApp(Uuid::randomHex(), 'not/given')
+            $customEntityLifecycleService->updateApp($app)
         );
     }
 
@@ -74,7 +80,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
-            $this->createAppLoader(),
+            new StaticSourceResolver(),
         );
 
         $customEntityXmlSchema = $customEntityLifecycleService->updatePlugin(
@@ -105,13 +111,15 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
-            $this->createAppLoader(),
+            new StaticSourceResolver([
+                'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/app'),
+            ]),
         );
 
-        $schema = $customEntityLifecycleService->updateApp(
-            Uuid::randomHex(),
-            __DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/app'
-        );
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', 'id' => 'test']);
+
+        $schema = $customEntityLifecycleService->updateApp($app);
+
         static::assertInstanceOf(CustomEntityXmlSchema::class, $schema);
 
         $this->checkFieldsAndFlagsCount($schema);
@@ -136,7 +144,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
-            $this->createAppLoader(),
+            new StaticSourceResolver(),
         );
 
         $schema = $customEntityLifecycleService->updatePlugin(
@@ -167,13 +175,14 @@ class CustomEntityLifecycleServiceTest extends TestCase
             $customEntityEnrichmentService,
             $customEntityXmlSchemaValidator,
             '',
-            $this->createAppLoader(),
+            new StaticSourceResolver([
+                'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/app'),
+            ]),
         );
 
-        $schema = $customEntityLifecycleService->updateApp(
-            Uuid::randomHex(),
-            __DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/app'
-        );
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', 'id' => 'test']);
+
+        $schema = $customEntityLifecycleService->updateApp($app);
         static::assertInstanceOf(CustomEntityXmlSchema::class, $schema);
 
         $this->checkFieldsAndFlagsCount($schema, true);
@@ -212,27 +221,5 @@ class CustomEntityLifecycleServiceTest extends TestCase
                 fn (Entity $customEntity) => $customEntity->getName() === $ceName
             )
         )[0];
-    }
-
-    private function createAppLoader(): AbstractAppLoader&MockObject
-    {
-        $loader = $this->createMock(AppLoader::class);
-        $loader
-            ->method('locatePath')->willReturnCallback(static function (string $path, string $file) {
-                return $path . '/' . $file;
-            });
-
-        $loader
-            ->method('loadFile')->willReturnCallback(static function (string $path, string $file) {
-                $file = $path . '/' . $file;
-
-                if (!file_exists($file)) {
-                    return null;
-                }
-
-                return file_get_contents($file);
-            });
-
-        return $loader;
     }
 }

@@ -39,7 +39,7 @@ class ThemeLifecycleService
         private readonly EntityRepository $themeMediaRepository,
         private readonly FileSaver $fileSaver,
         private readonly FileNameProvider $fileNameProvider,
-        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
@@ -144,14 +144,16 @@ class ThemeLifecycleService
     /**
      * @return array<string, mixed>|null
      */
-    private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
+    private function createMediaStruct(StorefrontPluginConfiguration $pluginConfig, string $path, string $mediaId, ?string $themeFolderId): ?array
     {
-        $path = $this->themeFileImporter->getRealPath($path);
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
+        $path = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($path, $pluginConfig);
 
-        if (!$this->themeFileImporter->fileExists($path)) {
+        if (!$fs->hasFile($path)) {
             return null;
         }
 
+        $path = $fs->path($path);
         $pathinfo = pathinfo($path);
 
         return [
@@ -364,7 +366,7 @@ class ThemeLifecycleService
 
             $path = $pluginConfiguration->getPreviewMedia();
 
-            $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+            $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
             if ($mediaItem) {
                 $themeData['previewMediaId'] = $mediaId;
@@ -425,7 +427,7 @@ class ThemeLifecycleService
                     }
 
                     $mediaId = Uuid::randomHex();
-                    $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+                    $mediaItem = $this->createMediaStruct($pluginConfiguration, $path, $mediaId, $themeFolderId);
 
                     if (!$mediaItem) {
                         continue;

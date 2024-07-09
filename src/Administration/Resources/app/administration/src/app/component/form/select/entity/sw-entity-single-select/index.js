@@ -11,6 +11,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'search',

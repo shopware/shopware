@@ -4,7 +4,7 @@
 <mt-loader
     v-if="useMeteorComponent"
     v-bind="$attrs"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"
@@ -22,7 +22,7 @@
 <sw-loader-deprecated
     v-else
     v-bind="$attrs"
-    v-on="$listeners"
+    v-on="listeners"
 >
     <template
         v-for="(index, name) in getSlots()"

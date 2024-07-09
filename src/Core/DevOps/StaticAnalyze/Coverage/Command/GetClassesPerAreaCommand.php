@@ -33,19 +33,15 @@ class GetClassesPerAreaCommand extends Command
 
     public const NAMESPACE_PATTERN_DEFAULT = '#^Shopware\\\\(Core|Administration|Storefront|Elasticsearch)\\\\#';
 
-    private ClassLoader $classLoader;
-
     private string $nsPattern;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly string $projectDir,
+        private readonly ClassLoader $classLoader,
     ) {
         parent::__construct();
-
-        $this->classLoader = require $this->projectDir . '/vendor/autoload.php';
     }
 
     protected function configure(): void

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\KernelPluginLoader;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\InstalledVersions;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -15,6 +16,7 @@ use SwagTestComposerLoaded\SwagTestComposerLoaded;
  *
  * @phpstan-type ComposerPackages array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}
  */
+#[CoversClass(ComposerPluginLoader::class)]
 class ComposerPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -28,12 +30,6 @@ class ComposerPluginLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (
-            !method_exists(InstalledVersions::class, 'getInstalledPackagesByType')
-            || !method_exists(InstalledVersions::class, 'getInstallPath')
-        ) {
-            static::markTestSkipped('FallbackPluginLoader does only work with Composer 2.1 or higher');
-        }
         parent::setUp();
 
         $this->packages = InstalledVersions::getAllRawData()[0];
@@ -56,7 +52,7 @@ class ComposerPluginLoaderTest extends TestCase
         $modified[0]['versions'] = [];
         InstalledVersions::reload($modified[0]);
 
-        $loader = new ComposerPluginLoader($this->classLoader, null, []);
+        $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertEmpty($loader->getPluginInfos());
@@ -85,7 +81,7 @@ class ComposerPluginLoaderTest extends TestCase
 
         InstalledVersions::reload($modified);
 
-        $loader = new ComposerPluginLoader($this->classLoader, null, []);
+        $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         static::assertEmpty($loader->getPluginInfos());
@@ -94,8 +90,37 @@ class ComposerPluginLoaderTest extends TestCase
 
     public function testLoadsPlugins(): void
     {
+        $this->loadComposerLoadedPluginFixture();
+
+        $loader = new ComposerPluginLoader($this->classLoader, null);
+        $loader->initializePlugins(TEST_PROJECT_DIR);
+
+        static::assertNotEmpty($loader->getPluginInfos());
+        $entry = $loader->getPluginInfos()[0];
+
+        static::assertSame('SwagTestComposerLoaded', $entry['name']);
+        static::assertSame(SwagTestComposerLoaded::class, $entry['baseClass']);
+        static::assertTrue($entry['active']);
+    }
+
+    public function testFetchPluginInfos(): void
+    {
+        $this->loadComposerLoadedPluginFixture();
+
+        $loader = new ComposerPluginLoader($this->classLoader, null);
+        $plugins = $loader->fetchPluginInfos();
+
+        static::assertNotEmpty($plugins);
+
+        static::assertSame('SwagTestComposerLoaded', $plugins[0]['name']);
+        static::assertSame(SwagTestComposerLoaded::class, $plugins[0]['baseClass']);
+        static::assertTrue($plugins[0]['active']);
+    }
+
+    private function loadComposerLoadedPluginFixture(): void
+    {
         // We assume that the class can be found from the autoloader without modifying them
-        require_once __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded/src/SwagTestComposerLoaded.php';
+        require_once __DIR__ . '/../_fixtures/plugins/SwagTestComposerLoaded/src/SwagTestComposerLoaded.php';
 
         $packages = InstalledVersions::getAllRawData();
 
@@ -105,20 +130,10 @@ class ComposerPluginLoaderTest extends TestCase
             'swag/composer-loaded' => [
                 'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
-                'install_path' => __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded',
+                'install_path' => __DIR__ . '/../_fixtures/plugins/SwagTestComposerLoaded',
             ],
         ];
 
         InstalledVersions::reload($modified);
-
-        $loader = new ComposerPluginLoader($this->classLoader, null, []);
-        $loader->initializePlugins(TEST_PROJECT_DIR);
-
-        static::assertNotEmpty($loader->getPluginInfos());
-        $entry = $loader->getPluginInfos()[0];
-
-        static::assertSame('SwagTestComposerLoaded', $entry['name']);
-        static::assertSame(SwagTestComposerLoaded::class, $entry['baseClass']);
-        static::assertTrue($entry['active']);
     }
 }

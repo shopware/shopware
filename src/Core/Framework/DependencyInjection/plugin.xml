@@ -16,6 +16,11 @@
             <factory service="kernel" method="getPluginLoader" />
         </service>
 
+        <service id="Composer\Autoload\ClassLoader">
+            <factory service="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader" method="getClassLoader"/>
+        </service>
+
+
         <service id="Shopware\Core\Framework\Plugin\KernelPluginCollection" public="true">
             <factory service="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader" method="getPluginInstances"/>
         </service>
@@ -90,6 +95,10 @@
 
         <service id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>
 
+        <service id="Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader">
+            <argument type="service" id="Composer\Autoload\ClassLoader" />
+        </service>
+
         <!-- Commands -->
         <service id="Shopware\Core\Framework\Plugin\Command\PluginRefreshCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
@@ -99,7 +108,7 @@
 
         <service id="Shopware\Core\Framework\Plugin\Command\PluginListCommand">
             <argument type="service" id="plugin.repository"/>
-
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader"/>
             <tag name="console.command"/>
         </service>
 

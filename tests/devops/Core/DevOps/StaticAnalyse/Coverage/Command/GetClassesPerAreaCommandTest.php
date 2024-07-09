@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\Coverage\Command;
 
+use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -133,7 +134,9 @@ class GetClassesPerAreaCommandTest extends TestCase
      */
     private function runCommand(array $parameters): string
     {
-        $tester = new CommandTester(new GetClassesPerAreaCommand($_SERVER['PROJECT_ROOT']));
+        /** @var ClassLoader $classLoader */
+        $classLoader = $this->getContainer()->get('Composer\Autoload\ClassLoader');
+        $tester = new CommandTester(new GetClassesPerAreaCommand($classLoader));
 
         $tester->execute($parameters);
 

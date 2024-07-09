@@ -109,6 +109,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
+            State.commit('context/setLanguageId', localStorage.getItem('sw-admin-current-language')
+                || Shopware.Defaults.systemLanguageId);
             void this.$router.push({ name: 'sw.order.detail', params: { id: this.orderId } });
         },
 

@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         selection: {
             type: Object,
@@ -49,6 +51,15 @@ Component.register('sw-bulk-edit-modal', {
 
         paginateRecords() {
             return this.records.slice((this.page - 1) * this.limit, this.page * this.limit);
+        },
+
+        getSlots() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots;
+            }
+
+            return this.$slots;
         },
     },
 

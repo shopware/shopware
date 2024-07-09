@@ -285,10 +285,9 @@ export default {
         },
 
         openSectionSettings(sectionIndex) {
-            this.$refs.pageConfigSidebar.openContent();
-            this.$nextTick(() => {
-                this.$refs.sectionConfigSidebar[sectionIndex].collapseItem();
-            });
+            Shopware.Store.get('cmsPageState').setSection(this.page.sections[sectionIndex]);
+
+            this.$refs.itemConfigSidebar.openContent();
         },
 
         blockIsRemovable(block) {

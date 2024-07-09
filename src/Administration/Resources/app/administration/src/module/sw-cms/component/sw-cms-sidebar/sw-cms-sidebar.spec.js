@@ -52,6 +52,18 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                 },
             },
         }),
+        actions: {
+            setSelectedSection(section) {
+                this.selectedSection = section;
+            },
+            removeSelectedBlock() {
+                this.selectedBlock = null;
+            },
+            setSection(section) {
+                this.removeSelectedBlock();
+                this.setSelectedSection(section);
+            },
+        },
     });
 
     return mount(await wrapTestComponent('sw-cms-sidebar', {
@@ -125,6 +137,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                 'sw-sidebar-item': {
                     template: '<div class="sw-sidebar-item"><slot #default /></div>',
                     props: ['disabled'],
+                    methods: {
+                        openContent() {
+                            this.isActive = true;
+                        },
+                    },
                 },
                 'sw-sidebar-collapse': {
                     template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
@@ -616,5 +633,19 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         };
 
         expect(JSON.parse(JSON.stringify(wrapper.vm.page.sections[0].blocks[0]))).toStrictEqual(expectedData);
+    });
+
+    it('should open section settings when clicking settings in section context menu', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeFalsy();
+        expect(wrapper.vm.selectedSection.id).toBe('1111');
+
+        wrapper.findComponent('#sw-cms-sidebar__section-2222 .sw-cms-sidebar__navigator-section-settings')
+            .vm
+            .$emit('click');
+
+        expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
+        expect(wrapper.vm.selectedSection.id).toBe('2222');
     });
 });

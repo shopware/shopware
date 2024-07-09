@@ -14,6 +14,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'item-selected',

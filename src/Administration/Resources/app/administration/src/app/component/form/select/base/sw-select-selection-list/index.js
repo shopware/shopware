@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-select-selection-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

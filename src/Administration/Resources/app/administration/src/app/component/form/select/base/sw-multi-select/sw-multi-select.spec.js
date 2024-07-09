@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -24,6 +25,12 @@ const createMultiSelect = async (customOptions) => {
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'mt-floating-ui': true,
+                'sw-color-badge': true,
             },
         },
         props: {

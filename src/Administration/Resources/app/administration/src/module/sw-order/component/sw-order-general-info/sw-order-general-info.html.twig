@@ -132,7 +132,7 @@
                 :transition-options="deliveryStateOptions"
                 state-type="order_delivery"
                 rounded-style
-                :placeholder="delivery.stateMachineState.translated.name"
+                :placeholder="delivery.stateMachineState?.translated.name"
                 :label="$tc('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
                 :disabled="!acl.can('order.editor')"
@@ -153,7 +153,7 @@
                 :transition-options="orderStateOptions"
                 rounded-style
                 state-type="order"
-                :placeholder="order.stateMachineState.translated.name"
+                :placeholder="order.stateMachineState?.translated.name"
                 :label="$tc('sw-order.stateCard.headlineOrderState')"
                 :background-style="backgroundStyle('order')"
                 :disabled="!acl.can('order.editor')"

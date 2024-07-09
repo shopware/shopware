@@ -27,8 +27,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-1000" public="true">
@@ -103,8 +103,18 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\Subscriber\NavigationRouteValidateSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\CategoryService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="sales_channel.category.repository"/>
         </service>
     </services>
 </container>

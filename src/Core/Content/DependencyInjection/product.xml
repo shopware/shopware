@@ -314,6 +314,8 @@
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.search.term_max_length%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>

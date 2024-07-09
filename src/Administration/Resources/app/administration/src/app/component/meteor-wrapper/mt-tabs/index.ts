@@ -20,6 +20,8 @@ MtTabs.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(
 Shopware.Component.register('mt-tabs', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-tabs-original': MtTabs,
@@ -57,6 +59,15 @@ Shopware.Component.register('mt-tabs', {
             ];
 
             return mergedItems;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 });

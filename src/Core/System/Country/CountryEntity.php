@@ -122,6 +122,8 @@ class CountryEntity extends Entity
 
     protected bool $postalCodeRequired;
 
+    protected bool $isEu;
+
     protected bool $checkPostalCodePattern;
 
     protected bool $checkAdvancedPostalCodePattern;
@@ -409,5 +411,15 @@ class CountryEntity extends Entity
     public function getDefaultPostalCodePattern(): ?string
     {
         return $this->defaultPostalCodePattern;
+    }
+
+    public function getIsEu(): bool
+    {
+        return $this->isEu;
+    }
+
+    public function setIsEu(bool $isEu): void
+    {
+        $this->isEu = $isEu;
     }
 }

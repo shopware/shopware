@@ -272,6 +272,7 @@
     "country.advancedPostalCodePattern",
     "country.addressFormat",
     "country.defaultPostalCodePattern",
+    "country.isEu",
     "country.states",
     "country.translations",
     "country.createdAt",

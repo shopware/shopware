@@ -260,6 +260,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.shippingMethod.deliveryTime.id',
             'salesChannel.shippingMethod.translations.DEFAULT.name',
             'salesChannel.country.id',
+            'salesChannel.country.isEu',
             'salesChannel.country.translations.DEFAULT.name',
             'salesChannel.country.translations.DEFAULT.addressFormat',
             'salesChannel.navigationCategory.id',

@@ -35,12 +35,12 @@ class ScriptPersister
         $existingScripts = $app->getScripts();
         \assert($existingScripts !== null);
 
-        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app->getPath());
+        $scriptPaths = $this->scriptReader->getScriptPathsForApp($app);
 
         $upserts = [];
         foreach ($scriptPaths as $scriptPath) {
             $payload = [
-                'script' => $this->scriptReader->getScriptContent($scriptPath, $app->getPath()),
+                'script' => $this->scriptReader->getScriptContent($app, $scriptPath),
             ];
 
             $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();

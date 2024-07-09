@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
+use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -64,11 +64,13 @@ class ConfigurationServiceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Expected domain');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
@@ -81,11 +83,13 @@ class ConfigurationServiceTest extends TestCase
     {
         $this->expectException(ConfigurationNotFoundException::class);
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
@@ -219,13 +223,15 @@ class ConfigurationServiceTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppLoader::class),
-            new StaticEntityRepository([new AppCollection()]),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
             new StaticSystemConfigService([])
         );
 
@@ -277,7 +283,7 @@ class ConfigurationServiceTest extends TestCase
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
-            $this->createMock(AppLoader::class),
+            $this->createMock(AppConfigReader::class),
             new StaticEntityRepository([new AppCollection()]),
             new StaticSystemConfigService(['SwagExampleTest.email' => 'foo'])
         );
@@ -297,18 +303,21 @@ class ConfigurationServiceTest extends TestCase
      */
     public function getConfiguration(array $config): array
     {
-        $appLoader = $this->createMock(AppLoader::class);
-        $appLoader->method('getConfiguration')->willReturn($config);
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
 
-        $appCollection = new AppCollection([(new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test'])]);
+        $appConfigReader = $this->createMock(AppConfigReader::class);
+        $appConfigReader->method('read')->with($app)->willReturn($config);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection([$app]),
+            new AppCollection([$app]),
+        ]);
         $configService = new ConfigurationService(
             [],
             new ConfigReader(),
-            $appLoader,
-            new StaticEntityRepository([
-                $appCollection,
-                $appCollection,
-            ]),
+            $appConfigReader,
+            $appRepository,
             new StaticSystemConfigService([])
         );
 

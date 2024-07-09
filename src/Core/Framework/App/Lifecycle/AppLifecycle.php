@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
+use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -38,6 +40,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -56,6 +59,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -83,7 +87,6 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly TaxProviderPersister $taxProviderPersister,
         private readonly RuleConditionPersister $ruleConditionPersister,
         private readonly CmsBlockPersister $cmsBlockPersister,
-        private readonly AbstractAppLoader $appLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -104,7 +107,9 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly FlowEventPersister $flowEventPersister,
         private readonly string $env,
         private readonly ShippingMethodPersister $shippingMethodPersister,
-        private readonly EntityRepository $customEntityRepository
+        private readonly EntityRepository $customEntityRepository,
+        private readonly SourceResolver $sourceResolver,
+        private readonly ConfigReader $configReader
     ) {
     }
 
@@ -195,16 +200,18 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->getIcon($manifest);
         $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
-        $metadata['baseAppUrl'] = $manifest->getAdmin() !== null ? $manifest->getAdmin()->getBaseAppUrl() : null;
+        $metadata['baseAppUrl'] = $manifest->getAdmin()?->getBaseAppUrl();
         $metadata['allowedHosts'] = $manifest->getAllHosts();
         $metadata['templateLoadPriority'] = $manifest->getStorefront() ? $manifest->getStorefront()->getTemplateLoadPriority() : 0;
         $metadata['checkoutGatewayUrl'] = $manifest->getGateways()?->getCheckout()?->getUrl();
+        $metadata['sourceType'] = $manifest->getSourceType() ?? $this->sourceResolver->resolveSourceType($manifest);
+        $metadata['sourceConfig'] = $manifest->getSourceConfig();
 
         $this->updateMetadata($metadata, $context);
 
         $app = $this->loadApp($id, $context);
 
-        $this->updateCustomEntities($app->getId(), $app->getPath(), $manifest);
+        $this->updateCustomEntities($app, $manifest);
 
         $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
 
@@ -231,10 +238,10 @@ class AppLifecycle extends AbstractAppLifecycle
             throw $e;
         }
 
-        $flowActions = $this->appLoader->getFlowActions($app);
+        $flowActions = $this->getFlowActions($app);
 
         if ($flowActions) {
-            $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context, $defaultLocale);
+            $this->flowBuilderActionPersister->updateActions($app, $flowActions, $context, $defaultLocale);
         }
 
         $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
@@ -242,7 +249,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
         });
 
-        $flowEvents = $this->appLoader->getFlowEvents($app);
+        $flowEvents = $this->getFlowEvents($app);
 
         if ($flowEvents) {
             $this->flowEventPersister->updateEvents($flowEvents, $id, $context, $defaultLocale);
@@ -266,7 +273,8 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
-        $cmsExtensions = $this->appLoader->getCmsExtensions($app);
+        $cmsExtensions = $this->getCmsExtensions($app);
+
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
         }
@@ -280,11 +288,77 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // updates the snippets if the administration bundle is available
         if ($this->appAdministrationSnippetPersister !== null) {
-            $snippets = $this->appLoader->getSnippets($app);
+            $snippets = $this->getSnippets($app);
             $this->appAdministrationSnippetPersister->updateSnippets($app, $snippets, $context);
         }
 
         return $app;
+    }
+
+    private function getCmsExtensions(AppEntity $app): ?CmsManifest
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/cms.xml')) {
+            return null;
+        }
+
+        return CmsManifest::createFromXmlFile($fs->path('Resources/cms.xml'));
+    }
+
+    private function getFlowEvents(AppEntity $app): ?Event
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/flow.xml')) {
+            return null;
+        }
+
+        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
+    }
+
+    private function getFlowActions(AppEntity $app): ?Action
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/flow.xml')) {
+            return null;
+        }
+
+        return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getSnippets(AppEntity $app): array
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/app/administration/snippet')) {
+            return [];
+        }
+
+        $snippets = [];
+        foreach ($fs->findFiles('*.json', 'Resources/app/administration/snippet') as $file) {
+            $snippets[$file->getFilenameWithoutExtension()] = $file->getContents();
+        }
+
+        return $snippets;
+    }
+
+    /**
+     * @return array<array<string, mixed>>|null
+     */
+    private function getAppConfig(AppEntity $app): ?array
+    {
+        $fs = $this->sourceResolver->filesystemForApp($app);
+
+        if (!$fs->has('Resources/config/config.xml')) {
+            return null;
+        }
+
+        return $this->configReader->read($fs->path('Resources/config/config.xml'));
     }
 
     private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false, bool $softDelete = false): void
@@ -296,7 +370,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete, $keepUserData): void {
             if (!$keepUserData) {
-                $config = $this->appLoader->getConfiguration($app);
+                $config = $this->getAppConfig($app);
 
                 if ($config) {
                     $this->systemConfigService->deleteExtensionConfiguration($app->getName(), $config);
@@ -504,9 +578,9 @@ class AppLifecycle extends AbstractAppLifecycle
         }
     }
 
-    private function updateCustomEntities(string $appId, string $appPath, Manifest $manifest): void
+    private function updateCustomEntities(AppEntity $app, Manifest $manifest): void
     {
-        $entities = $this->customEntityLifecycleService->updateApp($appId, $appPath)?->getEntities()?->getEntities();
+        $entities = $this->customEntityLifecycleService->updateApp($app)?->getEntities()?->getEntities();
 
         foreach ($entities ?? [] as $entity) {
             $manifest->addPermissions([
@@ -522,8 +596,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private function handleConfigUpdates(AppEntity $app, Manifest $manifest, bool $install, Context $context): bool
     {
-        $config = $this->appLoader->getConfiguration($app);
-        if (!$config) {
+        $config = $this->getAppConfig($app);
+
+        if ($config === null) {
             return false;
         }
 
@@ -609,7 +684,9 @@ class AppLifecycle extends AbstractAppLifecycle
             return null;
         }
 
-        return $this->appLoader->loadFile($manifest->getPath(), $iconPath);
+        $fs = $this->sourceResolver->filesystemForManifest($manifest);
+
+        return $fs->has($iconPath) ? $fs->read($iconPath) : null;
     }
 
     /**

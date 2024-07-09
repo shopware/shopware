@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as DALEntity;
@@ -89,6 +90,11 @@ class CustomEntityTest extends TestCase
         'payload' => ['foo' => 'Bar'],
         'email' => 'test@test.com',
     ];
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
+    }
 
     #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
@@ -200,11 +206,9 @@ class CustomEntityTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
 
-        $container = KernelLifecycleManager::bootKernel()->getContainer();
-
         $this->testAllowDisable(true);
 
-        self::cleanUp($container);
+        self::cleanUp($this->getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void

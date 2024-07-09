@@ -75,6 +75,7 @@ class AppDefinition extends EntityDefinition
             'cookies' => [],
             'allowedHosts' => [],
             'templateLoadPriority' => 0,
+            'sourceType' => 'local',
         ];
     }
 
@@ -107,6 +108,8 @@ class AppDefinition extends EntityDefinition
             new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
             new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
+            new StringField('source_type', 'sourceType'),
+            new JsonField('source_config', 'sourceConfig'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

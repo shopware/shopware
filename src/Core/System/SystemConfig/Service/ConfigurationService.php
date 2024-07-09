@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SystemConfig\Service;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,7 +27,7 @@ class ConfigurationService
     public function __construct(
         private readonly iterable $bundles,
         private readonly ConfigReader $configReader,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppConfigReader $appConfigReader,
         private readonly EntityRepository $appRepository,
         private readonly SystemConfigService $systemConfigService
     ) {
@@ -138,11 +137,8 @@ class ConfigurationService
         }
 
         $app = $this->getAppByName($technicalName, $context);
-        if ($app) {
-            return $this->appLoader->getConfiguration($app);
-        }
 
-        return null;
+        return $app ? $this->appConfigReader->read($app) : null;
     }
 
     private function getAppByName(string $name, Context $context): ?AppEntity

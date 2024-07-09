@@ -295,7 +295,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                 ],
-                'stateId' => $this->fetchFirstIdFromTable('state_machine'),
+                'stateId' => $this->fetchFirstIdFromTable('state_machine_state'),
                 'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,

@@ -76,4 +76,18 @@ class DynamicEntityDefinition extends EntityDefinition
 
         return $collection;
     }
+
+    public function getDefaults(): array
+    {
+        $values = [];
+        foreach ($this->fieldDefinitions as $fieldDefinition) {
+            if (!isset($fieldDefinition['default'])) {
+                continue;
+            }
+
+            $values[$fieldDefinition['name']] = $fieldDefinition['default'];
+        }
+
+        return $values;
+    }
 }

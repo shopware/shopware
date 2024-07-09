@@ -331,6 +331,41 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         expect(wrapper.vm.$route.path).toBe('/confirm');
     });
 
+    it('should create new instance for bulk handler', async () => {
+        wrapper = await createWrapper();
+        const bulkEditMock = jest.fn();
+        wrapper.vm.bulkEditApiFactory.getHandler = jest.fn(() => ({
+            bulkEdit: bulkEditMock,
+        }));
+
+        await flushPromises();
+
+        const tagsCard = wrapper.find('.sw-bulk-edit-customer-base__tags');
+        expect(tagsCard.exists()).toBeTruthy();
+
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await flushPromises();
+
+        Shopware.State.commit('shopwareApps/setSelectedIds', new Array(100).fill(1));
+
+        await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        await footerRight.find('button').trigger('click');
+
+        await flushPromises();
+
+        // Check if getHandler was called with 'customer'
+        expect(wrapper.vm.bulkEditApiFactory.getHandler).toHaveBeenCalledWith('customer');
+
+        // Check if bulkEdit was called twice (once for each payload chunk)
+        expect(bulkEditMock).toHaveBeenCalledTimes(2);
+    });
+
     it('should close confirm modal', async () => {
         wrapper = await createWrapper();
         await flushPromises();

@@ -286,7 +286,7 @@ export default {
 
             payloadChunks.forEach(payload => {
                 if (syncData.length) {
-                    requests.push(bulkEditCustomerHandler.bulkEdit(payload, syncData));
+                    requests.push(this.bulkEditApiFactory.getHandler('customer').bulkEdit(payload, syncData));
                 }
             });
 

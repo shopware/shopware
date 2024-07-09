@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-app-app-url-changed-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['appUrlChangeService'],
 
     mixins: [Shopware.Mixin.getByName('notification')],

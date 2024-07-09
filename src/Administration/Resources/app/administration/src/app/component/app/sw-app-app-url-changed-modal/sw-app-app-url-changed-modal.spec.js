@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -58,10 +59,9 @@ describe('sw-app-app-url-changed-modal', () => {
                         <slot name="modal-body">
                              <slot></slot>
                         </slot>
-                        <slot name="modal-footer>
+                        <slot name="modal-footer">
                         </slot>
-                    </div>
-                `,
+                    </div>`,
             },
             'sw-button': await wrapTestComponent('sw-button'),
             'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
@@ -76,6 +76,8 @@ describe('sw-app-app-url-changed-modal', () => {
             'icons-regular-times-s': {
                 template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
             },
+            'mt-button': true,
+            'router-link': true,
         };
     });
 

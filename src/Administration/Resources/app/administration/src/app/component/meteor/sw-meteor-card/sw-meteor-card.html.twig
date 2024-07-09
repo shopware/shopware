@@ -65,7 +65,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_tabs %}
         <sw-tabs
-            v-if="!!$slots.tabs || !!$scopedSlots.tabs"
+            v-if="hasTabs"
             position-identifier="sw-meteor-card"
             :small="false"
             :default-item="defaultTab"
@@ -83,13 +83,13 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_card_content %}
     <div
-        v-if="!!$slots.default || !!$scopedSlots.default || !!$slots.grid"
+        v-if="hasContent"
         class="sw-meteor-card__content"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_card_content_wrapper %}
         <div
-            v-if="!!$slots.default || !!$scopedSlots.default"
+            v-if="hasDefaultSlot"
             class="sw-meteor-card__content-wrapper"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -3601,11 +3601,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Exception/PluginComposerJsonInvalidException.php
 
 		-
-			message: "#^Call to function method_exists\\(\\) with 'Composer\\\\\\\\InstalledVersions' and 'getInstalledPackage…' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/ComposerPluginLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\StaticKernelPluginLoader\\:\\:__construct\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
@@ -4665,15 +4660,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationSourceTest.php
 
-		-
-			message: "#^Call to function method_exists\\(\\) with 'Composer\\\\\\\\InstalledVersions' and 'getInstalledPackage…' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\DependencyInjection\\\\Definition will always evaluate to true\\.$#"

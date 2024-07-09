@@ -233,6 +233,7 @@ parameters:
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
+                - tests/integration/Core/Framework/Plugin/_fixtures/*
 
         - # Hard to fix, as no proper var annotation could be used within the while loop
             message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"

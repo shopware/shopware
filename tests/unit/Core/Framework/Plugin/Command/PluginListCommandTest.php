@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Command;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -17,9 +19,12 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[CoversClass(PluginListCommand::class)]
 class PluginListCommandTest extends TestCase
 {
     private MockObject&EntityRepository $pluginRepoMock;
+
+    private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
 
     private PluginListCommand $command;
 
@@ -27,17 +32,21 @@ class PluginListCommandTest extends TestCase
     {
         parent::setUp();
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
-        $this->command = new PluginListCommand($this->pluginRepoMock);
+        $this->composerPluginLoaderMock = $this->createMock(ComposerPluginLoader::class);
+
+        $this->command = new PluginListCommand($this->pluginRepoMock, $this->composerPluginLoaderMock);
     }
 
     public function testCommand(): void
     {
         $plugin1 = new PluginEntity();
         $plugin2 = new PluginEntity();
+        $plugin3 = new PluginEntity();
 
         $entities = [
             $plugin1,
             $plugin2,
+            $plugin3,
         ];
 
         $plugin1->setUniqueIdentifier('1');
@@ -62,12 +71,37 @@ class PluginListCommandTest extends TestCase
             'author' => 'Shopware AG',
         ]);
 
+        $plugin3->setUniqueIdentifier('3');
+        $plugin3->assign([
+            'active' => false,
+            'installedAt' => new \DateTimeImmutable('2024-07-05T00:00:00.000001Z'),
+            'upgradeVersion' => '1.0.0',
+            'composerName' => 'shopware/test-plugin',
+            'name' => 'Shopware Test',
+            'label' => 'SMP',
+            'version' => '0.7.12',
+            'author' => 'Shopware AG',
+        ]);
+
         $this->setupEntityCollection($entities);
+
+        $this->setupComposerPluginLoaderMock([
+            [
+                'composerName' => 'shopware/test-plugin',
+                'name' => 'Shopware Test',
+                'version' => '0.7.12',
+            ],
+            [
+                'composerName' => 'somevendor/payment',
+                'name' => 'Somevendor Payment',
+                'version' => '1.0.7',
+            ],
+        ]);
 
         $commandTester = $this->executeCommand([]);
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringEqualsFile(
-            __DIR__ . '/../_assertion/PluginListCommandTest-testCommand.txt',
+            __DIR__ . '/../_assertions/PluginListCommandTest-testCommand.txt',
             implode("\n", array_map('trim', explode("\n", trim($commandTester->getDisplay())))) . "\n"
         );
     }
@@ -152,5 +186,13 @@ class PluginListCommandTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new PluginCollection($entities));
         $this->pluginRepoMock->method('search')->willReturn($result);
+    }
+
+    /**
+     * @param array<array<string, mixed>> $packages
+     */
+    private function setupComposerPluginLoaderMock(array $packages): void
+    {
+        $this->composerPluginLoaderMock->method('fetchPluginInfos')->willReturn($packages);
     }
 }

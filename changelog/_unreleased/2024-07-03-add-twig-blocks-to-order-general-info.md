@@ -1,5 +1,6 @@
 ---
 title: Add twig blocks to sw-order-create-general-info.html.twig
+issue: NEXT-37145
 author: Jörg Lautenschlager
 author_email: joerg.lautenschlager@gmail.com
 author_github: @jlaute

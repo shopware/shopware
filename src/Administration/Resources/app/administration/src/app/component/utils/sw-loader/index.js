@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-loader', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         modelValue: {
             type: String,

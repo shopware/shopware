@@ -39,6 +39,8 @@ const { Component } = Shopware;
 Component.register('sw-inherit-wrapper', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

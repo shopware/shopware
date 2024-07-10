@@ -30,6 +30,12 @@ const { Component } = Shopware;
 Component.register('sw-step-display', {
     template,
 
+    provide() {
+        return {
+            addStep: this.addStep,
+        };
+    },
+
     props: {
         itemIndex: {
             type: Number,

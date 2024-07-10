@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-skeleton-bar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major

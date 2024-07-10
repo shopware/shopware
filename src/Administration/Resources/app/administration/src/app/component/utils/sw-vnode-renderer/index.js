@@ -15,6 +15,9 @@ Component.register('sw-vnode-renderer', {
 
         return {};
     })(),
+
+    compatConfig: Shopware.compatConfig,
+
     render(firstArgument, secondArgument) {
         const h = firstArgument;
 
@@ -28,6 +31,7 @@ Component.register('sw-vnode-renderer', {
         // Vue3 syntax
         return this.node;
     },
+
     props: {
         node: {
             type: Object,

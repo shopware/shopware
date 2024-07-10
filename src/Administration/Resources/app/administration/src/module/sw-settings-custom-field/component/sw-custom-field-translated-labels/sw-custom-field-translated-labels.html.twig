@@ -52,7 +52,7 @@
             <!-- eslint-disable vue/no-use-v-if-with-v-for -->
             <div
                 v-for="locale in locales"
-                v-if="active === locale"
+                v-show="active === locale"
                 :key="locale"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

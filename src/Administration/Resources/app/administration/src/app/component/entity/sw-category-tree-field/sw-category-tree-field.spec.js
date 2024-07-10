@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -70,6 +71,12 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-label': true,
                 'sw-icon': true,
+                'sw-tree-item': true,
+                'sw-checkbox-field': true,
+                'sw-highlight-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-tree': await wrapTestComponent('sw-tree'),
             },

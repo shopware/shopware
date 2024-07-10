@@ -48,18 +48,38 @@ export default {
                 return defaultSearchPreferences;
             }
 
-            return defaultSearchPreferences.reduce((accumulator, currentValue) => {
-                let value = this.userSearchPreferences.find((item) => {
-                    return Object.keys(item)[0] === Object.keys(currentValue)[0];
-                });
-                if (value) {
-                    value = Shopware.Utils.object.deepMergeObject(currentValue, value);
+            const mergedPreferences = [];
+
+            defaultSearchPreferences.forEach(defaultPref => {
+                const prefKey = Object.keys(defaultPref)[0];
+                const userPref = this.userSearchPreferences.find(item => Object.keys(item)[0] === prefKey);
+
+                if (!userPref) {
+                    mergedPreferences.push(defaultPref);
+                    return;
                 }
 
-                accumulator.push(value || currentValue);
+                const userPrefValue = userPref[prefKey];
+                const defaultPrefValue = defaultPref[prefKey];
 
-                return accumulator;
-            }, []);
+                // Merge values from default into user preferences
+                Object.keys(defaultPrefValue).forEach(prop => {
+                    if (!userPrefValue.hasOwnProperty(prop)) {
+                        userPrefValue[prop] = defaultPrefValue[prop];
+                    }
+                });
+
+                // Remove values from user preferences that are not in default
+                Object.keys(userPrefValue).forEach(prop => {
+                    if (!defaultPrefValue.hasOwnProperty(prop)) {
+                        delete userPrefValue[prop];
+                    }
+                });
+
+                mergedPreferences.push({ [prefKey]: userPrefValue });
+            });
+
+            return mergedPreferences;
         },
 
         adminEsEnable() {

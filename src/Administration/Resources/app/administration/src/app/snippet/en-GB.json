@@ -769,7 +769,7 @@
         "lineItemDimensionWeightRule": "Item with weight",
         "lineItemDimensionVolumeRule": "Item with volume",
         "lineItemListPriceRule": "Item with list price",
-        "lineItemListPriceRatioRule": "Item with price/list price percentage ratio",
+        "lineItemListPriceRatioRule": "Item with price/list price ratio",
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",

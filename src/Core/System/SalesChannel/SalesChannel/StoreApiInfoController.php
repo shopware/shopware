@@ -4,6 +4,8 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
@@ -17,6 +19,8 @@ use Twig\Environment;
 #[Package('buyers-experience')]
 class StoreApiInfoController
 {
+    private const API_SCOPE_STORE = 'store-api';
+
     /**
      * @internal
      *
@@ -25,7 +29,8 @@ class StoreApiInfoController
     public function __construct(
         protected DefinitionService $definitionService,
         private readonly Environment $twig,
-        private readonly array $cspTemplates
+        private readonly array $cspTemplates,
+        private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
     ) {
     }
 
@@ -103,5 +108,16 @@ class StoreApiInfoController
         }
 
         return $response;
+    }
+
+    #[Route(path: '/store-api/_info/routes', name: 'store-api.info.routes', methods: ['GET'], defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'])]
+    public function getRoutes(): JsonResponse
+    {
+        $endpoints = array_map(
+            fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
+            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_STORE)
+        );
+
+        return new JsonResponse(['endpoints' => $endpoints]);
     }
 }

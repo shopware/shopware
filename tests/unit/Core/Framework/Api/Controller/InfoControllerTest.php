@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -142,7 +143,8 @@ class InfoControllerTest extends TestCase
             $this->createMock(AppUrlVerifier::class),
             $this->routerMock,
             $this->createMock(FlowActionCollector::class),
-            new StaticSystemConfigService()
+            new StaticSystemConfigService(),
+            $this->createMock(ApiRouteInfoResolver::class)
         );
     }
 }

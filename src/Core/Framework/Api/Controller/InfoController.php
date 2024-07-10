@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -35,6 +37,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('core')]
 class InfoController extends AbstractController
 {
+    private const API_SCOPE_ADMIN = 'api';
+
     /**
      * @internal
      */
@@ -49,7 +53,8 @@ class InfoController extends AbstractController
         private readonly AppUrlVerifier $appUrlVerifier,
         private readonly RouterInterface $router,
         private readonly FlowActionCollector $flowActionCollector,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ApiRouteInfoResolver $apiRouteInfoResolver
     ) {
     }
 
@@ -202,6 +207,17 @@ class InfoController extends AbstractController
     public function flowActions(Context $context): JsonResponse
     {
         return new JsonResponse($this->flowActionCollector->collect($context));
+    }
+
+    #[Route(path: '/api/_info/routes', name: 'api.info.routes', methods: ['GET'], defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'])]
+    public function getRoutes(): JsonResponse
+    {
+        $endpoints = array_map(
+            fn (RouteInfo $endpoint) => ['path' => $endpoint->path, 'methods' => $endpoint->methods],
+            $this->apiRouteInfoResolver->getApiRoutes(self::API_SCOPE_ADMIN)
+        );
+
+        return new JsonResponse(['endpoints' => $endpoints]);
     }
 
     /**

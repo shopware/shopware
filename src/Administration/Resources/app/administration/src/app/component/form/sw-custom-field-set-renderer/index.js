@@ -190,18 +190,13 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         initializeCustomFields() {
-            if (!this.entity.customFields && !this.entity.translated?.customFields) {
+            if (!this.entity.customFields) {
                 return;
             }
 
-            console.log(this.entity.translated);
+            this.customFields = this.entity.customFields;
 
-            // Check if translated custom fields are available
-            if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
-                return;
-            }
-
-            this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
+            console.log(this.customFields);
         },
 
         getInheritedCustomField(customFieldName) {

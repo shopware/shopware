@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package system-settings
- *
  * @phpstan-type VersionFixedVulnerabilities array{severity: string, summary: string, link: string}
  */
 #[Package('system-settings')]

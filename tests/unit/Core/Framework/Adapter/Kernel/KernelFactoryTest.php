@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 
 /**
@@ -26,12 +27,12 @@ class KernelFactoryTest extends TestCase
 
         $_SERVER['argv'][] = '--profile';
 
-        /** @var \Shopware\Core\Kernel $kernel */
         $kernel = KernelFactory::create(
             'dev',
             true,
             new ClassLoader(),
         );
+        static::assertInstanceOf(Kernel::class, $kernel);
 
         $middlewares = array_map(
             fn (Middleware $middleware) => $middleware::class,

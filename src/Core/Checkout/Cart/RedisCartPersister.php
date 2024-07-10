@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
@@ -18,7 +20,7 @@ class RedisCartPersister extends AbstractCartPersister
     final public const PREFIX = 'cart-persister-';
 
     /**
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
      *
      * @internal
      *

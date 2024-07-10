@@ -44,7 +44,7 @@ abstract class AbstractDocumentRenderer
     }
 
     /**
-     * @param  array<string, mixed> $config
+     * @param array<string, mixed> $config
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {

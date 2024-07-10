@@ -9,8 +9,6 @@ use Shopware\Elasticsearch\Admin\ElasticsearchAdminException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package system-settings
- *
  * @internal
  */
 #[Package('system-settings')]

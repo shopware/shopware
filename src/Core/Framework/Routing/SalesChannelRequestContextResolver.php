@@ -13,7 +13,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 #[Package('core')]
 class SalesChannelRequestContextResolver implements RequestContextResolverInterface
@@ -31,7 +30,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     ) {
     }
 
-    public function resolve(SymfonyRequest $request): void
+    public function resolve(Request $request): void
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             $this->decorated->resolve($request);

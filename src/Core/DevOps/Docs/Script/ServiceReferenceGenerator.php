@@ -7,6 +7,7 @@ use phpDocumentor\Reflection\DocBlock\Description;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\DocBlock\Tags\Example;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
+use phpDocumentor\Reflection\DocBlock\Tags\InvalidTag;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
@@ -380,7 +381,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $tag = $docBlock->getTagsByName('param')[0] ?? null;
 
-        if (!$tag instanceof DocBlock\Tags\InvalidTag) {
+        if (!$tag instanceof InvalidTag) {
             return null;
         }
 

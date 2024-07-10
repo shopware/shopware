@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Defaults;
@@ -31,7 +33,7 @@ class CartMigrateCommand extends Command
     /**
      * @internal
      *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay|null $redis
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay|null $redis
      *
      * @phpstan-ignore-next-line param cannot be natively typed, as symfony might change the type in the future
      */

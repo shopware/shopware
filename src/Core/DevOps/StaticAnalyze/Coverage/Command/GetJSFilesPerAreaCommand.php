@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
@@ -93,7 +94,7 @@ class GetJSFilesPerAreaCommand extends Command
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         /**
          * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator> $files
-         * @var \Symfony\Component\Finder\SplFileInfo $file
+         * @var SplFileInfo                                             $file
          */
         foreach ($files as $file) {
             $fileName = $file->getFilename();

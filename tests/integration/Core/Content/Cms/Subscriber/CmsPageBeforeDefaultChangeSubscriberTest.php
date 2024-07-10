@@ -20,8 +20,6 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @package content
  */
 #[Package('buyers-experience')]
 #[CoversClass(CmsPageDefaultChangeSubscriber::class)]

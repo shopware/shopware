@@ -7,6 +7,8 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -41,10 +43,9 @@ return final
 LUA;
 
     /**
-     * @param string[] $hosts
-     * param cannot be natively typed, as symfony might change the type in the future
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
-     * @param array{'method': string, 'headers': array<string, string>} $singlePurge
+     * @param string[]                                                                         $hosts
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay                           $redis       Cannot be natively typed, as symfony might change the type in the future
+     * @param array{'method': string, 'headers': array<string, string>}                        $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
     public function __construct(

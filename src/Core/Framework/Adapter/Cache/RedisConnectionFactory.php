@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
@@ -17,7 +19,7 @@ class RedisConnectionFactory
     /**
      * This static variable is not reset on purpose, as we may reuse existing redis connections over multiple requests
      *
-     * @var array<string, \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay>
+     * @var array<string, (\Redis|\RedisArray|\RedisCluster|ClientInterface|Relay)>
      */
     private static array $connections = [];
 
@@ -32,7 +34,7 @@ class RedisConnectionFactory
      * @param array<string, mixed> $options
      * Don't type hint the native return types, as symfony might change them in the future
      *
-     * @return \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay
+     * @return \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay
      */
     public function create(string $dsn, array $options = [])
     {
@@ -42,7 +44,7 @@ class RedisConnectionFactory
         if (!isset(self::$connections[$key]) || (
             \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false
         )) {
-            /** @var \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis */
+            /** @var \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis */
             $redis = RedisAdapter::createConnection($dsn, $options);
 
             if ($this->prefix && \method_exists($redis, 'setOption')) {

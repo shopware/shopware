@@ -21,8 +21,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @package checkout
  */
 #[Package('buyers-experience')]
 #[CoversClass(PromotionLineItemRule::class)]

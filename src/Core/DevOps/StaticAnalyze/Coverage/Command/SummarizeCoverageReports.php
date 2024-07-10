@@ -94,7 +94,7 @@ class SummarizeCoverageReports extends Command
     }
 
     /**
-     * @param \Symfony\Component\DomCrawler\Crawler[] $xmlFiles
+     * @param Crawler[] $xmlFiles
      *
      * @return array{area: string, percentage: string, coveredLines: int, validLines: int}[]
      */

@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-shortcut-overview-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {

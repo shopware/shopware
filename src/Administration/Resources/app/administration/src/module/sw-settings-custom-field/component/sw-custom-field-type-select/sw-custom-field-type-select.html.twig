@@ -7,6 +7,7 @@
 <sw-switch-field
     v-model:value="multiSelectSwitch"
     class="sw-custom-field-detail__switch"
+    :disabled="multiSelectSwitchDisabled"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
     @update:value="onChangeMultiSelectSwitch"
 />
@@ -71,6 +72,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_add_option %}
 <sw-button
+    v-if="isOptionAddable"
     size="small"
     class="sw-custom-field-type-select__button-add"
     @click="onClickAddOption"

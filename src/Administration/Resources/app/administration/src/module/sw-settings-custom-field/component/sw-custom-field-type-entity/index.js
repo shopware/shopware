@@ -12,17 +12,20 @@ export default {
     inject: [
         'repositoryFactory',
     ],
+
     mounted() {
         this.customEntityRepository.search(new Criteria(), Shopware.Context.api)
             .then(result => {
                 this.customEntities = result;
             });
     },
+
     data() {
         return {
             customEntities: [],
         };
     },
+
     computed: {
         entityTypes() {
             const entityTypes = [
@@ -104,10 +107,15 @@ export default {
 
     methods: {
         createdComponent() {
+            if (this.currentCustomField.config.hasOwnProperty('options')) {
+                this.$delete(this.currentCustomField.config, 'options');
+            }
+
             if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 
+            this.multiSelectSwitchDisabled = !this.currentCustomField._isNew;
             this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-entity-multi-id-select';
         },
 

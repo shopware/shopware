@@ -194,6 +194,8 @@ Component.register('sw-custom-field-set-renderer', {
                 return;
             }
 
+            console.log(this.entity.translated);
+
             // Check if translated custom fields are available
             if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
                 return;

@@ -56,6 +56,7 @@ async function createWrapper(privileges = [], isNew = true) {
                     label: { 'en-GB': 'Entity Type Field' },
                     customFieldType: 'entity',
                     customFieldPosition: 1,
+                    options: [],
                 },
                 _isNew: isNew,
             },
@@ -86,5 +87,23 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-ent
         const entitySelect = wrapper.find('sw-single-select-stub');
 
         expect(entitySelect.attributes('disabled')).toBeTruthy();
+    });
+
+    it('should not allow to add options', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-custom-field-type-select__button-add').exists()).toBe(false);
+        expect(wrapper.vm.currentCustomField.config.options).toBeUndefined();
+    });
+
+    it.each([
+        { name: 'new custom field', isNew: true, expected: undefined },
+        { name: 'old custom field', isNew: false, expected: 'true' },
+    ])('should disable multi select switch: $name', async ({ isNew, expected }) => {
+        const wrapper = await createWrapper([], isNew);
+        await flushPromises();
+
+        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(expected);
     });
 });

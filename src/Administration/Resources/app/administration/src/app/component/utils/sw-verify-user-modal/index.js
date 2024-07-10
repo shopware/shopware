@@ -8,6 +8,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-verify-user-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'loginService',
     ],

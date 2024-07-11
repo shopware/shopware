@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,6 +32,7 @@ class WebhookEventMessageHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
+        $this->getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testSendSuccessful(): void

@@ -8,6 +8,9 @@
         <parameter key="shopware.app_dir">%kernel.project_dir%/custom/apps</parameter>
     </parameters>
     <services>
+        <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
+        </service>
+
         <service id="Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -595,7 +598,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Source\SourceResolver">
-            <argument type="tagged_iterator" tag="app.source_resolver" index-by="id"/>
+            <argument type="tagged_iterator" tag="app.source_resolver"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver"/>
         </service>

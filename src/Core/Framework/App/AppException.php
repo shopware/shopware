@@ -281,6 +281,18 @@ class AppException extends HttpException
         );
     }
 
+    public static function sourceDoesNotExist(string $sourceClassName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_SOURCE_SUPPORTS,
+            'The source "{{ sourceClassName }}" does not exist',
+            [
+                'sourceClassName' => $sourceClassName,
+            ]
+        );
+    }
+
     public static function cannotMountAppFilesystem(string $appName, HttpException $exception): self
     {
         return new self(

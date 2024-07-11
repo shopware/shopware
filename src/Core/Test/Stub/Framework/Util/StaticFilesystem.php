@@ -28,7 +28,7 @@ class StaticFilesystem extends Filesystem
 
     public function path(string ...$path): string
     {
-        return Path::join(...$path);
+        return Path::join($this->location, ...$path);
     }
 
     public function read(string ...$path): string

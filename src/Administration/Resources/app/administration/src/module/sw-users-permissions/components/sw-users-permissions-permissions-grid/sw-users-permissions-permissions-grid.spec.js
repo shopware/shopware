@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';

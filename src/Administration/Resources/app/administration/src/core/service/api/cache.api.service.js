@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 class CacheApiService {
     constructor(httpClient, loginService) {

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**

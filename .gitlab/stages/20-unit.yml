@@ -461,7 +461,6 @@ PHP unit per area:
             "data-services",
             "services-settings",
             "storefront",
-            "system-settings",
           ]
   artifacts:
     when: always
@@ -525,7 +524,6 @@ Jest Coverage per Area (Administration):
             "data-services",
             "buyers-experience",
             "services-settings",
-            "system-settings",
             "unknown",
           ]
   artifacts:

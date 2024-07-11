@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserRecoveryService
 {
     /**

@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(UserConfigController::class)]
 class UserConfigControllerTest extends TestCase
 {

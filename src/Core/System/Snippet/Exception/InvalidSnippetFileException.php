@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @codeCoverageIgnore
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class InvalidSnippetFileException extends SnippetException
 {
     public function __construct(string $locale)

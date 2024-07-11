@@ -8,7 +8,7 @@ describe('User: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of user module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of user module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user`,
             method: 'POST',

@@ -9,7 +9,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: assign 404 error layout and test rollout', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.createDefaultFixture('cms-page', {}, 'cms-error-page');
 
         // Request we want to wait for later
@@ -43,7 +43,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', '404 - Not Found');
     });
 
-    it('@settings: assign maintenance layout and test rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: assign maintenance layout and test rollout', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         cy.createDefaultFixture('cms-page', {}, 'cms-maintenance-page');
@@ -92,7 +92,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.cms-page .cms-element-text', 'Maintenance');
     });
 
-    it('@settings: test default maintenance layout rollout', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: test default maintenance layout rollout', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         // Request we want to wait for later
@@ -113,7 +113,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.content-main h1', 'Maintenance mode');
     });
 
-    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,

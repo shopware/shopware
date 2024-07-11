@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ElasticsearchAdminException::class)]
 class ElasticsearchAdminExceptionTest extends TestCase
 {

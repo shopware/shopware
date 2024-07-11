@@ -27,7 +27,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
  * @phpstan-type SnippetFilter array{edited?: true, added?: true, empty?: true, author?: list<string>, namespace?: list<string>, term?: string}
  * @phpstan-type SnippetSort array{sortBy: string, sortDirection: string}|array{}
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetService
 {
     /**

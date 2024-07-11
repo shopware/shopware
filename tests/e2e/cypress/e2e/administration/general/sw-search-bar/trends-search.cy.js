@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
 describe('Search bar: Check search by frequently used and recently searched',() => {
-    it('@searchBar search recently searched', { tags: ['pa-system-settings'] }, () => {
+    it('@searchBar search recently searched', { tags: ['pa-services-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

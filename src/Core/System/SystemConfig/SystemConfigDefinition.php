@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemConfigDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'system_config';

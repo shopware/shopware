@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class UpdateEvent extends Event
 {
     public function __construct(private readonly Context $context)

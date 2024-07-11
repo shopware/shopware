@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CustomFieldSetDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'custom_field_set';

@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class AclController extends AbstractController
 {
     /**

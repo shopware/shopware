@@ -2,7 +2,7 @@ import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-confi
 import ApiService from '../api.service';
 
 /**
- * @package system-settings
+ * @package services-settings
  */
 class SystemConfigApiService extends ApiService {
     /**

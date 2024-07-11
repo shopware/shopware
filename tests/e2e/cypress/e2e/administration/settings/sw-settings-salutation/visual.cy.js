@@ -13,7 +13,7 @@ describe('Salutation: Visual tesing', () => {
             });
     });
 
-    it('@visual: check appearance of salutation module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of salutation module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/salutation`,
             method: 'POST',

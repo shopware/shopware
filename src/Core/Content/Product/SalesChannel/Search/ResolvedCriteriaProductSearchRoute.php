@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
     final public const DEFAULT_SEARCH_SORT = 'score';

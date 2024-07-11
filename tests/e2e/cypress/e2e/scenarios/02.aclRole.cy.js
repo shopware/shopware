@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 describe('create role with different permissions', () => {
-    it('@package: create role', { tags: ['pa-system-settings', 'quarantined'] }, () => {
+    it('@package: create role', { tags: ['pa-services-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/acl-role`,
             method: 'POST',

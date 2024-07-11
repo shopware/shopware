@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class AclControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

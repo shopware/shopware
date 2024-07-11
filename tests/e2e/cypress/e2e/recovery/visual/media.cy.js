@@ -11,7 +11,7 @@ describe('Media: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic media workflow', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of basic media workflow', { tags: ['pa-services-settings'] }, () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

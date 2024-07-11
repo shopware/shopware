@@ -28,7 +28,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(OrderSerializer::class)]
 class OrderSerializerTest extends TestCase
 {

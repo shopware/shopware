@@ -3,7 +3,7 @@ const ApiService = Shopware.Classes.ApiService;
 /**
  * Gateway for the API end point "integration"
  * @class
- * @package system-settings
+ * @package services-settings
  * @extends ApiService
  */
 class IntegrationApiService extends ApiService {

@@ -23,7 +23,7 @@ use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class OrderSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

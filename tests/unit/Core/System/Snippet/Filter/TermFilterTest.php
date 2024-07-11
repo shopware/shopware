@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\TermFilter;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(TermFilter::class)]
 class TermFilterTest extends TestCase
 {

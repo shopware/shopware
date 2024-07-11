@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(TranslationKeyFilter::class)]
 class TranslationKeyFilterTest extends TestCase
 {

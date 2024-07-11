@@ -17,7 +17,7 @@ interface ApiError {
 }
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @private
  */

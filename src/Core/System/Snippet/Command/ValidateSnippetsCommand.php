@@ -20,7 +20,7 @@ use Symfony\Component\Console\Question\Question;
     name: 'snippets:validate',
     description: 'Validates snippets',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ValidateSnippetsCommand extends Command
 {
     /**

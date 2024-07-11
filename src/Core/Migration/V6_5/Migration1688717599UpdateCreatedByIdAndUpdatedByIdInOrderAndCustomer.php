@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class Migration1688717599UpdateCreatedByIdAndUpdatedByIdInOrderAndCustomer extends MigrationStep
 {
     public function getCreationTimestamp(): int

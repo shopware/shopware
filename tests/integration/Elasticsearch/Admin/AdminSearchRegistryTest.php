@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

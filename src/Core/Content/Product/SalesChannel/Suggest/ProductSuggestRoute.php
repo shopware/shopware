@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductSuggestRoute extends AbstractProductSuggestRoute
 {
     public const STATE = 'suggest-route-context';

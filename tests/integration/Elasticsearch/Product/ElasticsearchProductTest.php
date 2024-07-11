@@ -93,7 +93,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @package system-settings
+ * @package services-settings
  */
 #[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase

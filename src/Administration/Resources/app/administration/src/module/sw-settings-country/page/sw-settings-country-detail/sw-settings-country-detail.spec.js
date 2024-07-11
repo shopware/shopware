@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';

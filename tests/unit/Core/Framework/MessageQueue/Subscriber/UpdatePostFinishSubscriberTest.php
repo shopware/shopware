@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(UpdatePostFinishSubscriber::class)]
 class UpdatePostFinishSubscriberTest extends TestCase
 {

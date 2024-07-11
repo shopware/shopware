@@ -6,7 +6,7 @@ const types = Shopware.Utils.types;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package system-settings
+ * @package services-settings
  */
 class BulkEditCustomerHandler extends BulkEditBaseHandler {
     constructor() {

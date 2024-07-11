@@ -9,7 +9,7 @@ function createEntityCollection(entities = []) {
 }
 
 /**
- * @package system-settings
+ * @package services-settings
  */
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;

@@ -7,7 +7,7 @@ describe('Profile: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@visual: check appearance of basic profile workflow',  { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of basic profile workflow',  { tags: ['pa-services-settings'] }, () => {
         // Take snapshot for visual testing
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-tabs-item').contains(/General|Search preferences/g);

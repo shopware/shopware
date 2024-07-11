@@ -10,7 +10,7 @@ describe('Listing settings: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of listing setting module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of listing setting module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.listing`,
             method: 'GET',

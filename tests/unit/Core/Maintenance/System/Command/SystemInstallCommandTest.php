@@ -23,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

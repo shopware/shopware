@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
     /**

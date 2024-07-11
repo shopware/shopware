@@ -92,7 +92,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportTest extends AbstractImportExportTestCase
 {
     use OrderFixture;

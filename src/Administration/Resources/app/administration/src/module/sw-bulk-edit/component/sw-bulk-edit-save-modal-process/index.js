@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';

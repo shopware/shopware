@@ -10,7 +10,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

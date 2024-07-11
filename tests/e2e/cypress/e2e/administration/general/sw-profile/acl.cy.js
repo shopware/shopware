@@ -19,7 +19,7 @@ describe('Review: Test ACL privileges', () => {
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@general: has no access to sw-profile module', { tags: ['pa-system-settings'] }, () => {
+    it('@general: has no access to sw-profile module', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
@@ -44,7 +44,7 @@ describe('Review: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__profile-item').should('not.exist');
     });
 
-    it('@general: can edit own user',  { tags: ['pa-system-settings'] }, () => {
+    it('@general: can edit own user',  { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'user',

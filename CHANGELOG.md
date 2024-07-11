@@ -50,6 +50,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-36700 - Replace Vuex with Pinia](./changelog/release-6-6-4-0/2024-06-20-replace-vuex-with-pinia.md)
 *  [NEXT-36874 - Add new context request attribute on customer login](./changelog/release-6-6-4-0/2024-06-21-add-new-context-request-attr-on-customer-login.md)
 
+## 6.6.3.1
+*  [NEXT-36780 - Improve composer executions during plugin lifecycle](./changelog/release-6-6-3-1/2024-06-14-improve-composer-executions-while-plugin-lifecycle.md)
+
 ## 6.6.3.0
 *  [NEXT-34326 - Add Last-Modified header to feeds response](./changelog/release-6-6-3-0/2024-01-17-add-last-modified-to-feeds.md) ([Fabian Blechschmidt](https://github.com/Schrank))
 *  [NEXT-33613 - Only index product custom fields](./changelog/release-6-6-3-0/2024-02-28-only-index-product-custom-fields.md)

@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import 'src/app/component/filter/sw-existence-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/form/sw-select-field';
@@ -20,6 +23,11 @@ async function createWrapper() {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-select': true,
             },
         },
         props: {

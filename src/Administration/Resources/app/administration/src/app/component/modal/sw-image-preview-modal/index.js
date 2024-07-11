@@ -19,6 +19,8 @@ const { Component } = Shopware;
 Component.register('sw-image-preview-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         mediaItems: {
             type: Array,

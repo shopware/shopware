@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class StoreApiSeoResolverTestRoute
 {
     public function __construct(
-        private readonly AbstractCategoryRoute              $categoryRoute,
+        private readonly AbstractCategoryRoute $categoryRoute,
         private readonly AbstractSalesChannelContextFactory $contextFactory,
     ) {
     }
@@ -36,7 +36,9 @@ class StoreApiSeoResolverTestRoute
     {
         $salesChannelId = $request->get('sales-channel-id');
 
-        return $this->categoryRoute->load(CategoryRoute::HOME, $request,
+        return $this->categoryRoute->load(
+            CategoryRoute::HOME,
+            $request,
             $this->contextFactory->create(Uuid::randomHex(), $salesChannelId)
         );
     }

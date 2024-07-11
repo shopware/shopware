@@ -180,6 +180,10 @@ class AssetService
         return $localManifest;
     }
 
+    /**
+     * Adopted from symfony, as they also strip the bundle suffix:
+     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+     */
     private function getTargetDirectory(string $name): string
     {
         $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));

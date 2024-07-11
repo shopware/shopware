@@ -31,8 +31,8 @@ class StaticFilesystemTest extends TestCase
             'one.php' => 'content1',
         ]);
 
-        static::assertEquals('one.php', $fs->path('one.php'));
-        static::assertEquals('two.php', $fs->path('two.php'));
+        static::assertEquals('/app-root/one.php', $fs->path('one.php'));
+        static::assertEquals('/app-root/two.php', $fs->path('two.php'));
     }
 
     public function testReadThrowsExceptionWhenFileDoesNotExist(): void

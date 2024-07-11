@@ -32,24 +32,14 @@ class SourceResolver implements ResetInterface
     private array $appFilesystemCache = [];
 
     /**
-     * @var array<class-string<Source>, Source>
-     */
-    private array $sources = [];
-
-    /**
      * @param iterable<Source> $sources
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        iterable $sources,
+        private readonly iterable $sources,
         private EntityRepository $appRepository,
         private NoDatabaseSourceResolver $noDbSourceResolver
     ) {
-        $sources = iterator_to_array($sources);
-        $this->sources = array_combine(
-            array_map(fn (Source $source) => $source::class, $sources),
-            $sources
-        );
     }
 
     public function resolveSourceType(Manifest $manifest): string
@@ -129,10 +119,21 @@ class SourceResolver implements ResetInterface
         $this->sourceFilesystemCache[$sourceClass][] = $filesystem;
     }
 
+    private function getSourceByClassName(string $className): Source
+    {
+        foreach ($this->sources as $source) {
+            if ($source instanceof $className) {
+                return $source;
+            }
+        }
+
+        throw AppException::sourceDoesNotExist($className);
+    }
+
     public function reset(): void
     {
         foreach ($this->sourceFilesystemCache as $sourceClass => $filesystems) {
-            $this->sources[$sourceClass]->reset($filesystems);
+            $this->getSourceByClassName($sourceClass)->reset($filesystems);
         }
 
         $this->sourceFilesystemCache = [];

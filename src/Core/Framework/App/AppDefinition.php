@@ -76,6 +76,7 @@ class AppDefinition extends EntityDefinition
             'allowedHosts' => [],
             'templateLoadPriority' => 0,
             'sourceType' => 'local',
+            'selfManaged' => false,
         ];
     }
 
@@ -110,6 +111,7 @@ class AppDefinition extends EntityDefinition
             new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
             new StringField('source_type', 'sourceType'),
             new JsonField('source_config', 'sourceConfig'),
+            new BoolField('self_managed', 'selfManaged'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

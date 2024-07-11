@@ -153,6 +153,7 @@
     "/search-ids/custom-entity-{entityName}{path}",
     "/search/ce-{entityName}{path}",
     "/search/custom-entity-{entityName}{path}",
+    "/services/trigger-update",
     "/usage-data/accept-consent",
     "/usage-data/consent",
     "/usage-data/hide-consent-banner",

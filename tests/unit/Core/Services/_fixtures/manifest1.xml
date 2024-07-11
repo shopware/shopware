@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>Service1</name>
+        <label>Service 1</label>
+        <description>Service 2</description>
+        <author>Shopware</author>
+        <copyright>(c) by Your Company Ltd.</copyright>
+        <license>proprietary</license>
+        <version>6.6.1.0</version>
+    </meta>
+
+    <setup>
+        <secret>MySecret</secret>
+        <registrationUrl>http://localhost:8001/service/lifecycle/register</registrationUrl>
+    </setup>
+
+    <webhooks>
+        <webhook name="shopwareUpdate" url="http://localhost:8001/service/lifecycle/report-update" event="shopware.updated"/>
+        <webhook name="OrderCreatedWebhook" url="http://localhost:8001/webhook" event="order.created"/>
+    </webhooks>
+
+    <permissions>
+        <read>system_config</read>
+        <permission>system.plugin_maintain</permission>
+    </permissions>
+
+    <admin>
+        <base-app-url>https://base-app-url.com</base-app-url>
+
+        <module name="Module1"
+                parent="some-parent-module"
+                source="https://example.com/module-feature-2">
+            <label>Example Module 1</label>
+            <label lang="de-DE">Beispielmodul 1</label>
+        </module>
+    </admin>
+</manifest>

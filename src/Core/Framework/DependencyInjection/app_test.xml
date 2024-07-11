@@ -43,7 +43,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Source\SourceResolver">
-            <argument type="tagged_iterator" tag="app.source_resolver"/>
+            <argument type="tagged_iterator" tag="app.source_resolver" />
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\NoDatabaseSourceResolver"/>
 

@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Services\Api\ServiceController" public="true">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+        </service>
+
+        <service id="Shopware\Core\Services\Command\Install">
+            <argument type="service" id="Shopware\Core\Services\AllServiceInstaller"/>
+
+            <tag name="console.command" />
+        </service>
+
+        <service id="Shopware\Core\Services\ServiceRegistryClient">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <service id="Shopware\Core\Services\ServiceLifecycle">
+            <argument type="service" id="Shopware\Core\Services\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Services\ServiceClientFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
+            <argument type="service" id="Shopware\Core\Services\ServiceSourceResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Services\ServiceClientFactory">
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+            <argument type="service" id="Shopware\Core\Services\ServiceRegistryClient"/>
+
+            <argument>%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="Shopware\Core\Services\AllServiceInstaller">
+            <argument type="service" id="Shopware\Core\Services\ServiceRegistryClient"/>
+            <argument type="service" id="Shopware\Core\Services\ServiceLifecycle"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Services\ScheduledTask\InstallServicesTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Services\ScheduledTask\InstallServicesTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Services\AllServiceInstaller"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+
+        <service id="Shopware\Core\Services\MessageHandler\UpdateServiceHandler">
+            <argument type="service" id="Shopware\Core\Services\ServiceLifecycle"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Services\ServiceSourceResolver">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory"/>
+            <argument type="service" id="Shopware\Core\Services\ServiceClientFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppExtractor"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="app.source_resolver" priority="100"/>
+        </service>
+    </services>
+</container>

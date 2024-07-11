@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -140,6 +141,40 @@ class ExtensionDataProviderTest extends TestCase
         static::assertInstanceOf(ExtensionStruct::class, $installedExtension);
         static::assertNull($installedExtension->getId());
         static::assertSame('Swag App Test', $installedExtension->getLabel());
+    }
+
+    public function testItIgnoresManagedApps(): void
+    {
+        $contextSource = $this->context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $contextSource);
+
+        $context = Context::createDefaultContext();
+        $this->getUserRepository()->update([
+            [
+                'id' => $contextSource->getUserId(),
+                'storeToken' => null,
+            ],
+        ], $context);
+
+        // update apps and set managed = true
+        $appRepository = $this->getContainer()->get('app.repository');
+        $ids = $appRepository->searchIds(new Criteria(), $context);
+
+        $appRepository->update(
+            [
+                ['id' => $ids->firstId(), 'selfManaged' => true],
+            ],
+            $context
+        );
+
+        // we must remove it so that it is not considered as a local app
+        $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
+
+        $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
+
+        $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context);
+        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+        static::assertCount(0, $installedExtensions);
     }
 
     private function getDomainMissingResponse(): ResponseInterface

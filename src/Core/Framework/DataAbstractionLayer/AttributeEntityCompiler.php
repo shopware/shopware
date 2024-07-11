@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\StateMachineState;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -50,6 +51,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -206,6 +208,7 @@ class AttributeEntityCompiler
             ManyToOne::TYPE => ManyToOneAssociationField::class,
             ManyToMany::TYPE => ManyToManyAssociationField::class,
             ForeignKey::TYPE => FkField::class,
+            StateMachineState::TYPE => StateMachineStateField::class,
             Version::TYPE => VersionField::class,
             ReferenceVersion::TYPE => ReferenceVersionField::class,
             Translations::TYPE => TranslationsAssociationField::class,

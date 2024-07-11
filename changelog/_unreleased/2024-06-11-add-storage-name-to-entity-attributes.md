@@ -7,3 +7,4 @@ author_github: letstalk-nl
 # Core
 * Added new option `storageName` to various field attributes
 * Added argument `propertyName` to `ReferenceVersionField` for custom entity attribute storage name compatibility
+* Added attribute for `StateMachineFieldState`

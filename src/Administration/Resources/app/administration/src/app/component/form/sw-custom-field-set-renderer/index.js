@@ -195,8 +195,6 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             this.customFields = this.entity.customFields;
-
-            console.log(this.customFields);
         },
 
         getInheritedCustomField(customFieldName) {

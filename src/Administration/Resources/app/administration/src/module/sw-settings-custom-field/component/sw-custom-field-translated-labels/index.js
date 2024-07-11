@@ -38,16 +38,12 @@ export default {
     },
 
     computed: {
-        locale() {
-            return this.$root.$i18n.locale;
-        },
-
         fallbackLocale() {
             return this.$root.$i18n.fallbackLocale;
         },
 
         localeCount() {
-            return Object.keys(this.locales).length;
+            return this.locales.length;
         },
     },
 
@@ -85,10 +81,6 @@ export default {
             if (input === '') {
                 this.config[propertyName][locale] = null;
             }
-        },
-
-        showTab(active, locale) {
-            return active === locale;
         },
     },
 };

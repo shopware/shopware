@@ -23,7 +23,7 @@ class AnnotationTagTester
     /**
      * captures a manifest schema version like 1.0
      */
-    private const MANIFEST_VERSION_SCHEMA = '\d+\.\d+';
+    private const MANIFEST_VERSION_SCHEMA = '(\d+\.\d+)';
 
     public function __construct(
         private readonly string $shopwareVersion,
@@ -55,7 +55,7 @@ class AnnotationTagTester
     public static function getVersionFromManifestFileName(string $fileName): ?string
     {
         $matches = [];
-        $pattern = sprintf('/^manifest-(%s).xsd/', self::MANIFEST_VERSION_SCHEMA);
+        $pattern = sprintf('/^manifest-%s.xsd/', self::MANIFEST_VERSION_SCHEMA);
         preg_match($pattern, $fileName, $matches);
 
         return $matches[1] ?? null;
@@ -173,12 +173,12 @@ class AnnotationTagTester
     private function validateAgainstManifestVersion(string $version): void
     {
         $pattern = sprintf('/^v%s$/', self::MANIFEST_VERSION_SCHEMA);
-
-        if (!preg_match($pattern, $version)) {
+        $matches = [];
+        if (!preg_match($pattern, $version, $matches)) {
             throw new \InvalidArgumentException('Manifest version must have 2 digits.');
         }
 
-        $this->compareVersion($this->manifestVersion, $version);
+        $this->compareVersion($this->manifestVersion, $matches[1]);
     }
 
     private function compareVersion(string $highestVersion, string $deprecatedVersion): void

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
+use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -57,6 +58,7 @@ class CustomerException extends HttpException
     public const CUSTOMER_OPTIN_NOT_COMPLETED = 'CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED';
     public const CUSTOMER_CHANGE_PAYMENT_ERROR = 'CHECKOUT__CUSTOMER_CHANGE_PAYMENT_METHOD_NOT_FOUND';
     public const CUSTOMER_GUEST_AUTH_INVALID = 'CHECKOUT__CUSTOMER_AUTH_INVALID';
+    public const IMITATE_CUSTOMER_INVALID_TOKEN = 'CHECKOUT__IMITATE_CUSTOMER_INVALID_TOKEN';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -298,5 +300,10 @@ class CustomerException extends HttpException
     public static function passwordPoliciesUpdated(): PasswordPoliciesUpdatedException
     {
         return new PasswordPoliciesUpdatedException();
+    }
+
+    public static function invalidImitationToken(string $token): InvalidImitateCustomerTokenException
+    {
+        return new InvalidImitateCustomerTokenException($token);
     }
 }

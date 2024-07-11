@@ -1,0 +1,48 @@
+.sw-customer-imitate-customer-modal {
+    .imitate-customer-modal-description {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--color-text-primary-default);
+    }
+
+    .sw-container {
+        margin-top: 24px;
+    }
+
+    .sw-context-menu-item {
+        border: 2px solid var(--color-gray-300);
+        border-radius: 5px;
+        padding: 12px 16px;
+        color: initial;
+
+        &:hover {
+            background-color: var(--color-interaction-secondary-hover);
+            color: initial;
+        }
+
+        .imitate-customer-modal-item-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 0;
+        }
+
+        .imitate-customer-modal-item-header {
+            font-weight: 600;
+            grid-column: 1;
+        }
+
+        .imitate-customer-modal-item-url {
+            color: var(--color-text-secondary-default);
+            grid-column: 1;
+        }
+
+        .sw-icon {
+            color: initial;
+            align-self: center;
+            grid-column: 2;
+            grid-row-start: 1;
+            grid-row-end: 3;
+            justify-self: end;
+        }
+    }
+}

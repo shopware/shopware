@@ -9,9 +9,13 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,10 +26,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -76,7 +83,8 @@ class SalesChannelProxyController extends AbstractController
         private readonly ApiOrderCartService $adminOrderCartService,
         private readonly AbstractCartOrderRoute $orderRoute,
         private readonly CartService $cartService,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator
     ) {
     }
 
@@ -133,6 +141,31 @@ class SalesChannelProxyController extends AbstractController
         $response->setContent($content ?: null);
 
         return $response;
+    }
+
+    #[Route(path: '/api/_proxy/generate-imitate-customer-token', name: 'api.proxy.generate-imitate-customer-token', methods: ['POST'], defaults: ['_acl' => ['api_proxy_imitate-customer']])]
+    public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse
+    {
+        $this->validateImitateCustomerDataFields($data, $context);
+
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, $source::class);
+        }
+
+        $userId = $source->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
+
+        $salesChannelId = $data->getString(self::SALES_CHANNEL_ID);
+        $customerId = $data->getString(self::CUSTOMER_ID);
+
+        $token = $this->imitateCustomerTokenGenerator->generate($salesChannelId, $customerId, $userId);
+
+        return new JsonResponse([
+            'token' => $token,
+        ]);
     }
 
     #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
@@ -236,6 +269,23 @@ class SalesChannelProxyController extends AbstractController
         }
 
         return $salesChannel;
+    }
+
+    /**
+     * @throws ConstraintViolationException
+     */
+    private function validateImitateCustomerDataFields(DataBag $data, Context $context): void
+    {
+        $definition = new DataValidationDefinition('impersonation.generate-token');
+
+        $definition
+            ->add(self::SALES_CHANNEL_ID, new Uuid(), new EntityExists(['entity' => 'sales_channel', 'context' => $context]))
+            ->add(self::CUSTOMER_ID, new Uuid(), new EntityExists(['entity' => 'customer', 'context' => $context]));
+
+        $validationEvent = new BuildValidationEvent($definition, $data, $context);
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
+
+        $this->validator->validate($data->all(), $definition);
     }
 
     private function getContextToken(Request $request): string

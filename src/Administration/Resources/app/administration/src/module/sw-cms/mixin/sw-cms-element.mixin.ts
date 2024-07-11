@@ -1,8 +1,16 @@
+import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 const { cloneDeep, merge } = Shopware.Utils.object;
+
+interface Translation {
+    languageId: string;
+}
+interface Entity {
+    translations: Translation[];
+}
 
 /**
  * @private
@@ -13,7 +21,7 @@ export default Mixin.register('cms-element', defineComponent({
 
     props: {
         element: {
-            type: Object,
+            type: Object as PropType<Record<string, $TSFixMe>>,
             required: true,
         },
 
@@ -36,20 +44,21 @@ export default Mixin.register('cms-element', defineComponent({
 
     computed: {
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
-        cmsElements() {
-            return this.cmsService.getCmsElementRegistry();
+        cmsElements(): Record<string, { defaultConfig: unknown }> {
+            return this.cmsService.getCmsElementRegistry() as Record<string, { defaultConfig: unknown }>;
         },
 
-        category() {
-            return Shopware.State.get('swCategoryDetail')?.category;
+        category(): EntitySchema.Entities['category'] {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            return Shopware.State.get('swCategoryDetail')?.category as EntitySchema.Entities['category'];
         },
     },
 
     methods: {
-        initElementConfig(elementName) {
+        initElementConfig(elementName: string) {
             let defaultConfig = this.defaultConfig;
             if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
@@ -58,37 +67,45 @@ export default Mixin.register('cms-element', defineComponent({
 
             let fallbackCategoryConfig = {};
             if (this.category?.translations) {
+                // @ts-expect-error
+                // eslint-disable-next-line max-len
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
+            // eslint-disable-next-line vue/no-mutating-props,@typescript-eslint/no-unsafe-assignment
             this.element.config = merge(
                 cloneDeep(defaultConfig),
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 this.element?.translated?.config || {},
                 fallbackCategoryConfig || {},
                 this.element?.config || {},
             );
         },
 
-        initElementData(elementName) {
+        initElementData(elementName: string) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                 return;
             }
 
             const elementConfig = this.cmsElements[elementName];
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const defaultData = elementConfig.defaultData ?? {};
-            // eslint-disable-next-line vue/no-mutating-props
+            // eslint-disable-next-line vue/no-mutating-props,@typescript-eslint/no-unsafe-assignment
             this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
         },
 
-        getDemoValue(mappingPath) {
+        getDemoValue(mappingPath: string) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this.cmsService.getPropertyByMappingPath(
                 this.cmsPageState.currentDemoEntity,
                 mappingPath,
             );
         },
 
-        getDefaultTranslations(entity) {
+        getDefaultTranslations(entity: Entity) {
             return entity.translations.find((translation) => {
                 return translation.languageId === Shopware.Context.api.systemLanguageId;
             });

@@ -8,8 +8,8 @@
         </service>
 
         <service id="Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp\StoreApiSeoResolverTestRoute">
-            <argument type="service" key="$categoryRoute" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
-            <argument type="service" key="$contextFactory" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
 
             <tag name="controller.service_arguments"/>
         </service>

@@ -353,7 +353,7 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-reviews-loaded', $traces);
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description">', $content);
+        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
         static::assertStringContainsString(self::TEST_CONTENT, $content);
     }
 

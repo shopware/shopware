@@ -98,6 +98,7 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
 /**
  * @package checkout
  * @private
+ * @deprecated tag:v6.7.0 - Will be replaced with Pinia store
  */
 export default shopwareExtensionsStore;
 

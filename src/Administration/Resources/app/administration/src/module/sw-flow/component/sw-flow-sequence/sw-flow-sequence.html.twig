@@ -22,7 +22,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_action %}
     <sw-flow-sequence-action
-        v-if="isActionSequence"
+        v-show="isActionSequence"
         :sequence="sequenceData"
         :disabled="disabled"
         :is-unknown-trigger="isUnknownTrigger"

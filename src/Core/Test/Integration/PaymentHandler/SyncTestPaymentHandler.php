@@ -12,6 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed with new payment handlers
  */
 #[Package('checkout')]
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface

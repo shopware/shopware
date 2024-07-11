@@ -1,7 +1,6 @@
 /**
  * @package admin
  */
-
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
@@ -31,7 +30,7 @@ Component.register('sw-tabs-item', {
 
     inheritAttrs: false,
 
-    inject: ['feature'],
+    inject: ['feature', 'onNewItemActive'],
 
     props: {
         route: {
@@ -126,7 +125,12 @@ Component.register('sw-tabs-item', {
 
     methods: {
         createdComponent() {
-            this.$parent.$on('new-item-active', this.checkIfActive);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$on('new-item-active', this.checkIfActive);
+            } else {
+                this.onNewItemActive(this.checkIfActive);
+            }
+
             if (this.active) {
                 this.isActive = true;
             }

@@ -22,6 +22,15 @@ const { Component } = Shopware;
 Component.register('sw-sidebar-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    inject: {
+        registerSidebarItem: {
+            from: 'registerSidebarItem',
+            default: null,
+        },
+    },
+
     props: {
         title: {
             type: String,
@@ -112,18 +121,24 @@ Component.register('sw-sidebar-item', {
 
     methods: {
         createdComponent() {
-            let parent = this.$parent;
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                let parent = this.$parent;
 
-            while (parent) {
-                if (parent.$options.name === 'sw-sidebar') {
-                    parent.registerSidebarItem(this);
-                    return;
+                while (parent) {
+                    if (parent.$options.name === 'sw-sidebar') {
+                        parent.registerSidebarItem(this);
+                        return;
+                    }
+
+                    parent = parent.$parent;
                 }
 
-                parent = parent.$parent;
+                throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
             }
 
-            throw new Error('Component sw-sidebar-item must be registered as a (indirect) child of sw-sidebar');
+            if (this.registerSidebarItem) {
+                this.registerSidebarItem(this);
+            }
         },
 
         openContent() {

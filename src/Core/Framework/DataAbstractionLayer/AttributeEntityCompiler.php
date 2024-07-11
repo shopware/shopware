@@ -322,6 +322,9 @@ class AttributeEntityCompiler
         if ($field->type === AutoIncrement::TYPE) {
             unset($flags[Required::class]);
         }
+        if ($field->type === CustomFieldsAttr::TYPE) {
+            unset($flags[Required::class]);
+        }
 
         return $flags;
     }

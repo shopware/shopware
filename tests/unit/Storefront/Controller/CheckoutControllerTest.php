@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,7 +62,7 @@ class CheckoutControllerTest extends TestCase
 
     private OrderService&MockObject $orderServiceMock;
 
-    private PaymentService&MockObject $paymentServiceMock;
+    private PaymentProcessor&MockObject $paymentProcessorMock;
 
     private OffcanvasCartPageLoader&MockObject $offcanvasCartPageLoaderMock;
 
@@ -79,7 +79,7 @@ class CheckoutControllerTest extends TestCase
         $this->confirmPageLoaderMock = $this->createMock(CheckoutConfirmPageLoader::class);
         $this->finishPageLoaderMock = $this->createMock(CheckoutFinishPageLoader::class);
         $this->orderServiceMock = $this->createMock(OrderService::class);
-        $this->paymentServiceMock = $this->createMock(PaymentService::class);
+        $this->paymentProcessorMock = $this->createMock(PaymentProcessor::class);
         $this->offcanvasCartPageLoaderMock = $this->createMock(OffcanvasCartPageLoader::class);
         $this->configMock = $this->createMock(SystemConfigService::class);
         $this->logoutRouteMock = $this->createMock(AbstractLogoutRoute::class);
@@ -91,11 +91,11 @@ class CheckoutControllerTest extends TestCase
             $this->confirmPageLoaderMock,
             $this->finishPageLoaderMock,
             $this->orderServiceMock,
-            $this->paymentServiceMock,
+            $this->paymentProcessorMock,
             $this->offcanvasCartPageLoaderMock,
             $this->configMock,
             $this->logoutRouteMock,
-            $this->cartLoadRouteMock
+            $this->cartLoadRouteMock,
         );
     }
 
@@ -499,7 +499,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
+        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
             PaymentException::syncProcessInterrupted(Uuid::randomHex(), 'error')
         );
 
@@ -517,7 +517,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
+        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
             new IllegalTransitionException('open', 'done', ['in_progress', 'canceled'])
         );
 
@@ -535,7 +535,7 @@ class CheckoutControllerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
-        $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
+        $this->paymentProcessorMock->expects(static::once())->method('pay')->willThrowException(
             FlowException::transactionFailed(new IllegalTransitionException('open', 'done', ['in_progress', 'canceled']))
         );
 

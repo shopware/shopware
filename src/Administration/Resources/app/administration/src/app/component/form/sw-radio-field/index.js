@@ -24,6 +24,9 @@ const { Component, Mixin } = Shopware;
  */
 Component.register('sw-radio-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     emits: ['update:value'],

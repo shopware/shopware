@@ -25,6 +25,11 @@ All blocks of this template are available in the template which renders this tem
                 {% block document_payment_shipping_service_date_notice %}
                     {{ 'document.serviceDateNotice'|trans|sw_sanitize }}<br>
                 {% endblock %}
+                {% block document_intra_community %}
+                    {% if config.intraCommunityDelivery %}
+                        {{ 'document.intraCommunity'|trans|sw_sanitize }}<br>
+                    {% endif %}
+                {% endblock %}
             {% endblock %}
         </div>
     {% endblock %}

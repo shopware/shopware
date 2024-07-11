@@ -97,16 +97,13 @@ async function createWrapper(routeParams = {}) {
  */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            state: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
                 isSystemDefaultLanguage: true,
-            },
-            mutations: {
+            }),
+            actions: {
                 removeCurrentPage() {},
                 removeSelectedBlock() {},
                 removeSelectedSection() {},

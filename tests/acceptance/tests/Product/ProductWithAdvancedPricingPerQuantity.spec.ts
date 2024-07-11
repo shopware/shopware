@@ -1,75 +1,18 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 
-test('Journey: Customer gets a special product price depending on the amount of products bought. @journey @checkout', async ({
+test('Customer gets a special product price depending on the amount of products bought.', {
+    tag: ['@Product', '@Checkout'],
+}, async ({
     ShopCustomer,
-    AdminApiContext,
-    SalesChannelBaseConfig,
-    ProductData,
+    TestDataService,
     StorefrontCheckoutCart,
     StorefrontProductDetail,
     AddProductToCart,
 }) => {
+    const product = await TestDataService.createProductWithPriceRange();
 
-    const ruleResponse = await AdminApiContext.post('./search/rule', {
-        data: {
-            limit: 1,
-            filter: [{
-                type: 'equals',
-                field: 'name',
-                value: 'Always valid (Default)',
-            }],
-        },
-    });
-    expect(ruleResponse.ok()).toBeTruthy();
-
-    const ruleResponseJson = await ruleResponse.json();
-
-    const rule = ruleResponseJson.data[0]
-
-    const priceResponse = await AdminApiContext.post('./product-price', {
-        data: {
-            productId: ProductData.id,
-            ruleId: rule.id,
-            price: [{
-                currencyId: SalesChannelBaseConfig.eurCurrencyId,
-                gross: 99.99,
-                linked: false,
-                net: 84.03,
-            },
-            {
-                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
-                gross: 99.99,
-                linked: false,
-                net: 84.03,
-            }],
-            quantityStart: 1,
-            quantityEnd: 10,
-        },
-    });
-    expect(priceResponse.ok()).toBeTruthy();
-
-    const priceResponseAdvanced = await AdminApiContext.post('./product-price', {
-        data: {
-            productId: ProductData.id,
-            ruleId: rule.id,
-            price: [{
-                currencyId: SalesChannelBaseConfig.eurCurrencyId,
-                gross: 89.99,
-                linked: false,
-                net: 75.62,
-            },
-            {
-                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
-                gross: 89.99,
-                linked: false,
-                net: 75.62,
-            }],
-            quantityStart: 11,
-        },
-    });
-    expect(priceResponseAdvanced.ok()).toBeTruthy();
-
-    await ShopCustomer.goesTo(StorefrontProductDetail.url(ProductData));
-    await ShopCustomer.attemptsTo(AddProductToCart(ProductData, '12'));
-    await ShopCustomer.expects(StorefrontCheckoutCart.unitPriceInfo).toContainText('€89.99*')
+    await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+    await ShopCustomer.attemptsTo(AddProductToCart(product, '12'));
+    await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
+    await ShopCustomer.expects(StorefrontCheckoutCart.unitPriceInfo).toContainText('€90.00*');
 });

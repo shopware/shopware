@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -83,6 +84,23 @@ async function createWrapper(buttonConfig) {
                 },
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-loader': true,
+                'router-link': true,
+                'mt-button': true,
+                'sw-icon': true,
+                'mt-select': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'mt-switch': true,
+                'sw-label': true,
+                'sw-tree': true,
+                'sw-checkbox-field': true,
+                'sw-tree-item': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'mt-email-field': true,
+                'mt-floating-ui': true,
             },
         },
         props: {
@@ -127,29 +145,31 @@ responses.addResponse({
     },
 });
 
+const productData = [
+    {
+        id: 'aaaaaaa524604ccbad6042edce3ac799',
+        attributes: {
+            id: 'aaaaaaa524604ccbad6042edce3ac799',
+            name: 'aaaaaaa524604ccbad6042edce3ac799',
+        },
+        relationships: [],
+    },
+    {
+        id: 'some-id',
+        attributes: {
+            id: 'some-id',
+            name: 'some-name',
+        },
+        relationships: [],
+    },
+];
+
 responses.addResponse({
     method: 'Post',
     url: '/search/product',
     status: 200,
     response: {
-        data: [
-            {
-                id: 'aaaaaaa524604ccbad6042edce3ac799',
-                attributes: {
-                    id: 'aaaaaaa524604ccbad6042edce3ac799',
-                    name: 'aaaaaaa524604ccbad6042edce3ac799',
-                },
-                relationships: [],
-            },
-            {
-                id: 'some-id',
-                attributes: {
-                    id: 'some-id',
-                    name: 'some-name',
-                },
-                relationships: [],
-            },
-        ],
+        data: productData,
     },
 });
 
@@ -210,29 +230,34 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         });
     });
 
-    it('parses category links and reacts to changes correctly', async () => {
+    it('parses product detail links and reacts to changes correctly', async () => {
         const wrapper = await createWrapper({
-            value: `${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`,
-            type: 'link',
+            value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,
+            type: 'detail',
         });
 
         await flushPromises();
 
-        const categoryTreeFieldElement = wrapper.find('.sw-category-tree-field input');
+        const productSingleSelectInput = wrapper.find('.sw-text-editor-link-menu__entity-single-select input');
+        await productSingleSelectInput.trigger('click');
+
+        await flushPromises();
 
         expect(wrapper.text()).toContain('sw-text-editor-toolbar.link.linkTo');
-        expect(categoryTreeFieldElement.element.placeholder).toBe('sw-text-editor-toolbar.link.placeholderCategory');
+        expect(productSingleSelectInput.element.placeholder).toBe('sw-text-editor-toolbar.link.placeholderProduct');
 
-        const asyncComponentWrapper = wrapper.findComponent('.sw-category-tree-field');
-        const categoryTreeField = asyncComponentWrapper.vm.$children[0];
-        expect(categoryTreeField.categoryCriteria).toStrictEqual(
+        const productSingleSelect = wrapper.findComponent('.sw-entity-single-select').vm;
+        expect(productSingleSelect.entity).toBe('product');
+        expect(productSingleSelect.value).toBe('aaaaaaa524604ccbad6042edce3ac799');
+
+        expect(productSingleSelect.criteria).toStrictEqual(
             expect.objectContaining({
                 limit: 25,
                 page: 1,
             }),
         );
 
-        const associations = categoryTreeField.categoryCriteria.associations;
+        const associations = productSingleSelect.criteria.associations;
 
         expect(associations).toHaveLength(1);
         expect(associations[0].association).toBe('options');
@@ -240,8 +265,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-
-        expect(categoryTreeField.categoryCriteria.filters).toStrictEqual(expect.objectContaining(
+        expect(productSingleSelect.criteria.filters).toStrictEqual(expect.objectContaining(
             [{
                 operator: 'OR',
                 queries: [
@@ -251,6 +275,60 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 type: 'multi',
             }],
         ));
+
+        const results = productSingleSelect.resultCollection;
+        expect(results).toHaveLength(2);
+        expect(results[0]).toEqual(productData[0].attributes);
+        expect(results[1]).toEqual(productData[1].attributes);
+
+        // Valid value set
+        await productSingleSelect.setValue(productData[1]);
+        await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
+        await flushPromises();
+
+        const dispatchedInputEvents = wrapper.emitted('button-click');
+        expect(dispatchedInputEvents[0]).toStrictEqual([
+            {
+                buttonVariant: undefined,
+                displayAsButton: true,
+                newTab: true,
+                type: 'link',
+                value: '124c71d524604ccbad6042edce3ac799/detail/some-id#',
+            },
+        ]);
+
+        // No value set
+        await productSingleSelect.setValue({ id: null });
+        await flushPromises();
+
+        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        expect(isDisabled).toBeDefined();
+    });
+
+    it('parses category links and reacts to changes correctly', async () => {
+        const wrapper = await createWrapper({
+            value: `${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`,
+            type: 'navigation',
+        });
+
+        await flushPromises();
+
+        const categoryTreeFieldElement = wrapper.find('.sw-category-tree-field input');
+
+        expect(wrapper.text()).toContain('sw-text-editor-toolbar.link.linkTo');
+        expect(categoryTreeFieldElement.element.placeholder).toBe('sw-text-editor-toolbar.link.placeholderCategory');
+
+        const categoryTreeField = wrapper.findComponent({ name: 'sw-category-tree-field__wrapped' }).vm;
+
+        expect(categoryTreeField.categoryCriteria).toStrictEqual(
+            expect.objectContaining({
+                limit: 500,
+                page: 1,
+            }),
+        );
+
+        expect(categoryTreeField.categoryCriteria.associations).toHaveLength(0);
+        expect(categoryTreeField.categoryCriteria.filters).toHaveLength(0);
 
         expect(categoryTreeField.categoriesCollection).toHaveLength(1);
         expect(categoryTreeField.categoriesCollection[0]).toEqual(categoryData);

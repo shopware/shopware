@@ -43,6 +43,7 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import type { VueI18n } from 'vue-i18n';
+import Store from 'src/app/store';
 import ExtensionApi from './extension-api';
 
 /** Initialize feature flags at the beginning */
@@ -132,7 +133,12 @@ class ShopwareClass implements CustomShopwareProperties {
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
     };
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use Store instead.
+     */
     public State = StateFactory();
+
+    public Store = Store.instance;
 
     public Mixin = {
         register: MixinFactory.register,

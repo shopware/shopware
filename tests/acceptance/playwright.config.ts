@@ -45,6 +45,8 @@ export default defineConfig({
 
     reporter: 'html',
 
+    timeout: 60000,
+
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
@@ -63,18 +65,26 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
+            name: 'Setup',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            grep: /@Setup/,
+        },
+        {
             name: 'Platform',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grepInvert: /@install|@update/,
+            dependencies: ['Setup'],
+            grepInvert: /@Install|@Update|@Setup.*/,
         },
         {
             name: 'Install',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@install/,
+            grep: /@Install/,
             retries: 0,
         },
         {
@@ -82,7 +92,8 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: /@update/,
+            dependencies: [],
+            grep: /@Update/,
             retries: 0,
         },
     ],

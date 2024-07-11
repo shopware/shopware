@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStagingNode())
                 ->append($this->createSystemConfigNode())
                 ->append($this->createMessengerSection())
+                ->append($this->createSearchSection())
             ->end();
 
         return $treeBuilder;
@@ -318,6 +319,12 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('media'))->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode('remote_thumbnails')
+                    ->children()
+                        ->booleanNode('enable')->end()
+                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
@@ -915,6 +922,19 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->scalarPrototype()->end()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSearchSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('search');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->integerNode('term_max_length')->defaultValue(300)->end()
             ->end();
 
         return $rootNode;

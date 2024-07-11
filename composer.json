@@ -68,7 +68,7 @@
         "ext-xml": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
-        "composer-runtime-api": "^2.0",
+        "composer-runtime-api": "^2.1",
         "cocur/slugify": "^4.3.0",
         "composer/composer": "^2.7",
         "composer/semver": "^3.2",
@@ -211,7 +211,9 @@
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:disabled-compat": "Launches the jest unit test-suite for the Admin with disabled compat mode",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
+        "admin:unit:watch:disabled-compat": "Launches the interactive jest unit test-suite watcher for the Admin with disabled compat mode",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
         "build:js:admin": "Builds the Administration",
@@ -304,6 +306,17 @@
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
             "@npm:admin run unit-watch"
+        ],
+        "admin:unit:disabled-compat": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit:disabled-compat"
+        ],
+        "admin:unit:watch:disabled-compat": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-watch:disabled-compat"
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",

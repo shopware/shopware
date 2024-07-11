@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-field-error', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         error: {
             type: Object,

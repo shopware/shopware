@@ -26,6 +26,9 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-multi-select', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     emits: [
@@ -161,6 +164,15 @@ Component.register('sw-multi-select', {
             }
 
             return this.options;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

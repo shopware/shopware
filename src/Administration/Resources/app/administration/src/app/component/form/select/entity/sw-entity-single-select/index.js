@@ -11,6 +11,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'search',
@@ -72,8 +74,8 @@ Component.register('sw-entity-single-select', {
         criteria: {
             type: Object,
             required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
+            default(props) {
+                return new Criteria(1, props.resultLimit);
             },
         },
         context: {
@@ -141,6 +143,12 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: false,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: undefined,
+        },
     },
 
     data() {
@@ -193,6 +201,15 @@ Component.register('sw-entity-single-select', {
 
             return this.searchTerm;
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     watch: {
@@ -226,7 +243,7 @@ Component.register('sw-entity-single-select', {
          * Fetches the selected entity from the server
          */
         loadSelected() {
-            if (!this.value) {
+            if (!this.value || this.value.length === 0) {
                 if (this.resetOption) {
                     this.singleSelection = {
                         id: null,

@@ -28,6 +28,12 @@ async function createWrapper() {
 describe('src/module/sw-cms/elements/html/config/index.js', () => {
     let wrapper;
 
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     beforeEach(async () => {
         wrapper = await createWrapper();
 

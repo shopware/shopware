@@ -68,9 +68,11 @@ Directive.register('popover', {
             element.style.width = `${binding.instance?.$el.clientWidth}px`;
         }
 
+        // @ts-expect-error
         // append to target element
         calculateOutsideEdges(element, binding.instance!);
 
+        // @ts-expect-error
         registerVirtualScrollingElement(element, binding.instance!, config);
     },
 

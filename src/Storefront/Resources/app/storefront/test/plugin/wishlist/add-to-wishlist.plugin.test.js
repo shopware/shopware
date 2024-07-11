@@ -53,6 +53,24 @@ describe('AddToWishlistPlugin tests', () => {
         AddToWishlistPlugin.prototype._onClick.mockRestore();
     });
 
+    test('initStateClasses get called on login redirect event', () => {
+        const shouldBeCalled = jest.fn();
+
+        // Mock the function which should be called on login redirect event
+        jest.spyOn(AddToWishlistPlugin.prototype, 'initStateClasses').mockImplementation(shouldBeCalled);
+
+        let plugin = new AddToWishlistPlugin(document.createElement('div'));
+
+        // reset counter because initStateClasses is called on init
+        shouldBeCalled.mockClear();
+
+        plugin._wishlistStorage.$emitter.publish('Wishlist/onLoginRedirect');
+
+        expect(shouldBeCalled).toHaveBeenCalled();
+
+        // Reset mock
+        AddToWishlistPlugin.prototype.initStateClasses.mockRestore();
+    });
 
     test('element state classes is set when initStateClasses get called', () => {
         const mockElement = document.createElement('div');
@@ -73,10 +91,15 @@ describe('AddToWishlistPlugin tests', () => {
 
         mockElement.click();
 
+        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(true);
+
+        // called by WishlistWidgetPlugin
+        plugin.initStateClasses();
+
         expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-not-added')).toBe(false);
         expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-added')).toBe(true);
 
-        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(true);
+        expect(document.getElementById('add-to-wishlist').classList.contains('product-wishlist-loading')).toBe(false);
     });
 });
 

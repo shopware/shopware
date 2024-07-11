@@ -9,8 +9,14 @@ export function createRouter() {
     return createRouterVue({
         routes: [
             {
+                name: 'index',
+                path: '/',
+                component: {},
+            },
+            {
                 name: 'sw.product.detail',
                 path: '/sw/product/detail/:{id}',
+                component: {},
                 meta: {
                     $module: {
                         entity: 'product',
@@ -22,6 +28,7 @@ export function createRouter() {
             }, {
                 name: 'sw.product.list',
                 path: '/sw/product/list',
+                component: {},
                 meta: {
                     $module: {
                         entity: 'product',
@@ -33,6 +40,7 @@ export function createRouter() {
             }, {
                 name: 'sw.order.detail',
                 path: '/sw/order/detail',
+                component: {},
                 meta: {
                     $module: {
                         entity: 'order',
@@ -44,6 +52,7 @@ export function createRouter() {
             }, {
                 name: 'sw.settings.index',
                 path: '/sw/setting/index',
+                component: {},
                 meta: {
                     $module: {},
                 },

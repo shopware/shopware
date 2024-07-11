@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as DALEntity;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -43,6 +45,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
@@ -61,6 +64,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -89,6 +93,11 @@ class CustomEntityTest extends TestCase
         'payload' => ['foo' => 'Bar'],
         'email' => 'test@test.com',
     ];
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
+    }
 
     #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
@@ -200,11 +209,9 @@ class CustomEntityTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
 
-        $container = KernelLifecycleManager::bootKernel()->getContainer();
-
         $this->testAllowDisable(true);
 
-        self::cleanUp($container);
+        self::cleanUp($this->getContainer());
     }
 
     public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
@@ -215,6 +222,31 @@ class CustomEntityTest extends TestCase
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
+
+        self::cleanUp($this->getContainer());
+    }
+
+    public function testInvalidDefaultTypesParsedCorrectly(): void
+    {
+        static::expectException(Feature::isActive('v6.7.0.0') ? CustomEntityXmlParsingException::class : XmlParsingException::class);
+        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
+    }
+
+    public function testDefaultValueIsRegistered(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/default-value');
+        $container = KernelLifecycleManager::bootKernel()->getContainer();
+
+        $schema = $this->getSchema();
+        static::assertTrue($schema->hasTable('ce_product_with_defaults'));
+        static::assertSame(
+            'default product title',
+            $schema->getTable('ce_product_with_defaults')->getColumn('title')->getDefault()
+        );
+
+        $repo = $container->get('ce_product_with_defaults.repository');
+        static::assertInstanceOf(EntityRepository::class, $repo);
+        static::assertSame(['title' => 'default product title'], $repo->getDefinition()->getDefaults());
 
         self::cleanUp($this->getContainer());
     }

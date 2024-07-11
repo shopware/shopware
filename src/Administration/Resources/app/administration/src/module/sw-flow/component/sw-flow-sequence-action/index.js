@@ -75,7 +75,7 @@ export default {
                 };
             });
 
-            if (this.appActions.length) {
+            if (this.appActions?.length) {
                 const action = this.appActions[0];
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {

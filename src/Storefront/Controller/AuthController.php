@@ -20,9 +20,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -54,8 +51,7 @@ class AuthController extends StorefrontController
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly StorefrontCartFacade $cartFacade,
-        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
     ) {
     }
 
@@ -160,20 +156,6 @@ class AuthController extends StorefrontController
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
             $cartBeforeNewContext = $this->cartFacade->get($token, $context);
-
-            $newContext = $this->salesChannelContextService->get(
-                new SalesChannelContextServiceParameters(
-                    $context->getSalesChannelId(),
-                    $token,
-                    $context->getLanguageId(),
-                    $context->getCurrencyId(),
-                    $context->getDomainId(),
-                    $context->getContext()
-                )
-            );
-
-            // Update the sales channel context for CacheResponseSubscriber
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $newContext);
 
             if (!empty($token)) {
                 $this->addCartErrors($cartBeforeNewContext);

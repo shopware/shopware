@@ -13,11 +13,14 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * @phpstan-type PluginInfo array{ baseClass: string, name: string, active: bool, path: string, version: string|null, autoload: array<string, string[]>, managedByComposer: bool, composerName: string }
+ */
 #[Package('core')]
 abstract class KernelPluginLoader extends Bundle
 {
     /**
-     * @var array<int, mixed>
+     * @var array<int, PluginInfo>
      */
     protected $pluginInfos = [];
 
@@ -49,7 +52,7 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, PluginInfo>
      * Basic information required for instantiating the plugins
      */
     final public function getPluginInfos(): array

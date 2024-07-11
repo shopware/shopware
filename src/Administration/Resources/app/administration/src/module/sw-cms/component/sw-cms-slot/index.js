@@ -59,7 +59,7 @@ export default {
         },
 
         cmsElements() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
+            const currentPageType = Shopware.Store.get('cmsPageState').currentPageType;
 
             const blocks = Object.entries(this.cmsService.getCmsElementRegistry())
                 .filter(([name]) => this.cmsService.isElementAllowedInPageType(name, currentPageType));

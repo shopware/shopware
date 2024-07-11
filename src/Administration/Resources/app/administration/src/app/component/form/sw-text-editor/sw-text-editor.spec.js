@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -8,23 +9,10 @@ async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
-    // localVue.directive('tooltip', {});
-
     return mount(await wrapTestComponent('sw-text-editor', { sync: true }), {
         attachTo: document.getElementById('app'),
         props: {
             allowInlineDataMapping,
-        },
-        data() {
-            return {
-                cmsPageState: {
-                    currentMappingTypes: {
-                        string: [
-                            'category.type',
-                        ],
-                    },
-                },
-            };
         },
         global: {
             stubs: {
@@ -49,6 +37,20 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
+                'sw-text-editor-table-toolbar': true,
+                'sw-text-editor-toolbar-table-button': true,
+                'sw-email-field': true,
+                'sw-entity-single-select': true,
+                'sw-category-tree-field': true,
+                'mt-button': true,
+                'router-link': true,
+                'sw-loader': true,
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'mt-switch': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},
@@ -111,6 +113,17 @@ describe('src/app/component/form/sw-text-editor', () => {
     let wrapper;
 
     beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                currentMappingTypes: {
+                    string: [
+                        'category.type',
+                    ],
+                },
+            }),
+        });
+
         // 'Implement' innerText in JSDOM: https://github.com/jsdom/jsdom/issues/1245
         Object.defineProperty(global.Element.prototype, 'innerText', {
             get() {

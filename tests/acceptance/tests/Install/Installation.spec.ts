@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Install a new Shopware instance. @install', async ({ page }) => {
+test('Install a new Shopware instance.', { tag: '@Install' }, async ({ page }) => {
     await page.goto(process.env.APP_URL);
 
     await page.getByRole('link', { name: 'Next' }).click();
@@ -17,7 +17,7 @@ test('Install a new Shopware instance. @install', async ({ page }) => {
 
     await page.getByRole('button', { name: 'Start installation' }).click();
 
-    await test.slow();
+    test.slow();
 
     await expect(page.locator('#import-finished:visible div').first())
         .toHaveText('Shopware 6 has been installed!', { timeout: 120000 });

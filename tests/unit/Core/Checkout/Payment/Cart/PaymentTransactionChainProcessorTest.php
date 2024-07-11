@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,6 +37,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed
  */
 #[Package('checkout')]
 #[CoversClass(PaymentTransactionChainProcessor::class)]
@@ -48,6 +51,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testThrowsExceptionOnNullOrder(): void
     {
         $orderRepository = $this->createMock(EntityRepository::class);
@@ -91,6 +95,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testThrowsExceptionOnNullPaymentHandler(): void
     {
         $transaction = new OrderTransactionEntity();
@@ -154,6 +159,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testProcessSync(): void
     {
         $transactionId = Uuid::randomHex();

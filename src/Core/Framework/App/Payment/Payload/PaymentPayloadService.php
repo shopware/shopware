@@ -2,34 +2,36 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use GuzzleHttp\ClientInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-systems
  */
-#[Package('core')]
+#[Package('checkout')]
 class PaymentPayloadService
 {
+    public const PAYMENT_REQUEST_TIMEOUT = 20;
+
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
     ) {
     }
 
     /**
-     * @param class-string<AbstractResponse> $responseClass
+     * @template T of AbstractResponse
+     *
+     * @param class-string<T> $responseClass
+     *
+     * @return T
      */
     public function request(
         string $url,
@@ -37,23 +39,14 @@ class PaymentPayloadService
         AppEntity $app,
         string $responseClass,
         Context $context
-    ): ?Struct {
+    ): AbstractResponse {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
-        try {
-            $response = $this->client->post($url, $optionRequest);
+        $response = $this->client->request('POST', $url, $optionRequest);
 
-            $content = $response->getBody()->getContents();
+        $content = $response->getBody()->getContents();
 
-            $transactionId = null;
-            if ($payload instanceof PaymentPayloadInterface) {
-                $transactionId = $payload->getOrderTransaction()->getId();
-            }
-
-            return $responseClass::create($transactionId, \json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
-        } catch (GuzzleException) {
-            return null;
-        }
+        return $responseClass::create(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -64,14 +57,6 @@ class PaymentPayloadService
         $payload->setSource($this->helper->buildSource($app));
         $encoded = $this->helper->encode($payload);
         $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
-
-        if (!$jsonPayload) {
-            if ($payload instanceof PaymentPayloadInterface) {
-                throw PaymentException::asyncProcessInterrupted($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
-            }
-
-            throw PaymentException::validatePreparedPaymentInterrupted(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
-        }
 
         $secret = $app->getAppSecret();
         if ($secret === null) {
@@ -84,6 +69,7 @@ class PaymentPayloadService
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
             ],
+            'timeout' => self::PAYMENT_REQUEST_TIMEOUT,
             'headers' => [
                 'Content-Type' => 'application/json',
             ],

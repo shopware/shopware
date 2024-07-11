@@ -44,4 +44,38 @@ describe('src/app/init-pre/state.init.ts', () => {
         expect(Shopware.State.get('usageData')).toBeDefined();
         expect(Shopware.State.get('adminHelpCenter')).toBeDefined();
     });
+
+    it('should be able to get cmsPageState backwards compatible', () => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                foo: 'bar',
+            }),
+        });
+
+        expect(Shopware.State.get('cmsPageState').foo).toBe('bar');
+        Shopware.Store.unregister('cmsPageState');
+    });
+
+    it('should be able to commit cmsPageState backwards compatible', () => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                foo: 'bar',
+            }),
+            actions: {
+                setFoo(foo) {
+                    this.foo = foo;
+                },
+            },
+        });
+
+        const store = Shopware.Store.get('cmsPageState');
+        expect(store.foo).toBe('bar');
+
+        Shopware.State.commit('cmsPageState/setFoo', 'jest');
+        expect(store.foo).toBe('jest');
+
+        Shopware.Store.unregister('cmsPageState');
+    });
 });

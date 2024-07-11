@@ -55,11 +55,17 @@
                 size="medium"
             >
                 <sw-icon
-                    class="sw-product-image__spatial-icon"
-                    :name="getSpatialIconName"
-                    size="14px"
+                    v-if="this.item.config?.spatial?.arReady ?? this.defaultArReady"
+                    name="regular-AR"
+                    small
                 />
-                <span class="sw-media-base-item__labels-text">{{ getSpatialSubline }}</span>
+                <sw-icon
+                    v-else
+                    name="regular-3d"
+                    small
+                />
+
+                <span class="sw-media-base-item__labels-text">{{ (item.config?.spatial?.arReady ?? defaultArReady) ? $tc('sw-product.mediaForm.arSubline') : $tc('sw-product.mediaForm.spatialSubline') }}</span>
             </sw-label>
         </div>
         {% endblock %}

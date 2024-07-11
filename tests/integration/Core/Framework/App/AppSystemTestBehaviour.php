@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait AppSystemTestBehaviour
@@ -22,8 +21,6 @@ trait AppSystemTestBehaviour
     {
         return new AppLoader(
             $appDir,
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigReader::class),
             new NullLogger()
         );
     }

@@ -122,6 +122,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="twig"/>
             <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">

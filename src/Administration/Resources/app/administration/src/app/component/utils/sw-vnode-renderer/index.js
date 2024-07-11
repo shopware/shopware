@@ -1,11 +1,41 @@
+import { compatUtils } from '@vue/compat';
+
 const { Component } = Shopware;
 
 /**
  * @private
  */
 Component.register('sw-vnode-renderer', {
-    functional: true,
-    render(h, context) {
-        return context.props.node;
+    ...(() => {
+        if (compatUtils.isCompatEnabled('COMPONENT_FUNCTIONAL')) {
+            return {
+                functional: true,
+            };
+        }
+
+        return {};
+    })(),
+
+    compatConfig: Shopware.compatConfig,
+
+    render(firstArgument, secondArgument) {
+        const h = firstArgument;
+
+        // Vue2 syntax
+        if (typeof h === 'function') {
+            const context = secondArgument;
+
+            return context.props.node;
+        }
+
+        // Vue3 syntax
+        return this.node;
+    },
+
+    props: {
+        node: {
+            type: Object,
+            required: true,
+        },
     },
 });

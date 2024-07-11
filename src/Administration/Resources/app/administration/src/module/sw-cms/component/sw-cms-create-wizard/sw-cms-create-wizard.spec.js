@@ -80,13 +80,10 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
 
-        if (Shopware.State.get('cmsPageState')) {
-            Shopware.State.unregisterModule('cmsPageState');
-        }
-
-        Shopware.State.registerModule('cmsPageState', {
-            namespaced: true,
-            mutations: {
+        Shopware.Store.unregister('cmsPageState');
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            actions: {
                 setCurrentPageType: () => {},
             },
         });

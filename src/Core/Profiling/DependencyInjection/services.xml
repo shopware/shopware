@@ -18,6 +18,11 @@
             <tag name="shopware.profiler" integration="Datadog"/>
         </service>
 
+        <service id="Shopware\Core\Profiling\Integration\ServerTiming">
+            <tag name="shopware.profiler" integration="ServerTiming"/>
+            <tag name="kernel.event_listener" event="kernel.response" method="onResponseEvent"/>
+        </service>
+
         <service id="Shopware\Core\Profiling\Profiler" public="true">
             <argument type="tagged_iterator" tag="shopware.profiler" index-by="integration"/>
             <argument>%shopware.profiler.integrations%</argument>

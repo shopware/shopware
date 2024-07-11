@@ -18,6 +18,13 @@ const setup = async (itemChanges = {}) => {
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             },
+            provide: {
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({});
+                    },
+                },
+            },
         },
         propsData,
     });

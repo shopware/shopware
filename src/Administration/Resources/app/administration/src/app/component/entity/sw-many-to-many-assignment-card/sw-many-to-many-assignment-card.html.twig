@@ -23,13 +23,13 @@
                 <sw-select-base
                     ref="selectBase"
                     class="sw-entity-many-to-many-select"
-                    :disabled="disabled"
+                    :disabled="disabled || undefined"
                     :label="selectLabel"
                     :is-loading="isLoadingResults"
                     v-bind="$attrs"
                     @select-expanded="onSelectExpanded"
                     @select-collapsed="onSelectCollapsed"
-                    v-on="$listeners"
+                    v-on="listeners"
                 >
 
                     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
@@ -156,7 +156,7 @@
                     {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
                     <sw-context-menu-item
                         variant="danger"
-                        :disabled="disabled"
+                        :disabled="disabled || undefined"
                         @click="removeFromGrid(item)"
                     >
                         {{ $tc('global.entity-components.labelRemoveAssociation') }}

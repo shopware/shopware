@@ -113,7 +113,6 @@ class AppLifecycleTest extends TestCase
     public function testInstall(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-
         $eventWasReceived = false;
         $appId = null;
         $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
@@ -1273,21 +1272,25 @@ class AppLifecycleTest extends TestCase
 
     public function testRefreshFlowExtension(): void
     {
+        $app = null;
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+            $app = $event->getApp();
+        });
+
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
+        static::assertNotNull($app);
 
-        $flowActions = $this->getAppFlowActions($appId);
+        $flowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($flowActions);
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
         $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
 
-        $newFlowActions = $this->getAppFlowActions($appId);
+        $newFlowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($newFlowActions);
         static::assertCount(2, $newFlowActions);
         foreach ($flowActions as $action) {
@@ -1297,21 +1300,25 @@ class AppLifecycleTest extends TestCase
 
     public function testRefreshFlowExtensionWithAnotherAction(): void
     {
+        $app = null;
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+            $app = $event->getApp();
+        });
+
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
+        static::assertNotNull($app);
 
-        $flowActions = $this->getAppFlowActions($appId);
+        $flowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($flowActions);
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v3.xml');
         $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
 
-        $newFlowActions = $this->getAppFlowActions($appId);
+        $newFlowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($newFlowActions);
         static::assertCount(1, $newFlowActions);
         foreach ($flowActions as $action) {
@@ -1321,14 +1328,18 @@ class AppLifecycleTest extends TestCase
 
     public function testRefreshFlowActionUsedInFlowBuilder(): void
     {
+        $app = null;
+        $this->eventDispatcher->addListener(AppInstalledEvent::class, function (AppInstalledEvent $event) use (&$app): void {
+            $app = $event->getApp();
+        });
+
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
 
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
+        static::assertNotNull($app);
 
-        $flowActions = $this->getAppFlowActions($appId);
+        $flowActions = $this->getAppFlowActions($app->getId());
         static::assertIsArray($flowActions);
         static::assertArrayHasKey(0, $flowActions);
         static::assertIsArray($flowActions[0]);
@@ -1342,7 +1353,7 @@ class AppLifecycleTest extends TestCase
 
         $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/Resources/flow-v2.xml');
         $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+        $flowActionPersister->updateActions($app, $flowAction, $context, 'en-GB');
 
         $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
         static::assertSame($appFlowActionId, $flowActions[0]['id']);

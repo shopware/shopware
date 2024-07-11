@@ -20,10 +20,15 @@
             <factory service="kernel" method="getBundles"/>
         </service>
 
+        <service id="Shopware\Core\System\SystemConfig\Service\AppConfigReader">
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+        </service>
+
         <service id="Shopware\Core\System\SystemConfig\Service\ConfigurationService">
             <argument type="service" id="kernel.bundles" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Service\AppConfigReader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>

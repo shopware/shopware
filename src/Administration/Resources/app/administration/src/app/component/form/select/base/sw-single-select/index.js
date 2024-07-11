@@ -14,6 +14,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'item-selected',
@@ -144,6 +146,15 @@ Component.register('sw-single-select', {
          */
         visibleResults() {
             return this.results.filter(result => !result.hidden);
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

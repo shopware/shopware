@@ -277,6 +277,16 @@
                 }
             }
         },
+        "search": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "term_max_length": {
+                    "type": "integer",
+                    "title": "The maximum length of the search term"
+                }
+            }
+        },
         "mail": {
             "type": "object",
             "additionalProperties": false,
@@ -1103,6 +1113,18 @@
                 },
                 "url_upload_max_size": {
                     "type": "string"
+                },
+                "remote_thumbnails": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "pattern": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Media"

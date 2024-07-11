@@ -37,7 +37,7 @@ export default {
         },
 
         cmsPageState() {
-            return Shopware.State.get('cmsPageState');
+            return Shopware.Store.get('cmsPageState');
         },
 
         quickactionsDisabled() {

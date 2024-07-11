@@ -232,6 +232,7 @@ class OrderSerializerTest extends TestCase
                     'captures' => null,
                     'customFields' => null,
                     'id' => null,
+                    'validationData' => [],
                 ],
             ]),
         ];
@@ -365,6 +366,7 @@ class OrderSerializerTest extends TestCase
                     'captures' => null,
                     'customFields' => null,
                     'id' => null,
+                    'validationData' => [],
                 ],
             ]),
         ];

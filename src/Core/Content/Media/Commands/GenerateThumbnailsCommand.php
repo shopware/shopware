@@ -50,7 +50,8 @@ class GenerateThumbnailsCommand extends Command
         private readonly ThumbnailService $thumbnailService,
         private readonly EntityRepository $mediaRepository,
         private readonly EntityRepository $mediaFolderRepository,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
         parent::__construct();
     }
@@ -88,6 +89,13 @@ class GenerateThumbnailsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
+
+        if ($this->remoteThumbnailsEnable) {
+            $this->io->comment('Remote thumbnails are enabled. Skipping thumbnail generation.');
+
+            return self::FAILURE;
+        }
+
         $context = Context::createCLIContext();
 
         $this->initializeCommand($input, $context);

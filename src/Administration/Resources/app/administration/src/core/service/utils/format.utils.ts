@@ -56,6 +56,7 @@ export function currency(
     let result = '';
 
     try {
+        // @ts-expect-error - style "currency" is allowed in the options
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument,max-len
         result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
     } catch (e) {
@@ -72,6 +73,7 @@ export function currency(
             opts.style = 'decimal';
             // @ts-expect-error - we need to delete the currency property
             delete opts.currency;
+            // @ts-expect-error - style "decimal" is allowed in the options
             // eslint-disable-next-line max-len
             result = val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
         }

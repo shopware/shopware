@@ -37,7 +37,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         const condition = wrapper.find('sw-flow-sequence-condition-stub');
 
         expect(selector.exists()).toBeTruthy();
-        expect(action.exists()).toBeFalsy();
+        expect(action.attributes('style')).toBe('display: none;');
         expect(condition.exists()).toBeFalsy();
     });
 
@@ -54,7 +54,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         const condition = wrapper.find('sw-flow-sequence-condition-stub');
 
         expect(selector.exists()).toBeFalsy();
-        expect(action.exists()).toBeFalsy();
+        expect(action.attributes('style')).toBe('display: none;');
         expect(condition.exists()).toBeTruthy();
     });
 
@@ -71,7 +71,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         const condition = wrapper.find('sw-flow-sequence-condition-stub');
 
         expect(selector.exists()).toBeFalsy();
-        expect(action.exists()).toBeTruthy();
+        expect(action.attributes('style')).not.toBe('display: none;');
         expect(condition.exists()).toBeFalsy();
     });
 

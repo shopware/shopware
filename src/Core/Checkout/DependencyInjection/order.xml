@@ -64,11 +64,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
-            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>

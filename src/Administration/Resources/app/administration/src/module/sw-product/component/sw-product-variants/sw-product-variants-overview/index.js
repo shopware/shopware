@@ -333,6 +333,7 @@ export default {
                 criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
                 criteria.addQuery(Criteria.contains('product.options.name', term), 500);
             });
+            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
 
             // return the input
             return criteria;

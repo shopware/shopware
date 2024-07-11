@@ -195,7 +195,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            State.commit('context/setApiLanguageId', languageId);
+            State.commit('context/setLanguageId', languageId);
         },
     },
 

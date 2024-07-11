@@ -71,6 +71,12 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/config', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should show product selector if page type is not product detail', async () => {
         const wrapper = await createWrapper();
 

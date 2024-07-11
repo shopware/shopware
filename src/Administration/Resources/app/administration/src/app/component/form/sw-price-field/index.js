@@ -21,6 +21,8 @@ Component.register('sw-price-field', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'price-lock-change',

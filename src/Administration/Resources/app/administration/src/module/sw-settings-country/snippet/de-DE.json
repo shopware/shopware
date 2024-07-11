@@ -63,6 +63,7 @@
       "baseCurrency": "Bezugswährung",
       "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei.",
       "labelVatIdRequired": "USt-ID ist Pflichtfeld",
+      "labelIsEu": "Mitgliedstaat der Europäischen Union",
       "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
       "titleOptions": "Optionen",
       "currencyDependentValues": "Währungsabhängige Werte",

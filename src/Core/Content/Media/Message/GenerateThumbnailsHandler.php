@@ -22,12 +22,17 @@ final class GenerateThumbnailsHandler
      */
     public function __construct(
         private readonly ThumbnailService $thumbnailService,
-        private readonly EntityRepository $mediaRepository
+        private readonly EntityRepository $mediaRepository,
+        private readonly bool $remoteThumbnailsEnable = false
     ) {
     }
 
     public function __invoke(GenerateThumbnailsMessage|UpdateThumbnailsMessage $msg): void
     {
+        if ($this->remoteThumbnailsEnable) {
+            return;
+        }
+
         $context = $msg->getContext();
 
         $criteria = new Criteria();

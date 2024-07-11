@@ -13,6 +13,7 @@ CREATE TABLE `attribute_entity` (
     `datetime` DATETIME(3) NULL,
     `auto_increment` int NOT NULL AUTO_INCREMENT,
     `json` JSON NULL,
+    `custom_fields` JSON NULL,
     `date` DATE NULL,
     `date_interval` VARCHAR(255) NULL,
     `time_zone` VARCHAR(255) NULL,

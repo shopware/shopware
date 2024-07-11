@@ -371,6 +371,63 @@ class ThumbnailServiceTest extends TestCase
         ];
     }
 
+    public function testThumbnailGenerationThrowExceptionWhenRemoteThumbnailEnabled(): void
+    {
+        $this->thumbnailService = new ThumbnailService(
+            new StaticEntityRepository([]),
+            $this->filesystemPublic,
+            $this->filesystemPrivate,
+            new StaticEntityRepository([]),
+            $this->dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $this->connection,
+            true
+        );
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->thumbnailService->generate(new MediaCollection(), $this->context);
+    }
+
+    public function testUpdateThumbnailThrowExceptionWhenRemoteThumbnailEnabled(): void
+    {
+        $this->thumbnailService = new ThumbnailService(
+            new StaticEntityRepository([]),
+            $this->filesystemPublic,
+            $this->filesystemPrivate,
+            new StaticEntityRepository([]),
+            $this->dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $this->connection,
+            true
+        );
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->thumbnailService->updateThumbnails(new MediaEntity(), $this->context, false);
+    }
+
+    public function testDeleteThumbnailThrowExceptionWhenRemoteThumbnailEnabled(): void
+    {
+        $this->thumbnailService = new ThumbnailService(
+            new StaticEntityRepository([]),
+            $this->filesystemPublic,
+            $this->filesystemPrivate,
+            new StaticEntityRepository([]),
+            $this->dispatcher,
+            $this->indexer,
+            $this->thumbnailSizeCalculator,
+            $this->connection,
+            true
+        );
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::thumbnailGenerationDisabled()->getMessage());
+        $this->thumbnailService->deleteThumbnails(new MediaEntity(), $this->context);
+    }
+
     /**
      * @param list<mixed> $parameters
      *

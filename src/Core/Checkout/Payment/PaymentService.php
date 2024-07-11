@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -28,6 +29,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PaymentService
 {
@@ -58,6 +62,11 @@ class PaymentService
         ?string $finishUrl = null,
         ?string $errorUrl = null
     ): ?RedirectResponse {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         if (!Uuid::isValid($orderId)) {
             throw PaymentException::invalidOrder($orderId);
         }
@@ -104,6 +113,11 @@ class PaymentService
 
     public function finalizeTransaction(string $paymentToken, Request $request, SalesChannelContext $context): TokenStruct
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         $token = $this->tokenFactory->parseToken($paymentToken);
 
         if ($token->isExpired()) {

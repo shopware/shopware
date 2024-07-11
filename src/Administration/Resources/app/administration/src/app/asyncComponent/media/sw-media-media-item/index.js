@@ -66,6 +66,15 @@ export default {
         fileSizeFilter() {
             return Shopware.Filter.getByName('fileSize');
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {

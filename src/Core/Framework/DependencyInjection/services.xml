@@ -66,7 +66,6 @@ base-uri 'self';
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
-
         </service>
 
         <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">
@@ -235,7 +234,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
             <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <!-- Translation -->
@@ -366,7 +365,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
             <tag name="twig.extension"/>
         </service>
-        
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
             <tag name="twig.extension" />
         </service>

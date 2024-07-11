@@ -19,6 +19,7 @@ class UtilException extends HttpException
     public const XML_PARSE_ERROR = 'UTIL__XML_PARSE_ERROR';
 
     public const XML_ELEMENT_NOT_FOUND = 'UTIL__XML_ELEMENT_NOT_FOUND';
+    public const FILESYSTEM_FILE_NOT_FOUND = 'UTIL__FILESYSTEM_FILE_NOT_FOUND';
 
     public static function invalidJson(\JsonException $e): self
     {
@@ -64,5 +65,15 @@ class UtilException extends HttpException
         }
 
         return new UtilXmlParsingException($file, $message);
+    }
+
+    public static function cannotFindFileInFilesystem(string $file, string $filesystem): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FILESYSTEM_FILE_NOT_FOUND,
+            'The file "{{ file }}" does not exist in the given filesystem "{{ filesystem }}"',
+            ['file' => $file, 'filesystem' => $filesystem]
+        );
     }
 }

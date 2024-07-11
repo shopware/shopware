@@ -589,7 +589,8 @@ class InvoiceRendererTest extends TestCase
         }
 
         if ($invoiceSettings) {
-            $this->updateInvoiceConfig($order, $invoiceSettings);
+            $this->updateInvoiceConfig($invoiceSettings);
+            $this->updateCountryMemberState($order, $invoiceSettings['setCustomerShippingCountryAsMemberCountry']);
         }
 
         if ($enableTaxFreeB2bOption) {
@@ -715,20 +716,21 @@ class InvoiceRendererTest extends TestCase
     /**
      * @param array{enableIntraCommunityDeliveryLabel: bool, setCustomerShippingCountryAsMemberCountry: bool} $config
      */
-    private function updateInvoiceConfig(OrderEntity $order, array $config): void
+    private function updateInvoiceConfig(array $config): void
     {
         $data = [
             'displayAdditionalNoteDelivery' => $config['enableIntraCommunityDeliveryLabel'],
         ];
 
-        if ($config['setCustomerShippingCountryAsMemberCountry']) {
-            $countyId = $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId();
-            if ($countyId !== null) {
-                $data['deliveryCountries'] = [$countyId];
-            }
-        }
-
         $this->upsertBaseConfig($data, InvoiceRenderer::TYPE);
+    }
+
+    private function updateCountryMemberState(OrderEntity $order, bool $isEu): void
+    {
+        $this->getContainer()->get('country.repository')->upsert([[
+            'id' => $order->getAddresses()?->get($order->getBillingAddressId())?->getCountry()?->getId(),
+            'isEu' => $isEu,
+        ]], Context::createDefaultContext());
     }
 
     private function updateCountrySettings(OrderEntity $order): void

@@ -2,7 +2,7 @@ import { test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
 import { Response, isSaaSInstance } from '@shopware-ag/acceptance-test-suite';
 
-test('Journey: Merchant is able accept or decline the data sharing consent.', async ({
+test('Merchant is able accept or decline the data sharing consent.', { tag: '@DataSharing' }, async ({
     ShopAdmin,
     AdminDashboard,
     AdminDataSharing,

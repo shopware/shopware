@@ -41,7 +41,7 @@ Component.register('sw-tabs', {
             return false;
         },
 
-        itemsBackwardCompatible() {
+        itemsBackwardCompatible(): TabItem[] {
             if (this.items) {
                 return this.items;
             }
@@ -113,6 +113,16 @@ Component.register('sw-tabs', {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return items;
         },
+
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        listeners(): Record<string, Function | Function[]> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     data(): {
@@ -133,12 +143,15 @@ Component.register('sw-tabs', {
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
 
         mountedComponent() {

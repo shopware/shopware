@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -166,9 +167,12 @@ EOF;
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $orderStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order.state']);
+        $orderOpen = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderStates::STATE_OPEN, 'id' => $orderStateMachineId]);
+
+        $deliveryStateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
+        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $deliveryStateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -195,7 +199,7 @@ EOF;
                 'lastName' => 'Mustermann',
             ],
             'orderNumber' => Uuid::randomHex(),
-            'stateId' => Uuid::fromBytesToHex($stateMachineId),
+            'stateId' => Uuid::fromBytesToHex($orderOpen),
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,

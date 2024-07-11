@@ -93,7 +93,6 @@
                 name="content"
                 v-bind="{ item, openTreeItem, getName }"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_items_item_content_edit %}
                 <template v-if="currentEditElement === item.data.id">
@@ -159,7 +158,7 @@
                 <sw-context-button
                     v-tooltip="toolTip"
                     class="sw-tree-item__context_button"
-                    :disabled="isDisabled"
+                    :disabled="isDisabled || undefined"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -177,7 +176,7 @@
                     {% block sw_tree_items_actions_before %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
-                        :disabled="!allowNewCategories"
+                        :disabled="!allowNewCategories || undefined"
                         class="sw-tree-item__before-action"
                         @click="addElement(item, 'before')"
                     >
@@ -189,7 +188,7 @@
                     {% block sw_tree_items_actions_after %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
-                        :disabled="!allowNewCategories"
+                        :disabled="!allowNewCategories || undefined"
                         class="sw-tree-item__after-action"
                         @click="addElement(item, 'after')"
                     >
@@ -201,7 +200,7 @@
                     {% block sw_tree_items_actions_sub %}
                     <sw-context-menu-item
                         v-if="!allowCreateWithoutPosition"
-                        :disabled="!allowNewCategories"
+                        :disabled="!allowNewCategories || undefined"
                         class="sw-tree-item__sub-action"
                         @click="addSubElement(item); openTreeItem(true)"
                     >
@@ -235,7 +234,7 @@
                         {% block sw_tree_items_actions_delete %}
                         <sw-context-menu-item
                             class="sw-context-menu__group-button-delete"
-                            :disabled="!allowDeleteCategories"
+                            :disabled="!allowDeleteCategories || undefined"
                             variant="danger"
                             @click="deleteElement(item)"
                         >
@@ -262,7 +261,6 @@
             v-if="isOpened && item.children.length > 0"
             class="sw-tree-item__children"
         >
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_item_children_items %}
             <sw-tree-item
@@ -288,12 +286,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_tree_item_children_items_slots %}
                 <template #content="{ item, openTreeItem, getName: innerGetName }">
-
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_tree_item_children_items_slot_content %}
                     <sw-vnode-renderer
-                        v-if="$scopedSlots.content"
-                        :node="$scopedSlots.content({ item, openTreeItem, getName })"
+                        v-if="contentSlot"
+                        :node="renderContentSlotNode({ item, openTreeItem, getName })"
                     />
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -352,8 +349,8 @@
                     {% endblock %}
 
                     <sw-vnode-renderer
-                        v-if="$scopedSlots.actions"
-                        :node="$scopedSlots.actions({ item, openTreeItem })"
+                        v-if="actionsSlot"
+                        :node="renderActionsSlotNode({ item, openTreeItem })"
                     />
                     <template v-else>
                         <sw-context-button
@@ -376,7 +373,7 @@
                             {% block sw_tree_items_transition_actions_before %}
                             <sw-context-menu-item
                                 v-if="!allowCreateWithoutPosition"
-                                :disabled="!allowNewCategories"
+                                :disabled="!allowNewCategories || undefined"
                                 class="sw-tree-item__before-action"
                                 @click="addElement(item, 'before')"
                             >
@@ -434,7 +431,7 @@
                                 {% block sw_tree_items_transition_actions_delete %}
                                 <sw-context-menu-item
                                     class="sw-context-menu__group-button-delete"
-                                    :disabled="!allowDeleteCategories"
+                                    :disabled="!allowDeleteCategories || undefined"
                                     variant="danger"
                                     @click="deleteElement(item)"
                                 >

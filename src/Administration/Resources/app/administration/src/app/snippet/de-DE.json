@@ -769,7 +769,7 @@
         "lineItemDimensionWeightRule": "Position mit Gewicht",
         "lineItemDimensionVolumeRule": "Position mit Volumen",
         "lineItemListPriceRule": "Position mit Streichpreis",
-        "lineItemListPriceRatioRule": "Position mit prozentualen Preis/Streichpreis Verhältnis",
+        "lineItemListPriceRatioRule": "Position mit Preis/Streichpreis-Verhältnis",
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",

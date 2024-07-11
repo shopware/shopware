@@ -21,7 +21,8 @@
         "move": "Verschieben",
         "replace": "Ersetzen",
         "settings": "Einstellungen",
-        "ar": "AR-Ansicht aktivieren"
+        "ar": "AR-Ansicht aktivieren",
+        "arHelpText": "AR-Funktion aktiviert, wenn sie in der Storefront präsentiert wird. Sie können die Standardeinstellung in <a href=\"{settingsLink}\">den 3D-Einstellungen</a> ändern."
       },
       "sections": {
         "actions": "Aktionen",

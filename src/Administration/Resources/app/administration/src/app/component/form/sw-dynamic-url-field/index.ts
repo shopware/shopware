@@ -17,6 +17,8 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 Component.register('sw-dynamic-url-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],

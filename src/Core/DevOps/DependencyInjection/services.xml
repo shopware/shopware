@@ -48,7 +48,7 @@
         </service>
 
         <service id="Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetClassesPerAreaCommand">
-            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Composer\Autoload\ClassLoader"/>
             <tag name="console.command"/>
         </service>
 

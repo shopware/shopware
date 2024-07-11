@@ -777,7 +777,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-number-field-stub[label="sw-sales-channel.detail.productComparison.interval"]',
+            '[label="sw-sales-channel.detail.productComparison.interval"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
@@ -795,7 +795,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         const field = wrapper.get(
-            'sw-select-number-field-stub[label="sw-sales-channel.detail.productComparison.interval"]',
+            '[label="sw-sales-channel.detail.productComparison.interval"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();
@@ -1109,5 +1109,19 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
+
+    it('"changeInterval" also updates cronjob config', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.changeInterval(0);
+
+        expect(wrapper.vm.disableGenerateByCronjob).toBe(true);
+        expect(wrapper.vm.productExport.generateByCronjob).toBe(false);
+
+        wrapper.vm.changeInterval(10);
+
+        expect(wrapper.vm.disableGenerateByCronjob).toBe(false);
+        expect(wrapper.vm.productExport.generateByCronjob).toBe(true);
     });
 });

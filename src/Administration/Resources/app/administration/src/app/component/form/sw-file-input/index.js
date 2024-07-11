@@ -25,6 +25,8 @@ Component.register('sw-file-input', {
 
     inject: ['feature'],
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('notification'),
     ],

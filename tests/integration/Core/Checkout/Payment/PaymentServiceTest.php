@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,6 +43,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed with new payment handlers
  */
 #[Package('checkout')]
 class PaymentServiceTest extends TestCase
@@ -68,6 +71,8 @@ class PaymentServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
         $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);

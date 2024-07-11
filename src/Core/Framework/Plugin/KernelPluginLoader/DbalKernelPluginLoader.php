@@ -6,6 +6,9 @@ use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-import-type PluginInfo from KernelPluginLoader
+ */
 #[Package('core')]
 class DbalKernelPluginLoader extends KernelPluginLoader
 {
@@ -35,12 +38,24 @@ class DbalKernelPluginLoader extends KernelPluginLoader
 SQL;
 
         $plugins = $this->connection->executeQuery($sql)->fetchAllAssociative();
-        foreach ($plugins as $i => $plugin) {
-            $plugins[$i]['active'] = (bool) $plugin['active'];
-            $plugins[$i]['managedByComposer'] = (bool) $plugin['managedByComposer'];
-            $plugins[$i]['autoload'] = json_decode((string) $plugin['autoload'], true, 512, \JSON_THROW_ON_ERROR);
+
+        /** @var array<int, PluginInfo> $result */
+        $result = [];
+
+        /** @var array{baseClass: string, name: string, active: int, path: string, version: string|null, autoload: string, managedByComposer: int, composerName: string } $plugin */
+        foreach ($plugins as $plugin) {
+            $result[] = [
+                'baseClass' => $plugin['baseClass'],
+                'name' => $plugin['name'],
+                'active' => (bool) $plugin['active'],
+                'path' => $plugin['path'],
+                'version' => $plugin['version'],
+                'autoload' => json_decode((string) $plugin['autoload'], true, 512, \JSON_THROW_ON_ERROR),
+                'managedByComposer' => (bool) $plugin['managedByComposer'],
+                'composerName' => $plugin['composerName'],
+            ];
         }
 
-        $this->pluginInfos = $plugins;
+        $this->pluginInfos = $result;
     }
 }

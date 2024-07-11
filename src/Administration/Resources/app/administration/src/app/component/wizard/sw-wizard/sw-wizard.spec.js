@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -26,6 +27,9 @@ async function createWrapper(options = {}) {
                 'sw-icon': true,
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'mt-button': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {

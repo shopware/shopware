@@ -34,8 +34,6 @@ class CategoryListRoute extends AbstractCategoryListRoute
     #[Route(path: '/store-api/category', name: 'store-api.category.search', defaults: ['_entity' => 'category'], methods: ['GET', 'POST'])]
     public function load(Criteria $criteria, SalesChannelContext $context): CategoryListRouteResponse
     {
-        $criteria->addFilter(new EqualsFilter('active', true));
-
         $rootIds = array_filter([
             $context->getSalesChannel()->getNavigationCategoryId(),
             $context->getSalesChannel()->getFooterCategoryId(),

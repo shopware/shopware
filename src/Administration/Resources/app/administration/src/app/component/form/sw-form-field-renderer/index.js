@@ -69,7 +69,10 @@ const { types } = Shopware.Utils;
  */
 Component.register('sw-form-field-renderer', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory', 'feature'],
 
@@ -323,6 +326,16 @@ Component.register('sw-form-field-renderer', {
             this.createRepository('currency').get(systemCurrencyId).then(response => {
                 this.currency = response;
             });
+        },
+
+        getScopedSlots() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$scopedSlots,
+                };
+            }
+
+            return this.$slots;
         },
     },
 });

@@ -148,18 +148,6 @@ You should only use end-to-end tests if the functionality cannot be covered by o
 
 **Note:** Keeping the rules in mind, validating business requirements via the Storefront interface makes much more sense than the Administration. The Administration of Shopware is just a user interface to the Admin API and mostly makes use of simple CRUD operations. As the API and data layer of Shopware are already covered by many other functional tests, an end-to-end test navigating the Administration will therefore primarily focus on the user interface. In addition, there are other types of functional tests to cover the Administration, for example, component unit tests with Jest.
 
-### Types of end-to-end tests
-
-Within this test suite we will distinguish between two different types of tests.
-
-#### 1. Journey Scenarios
-
-These kind of scenarios describe a full user journey through essential parts of the product. They can cover several functionalities at once. As these kind of scenarios are more complex in general they should only be used for test cases of the first priority category. In addition, they should always focus on the "[happy path](https://en.wikipedia.org/wiki/Happy_path)" of the user journey and leave out other complex requirements.
-
-#### 2. Requirement Scenarios
-
-These kind of scenarios are for validating specific business requirements of a feature. They only test one essential part of a user workflow and should not cover more parts as needed. Mostly you will use the API and other preparation options to put the system under test into a state where the end-to-end test can directly start at the specific use case, leaving out all other steps.
-
 ### Best Practices
 
 If you decided that you want to create a new end-to-end acceptance test scenario, you should implement the following best practices.

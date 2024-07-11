@@ -13,6 +13,9 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-base', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     props: {
@@ -44,6 +47,15 @@ Component.register('sw-select-base', {
     computed: {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

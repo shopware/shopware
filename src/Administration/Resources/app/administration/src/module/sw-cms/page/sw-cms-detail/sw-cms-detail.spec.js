@@ -139,10 +139,8 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/page/sw-cms-detail', () => {
-    const cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
-
     beforeEach(async () => {
-        Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
+        Shopware.Store.get('cmsPageState').$reset();
 
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
         jest.resetModules();
@@ -296,7 +294,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             },
         });
 
-        const State = Shopware.State._store.state.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPageState;
 
         await wrapper.vm.$nextTick();
 
@@ -340,7 +338,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             },
         });
 
-        const State = Shopware.State._store.state.cmsPageState;
+        const State = Shopware.Store._rootState.state.value.cmsPageState;
 
         await wrapper.vm.$nextTick();
 
@@ -438,13 +436,13 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let State = Shopware.State._store.state.cmsPageState;
+        let State = Shopware.Store._rootState.state.value.cmsPageState;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.LANDING);
 
         wrapper.findComponent('sw-cms-sidebar-stub').vm.$emit('page-type-change', CMS.PAGE_TYPES.SHOP);
         await flushPromises();
 
-        State = Shopware.State._store.state.cmsPageState;
+        State = Shopware.Store._rootState.state.value.cmsPageState;
         expect(State.currentPageType).toBe(CMS.PAGE_TYPES.SHOP);
         expect(wrapper.vm.page.type).toBe(CMS.PAGE_TYPES.SHOP);
     });

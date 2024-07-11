@@ -17,7 +17,22 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         };
     },
 
+    provide() {
+        return {
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            restoreInheritanceHandler: this.handleRestoreInheritance,
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            removeInheritanceHandler: this.handleRemoveInheritance,
+        };
+    },
+
     props: {
+        name: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             type: Object as PropType<any>,
@@ -32,9 +47,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
                 return this.$attrs.name as string;
             }
 
-            // @ts-expect-error - name exists on main component
             if (this.name) {
-                // @ts-expect-error - name exists on main component
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.name;
             }
@@ -74,33 +87,69 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         },
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
     methods: {
+        handleRestoreInheritance() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+            if (!this.mapInheritance?.restoreInheritance) {
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+            this.mapInheritance.restoreInheritance();
+        },
+
+        handleRemoveInheritance() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+            if (!this.mapInheritance?.removeInheritance) {
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+            this.mapInheritance.removeInheritance();
+        },
+
         beforeDestroyComponent() {
-            // remove event listener
-            this.$off('inheritance-restore');
-            this.$off('inheritance-remove');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // remove event listener
+                this.$off('inheritance-restore');
+                this.$off('inheritance-remove');
+            }
         },
 
         setFunctionsForEvents(prop: string, propValue: () => void) {
-            switch (prop) {
-                case 'restoreInheritance': {
-                    this.$off('inheritance-restore');
-                    this.$on('inheritance-restore', propValue);
-                    break;
-                }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                switch (prop) {
+                    case 'restoreInheritance': {
+                        this.$off('inheritance-restore');
+                        this.$on('inheritance-restore', propValue);
+                        break;
+                    }
 
-                case 'removeInheritance': {
-                    this.$off('inheritance-remove');
-                    this.$on('inheritance-remove', propValue);
-                    break;
-                }
+                    case 'removeInheritance': {
+                        this.$off('inheritance-remove');
+                        this.$on('inheritance-remove', propValue);
+                        break;
+                    }
 
-                default: {
-                    break;
+                    default: {
+                        break;
+                    }
                 }
             }
         },

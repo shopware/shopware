@@ -1936,31 +1936,6 @@ parameters:
 			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with string will always evaluate to true\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getPayload\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getProductId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getQuantity\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
-			message: "#^Cannot call method getReferencedId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Cart/ProductLineItemCommandValidatorTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with arguments 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Price\\\\\\\\Struct\\\\\\\\CalculatedPrice', Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice and string will always evaluate to true\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php
@@ -3626,11 +3601,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Exception/PluginComposerJsonInvalidException.php
 
 		-
-			message: "#^Call to function method_exists\\(\\) with 'Composer\\\\\\\\InstalledVersions' and 'getInstalledPackage…' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/ComposerPluginLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\StaticKernelPluginLoader\\:\\:__construct\\(\\) has parameter \\$plugins with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
@@ -3789,21 +3759,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/Extension/PhpSyntaxExtensionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$expected with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
 
 		-
 			message: "#^Call to an undefined method object\\:\\:internalSetEntityData\\(\\)\\.$#"
@@ -4705,15 +4660,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationSourceTest.php
 
-		-
-			message: "#^Call to function method_exists\\(\\) with 'Composer\\\\\\\\InstalledVersions' and 'getInstalledPackage…' will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader constructor invoked with 3 parameters, 1\\-2 required\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\DependencyInjection\\\\Definition will always evaluate to true\\.$#"

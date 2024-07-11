@@ -33,6 +33,8 @@ Component.register('sw-boolean-radio-group', {
 
     inject: ['feature'],
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: Boolean,

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp;
 
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  */
+#[Package('buyers-experience')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class StoreApiSeoResolverTestRoute
 {

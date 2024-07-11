@@ -158,8 +158,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                     $entity->setSeoUrls(new SeoUrlCollection());
                 }
 
-                /** @phpstan-ignore-next-line - will complain that 'getSeoUrls' might be null, but we will set it if it is null */
-                $entity->getSeoUrls()->add($url);
+                /** @var SeoUrlCollection $seoUrlCollection */
+                $seoUrlCollection = $entity->getSeoUrls();
+                $seoUrlCollection->add($url);
             }
         }
     }

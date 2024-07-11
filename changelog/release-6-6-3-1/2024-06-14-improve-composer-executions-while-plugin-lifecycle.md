@@ -1,5 +1,5 @@
 ---
-title: Improve composer executions while plugin lifecycle
+title: Improve composer executions during plugin lifecycle
 issue: NEXT-36780
 ---
 

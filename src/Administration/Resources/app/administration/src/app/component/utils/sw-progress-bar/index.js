@@ -15,6 +15,8 @@ const { Component } = Shopware;
 Component.register('sw-progress-bar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['userActivityService'],
 
     props: {

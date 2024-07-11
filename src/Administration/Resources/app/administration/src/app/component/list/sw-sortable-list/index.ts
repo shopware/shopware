@@ -50,6 +50,8 @@ interface ScrollOnDragConf {
 Component.register('sw-sortable-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         items: {
             type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,

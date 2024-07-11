@@ -7,6 +7,7 @@ const { Component } = Shopware;
  * @package services-settings
  */
 Component.register('sw-arrow-field', {
+    compatConfig: Shopware.compatConfig,
 
     render(h) {
         return h('div', {

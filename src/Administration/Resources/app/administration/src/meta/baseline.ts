@@ -445,7 +445,7 @@ const missingTests = [
     'src/module/sw-cms/elements/youtube-video/config/index.js',
     'src/module/sw-cms/elements/youtube-video/preview/index.js',
     'src/module/sw-cms/index.js',
-    'src/module/sw-cms/mixin/sw-cms-element.mixin.js',
+    'src/module/sw-cms/mixin/sw-cms-element.mixin.ts',
     'src/module/sw-cms/mixin/sw-cms-state.mixin.js',
     'src/module/sw-customer/component/sw-customer-address-form-options/index.js',
     'src/module/sw-customer/constant/sw-customer.constant.js',

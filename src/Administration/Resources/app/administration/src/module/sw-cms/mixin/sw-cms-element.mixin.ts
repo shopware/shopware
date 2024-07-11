@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { defineComponent } from 'vue';
 
 const { Mixin } = Shopware;
@@ -30,24 +33,23 @@ export default Mixin.register('cms-element', defineComponent({
         },
     },
 
-    data() {
-        return {
-            cmsPageState: Shopware.Store.get('cmsPageState'),
-        };
-    },
-
     computed: {
-        cmsElements() {
-            return this.cmsService.getCmsElementRegistry();
+        cmsElements(): Record<string, $TSFixMe> {
+            return this.cmsService.getCmsElementRegistry() as Record<string, $TSFixMe>;
         },
 
-        category() {
-            return Shopware.State.get('swCategoryDetail')?.category;
+        category(): undefined|EntitySchema.Entities['category'] {
+            // eslint-disable-next-line max-len, @typescript-eslint/no-unsafe-member-access
+            return Shopware.State.get('swCategoryDetail')?.category as unknown as undefined|EntitySchema.Entities['category'];
+        },
+
+        cmsPageState() {
+            return Shopware.Store.get('cmsPageState');
         },
     },
 
     methods: {
-        initElementConfig(elementName) {
+        initElementConfig(elementName: string) {
             let defaultConfig = this.defaultConfig;
             if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
@@ -68,7 +70,7 @@ export default Mixin.register('cms-element', defineComponent({
             );
         },
 
-        initElementData(elementName) {
+        initElementData(elementName: string) {
             if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                 return;
             }
@@ -79,15 +81,15 @@ export default Mixin.register('cms-element', defineComponent({
             this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
         },
 
-        getDemoValue(mappingPath) {
+        getDemoValue(mappingPath: string): $TSFixMe {
             return this.cmsService.getPropertyByMappingPath(
                 this.cmsPageState.currentDemoEntity,
                 mappingPath,
             );
         },
 
-        getDefaultTranslations(entity) {
-            return entity.translations.find((translation) => {
+        getDefaultTranslations(entity: EntitySchema.Entities['category']): $TSFixMe {
+            return entity.translations.find((translation: $TSFixMe) => {
                 return translation.languageId === Shopware.Context.api.systemLanguageId;
             });
         },

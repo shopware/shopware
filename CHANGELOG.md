@@ -1,6 +1,18 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.12
+*  [NEXT-31890 - Fix Bulk Edit one to many associations length evaluation and infinite requests](./changelog/release-6-5-8-12/2023-09-27-fix-one-to-many-bulk-edit.md) ([Lily Berkow](https://github.com/TheAnimeGuru))
+*  [NEXT-28322 - buld and variant retry](./changelog/release-6-5-8-12/2023-12-14-buld-and-variant-retry.md) ([Pascal Thesing](https://github.com/Pascal Thesing))
+*  [NEXT-36441 - slotId ApiAware](./changelog/release-6-5-8-12/2024-05-29-slotid-apiaware.md)
+*  [NEXT-36479 - Move routing overwrite](./changelog/release-6-5-8-12/2024-06-05-move-routing-overwrite.md)
+*  [NEXT-16551 - Add order and customer number filters to admin lists](./changelog/release-6-5-8-12/2024-06-26-add-order-and-customer-number-filters-to-admin-lists.md)
+*  [NEXT-36534 - Bulk edit with more than 25 selections broken](./changelog/release-6-5-8-12/2024-06-28-bulk-edit-with-more-than-25-selections-broken.md)
+*  [NEXT-36927 - Don't remove cache cookies for 404 pages](./changelog/release-6-5-8-12/2024-07-03-dont-remove-cache-cookies-for-404.md)
+*  [NEXT-31209 - Increase app payment timeout to 20 s](./changelog/release-6-5-8-12/2024-07-05-increase-app-payment-timeout-to-20-s.md)
+*  [NEXT-37072 - Only cleanup successfully delivered or permanently failed webhook events](./changelog/release-6-5-8-12/2024-07-05-only-cleanup-sucessfully-delivered-webhooks.md)
+*  [NEXT-37140 - Limit search term length for mysql search](./changelog/release-6-5-8-12/2024-07-08-limit-search-term-length-for-mysql-search.md)
+
 ## 6.5.8.11
 *  [NEXT-31896 - Fix promotion individual code redeemer if first assigned promotion is not instance of PromotionIndividualCodeEntity](./changelog/release-6-5-8-11/2023-10-21-fix-promotion-used-logic.md) ([Wolfgang Kreminger](https://github.com/r4pt0s))
 *  [NEXT-30469 - Enable iFrame full screen for sdk modules](./changelog/release-6-5-8-11/2024-02-23-enable-iframe-full-screen-for-sdk-modules.md)

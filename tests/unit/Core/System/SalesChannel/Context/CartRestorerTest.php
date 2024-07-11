@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -32,6 +33,8 @@ class CartRestorerTest extends TestCase
 
     private EventDispatcher $eventDispatcher;
 
+    private RequestStack $requestStack;
+
     protected function setUp(): void
     {
         $this->salesChannelContextFactory = $this->createMock(SalesChannelContextFactory::class);
@@ -39,6 +42,7 @@ class CartRestorerTest extends TestCase
         $this->cartService = $this->createMock(CartService::class);
         $this->cartRuleLoader = $this->createMock(CartRuleLoader::class);
         $this->eventDispatcher = new EventDispatcher();
+        $this->requestStack = new RequestStack();
     }
 
     public function testRestoreByTokenWithoutExistingToken(): void
@@ -61,7 +65,8 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requestStack
         );
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
@@ -110,7 +115,8 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requestStack
         );
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
@@ -158,7 +164,8 @@ class CartRestorerTest extends TestCase
             $this->persister,
             $this->cartService,
             $this->cartRuleLoader,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requestStack
         );
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);

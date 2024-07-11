@@ -127,6 +127,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $salesChannelContext->lockPermissions();
         }
 
+        if (\array_key_exists(SalesChannelContextService::IMITATING_USER_ID, $options)) {
+            $salesChannelContext->setImitatingUserId($options[SalesChannelContextService::IMITATING_USER_ID]);
+        }
+
         $salesChannelContext->setTaxState($this->taxDetector->getTaxState($salesChannelContext));
 
         return $salesChannelContext;

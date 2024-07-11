@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import 'src/app/component/structure/sw-admin';
 import { mount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';

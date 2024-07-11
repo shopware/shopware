@@ -11,6 +11,8 @@ const { createId, types } = Shopware.Utils;
 Component.register('sw-admin-menu-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl', 'feature'],
 
     props: {

@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-popover', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         isOpened: {
             type: Boolean,

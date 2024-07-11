@@ -1,3 +1,8 @@
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-time-ago';
 
@@ -15,15 +20,15 @@ async function createWrapper(props = {}) {
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-status.html.twig';
 import './sw-status.scss';
 
@@ -18,6 +22,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-status', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         color: {

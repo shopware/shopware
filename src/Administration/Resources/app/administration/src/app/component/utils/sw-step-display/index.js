@@ -30,6 +30,8 @@ const { Component } = Shopware;
 Component.register('sw-step-display', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     provide() {
         return {
             addStep: this.addStep,

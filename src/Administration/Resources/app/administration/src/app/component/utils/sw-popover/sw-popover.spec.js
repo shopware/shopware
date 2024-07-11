@@ -1,12 +1,18 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-popover', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-popover-deprecated': true,
+                'mt-floating-ui': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

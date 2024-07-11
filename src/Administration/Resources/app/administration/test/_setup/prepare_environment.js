@@ -229,7 +229,7 @@ global.allowedErrors = [
             }
 
             return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes('is deprecated and will be removed in v6.7.0.0. Please use');
+                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
         },
     },
     sendTimeoutExpired,

@@ -2,7 +2,7 @@
     class="sw-icon sw-icon--fill"
     :class="classes"
     :style="styles"
-    :aria-hidden="decorative"
+    :aria-hidden="decorative || undefined"
     :data-testid="'sw-icon__' + name"
     v-on="listeners"
     v-html="iconSvgData"

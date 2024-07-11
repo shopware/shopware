@@ -25,6 +25,8 @@ const { Component } = Shopware;
 Component.register('sw-card-section', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         divider: {
             type: String,

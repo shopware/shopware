@@ -23,6 +23,8 @@ const { Component } = Shopware;
 Component.register('sw-circle-icon', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         size: {
             type: Number,

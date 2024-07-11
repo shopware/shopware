@@ -16,6 +16,8 @@ const { Component } = Shopware;
 Component.register('sw-product-image', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         mediaId: {
             type: String,

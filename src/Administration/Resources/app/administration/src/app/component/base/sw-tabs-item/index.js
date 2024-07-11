@@ -30,7 +30,12 @@ Component.register('sw-tabs-item', {
 
     inheritAttrs: false,
 
-    inject: ['feature', 'onNewItemActive'],
+    inject: [
+        'feature',
+        'onNewItemActive',
+        'registerNewTabItem',
+        'unregisterNewTabItem',
+    ],
 
     props: {
         route: {
@@ -123,12 +128,21 @@ Component.register('sw-tabs-item', {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            this.$parent.$off('new-item-active', this.checkIfActive);
+        } else {
+            this.unregisterNewTabItem(this);
+        }
+    },
+
     methods: {
         createdComponent() {
             if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this.$parent.$on('new-item-active', this.checkIfActive);
             } else {
                 this.onNewItemActive(this.checkIfActive);
+                this.registerNewTabItem(this);
             }
 
             if (this.active) {

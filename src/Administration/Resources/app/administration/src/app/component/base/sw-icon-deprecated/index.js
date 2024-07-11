@@ -45,6 +45,8 @@ const { Component } = Shopware;
 Component.register('sw-icon-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
     ],

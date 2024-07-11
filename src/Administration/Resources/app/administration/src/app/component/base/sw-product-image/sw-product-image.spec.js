@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -24,10 +25,9 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-media-preview-v2': true,
             },
-
-            props: {
-                mediaId: 'b849df93c8bb4c7a94441fb0e82be516',
-            },
+        },
+        props: {
+            mediaId: 'b849df93c8bb4c7a94441fb0e82be516',
         },
     });
 }

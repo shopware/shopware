@@ -19,6 +19,7 @@ Shopware.Component.register('sw-customer-base-info', () => import('./component/s
 Shopware.Component.register('sw-customer-address-form', () => import('./component/sw-customer-address-form'));
 Shopware.Component.register('sw-customer-address-form-options', () => import('./component/sw-customer-address-form-options'));
 Shopware.Component.register('sw-customer-default-addresses', () => import('./component/sw-customer-default-addresses'));
+Shopware.Component.register('sw-customer-imitate-customer-modal', () => import('./component/sw-customer-imitate-customer-modal'));
 Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 

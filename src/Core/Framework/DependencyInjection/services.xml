@@ -469,6 +469,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

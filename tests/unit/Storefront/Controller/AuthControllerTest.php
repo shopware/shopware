@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -43,6 +44,7 @@ class AuthControllerTest extends TestCase
         $resetPasswordRoute = $this->createMock(AbstractResetPasswordRoute::class);
         $this->loginRoute = $this->createMock(AbstractLoginRoute::class);
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
+        $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
         $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
 
@@ -52,6 +54,7 @@ class AuthControllerTest extends TestCase
             $resetPasswordRoute,
             $this->loginRoute,
             $logoutRoute,
+            $imitateCustomerRoute,
             $cartFacade,
             $recoverPasswordRoute,
         );

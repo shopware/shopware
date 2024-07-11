@@ -84,6 +84,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader"/>
             <call method="setContainer">

@@ -5,10 +5,13 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -50,6 +53,7 @@ class AuthController extends StorefrontController
         private readonly AbstractResetPasswordRoute $resetPasswordRoute,
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
         private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
     ) {
@@ -293,5 +297,22 @@ class AuthController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    #[Route(path: '/account/login/imitate-customer', name: 'frontend.account.login.imitate-customer', methods: ['POST'])]
+    public function imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        try {
+            $this->imitateCustomerRoute->imitateCustomerLogin($data, $context);
+
+            return $this->redirectToRoute('frontend.account.home.page');
+        } catch (InvalidImitateCustomerTokenException|CustomerNotFoundByIdException) {
+            return $this->forwardToRoute(
+                'frontend.account.login.page',
+                [
+                    'loginError' => true,
+                ]
+            );
+        }
     }
 }

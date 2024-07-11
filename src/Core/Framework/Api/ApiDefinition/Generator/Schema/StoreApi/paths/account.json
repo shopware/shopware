@@ -587,6 +587,59 @@
                 ]
             }
         },
+        "/account/login/imitate-customer": {
+            "post": {
+                "tags": ["Login & Registration"],
+                "summary": "Imitate the log in as a customer",
+                "description": "Imitate the log in as a customer given a generated token.",
+                "operationId": "imitateCustomerLogin",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["token", "customerId", "userId"],
+                                "properties": {
+                                    "token": {
+                                        "description": "Generated customer impersonation token",
+                                        "type": "string"
+                                    },
+                                    "customerId": {
+                                        "description": "ID of the customer",
+                                        "type": "string"
+                                    },
+                                    "userId": {
+                                        "description": "ID of the user who generated the token",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "description": "If the token is incorrect an error is returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/account/logout": {
             "post": {
                 "tags": ["Login & Registration"],

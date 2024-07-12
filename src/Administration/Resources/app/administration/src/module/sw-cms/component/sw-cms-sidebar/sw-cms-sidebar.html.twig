@@ -598,7 +598,7 @@
             </h3>
 
             <p class="sw-cms-sidebar__layout-set-as-default-info-text">
-                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText') }}
+                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText', { cmsPageType: this.page.type === 'product_detail' ? $tc('sw-cms.components.setDefaultLayoutModal.productType') : $tc('sw-cms.components.setDefaultLayoutModal.categoryType') }) }}
             </p>
 
             <sw-button

@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.4.1
+*  [NEXT-37140 - Limit search term length for mysql search](./changelog/release-6-6-4-1/2024-07-08-limit-search-term-length-for-mysql-search.md)
+
 ## 6.6.4.0
 *  [NEXT-33234 - Implement Custom Field entity select for dynamic product groups](./changelog/release-6-6-4-0/2023-03-24-implement-custom-field-entity-select-for-dynamic-product-groups.md) ([Rafael Kraut](https://github.com/RafaelKr))
 *  [NEXT-30845 - Fix admin grid headline actions resizing on using context menus](./changelog/release-6-6-4-0/2023-10-01-fix-admin-grid-headline-actions-resize.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

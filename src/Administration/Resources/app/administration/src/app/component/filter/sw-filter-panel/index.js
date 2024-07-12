@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-filter-panel', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -104,7 +106,11 @@ Component.register('sw-filter-panel', {
                 this.listFilters.forEach(filter => {
                     const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
                     if (criteria) {
-                        this.$set(this.activeFilters, filter.name, criteria);
+                        if (this.isCompatEnabled('INSTANCE_SET')) {
+                            this.$set(this.activeFilters, filter.name, criteria);
+                        } else {
+                            this.activeFilters[filter.name] = criteria;
+                        }
                     }
                 });
             });
@@ -112,13 +118,21 @@ Component.register('sw-filter-panel', {
 
         updateFilter(name, filter, value) {
             this.filterChanged = true;
-            this.$set(this.activeFilters, name, filter);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.activeFilters, name, filter);
+            } else {
+                this.activeFilters[name] = filter;
+            }
             this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
             this.filterChanged = true;
-            this.$delete(this.activeFilters, name);
+            if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                this.$delete(this.activeFilters, name);
+            } else {
+                delete this.activeFilters[name];
+            }
             this.storedFilters[name] = { value: null, criteria: null };
         },
 

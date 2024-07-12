@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-existence-filter', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         filter: {
             type: Object,

@@ -102,13 +102,6 @@ const createWrapper = async (custom) => {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        syncDeleted: (promotionIds) => {
-                            createStateMapper({
-                                lineItems: orderFixture.lineItems.filter(item => !promotionIds.includes(item.id)),
-                            });
-
-                            return Promise.resolve(successResponseForNotification);
-                        },
                         delete: (promotionId) => {
                             createStateMapper({
                                 lineItems: orderFixture.lineItems.filter(item => promotionId !== item.id),

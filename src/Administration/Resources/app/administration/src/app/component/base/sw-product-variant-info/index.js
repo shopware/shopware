@@ -16,6 +16,8 @@ const { Component } = Shopware;
 Component.register('sw-product-variant-info', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

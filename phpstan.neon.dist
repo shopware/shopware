@@ -229,7 +229,6 @@ parameters:
         - # test plugin implementations in fixtures, the files can't be excluded as that would lead to errors when they are used
             message: '#.*#'
             paths:
-                - src/Core/Framework/Test/Store/_fixtures/AppStoreTestPlugin/*
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*

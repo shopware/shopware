@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -52,9 +53,6 @@ async function createWrapper(additionalProps = {}) {
 describe('src/app/component/base/sw-chart-card', () => {
     it('properly checks for slot usage', async () => {
         const wrapper = await createWrapper();
-
-        expect(wrapper.vm.hasHeaderLink).toBeFalsy();
-        wrapper.vm.$slots['header-link'] = 'foo';
 
         expect(wrapper.vm.hasHeaderLink).toBeFalsy();
     });

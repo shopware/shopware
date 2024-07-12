@@ -23,7 +23,7 @@
         <sw-button
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('customer.editor'),
+                disabled: acl.can('api_proxy_imitate-customer'),
                 showOnDisabledElements: true
             }"
             :disabled="!canUseCustomerImitation"

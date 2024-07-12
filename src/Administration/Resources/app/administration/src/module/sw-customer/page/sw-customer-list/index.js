@@ -82,7 +82,12 @@ export default {
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
                 .addAssociation('requestedGroup')
-                .addAssociation('salesChannel');
+                .addAssociation('boundSalesChannel');
+
+            // @deprecated tag:v6.7.0 - Will be removed, because it's unused
+            if (!Shopware.Feature.isActive('v6.7.0.0')) {
+                defaultCriteria.addAssociation('salesChannel');
+            }
 
             this.filterCriteria.forEach(filter => {
                 defaultCriteria.addFilter(filter);

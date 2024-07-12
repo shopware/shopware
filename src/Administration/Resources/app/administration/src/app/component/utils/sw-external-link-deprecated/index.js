@@ -20,6 +20,8 @@ const { Component } = Shopware;
 Component.register('sw-external-link-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     props: {

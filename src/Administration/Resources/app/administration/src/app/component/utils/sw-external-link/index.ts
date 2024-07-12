@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-external-link', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -27,6 +29,14 @@ Component.register('sw-external-link', {
             );
 
             return false;
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

@@ -9,6 +9,8 @@ const { mapState } = Shopware.Component.getComponentHelper();
 Shopware.Component.register('sw-license-violation', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cacheApiService',
         'extensionStoreActionService',

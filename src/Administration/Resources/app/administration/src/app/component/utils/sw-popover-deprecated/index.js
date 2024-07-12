@@ -15,6 +15,8 @@ const { Component } = Shopware;
 Component.register('sw-popover-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         zIndex: {
             type: [Number, null],

@@ -157,9 +157,11 @@ export default {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            this.loadGridUserSettings();
+            if (this.acl.can('user_config:read')) {
+                this.loadGridUserSettings();
+            }
 
-            if (this.acl.can('system_config.read')) {
+            if (this.acl.can('system_config:read')) {
                 this.getDefaultLayouts();
             }
 
@@ -185,6 +187,12 @@ export default {
         },
 
         saveGridUserSettings() {
+            if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
+                console.warn('Did not persist user config, as permissions are missing.');
+
+                return;
+            }
+
             this.saveUserSettings(this.cardViewIdentifier, {
                 listMode: this.listMode,
                 sortBy: this.sortBy,
@@ -253,6 +261,22 @@ export default {
                 null,
                 Criteria.count('categoryCount', 'categories.id'),
             ));
+        },
+
+        showDefaultLayoutContextMenu(cmsPage) {
+            if (!this.acl.can('system_config:read')) {
+                return false;
+            }
+
+            if (cmsPage.type === 'product_list') {
+                return this.defaultCategoryId !== cmsPage.id;
+            }
+
+            if (cmsPage.type === 'product_detail') {
+                return this.defaultProductId !== cmsPage.id;
+            }
+
+            return false;
         },
 
         async getDefaultLayouts() {

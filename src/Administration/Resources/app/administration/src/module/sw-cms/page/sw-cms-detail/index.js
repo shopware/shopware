@@ -338,7 +338,7 @@ export default {
                 });
             }
 
-            if (this.acl.can('system_config.read')) {
+            if (this.acl.can('system_config:read')) {
                 this.getDefaultLayouts();
             }
 

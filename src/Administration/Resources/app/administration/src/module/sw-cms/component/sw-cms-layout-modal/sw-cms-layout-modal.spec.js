@@ -139,7 +139,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
     });
 
     it('should display default status', async () => {
-        global.activeAclRoles = ['system_config.read'];
+        global.activeAclRoles = ['system_config:read'];
 
         const wrapper = await createWrapper();
         await flushPromises();

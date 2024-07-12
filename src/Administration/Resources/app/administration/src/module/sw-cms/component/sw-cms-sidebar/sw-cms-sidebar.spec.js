@@ -422,7 +422,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     });
 
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
-        global.activeAclRoles = ['system_config.editor'];
+        global.activeAclRoles = ['system_config:read', 'system_config:update', 'system_config:delete', 'system_config:create'];
 
         const wrapper = await createWrapper();
 

@@ -722,7 +722,9 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Standardlayout zuweisen",
-        "infoText": "Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
+        "infoText": "Bitte beachte, dass alle {cmsPageType}, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte {cmsPageType} diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?",
+        "productType": "Produkte",
+        "categoryType": "Kategorien"
       },
       "cmsLayoutModal": {
         "actionCancel": "Abbrechen",

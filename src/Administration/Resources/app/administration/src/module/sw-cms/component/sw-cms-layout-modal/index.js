@@ -130,7 +130,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.acl.can('system_config.read')) {
+            if (this.acl.can('system_config:read')) {
                 this.getDefaultLayouts();
             }
         },

@@ -52,6 +52,12 @@ export default {
             required: false,
             default: false,
         },
+
+        isDefaultLayout: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -223,15 +229,16 @@ export default {
         },
 
         showDefaultLayoutSelection() {
-            if (!this.acl.can('system_config.editor')) {
+            if (!this.acl.can('system_config:read') || !this.acl.can('system_config:update')
+                || !this.acl.can('system_config:create') || !this.acl.can('system_config:delete')) {
                 return false;
             }
 
-            if (this.page.type === 'product_list') {
-                return true;
+            if (this.page.type === 'product_list' || this.page.type === 'product_detail') {
+                return !this.isDefaultLayout;
             }
 
-            return this.page.type === 'product_detail';
+            return false;
         },
 
         cmsBlocksBySelectedBlockCategory() {

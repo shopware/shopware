@@ -16,6 +16,8 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-all-line-items-container', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'create-before',
         'create-after',

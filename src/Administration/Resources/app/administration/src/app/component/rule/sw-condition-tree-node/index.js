@@ -10,6 +10,8 @@ const { Component } = Shopware;
 Component.register('sw-condition-tree-node', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'conditionDataProviderService',
         'createCondition',

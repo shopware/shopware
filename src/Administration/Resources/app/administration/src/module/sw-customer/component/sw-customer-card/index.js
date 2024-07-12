@@ -8,7 +8,7 @@ import ApiService from '../../../../core/service/api.service';
  * @package checkout
  */
 
-const { Service, Mixin, Defaults } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
@@ -16,7 +16,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['acl', 'repositoryFactory'],
+    inject: [
+        'acl',
+        'contextStoreService',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -117,7 +121,7 @@ export default {
                 }
             }
 
-            return this.acl.can('customer.editor');
+            return this.acl.can('api_proxy_imitate-customer');
         },
 
         hasSingleBoundSalesChannelUrl() {
@@ -125,7 +129,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return Shopware.State.get('session').currentUser;
         },
     },
 
@@ -151,13 +155,13 @@ export default {
 
         async onImitateCustomer() {
             if (this.hasSingleBoundSalesChannelUrl) {
-                Service('contextStoreService').generateImitateCustomerToken(
+                this.contextStoreService.generateImitateCustomerToken(
                     this.customer.id,
                     this.customer.boundSalesChannel.id,
                 ).then((response) => {
                     const handledResponse = ApiService.handleResponse(response);
 
-                    Service('contextStoreService').redirectToSalesChannelUrl(
+                    this.contextStoreService.redirectToSalesChannelUrl(
                         this.customer.boundSalesChannel.domains.first().url,
                         handledResponse.token,
                         this.customer.id,

@@ -86,6 +86,7 @@ export default {
                 .addAssociation('addresses')
                 .addAssociation('group')
                 .addAssociation('salutation')
+                .addAssociation('boundSalesChannel.domains')
                 .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
@@ -100,12 +101,6 @@ export default {
             criteria
                 .getAssociation('addresses')
                 .addSorting(Criteria.sort('firstName'), 'ASC', false);
-
-            if (this.acl.can('customer.editor')) {
-                criteria
-                    .addAssociation('boundSalesChannel.domains')
-                    .addAssociation('salesChannel.domains');
-            }
 
             return criteria;
         },

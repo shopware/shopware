@@ -18,6 +18,8 @@ const { Component } = Shopware;
 Component.register('sw-collapse', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         expandOnLoading: {
             type: Boolean,

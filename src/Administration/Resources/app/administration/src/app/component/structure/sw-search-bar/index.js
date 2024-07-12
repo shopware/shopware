@@ -30,6 +30,16 @@ Component.register('sw-search-bar', {
         'recentlySearchService',
     ],
 
+    provide() {
+        return {
+            searchBarOnMouseOver: this.onMouseOver,
+            searchBarRegisterActiveItemIndexSelectHandler: this.registerActiveItemIndexSelectHandler,
+            searchBarUnregisterActiveItemIndexSelectHandler: this.unregisterActiveItemIndexSelectHandler,
+            searchBarRegisterKeyupEnterHandler: this.registerKeyupEnterHandler,
+            searchBarUnregisterKeyupEnterHandler: this.unregisterKeyupEnterHandler,
+        };
+    },
+
     shortcuts: {
         f: 'setFocus',
     },
@@ -103,6 +113,8 @@ Component.register('sw-search-bar', {
             searchLimit: 10,
             userSearchPreference: null,
             isComponentMounted: true,
+            activeItemIndexSelectHandler: [],
+            keyupEnterHandler: [],
         };
     },
 
@@ -262,7 +274,30 @@ Component.register('sw-search-bar', {
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-            this.$on('mouse-over', this.setActiveResultPosition);
+
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$on('mouse-over', this.setActiveResultPosition);
+            }
+        },
+
+        onMouseOver(index, column) {
+            this.setActiveResultPosition({ index, column });
+        },
+
+        registerActiveItemIndexSelectHandler(handler) {
+            this.activeItemIndexSelectHandler.push(handler);
+        },
+
+        unregisterActiveItemIndexSelectHandler(handler) {
+            this.activeItemIndexSelectHandler = this.activeItemIndexSelectHandler.filter(h => h !== handler);
+        },
+
+        registerKeyupEnterHandler(handler) {
+            this.keyupEnterHandler.push(handler);
+        },
+
+        unregisterKeyupEnterHandler(handler) {
+            this.keyupEnterHandler = this.keyupEnterHandler.filter(h => h !== handler);
         },
 
         getLabelSearchType(type) {

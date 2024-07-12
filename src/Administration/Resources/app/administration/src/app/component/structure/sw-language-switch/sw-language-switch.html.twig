@@ -48,7 +48,7 @@
                     showOnDisabledElements: true
                 }"
                 variant="primary"
-                :disabled="!allowEdit"
+                :disabled="!allowEdit || undefined"
                 size="small"
                 @click="onClickSaveChanges"
             >
@@ -65,7 +65,7 @@
         id="language"
         class="sw-language-switch__select"
         entity="language"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :criteria="languageCriteria"
         size="medium"
         required

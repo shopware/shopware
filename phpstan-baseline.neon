@@ -1901,11 +1901,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php
-
-		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
@@ -4802,86 +4797,6 @@ parameters:
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
-
-		-
-			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Authentication/StoreRequestOptionsProviderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Store\\\\\\\\Struct\\\\\\\\ExtensionCollection' and Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionCollection will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getLanguages\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getPermissions\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getTimestamp\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getUpdatedAt\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Service\\\\ExtensionLoaderTest\\:\\:getInstalledApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginCollection constructor expects iterable\\<Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\>, array\\<int, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\> given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/StoreServiceTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Store\\\\\\\\Struct\\\\\\\\ExtensionStruct' and Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\ExtensionStruct will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Struct/ExtensionStructTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Struct\\\\ExtensionStructTest\\:\\:badValuesProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Struct/ExtensionStructTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Struct\\\\ExtensionStructTest\\:\\:getDetailFixture\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Struct/ExtensionStructTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Struct\\\\ExtensionStructTest\\:\\:testItThrowsOnMissingData\\(\\) has parameter \\$badValues with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Struct/ExtensionStructTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Struct/ExtensionStructTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Store\\\\Subscriber\\\\LicenseHostChangedSubscriberTest\\:\\:fetchAllAdminUsers\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Subscriber/LicenseHostChangedSubscriberTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCacheClearer\\:\\:__construct\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/TestCacheClearer.php
@@ -6175,11 +6090,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\Validator\\\\ConstraintViolationList will always evaluate to true\\.$#"
 			count: 2
 			path: tests/integration/Core/Framework/DataAbstractionLayer/Field/PasswordFieldTest.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: tests/integration/Core/Framework/Store/Services/StoreSessionExpiredMiddlewareTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"

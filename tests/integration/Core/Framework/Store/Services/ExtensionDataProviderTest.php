@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -23,6 +24,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Group('skip-paratest')]
+#[Package('checkout')]
 class ExtensionDataProviderTest extends TestCase
 {
     use ExtensionBehaviour;

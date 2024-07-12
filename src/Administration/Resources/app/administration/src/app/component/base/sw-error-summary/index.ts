@@ -20,6 +20,8 @@ type error = {
 Component.register('sw-error-summary', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         errors(): { [key: string]: number } {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access

@@ -12,6 +12,29 @@ const utils = Shopware.Utils;
 Component.register('sw-grid-row', {
     template,
 
+    inject: {
+        swGridInlineEditStart: {
+            from: 'swGridInlineEditStart',
+            default: null,
+        },
+        swGridInlineEditCancel: {
+            from: 'swGridInlineEditCancel',
+            default: null,
+        },
+        swOnInlineEditStart: {
+            from: 'swOnInlineEditStart',
+            default: null,
+        },
+        swRegisterGridDisableInlineEditListener: {
+            from: 'swRegisterGridDisableInlineEditListener',
+            default: null,
+        },
+        swUnregisterGridDisableInlineEditListener: {
+            from: 'swUnregisterGridDisableInlineEditListener',
+            default: null,
+        },
+    },
+
     props: {
         item: {
             type: Object,
@@ -56,14 +79,24 @@ Component.register('sw-grid-row', {
         this.createdComponent();
     },
 
+    beforeUnmount() {
+        if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            this.swUnregisterGridDisableInlineEditListener(this.onInlineEditCancel);
+        }
+    },
+
     methods: {
         createdComponent() {
             // Bubble up columns declaration for the column header definition
             this.$parent.columns = this.columns;
 
-            this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
-                this.onInlineEditCancel(id);
-            });
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
+                    this.onInlineEditCancel(id);
+                });
+            } else {
+                this.swRegisterGridDisableInlineEditListener(this.onInlineEditCancel);
+            }
         },
 
         onInlineEditStart() {
@@ -86,8 +119,13 @@ Component.register('sw-grid-row', {
             }
 
             this.isEditingActive = true;
-            this.$parent.$emit('sw-row-inline-edit-start', this.id);
-            this.$parent.$emit('inline-edit-start', this.item);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$emit('sw-row-inline-edit-start', this.id);
+                this.$parent.$emit('inline-edit-start', this.item);
+            } else {
+                this.swGridInlineEditStart(this.id);
+                this.swOnInlineEditStart(this.item);
+            }
         },
 
         onInlineEditCancel(id, index) {

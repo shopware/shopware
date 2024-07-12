@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -8,6 +11,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
+                'mt-icon': true,
             },
         },
     });

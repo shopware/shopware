@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-icon', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         name: {
             type: String,

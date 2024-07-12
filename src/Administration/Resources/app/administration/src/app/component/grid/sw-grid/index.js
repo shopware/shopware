@@ -32,6 +32,16 @@ const { dom } = Shopware.Utils;
 Component.register('sw-grid', {
     template,
 
+    provide() {
+        return {
+            swGridInlineEditStart: this.inlineEditingStart,
+            swGridInlineEditCancel: this.disableActiveInlineEditing,
+            swOnInlineEditStart: this.onInlineEditStart,
+            swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
+            swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
+        };
+    },
+
     props: {
         items: {
             type: Array,
@@ -98,6 +108,7 @@ Component.register('sw-grid', {
             scrollbarOffset: 0,
             editing: null,
             allSelectedChecked: false,
+            swGridDisableInlineEditListener: [],
         };
     },
 
@@ -176,6 +187,14 @@ Component.register('sw-grid', {
             this.setScrollbarOffset();
         },
 
+        registerGridDisableInlineEditListener(listener) {
+            this.swGridDisableInlineEditListener.push(listener);
+        },
+
+        unregisterGridDisableInlineEditListener(listener) {
+            this.swGridDisableInlineEditListener = this.swGridDisableInlineEditListener.filter((l) => l !== listener);
+        },
+
         onInlineEditFinish(item) {
             this.editing = null;
             this.$emit('inline-edit-finish', item);
@@ -186,8 +205,11 @@ Component.register('sw-grid', {
         },
 
         registerInlineEditingEvents() {
-            this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
-            this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+            // New way is using the provide/inject
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
+                this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+            }
         },
 
         inlineEditingStart(id) {

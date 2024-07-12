@@ -195,7 +195,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_list_grid_columns_boundSalesChannel %}
                 <template #column-boundSalesChannelId="{ item }">
-                    {{ item.boundSalesChannelId ? item.salesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
+                    {{ item.boundSalesChannelId ? item.boundSalesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
                 </template>
                 {% endblock %}
 

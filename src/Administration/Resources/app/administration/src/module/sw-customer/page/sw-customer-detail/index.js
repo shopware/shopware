@@ -86,7 +86,7 @@ export default {
                 .addAssociation('addresses')
                 .addAssociation('group')
                 .addAssociation('salutation')
-                .addAssociation('salesChannel')
+                .addAssociation('salesChannel.domains')
                 .addAssociation('boundSalesChannel.domains')
                 .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')

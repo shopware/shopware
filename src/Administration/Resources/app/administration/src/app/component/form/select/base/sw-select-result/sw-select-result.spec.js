@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -48,17 +49,33 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
             components: { Parent },
         };
 
-        const grandGrandParent = {
+        const GrandParentAsync = {
             template: '<div><GrandParent></GrandParent></div>',
             components: { GrandParent },
+        };
+
+        const GrandParentAsyncTwo = {
+            template: '<div><GrandParentAsync></GrandParentAsync></div>',
+            components: { GrandParentAsync },
+        };
+
+        const grandGrandParent = {
+            template: '<div><GrandParentAsyncTwo></GrandParentAsyncTwo></div>',
+            components: { GrandParentAsyncTwo },
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);
+                    Shopware.Utils.EventBus.emit('item-select-by-keyboard', [0]);
                 },
             },
         };
 
         return mount(grandGrandParent, {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+            },
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),

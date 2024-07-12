@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
@@ -20,6 +22,10 @@ class EntityDefinitionHasSinceTest extends TestCase
         $definitionsWithoutSince = [];
 
         foreach ($service->getDefinitions() as $definition) {
+            if ($definition instanceof AttributeMappingDefinition || $definition instanceof AttributeTranslationDefinition) {
+                continue;
+            }
+
             if ($definition->since() === null) {
                 $definitionsWithoutSince[] = $definition->getEntityName();
             }

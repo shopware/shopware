@@ -274,6 +274,9 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        remote_thumbnails:
+            enable: false
+            pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
 
     dal:
         batch_size: 125
@@ -365,50 +368,25 @@ shopware:
             - user.recovery.request
             - customer.recovery.request
         error_code_log_levels:
-            PRODUCT__CATEGORY_NOT_FOUND: notice
-            PRODUCT_SORTING_NOT_FOUND: notice
-            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
-            PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX: notice
-            CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY: notice
+            CHECKOUT__CART_HASH_MISMATCH: notice
             CHECKOUT__INSUFFICIENT_PERMISSION: notice
             CHECKOUT__TAX_ID_NOT_FOUND: notice
-            CHECKOUT__TAX_ID_PARAMETER_IS_MISSING: notice
-            CHECKOUT__PRICE_PARAMETER_IS_MISSING: notice
-            CHECKOUT__PRICES_PARAMETER_IS_MISSING: notice
             CHECKOUT__CUSTOMER_NOT_FOUND: notice
             CHECKOUT__CUSTOMERS_NOT_FOUND: notice
-            CHECKOUT__CUSTOMER_GROUP_REQUEST_NOT_FOUND: notice
-            CHECKOUT__CUSTOMER_GROUP_NOT_FOUND: notice
             CHECKOUT__CUSTOMER_NOT_LOGGED_IN: notice
-            CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND: notice
             CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS: notice
-            CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE: notice
-            CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT: notice
             CHECKOUT__CUSTOMER_IS_ALREADY_CONFIRMED: notice
-            CHECKOUT__CUSTOMER_GROUP_REGISTRATION_NOT_FOUND: notice
             CHECKOUT__CUSTOMER_NOT_FOUND_BY_HASH: notice
             CHECKOUT__CUSTOMER_NOT_FOUND_BY_ID: notice
             CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED: notice
-            CHECKOUT__WISHLIST_IS_NOT_ACTIVATED: notice
             CHECKOUT__WISHLIST_NOT_FOUND: notice
             CHECKOUT__DUPLICATE_WISHLIST_PRODUCT: notice
-            CHECKOUT__CUSTOMER_IS_INACTIVE: notice
             CHECKOUT__LEGACY_PASSWORD_ENCODER_NOT_FOUND: notice
-            CHECKOUT__NO_HASH_PROVIDED: notice
             CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND: notice
             CHECKOUT__CUSTOMER_AUTH_THROTTLED: notice
             CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED: notice
             CHECKOUT__LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND: notice
-            CHECKOUT__CUSTOMER_IDS_PARAMETER_IS_MISSING: notice
             CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN: notice
-            CHECKOUT__PROMOTION__NOT_FOUND: notice
-            CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice
-            CHECKOUT__SERVICE_CATEGORY_NOT_FOUND: notice
-            CHECKOUT__FOOTER_CATEGORY_NOT_FOUND: notice
-            CHECKOUT__DUPLICATE_SHIPPING_METHOD_PRICE: notice
-            CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND: notice
-            CHECKOUT__COUNTRY_NOT_FOUND: notice
-            CHECKOUT__COUNTRY_STATE_NOT_FOUND: notice
             CHECKOUT__ASYNC_PAYMENT_FINALIZE_INTERRUPTED: notice
             CHECKOUT__ASYNC_PAYMENT_PROCESS_INTERRUPTED: notice
             CHECKOUT__CAPTURE_PREPARED_PAYMENT_ERROR: notice
@@ -418,14 +396,14 @@ shopware:
             CHECKOUT__REFUND_PROCESS_INTERRUPTED: notice
             CHECKOUT__PAYMENT_TOKEN_EXPIRED: notice
             CHECKOUT__PAYMENT_TOKEN_INVALIDATED: notice
-            CHECKOUT__DUPLICATE_SHIPPING_METHOD_TECHNICAL_NAME: notice
-            CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME: notice
             CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
             CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE: notice
-            DOCUMENT__INVALID_DOCUMENT_ID: notice
+            CHECKOUT__INVALID_PAYMENT_TOKEN: notice
             DOCUMENT__INVALID_GENERATOR_TYPE: notice
             DOCUMENT__ORDER_NOT_FOUND: notice
-            CONTENT__AFTER_CATEGORY_NOT_FOUND: notice
+            CHECKOUT__PROMOTION__NOT_FOUND: notice
+            CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND: notice
+            CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
             CONTENT__MEDIA_INVALID_CONTENT_LENGTH: notice
             CONTENT__MEDIA_INVALID_URL: notice
             CONTENT__MEDIA_ILLEGAL_URL: notice
@@ -434,6 +412,7 @@ shopware:
             CONTENT__MEDIA_CANNOT_OPEN_SOURCE_STREAM_TO_WRITE: notice
             CONTENT__MEDIA_FILE_SIZE_LIMIT_EXCEEDED: notice
             CONTENT__MEDIA_MISSING_FILE_EXTENSION: notice
+            CONTENT__MEDIA_MISSING_URL_PARAMETER: notice
             CONTENT__MEDIA_ILLEGAL_FILE_NAME: notice
             CONTENT__MEDIA_EMPTY_FILE: notice
             CONTENT__MEDIA_INVALID_FILE: notice
@@ -448,65 +427,39 @@ shopware:
             CONTENT__MEDIA_NOT_FOUND: notice
             CONTENT__MEDIA_MISSING_FILE: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
-            CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND: notice
-            CONTENT__MISSING_EMAIL_PARAMETER: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
-            FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
-            FRAMEWORK__SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__TEMPLATE_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__ROUTE_NAME_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__ENTITY_NAME_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
-            FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION: notice
-            FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION: notice
-            FRAMEWORK__INVALID_VERSION_ID: notice
-            FRAMEWORK__API_TYPE_PARAMETER_INVALID: notice
-            FRAMEWORK__APP_ID_PARAMETER_IS_MISSING: notice
+            ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
-            FRAMEWORK__APP_WEBHOOK_FAILED: notice
             FRAMEWORK__APP_INTEGRATION_NOT_FOUND: notice
-            FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__API_INVALID_ACCESS_KEY: notice
-            FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER: notice
-            FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING: notice
             FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE: notice
             FRAMEWORK__CANNOT_CREATE_NEW_VERSION: notice
-            FRAMEWORK__KEY_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__CLUSTER_PARAMETER_IS_MISSING: notice
-            FRAMEWORK__INVALID_API_CRITERIA_IDS: notice
-            FRAMEWORK__INVALID_CRITERIA_IDS: notice
-            FRAMEWORK__DEFINITION_NOT_FOUND: notice
+            FRAMEWORK__EXTENSION_THEME_STILL_IN_USE: notice
+            FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
             FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
             FRAMEWORK__WRITE_TYPE_INTEND_ERROR: notice
             FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
+            FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
+            FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
+            FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
+            PRODUCT__CATEGORY_NOT_FOUND: notice
+            PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY: notice
+            PRODUCT_EXPORT__RENDER_FOOTER_EXCEPTION: notice
+            PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
+            PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
+            PRODUCT_SORTING_NOT_FOUND: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE: notice
+            PROMOTION__INDIVIDUAL_CODES_PATTERN_INSUFFICIENTLY_COMPLEX: notice
+            SYSTEM__SCOPE_NOT_FOUND: notice
+            SYSTEM__STATE_MACHINE_INVALID_ENTITY_ID: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__CURRENCY_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION: notice
             SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION: notice
-            SYSTEM__SNIPPET_INVALID_FILTER_NAME: notice
-            SYSTEM__SNIPPET_INVALID_LIMIT_QUERY: notice
-            SYSTEM__STATE_MACHINE_INVALID_ENTITY_ID: notice
             SYSTEM__NO_CONTEXT_DATA_EXCEPTION: notice
-            PRODUCT_EXPORT__RENDER_FOOTER_EXCEPTION: notice
-            PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
-            PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION: notice
-            SYSTEM__SCOPE_NOT_FOUND: notice
-            FRAMEWORK__EXTENSION_THEME_STILL_IN_USE: notice
-            PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY: notice
-            FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
-            CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
-            FRAMEWORK__API_INVALID_ASSOCIATION: notice
-            ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
-            FRAMEWORK__INVALID_SYNC_OPERATION: notice
-            FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
-            MAIL__MAIL_BODY_TOO_LONG: notice
-            CONTENT__MEDIA_MISSING_URL_PARAMETER: notice
-            FRAMEWORK__INVALID_WRITE_INPUT: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
@@ -567,3 +520,12 @@ shopware:
             domain_rewrite: []
         elasticsearch:
             check_for_existence: true
+
+    system_config:
+        default: []
+
+    messenger:
+        routing_overwrite:
+
+    search:
+        term_max_length: 300

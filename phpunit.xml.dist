@@ -50,6 +50,22 @@
             <file>src/Core/Test/Annotation/ActiveFeatures.php</file>
         </include>
         <exclude>
+            <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
+            <directory suffix="Definition.php">src/Administration/Notification/</directory>
+            <directory suffix="Entity.php">src/Administration/Notification/</directory>
+            <directory suffix="Event.php">src/Administration/Notification/</directory>
+            <directory suffix="Field.php">src/Administration/Notification/</directory>
+            <directory suffix="Struct.php">src/Administration/Notification/</directory>
+            <directory suffix="Collection.php">src/Administration/Notification/</directory>
+
+            <directory suffix="Definition.php">src/Administration/Snippet/</directory>
+            <directory suffix="Entity.php">src/Administration/Snippet/</directory>
+            <directory suffix="Event.php">src/Administration/Snippet/</directory>
+            <directory suffix="Field.php">src/Administration/Snippet/</directory>
+            <directory suffix="Struct.php">src/Administration/Snippet/</directory>
+            <directory suffix="Collection.php">src/Administration/Snippet/</directory>
+
+
             <file>src/Core/Framework/Adapter/Twig/functions.php</file>
             <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
@@ -60,14 +76,49 @@
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
-            <directory suffix=".php">./vendor</directory>
-            <directory suffix=".php">./var</directory>
-            <directory suffix="Definition.php">src/</directory>
-            <directory suffix="Entity.php">src/</directory>
-            <directory suffix="Event.php">src/</directory>
-            <directory suffix="Field.php">src/</directory>
-            <directory suffix="Struct.php">src/</directory>
-            <directory suffix="Collection.php">src/</directory>
+
+            <directory suffix="Definition.php">src/Core/</directory>
+            <directory suffix="Entity.php">src/Core/</directory>
+            <directory suffix="Event.php">src/Core/</directory>
+            <directory suffix="Field.php">src/Core/</directory>
+            <directory suffix="Struct.php">src/Core/</directory>
+            <directory suffix="Collection.php">src/Core/</directory>
+
+            <directory suffix="Definition.php">src/Storefront/Checkout</directory>
+            <directory suffix="Entity.php">src/Storefront/Checkout</directory>
+            <directory suffix="Event.php">src/Storefront/Checkout</directory>
+            <directory suffix="Field.php">src/Storefront/Checkout</directory>
+            <directory suffix="Struct.php">src/Storefront/Checkout</directory>
+            <directory suffix="Collection.php">src/Storefront/Checkout</directory>
+            <directory suffix="Event.php">src/Storefront/Event</directory>
+
+            <directory suffix="Definition.php">src/Storefront/Framework</directory>
+            <directory suffix="Entity.php">src/Storefront/Framework</directory>
+            <directory suffix="Event.php">src/Storefront/Framework</directory>
+            <directory suffix="Field.php">src/Storefront/Framework</directory>
+            <directory suffix="Struct.php">src/Storefront/Framework</directory>
+            <directory suffix="Collection.php">src/Storefront/Framework</directory>
+
+            <directory suffix="Definition.php">src/Storefront/Page</directory>
+            <directory suffix="Entity.php">src/Storefront/Page</directory>
+            <directory suffix="Event.php">src/Storefront/Page</directory>
+            <directory suffix="Field.php">src/Storefront/Page</directory>
+            <directory suffix="Struct.php">src/Storefront/Page</directory>
+            <directory suffix="Collection.php">src/Storefront/Page</directory>
+
+            <directory suffix="Definition.php">src/Storefront/Pagelet</directory>
+            <directory suffix="Entity.php">src/Storefront/Pagelet</directory>
+            <directory suffix="Event.php">src/Storefront/Pagelet</directory>
+            <directory suffix="Field.php">src/Storefront/Pagelet</directory>
+            <directory suffix="Struct.php">src/Storefront/Pagelet</directory>
+            <directory suffix="Collection.php">src/Storefront/Pagelet</directory>
+
+            <directory suffix="Definition.php">src/Storefront/Theme</directory>
+            <directory suffix="Entity.php">src/Storefront/Theme</directory>
+            <directory suffix="Event.php">src/Storefront/Theme</directory>
+            <directory suffix="Field.php">src/Storefront/Theme</directory>
+            <directory suffix="Struct.php">src/Storefront/Theme</directory>
+            <directory suffix="Collection.php">src/Storefront/Theme</directory>
         </exclude>
     </source>
     <php>
@@ -87,9 +138,6 @@
     </php>
     <testsuites>
         <!-- Legacy -->
-        <testsuite name="storefront">
-            <directory>src/Storefront/Test</directory>
-        </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
         </testsuite>
@@ -118,7 +166,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit</directory>
-            <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>
     </testsuites>

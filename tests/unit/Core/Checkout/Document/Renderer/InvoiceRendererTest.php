@@ -43,7 +43,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool}
+ * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool}
  * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, deliveryCountries: array<string>}
  */
 #[Package('checkout')]
@@ -130,10 +130,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => true,
         ];
@@ -144,10 +144,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => false,
         ];
@@ -158,10 +158,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => false,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => false,
         ];
@@ -172,10 +172,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
+                'setEuCountry' => false,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => ['another-country-id'],
             ],
             'expectedResult' => false,
         ];
@@ -186,10 +186,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => false,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => false,
         ];
@@ -200,10 +200,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => false,
                 'setShippingCountry' => false,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => false,
         ];
@@ -214,10 +214,10 @@ class InvoiceRendererTest extends TestCase
                 'isCountryCompanyTaxFree' => true,
                 'setOrderDelivery' => true,
                 'setShippingCountry' => false,
+                'setEuCountry' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,
-                'deliveryCountries' => [self::COUNTRY_ID],
             ],
             'expectedResult' => false,
         ];
@@ -264,6 +264,11 @@ class InvoiceRendererTest extends TestCase
         if ($orderSettings['setShippingCountry'] && $orderSettings['setOrderDelivery']) {
             $country = new CountryEntity();
             $country->setId(self::COUNTRY_ID);
+            if ($orderSettings['setEuCountry']) {
+                $country->setIsEu(true);
+            } else {
+                $country->setIsEu(false);
+            }
             $country->setCompanyTax(new TaxFreeConfig($orderSettings['isCountryCompanyTaxFree'], Defaults::CURRENCY, 0));
             $address = new OrderAddressEntity();
             $address->setCountry($country);

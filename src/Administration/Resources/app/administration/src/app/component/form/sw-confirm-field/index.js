@@ -16,6 +16,8 @@ const { Component } = Shopware;
 Component.register('sw-confirm-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: String,

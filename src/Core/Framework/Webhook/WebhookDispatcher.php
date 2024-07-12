@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -61,7 +61,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         private readonly HookableEventFactory $eventFactory,
         private readonly string $shopwareVersion,
         private readonly MessageBusInterface $bus,
-        private readonly bool $isAdminWorkerEnabled
+        private readonly bool $isAdminWorkerEnabled,
     ) {
     }
 
@@ -361,10 +361,10 @@ class WebhookDispatcher implements EventDispatcherInterface
         ];
 
         if ($webhook->getApp() !== null) {
-            $shopIdProvider = $this->getShopIdProvider();
-
-            $source['appVersion'] = $webhook->getApp()->getVersion();
-            $source['shopId'] = $shopIdProvider->getShopId();
+            $source = \array_merge(
+                $source,
+                $this->getAppPayloadServiceHelper()->buildSource($webhook->getApp())->jsonSerialize()
+            );
         }
 
         if ($event instanceof AppFlowActionEvent) {
@@ -443,9 +443,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
     }
 
-    private function getShopIdProvider(): ShopIdProvider
+    private function getAppPayloadServiceHelper(): AppPayloadServiceHelper
     {
-        return $this->container->get(ShopIdProvider::class);
+        return $this->container->get(AppPayloadServiceHelper::class);
     }
 
     private function getAppLocaleProvider(): AppLocaleProvider

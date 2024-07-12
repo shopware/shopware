@@ -10,6 +10,8 @@ const utils = Shopware.Utils;
 Component.register('sw-shortcut-overview', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     shortcuts: {
         '?': 'onOpenShortcutOverviewModal',
     },

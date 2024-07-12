@@ -13,8 +13,8 @@
     {% set dataUrl = null %}
 
     {% if searchResult.currentFilters.navigationId %}
-        {% set filterUrl = url('frontend.cms.navigation.filter', { navigationId: searchResult.currentFilters.navigationId }) %}
-        {% set dataUrl = url('frontend.cms.navigation.page', { navigationId: searchResult.currentFilters.navigationId }) %}
+        {% set filterUrl = path('frontend.cms.navigation.filter', { navigationId: searchResult.currentFilters.navigationId }) %}
+        {% set dataUrl = path('frontend.cms.navigation.page', { navigationId: searchResult.currentFilters.navigationId }) %}
     {% endif %}
 
     {% set sidebar = sectionType == 'sidebar' %}

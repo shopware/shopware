@@ -7,8 +7,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +23,6 @@ class TaxProviderPayloadService
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
         private readonly Client $client,
-        private readonly string $shopUrl
     ) {
     }
 
@@ -50,7 +49,7 @@ class TaxProviderPayloadService
      */
     private function getRequestOptions(TaxProviderPayload $payload, AppEntity $app, Context $context): array
     {
-        $payload->setSource($this->helper->buildSource($app, $this->shopUrl));
+        $payload->setSource($this->helper->buildSource($app));
         $encoded = $this->helper->encode($payload);
         $jsonPayload = \json_encode($encoded, \JSON_THROW_ON_ERROR);
 

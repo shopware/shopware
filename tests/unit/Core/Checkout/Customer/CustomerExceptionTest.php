@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
@@ -16,252 +15,284 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(CustomerException::class)]
 class CustomerExceptionTest extends TestCase
 {
-    /**
-     * @param callable(mixed...): \Throwable $callback
-     * @param mixed[] $args
-     */
-    #[DataProvider('exceptionDataProvider')]
-    public function testItThrowsException(callable $callback, array $args, int $statusCode, string $errorCode, string $message): void
+    public function testCustomerGroupNotFound(): void
     {
-        // phpunit data-providers collect data before the test is executed
-        // therefore coverage is not possible, other than we create the exception inside the test body
-        $exception = $callback(...$args);
+        $exception = CustomerException::customerGroupNotFound('id-1');
 
-        try {
-            throw $exception;
-        } catch (CustomerException $e) {
-            static::assertSame($statusCode, $e->getStatusCode());
-            static::assertSame($errorCode, $e->getErrorCode());
-            static::assertSame($message, $e->getMessage());
-        } catch (\Throwable $e) {
-            static::fail(\sprintf('Exception with message "%s" of type %s has not expected type %s', $e->getMessage(), $e::class, CustomerException::class));
-        }
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_GROUP_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find customer group with id "id-1"', $exception->getMessage());
+        static::assertSame(['entity' => 'customer group', 'field' => 'id', 'value' => 'id-1'], $exception->getParameters());
     }
 
-    public static function exceptionDataProvider(): \Generator
+    public function testGroupRequestNotFound(): void
     {
-        yield CustomerException::CUSTOMER_GROUP_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'customerGroupNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_GROUP_NOT_FOUND,
-            'message' => 'Could not find customer group with id "id-1"',
-        ];
+        $exception = CustomerException::groupRequestNotFound('id-1');
 
-        yield CustomerException::CUSTOMER_GROUP_REQUEST_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'groupRequestNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_GROUP_REQUEST_NOT_FOUND,
-            'message' => 'Group request for customer "id-1" is not found',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_GROUP_REQUEST_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Group request for customer "id-1" is not found', $exception->getMessage());
+        static::assertSame(['id' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMERS_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'customersNotFound'],
-            'args' => [['id-1', 'id-2']],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::CUSTOMERS_NOT_FOUND,
-            'message' => 'These customers "id-1, id-2" are not found',
-        ];
+    public function testCustomersNotFound(): void
+    {
+        $exception = CustomerException::customersNotFound(['id-1', 'id-2']);
 
-        yield CustomerException::CUSTOMER_NOT_LOGGED_IN => [
-            'callback' => [CustomerException::class, 'customerNotLoggedIn'],
-            'args' => [],
-            'statusCode' => Response::HTTP_FORBIDDEN,
-            'errorCode' => CustomerException::CUSTOMER_NOT_LOGGED_IN,
-            'message' => 'Customer is not logged in.',
-        ];
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMERS_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('These customers "id-1, id-2" are not found', $exception->getMessage());
+        static::assertSame(['ids' => 'id-1, id-2'], $exception->getParameters());
+    }
 
-        yield CustomerException::LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'downloadFileNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND,
-            'message' => 'Line item download file with id "id-1" not found.',
-        ];
+    public function testCustomerNotLoggedIn(): void
+    {
+        $exception = CustomerException::customerNotLoggedIn();
 
-        yield CustomerException::CUSTOMER_IDS_PARAMETER_IS_MISSING => [
-            'callback' => [CustomerException::class, 'customerIdsParameterIsMissing'],
-            'args' => [],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_IDS_PARAMETER_IS_MISSING,
-            'message' => 'Parameter "customerIds" is missing.',
-        ];
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_NOT_LOGGED_IN, $exception->getErrorCode());
+        static::assertSame('Customer is not logged in.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_CHANGE_PAYMENT_ERROR => [
-            'callback' => [CustomerException::class, 'unknownPaymentMethod'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_CHANGE_PAYMENT_ERROR,
-            'message' => 'Change Payment to method id-1 not possible.',
-        ];
+    public function testDownloadFileNotFound(): void
+    {
+        $exception = CustomerException::downloadFileNotFound('id-1');
 
-        yield CustomerException::PRODUCT_IDS_PARAMETER_IS_MISSING => [
-            'callback' => [CustomerException::class, 'productIdsParameterIsMissing'],
-            'args' => [],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::PRODUCT_IDS_PARAMETER_IS_MISSING,
-            'message' => 'Parameter "productIds" is missing.',
-        ];
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::LINE_ITEM_DOWNLOAD_FILE_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Line item download file with id "id-1" not found.', $exception->getMessage());
+        static::assertSame(['downloadId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_ADDRESS_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'addressNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_ADDRESS_NOT_FOUND,
-            'message' => 'Customer address with id "id-1" not found.',
-        ];
+    public function testCustomerIdsParameterIsMissing(): void
+    {
+        $exception = CustomerException::customerIdsParameterIsMissing();
 
-        yield CustomerException::CUSTOMER_AUTH_BAD_CREDENTIALS => [
-            'callback' => [CustomerException::class, 'badCredentials'],
-            'args' => [],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_AUTH_BAD_CREDENTIALS,
-            'message' => 'Invalid username and/or password.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
+        static::assertSame('Parameter "customerIds" is missing.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_ADDRESS_IS_ACTIVE => [
-            'callback' => [CustomerException::class, 'cannotDeleteActiveAddress'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_ADDRESS_IS_ACTIVE,
-            'message' => 'Customer address with id "id-1" is an active address and cannot be deleted.',
-        ];
+    public function testUnknownPaymentMethod(): void
+    {
+        $exception = CustomerException::unknownPaymentMethod('id-1');
 
-        yield CustomerException::CUSTOMER_ADDRESS_IS_DEFAULT => [
-            'callback' => [CustomerException::class, 'cannotDeleteDefaultAddress'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::CUSTOMER_ADDRESS_IS_DEFAULT,
-            'message' => 'Customer address with id "id-1" is a default address and cannot be deleted.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_CHANGE_PAYMENT_ERROR, $exception->getErrorCode());
+        static::assertSame('Change Payment to method id-1 not possible.', $exception->getMessage());
+        static::assertSame(['paymentMethodId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_IS_ALREADY_CONFIRMED => [
-            'callback' => [CustomerException::class, 'customerAlreadyConfirmed'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_PRECONDITION_FAILED,
-            'errorCode' => CustomerException::CUSTOMER_IS_ALREADY_CONFIRMED,
-            'message' => 'The customer with the id "id-1" is already confirmed.',
-        ];
+    public function testProductIdsParameterIsMissing(): void
+    {
+        $exception = CustomerException::productIdsParameterIsMissing();
 
-        yield CustomerException::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'customerGroupRegistrationConfigurationNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND,
-            'message' => 'Customer group registration for id id-1 not found.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::PRODUCT_IDS_PARAMETER_IS_MISSING, $exception->getErrorCode());
+        static::assertSame('Parameter "productIds" is missing.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_NOT_FOUND_BY_HASH => [
-            'callback' => [CustomerException::class, 'customerNotFoundByHash'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::CUSTOMER_NOT_FOUND_BY_HASH,
-            'message' => 'No matching customer for the hash "id-1" was found.',
-        ];
+    public function testAddressNotFound(): void
+    {
+        $exception = CustomerException::addressNotFound('id-1');
 
-        yield CustomerException::CUSTOMER_NOT_FOUND_BY_ID => [
-            'callback' => [CustomerException::class, 'customerNotFoundByIdException'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_NOT_FOUND_BY_ID,
-            'message' => 'No matching customer for the id "id-1" was found.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_ADDRESS_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Customer address with id "id-1" not found.', $exception->getMessage());
+        static::assertSame(['addressId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'customerNotFound'],
-            'args' => ['abc@com'],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_NOT_FOUND,
-            'message' => 'No matching customer for the email "abc@com" was found.',
-        ];
+    public function testBadCredentials(): void
+    {
+        $exception = CustomerException::badCredentials();
 
-        yield CustomerException::CUSTOMER_RECOVERY_HASH_EXPIRED => [
-            'callback' => [CustomerException::class, 'customerRecoveryHashExpired'],
-            'args' => ['abc@com'],
-            'statusCode' => Response::HTTP_GONE,
-            'errorCode' => CustomerException::CUSTOMER_RECOVERY_HASH_EXPIRED,
-            'message' => 'The hash "abc@com" is expired.',
-        ];
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_AUTH_BAD_CREDENTIALS, $exception->getErrorCode());
+        static::assertSame('Invalid username and/or password.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
 
-        yield CustomerException::WISHLIST_IS_NOT_ACTIVATED => [
-            'callback' => [CustomerException::class, 'customerWishlistNotActivated'],
-            'args' => [],
-            'statusCode' => Response::HTTP_FORBIDDEN,
-            'errorCode' => CustomerException::WISHLIST_IS_NOT_ACTIVATED,
-            'message' => 'Wishlist is not activated!',
-        ];
+    public function testCannotDeleteActiveAddress(): void
+    {
+        $exception = CustomerException::cannotDeleteActiveAddress('id-1');
 
-        yield CustomerException::WISHLIST_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'customerWishlistNotFound'],
-            'args' => [],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::WISHLIST_NOT_FOUND,
-            'message' => 'Wishlist for this customer was not found.',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_ADDRESS_IS_ACTIVE, $exception->getErrorCode());
+        static::assertSame('Customer address with id "id-1" is an active address and cannot be deleted.', $exception->getMessage());
+        static::assertSame(['addressId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::DUPLICATE_WISHLIST_PRODUCT => [
-            'callback' => [CustomerException::class, 'duplicateWishlistProduct'],
-            'args' => [],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::DUPLICATE_WISHLIST_PRODUCT,
-            'message' => 'Product already added in wishlist',
-        ];
+    public function testCannotDeleteDefaultAddress(): void
+    {
+        $exception = CustomerException::cannotDeleteDefaultAddress('id-1');
 
-        yield CustomerException::LEGACY_PASSWORD_ENCODER_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'legacyPasswordEncoderNotFound'],
-            'args' => ['encoder'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::LEGACY_PASSWORD_ENCODER_NOT_FOUND,
-            'message' => 'Could not find encoder with name "encoder"',
-        ];
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_ADDRESS_IS_DEFAULT, $exception->getErrorCode());
+        static::assertSame('Customer address with id "id-1" is a default address and cannot be deleted.', $exception->getMessage());
+        static::assertSame(['addressId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::NO_HASH_PROVIDED => [
-            'callback' => [CustomerException::class, 'noHashProvided'],
-            'args' => [],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::NO_HASH_PROVIDED,
-            'message' => 'The given hash is empty.',
-        ];
+    public function testCustomerAlreadyConfirmed(): void
+    {
+        $exception = CustomerException::customerAlreadyConfirmed('id-1');
 
-        yield CustomerException::WISHLIST_PRODUCT_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'wishlistProductNotFound'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
-            'errorCode' => CustomerException::WISHLIST_PRODUCT_NOT_FOUND,
-            'message' => 'Could not find wishlist product with id "id-1"',
-        ];
+        static::assertSame(Response::HTTP_PRECONDITION_FAILED, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_IS_ALREADY_CONFIRMED, $exception->getErrorCode());
+        static::assertSame('The customer with the id "id-1" is already confirmed.', $exception->getMessage());
+        static::assertSame(['customerId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED => [
-            'callback' => [CustomerException::class, 'customerOptinNotCompleted'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED,
-            'message' => 'The customer with the id "id-1" has not completed the opt-in.',
-        ];
+    public function testCustomerGroupRegistrationConfigurationNotFound(): void
+    {
+        $exception = CustomerException::customerGroupRegistrationConfigurationNotFound('id-1');
 
-        yield CustomerException::CUSTOMER_AUTH_THROTTLED => [
-            'callback' => [CustomerException::class, 'customerAuthThrottledException'],
-            'args' => [100],
-            'statusCode' => Response::HTTP_TOO_MANY_REQUESTS,
-            'errorCode' => CustomerException::CUSTOMER_AUTH_THROTTLED,
-            'message' => 'Customer auth throttled for 100 seconds.',
-        ];
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Customer group registration for id id-1 not found.', $exception->getMessage());
+        static::assertSame(['customerGroupId' => 'id-1'], $exception->getParameters());
+    }
 
-        yield CustomerException::CUSTOMER_GUEST_AUTH_INVALID => [
-            'callback' => [CustomerException::class, 'guestAccountInvalidAuth'],
-            'args' => [],
-            'statusCode' => Response::HTTP_FORBIDDEN,
-            'errorCode' => CustomerException::CUSTOMER_GUEST_AUTH_INVALID,
-            'message' => 'Guest account is not allowed to login',
-        ];
+    public function testCustomerNotFoundByHash(): void
+    {
+        $exception = CustomerException::customerNotFoundByHash('e9c8985e0b0f8ec20a16ac9ffd0m');
 
-        yield CustomerException::COUNTRY_NOT_FOUND => [
-            'callback' => [CustomerException::class, 'countryNotFound'],
-            'args' => ['100'],
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => CustomerException::COUNTRY_NOT_FOUND,
-            'message' => 'Country with id "100" not found.',
-        ];
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_NOT_FOUND_BY_HASH, $exception->getErrorCode());
+        static::assertSame('No matching customer for the hash "e9c8985e0b0f8ec20a16ac9ffd0m" was found.', $exception->getMessage());
+        static::assertSame(['hash' => 'e9c8985e0b0f8ec20a16ac9ffd0m'], $exception->getParameters());
+    }
+
+    public function testCustomerNotFoundByIdException(): void
+    {
+        $exception = CustomerException::customerNotFoundByIdException('id-1');
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_NOT_FOUND_BY_ID, $exception->getErrorCode());
+        static::assertSame('No matching customer for the id "id-1" was found.', $exception->getMessage());
+        static::assertSame(['id' => 'id-1'], $exception->getParameters());
+    }
+
+    public function testCustomerNotFound(): void
+    {
+        $exception = CustomerException::customerNotFound('abc@com');
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('No matching customer for the email "abc@com" was found.', $exception->getMessage());
+        static::assertSame(['email' => 'abc@com'], $exception->getParameters());
+    }
+
+    public function testCustomerRecoveryHashExpired(): void
+    {
+        $exception = CustomerException::customerRecoveryHashExpired('e9c8985e0b0f8ec20a16ac9ffd0m');
+
+        static::assertSame(Response::HTTP_GONE, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_RECOVERY_HASH_EXPIRED, $exception->getErrorCode());
+        static::assertSame('The hash "e9c8985e0b0f8ec20a16ac9ffd0m" is expired.', $exception->getMessage());
+        static::assertSame(['hash' => 'e9c8985e0b0f8ec20a16ac9ffd0m'], $exception->getParameters());
+    }
+
+    public function testCustomerWishlistNotActivated(): void
+    {
+        $exception = CustomerException::customerWishlistNotActivated();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(CustomerException::WISHLIST_IS_NOT_ACTIVATED, $exception->getErrorCode());
+        static::assertSame('Wishlist is not activated!', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
+
+    public function testCustomerWishlistNotFound(): void
+    {
+        $exception = CustomerException::customerWishlistNotFound();
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::WISHLIST_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Wishlist for this customer was not found.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
+
+    public function testDuplicateWishlistProduct(): void
+    {
+        $exception = CustomerException::duplicateWishlistProduct();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::DUPLICATE_WISHLIST_PRODUCT, $exception->getErrorCode());
+        static::assertSame('Product already added in wishlist', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
+
+    public function testLegacyPasswordEncoderNotFound(): void
+    {
+        $exception = CustomerException::legacyPasswordEncoderNotFound('encoder');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::LEGACY_PASSWORD_ENCODER_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find encoder with name "encoder"', $exception->getMessage());
+        static::assertSame(['entity' => 'encoder', 'field' => 'name', 'value' => 'encoder'], $exception->getParameters());
+    }
+
+    public function testNoHashProvided(): void
+    {
+        $exception = CustomerException::noHashProvided();
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::NO_HASH_PROVIDED, $exception->getErrorCode());
+        static::assertSame('The given hash is empty.', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
+
+    public function testWishlistProductNotFound(): void
+    {
+        $exception = CustomerException::wishlistProductNotFound('id-1');
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(CustomerException::WISHLIST_PRODUCT_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find wishlist product with id "id-1"', $exception->getMessage());
+        static::assertSame(['entity' => 'wishlist product', 'field' => 'id', 'value' => 'id-1'], $exception->getParameters());
+    }
+
+    public function testCustomerOptinNotCompleted(): void
+    {
+        $exception = CustomerException::customerOptinNotCompleted('id-1');
+
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED, $exception->getErrorCode());
+        static::assertSame('The customer with the id "id-1" has not completed the opt-in.', $exception->getMessage());
+        static::assertSame(['customerId' => 'id-1'], $exception->getParameters());
+        static::assertSame('account.doubleOptinAccountAlert', $exception->getSnippetKey());
+    }
+
+    public function testCustomerAuthThrottledException(): void
+    {
+        $exception = CustomerException::customerAuthThrottledException(100);
+
+        static::assertSame(Response::HTTP_TOO_MANY_REQUESTS, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_AUTH_THROTTLED, $exception->getErrorCode());
+        static::assertSame('Customer auth throttled for 100 seconds.', $exception->getMessage());
+        static::assertSame(100, $exception->getWaitTime());
+    }
+
+    public function testGuestAccountInvalidAuth(): void
+    {
+        $exception = CustomerException::guestAccountInvalidAuth();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(CustomerException::CUSTOMER_GUEST_AUTH_INVALID, $exception->getErrorCode());
+        static::assertSame('Guest account is not allowed to login', $exception->getMessage());
+        static::assertEmpty($exception->getParameters());
+    }
+
+    public function testCountryNotFound(): void
+    {
+        $exception = CustomerException::countryNotFound('id-1');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomerException::COUNTRY_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Country with id "id-1" not found.', $exception->getMessage());
+        static::assertSame(['countryId' => 'id-1'], $exception->getParameters());
     }
 }

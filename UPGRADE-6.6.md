@@ -1,3 +1,140 @@
+# 6.6.4.0
+Thumbnail handling performance can now be improved by using remote thumbnails.
+
+## Remote Thumbnail Configuration
+
+To use remote thumbnails, you need to adjust the following parameters in your `shopware.yaml`:
+
+1. `shopware.media.remote_thumbnails.enable`: Set this parameter to `true` to enable the use of remote thumbnails.
+
+2. `shopware.media.remote_thumbnails.pattern`: This parameter defines the URL pattern for your remote thumbnails. Replace it with your actual URL pattern.
+   
+This pattern supports the following variables:
+   *  `mediaUrl`: The base URL of the media file.
+   *  `mediaPath`: The path of the media file relative to the mediaUrl.
+   *  `width`: The width of the thumbnail.
+   *  `height`: The height of the thumbnail.
+
+For example, consider a scenario where you want to generate a thumbnail with a width of 80px.
+With the pattern set as `{mediaUrl}/{mediaPath}?width={width}`, the resulting URL would be `https://yourshop.example/abc/123/456.jpg?width=80`.
+## Added new `ariaLive` option to Storefront sliders
+By default, all Storefront sliders/carousels (`GallerySliderPlugin`, `BaseSliderPlugin`, `ProductSliderPlugin`) are adding an `aria-live` region to announce slider updates to a screen reader.
+
+In some cases this can worsen the accessibility, for example when a slider uses "auto slide" functionality. With automatic slide the slider updates can disturb the reading of other contents on the page.
+
+You can now deactivate the `aria-live` region on the slider plugins with the new option `ariaLive` (default: `true`).
+
+Example for `GallerySliderPlugin` (Also works for `BaseSliderPlugin` and `ProductSliderPlugin`)
+```diff
+{% set gallerySliderOptions = {
+    slider: {
++        ariaLive: false,
+        autoHeight: false,
+    },
+    thumbnailSlider: {
++        ariaLive: false,
+        controls: true,
+        responsive: {}
+    }
+} %}
+
+<div data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'>
+```
+
+When `ariaLive` is `false` it will omit the `aria-live` region in the generated `tiny-slider` HTML code:
+```diff
+<div class="tns-outer" id="tns3-ow">
+-    <div class="tns-liveregion tns-visually-hidden" aria-live="polite" aria-atomic="true">
+-        slide <span class="current">2</span> of 6
+-    </div>
+    <div id="tns3-mw" class="tns-ovh">
+        <!-- Slider contents -->
+    </div>
+</div>
+```
+## Rating widget alternative text for improved accessibility
+The twig template that renders the rating stars (`Resources/views/storefront/component/review/rating.html.twig`) now supports an alternative text for screen readers:
+```diff
+{% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+    points: points,
++    altText: 'translation.key.example'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize,
+} %}
+```
+
+Instead of reading the rating star icons as "graphic", the screen reader will read the alternative text, e.g. `Average rating of 3 out of 5 stars`.
+By default, the `rating.html.twig` template will always use the alternative text with translation `detail.reviewAvgRatingAltText`, unless it is overwritten by the `altText` include parameter.
+
+The `rating.html.twig` template will now render the alternative text as shown below:
+```diff
+<div class="product-review-rating">               
+    <!-- Review star SVGs are now hidden for the screen reader, alt text is read instead. -->
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
+    <div class="product-review-point" aria-hidden="true"></div>
++    <p class="product-review-rating-alt-text visually-hidden">
++        Average rating of 4 out of 5 stars
++    </p>
+</div>
+```
+## Messenger routing overwrite
+
+The overwriting logic for the messenger routing has been moved from `framework.messenger.routing` to `shopware.messenger.routing_overwrite`. The old config key is still supported but deprecated and will be removed in the next major release.
+The new config key considers also the `instanceof` logic of the default symfony behavior.
+
+We have made these changes for various reasons:
+1) In the old logic, the `instanceof` logic of Symfony was not taken into account. This means that only exact matches of the class were overwritten.
+2) It is not possible to simply backport this in the same config, as not only the project overwrites are in the old config, but also the standard Shopware routing configs.
+
+```yaml
+
+#before
+framework:
+    messenger:
+        routing:
+            Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage: entity_indexing
+
+#after
+shopware:
+    messenger:
+        routing_overwrite:
+            Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage: entity_indexing
+
+```
+## Separate plugin generation scaffolding commands
+
+Instead of always generating a complete plugin scaffold with `bin/console plugin:create`, you can now generate specific parts of the plugin scaffold e.g. `bin/console make:plugin:config` to generate only the symfony config part of the plugin scaffold.
+## Transition Vuex states into Pinia Stores
+1. In Pinia, there are no `mutations`. Place every mutation under `actions`.
+2. `state` needs to be an arrow function returning an object: `state: () => ({})`.
+3. `actions` and `getters` no longer need to use the `state` as an argument. They can access everything with correct type support via `this`.
+4. Use `Shopware.Store.register` instead of `Shopware.State.registerModule`.
+5. Use `Shopware.Store.unregister` instead of `Shopware.State.unregisterModule`.
+6. Use `Shopware.Store.list` instead of `Shopware.State.list`.
+7. Use `Shopware.Store.get` instead of `Shopware.State.get`.
+
+# 6.6.3.0
+## Configure Redis for cart storage
+When you are using Redis for cart storage, you should add the following config inside `shopware.yaml`:
+```yaml
+    cart:
+        compress: false
+        expire_days: 120
+        storage:
+            type: "redis"
+            config:
+                dsn: 'redis://localhost'
+```
+## Configure Redis for number range storage
+When you are using Redis for number range storage, you should add the following config inside `shopware.yaml`:
+```yaml
+    number_range:
+        increment_storage: "redis"
+        config:
+            dsn: 'redis://localhost'
+```
+
 # 6.6.1.0
 ## Accessibility: No empty nav element in top-bar
 There will be no empty `<nav>` tag anymore on single language and single currency shops so accessibility tools will not be confused by it.

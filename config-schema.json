@@ -99,11 +99,17 @@
                 "stock": {
                     "$ref": "#/definitions/stock"
                 },
+                "messenger": {
+                    "$ref": "#/definitions/messenger"
+                },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
                 },
                 "staging": {
                     "$ref": "#/definitions/staging"
+                },
+                "system_config": {
+                    "type": "object"
                 }
             },
             "title": "Shopware"
@@ -254,6 +260,30 @@
                 "enable_stock_management": {
                     "type": "boolean",
                     "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
+                }
+            }
+        },
+        "messenger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "routing_overwrite": {
+                    "type": "array",
+                    "title": "Allows to overwrite the routing configuration of the messenger component",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "search": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "term_max_length": {
+                    "type": "integer",
+                    "title": "The maximum length of the search term"
                 }
             }
         },
@@ -450,6 +480,12 @@
                     "default": true,
                     "description": "Controls the cache compression before the storage"
                 },
+                "cache_compression_method": {
+                    "type": "string",
+                    "enum": ["gzip", "zstd"],
+                    "default": "gzip",
+                    "description": "Controls the cache compression method"
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
                 },
@@ -587,6 +623,12 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
+                "compression_method": {
+                    "type": "string",
+                    "enum": ["gzip", "zstd"],
+                    "default": "gzip",
+                    "description": "Controls the cache compression method"
+                },
                 "storage": {
                     "type": "object",
                     "additionalProperties": false,
@@ -702,6 +744,9 @@
                     "type": "boolean"
                 },
                 "cluster_setup": {
+                    "type": "boolean"
+                },
+                "runtime_extension_management": {
                     "type": "boolean"
                 }
             },
@@ -1068,6 +1113,18 @@
                 },
                 "url_upload_max_size": {
                     "type": "string"
+                },
+                "remote_thumbnails": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enable": {
+                            "type": "boolean"
+                        },
+                        "pattern": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Media"

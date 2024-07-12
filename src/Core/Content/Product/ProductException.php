@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
@@ -15,6 +17,7 @@ class ProductException extends HttpException
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
     public const PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS = 'PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY';
+    public const PRODUCT_INVALID_OPTIONS_PARAMETER = 'PRODUCT_INVALID_OPTIONS_PARAMETER';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -72,5 +75,19 @@ class ProductException extends HttpException
             self::PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS,
             'Configuration option already exists'
         );
+    }
+
+    public static function invalidOptionsParameter(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_INVALID_OPTIONS_PARAMETER,
+            'The parameter options is invalid.'
+        );
+    }
+
+    public static function reviewNotActive(): ShopwareHttpException
+    {
+        return new ReviewNotActiveExeption();
     }
 }

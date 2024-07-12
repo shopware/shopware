@@ -223,6 +223,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                     'sw-page': {
                         template: `

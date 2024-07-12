@@ -12,10 +12,10 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayload;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -63,7 +63,6 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
             $helper,
             $client,
             $this->createMock(ExceptionLogger::class),
-            'https://example.com'
         );
 
         $gatewayResponse = $service->request('https://example.com', $payload, $app);
@@ -101,7 +100,6 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
             $this->createMock(AppPayloadServiceHelper::class),
             $client,
             $logger,
-            'https://example.com'
         );
 
         $gatewayResponse = $service->request('https://example.com', $payload, $app);
@@ -133,7 +131,6 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
             $helper,
             new Client(),
             $this->createMock(ExceptionLogger::class),
-            'https://example.com'
         );
 
         $this->expectException(AppException::class);

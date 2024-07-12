@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Cron\CronExpression;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CronIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\CronInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -26,7 +26,7 @@ class CronIntervalFieldSerializer extends AbstractFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof CronIntervalField) {
+        if (!$field instanceof StorageAware) {
             throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
         }
 

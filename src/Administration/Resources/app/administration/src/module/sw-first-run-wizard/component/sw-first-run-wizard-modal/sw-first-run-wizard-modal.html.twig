@@ -25,7 +25,7 @@
                     :item-variant="stepVariant"
                     :initial-item-variants="stepInitialItemVariants"
                 >
-                    <sw-step-item>
+                    <sw-step-item v-if="!extensionManagementDisabled">
                         {{ $tc('sw-first-run-wizard.stepItemTitle.dataImport') }}
                     </sw-step-item>
                     <sw-step-item>
@@ -34,16 +34,16 @@
                     <sw-step-item>
                         {{ $tc('sw-first-run-wizard.stepItemTitle.mailer') }}
                     </sw-step-item>
-                    <sw-step-item>
+                    <sw-step-item v-if="!extensionManagementDisabled">
                         {{ $tc('sw-first-run-wizard.stepItemTitle.setupPaypal') }}
                     </sw-step-item>
-                    <sw-step-item>
+                    <sw-step-item v-if="!extensionManagementDisabled">
                         {{ $tc('sw-first-run-wizard.stepItemTitle.plugins') }}
                     </sw-step-item>
                     <sw-step-item>
                         {{ $tc('sw-first-run-wizard.stepItemTitle.shopware') }}
                     </sw-step-item>
-                    <sw-step-item>
+                    <sw-step-item v-if="!extensionManagementDisabled">
                         {{ $tc('sw-first-run-wizard.stepItemTitle.store') }}
                     </sw-step-item>
                 </sw-step-display>
@@ -86,7 +86,7 @@
             <div class="footer-left">
                 <sw-button
                     v-for="button in buttons.left"
-                    :key="button.key"
+                    :key="button.action"
                     :variant="button.variant"
                     :disabled="button.disabled"
                     size="small"
@@ -102,7 +102,7 @@
             <div class="footer-right">
                 <sw-button
                     v-for="button in buttons.right"
-                    :key="button.key"
+                    :key="button.action"
                     :variant="button.variant"
                     :disabled="button.disabled"
                     size="small"

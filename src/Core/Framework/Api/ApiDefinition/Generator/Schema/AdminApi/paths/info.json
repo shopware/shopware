@@ -1,0 +1,48 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Info Routes",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/routes": {
+            "get": {
+                "summary": "Get API routes",
+                "operationId": "getRoutes",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["endpoints"],
+                                    "properties": {
+                                        "endpoints": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["methods", "path"],
+                                                "properties": {
+                                                    "methods": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "path": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

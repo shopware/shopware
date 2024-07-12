@@ -10,9 +10,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -28,17 +28,11 @@ class ManyToManyAssociationFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     private Context $context;
 
-    /**
-     * @var EntityRepository
-     */
-    private $categoryRepository;
+    private EntityRepository $categoryRepository;
 
     protected function setUp(): void
     {
@@ -142,6 +136,9 @@ class ManyToManyAssociationFieldTest extends TestCase
     public function testReadPartialWithAssociationFields(): void
     {
         $id = Uuid::randomHex();
+        $propertyId = Uuid::randomHex();
+        $groupId = Uuid::randomHex();
+
         $data = [
             'id' => $id,
             'name' => 'test',
@@ -152,18 +149,49 @@ class ManyToManyAssociationFieldTest extends TestCase
             ],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'properties' => [
+                [
+                    'id' => $propertyId,
+                    'name' => 'Propertyname',
+                    'group' => [
+                        'id' => $groupId,
+                        'name' => 'Groupname',
+                        'customFields' => [
+                            'key' => 'value',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->productRepository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addFields(['name', 'properties']);
-        $criteria->addAssociation('properties');
+        $criteria->addFields(['productNumber', 'properties.name', 'properties.group.customFields']);
 
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
-
         static::assertInstanceOf(PartialEntity::class, $product);
-        static::assertEquals('test', $product->get('name'));
-        static::assertInstanceOf(PropertyGroupOptionCollection::class, $product->get('properties'));
+
+        $properties = $product->get('properties');
+
+        static::assertInstanceOf(EntityCollection::class, $properties);
+
+        $property = $properties->first();
+        static::assertInstanceOf(PartialEntity::class, $property);
+
+        $group = $property->get('group');
+        static::assertInstanceOf(PartialEntity::class, $group);
+
+        static::assertEquals($id, $product->get('productNumber'));
+        static::assertFalse($product->has('name'));
+        static::assertFalse($product->has('customFields'));
+
+        static::assertEquals($propertyId, $property->getId());
+        static::assertEquals('Propertyname', $property->get('name'));
+        static::assertFalse($property->has('customFields'));
+
+        static::assertEquals($groupId, $group->getId());
+        static::assertFalse($group->has('name'));
+        static::assertEquals('value', $group->get('customFields')['key']);
     }
 }

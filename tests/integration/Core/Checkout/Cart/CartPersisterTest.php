@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
@@ -49,7 +50,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
 
         $e = null;
 
@@ -73,7 +74,7 @@ class CartPersisterTest extends TestCase
                 ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
         $cart = $persister->load('existing', Generator::createSalesChannelContext());
 
         static::assertEquals(new Cart('existing'), $cart);
@@ -90,7 +91,7 @@ class CartPersisterTest extends TestCase
         // Cart should not be inserted or updated.
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
 
         $cart = new Cart('existing');
 
@@ -223,7 +224,7 @@ class CartPersisterTest extends TestCase
             $caughtEvent = $event;
         });
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, false);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
 
         $cart = new Cart('existing');
 

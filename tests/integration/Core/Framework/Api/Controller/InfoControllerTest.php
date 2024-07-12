@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -23,13 +24,13 @@ use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
@@ -66,6 +67,7 @@ class InfoControllerTest extends TestCase
                 'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => false,
+                'disableExtensionManagement' => false,
             ],
         ];
 
@@ -330,6 +332,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => true,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -340,6 +343,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -392,6 +396,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => false,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -402,6 +407,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -468,6 +474,7 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
                 'shopware.media.enable_url_upload_feature' => true,
                 'shopware.staging.administration.show_banner' => false,
+                'shopware.deployment.runtime_extension_management' => true,
             ]),
             $kernelMock,
             $assets,
@@ -478,6 +485,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('router'),
             $eventCollector,
             $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get(ApiRouteInfoResolver::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -652,6 +660,23 @@ class InfoControllerTest extends TestCase
             static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertEquals($event, $actualEvent[0]);
+        }
+    }
+
+    public function testFetchApiRoutes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request('GET', '/api/_info/routes');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        $routes = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        foreach ($routes['endpoints'] as $route) {
+            static::assertArrayHasKey('path', $route);
+            static::assertArrayHasKey('methods', $route);
         }
     }
 

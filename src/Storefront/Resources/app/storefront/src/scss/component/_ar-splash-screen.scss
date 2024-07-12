@@ -1,0 +1,46 @@
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.ar-qr-modal-open-session {
+
+    .ar-splash-screen {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+
+        .cube-splash-icon {
+            max-width: 200px;
+            left: 0px;
+            right: 0px;
+        }
+
+        .floor-splash-icon {
+            max-width: 400px;
+            left: 0px;
+            right: 0px;
+            margin-top: 33%;
+        }
+
+        .ar-btn-open-session {
+            max-width: 170px;
+            left: 0px;
+            right: 0px;
+            margin-top: 75%;
+        }
+    }
+
+    .icon-cube-3d-shade {
+        color: transparent;
+    }
+
+    .ar-btn-icon-with-label {
+        vertical-align: middle;
+
+        span {
+            vertical-align: middle;
+        }
+
+        svg {
+            vertical-align: middle;
+            top: 0px;
+        }
+    }
+}

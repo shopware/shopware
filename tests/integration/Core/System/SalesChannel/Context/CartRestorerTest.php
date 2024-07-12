@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -89,6 +90,7 @@ class CartRestorerTest extends TestCase
         /** @var AbstractSalesChannelContextFactory $contextFactory */
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $cartRuleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $requestStack = $this->getContainer()->get(RequestStack::class);
 
         $this->customerId = $this->createCustomer()->getId();
 
@@ -97,7 +99,8 @@ class CartRestorerTest extends TestCase
             $this->contextPersister,
             $this->cartService,
             $cartRuleLoader,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $requestStack
         );
     }
 

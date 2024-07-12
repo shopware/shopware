@@ -1,6 +1,8 @@
 {% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
 
 {% block component_product_box_content %}
+    {{ sw_icon_cache_disable() }}
+
     <div class="card-body card-body-wishlist">
         {{ block('component_product_box_badges') }}
 
@@ -61,4 +63,6 @@
             </div>
         {% endblock %}
     </div>
+
+    {{ sw_icon_cache_enable() }}
 {% endblock %}

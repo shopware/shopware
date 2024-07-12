@@ -25,5 +25,10 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Extensions\ExtensionDispatcher">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
     </services>
 </container>

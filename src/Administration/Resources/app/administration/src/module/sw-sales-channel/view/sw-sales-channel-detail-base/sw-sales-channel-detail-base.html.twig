@@ -503,12 +503,14 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
-        <sw-select-number-field
-            v-model:value="productExport.interval"
+        <mt-select
+            :model-value="productExport.interval"
             :label="$tc('sw-sales-channel.detail.productComparison.interval')"
             :options="getIntervalOptions"
+            label-property="name"
+            value-property="id"
             :disabled="!acl.can('sales_channel.editor')"
-            @update:value="changeInterval"
+            @update:model-value="changeInterval"
         />
         {% endblock %}
 

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -56,7 +57,12 @@ const setup = async (propOverride) => {
 
     return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
         global: {
-            stubs: ['sw-number-field', 'sw-icon'],
+            stubs: [
+                'sw-number-field',
+                'sw-icon',
+                'sw-container',
+                'sw-maintain-currencies-modal',
+            ],
         },
         props,
     });
@@ -93,12 +99,6 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup();
 
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should render correctly', async () => {
-        const wrapper = await setup();
-
-        expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should contain the dollar price', async () => {

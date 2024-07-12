@@ -22,6 +22,12 @@ const handleMtCheckbox = (context, node) => {
         return attr.key?.name?.name === 'model';
     });
 
+    // Check if the mt-checkbox uses v-model:checked
+    const vModelChecked = node.startTag.attributes.find((attr) => {
+        return attr.key?.name?.name === 'model' &&
+            attr.key?.argument?.name === 'checked';
+    });
+
     // Check if the mt-checkbox has the slot "label"
     const labelSlot = node.children.find((child) => {
         return child.type === 'VElement' &&
@@ -104,7 +110,7 @@ const handleMtCheckbox = (context, node) => {
         });
     }
 
-    if (vModelValue) {
+    if (vModelValue && !vModelChecked) {
         context.report({
             node: vModelValue,
             message: `[${mtComponentName}] The "v-model" directive is deprecated. Use "v-model:checked" instead.`,
@@ -295,7 +301,15 @@ const mtCheckboxValidTests = [
             <template>
                 <sw-checkbox-field />
             </template>`
-    }
+    },
+    {
+        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked"',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-checkbox v-model:checked="isCheckedValue" />
+            </template>`,
+    },
 ]
 
 const mtCheckboxInvalidTests = [

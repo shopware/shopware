@@ -76,7 +76,8 @@ async function createWrapper(condition = {}) {
                     props: ['text'],
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
-                'sw-popover': {
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-product-variant-info': {

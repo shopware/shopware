@@ -98,13 +98,7 @@ workflow:
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
   - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
-  - >
-    if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-        PLATFORM_VERSION='6.6.99.99';
-    else
-        PLATFORM_VERSION="${LATEST_TAG#"v"}"
-    fi
-  - composer config version "$PLATFORM_VERSION"
+  - composer config version "6.6.9999999.9999999-dev"
   - composer update
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
   - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
@@ -150,6 +144,7 @@ default:
     services:
         - name: "$MYSQL_IMAGE"
           alias: database
+          pull_policy: always
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     before_script:
         - echo 'memory_limit = -1' | tee /usr/local/etc/php/conf.d/99-memory-limit.ini
@@ -191,7 +186,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.43
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.44
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -401,7 +396,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.43
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.44
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     variables:
         GIT_STRATEGY: none

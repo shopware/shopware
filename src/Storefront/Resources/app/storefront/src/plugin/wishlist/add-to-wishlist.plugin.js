@@ -50,6 +50,8 @@ export default class AddToWishlistPlugin extends Plugin {
      */
     _registerEvents() {
         this.el.addEventListener('click', this._onClick.bind(this));
+
+        this._wishlistStorage.$emitter.subscribe('Wishlist/onLoginRedirect', this.initStateClasses.bind(this));
     }
 
     initStateClasses() {
@@ -76,12 +78,8 @@ export default class AddToWishlistPlugin extends Plugin {
 
         if (this._wishlistStorage.has(this.options.productId)) {
             this._wishlistStorage.remove(this.options.productId, this.options.router.remove);
-
-            this._removeActiveState();
         } else {
             this._wishlistStorage.add(this.options.productId, this.options.router.add);
-
-            this._addActiveState();
         }
     }
 

@@ -8,7 +8,7 @@
     :options="translatedOperators"
     :placeholder="$tc('global.sw-condition.operator.placeholder')"
     :value="operator"
-    :disabled="disabled"
+    :disabled="disabled || undefined"
     required
     show-clearable-button
     @update:value="changeOperator"

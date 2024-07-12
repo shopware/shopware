@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -34,8 +35,13 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         /** @var string|null $switchedGroup */
         $switchedGroup = $request->get('switchedGroup');
 
-        /** @var array<string, string> $options */
         $options = $request->get('options') ? $request->get('options', []) : [];
+
+        foreach ($options as $optionId) {
+            if (!\is_string($optionId)) {
+                throw ProductException::invalidOptionsParameter();
+            }
+        }
 
         $variantId = $this->searchForOptions($productId, $context, $options);
 
@@ -63,7 +69,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     }
 
     /**
-     * @param array<string, string> $options
+     * @param array<string> $options
      */
     private function searchForOptions(
         string $productId,

@@ -11,6 +11,8 @@ import './sw-help-center.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         showHelpSidebar(): boolean {
             return Shopware.State.get('adminHelpCenter').showHelpSidebar;

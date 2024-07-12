@@ -10,5 +10,6 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AddColumnRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ExtensionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAfterStatementRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNewRequestInStorefrontRule

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -120,6 +121,10 @@ final class StornoRenderer extends AbstractDocumentRenderer
                         'stornoNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
+                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                        $config->jsonSerialize(),
+                        $order,
+                    ),
                 ]);
 
                 if ($operation->isStatic()) {
@@ -209,6 +214,18 @@ final class StornoRenderer extends AbstractDocumentRenderer
         $order->setShippingTotal($order->getShippingTotal() / -1);
         $order->setAmountNet($order->getAmountNet() / -1);
         $order->setAmountTotal($order->getAmountTotal() / -1);
+
+        $currentOrderCartPrice = $order->getPrice();
+        $CartPrice = new CartPrice(
+            $currentOrderCartPrice->getNetPrice(),
+            $currentOrderCartPrice->getTotalPrice() / -1,
+            $currentOrderCartPrice->getPositionPrice(),
+            $currentOrderCartPrice->getCalculatedTaxes(),
+            $currentOrderCartPrice->getTaxRules(),
+            $currentOrderCartPrice->getTaxStatus(),
+            $currentOrderCartPrice->getRawTotal(),
+        );
+        $order->setPrice($CartPrice);
 
         return $order;
     }

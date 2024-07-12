@@ -495,10 +495,7 @@ export default {
             }
         },
 
-        onShippingChargeEdited(amount) {
-            const positiveAmount = Math.abs(amount);
-            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
-            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
+        onShippingChargeEdited() {
             this.updateLoading(true);
 
             State.dispatch('swOrder/modifyShippingCosts', {
@@ -538,6 +535,12 @@ export default {
             this.disabledAutoPromotionChecked = true;
 
             this.loadCart();
+        },
+
+        onShippingChargeUpdated(amount) {
+            const positiveAmount = Math.abs(amount);
+            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
+            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
         },
     },
 };

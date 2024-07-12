@@ -22,6 +22,20 @@ export default {
             type: Array,
             required: true,
         },
+        defaultLimit: {
+            type: Number,
+            default: 25,
+        },
+        defaultSorting: {
+            type: String,
+            default: null,
+            validator(value) {
+                return (
+                    value === null ||
+                    value.split(':').length === 2
+                );
+            },
+        },
     },
     data() {
         return {
@@ -30,7 +44,8 @@ export default {
             searchTerm: '',
             page: 1,
             total: false,
-            limit: 25,
+            limit: this.defaultLimit,
+            sorting: this.defaultSorting,
             isLoading: false,
         };
     },
@@ -48,10 +63,14 @@ export default {
         },
 
         previewCriteria() {
-            return new Criteria(this.page, this.limit)
-                .addFilter(Criteria.not('OR', [
-                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                ])).setTerm(this.searchTerm);
+            const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
+
+            if (this.sorting) {
+                const [field, direction] = this.sorting.split(':');
+                criteria.addSorting(Criteria.sort(field, direction));
+            }
+
+            return criteria;
         },
 
         previewSelectionCriteria() {
@@ -153,7 +172,7 @@ export default {
             });
         },
 
-        mapFiltersForSearch(filters) {
+        mapFiltersForSearch(filters = []) {
             return filters.map((condition) => {
                 const { field, type, operator, value, parameters, queries } = condition;
                 const mappedQueries = this.mapFiltersForSearch(queries);

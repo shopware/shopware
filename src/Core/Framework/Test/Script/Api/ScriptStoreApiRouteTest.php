@@ -149,6 +149,23 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
     }
 
+    public function testResponseCanContainHeaders(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('POST', '/store-api/script/header-test');
+        static::assertNotFalse($this->browser->getResponse()->getContent());
+
+        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+
+        static::assertArrayHasKey('foo', $response);
+        static::assertEquals('bar', $response['foo']);
+
+        static::assertTrue($this->browser->getResponse()->headers->has('test'));
+        static::assertEquals('value', $this->browser->getResponse()->headers->get('test'));
+    }
+
     public function testRedirectResponse(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

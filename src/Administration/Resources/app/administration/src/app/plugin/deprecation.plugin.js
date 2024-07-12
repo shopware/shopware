@@ -77,6 +77,7 @@ class DeprecationPlugin {
         Vue.mixin({
             created() {
                 const deprecatedProps = _this.getDeprecatedProps(this.$options.props);
+
                 const usedDeprecationProps = _this.getUsedProps(this.$options.propsData, deprecatedProps);
                 const componentDeprecationInformation = _this.getComponentDeprecationInformation(this);
 

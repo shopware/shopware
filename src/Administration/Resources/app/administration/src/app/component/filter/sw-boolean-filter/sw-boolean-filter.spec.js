@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 const { Criteria } = Shopware.Data;
@@ -12,6 +15,11 @@ async function createWrapper() {
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-icon': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-select': true,
                 'sw-field-error': {
                     template: '<div></div>',
                 },

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppDownloadException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
@@ -90,5 +91,33 @@ class AppExceptionTest extends TestCase
 
         static::assertEquals(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
         static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules, Payments and Webhooks but has no secret', $e->getMessage());
+    }
+
+    public function testNoSourceSupports(): void
+    {
+        $e = AppException::noSourceSupports();
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertEquals('FRAMEWORK__APP_NO_SOURCE_SUPPORTS', $e->getErrorCode());
+        static::assertEquals('App is not supported by any source.', $e->getMessage());
+    }
+
+    public function testCannotMountAppFilesystem(): void
+    {
+        $previous = AppDownloadException::transportError('some/url');
+        $e = AppException::cannotMountAppFilesystem('appName', $previous);
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertEquals('FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM', $e->getErrorCode());
+        static::assertEquals('Cannot mount a filesystem for App "appName". Error: "' . $previous->getMessage() . '"', $e->getMessage());
+    }
+
+    public function testSourceDoesNotExist(): void
+    {
+        $e = AppException::sourceDoesNotExist('/Unknown/Source');
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertEquals('FRAMEWORK__APP_NO_SOURCE_SUPPORTS', $e->getErrorCode());
+        static::assertEquals('The source "/Unknown/Source" does not exist', $e->getMessage());
     }
 }

@@ -12,6 +12,11 @@ const { Component } = Shopware;
 Component.register('sw-card', {
     template,
 
+    compatConfig: {
+        ...Shopware.compatConfig,
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+    },
+
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -28,16 +33,28 @@ Component.register('sw-card', {
 
             return false;
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
     },
 });

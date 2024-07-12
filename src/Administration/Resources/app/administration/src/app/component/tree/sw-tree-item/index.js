@@ -11,7 +11,54 @@ const { Component } = Shopware;
 Component.register('sw-tree-item', {
     template,
 
-    inject: ['feature', 'getItems'],
+    inject: {
+        feature: {
+            from: 'feature',
+            default: null,
+        },
+        getItems: {
+            from: 'getItems',
+            default: null,
+        },
+        treeStartDrag: {
+            from: 'startDrag',
+            default: null,
+        },
+        treeEndDrag: {
+            from: 'endDrag',
+            default: null,
+        },
+        treeMoveDrag: {
+            from: 'moveDrag',
+            default: null,
+        },
+        treeAddSubElement: {
+            from: 'addSubElement',
+            default: null,
+        },
+        treeAddElement: {
+            from: 'addElement',
+            default: null,
+        },
+        treeDuplicateElement: {
+            from: 'duplicateElement',
+            default: null,
+        },
+        treeOnFinishNameingElement: {
+            from: 'onFinishNameingElement',
+            default: null,
+        },
+        treeOnDeleteElements: {
+            from: 'onDeleteElements',
+            default: null,
+        },
+        treeAbortCreateElement: {
+            from: 'abortCreateElement',
+            default: null,
+        },
+    },
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         item: {
@@ -260,18 +307,29 @@ Component.register('sw-tree-item', {
         },
 
         parentScope() {
-            let parentNode = this.$parent;
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                let parentNode = this.$parent;
 
-            // eslint-disable-next-line
-            while (parentNode.$options._componentTag !== 'sw-tree') {
-                if (parentNode.$parent) {
-                    parentNode = parentNode.$parent;
+                // eslint-disable-next-line
+                while (parentNode.$options._componentTag !== 'sw-tree') {
+                    if (parentNode.$parent) {
+                        parentNode = parentNode.$parent;
+                    }
+
+                    break;
                 }
 
-                break;
+                return parentNode;
             }
 
-            return parentNode;
+            return {
+                addSubElement: this.treeAddSubElement,
+                addElement: this.treeAddElement,
+                duplicateElement: this.treeDuplicateElement,
+                onFinishNameingElement: this.treeOnFinishNameingElement,
+                onDeleteElements: this.treeOnDeleteElements,
+                abortCreateElement: this.treeAbortCreateElement,
+            };
         },
 
         toolTip() {
@@ -297,6 +355,24 @@ Component.register('sw-tree-item', {
         isHighlighted() {
             return this.getIsHighlighted(this.item);
         },
+
+        contentSlot() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.content;
+            }
+
+            return this.$slots.content;
+        },
+
+        actionsSlot() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.actions;
+            }
+
+            return this.$slots.actions;
+        },
     },
 
     watch: {
@@ -315,6 +391,7 @@ Component.register('sw-tree-item', {
                 }
             },
             immediate: true,
+            deep: true,
         },
 
         activeItemIds: {
@@ -324,6 +401,7 @@ Component.register('sw-tree-item', {
                 }
             },
             immediate: true,
+            deep: true,
         },
     },
 
@@ -348,10 +426,13 @@ Component.register('sw-tree-item', {
                     this.$el.querySelector('.sw-tree-item.is--active input').focus();
                 }
             }
+
             if (this.newElementId) {
                 this.currentEditElement = this.newElementId;
                 this.editElementName();
             }
+
+            this.updatedComponent();
         },
 
         openTreeItem(open = !this.opened) {
@@ -380,11 +461,19 @@ Component.register('sw-tree-item', {
 
             this.dragEl = dragElement;
 
-            this.$parent.$parent.startDrag(this);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$parent.startDrag(this);
+            } else {
+                this.treeStartDrag(this);
+            }
         },
 
         dragEnd() {
-            this.$parent.$parent.endDrag();
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$parent.endDrag();
+            } else {
+                this.treeEndDrag();
+            }
         },
 
         onMouseEnter(dragData, dropData) {
@@ -392,19 +481,34 @@ Component.register('sw-tree-item', {
                 return;
             }
 
-            this.$parent.$parent.moveDrag(dragData, dropData);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$parent.moveDrag(dragData, dropData);
+            } else {
+                this.treeMoveDrag(dragData, dropData);
+            }
         },
 
         startDrag(draggedComponent) {
-            return this.$parent.$parent.startDrag(draggedComponent);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                return this.$parent.$parent.startDrag(draggedComponent);
+            }
+
+            return this.treeStartDrag(draggedComponent);
         },
 
         endDrag() {
-            this.$parent.$parent.endDrag();
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$parent.endDrag();
+            } else {
+                this.treeEndDrag();
+            }
         },
 
         moveDrag(draggedComponent, droppedComponent) {
-            return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                return this.$parent.$parent.moveDrag(draggedComponent, droppedComponent);
+            }
+            return this.treeMoveDrag(draggedComponent, droppedComponent);
         },
 
         // Bubbles this method to the root tree from any item depth
@@ -497,6 +601,24 @@ Component.register('sw-tree-item', {
             }
 
             return false;
+        },
+
+        renderContentSlotNode({ item, openTreeItem, getName }) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.content({ item, openTreeItem, getName });
+            }
+
+            return this.$slots.content({ item, openTreeItem, getName });
+        },
+
+        renderActionsSlotNode({ item, openTreeItem }) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return this.$scopedSlots.actions({ item, openTreeItem });
+            }
+
+            return this.$slots.actions({ item, openTreeItem });
         },
     },
 });

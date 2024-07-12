@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 
-const { State } = Shopware;
+const { Store } = Shopware;
 
 const block = {
     name: 'Block name',
@@ -62,12 +62,9 @@ async function createWrapper() {
 
 describe('module/sw-cms/component/sw-cms-block-config', () => {
     beforeEach(() => {
-        if (State.get('cmsPageState')) {
-            State.unregisterModule('cmsPageState');
-        }
-
-        State.registerModule('cmsPageState', {
-            namespaced: true,
+        Store.unregister('cmsPageState');
+        Store.register({
+            id: 'cmsPageState',
         });
     });
 

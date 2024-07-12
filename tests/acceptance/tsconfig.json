@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ES2022"],
+    "lib": ["ESNext"],
     "esModuleInterop": true,
     "types": ["node"],
     "baseUrl": ".",

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Delta;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -77,7 +78,7 @@ class DomainsDeltaProviderTest extends TestCase
         static::assertTrue((new DomainsDeltaProvider())->hasDelta($manifest, $app));
     }
 
-    private function getAppLifecycle(): AppLifecycle
+    private function getAppLifecycle(): AbstractAppLifecycle
     {
         return $this->getContainer()->get(AppLifecycle::class);
     }

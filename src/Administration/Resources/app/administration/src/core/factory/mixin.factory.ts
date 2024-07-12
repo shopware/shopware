@@ -46,7 +46,7 @@ function register<T, MixinName extends keyof MixinContainer>(
         return mixinRegistry.get(mixinName) as T;
     }
 
-    addToMixinRegistry(mixinName, mixin as MixinContainer[MixinName]);
+    addToMixinRegistry(mixinName, mixin as unknown as MixinContainer[MixinName]);
 
     return mixinRegistry.get(mixinName) as T;
 }

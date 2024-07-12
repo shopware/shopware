@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
-use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
@@ -12,12 +13,10 @@ use Twig\Extension\CoreExtension;
 use Twig\Source;
 use Twig\Template;
 
-use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
-
 /**
  * @internal
  */
-#[CoversFunction('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')]
+#[CoversClass('Shopware\Core\Framework\Adapter\Twig\SwTwigFunction')]
 class SwGetAttributeTest extends TestCase
 {
     private MockObject&Environment $environmentMock;
@@ -32,7 +31,7 @@ class SwGetAttributeTest extends TestCase
     public function testSwGetAttributeValueNull(): void
     {
         $object = new ArrayStruct(['test' => null]);
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
         static::assertEquals('', $result);
     }
@@ -40,12 +39,12 @@ class SwGetAttributeTest extends TestCase
     public function testSwGetAttributeValueBool(): void
     {
         $object = new ArrayStruct(['test' => true]);
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
         static::assertTrue($result);
 
         $object = new ArrayStruct(['test' => false]);
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
         static::assertFalse($result);
     }
@@ -53,7 +52,7 @@ class SwGetAttributeTest extends TestCase
     public function testSwGetAttributeJustProperty(): void
     {
         $object = new ArrayStruct(['test' => 'value']);
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
 
         static::assertEquals('value', $result);
     }
@@ -65,27 +64,27 @@ class SwGetAttributeTest extends TestCase
         $object->setValue('valueValue');
         $object->setVisible(true);
 
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'noGetter');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'noGetter');
 
         static::assertNull($result);
 
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'value');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'value');
 
         static::assertEquals('valueValue', $result);
 
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'getValue');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'getValue');
 
         static::assertEquals('valueValue', $result);
 
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'visible');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'visible');
 
         static::assertTrue($result);
 
-        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, 'isVisible');
+        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'isVisible');
 
         static::assertTrue($result);
 
-        $result = sw_get_attribute(
+        $result = SwTwigFunction::getAttribute(
             $this->environmentMock,
             new Source('', 'empty'),
             $object,

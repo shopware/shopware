@@ -24,7 +24,10 @@ const URL_REGEX = {
  */
 Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     emits: [
         'update:value',

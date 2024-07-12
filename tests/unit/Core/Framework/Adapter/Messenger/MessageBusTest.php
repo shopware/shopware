@@ -5,7 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Messenger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Adapter\Messenger\MessageBus;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
@@ -30,11 +33,30 @@ class MessageBusTest extends TestCase
     #[DataProvider('dispatchProvider')]
     public function testDispatch(object $message, array $config, array $providedStamps, array $expectedStamps): void
     {
-        $bus = new MessageBus(new Collector(), $config);
+        if (Feature::isActive('v6.7.0.0')) {
+            $bus = new MessageBus(new Collector(), [], $config);
+        } else {
+            $bus = new MessageBus(new Collector(), $config, []);
+        }
 
         $envelope = $bus->dispatch($message, $providedStamps);
 
         static::assertEquals(new Envelope($message, $expectedStamps), $envelope);
+    }
+
+    public function testOverwrite(): void
+    {
+        Feature::skipTestIfInActive('v6.7.0.0', $this);
+
+        $bus = new MessageBus(new Collector(), [], [
+            EntityIndexingMessage::class => 'low_priority',
+        ]);
+
+        $message = new ProductIndexingMessage([]);
+
+        $envelope = $bus->dispatch($message);
+
+        static::assertEquals(new Envelope($message, [new TransportNamesStamp('low_priority')]), $envelope);
     }
 
     public static function dispatchProvider(): \Generator

@@ -6,6 +6,12 @@ const { get, cloneDeep } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+const documentTypesForDisplayNoteDelivery = [
+    'storno',
+    'credit_note',
+    'invoice',
+];
+
 /**
  * @package services-settings
  */
@@ -164,6 +170,7 @@ export default {
                     config: {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelCompanyAddress'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextCompanyAddress'),
                     },
                 },
                 {
@@ -340,6 +347,7 @@ export default {
             };
         },
 
+        /* @deprecated: tag:v6.7.0 - Will be removed without replacement */
         showCountriesSelect() {
             if (!this.isShowDisplayNoteDelivery) {
                 return false;
@@ -349,6 +357,7 @@ export default {
 
             return documentConfig.config?.displayAdditionalNoteDelivery;
         },
+
         documentBaseConfig() {
             return this.documentConfig;
         },
@@ -435,8 +444,11 @@ export default {
             const documentTypeCurrent = cloneDeep(documentType);
 
             if (documentTypeCurrent.technicalName === 'invoice') {
-                this.isShowDisplayNoteDelivery = true;
                 this.isShowDivergentDeliveryAddress = true;
+            }
+
+            if (documentTypesForDisplayNoteDelivery.includes(documentTypeCurrent.technicalName)) {
+                this.isShowDisplayNoteDelivery = true;
             }
 
             this.createSalesChannelSelectOptions();

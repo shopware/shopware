@@ -6,7 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -31,7 +31,7 @@ class AssetService
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly SourceResolver $sourceResolver,
         private readonly ParameterBagInterface $parameterBag
     ) {
     }
@@ -63,11 +63,13 @@ class AssetService
 
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
-        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+        $fs = $this->sourceResolver->filesystemForAppName($appName);
 
-        if ($publicDirectory === null) {
+        if (!$fs->has('Resources/public')) {
             return;
         }
+
+        $publicDirectory = $fs->path('Resources/public');
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,
@@ -178,6 +180,10 @@ class AssetService
         return $localManifest;
     }
 
+    /**
+     * Adopted from symfony, as they also strip the bundle suffix:
+     * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
+     */
     private function getTargetDirectory(string $name): string
     {
         $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,17 +18,17 @@ class RedisCartPersister extends AbstractCartPersister
     final public const PREFIX = 'cart-persister-';
 
     /**
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     *
      * @internal
      *
      * param cannot be natively typed, as symfony might change the type in the future
-     *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
      */
     public function __construct(
         private $redis,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
-        private readonly bool $compress,
+        private readonly CartCompressor $compressor,
         private readonly int $expireDays
     ) {
     }
@@ -58,7 +57,12 @@ class RedisCartPersister extends AbstractCartPersister
             throw CartException::tokenNotFound($token);
         }
 
-        $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize((string) $value['content']);
+        try {
+            $content = $this->compressor->unserialize($value['content'], (int) $value['compressed']);
+        } catch (\Exception) {
+            // When we can't decode it, we have to delete it
+            throw CartException::tokenNotFound($token);
+        }
 
         if (!\is_array($content)) {
             throw CartException::tokenNotFound($token);
@@ -131,15 +135,13 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->cartSerializationCleaner->cleanupCart($cart);
 
-        $content = ['cart' => $cart, 'rule_ids' => $context->getRuleIds()];
-
-        $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
+        [$compressed, $content] = $this->compressor->serialize(['cart' => $cart, 'rule_ids' => $context->getRuleIds()]);
 
         $cart->setErrors($errors);
         $cart->setData($data);
 
         return \serialize([
-            'compressed' => $this->compress,
+            'compressed' => $compressed,
             'content' => $content,
         ]);
     }

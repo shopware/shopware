@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - trunk
+    paths:
+      - src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*
   pull_request:
+    paths:
+      - src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*
 
 jobs:
   openapi-lint:
@@ -19,11 +23,12 @@ jobs:
         ports:
           - "3306:3306"
     env:
-      APP_ENV: "dev"
+      APP_ENV: test
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       DATABASE_HOST: database
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
     steps:
       - name: Clone platform
         uses: actions/checkout@v4
@@ -44,7 +49,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: 8.2
           extensions: gd, bcmath
           tools: symfony-cli
 
@@ -58,18 +63,21 @@ jobs:
         run: composer run init:db
 
       - name: Start Webserver
-        run: symfony server:start -d
+        run: symfony server:start -d --no-tls
 
-      - name: Generate OpenApi schema
+      - name: Prepare schema lint
         run: |
+          npm i -g @redocly/cli@latest @shopware/api-gen
           export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 -proot root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
           printf "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
-          npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
-          npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
 
-      - name: Lint OpenApi schema
+      - name: Generate & Lint OpenApi StoreAPI schema
         run: |
-          npm i -g @redocly/cli@latest
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json
+          api-gen generate --apiType=store && api-gen loadSchema --apiType=store
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+
+      - name: Generate & Lint OpenApi API schema
+        run: |
+          api-gen generate --apiType=admin && api-gen loadSchema --apiType=admin
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json

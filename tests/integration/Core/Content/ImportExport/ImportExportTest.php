@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
@@ -40,6 +41,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
@@ -49,6 +51,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -84,6 +87,7 @@ use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -95,17 +99,21 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     private bool $mediaDirCreated = false;
 
+    private string $projectDir = '';
+    private const PUBLIC_MEDIA_PATH = '/public/media';
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
-        if (!\is_dir($projectDir . '/public/media')) {
-            mkdir($projectDir . '/public/media');
+        $this->projectDir = static::getContainer()->getParameter('kernel.project_dir');
+
+        if (!\is_dir($this->projectDir . self::PUBLIC_MEDIA_PATH)) {
+            mkdir($this->projectDir . self::PUBLIC_MEDIA_PATH);
             $this->mediaDirCreated = true;
         }
 
-        \copy(self::TEST_IMAGE, static::getContainer()->getParameter('kernel.project_dir') . '/public/media/ßhopware-logö.png');
+        \copy(self::TEST_IMAGE, $this->projectDir . self::PUBLIC_MEDIA_PATH . '/ßhopware-logö.png');
     }
 
     protected function tearDown(): void
@@ -124,8 +132,6 @@ class ImportExportTest extends AbstractImportExportTestCase
     {
         $this->listener->addSubscriber(new StockSubscriber());
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-
         $productId = Uuid::randomHex();
         $product = $this->getTestProduct($productId);
         $newStock = (int) $product['stock'] + 1;
@@ -138,10 +144,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
         static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
 
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
-        static::assertIsString($csv);
+        $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(sprintf(';%s;', $newStock), $csv);
     }
 
@@ -414,10 +417,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress);
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
+        $csv = $this->getCsvContent($progress->getLogId());
 
         static::assertStringEqualsFile(__DIR__ . '/fixtures/advanced_prices.csv', $csv);
     }
@@ -783,6 +783,78 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertSame(Uuid::fromStringToHex('Main>First New'), $newCategoryLeaf->getParentId());
     }
 
+    #[DataProvider('coverMediaUrlDataProvider')]
+    public function testImportProductsWithCoverMediaUrl(string $imageName, string $queryParameter): void
+    {
+        $productName = 'product_with_cover_media_url';
+        $csvFileName = 'product_with_cover_media_url.csv';
+        $expectedExtension = 'png';
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $filesystem = new Filesystem();
+        $filesystem->copy(
+            __DIR__ . '/fixtures/' . $imageName,
+            $this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName
+        );
+
+        $csvContent = sprintf(
+            'product_number;stock;name;price_net;price_gross;tax_id;tax_rate;tax_name;cover_media_url
+SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s',
+            EnvironmentHelper::getVariable('APP_URL') . '/media/' . $imageName . $queryParameter
+        );
+
+        $filesystem->dumpFile(__DIR__ . '/fixtures/' . $csvFileName, $csvContent);
+
+        try {
+            static::assertTrue($filesystem->exists($this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName));
+            static::assertTrue($filesystem->exists(__DIR__ . '/fixtures/' . $csvFileName));
+
+            $progress = $this->import(
+                $context,
+                ProductDefinition::ENTITY_NAME,
+                __DIR__ . '/fixtures/' . $csvFileName,
+                $csvFileName,
+                null,
+                false,
+                true
+            );
+
+            static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('name', $productName));
+            $criteria->addAssociation('cover');
+            $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+            static::assertInstanceOf(ProductEntity::class, $product);
+
+            $productMedia = $product->getCover();
+            static::assertInstanceOf(ProductMediaEntity::class, $productMedia);
+            $media = $productMedia->getMedia();
+            static::assertInstanceOf(MediaEntity::class, $media);
+            static::assertSame($imageName, $media->getFileName());
+            static::assertSame($expectedExtension, $media->getFileExtension());
+        } finally {
+            $filesystem->remove([
+                __DIR__ . '/fixtures/' . $csvFileName,
+                $this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName,
+            ]);
+        }
+    }
+
+    public static function coverMediaUrlDataProvider(): \Generator
+    {
+        yield 'import coverMediaUrl without extension' => [
+            'test-image-without-extension',
+            '',
+        ];
+        yield 'import coverMediaUrl without extension and query parameters' => [
+            'test-image-without-extension',
+            '?some=query&params=here',
+        ];
+    }
+
     public function testInvalidFile(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -1035,11 +1107,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
-        static::assertIsString($csv);
+        $csv = $this->getCsvContent($progress->getLogId());
         $resource = fopen('data://text/plain;base64,' . base64_encode($csv), 'r');
         static::assertIsResource($resource);
         $reader = new CsvReader();
@@ -1190,12 +1258,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
+        $csv = $this->getCsvContent($progress->getLogId());
 
-        static::assertIsString($csv);
         static::assertStringContainsString(
             'f26b0d8f252a76f2f99337cced08314b|c1ace7586faa4342a4d3b33e6dd33b7c|c9a70321b66449abb54ba9306ad02835',
             $csv
@@ -1265,12 +1329,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
-
-        static::assertIsString($csv);
+        $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString($salesChannel['name'], $csv);
         static::assertStringContainsString('shopware AG', $csv);
         static::assertStringContainsString('en-GB', $csv);
@@ -1314,6 +1373,54 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertSame(5, $mockRepo->upsertCalls);
         static::assertSame(0, $mockRepo->createCalls);
         static::assertSame(0, $mockRepo->updateCalls);
+    }
+
+    public function testCustomerImportExportWithBoundSalesChannel(): void
+    {
+        $customerRepository = self::getContainer()->get('customer.repository');
+        $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
+        static::assertCount(0, $customers);
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'boundSalesChannelId',
+            'mappedKey' => 'boundsaleschannel_id',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $salesChannel = $this->createSalesChannel([
+            'id' => '01902502a01172ad948f5a50096da0bd',
+            'name' => 'Sales-Channel-Name',
+        ]);
+
+        $progress = $this->import(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            '/fixtures/customers_boundsaleschannel.csv',
+            'customers_boundsaleschannel.csv',
+            $profile->getId()
+        );
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
+        static::assertCount(1, $customers);
+        $customer = $customers->getEntities()->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $boundSalesChannelId = $customer->getBoundSalesChannelId();
+        static::assertIsString($boundSalesChannelId);
+        static::assertSame($salesChannel['id'], $boundSalesChannelId);
+
+        $progress = $this->export($context, CustomerDefinition::ENTITY_NAME, null, null, $profile->getId());
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $csvContent = $this->getCsvContent($progress->getLogId());
+        static::assertStringContainsString($salesChannel['id'], $csvContent);
     }
 
     public function testPromotionCodeImportExport(): void
@@ -1363,12 +1470,8 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
+        $csv = $this->getCsvContent($progress->getLogId());
 
-        static::assertIsString($csv);
         // validate export
         foreach ($individualCodes as $promoCodeResult) {
             static::assertStringContainsString($promoCodeResult->getId(), $csv);
@@ -1431,14 +1534,9 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertContains($ruleId, $lastDiscountRules->getIds());
 
         $progress = $this->export($context, PromotionDiscountDefinition::ENTITY_NAME);
-
         static::assertImportExportSucceeded($progress);
 
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        $csv = $filesystem->read($logfile->getPath());
-
+        $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringEqualsFile(__DIR__ . '/fixtures/promotion_discounts_export.csv', $csv);
     }
 
@@ -1588,7 +1686,7 @@ class ImportExportTest extends AbstractImportExportTestCase
     {
         return [
             'id' => Uuid::randomHex(),
-            'name' => 'Test Profile',
+            'technicalName' => 'test_profile',
             'label' => 'Test Profile',
             'sourceEntity' => 'category',
             'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
@@ -1603,5 +1701,17 @@ class ImportExportTest extends AbstractImportExportTestCase
                 ['key' => 'type', 'mappedKey' => 'type', 'position' => 0],
             ],
         ];
+    }
+
+    private function getCsvContent(string $logId): string
+    {
+        $filesystem = static::getContainer()->get('shopware.filesystem.private');
+        $logfile = $this->getLogEntity($logId)->getFile();
+        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
+
+        $csv = $filesystem->read($logfile->getPath());
+        static::assertIsString($csv);
+
+        return $csv;
     }
 }

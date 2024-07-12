@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -56,7 +57,8 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                 stubs: {
                     'sw-icon': true,
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-popover': true,
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': true,
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -66,6 +68,12 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                     'sw-field-error': true,
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                    'mt-floating-ui': true,
+                    'mt-text-field': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
                 provide: {
                     validationService: {},

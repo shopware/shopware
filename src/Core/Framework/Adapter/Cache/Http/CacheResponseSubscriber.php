@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -14,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -47,6 +50,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly int $defaultTtl,
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly RequestStack $requestStack,
         private readonly bool $reverseProxyEnabled,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError
@@ -65,6 +69,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
                 ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
+            CustomerLoginEvent::class => 'onCustomerLogin',
+            CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
     }
 
@@ -95,6 +101,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if (!$this->maintenanceResolver->shouldBeCached($request)) {
+            return;
+        }
+
+        if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            // 404 pages should not be cached by reverse proxy, as the cache hit rate would be super low,
+            // and there is no way to invalidate once the url becomes available
+            // To still be able to serve 404 pages fast, we don't load the full context and cache the rendered html on application side
+            // as we don't have the full context the state handling is broken as no customer or cart is available, even if the customer is logged in
+            // @see \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber::onError
             return;
         }
 
@@ -215,6 +230,29 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         return false;
+    }
+
+    public function onCustomerLogin(CustomerLoginEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $event->getSalesChannelContext());
+    }
+
+    public function onCustomerLogout(CustomerLogoutEvent $event): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $context = clone $event->getSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     private function buildCacheHash(SalesChannelContext $context): string

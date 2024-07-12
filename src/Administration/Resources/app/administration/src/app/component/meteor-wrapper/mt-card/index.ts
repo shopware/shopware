@@ -17,6 +17,8 @@ MtCard.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(
 Shopware.Component.register('mt-card', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     components: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-card-original': MtCard,
@@ -30,12 +32,31 @@ Shopware.Component.register('mt-card', {
         },
     },
 
+    computed: {
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+    },
+
     methods: {
         getFilteredSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            let allSlots: {
+                [key: string]: unknown;
+            } = {};
+
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                allSlots = {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            } else {
+                allSlots = this.$slots;
+            }
 
             // Remove already used slots
             delete allSlots['before-card'];

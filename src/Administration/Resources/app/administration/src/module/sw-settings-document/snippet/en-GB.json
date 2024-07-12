@@ -68,7 +68,8 @@
       "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\"",
       "labelDisplayDivergentDeliveryAddress": "Display divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
-      "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries."
+      "helpTextDisplayDeliveryCountries": "Displays indication of \"intra community delivery\" on invoice documents for selected countries.",
+      "helpTextCompanyAddress": "Use hyphens (\"-\") to separate the different elements of the address. This helps to render the address in multiple places of the header simultaneously."
     }
   },
   "sw-privileges": {

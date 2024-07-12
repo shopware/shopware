@@ -43,7 +43,7 @@ export default {
 
     data() {
         return {
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPageState'),
             mappingTypes: {},
             allowedMappingTypes: [],
             demoValue: null,

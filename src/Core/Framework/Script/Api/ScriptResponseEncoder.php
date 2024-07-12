@@ -28,6 +28,6 @@ class ScriptResponseEncoder
 
         $data = $this->structEncoder->encode(new ArrayStruct($scriptResponse->getBody()->all(), $apiAlias), $responseFields);
 
-        return new JsonResponse($data, $scriptResponse->getCode());
+        return new JsonResponse($data, $scriptResponse->getCode(), $scriptResponse->getHeaders());
     }
 }

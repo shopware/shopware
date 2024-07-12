@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -352,7 +353,7 @@ class AddressControllerTest extends TestCase
                 static::assertArrayHasKey('messages', $data);
 
                 static::assertFalse($data['success']);
-                static::assertEquals($data['messages']['type'], 'danger');
+                static::assertSame('danger', $data['messages']['type']);
             },
             0,
             true
@@ -452,11 +453,20 @@ class AddressControllerTest extends TestCase
             ],
         ];
 
+        $context = Context::createDefaultContext();
+
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, Context::createDefaultContext());
+        $repo->create($data, $context);
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $repo->search(new Criteria([$customerId]), $context)
+            ->getEntities()
+            ->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     /**

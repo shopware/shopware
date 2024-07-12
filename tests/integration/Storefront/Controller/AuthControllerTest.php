@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
@@ -37,6 +38,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Storefront\AuthTestSubscriber;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -48,7 +50,6 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
-use Shopware\Tests\Integration\Storefront\Controller\fixtures\Helper\AuthTestSubscriber;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -703,9 +704,9 @@ class AuthControllerTest extends TestCase
             $this->getContainer()->get(ResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
+            $this->getContainer()->get(ImitateCustomerRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
-            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class),
-            $this->getContainer()->get(SalesChannelContextService::class)
+            $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );
         $controller->setContainer($this->getContainer());
         $controller->setTwig($this->getContainer()->get('twig'));

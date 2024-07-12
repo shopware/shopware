@@ -33,7 +33,8 @@ async function createWrapper(
             'sw-base-field': await wrapTestComponent('sw-base-field'),
             'sw-select-result': await wrapTestComponent('sw-select-result'),
             'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-            'sw-popover': true,
+            'sw-popover': await wrapTestComponent('sw-popover'),
+            'sw-popover-deprecated': true,
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
             'sw-icon': {
@@ -87,7 +88,20 @@ async function createWrapper(
                     },
                 },
                 productCustomFields: {
-                    test: 'customFields.test',
+                    test: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'product',
+                        },
+                    },
+                    countryTest: {
+                        value: 'customFields.test',
+                        config: {
+                            customFieldType: 'entity',
+                            entity: 'country',
+                        },
+                    },
                 },
             },
             stubs,
@@ -167,9 +181,16 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 isJsonField: () => false,
             },
         });
+
         await flushPromises();
 
-        expect(wrapper.vm.fieldDefinition).toBe('customFields.test');
+        expect(wrapper.vm.fieldDefinition).toStrictEqual({
+            value: 'customFields.test',
+            config: {
+                customFieldType: 'entity',
+                entity: 'product',
+            },
+        });
     });
 
     it('should fire event when trigger value for boolean type', async () => {
@@ -338,6 +359,53 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(entityMultiIdSelect.exists()).toBe(true);
         expect(entityMultiIdSelect.attributes().criteria).toBeDefined();
         expect(entityMultiIdSelect.attributes()['advanced-selection-component']).toBeUndefined();
+    });
+
+    it('should render a single entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
+    });
+
+    it('should render a multiple entity select component', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'customFields.countryTest',
+            definition: {
+                entity: 'product',
+                getField: () => undefined,
+                isJsonField: () => false,
+            },
+            condition: {
+                type: 'equalsAny',
+            },
+        });
+
+        await wrapper.setData({
+            searchTerm: 'test',
+        });
+
+        await flushPromises();
+
+        const entitySingleSelect = wrapper.find('sw-entity-multi-id-select-stub');
+        expect(entitySingleSelect.exists()).toBe(true);
     });
 });
 

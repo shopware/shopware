@@ -49,6 +49,12 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/product-description-reviews/component', () => {
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
+    });
+
     it('should display placeholder when page type is not product page and no product is selected', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail').exists()).toBeTruthy();

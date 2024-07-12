@@ -33,8 +33,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use IntegrationTestBehaviour;
+
     private const PRODUCT_ID = 'product-1';
 
     private Connection $connection;
@@ -60,6 +63,7 @@ class VersionManagerTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('
             ALTER TABLE `product`
@@ -71,7 +75,7 @@ class VersionManagerTest extends TestCase
             DROP COLUMN `many_to_one_id`
         ');
         $this->connection->beginTransaction();
-        $this->removeExtension(ToOneProductExtension::class);
+
         // reboot kernel to create a new container since we manipulated the original one
         KernelLifecycleManager::bootKernel();
     }

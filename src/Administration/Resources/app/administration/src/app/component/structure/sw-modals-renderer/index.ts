@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-modals-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         modals(): ModalItemEntry[] {
             return Shopware.State.get('modals').modals;

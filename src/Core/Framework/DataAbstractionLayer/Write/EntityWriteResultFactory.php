@@ -116,7 +116,7 @@ class EntityWriteResultFactory
 
     /**
      * @param array<string, array<EntityWriteResult>> $writeResults
-     * @param array<string, array<string>|array<array<string, string>>> $parents
+     * @param array<string, array<string>> $parents
      *
      * @return array<string, array<EntityWriteResult>>
      */
@@ -142,7 +142,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, array<EntityWriteResult>> $identifiers
      * @param array<string, list<EntityWriteResult>> $notFound
-     * @param array<string, array<string>|array<array<string, string>>> $parents
+     * @param array<string, array<string>> $parents
      */
     public function addDeleteResults(array $identifiers, array $notFound, array $parents): WriteResult
     {

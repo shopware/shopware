@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -41,7 +42,7 @@ class AppStateServiceTest extends TestCase
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     private Context $context;
 

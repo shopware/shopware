@@ -155,6 +155,10 @@ export default {
         },
 
         loadEntityData() {
+            if (!this.promotionId) {
+                return Promise.resolve();
+            }
+
             return this.promotionRepository.get(this.promotionId, Shopware.Context.api, this.promotionCriteria)
                 .then((promotion) => {
                     if (promotion === null) {

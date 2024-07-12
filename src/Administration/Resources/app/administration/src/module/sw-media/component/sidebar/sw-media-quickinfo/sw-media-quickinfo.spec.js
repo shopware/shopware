@@ -46,6 +46,13 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.store.media.defaultEnableAugmentedReality': 'false',
+                        });
+                    },
+                },
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     ...mediaServiceFunctions,
@@ -81,6 +88,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
             },
         },
 
@@ -277,6 +285,14 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(arToggleInput.exists()).toBe(true);
 
         expect(arToggleInput.element.checked).toBe(isArReady);
+    });
+
+    it('should build augmented reality tooltip', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const tooltip = wrapper.vm.buildAugmentedRealityTooltip('global.sw-media-media-item.tooltip.ar');
+        expect(tooltip).toBe('global.sw-media-media-item.tooltip.ar');
     });
 });
 

@@ -16,6 +16,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-entity-advanced-selection-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',

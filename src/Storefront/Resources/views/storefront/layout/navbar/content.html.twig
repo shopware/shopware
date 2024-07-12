@@ -1,0 +1,87 @@
+{% block layout_navbar_content %}
+    {% set category = navigationTree.category %}
+    {% set name = category.translated.name %}
+
+    {% block layout_navbar_content_row %}
+        <div class="row">
+            {% block layout_navbar_content_row_category %}
+                <div class="col">
+                    <div class="navigation-flyout-category-link">
+                        {% block layout_navbar_content_row_category_link %}
+                            {% if category.type == 'page' %}
+                                <a href="{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}"
+                                   itemprop="url"
+                                   title="{{ name }}">
+                                    {% block layout_navbar_content_row_category_link_text %}
+                                        {{ 'general.toCategory'|trans|sw_sanitize }} {{ name }}
+                                    {% endblock %}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block layout_navbar_content_row_close %}
+                <div class="col-auto">
+                    <div class="navigation-flyout-close js-close-flyout-menu">
+                        {% block layout_navbar_content_row_close_content %}
+                            {% block layout_utilities_offcanvas_close_icon %}
+                                {% sw_icon 'x' %}
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block layout_navbar_content_row_content %}
+        <div class="row navigation-flyout-content">
+            {% block layout_navbar_content_row_content_categories %}
+                <div class="{% if category.media %}col-8 col-xl-9{% else %}col{% endif %}">
+                    <div class="">
+                        {% block layout_navbar_content_row_content_categories_recoursion %}
+                            {% sw_include '@Storefront/storefront/layout/navbar/categories.html.twig' with {
+                                navigationTree: navigationTree.children,
+                                navigationMedia: category.media,
+                                page: page
+                            } only %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block layout_navbar_content_row_content_teaser %}
+                {% if category.media %}
+                    <div class="col-4 col-xl-3">
+                        <div class="navigation-flyout-teaser">
+                            {% block layout_navbar_content_row_content_teaser_image %}
+                                <a class="navigation-flyout-teaser-image-container"
+                                   href="{{ category_url(category) }}"
+                                   {% if category_linknewtab(category) %}target="_blank"
+                                   {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
+                                    {% endif %}
+                                   title="{{ name }}">
+                                    {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
+                                        media: category.media,
+                                        sizes: {
+                                            default: '310px'
+                                        },
+                                        attributes: {
+                                            class: 'navigation-flyout-teaser-image',
+                                            alt: (category.media.translated.alt ?: ''),
+                                            title: (category.media.translated.title ?: ''),
+                                            'data-object-fit': 'cover',
+                                            loading: 'lazy'
+                                        }
+                                    } %}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -97,6 +97,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-loader': true,
                     'sw-icon': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),

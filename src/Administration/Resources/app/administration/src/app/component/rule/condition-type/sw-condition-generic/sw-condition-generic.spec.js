@@ -79,7 +79,8 @@ async function createWrapper(condition = {}) {
                     'sw-loader': true,
                     'sw-label': true,
                     'sw-highlight-text': true,
-                    'sw-popover': {
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-tagged-field': {
@@ -261,6 +262,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         // change the unit
         const unitMenu = wrapper.get('.sw-condition-unit-menu');
         await unitMenu.trigger('click');
+        await flushPromises();
 
         const unitOption = wrapper.findAll('.sw-condition-unit-menu__menu-item').at(2);
         await unitOption.trigger('click');

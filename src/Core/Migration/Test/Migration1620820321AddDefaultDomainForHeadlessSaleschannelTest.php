@@ -3,12 +3,12 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -77,8 +77,15 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
     public function testItDoesNotBreakIfNoHeadlessSalesChannelIsPresent(): void
     {
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $salesChannelRepository->delete([['id' => TestDefaults::SALES_CHANNEL]], Context::createDefaultContext());
+        try {
+            $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+            $salesChannelRepository->delete([['id' => TestDefaults::SALES_CHANNEL]], Context::createDefaultContext());
+        } catch (\Exception $e) {
+            if (!($e instanceof ForeignKeyConstraintViolationException)) {
+                static::fail(sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
+            }
+            // ignore error because it is possible that other tests (e.g. order tests that refer to the saleschannel) block the deletion of the sales channel
+        }
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
     }
@@ -93,14 +100,17 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
     private function removeAddedSalesChannel(): void
     {
-        $ids = $this->connection->fetchAllAssociative('
-            SELECT id FROM `sales_channel`
-            WHERE `short_name` = "API Test"
-        ');
-
-        /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        // $salesChannelRepository->delete([$ids], Context::createDefaultContext());
+        try {
+            $this->connection->executeStatement('
+                DELETE FROM `sales_channel`
+                WHERE `short_name` = "API Test"
+            ');
+        } catch (\Exception $e) {
+            if (!($e instanceof ForeignKeyConstraintViolationException)) {
+                static::fail(sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
+            }
+            // ignore error because it is possible that other tests (e.g. order tests that refer to the saleschannel) block the deletion of the sales channel
+        }
     }
 
     private function addSalesChannel(string $salesChannelType): string

@@ -16,7 +16,9 @@ describe('RemoteClickPlugin tests', () => {
 
         window.getComputedStyle = jest.fn(() => {
             return {
-                content: 'xs',
+                getPropertyValue: jest.fn(() => {
+                    return 'xs';
+                }),
             };
         });
     });

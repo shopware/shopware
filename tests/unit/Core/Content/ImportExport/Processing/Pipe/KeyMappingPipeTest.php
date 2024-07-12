@@ -331,4 +331,24 @@ class KeyMappingPipeTest extends TestCase
             'TestCustomString' => 'hello world',
         ], $actualOutput);
     }
+
+    public function testOutIgnoresRecordsWithoutMapping(): void
+    {
+        $record = [
+            'csv-column-name' => 'value',
+            'a' => 'b',
+        ];
+        $mapping = [
+            ['mappedKey' => 'csv-column-name', 'key' => 'db-field'],
+        ];
+
+        $keyMappingPipe = new KeyMappingPipe($mapping, true);
+        $config = new Config($mapping, [], []);
+
+        $pipeOutResult = $keyMappingPipe->out($config, $record);
+        static::assertInstanceOf(\Traversable::class, $pipeOutResult);
+
+        $actualOutput = iterator_to_array($pipeOutResult);
+        static::assertSame(['db-field' => 'value'], $actualOutput);
+    }
 }

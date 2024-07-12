@@ -2758,4 +2758,236 @@ describe('core/factory/async-component.factory.ts', () => {
             });
         });
     });
+
+    describe('should be able to override without explicitly calling $super', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '{% block swag_a %}a {{ message }}{% endblock %}',
+
+                data() {
+                    return {
+                        message: '',
+                    };
+                },
+
+                computed: {
+                    baseComputed() {
+                        return this.message;
+                    },
+                    getterSetterComputed: {
+                        get() {
+                            return this.message;
+                        },
+                        set(msg) {
+                            this.message = msg;
+                        },
+                    },
+                },
+
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.message = 'a';
+                    },
+                },
+            }),
+            B: () => ({
+                template: '{% block swag_a %}b {{ message }}{% endblock %}',
+
+                computed: {
+                    baseComputed() {
+                        return `${this.$super('baseComputed')} extended`;
+                    },
+                    getterSetterComputed: {
+                        get() {
+                            return `${this.$super('getterSetterComputed.get')} extended`;
+                        },
+                        set(msg) {
+                            this.$super('getterSetterComputed.set', `extended ${msg}`);
+                        },
+                    },
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.$super('createdComponent');
+                    },
+                },
+            }),
+            C: () => ({
+                template: '{% block swag_a %}c{% endblock %}',
+
+                methods: {
+                    overrideMethod() {
+                        this.message = 'c override';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('swag-a', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('swag-b', 'swag-a', components.B());
+
+                // Register an override which does not define the extended super calls
+                ComponentFactory.override('swag-b', components.C());
+
+                // Build component and create wrapper
+                const buildConfig = await ComponentFactory.build('swag-b');
+                const wrapper = mount(buildConfig, {});
+
+                // Expect that the override changes the template but leaves the extension computed and method values
+                expect(wrapper.html()).toBe('c');
+                // data
+                expect(wrapper.vm.message).toBe('a');
+                // Computed
+                expect(wrapper.vm.baseComputed).toBe('a extended');
+                // Getter setter computed - getter
+                expect(wrapper.vm.getterSetterComputed).toBe('a extended');
+                // Getter setter computed - setter
+                wrapper.vm.getterSetterComputed = 'foo';
+                // expect extended prepended by setter and appended by getter
+                expect(wrapper.vm.getterSetterComputed).toBe('extended foo extended');
+
+                // override additions
+                wrapper.vm.overrideMethod();
+                expect(wrapper.vm.message).toBe('c override');
+            });
+        });
+    });
+
+    describe('should be able to build extended component with non consecutive $super calls', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '{% block swag_a %}a {{ message }}{% endblock %}',
+
+                computed: {
+                    salesChannelRepository() {
+                        return {
+                            create: () => ({ id: 'ajip23845iokasmf' }),
+                        };
+                    },
+                },
+
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.message = 'a';
+                    },
+                },
+            }),
+            B: () => ({
+                methods: {
+                    createdComponent() {
+                        // eslint-disable-next-line no-unused-vars
+                        const salesChannel = this.salesChannelRepository.create();
+                        this.$super('createdComponent');
+                    },
+                },
+            }),
+            C: () => ({
+                template: '{% block swag_a %}c{% endblock %}',
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('sw-sales-channel-detail', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('sw-sales-channel-create', 'sw-sales-channel-detail', components.B());
+
+                ComponentFactory.override('sw-sales-channel-detail', components.C());
+
+                const component = await ComponentFactory.build('sw-sales-channel-create');
+                const wrapper = await mount(component, {});
+
+                expect(wrapper.html()).toBe('c');
+            });
+        });
+    });
+
+    describe('should be able to build $super for extension without consecutive method structure', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '{% block swag_a %}sw-condition-base{% endblock %}',
+            }),
+            B: () => ({
+                template: '{% block swag_a %}sw-condition-base-line-item{% endblock %}',
+
+                computed: {
+                    matchesAll: {
+                        get() {
+                            return '';
+                        },
+                        set() {
+                        },
+                    },
+                },
+            }),
+            C: () => ({
+                template: '{% block swag_a %}sw-condition-line-item-in-category{% endblock %}',
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                // Register a base component with a method and a computed
+                ComponentFactory.register('sw-condition-base', components.A());
+
+                // Extend the base component, altering the method and computed
+                ComponentFactory.extend('sw-condition-base-line-item', 'sw-condition-base', components.B());
+
+                ComponentFactory.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', components.C());
+
+                const component = await ComponentFactory.build('sw-condition-line-item-in-category');
+                const wrapper = await mount(component, {});
+
+                expect(wrapper.html()).toBe('sw-condition-line-item-in-category');
+            });
+        });
+    });
+
+    describe('should handle errors accordingly', () => {
+        it('should throw error calling $super("$super")', async () => {
+            ComponentFactory.register('jest', {
+                template: '{% block jest %}jest{% endblock %}',
+                methods: {
+                    foo() {
+                        // trigger error
+                        this.$super('$super');
+                    },
+                },
+            });
+
+            const component = await ComponentFactory.build('jest');
+            const wrapper = await mount(component, {});
+
+            expect(wrapper.html()).toBe('jest');
+            expect(() => wrapper.vm.foo()).toThrow('Don\'t call "$super" manually! This is not supported!');
+        });
+
+        it('should throw error calling $super without parent', async () => {
+            ComponentFactory.register('jest', {
+                template: '{% block jest %}jest{% endblock %}',
+                methods: {
+                    foo() {
+                        // trigger error
+                        this.$super('foo');
+                    },
+                },
+            });
+
+            const component = await ComponentFactory.build('jest');
+            const wrapper = await mount(component, {});
+
+            expect(wrapper.html()).toBe('jest');
+            expect(() => wrapper.vm.foo()).toThrow('There was an error resolving the "$super" chain for method "foo".');
+        });
+    });
 });

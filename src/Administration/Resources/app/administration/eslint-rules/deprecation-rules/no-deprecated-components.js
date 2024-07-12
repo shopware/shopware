@@ -52,6 +52,10 @@ module.exports = {
                             before: 'sw-alert',
                             after: 'mt-banner'
                         },
+                        {
+                            before: 'sw-popover',
+                            after: 'mt-floating-ui'
+                        },
                     ]
 
                     // Handle deprecated components
@@ -163,6 +167,38 @@ module.exports = {
 
                                 // Add comment to the converted component
                                 yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
+                            }
+                        });
+                    }
+
+                    // Handle special sw-data-grid component
+                    const swDatagridName = 'sw-data-grid';
+                    if (node.name === swDatagridName) {
+                        // Check if comment a line before the sw-data-grid component exists
+                        const commentBeforeNode = context.getSourceCode().getText().split('\n')[node.loc.start.line - 2];
+
+                        // Do not add comment if it already exists
+                        if (commentBeforeNode.includes('<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->')) {
+                            return;
+                        }
+
+                        // Add comment a line before the sw-data-grid component
+                        context.report({
+                            loc: node.loc,
+                            message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
+                            *fix(fixer) {
+                                if (context.options.includes('disableFix')) return;
+
+                                const isSelfClosing = node.startTag.selfClosing;
+
+                                // Get the range of the start tag
+                                const startTagRange = [node.startTag.range[0], swDatagridName.length + node.startTag.range[0] + 1];
+
+                                // Save indentation of the old component
+                                const indentation = node.loc.start.column;
+
+                                // Add comment to the converted component
+                                yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: This component need to be manually replaced with mt-data-table -->\n${' '.repeat(indentation)}`);
                             }
                         });
                     }

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -13,6 +14,12 @@ async function createWrapper(additionalProps = {}) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-icon': true,
+                'mt-floating-ui': true,
             },
         },
         props: {

@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-meteor-navigation', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         fromLink: {
             type: Object as PropType<RouteLocationNamedRaw|null>,

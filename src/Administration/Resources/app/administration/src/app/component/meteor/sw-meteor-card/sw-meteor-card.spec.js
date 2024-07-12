@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -16,6 +17,10 @@ async function createWrapper(customConfig = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': true,
+                'sw-icon': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
             },
             provide: {},
         },
@@ -168,6 +173,11 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-loader': true,
+                    'mt-tabs': true,
+                    'sw-icon': true,
+                    'sw-extension-component-section': true,
+                    'router-link': true,
                 },
             },
         });
@@ -203,6 +213,11 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-loader': true,
+                    'mt-tabs': true,
+                    'sw-icon': true,
+                    'sw-extension-component-section': true,
+                    'router-link': true,
                 },
             },
         });

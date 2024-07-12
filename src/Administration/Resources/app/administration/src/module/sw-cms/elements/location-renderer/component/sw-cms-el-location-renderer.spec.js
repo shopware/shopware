@@ -46,6 +46,9 @@ jest.useFakeTimers();
 describe('module/sw-cms/elements/location-renderer/component', () => {
     beforeAll(() => {
         jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+        Shopware.Store.register({
+            id: 'cmsPageState',
+        });
     });
 
     beforeEach(() => {

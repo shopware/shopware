@@ -41,8 +41,8 @@
           composer run e2e:sdk-plugin:fixture-to-plugin
       fi
     - bin/console assets:install
-    - bin/console theme:compile
     - bin/console e2e:dump-db
+    - bin/console theme:compile
     - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
     - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
     - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
@@ -116,7 +116,7 @@ Changed E2E:
 acceptance:
   extends:
     - .long-running
-  image: mcr.microsoft.com/playwright:v1.44.0-jammy
+  image: mcr.microsoft.com/playwright:v1.45.0-jammy
   needs: [build image]
   tags:
     - shopware-amd64
@@ -131,11 +131,12 @@ acceptance:
   services:
     - name: mysql:8
       alias: database
+      pull_policy: always
       entrypoint:
         [
           "sh",
           "-c",
-          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON",
+          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON",
         ]
     - name: redis:7.0
       alias: redis
@@ -207,13 +208,14 @@ update test:
             "${CUR_MAJOR_MAX_TAG}",
           ]
   services:
-    - name: mysql:8
+    - name: mysql:8.3
       alias: database
+      pull_policy: always
       entrypoint:
         [
           "sh",
           "-c",
-          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON",
+          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON",
         ]
     - name: redis:7.0
       alias: redis

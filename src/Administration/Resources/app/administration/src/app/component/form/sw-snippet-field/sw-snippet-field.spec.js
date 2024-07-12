@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -23,6 +24,12 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                 'sw-loader': true,
                 'sw-icon': true,
                 'sw-snippet-field-edit-modal': true,
+                'sw-help-text': true,
+                'sw-textarea-field': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-field-copyable': true,
+                'mt-text-field': true,
             },
             provide: {
                 validationService: {},

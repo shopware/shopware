@@ -42,6 +42,8 @@ function isIllegalUrlException(error) {
 Component.register('sw-upload-listener', {
     template: '<div style="display: none"></div>',
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'mediaService'],
 
     mixins: [

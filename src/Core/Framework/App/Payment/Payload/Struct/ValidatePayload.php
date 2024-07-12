@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\App\Payload\Source;
+use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
@@ -11,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
+#[Package('checkout')]
 class ValidatePayload implements SourcedPayloadInterface
 {
     use CloneTrait;

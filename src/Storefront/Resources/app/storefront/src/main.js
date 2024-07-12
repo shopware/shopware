@@ -51,7 +51,12 @@ PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
 PluginManager.register('CollapseCheckoutConfirmMethods', () => import('src/plugin/collapse/collapse-checkout-confirm-methods.plugin'), '[data-collapse-checkout-confirm-methods]');
-PluginManager.register('FlyoutMenu', () => import('src/plugin/main-menu/flyout-menu.plugin'), '[data-flyout-menu]');
+if (Feature.isActive('v6.7.0.0')) {
+    PluginManager.register('Navbar', () => import('src/plugin/navbar/navbar.plugin'), '[data-navbar]');
+} else {
+    /** @deprecated tag:v6.7.0 - FlyoutMenu will be removed, see Navbar for the new implementation. */
+    PluginManager.register('FlyoutMenu', () => import('src/plugin/main-menu/flyout-menu.plugin'), '[data-flyout-menu]');
+}
 PluginManager.register('OffCanvasMenu', () => import('src/plugin/main-menu/offcanvas-menu.plugin'), '[data-off-canvas-menu]');
 PluginManager.register('FormValidation', () => import('src/plugin/forms/form-validation.plugin'), '[data-form-validation]');
 PluginManager.register('FormScrollToInvalidField', () => import('src/plugin/forms/form-scroll-to-invalid-field.plugin'), 'form');
@@ -104,11 +109,11 @@ PluginManager.register('SpatialZoomGallerySliderViewerPlugin', () => import('src
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialArViewerPlugin', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
+PluginManager.register('SpatialArViewer', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('PageQrcodeGeneratorPlugin', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
+PluginManager.register('PageQrcodeGenerator', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');

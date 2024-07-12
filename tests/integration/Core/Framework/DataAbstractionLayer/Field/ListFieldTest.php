@@ -21,7 +21,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
  */
 class ListFieldTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     private Connection $connection;
@@ -46,6 +48,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
 

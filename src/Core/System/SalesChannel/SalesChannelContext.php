@@ -84,6 +84,11 @@ class SalesChannelContext extends Struct
     protected $permisionsLocked = false;
 
     /**
+     * @var string|null
+     */
+    protected $imitatingUserId;
+
+    /**
      * @var Context
      */
     protected $context;
@@ -119,6 +124,7 @@ class SalesChannelContext extends Struct
         $this->shippingLocation = $shippingLocation;
         $this->token = $token;
         $this->context = $baseContext;
+        $this->imitatingUserId = null;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -410,6 +416,16 @@ class SalesChannelContext extends Struct
     public function getCustomerId(): ?string
     {
         return $this->customer?->getId();
+    }
+
+    public function getImitatingUserId(): ?string
+    {
+        return $this->imitatingUserId;
+    }
+
+    public function setImitatingUserId(?string $imitatingUserId): void
+    {
+        $this->imitatingUserId = $imitatingUserId;
     }
 
     /**

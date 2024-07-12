@@ -127,6 +127,7 @@
             "mappingsTab": "Mappings",
             "advancedTab": "Advanced settings",
             "profileNameFieldLabel": "Profile name",
+            "technicalNameFieldLabel": "Technical name",
             "objectTypeFieldLabel": "Object type",
             "separatorFieldLabel": "Separator character",
             "enclosureFieldLabel": "Enclosure character",
@@ -155,6 +156,7 @@
             },
             "typeColumn": "Type",
             "nameColumn": "Name",
+            "technicalNameColumn": "Technical name",
             "customTypeLabel": "Custom",
             "defaultTypeLabel": "Default",
             "propertyLabel": "Properties",
@@ -227,6 +229,9 @@
             "startImportLabel": "Start import",
             "startImportDryrunLabel": "Start dry run",
             "startExportLabel": "Start export"
+        },
+        "errors": {
+            "CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME": "The technical name is not unique."
         }
     },
   "sw-privileges": {

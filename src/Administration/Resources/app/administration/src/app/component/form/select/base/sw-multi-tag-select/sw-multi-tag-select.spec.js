@@ -1,7 +1,7 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
-
 import { mount } from '@vue/test-utils';
 
 const selector = {
@@ -22,9 +22,17 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-icon': {
                     template: '<div></div>',
                 },
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-label': true,
+                'sw-button': true,
+                'mt-floating-ui': true,
             },
         },
         props: {

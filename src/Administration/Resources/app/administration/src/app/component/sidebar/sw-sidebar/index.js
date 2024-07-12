@@ -18,6 +18,18 @@ const { Component } = Shopware;
 Component.register('sw-sidebar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    provide() {
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            return {};
+        }
+
+        return {
+            registerSidebarItem: this.registerSidebarItem,
+        };
+    },
+
     props: {
         propagateWidth: {
             type: Boolean,
@@ -120,13 +132,26 @@ Component.register('sw-sidebar', {
 
             this.items.push(item);
 
-            this.$on('item-click', item.sidebarButtonClick);
-            item.$on('toggle-active', this.setItemActive);
-            item.$on('close-content', this.closeSidebar);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$on('item-click', item.sidebarButtonClick);
+                item.$on('toggle-active', this.setItemActive);
+                item.$on('close-content', this.closeSidebar);
+            } else {
+                // eslint-disable-next-line no-warning-comments
+                // TODO: Add alternative for toggle-active and close-content
+            }
         },
 
         setItemActive(clickedItem) {
             this.$emit('item-click', clickedItem);
+
+            if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.item.forEach((item) => {
+                    if (item.sidebarButtonClick) {
+                        item.sidebarButtonClick(clickedItem);
+                    }
+                });
+            }
 
             if (clickedItem.hasDefaultSlot) {
                 this.isOpened = this._isAnyItemActive();

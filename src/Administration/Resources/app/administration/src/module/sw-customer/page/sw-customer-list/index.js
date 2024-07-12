@@ -33,6 +33,7 @@ export default {
             availableCampaignCodes: [],
             filterCriteria: [],
             defaultFilters: [
+                'customer-number-filter',
                 'affiliate-code-filter',
                 'campaign-code-filter',
                 'customer-group-request-filter',
@@ -104,6 +105,15 @@ export default {
 
         listFilterOptions() {
             return {
+                'customer-number-filter': {
+                    property: 'customerNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$tc('sw-customer.filter.customerNumber.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: 'equals',
+                },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'multi-select-filter',

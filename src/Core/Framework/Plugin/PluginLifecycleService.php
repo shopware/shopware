@@ -51,6 +51,8 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -58,9 +60,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('core')]
-class PluginLifecycleService
+class PluginLifecycleService implements EventSubscriberInterface
 {
     final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+
+    /**
+     * @var array{plugin: PluginEntity, context: Context}|null
+     */
+    private static ?array $pluginToBeDeleted = null;
 
     /**
      * @param EntityRepository<PluginCollection> $pluginRepo
@@ -83,6 +90,13 @@ class PluginLifecycleService
         private readonly PluginService $pluginService,
         private readonly VersionSanitizer $versionSanitizer,
     ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::RESPONSE => ['onResponse', \PHP_INT_MIN],
+        ];
     }
 
     /**
@@ -149,7 +163,7 @@ class PluginLifecycleService
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
-            if ($didRunComposerRequire && $plugin->getComposerName()) {
+            if ($didRunComposerRequire && $plugin->getComposerName() && !$this->container->getParameter('shopware.deployment.cluster_setup')) {
                 $this->executor->remove($plugin->getComposerName(), $plugin->getName());
             }
 
@@ -218,17 +232,18 @@ class PluginLifecycleService
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
-            $pluginComposerName = $plugin->getComposerName();
-            if ($pluginComposerName === null) {
-                throw new PluginComposerJsonInvalidException(
-                    $pluginBaseClass->getPath() . '/composer.json',
-                    ['No name defined in composer.json']
-                );
+            if (\PHP_SAPI === 'cli') {
+                // only remove the plugin composer dependency directly when running in CLI
+                // otherwise do it async in kernel.response
+                $this->removePluginComposerDependency($plugin, $shopwareContext);
+            // @codeCoverageIgnoreStart -> code path can not be executed in unit tests as SAPI will always be CLI
+            } else {
+                self::$pluginToBeDeleted = [
+                    'plugin' => $plugin,
+                    'context' => $shopwareContext,
+                ];
+                // @codeCoverageIgnoreEnd
             }
-            $this->executor->remove($pluginComposerName, $plugin->getName());
-
-            // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
-            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
         }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
@@ -472,6 +487,46 @@ class PluginLifecycleService
         return $deactivateContext;
     }
 
+    /**
+     * Only run composer remove as last thing in the request context,
+     * as there might be some other event listeners that will break after the composer dependency is removed.
+     *
+     * This is not run on Kernel Terminate as this way we can give feedback to the user by letting the request fail,
+     * if there is an issue with removing the composer dependency.
+     */
+    public function onResponse(): void
+    {
+        if (!self::$pluginToBeDeleted) {
+            return;
+        }
+
+        $plugin = self::$pluginToBeDeleted['plugin'];
+        $context = self::$pluginToBeDeleted['context'];
+        self::$pluginToBeDeleted = null;
+
+        $this->removePluginComposerDependency($plugin, $context);
+    }
+
+    private function removePluginComposerDependency(PluginEntity $plugin, Context $context): void
+    {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return;
+        }
+
+        $pluginComposerName = $plugin->getComposerName();
+        if ($pluginComposerName === null) {
+            throw new PluginComposerJsonInvalidException(
+                $plugin->getPath() . '/composer.json',
+                ['No name defined in composer.json']
+            );
+        }
+
+        $this->executor->remove($pluginComposerName, $plugin->getName());
+
+        // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
+        $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
     private function removeCustomEntities(string $pluginId): void
     {
         $this->customEntityPersister->update([], PluginEntity::class, $pluginId);
@@ -619,6 +674,10 @@ class PluginLifecycleService
 
     private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
     {
+        if ($this->container->getParameter('shopware.deployment.cluster_setup')) {
+            return false;
+        }
+
         $pluginComposerName = $plugin->getComposerName();
         if ($pluginComposerName === null) {
             throw new PluginComposerJsonInvalidException(

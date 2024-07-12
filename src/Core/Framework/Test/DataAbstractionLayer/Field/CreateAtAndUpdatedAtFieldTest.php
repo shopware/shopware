@@ -23,7 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class CreateAtAndUpdatedAtFieldTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     /**
@@ -63,6 +65,7 @@ EOF;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `date_time_test`');
     }

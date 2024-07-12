@@ -10,7 +10,10 @@ const { Criteria, EntityCollection } = Shopware.Data;
  */
 Component.register('sw-entity-many-to-many-select', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -42,8 +45,8 @@ Component.register('sw-entity-many-to-many-select', {
         criteria: {
             type: Object,
             required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
+            default(props) {
+                return new Criteria(1, props.resultLimit);
             },
         },
         highlightSearchTerm: {
@@ -137,6 +140,15 @@ Component.register('sw-entity-many-to-many-select', {
 
         isAdvancedSelectionActive() {
             return this.advancedSelectionComponent && Component.getComponentRegistry().has(this.advancedSelectionComponent);
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

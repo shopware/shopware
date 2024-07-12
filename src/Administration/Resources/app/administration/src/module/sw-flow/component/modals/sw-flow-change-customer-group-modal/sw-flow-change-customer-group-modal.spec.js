@@ -52,6 +52,7 @@ async function createWrapper() {
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-loader': true,
             },
         },

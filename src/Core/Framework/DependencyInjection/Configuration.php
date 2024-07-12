@@ -46,6 +46,9 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
                 ->append($this->createStagingNode())
+                ->append($this->createSystemConfigNode())
+                ->append($this->createMessengerSection())
+                ->append($this->createSearchSection())
             ->end();
 
         return $treeBuilder;
@@ -305,6 +308,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('blue_green')->end()
                 ->booleanNode('cluster_setup')->end()
+                ->booleanNode('runtime_extension_management')->defaultTrue()->end()
             ->end();
 
         return $rootNode;
@@ -315,6 +319,12 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('media'))->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode('remote_thumbnails')
+                    ->children()
+                        ->booleanNode('enable')->end()
+                        ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
@@ -394,6 +404,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
+                ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
                 ->arrayNode('tagging')
                     ->children()
                         ->booleanNode('each_snippet')
@@ -536,6 +547,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
+                ->scalarNode('compression_method')->defaultValue('gzip')->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
@@ -839,6 +851,16 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createSystemConfigNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('system_config');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->variablePrototype()->end();
+
+        return $rootNode;
+    }
+
     private function createHttpCacheSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('http_cache');
@@ -885,6 +907,35 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
         ->end();
+
+        return $rootNode;
+    }
+
+    private function createMessengerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('messenger');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('routing_overwrite')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSearchSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('search');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->integerNode('term_max_length')->defaultValue(300)->end()
+            ->end();
 
         return $rootNode;
     }

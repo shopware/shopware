@@ -9,14 +9,18 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed
  */
 #[Package('checkout')]
 #[CoversClass(SyncPaymentTransactionStruct::class)]
 class SyncPaymentTransactionStructTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testGetters(): void
     {
         $transaction = new OrderTransactionEntity();

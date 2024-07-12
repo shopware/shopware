@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount, config } from '@vue/test-utils';
 
 const subComponent = {
@@ -27,6 +30,7 @@ async function createWrapper(additionalProps = {}) {
 describe('src/app/component/rule/sw-condition-tree-node', () => {
     beforeEach(() => {
         config.global = {
+            ...config.global,
             stubs: {
                 'sw-condition-sub-component': subComponent,
             },

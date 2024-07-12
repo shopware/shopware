@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Test\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -20,12 +19,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class CategoryListRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
     use SalesChannelApiTestBehaviour;
-
-    /**
-     * @var AbstractCategoryRoute
-     */
-    private $route;
 
     private KernelBrowser $browser;
 
@@ -33,8 +28,6 @@ class CategoryListRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->route = $this->getContainer()->get(CategoryRoute::class);
-
         $this->ids = new TestDataCollection();
         $this->getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM category');
@@ -52,12 +45,10 @@ class CategoryListRouteTest extends TestCase
     {
         $this->browser->request(
             'GET',
-            '/store-api/category',
-            [
-            ]
+            '/store-api/category'
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(3, $response['total']);
         static::assertCount(3, $response['elements']);
@@ -71,12 +62,10 @@ class CategoryListRouteTest extends TestCase
     {
         $this->browser->request(
             'GET',
-            '/store-api/category?limit=1',
-            [
-            ]
+            '/store-api/category?limit=1'
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -94,7 +83,7 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -113,7 +102,7 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(3, $response['total']);
         static::assertCount(3, $response['elements']);
@@ -128,14 +117,24 @@ class CategoryListRouteTest extends TestCase
             [
                 'id' => $this->ids->create('category'),
                 'name' => 'Test',
+                'active' => true,
+                'children' => [
+                    [
+                        'id' => $this->ids->create('category2'),
+                        'name' => 'Test2',
+                        'active' => false,
+                    ],
+                    [
+                        'id' => $this->ids->create('category3'),
+                        'name' => 'Test3',
+                        'active' => true,
+                    ],
+                ],
             ],
             [
-                'id' => $this->ids->create('category2'),
-                'name' => 'Test2',
-            ],
-            [
-                'id' => $this->ids->create('category3'),
-                'name' => 'Test3',
+                'id' => $this->ids->create('category4'),
+                'name' => 'Out of scope, should not be in response',
+                'active' => true,
             ],
         ];
 

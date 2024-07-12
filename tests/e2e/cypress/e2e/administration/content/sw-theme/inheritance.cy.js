@@ -63,7 +63,7 @@ describe('Theme: Test Inheritance', { tags: ['VUE3']}, () => {
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-primary .sw-colorpicker__input').should('have.value', '#008490');
 
-        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#3d444d');
+        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#474a57');
 
         cy.get('.smart-bar__back-btn').click();
 

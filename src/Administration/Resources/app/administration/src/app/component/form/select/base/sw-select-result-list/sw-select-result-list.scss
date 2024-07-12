@@ -2,8 +2,17 @@
 
 $sw-select-result-list-transition: all ease-in-out 0.2s;
 
-.sw-select-result-list,
-.sw-select-result-list-popover {
+.sw-select-result-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sw-select-result-list-popover:not(.mt-floating-ui__content) {
     position: absolute;
     top: 0;
     left: 0;
@@ -12,8 +21,12 @@ $sw-select-result-list-transition: all ease-in-out 0.2s;
     overflow: hidden;
 }
 
-.sw-select-result-list {
-    pointer-events: none;
+.sw-select-result-list-popover .mt-floating-ui__trigger {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .sw-select-result-list-popover .sw-popover__wrapper {

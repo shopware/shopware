@@ -36,6 +36,27 @@
 
         </sw-alert>
 
+        <sw-alert
+            v-if="extensionManagementDisabled"
+            class="sw-extension-my-extensions-listing__runtime-extension-warning"
+            variant="warning"
+            :title="$tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.title')"
+        >
+            <template #default>
+                <div>
+                    {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.description') }}
+                </div>
+            </template>
+
+            <template #actions>
+                <sw-external-link
+                    href="https://developer.shopware.com/docs/guides/hosting/installation-updates/extension-managment.html"
+                >
+                    {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+                </sw-external-link>
+            </template>
+        </sw-alert>
+
         {% block sw_extension_my_extensions_list_empty_state %}
 
         <sw-meteor-card

@@ -63,6 +63,7 @@
                                     editable
                                     :value="cartDelivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
+                                    @update:value="onShippingChargeUpdated"
                                 >
                                     {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                                 </sw-order-saveable-field>

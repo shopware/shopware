@@ -5,16 +5,12 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -41,8 +37,6 @@ class AuthControllerTest extends TestCase
 
     private MockObject&AbstractLoginRoute $loginRoute;
 
-    private MockObject&SalesChannelContextServiceInterface $salesChannelContextService;
-
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
@@ -50,9 +44,9 @@ class AuthControllerTest extends TestCase
         $resetPasswordRoute = $this->createMock(AbstractResetPasswordRoute::class);
         $this->loginRoute = $this->createMock(AbstractLoginRoute::class);
         $logoutRoute = $this->createMock(AbstractLogoutRoute::class);
+        $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
         $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
-        $this->salesChannelContextService = $this->createMock(SalesChannelContextServiceInterface::class);
 
         $this->controller = new AuthControllerTestClass(
             $this->accountLoginPageLoader,
@@ -60,9 +54,9 @@ class AuthControllerTest extends TestCase
             $resetPasswordRoute,
             $this->loginRoute,
             $logoutRoute,
+            $imitateCustomerRoute,
             $cartFacade,
             $recoverPasswordRoute,
-            $this->salesChannelContextService,
         );
 
         $containerBuilder = new ContainerBuilder();
@@ -92,37 +86,6 @@ class AuthControllerTest extends TestCase
         static::assertSame('[]', $this->controller->renderStorefrontParameters['redirectParameters'] ?? '');
         static::assertSame('frontend.account.login.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
         static::assertInstanceOf(AccountLoginPageLoadedHook::class, $this->controller->calledHook);
-    }
-
-    public function testLoginNewContextIsAdded(): void
-    {
-        $this->loginRoute
-            ->method('login')
-            ->willReturn(new ContextTokenResponse('context_token_response'));
-
-        $newSalesChannelContext = Generator::createSalesChannelContext();
-        $this->salesChannelContextService
-            ->expects(static::once())
-            ->method('get')
-            ->willReturn($newSalesChannelContext);
-
-        $oldSalesChannelContext = Generator::createSalesChannelContext();
-        $oldSalesChannelContext->assign(['customer' => null]);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $oldSalesChannelContext);
-
-        $response = $this->controller->login($request, new RequestDataBag(), $oldSalesChannelContext);
-
-        /** @var SalesChannelContext $newSalesChannelContext */
-        $newSalesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        static::assertNotSame(
-            $oldSalesChannelContext,
-            $newSalesChannelContext,
-            'Sales Channel context should have been changed after login to update the states in cache'
-        );
-        static::assertInstanceOf(CustomerEntity::class, $newSalesChannelContext->getCustomer());
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void

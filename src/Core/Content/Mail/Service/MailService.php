@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -191,6 +192,14 @@ class MailService extends AbstractMailService
             return null;
         }
 
+        if ($this->isTestMode()) {
+            $headers = $mail->getHeaders();
+            $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? null);
+            $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannelId);
+            $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
+            $mail->setHeaders($headers);
+        }
+
         $this->mailSender->send($mail);
 
         $event = new MailSentEvent($data['subject'], $recipients, $contents, $context, $templateData['eventName'] ?? null);
@@ -320,6 +329,11 @@ class MailService extends AbstractMailService
      */
     private function isTestMode(array $data = []): bool
     {
+        $stagingMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG);
+        if ($stagingMode) {
+            return true;
+        }
+
         return !empty($data['testMode']);
     }
 

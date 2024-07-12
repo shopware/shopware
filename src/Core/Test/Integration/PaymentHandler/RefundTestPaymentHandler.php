@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - will be removed with new payment handlers
  */
 #[Package('checkout')]
 class RefundTestPaymentHandler implements RefundPaymentHandlerInterface

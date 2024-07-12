@@ -13,6 +13,7 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -31,22 +32,28 @@ class MappingServiceTest extends TestCase
 
     private MappingService $mappingService;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
+     */
     private EntityRepository $profileRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $fileRepository;
 
     private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
-        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
-        $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $this->profileRepository = static::getContainer()->get('import_export_profile.repository');
+        $this->fileRepository = static::getContainer()->get('import_export_file.repository');
+        $this->fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
         $this->mappingService = new MappingService(
-            $this->getContainer()->get(FileService::class),
+            static::getContainer()->get(FileService::class),
             $this->profileRepository,
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(DefinitionInstanceRegistry::class)
         );
     }
 
@@ -58,7 +65,7 @@ class MappingServiceTest extends TestCase
     {
         if ($profile === null) {
             $profileId = Uuid::randomHex();
-            self::expectExceptionObject(ImportExportException::profileNotFound($profileId));
+            $this->expectExceptionObject(ImportExportException::profileNotFound($profileId));
             $this->mappingService->createTemplate(Context::createDefaultContext(), $profileId);
 
             return;
@@ -67,7 +74,7 @@ class MappingServiceTest extends TestCase
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         if (empty($profile['mapping'])) {
-            static::expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
+            $this->expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
@@ -77,8 +84,7 @@ class MappingServiceTest extends TestCase
         }
 
         static::assertNotEmpty($fileId);
-        /** @var ImportExportFileEntity $file */
-        $file = $this->fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->first();
+        $file = $this->fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotEmpty($file);
 
         $csv = $this->fileSystem->read($file->getPath());
@@ -109,7 +115,7 @@ class MappingServiceTest extends TestCase
 
         $this->profileRepository->create([
             [
-                'name' => 'testProfileWithMapping',
+                'technicalName' => 'test_profile_with_mapping',
                 'fileType' => $data['fileType'] ?? 'text/csv',
                 'delimiter' => ';',
                 'enclosure' => '"',
@@ -120,7 +126,6 @@ class MappingServiceTest extends TestCase
 
         // prepare csv file for guessing
         $filePath = tempnam(sys_get_temp_dir(), '');
-        \assert(\gettype($filePath) === 'string');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'w');
             static::assertIsResource($file);
@@ -163,14 +168,13 @@ class MappingServiceTest extends TestCase
 
     public function testSortingWorksAsExpected(): void
     {
-        /** @var string $filePath */
         $filePath = tempnam(sys_get_temp_dir(), '');
 
         $csvHeaders = 'id;something;nothing;width;unit_id;unit_name';
 
         // creating a file
-        /** @var resource $file */
         $file = fopen($filePath, 'w');
+        static::assertIsResource($file);
         fwrite($file, $csvHeaders);
         fclose($file);
 
@@ -199,7 +203,7 @@ class MappingServiceTest extends TestCase
         yield 'Import/Export profile with mapping' => [
             [
                 'id' => Uuid::randomHex(),
-                'name' => 'Test Profile',
+                'technicalName' => 'test_profile',
                 'label' => 'Test Profile',
                 'sourceEntity' => 'product',
                 'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
@@ -216,7 +220,7 @@ class MappingServiceTest extends TestCase
         yield 'Export profile with mapping' => [
             [
                 'id' => Uuid::randomHex(),
-                'name' => 'Test Profile',
+                'technicalName' => 'test_profile',
                 'label' => 'Test Profile',
                 'sourceEntity' => 'product',
                 'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -234,7 +238,7 @@ class MappingServiceTest extends TestCase
         yield 'Export profile with 3 mappings' => [
             [
                 'id' => Uuid::randomHex(),
-                'name' => 'Test Profile',
+                'technicalName' => 'test_profile',
                 'label' => 'Test Profile',
                 'sourceEntity' => 'product',
                 'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -253,7 +257,7 @@ class MappingServiceTest extends TestCase
         yield 'Export profile with empty mapping' => [
             [
                 'id' => Uuid::randomHex(),
-                'name' => 'Test Profile',
+                'technicalName' => 'test_profile',
                 'label' => 'Test Profile',
                 'sourceEntity' => 'product',
                 'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -268,7 +272,7 @@ class MappingServiceTest extends TestCase
         yield 'Export profile with null mapping' => [
             [
                 'id' => Uuid::randomHex(),
-                'name' => 'Test Profile',
+                'technicalName' => 'test_profile',
                 'label' => 'Test Profile',
                 'sourceEntity' => 'product',
                 'type' => ImportExportProfileEntity::TYPE_EXPORT,
@@ -330,7 +334,7 @@ class MappingServiceTest extends TestCase
             [
                 'expectedErrorClass' => ImportExportException::invalidFileContent('foo')::class,
                 'sourceEntity' => 'product',
-                'csvHeader' => '' . \PHP_EOL,
+                'csvHeader' => \PHP_EOL,
             ],
         ];
 

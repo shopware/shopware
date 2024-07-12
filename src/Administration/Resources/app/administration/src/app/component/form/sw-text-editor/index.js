@@ -1,3 +1,4 @@
+import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
@@ -36,6 +37,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-text-editor', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['feature'],
 
@@ -118,7 +121,7 @@ Component.register('sw-text-editor', {
             type: Array,
             required: false,
             default() {
-                return [
+                return reactive([
                     {
                         type: 'paragraph',
                         title: Shopware.Snippet.tc('sw-text-editor-toolbar.title.format'),
@@ -277,7 +280,7 @@ Component.register('sw-text-editor', {
                         icon: 'regular-redo-xs',
                         position: 'middle',
                     },
-                ];
+                ]);
             },
         },
 
@@ -310,7 +313,7 @@ Component.register('sw-text-editor', {
                 nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.State.get('cmsPageState'),
+            cmsPageState: Shopware.Store.get('cmsPageState'),
         };
     },
 

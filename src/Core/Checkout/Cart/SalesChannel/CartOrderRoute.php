@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartContextHasher;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -14,10 +15,12 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -42,8 +45,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly PreparedPaymentService $preparedPaymentService,
+        private readonly PaymentProcessor $paymentProcessor,
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly CartContextHasher $cartContextHasher,
     ) {
     }
 
@@ -55,6 +60,12 @@ class CartOrderRoute extends AbstractCartOrderRoute
     #[Route(path: '/store-api/checkout/order', name: 'store-api.checkout.cart.order', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        $hash = $data->getAlnum('hash');
+
+        if ($hash && !$this->cartContextHasher->isMatching($hash, $cart, $context)) {
+            throw CartException::hashMismatch($cart->getToken());
+        }
+
         // we use this state in stock updater class, to prevent duplicate available stock updates
         $context->addState('checkout-order-route');
 
@@ -68,7 +79,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
-        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
+        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->paymentProcessor->validate($calculatedCart, $data, $context));
 
         $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
@@ -112,12 +123,15 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
         $this->cartPersister->delete($context->getToken(), $context);
 
-        try {
-            Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
-                $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
-            });
-        } catch (PaymentException) {
-            throw CartException::invalidPaymentButOrderStored($orderId);
+        // @deprecated tag:v6.7.0 - remove post payment completely
+        if (!Feature::isActive('v6.7.0.0')) {
+            try {
+                Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
+                    $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+                });
+            } catch (PaymentException) {
+                throw CartException::invalidPaymentButOrderStored($orderId);
+            }
         }
 
         return new CartOrderRouteResponse($orderEntity);

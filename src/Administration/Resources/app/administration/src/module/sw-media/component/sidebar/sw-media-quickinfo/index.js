@@ -11,7 +11,7 @@ const { dom, format } = Utils;
 export default {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -43,6 +43,7 @@ export default {
             showModalReplace: false,
             fileNameError: null,
             arReady: false,
+            defaultArReady: false,
         };
     },
 
@@ -101,13 +102,31 @@ export default {
         /**
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
-        async fetchSpatialItemConfig() {
-            await this.mediaRepository
+        fetchSpatialItemConfig() {
+            this.systemConfigApiService.getValues('core.media')
+                .then((values) => {
+                    this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
+                });
+
+            this.mediaRepository
                 .get(this.item.id, Shopware.Context.api)
                 .then(entity => {
-                    // Set default if undefined
-                    this.arReady = entity?.config?.spatial?.arReady ?? false;
+                    this.arReady = entity?.config?.spatial?.arReady;
                 });
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        buildAugmentedRealityTooltip(snippet) {
+            const route = { name: 'sw.settings.media.index' };
+            const routeData = this.$router.resolve(route);
+
+            const data = {
+                settingsLink: routeData.href,
+            };
+
+            return this.$tc(snippet, 0, data);
         },
 
         loadCustomFieldSets() {

@@ -1,0 +1,78 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_customer_imitate_customer_modal %}
+<sw-modal
+    :title="modalTitle"
+    class="sw-customer-imitate-customer-modal"
+    @modal-close="onCancel"
+>
+    <sw-alert>
+        <i18n-t keypath="sw-customer.imitateCustomerModal.modalInfo" tag="p">
+            <template #logout>
+                <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
+            </template>
+        </i18n-t>
+    </sw-alert>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_customer_imitate_customer_modal_description %}
+    <div class="imitate-customer-modal-description">
+        {{ modalDescription }}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_customer_imitate_customer_modal_body %}
+    <sw-container
+        class="imitate-customer-modal-container"
+        columns="1fr"
+        gap="8px 0px"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_imitate_customer_modal_sales_channel_domain_items %}
+        <sw-context-menu-item
+            v-for="salesChannelDomain of salesChannelDomains"
+            :key="salesChannelDomain.id"
+            target="_blank"
+            @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)">
+
+            <div
+                class="imitate-customer-modal-item-content"
+                columns="1fr 1fr"
+                gap="10px 0px"
+            >
+                <div class="imitate-customer-modal-item-header">
+                    {{ salesChannelDomain.salesChannel.name }}
+                </div>
+                <div class="imitate-customer-modal-item-url">
+                    {{ salesChannelDomain.url }}
+                </div>
+                <sw-icon
+                    name="regular-external-link-s"
+                    size="16px"
+                />
+            </div>
+        </sw-context-menu-item>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_customer_imitate_customer_modal_footer %}
+    <template #modal-footer>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        <div>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_imitate_customer_modal_footer_cancel %}
+            <sw-button
+                size="small"
+                @click="onCancel"
+            >
+                {{ $tc('sw-customer.imitateCustomerModal.labelCancel') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -1,12 +1,18 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-text-field', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-text-field-deprecated': true,
+                'mt-text-field': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

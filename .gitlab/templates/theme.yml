@@ -126,6 +126,7 @@ default:
     services:
         - name: mysql:8.0
           alias: database
+          pull_policy: always
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     tags:
       - shopware-amd64

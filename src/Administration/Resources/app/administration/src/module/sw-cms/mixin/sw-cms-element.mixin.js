@@ -31,12 +31,14 @@ export default Mixin.register('cms-element', defineComponent({
     },
 
     data() {
-        return {
-            cmsPageState: Shopware.State.get('cmsPageState'),
-        };
+        return {};
     },
 
     computed: {
+        cmsPageState() {
+            return Shopware.State.get('cmsPageState');
+        },
+
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
         },

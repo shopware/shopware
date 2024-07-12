@@ -14,6 +14,8 @@ const { Component, Mixin, Module } = Shopware;
 Component.register('sw-search-preferences-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'searchPreferencesService',
         'searchRankingService',

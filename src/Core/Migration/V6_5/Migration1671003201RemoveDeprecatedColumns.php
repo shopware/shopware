@@ -38,43 +38,20 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 
     private function dropWriteAccess(Connection $connection): void
     {
-        try {
-            $connection->executeStatement('ALTER TABLE `user_access_key` DROP COLUMN `write_access`');
-        } catch (\Throwable) {
-        }
+        $this->dropColumnIfExists($connection, 'user_access_key', 'write_access');
     }
 
     private function dropColumnsInCountryTable(Connection $connection): void
     {
-        try {
-            $connection->executeStatement(
-                'DROP TRIGGER IF EXISTS country_tax_free_insert;'
-            );
-        } catch (\Throwable) {
-        }
+        $this->removeTrigger($connection, 'country_tax_free_insert');
+        $this->removeTrigger($connection, 'country_tax_free_update');
 
-        try {
-            $connection->executeStatement(
-                'DROP TRIGGER IF EXISTS country_tax_free_update;'
-            );
-        } catch (\Throwable) {
-        }
-
-        try {
-            $connection->executeStatement('
-            ALTER TABLE `country`
-            DROP COLUMN `tax_free`,
-            DROP COLUMN `company_tax_free`;
-        ');
-        } catch (\Throwable) {
-        }
+        $this->dropColumnIfExists($connection, 'country', 'tax_free');
+        $this->dropColumnIfExists($connection, 'country', 'company_tax_free');
     }
 
     private function dropOpenNewTabColumn(Connection $connection): void
     {
-        try {
-            $connection->executeStatement('ALTER TABLE `app_action_button` DROP COLUMN `open_new_tab`');
-        } catch (\Throwable) {
-        }
+        $this->dropColumnIfExists($connection, 'app_action_button', 'open_new_tab');
     }
 }

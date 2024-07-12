@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -27,7 +27,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     public function __construct(
         private readonly StoreClient $storeClient,
-        private readonly AbstractAppLoader $appLoader,
+        private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly EntityRepository $salesChannelRepository,

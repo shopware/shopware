@@ -13,8 +13,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
@@ -62,7 +62,8 @@ class TaxProviderPayloadServiceTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
             $entityEncoder,
-            $shopIdProvider
+            $shopIdProvider,
+            'https://test-shop.com'
         );
 
         $url = 'https://example.com/provide-tax';
@@ -100,7 +101,6 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
-            'https://test-shop.com'
         );
 
         $cart = new Cart($this->ids->get('cart'));
@@ -169,7 +169,6 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $this->createMock(AppPayloadServiceHelper::class),
             $client,
-            'https://test-shop.com'
         );
 
         $response = $taxProviderPayloadService->request(
@@ -201,7 +200,8 @@ class TaxProviderPayloadServiceTest extends TestCase
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,
             $entityEncoder,
-            $shopIdProvider
+            $shopIdProvider,
+            'https://test-shop.com'
         );
 
         $url = 'https://example.com/provide-tax';
@@ -214,7 +214,6 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(),
-            'https://test-shop.com'
         );
 
         $payload = $this->createMock(TaxProviderPayload::class);

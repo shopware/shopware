@@ -53,6 +53,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             page: 1,
             limit: 25,
             total: 0,
+            intial: true,
         };
     },
 
@@ -62,6 +63,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
             // assign collection as records for the sw-data-grid
             this.applyResult(this.collection);
+
+            this.intial = false;
 
             // local mode means, the records are loaded with the parent record
             if (this.localMode) {
@@ -88,7 +91,10 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
         applyResult(result) {
             this.result = result;
-            this.records = result;
+
+            if (!this.dataSource || !this.intial) {
+                this.records = result;
+            }
 
             if (result.total) {
                 this.total = result.total;

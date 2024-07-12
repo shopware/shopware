@@ -3,9 +3,11 @@
 namespace Shopware\Core;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
@@ -137,7 +139,7 @@ class Kernel extends HttpKernel
 
         try {
             $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (\Throwable $e) {
+        } catch (DBALException $e) {
             if (\defined('\STDERR')) {
                 fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
             }
@@ -334,9 +336,12 @@ class Kernel extends HttpKernel
             $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
             $connectionVariables = [];
 
-            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', false);
+            /**
+             * @deprecated tag:v6.7.0 - remove if clause and enforce timezone setting
+             */
+            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', Feature::isActive('v6.7.0.0'));
             if ($timeZoneSupportEnabled) {
-                $connectionVariables[] = 'SET @@session.time_zone = "UTC"';
+                $connectionVariables[] = 'SET @@session.time_zone = "+00:00"';
             }
 
             if ($setSessionVariables) {

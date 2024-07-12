@@ -14,10 +14,16 @@
 Shopware.Component.register('sw-error-boundary', {
 
     render() {
+        if (typeof this.$slots.default === 'function') {
+            return this.$slots.default();
+        }
+
         return this.$slots.default;
     },
 
     inject: ['repositoryFactory'],
+
+    compatConfig: Shopware.compatConfig,
 
     computed: {
         logEntryRepository() {

@@ -169,6 +169,10 @@ class DefinitionValidator
             if (preg_match('/.*\\\\Test|s\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
                 continue;
             }
+            if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                continue;
+            }
+
             $violations[$definitionClass] = [];
 
             $violations = array_merge_recursive($violations, $this->validateSchema($definition));

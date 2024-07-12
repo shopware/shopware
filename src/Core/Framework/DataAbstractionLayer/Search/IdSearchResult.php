@@ -39,6 +39,29 @@ class IdSearchResult extends Struct
         $this->data = array_map(fn ($row) => $row['data'], $data);
     }
 
+    /**
+     * @param array<string> $ids
+     */
+    public static function fromIds(
+        array $ids,
+        Criteria $criteria,
+        Context $context,
+        ?int $total = null
+    ): self {
+        $mapped = [];
+        foreach ($ids as $id) {
+            $key = \is_array($id) ? implode('-', $id) : $id;
+            $mapped[$key] = ['primaryKey' => $id, 'data' => []];
+        }
+
+        return new self(
+            total: $total ?? \count($ids),
+            data: $mapped,
+            criteria: $criteria,
+            context: $context
+        );
+    }
+
     public function firstId(): ?string
     {
         if (empty($this->ids)) {

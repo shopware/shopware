@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -101,9 +102,9 @@ responses.addResponse({
     },
 });
 
-describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
+describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
     linkDataProvider.forEach(link => {
-        it(`parses ${link.type} URL's correctly`, async () => {
+        it(`parses ${link.type} URLs correctly`, async () => {
             const wrapper = await createWrapper(link.URL);
             await flushPromises();
 

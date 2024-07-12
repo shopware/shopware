@@ -30,6 +30,7 @@
       }
     },
     "card": {
+      "buttonImitateCustomer": "Als Kunde anmelden",
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
@@ -190,6 +191,13 @@
       "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten",
       "buttonCreateOrder": "Bestellung anlegen"
     },
+    "imitateCustomerModal": {
+      "modalTitle": "Anmelden als {firstname} {lastname}",
+      "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
+      "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
+      "modalInfoLogout": "abzumelden",
+      "labelCancel": "Schließen"
+    },
     "addressForm": {
       "labelCompany": "Firma",
       "labelDepartment": "Abteilung",
@@ -217,7 +225,7 @@
       "placeholderStreet": "Gib einen Straßennamen ein ...",
       "placeholderCity": "Gib eine Stadt ein ...",
       "placeholderCountry": "Wähle ein Land aus ...",
-      "placeholderState": "Wähle ein (Bundes-)Land aus...",
+      "placeholderState": "Wähle ein (Bundes-)Land aus ...",
       "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
@@ -232,9 +240,14 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationImitateCustomerErrorMessage": "Bei der Anmeldung als Kunde ist ein Fehler aufgetreten. Bitte stelle sicher, das Pop-Ups Fenster erlaubt sind.",
       "labelCreatedByAdmin": "Erstellt von Admin"
     },
     "filter": {
+      "customerNumber": {
+        "label": "Kundenummer",
+        "placeholder": "Kundenummer eingeben ..."
+      },
       "salutation": {
         "label": "Anrede",
         "placeholder": "Anrede auswählen ..."
@@ -265,11 +278,11 @@
       },
       "affiliateCode": {
         "label": "Affiliate-Code",
-        "placeholder": "Affiliate-Code auswählen..."
+        "placeholder": "Affiliate-Code auswählen ..."
       },
       "campaignCode": {
         "label": "Kampagnen-Code",
-        "placeholder": "Kampagnen-Code auswählen..."
+        "placeholder": "Kampagnen-Code auswählen ..."
       },
       "customerGroupRequest": {
         "label": "Kundengruppen-Anfragen",

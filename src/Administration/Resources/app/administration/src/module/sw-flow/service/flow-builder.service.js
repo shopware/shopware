@@ -220,7 +220,7 @@ export default function flowBuilderService() {
 
         if (!actionName) return '';
 
-        const selectedAppAction = appActions.find(item => item.name === actionName);
+        const selectedAppAction = appActions?.find(item => item.name === actionName);
         if (selectedAppAction) {
             return this.getAppFlowActionDescription(appActions, config, actionName);
         }

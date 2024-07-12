@@ -84,4 +84,48 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $interpreter->interpret($term, Context::createDefaultContext());
     }
+
+    public function testExactScoringMatches(): void
+    {
+        $term = 'Aerodynamic Aluminum Chambermaid Placemats';
+        $keywordLoader = static::createMock(KeywordLoader::class);
+        $keywordLoader->expects(static::once())->method('fetch')
+            ->willReturnCallback(function ($tokenSlops) {
+                return [
+                    ['aerodynamic', '1', '0', '0', '0'],
+                    ['alumimagic', '0', '1', '0', '0'],
+                    ['aluminum', '0', '1', '0', '0'],
+                    ['chambermaid', '0', '0', '1', '0'],
+                    ['placemats', '0', '0', '0', '1'],
+                ];
+            });
+
+        $interpreter = new ProductSearchTermInterpreter(
+            $this->createMock(Connection::class),
+            new Tokenizer(3),
+            $this->createMock(LoggerInterface::class),
+            new TokenFilter(static::createMock(Connection::class)),
+            $keywordLoader,
+        );
+
+        $actualScoring = $interpreter->interpret($term, Context::createDefaultContext());
+
+        static::assertSame($term, $actualScoring->getOriginal()->getTerm());
+        static::assertSame(1.0, $actualScoring->getOriginal()->getScore());
+
+        $expectedScoring = [
+            'aerodynamic' => 1.1,
+            'aluminum' => 1.1,
+            'chambermaid' => 1.1,
+            'placemats' => 1.1,
+            'alumimagic' => 0.1,
+        ];
+
+        $actualScoringFlat = [];
+        foreach ($actualScoring->getTerms() as $searchTerm) {
+            $actualScoringFlat[$searchTerm->getTerm()] = $searchTerm->getScore();
+        }
+
+        static::assertSame($expectedScoring, $actualScoringFlat);
+    }
 }

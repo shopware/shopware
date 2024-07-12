@@ -51,7 +51,8 @@
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand">
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>

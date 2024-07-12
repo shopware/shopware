@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -55,6 +57,49 @@ class LineItemTransformerTest extends TestCase
         $productLineItem = $productCollection->get($productId);
         static::assertInstanceOf(LineItem::class, $productLineItem);
         static::assertSame(3, $productLineItem->getQuantity());
+    }
+
+    public function testTransformFlatToNestedWithDimensionData(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $product = new ProductEntity();
+        $product->setMaxPurchase(50);
+        $product->setMinPurchase(10);
+        $product->setPurchaseSteps(5);
+
+        $product->setWidth(100);
+        $product->setHeight(100);
+        $product->setLength(100);
+
+        $item = $this->buildOrderLineItemEntity($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, null, 3);
+        $item->setProduct($product);
+        $item->setStates([State::IS_PHYSICAL]);
+
+        $orderLineItemCollection = new OrderLineItemCollection(
+            [
+                $item,
+            ]
+        );
+
+        $nestedCollection = LineItemTransformer::transformFlatToNested($orderLineItemCollection);
+
+        $lineItem = $nestedCollection->first();
+        static::assertNotNull($lineItem);
+
+        $quantityInformation = $lineItem->getQuantityInformation();
+        static::assertNotNull($quantityInformation);
+
+        static::assertSame($product->getMinPurchase(), $quantityInformation->getMinPurchase());
+        static::assertSame($product->getMaxPurchase(), $quantityInformation->getMaxPurchase());
+        static::assertSame($product->getPurchaseSteps(), $quantityInformation->getPurchaseSteps());
+
+        $deliveryInformation = $lineItem->getDeliveryInformation();
+
+        static::assertNotNull($deliveryInformation);
+        static::assertSame($product->getWidth(), $deliveryInformation->getWidth());
+        static::assertSame($product->getHeight(), $deliveryInformation->getHeight());
+        static::assertSame($product->getLength(), $deliveryInformation->getLength());
     }
 
     public function testTransformFlatToNestedWorksForDeepNesting(): void

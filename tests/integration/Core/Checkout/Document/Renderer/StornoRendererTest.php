@@ -26,6 +26,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\Currency\CurrencyFormatter;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -136,6 +138,26 @@ class StornoRendererTest extends TestCase
         static::assertStringContainsString('<html>', $rendered->getHtml());
         static::assertStringContainsString('</html>', $rendered->getHtml());
 
+        $localeProvider = static::createMock(LanguageLocaleCodeProvider::class);
+        $formatter = new CurrencyFormatter($localeProvider);
+        $orderCurrency = $order->getCurrency();
+        if ($orderCurrency !== null) {
+            $orderAmounts = [
+                $order->getAmountNet(),
+                $order->getPrice()->getRawTotal(),
+                $order->getPrice()->getTotalPrice(),
+            ];
+            $orderIsoCode = $orderCurrency->getIsoCode();
+            foreach ($orderAmounts as $amount) {
+                $formattedValue = $formatter->formatCurrencyByLanguage(
+                    $amount,
+                    $orderIsoCode,
+                    $this->context->getLanguageId(),
+                    $this->context,
+                );
+                static::assertStringContainsString($formattedValue, $rendered->getHtml());
+            }
+        }
         $assertionCallback($rendered);
     }
 

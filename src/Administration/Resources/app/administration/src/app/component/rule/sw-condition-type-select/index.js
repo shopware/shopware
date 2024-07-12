@@ -10,6 +10,8 @@ const { Component } = Shopware;
 Component.register('sw-condition-type-select', {
     template: template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'removeNodeFromTree',
         'conditionDataProviderService',

@@ -15,6 +15,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-advanced-selection-rule', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'ruleConditionDataProviderService',
         'feature',

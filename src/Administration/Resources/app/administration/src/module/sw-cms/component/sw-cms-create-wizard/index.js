@@ -86,6 +86,10 @@ export default {
         assetFilter() {
             return Filter.getByName('asset');
         },
+
+        cmsPageStore() {
+            return Shopware.Store.get('cmsPageState');
+        },
     },
 
     watch: {
@@ -114,7 +118,8 @@ export default {
         },
 
         onPageTypeSelect(type) {
-            Shopware.State.commit('cmsPageState/setCurrentPageType', type);
+            this.cmsPageStore.setCurrentPageType(type);
+
             this.page.type = type;
 
             this.goToStep('sectionType');

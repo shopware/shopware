@@ -16,6 +16,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-condition-or-container', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     mixins: [

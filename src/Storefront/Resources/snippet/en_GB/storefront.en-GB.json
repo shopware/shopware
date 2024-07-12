@@ -69,6 +69,7 @@
     "VIOLATION::IS_BLANK_ERROR": "Input should not be empty.",
     "VIOLATION::TOO_LOW_ERROR": "Input should not be empty.",
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Input is invalid",
+    "VIOLATION::TOO_LONG_ERROR": "Input must be {{ limit }} characters or fewer",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
@@ -92,6 +93,7 @@
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
     "CHECKOUT__ORDER_ORDER_NOT_FOUND": "This order could not be found.",
+    "CHECKOUT__CART_HASH_MISMATCH": "Products or prices in your shopping cart may have changed. Please check your shopping cart before placing your order.",
     "CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY": "The quantity (%quantity%) is incorrect."
   },
   "account": {
@@ -496,6 +498,7 @@
     "filterRatingActiveLabelEndSingular": "star",
     "filterRatingActiveLabelEnd": "stars",
     "filterRatingAndMore": "min. %points%/%maxPoints%",
+    "filterRatingMinAltText": "Add filter: Minimum rating of %points% out of %maxPoints% stars",
     "filterRangeMinLabel": "Minimum",
     "filterRangeMaxLabel": "Maximum",
     "filterRangeActiveMinLabel": "%displayName% from",
@@ -604,15 +607,21 @@
     "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
     "reviewAvgRateElements": "stars",
-    "reviewNotPublicYetAlert": "Your review has not been approved yet"
+    "reviewAvgRatingAltText": "Average rating of %points% out of %maxPoints% stars",
+    "reviewRatingAltText": "Review with rating of %points% out of %maxPoints% stars",
+    "reviewNotPublicYetAlert": "Your review has not been approved yet",
+    "unavailable": "Unavailable",
+    "unavailableTooltip": "This option is currently unavailable."
   },
   "spatial": {
     "scanQrCode": "Scan QR-Code",
-    "pointToQrCode": "Point the mobile device at the QR code to display the item in \"Augmented Reality\"-mode",
-    "arSupportInFollowingDevices": "The \"Augmented Reality\" experience is supported on the following devices:",
+    "pointToQrCode": "Point the mobile device at the QR code to display the product in \"Augmented Reality\" mode",
+    "arSupportInFollowingDevices": "The \"Augmented Reality experience\" is supported on the following devices:",
     "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
     "moveTheDeviceToStart": "Move the device to start",
-    "tapToPlaceTheObject": "Tap to place the object"
+    "tapToPlaceTheObject": "Tap to place the object",
+    "openAugmentedRealityView": "Open Augmented Reality View",
+    "openArView": "Open AR View"
   },
   "wishlist": {
     "cartTitle": "Your wishlist",

@@ -30,6 +30,8 @@ parameters:
         constantHassers: false
         containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/console-application.php
+    type_perfect:
+        no_mixed: true
 
     excludePaths:
         - src/WebInstaller/Resources/
@@ -70,6 +72,12 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
+        # tag:v6.7.0 - does not fully understand overwrite multiple definitions of DefaultPayment
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -87,6 +95,7 @@ parameters:
                 - tests/performance/**/*Bench.php
                 - tests/unit/**/*Test.php
                 - tests/devops/**/*Test.php
+                - tests/migration/**/*Test.php
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
 
@@ -173,7 +182,7 @@ parameters:
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
         # Internal deprecations of Shopware are handled in other places
-        - '#deprecated.*class Shopware\\#'
+        - '#deprecated.*(class|interface) Shopware\\#'
 
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'
@@ -225,6 +234,7 @@ parameters:
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
                 - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
+                - tests/integration/Core/Framework/Plugin/_fixtures/*
 
         - # Hard to fix, as no proper var annotation could be used within the while loop
             message: "#^Parameter \\#1 \\$mediaIds of method Shopware\\\\Core\\\\Content\\\\Media\\\\UnusedMediaPurger\\:\\:filterOutNewMedia\\(\\) expects array\\<string\\>, array\\<int, array\\<string, string\\>\\|string\\> given\\.$#"
@@ -307,15 +317,7 @@ rules:
     # rules from https://github.com/symplify/phpstan-rules
     # domain
     - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
-    - Symplify\PHPStanRules\Rules\ForbiddenParamTypeRemovalRule
     - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
-
-    # paths
-    - Symplify\PHPStanRules\Rules\NoMissingDirPathRule
-    - Symplify\PHPStanRules\Rules\NoArrayAccessOnObjectRule
-
-    # dead-code
-    - Symplify\PHPStanRules\Rules\NoIssetOnObjectRule
 
     # explicit naming
     - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
@@ -323,13 +325,10 @@ rules:
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
 
     # complexity rules
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedPropertyFetcherRule
-    - Symplify\PHPStanRules\Rules\Explicit\NoMixedMethodCallerRule
     - Symplify\PHPStanRules\Rules\NoDynamicNameRule
 
     # naming rules
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

@@ -10,4 +10,6 @@ const { Component } = Shopware;
  */
 Component.register('sw-context-menu', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 });

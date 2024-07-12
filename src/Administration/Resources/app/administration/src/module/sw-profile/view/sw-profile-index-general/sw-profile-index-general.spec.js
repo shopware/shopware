@@ -22,6 +22,7 @@ async function createWrapper(privileges = []) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),

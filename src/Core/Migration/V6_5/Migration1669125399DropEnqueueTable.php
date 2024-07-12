@@ -23,6 +23,6 @@ class Migration1669125399DropEnqueueTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TABLE IF EXISTS `enqueue`');
+        $this->dropTableIfExists($connection, 'enqueue');
     }
 }

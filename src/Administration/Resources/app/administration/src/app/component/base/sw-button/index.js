@@ -12,6 +12,12 @@ const { Component } = Shopware;
 Component.register('sw-button', {
     template,
 
+    compatConfig: {
+        // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
+        INSTANCE_ATTRS_CLASS_STYLE: false,
+        ...Shopware.compatConfig,
+    },
+
     props: {
         routerLink: {
             type: [String, Object],
@@ -35,6 +41,15 @@ Component.register('sw-button', {
             );
 
             return false;
+        },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -16,6 +17,10 @@ const createWrapper = async () => {
                     template: '<div @click="$emit(\'click\', $event)"></div>',
                 },
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
             },
         },
     });

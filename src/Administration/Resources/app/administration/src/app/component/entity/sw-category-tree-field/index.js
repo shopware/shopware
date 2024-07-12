@@ -15,6 +15,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-tree-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     props: {
@@ -97,6 +99,14 @@ Component.register('sw-category-tree-field', {
                 // add parent id to accumulator
                 return [...acc, ...pathIds];
             }, []);
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

@@ -16,6 +16,7 @@ async function createWrapper(entityType = 'product') {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 transition: false,
@@ -666,6 +667,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'transactions.stateId',
             'transactions.stateMachineState',
             'transactions.updatedAt',
+            'transactions.validationData',
             'transactions.versionId',
         ]);
     });

@@ -6,6 +6,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
@@ -18,9 +19,16 @@ class ImportExportProfileEntity extends Entity
     final public const TYPE_IMPORT_EXPORT = 'import-export';
 
     /**
+     * @deprecated tag:v6.7.0 - Will be replaced by technical name
+     *
      * @var string|null
      */
     protected $name;
+
+    /**
+     * @deprecated tag:v6.7.0 - will not be nullable
+     */
+    protected ?string $technicalName = null;
 
     /**
      * @var string
@@ -82,14 +90,48 @@ class ImportExportProfileEntity extends Entity
      */
     protected $translations;
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed
+     */
     public function getName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
+
         return $this->name;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed
+     */
     public function setName(string $name): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method will be removed. Use technicalName instead.');
+
         $this->name = $name;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
+    {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        return $this->technicalName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
+    {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        $this->technicalName = $technicalName;
     }
 
     public function getLabel(): string

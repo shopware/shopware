@@ -24,7 +24,28 @@ async function createWrapper(propsData = {}, provide = {}) {
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     beforeAll(() => {
-        Shopware.Context.api.assetsPath = '';
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
+        Shopware.State.registerModule('context', {
+            namespaced: true,
+            state: {
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            },
+        });
     });
 
     it('should show the correct image (icon)', async () => {

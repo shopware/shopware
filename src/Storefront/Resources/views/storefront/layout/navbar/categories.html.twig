@@ -1,0 +1,52 @@
+{% macro recursiveCategory(navigationTree, level, page, navigationMedia) %}
+    {% set navigationMaxDepth = 3 %}
+    {% set activeId = page.header.navigation.active.id %}
+    {% set activePath = page.header.navigation.active.path %}
+
+    <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
+        {% for treeItem in navigationTree %}
+            {% set id = treeItem.category.id %}
+            {% set name = treeItem.category.translated.name %}
+            {% set link = category_url(treeItem.category) %}
+
+            {% block layout_navbar_categories_item %}
+                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
+                    {% block layout_navbar_categories_item_link %}
+                        {% if treeItem.category.type == 'folder' %}
+                            <div class="nav-item nav-link navigation-flyout-link is-level-{{ level }}"
+                                 title="{{ name }}">
+                                <span itemprop="name">{{ name }}</span>
+                            </div>
+                        {% else %}
+                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
+                               href="{{ link }}"
+                               itemprop="url"
+                               {% if category_linknewtab(treeItem.category) %}target="_blank"
+                               {% if treeItem.category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
+                                {% endif %}
+                               title="{{ name }}">
+                                <span itemprop="name">{{ name }}</span>
+                            </a>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block layout_navigation_categories_recoursion %}
+                        {% if level < navigationMaxDepth %}
+                            {{ _self.recursiveCategory(treeItem.children, level +1, page, navigationMedia) }}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% block layout_navbar_categories %}
+    {% from _self import recursiveCategory %}
+
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
+
+    {{ recursiveCategory(navigationTree, level, page, navigationMedia) }}
+{% endblock %}

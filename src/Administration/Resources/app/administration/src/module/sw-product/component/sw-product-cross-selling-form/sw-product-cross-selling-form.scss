@@ -25,6 +25,18 @@
 
     .sw-product-detail-cross-selling__active-switch {
         display: flex;
+
+        .sw-field--switch__content {
+            position: relative;
+        }
+
+        .sw-field--switch__input {
+            position: unset;
+
+            .sw-field__switch-state {
+                width: 24px;
+            }
+        }
     }
 
     .sw-product-cross-selling-form__links {

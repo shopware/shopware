@@ -27,6 +27,10 @@ export default {
                 page: 1,
             };
         },
+
+        extensionManagementDisabled() {
+            return Shopware.State.get('context').app.config.settings.disableExtensionManagement;
+        },
     },
 
     methods: {

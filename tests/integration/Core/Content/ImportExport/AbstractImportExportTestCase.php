@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -231,7 +232,13 @@ abstract class AbstractImportExportTestCase extends TestCase
 
         $systemDefaultProfileId = $this->getDefaultProfileId($entity);
         $newId = Uuid::randomHex();
-        $profileRepository->clone($systemDefaultProfileId, Context::createDefaultContext(), $newId);
+
+        $profileRepository->clone(
+            $systemDefaultProfileId,
+            Context::createDefaultContext(),
+            $newId,
+            new CloneBehavior(['technicalName' => uniqid('technical_name_')])
+        );
 
         // get the cloned profile
         $profile = $profileRepository->search(new Criteria([$newId]), Context::createDefaultContext())->getEntities()->first();

@@ -20,9 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
-use Shopware\Storefront\Test\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
-use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -33,6 +30,9 @@ use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleThemeConfigInheritance\SimpleThemeConfigInheritance;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeFixtures;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -319,7 +319,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null, 'isInherited' => true];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -366,7 +366,7 @@ class ThemeTest extends TestCase
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['isInherited'] = false;
 
-        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0b539b';
+        $themeInheritedConfig['baseThemeFields']['sw-color-brand-primary']['value'] = '#0042a0';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -434,7 +434,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
-        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#3d444d';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#474a57';
 
         static::assertEquals($themeInheritedConfig, $theme);
     }
@@ -689,7 +689,7 @@ class ThemeTest extends TestCase
         $_expectedColor = '#b1900f';
         $_expectedTheme = $childTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
-        $_expectedColor = '#0b539b';
+        $_expectedColor = '#0042a0';
         $_expectedTheme = $baseTheme->getId();
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }

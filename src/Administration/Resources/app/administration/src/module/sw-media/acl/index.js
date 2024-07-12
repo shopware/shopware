@@ -49,6 +49,7 @@ Shopware.Service('privileges')
                     'media_folder_configuration_media_thumbnail_size:delete',
                     'media_folder_configuration_media_thumbnail_size:create',
                     'media_folder_configuration_media_thumbnail_size:update',
+                    'system_config:read',
                 ],
                 dependencies: [
                     'media.viewer',

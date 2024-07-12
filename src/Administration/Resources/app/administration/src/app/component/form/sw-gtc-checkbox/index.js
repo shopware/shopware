@@ -10,6 +10,8 @@ import template from './sw-gtc-checkbox.html.twig';
 Shopware.Component.register('sw-gtc-checkbox', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

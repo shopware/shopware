@@ -2,6 +2,7 @@
  * @package buyers-experience
  */
 import { mount } from '@vue/test-utils';
+import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
     return mount(await wrapTestComponent('sw-product-variants-overview', { sync: true }), {
@@ -370,5 +371,28 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         wrapper.vm.onInheritanceRestore(variant, currency);
 
         expect(variant.price).toBeNull();
+    });
+
+    it('buildSearchQuery modifies criteria correctly', async () => {
+        const criteria = new Criteria();
+        const term = 'test';
+        const wrapper = await createWrapper();
+
+        wrapper.vm.term = term;
+        wrapper.vm.buildSearchQuery(criteria);
+
+        expect(criteria.queries).toHaveLength(3);
+        expect(criteria.queries[0].query.type).toBe('equals');
+        expect(criteria.queries[0].query.field).toBe('product.options.name');
+        expect(criteria.queries[0].query.value).toBe(term);
+        expect(criteria.queries[0].score).toBe(3500);
+        expect(criteria.queries[1].query.type).toBe('contains');
+        expect(criteria.queries[1].query.field).toBe('product.options.name');
+        expect(criteria.queries[1].query.value).toBe(term);
+        expect(criteria.queries[1].score).toBe(500);
+        expect(criteria.queries[2].query.type).toBe('contains');
+        expect(criteria.queries[2].query.field).toBe('product.productNumber');
+        expect(criteria.queries[2].query.value).toBe(term);
+        expect(criteria.queries[2].score).toBe(5000);
     });
 });

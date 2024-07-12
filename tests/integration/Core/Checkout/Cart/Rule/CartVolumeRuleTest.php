@@ -153,8 +153,8 @@ class CartVolumeRuleTest extends TestCase
     private function createCartDummy(): Cart
     {
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithDeliveryInfo(false, 3, 10, 40, 3, 0.5),
-            $this->createLineItemWithDeliveryInfo(true, 3, 10, 40, 3, 0.5),
+            $this->createLineItemWithDeliveryInfo(false, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
+            $this->createLineItemWithDeliveryInfo(true, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
         ]);
 
         $cart = $this->createCart($lineItemCollection);

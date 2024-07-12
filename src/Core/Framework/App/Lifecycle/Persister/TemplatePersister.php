@@ -35,7 +35,6 @@ class TemplatePersister
         $existingTemplates = $app->getTemplates();
         \assert($existingTemplates !== null);
         $templatePaths = $this->templateLoader->getTemplatePathsForApp($manifest);
-
         $upserts = [];
         foreach ($templatePaths as $templatePath) {
             $payload = [

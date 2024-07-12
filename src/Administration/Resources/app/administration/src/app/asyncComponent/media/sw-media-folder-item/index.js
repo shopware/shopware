@@ -2,6 +2,7 @@ import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 
 const { Application, Mixin, Context } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @package content
@@ -107,8 +108,14 @@ export default {
             }
 
             const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
-            this.iconConfig.name = module?.manifest?.icon ?? '';
-            this.iconConfig.color = module?.manifest?.color ?? '#000000';
+
+            if (!module) {
+                warn('Missing module for default folder entity', defaultFolder.entity);
+                return;
+            }
+
+            this.iconConfig.name = module.manifest.icon ?? '';
+            this.iconConfig.color = module.manifest.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

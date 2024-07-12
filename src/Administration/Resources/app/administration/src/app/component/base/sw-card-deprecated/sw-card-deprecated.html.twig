@@ -85,7 +85,7 @@
             :class="cardContentClasses"
         >
             <div
-                v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
+                v-if="contextSlot"
                 class="sw-card__context-menu"
             >
                 <sw-context-button>

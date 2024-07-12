@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CronIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CronIntervalFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\CronInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -72,7 +72,7 @@ class CronIntervalFieldSerializerTest extends TestCase
         static::expectException(DataAbstractionLayerException::class);
 
         $this->intervalFieldSerializer->encode(
-            new StringField('fake', 'fake'),
+            new ManyToOneAssociationField('test', 'test', 'test'),
             $this->createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)

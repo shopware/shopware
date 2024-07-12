@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
@@ -16,12 +17,12 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Shopware\Storefront\Framework\Twig\IconExtension;
 use Shopware\Storefront\Storefront;
-use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -81,6 +82,11 @@ class IconCacheTwigFilterTest extends TestCase
         $placeholder->method('replace')->willReturnArgument(0);
 
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $placeholder);
+
+        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler->method('replace')->willReturnArgument(0);
+
+        $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
 
         return $container;
     }

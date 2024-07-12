@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -29,8 +29,8 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        if (!$field instanceof FlowTemplateConfigField) {
-            throw DataAbstractionLayerException::invalidSerializerField(FlowTemplateConfigField::class, $field);
+        if (!$field instanceof StorageAware) {
+            throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

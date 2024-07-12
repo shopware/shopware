@@ -8,7 +8,10 @@ const { EntityCollection, Criteria } = Shopware.Data;
  */
 Component.register('sw-entity-multi-id-select', {
     template,
+
     inheritAttrs: false,
+
+    compatConfig: Shopware.compatConfig,
 
     emits: ['update:value'],
 
@@ -63,15 +66,19 @@ Component.register('sw-entity-multi-id-select', {
 
     computed: {
         getListeners() {
-            const listeners = {};
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                const listeners = {};
 
-            Object.keys(this.$listeners).forEach(listener => {
-                if (listener !== 'change') {
-                    listeners[listener] = this.$listeners[listener];
-                }
-            });
+                Object.keys(this.$listeners).forEach(listener => {
+                    if (listener !== 'change') {
+                        listeners[listener] = this.$listeners[listener];
+                    }
+                });
 
-            return listeners;
+                return listeners;
+            }
+
+            return {};
         },
     },
 

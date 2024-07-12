@@ -34,7 +34,9 @@ class CustomFieldTranslationTest extends TestCase
 {
     use BasicTestDataBehaviour;
     use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     /**
@@ -74,6 +76,7 @@ class CustomFieldTranslationTest extends TestCase
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `attribute_test_translation`');
         $this->connection->executeStatement('DROP TABLE `attribute_test`');

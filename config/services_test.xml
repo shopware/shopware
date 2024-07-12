@@ -36,5 +36,13 @@
 
             <tag name="shopware.seo_url.route"/>
         </service>
+
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity">
+            <tag name="shopware.entity"/>
+        </service>
+
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
+            <tag name="shopware.entity"/>
+        </service>
     </services>
 </container>

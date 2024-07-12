@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -191,7 +190,7 @@ class InstallAppCommandTest extends TestCase
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader($appFolder, __DIR__, $this->createMock(ConfigReader::class), new NullLogger()),
+            new AppLoader($appFolder, new NullLogger()),
             $this->getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             $this->getContainer()->get(ManifestValidator::class)

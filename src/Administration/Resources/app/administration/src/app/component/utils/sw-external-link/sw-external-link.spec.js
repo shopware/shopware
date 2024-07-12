@@ -1,14 +1,19 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(additionalOptions = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-external-link', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-external-link-deprecated': true,
+                'mt-external-link': true,
+            },
+        },
         props: {},
-        ...additionalOptions,
     });
 }
 

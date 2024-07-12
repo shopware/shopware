@@ -48,6 +48,9 @@ class MediaException extends HttpException
 
     public const MEDIA_FILE_NAME_IS_TOO_LONG = 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG';
     public const MEDIA_REVERSE_PROXY_CANNOT_BAN_URL = 'MEDIA_REVERSE_PROXY__CANNOT_BAN_URL';
+    public const MEDIA_INVALID_MIME_TYPE = 'CONTENT__MEDIA_INVALID_MIME_TYPE';
+
+    public const MEDIA_THUMBNAIL_GENERATION_DISABLED = 'CONTENT__MEDIA_THUMBNAIL_GENERATION_DISABLED';
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -402,6 +405,25 @@ class MediaException extends HttpException
             self::MEDIA_FILE_NAME_IS_TOO_LONG,
             'The provided file name is too long, the maximum length is {{ maxLength }} characters.',
             ['maxLength' => $maxLength]
+        );
+    }
+
+    public static function invalidMimeType(string $mimeType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_MIME_TYPE,
+            'The mime type "{{ mimeType }}" is invalid.',
+            ['mimeType' => $mimeType]
+        );
+    }
+
+    public static function thumbnailGenerationDisabled(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_THUMBNAIL_GENERATION_DISABLED,
+            'Remote thumbnails are enabled. Skipping thumbnail generation.'
         );
     }
 }

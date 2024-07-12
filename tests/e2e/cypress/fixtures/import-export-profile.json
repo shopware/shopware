@@ -5,6 +5,7 @@
   "fileType": "text/csv",
   "delimiter": ";",
   "enclosure": "\"",
+  "technicalName": "e2e",
   "mapping": [
     {
       "key": "id",

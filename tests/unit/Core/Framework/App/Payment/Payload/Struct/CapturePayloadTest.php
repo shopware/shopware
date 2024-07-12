@@ -7,10 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
+use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload;
-use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 #[CoversClass(CapturePayload::class)]
 class CapturePayloadTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testPayload(): void
     {
         $transaction = new OrderTransactionEntity();

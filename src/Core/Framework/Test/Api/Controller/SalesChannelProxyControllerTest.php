@@ -313,6 +313,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
+        static::assertArrayHasKey('permissions', $payload);
+        static::assertArrayHasKey('allowProductPriceOverwrites', $payload['permissions']);
+        static::assertTrue($payload['permissions']['allowProductPriceOverwrites']);
     }
 
     public function testSwitchCustomerWithPermissions(): void

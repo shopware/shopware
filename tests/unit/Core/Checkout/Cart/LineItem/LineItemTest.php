@@ -322,4 +322,46 @@ class LineItemTest extends TestCase
 
         new LineItem(str_repeat('a', 101), 'type');
     }
+
+    public function testGetHashContent(): void
+    {
+        $parent = new LineItem(
+            'line-item-parent-id',
+            'type'
+        );
+
+        $child = new LineItem(
+            'line-item-child-id',
+            'type'
+        );
+
+        $parent->addChild($child);
+
+        $grandchild = new LineItem('line-item-grandchild-id', 'type');
+
+        $child->addChild($grandchild);
+
+        $expectedArray = [
+            'quantity' => 1,
+            'price' => null,
+            'referenceId' => null,
+            'children' => [
+                'line-item-child-id' => [
+                    'quantity' => 1,
+                    'price' => null,
+                    'referenceId' => null,
+                    'children' => [
+                        'line-item-grandchild-id' => [
+                            'quantity' => 1,
+                            'price' => null,
+                            'referenceId' => null,
+                            'children' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        static::assertSame($expectedArray, $parent->getHashContent());
+    }
 }

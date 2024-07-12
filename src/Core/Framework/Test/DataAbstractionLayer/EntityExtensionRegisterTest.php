@@ -24,11 +24,14 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 #[Group('skip-paratest')]
 class EntityExtensionRegisterTest extends TestCase
 {
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour {
+        tearDown as protected tearDownDefinitions;
+    }
     use KernelTestBehaviour;
 
     protected function tearDown(): void
     {
+        $this->tearDownDefinitions();
         // reboot kernel to create a new container since we manipulated the original one
         KernelLifecycleManager::bootKernel();
         parent::tearDown();
@@ -58,8 +61,6 @@ class EntityExtensionRegisterTest extends TestCase
         static::assertInstanceOf(OneToOneAssociationField::class, $fields->get('toOne'));
         static::assertTrue($fields->has('oneToMany'));
         static::assertInstanceOf(OneToManyAssociationField::class, $fields->get('oneToMany'));
-
-        $this->removeExtension(ProductExtension::class);
     }
 
     public function testAddEntityExtensionToEntityWhichDoesNotHasSalesChannelDefinition(): void
@@ -86,7 +87,5 @@ class EntityExtensionRegisterTest extends TestCase
         static::assertInstanceOf(OneToOneAssociationField::class, $fields->get('toOne'));
         static::assertTrue($fields->has('oneToMany'));
         static::assertInstanceOf(OneToManyAssociationField::class, $fields->get('oneToMany'));
-
-        $this->removeExtension(ProductManufacturerExtension::class);
     }
 }

@@ -55,6 +55,11 @@ async function createWrapper() {
                         },
                     }),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({
+                        'core.store.media.defaultEnableAugmentedReality': 'false',
+                    }),
+                },
             },
             stubs: {
                 'sw-upload-listener': true,
@@ -62,6 +67,7 @@ async function createWrapper() {
                 'sw-media-upload-v2': true,
                 'sw-media-preview-v2': true,
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-label': true,
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),

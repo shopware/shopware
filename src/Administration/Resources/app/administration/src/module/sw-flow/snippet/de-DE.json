@@ -227,7 +227,7 @@
         "tabGeneral": "Allgemein",
         "tabMailText": "Mail-Text",
         "labelMailType": "Typ",
-        "placeholderMailType": "Typ auswählen...",
+        "placeholderMailType": "Typ auswählen ...",
         "labelSubject": "Betreff",
         "labelSenderName": "Absender",
         "placeholderSubject": "Thema eingeben ...",

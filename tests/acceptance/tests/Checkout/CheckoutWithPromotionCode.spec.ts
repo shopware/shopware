@@ -1,56 +1,58 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer should be able to use promotion code during checkout. @checkout', async ({
-    shopCustomer,
-    adminApiContext,
-    defaultStorefront,
-    checkoutCartPage,
-    checkoutConfirmPage,
-    checkoutFinishPage,
-    promotionWithCodeData,
-    cartWithProductData,
+test('Registered shop customer should be able to use promotion code during checkout.', { tag: '@Checkout' }, async ({
+    ShopCustomer,
+    AdminApiContext,
+    TestDataService,
+    DefaultSalesChannel,
+    StorefrontCheckoutCart,
+    StorefrontCheckoutConfirm,
+    StorefrontCheckoutFinish,
+    CartWithProductData,
     Login,
     AddPromotionCodeToCart,
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,
     SubmitOrder,
 }) => {
-    const promotionCode = promotionWithCodeData.code;
-    const promotionName = promotionWithCodeData.name;
+    const promotion = await TestDataService.createPromotionWithCode();
 
-    await shopCustomer.attemptsTo(Login());
+    await ShopCustomer.attemptsTo(Login());
 
-    await shopCustomer.goesTo(checkoutCartPage);
+    await ShopCustomer.goesTo(StorefrontCheckoutCart.url());
 
     // Value of test product with price of €10 and quantity of 10.
-    await shopCustomer.expects(checkoutCartPage.grandTotalPrice).toHaveText('€100.00*');
+    await ShopCustomer.expects(StorefrontCheckoutCart.grandTotalPrice).toHaveText('€100.00*');
 
-    await shopCustomer.attemptsTo(AddPromotionCodeToCart(promotionName, promotionCode));
-    await shopCustomer.attemptsTo(ProceedFromCartToCheckout());
-    await shopCustomer.attemptsTo(ConfirmTermsAndConditions());
+    await ShopCustomer.attemptsTo(AddPromotionCodeToCart(promotion.name, promotion.code));
+    await ShopCustomer.attemptsTo(ProceedFromCartToCheckout());
+    await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
 
     // Value of test product with price of €10 and quantity of 10 and 10% discount.
-    await shopCustomer.expects(checkoutConfirmPage.grandTotalPrice).toHaveText('€90.00*');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText('€90.00*');
 
-    await shopCustomer.attemptsTo(SubmitOrder());
-    await shopCustomer.expects(checkoutFinishPage.page.getByText(promotionName)).toBeVisible();
-    await shopCustomer.expects(checkoutFinishPage.grandTotalPrice).toHaveText('€90.00*');
+    await ShopCustomer.attemptsTo(SubmitOrder());
+    await ShopCustomer.expects(StorefrontCheckoutFinish.page.getByText(promotion.name)).toBeVisible();
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText('€90.00*');
+
+    const orderId = StorefrontCheckoutFinish.getOrderId();
+
+    TestDataService.addCreatedRecord('order', orderId);
 
     await test.step('Validate that the order was submitted successfully.', async () => {
-        const orderId = checkoutFinishPage.getOrderId();
-        const orderResponse = await adminApiContext.get(`order/${orderId}`);
+        const orderResponse = await AdminApiContext.get(`order/${orderId}`);
 
-        await expect(orderResponse.ok()).toBeTruthy();
+        expect(orderResponse.ok()).toBeTruthy();
 
         const order = await orderResponse.json();
 
-        await expect(order.data).toEqual(
+        expect(order.data).toEqual(
             expect.objectContaining({
                 price: expect.objectContaining({
                     totalPrice: 90,
                 }),
                 orderCustomer: expect.objectContaining({
-                    email: defaultStorefront.customer.email,
+                    email: DefaultSalesChannel.customer.email,
                 }),
             })
         );

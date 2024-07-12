@@ -21,7 +21,7 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.State.get('cmsPageState').currentPage;
+            return Shopware.Store.get('cmsPageState').currentPage;
         },
     },
 };

@@ -542,7 +542,7 @@ function register<
 >;
 
 function register(componentName: string, componentConfiguration: unknown): unknown {
-/* eslint-enable max-len,@typescript-eslint/ban-types */
+    /* eslint-enable max-len,@typescript-eslint/ban-types */
     if (!componentName || !componentName.length) {
         warn(
             'ComponentFactory',
@@ -796,6 +796,8 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         }
 
         if (extendComp) {
+            enrichSuperChain(extendComp, config);
+
             config.extends = extendComp;
         } else {
             delete config.extends;
@@ -806,7 +808,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(overrides);
+        const convertedOverrides = await convertOverrides(overrides, config);
 
         convertedOverrides.forEach((overrideComp) => {
             overrideComp.extends = config;
@@ -816,7 +818,6 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     }
 
     const superRegistry = buildSuperRegistry(config);
-
     if (isNotEmptyObject(superRegistry) && config) {
         const inheritedFrom = isAnOverride(config)
             ? `#${componentName}`
@@ -858,19 +859,27 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 /**
  * Reorganizes the structure of the given overrides.
  */
-async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | undefined): Promise<ComponentConfig[]> {
+async function convertOverrides(
+    awaitedOverrides: AwaitedComponentConfig[] | undefined,
+    config: ComponentConfig,
+): Promise<ComponentConfig[]> {
     if (!awaitedOverrides) {
         return [];
     }
 
+    // Await all override configs into one array
     const overrides = await Promise.all(awaitedOverrides.map((awaitedOverride) => {
         return awaitedOverride();
     }));
 
+    /**
+     * Merge and sort the overrides from latest to first.
+     * Copy over previous override properties if they don't exist.
+     */
     // eslint-disable-next-line max-len
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
     // @ts-expect-error
-    return overrides
+    const sortedOverrides: ComponentConfig[] = overrides
         .reduceRight((acc, overrideComp) => {
             // @ts-expect-error
             if (acc.length === 0) {
@@ -917,6 +926,16 @@ async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | und
             return [...[overrideComp], previous, ...acc];
         }, []);
 
+    /**
+     * For every override check if it contains every base computed or method.
+     * If a computed or method is missing, a placeholder function will be injected which simply calls $super.
+     * This assures a consecutive $super chain later in the process.
+     */
+    sortedOverrides.forEach((sortedOverride) => {
+        enrichSuperChain(config, sortedOverride);
+    });
+
+    return sortedOverrides;
     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
 }
 
@@ -971,6 +990,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });
+            // regular computed or function
             } else {
                 // @ts-expect-error
                 superRegistry = updateSuperRegistry(superRegistry, name, method, methodOrComputed, config);
@@ -992,10 +1012,12 @@ function updateSuperRegistry(
     const methodString = typeof method === 'function' && method.toString();
     const hasSuperCall = methodString && superCallPattern.test(methodString);
 
+    // requested method has no super call return
     if (!hasSuperCall) {
         return superRegistry;
     }
 
+    // method is not in super registry create empty object
     if (!superRegistry.hasOwnProperty(methodName)) {
         superRegistry[methodName] = {};
     }
@@ -1013,29 +1035,19 @@ function updateSuperRegistry(
 function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry): SuperBehavior {
     return {
         $super(this: SuperBehavior, name, ...args) {
+            // this is to prevent this.$super('$super') call's
+            if (name === '$super') {
+                throw new Error('Don\'t call "$super" manually! This is not supported!');
+            }
+
+            // prepare the call stack for the current function name
             this._initVirtualCallStack(name);
 
             const superStack = this._findInSuperRegister(name);
-
-            let superFuncObject = superStack[this._virtualCallStack[name]!];
-
-            /**
-             * Find the next matching function in the super call chain.
-             * This is necessary because the super call chain can be interrupted by empty overrides.
-             */
-            while (superFuncObject && typeof superFuncObject.func !== 'function') {
-                // @ts-expect-error
-                superFuncObject = superStack[superFuncObject.parent];
-            }
-
-            /**
-             * If there is no super function in the super call chain, then go to the next override.
-             */
+            const superFuncObject = superStack[this._virtualCallStack[name]!];
             if (!superFuncObject) {
-                this._virtualCallStack[name] = undefined;
-
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument
-                return this.$super(name, ...args);
+                // This should no longer happen but a precise error is better than a call stack exception
+                throw new Error(`There was an error resolving the "$super" chain for method "${name}".`);
             }
 
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -1055,10 +1067,7 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
             return superFuncObject.func.bind(this)(...args);
         },
         _initVirtualCallStack(name) {
-            // if there is no virtualCallStack
-            if (!this._virtualCallStack) {
-                this._virtualCallStack = { name };
-            }
+            // _virtualCallStack is added to the instance by virtual-call-stack.plugin.ts
 
             if (!this._virtualCallStack[name]) {
                 this._virtualCallStack[name] = this._inheritedFrom();
@@ -1098,6 +1107,7 @@ function resolveSuperCallChain(
         : null;
 
     if (parentName === parentsParentName) {
+        // If we are dealing with an override move up one level by prepending another #
         if (overridePrefix.length > 0 || extension._isOverride) {
             overridePrefix = `#${overridePrefix}`;
         }
@@ -1121,12 +1131,80 @@ function resolveSuperCallChain(
         func: methodFunction,
     };
 
-    const resolvedParent = resolveSuperCallChain(extension, methodName, methodsOrComputed, overridePrefix);
+    // Early return if the current method does no longer contain a $super call
+    const superCallPattern = /\.\$super/g;
+    if (typeof methodFunction === 'function' && !superCallPattern.test((methodFunction as () => any).toString())) {
+        // @ts-expect-error  - We know this exists
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        parentBlock[parentName].parent = null;
 
+        return parentBlock;
+    }
+
+    const resolvedParent = resolveSuperCallChain(extension, methodName, methodsOrComputed, overridePrefix);
     return {
         ...resolvedParent,
         ...parentBlock,
     };
+}
+
+/**
+ * This function adds $super calls for every missing computed or method from baseConfig to targetConfig.
+ * Iterating all computed and methods from baseConfig. Adding a dummy function calling $super is inserted
+ * if targetConfig doesn't specifically override the method or computed already.
+ */
+function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentConfig) {
+    ['computed', 'methods'].forEach((methodOrComputed) => {
+        // base component has no computed or methods
+        if (!baseConfig.hasOwnProperty(methodOrComputed)) {
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const methodsOrComputed = baseConfig[methodOrComputed];
+        // base component computed or methods are empty
+        if (!methodsOrComputed) {
+            return;
+        }
+
+        // computed or methods does not exist on override create empty object
+        if (!targetConfig.hasOwnProperty(methodOrComputed)) {
+            targetConfig[methodOrComputed] = {};
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        Object.entries(methodsOrComputed).forEach(([key, method]) => {
+            // override specifically overrides the current method or computed? Abort!
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (targetConfig[methodOrComputed].hasOwnProperty(key)) {
+                return;
+            }
+
+            // is computed getter/setter definition
+            if (methodOrComputed === 'computed' && typeof method === 'object') {
+                // Create computed as empty object
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                targetConfig[methodOrComputed][key] = {};
+
+                // Fill object with super calls
+                Object.entries(method as object).forEach(([cmd]) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    targetConfig[methodOrComputed][key][cmd] = function (...args: $TSFixMe) {
+                        // eslint-disable-next-line max-len
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
+                        return this.$super(`${key}.${cmd}`, ...args);
+                    };
+                });
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                targetConfig[methodOrComputed][key] = function (...args: $TSFixMe) {
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                    return this.$super(key, ...args);
+                };
+            }
+        });
+    });
 }
 
 /**

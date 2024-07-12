@@ -106,5 +106,7 @@
             <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="sitemap"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory"/>
     </services>
 </container>

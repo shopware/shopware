@@ -72,10 +72,10 @@ async function createWrapper() {
 
 
 describe('module/sw-cms/elements/product-listing/component/index', () => {
-    const cmsPageStateBackup = { ...Shopware.State._store.state.cmsPageState };
+    const cmsPageStateBackup = { ...Shopware.Store._rootState.state.value.cmsPageState };
 
     beforeEach(async () => {
-        Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
+        Shopware.Store._rootState.state.value.cmsPageState = { ...cmsPageStateBackup };
     });
 
     it('should be a Vue.js component', async () => {
@@ -87,7 +87,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
     it('should use demo products', async () => {
         const wrapper = await createWrapper();
 
-        Shopware.State.commit('cmsPageState/setCurrentDemoProducts', currentDemoProducts);
+        Shopware.Store.get('cmsPageState').setCurrentDemoProducts(currentDemoProducts);
 
         await wrapper.vm.$nextTick();
 

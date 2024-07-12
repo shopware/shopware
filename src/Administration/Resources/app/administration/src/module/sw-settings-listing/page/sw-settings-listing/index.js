@@ -183,9 +183,10 @@ export default {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
                 });
-            }).catch(() => {
+            }).catch((e) => {
+                const options = { message: e?.response.data?.errors[0]?.detail || 'Unknown error' };
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-listing.general.messageSaveError'),
+                    message: this.$tc('sw-settings-listing.general.messageSaveError', options),
                 });
             }).finally(() => {
                 this.isLoading = false;

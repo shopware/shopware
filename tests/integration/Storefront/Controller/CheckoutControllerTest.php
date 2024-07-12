@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -37,7 +38,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestFailedPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -75,8 +76,6 @@ class CheckoutControllerTest extends TestCase
     private const PAYMENT_METHOD_CHANGED_ERROR_CONTENT = '"%s" payment is not available for your current cart, the payment was changed to "%s".';
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
-
-    private string $failedPaymentMethodId;
 
     private ?string $customerId = null;
 
@@ -124,20 +123,19 @@ class CheckoutControllerTest extends TestCase
     {
         $this->expectException(PaymentMethodNotAvailableException::class);
 
-        $this->performOrder('', true);
+        $this->performOrder('', false);
     }
 
     public function testOrderWithFailedPaymentMethod(): void
     {
-        $this->createFailedPaymentMethodData();
-
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken, false, true);
+        $cart = $this->fillCart($contextToken);
 
         $requestDataBag = $this->createRequestDataBag('');
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, true);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest();
+        $request->request->set('fail', true);
 
         /** @var RedirectResponse|Response $response */
         $response = $this->getContainer()->get(CheckoutController::class)->order($requestDataBag, $salesChannelContext, $request);
@@ -152,7 +150,7 @@ class CheckoutControllerTest extends TestCase
         $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
         $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
 
-        $order = $this->performOrder('', false, $request);
+        $order = $this->performOrder('', true, $request);
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
@@ -163,7 +161,7 @@ class CheckoutControllerTest extends TestCase
         $request = $this->createRequest();
         $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
 
-        $order = $this->performOrder('', false, $request);
+        $order = $this->performOrder('', true, $request);
 
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
         static::assertNull($order->getAffiliateCode());
@@ -174,7 +172,7 @@ class CheckoutControllerTest extends TestCase
         $request = $this->createRequest();
         $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
 
-        $order = $this->performOrder('', false, $request);
+        $order = $this->performOrder('', true, $request);
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertNull($order->getCampaignCode());
@@ -246,7 +244,7 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = $crawler->filterXPath('//div[@class="alert-content"]')->text();
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -304,7 +302,7 @@ class CheckoutControllerTest extends TestCase
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
 
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn (Crawler $node) => $node->text()));
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content-container"]')->each(static fn (Crawler $node) => $node->text()));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -451,9 +449,9 @@ class CheckoutControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken);
+        $cart = $this->fillCart($contextToken);
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest($salesChannelContext);
 
         $this->getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
@@ -503,7 +501,7 @@ class CheckoutControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $order = $this->performOrder('', false, null, $contextToken);
+        $order = $this->performOrder('', true, null, $contextToken);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $request = $this->createRequest($salesChannelContext);
@@ -563,9 +561,9 @@ class CheckoutControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken);
+        $cart = $this->fillCart($contextToken);
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest($salesChannelContext);
 
         $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
@@ -648,16 +646,16 @@ class CheckoutControllerTest extends TestCase
     /**
      * @param string|float|int|bool|null $customerComment
      */
-    private function performOrder($customerComment, ?bool $useInactivePaymentMethod = false, ?Request $request = null, ?string $contextToken = null): OrderEntity
+    private function performOrder($customerComment, bool $paymentMethodActive = true, ?Request $request = null, ?string $contextToken = null): OrderEntity
     {
         if (!$contextToken) {
             $contextToken = Uuid::randomHex();
         }
 
-        $this->fillCart($contextToken, $useInactivePaymentMethod);
+        $cart = $this->fillCart($contextToken, $paymentMethodActive);
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
         if (!$request instanceof Request) {
             $request = $this->createRequest();
         }
@@ -752,28 +750,36 @@ class CheckoutControllerTest extends TestCase
         return $productId;
     }
 
-    private function fillCart(string $contextToken, ?bool $useInactivePaymentMethod = false, ?bool $useFailedPaymentMethod = false): void
+    private function fillCart(string $contextToken, bool $paymentMethodActive = true): Cart
     {
         $cart = $this->getContainer()->get(CartService::class)->createNew($contextToken);
 
         $productId = $this->createProduct();
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 
-        if ($useInactivePaymentMethod) {
-            $cart->setTransactions($this->createTransactionWithInactivePaymentMethod());
+        $cart->setTransactions($this->createTransaction($paymentMethodActive));
 
-            return;
-        }
-        if ($useFailedPaymentMethod) {
-            $cart->setTransactions($this->createTransactionWithFailedPaymentMethod());
-
-            return;
-        }
-        $cart->setTransactions($this->createTransaction());
+        return $cart;
     }
 
-    private function createTransaction(): TransactionCollection
+    private function createTransaction(bool $active = true): TransactionCollection
     {
+        $paymentMethodId = Uuid::randomHex();
+
+        $this->getContainer()->get('payment_method.repository')->upsert([[
+            'id' => $paymentMethodId,
+            'handlerIdentifier' => TestPaymentHandler::class,
+            'name' => 'Test Payment',
+            'technicalName' => 'payment_test',
+            'description' => 'Test payment handler',
+            'salesChannels' => [
+                [
+                    'id' => TestDefaults::SALES_CHANNEL,
+                ],
+            ],
+            'active' => $active,
+        ]], Context::createDefaultContext());
+
         return new TransactionCollection([
             new Transaction(
                 new CalculatedPrice(
@@ -782,37 +788,7 @@ class CheckoutControllerTest extends TestCase
                     new CalculatedTaxCollection(),
                     new TaxRuleCollection()
                 ),
-                $this->getValidPaymentMethodId()
-            ),
-        ]);
-    }
-
-    private function createTransactionWithInactivePaymentMethod(): TransactionCollection
-    {
-        return new TransactionCollection([
-            new Transaction(
-                new CalculatedPrice(
-                    13.37,
-                    13.37,
-                    new CalculatedTaxCollection(),
-                    new TaxRuleCollection()
-                ),
-                $this->getInactivePaymentMethodId()
-            ),
-        ]);
-    }
-
-    private function createTransactionWithFailedPaymentMethod(): TransactionCollection
-    {
-        return new TransactionCollection([
-            new Transaction(
-                new CalculatedPrice(
-                    13.37,
-                    13.37,
-                    new CalculatedTaxCollection(),
-                    new TaxRuleCollection()
-                ),
-                $this->failedPaymentMethodId
+                $paymentMethodId
             ),
         ]);
     }
@@ -825,14 +801,14 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?bool $withFailedPaymentMethod = false): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
             SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
         ];
-        if ($withFailedPaymentMethod === true) {
-            $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $this->failedPaymentMethodId;
+        if ($paymentMethodId !== null) {
+            $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
         }
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
@@ -857,36 +833,12 @@ class CheckoutControllerTest extends TestCase
             ]);
         }
 
+        $request->request->set('noredirect', true);
+
         $requestStack = $this->getContainer()->get('request_stack');
         $requestStack->push($request);
 
         return $request;
-    }
-
-    private function createFailedPaymentMethodData(): string
-    {
-        $paymentId = Uuid::randomHex();
-        $data = [
-            [
-                'id' => $paymentId,
-                'name' => SyncTestFailedPaymentHandler::class,
-                'technicalName' => 'payment_test',
-                'active' => true,
-                'handlerIdentifier' => SyncTestFailedPaymentHandler::class,
-                'salesChannels' => [
-                    [
-                        'id' => TestDefaults::SALES_CHANNEL,
-                    ],
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('payment_method.repository')
-            ->create($data, Context::createDefaultContext());
-
-        $this->failedPaymentMethodId = $paymentId;
-
-        return $paymentId;
     }
 
     /**

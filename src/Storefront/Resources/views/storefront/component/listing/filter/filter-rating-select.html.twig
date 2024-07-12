@@ -41,7 +41,7 @@
 
 {% block component_filter_multi_select_list %}
     <ul class="filter-multi-select-list">
-        {% for point in (maxPoints - 1)..1 %}
+        {% for point in maxPoints..1 %}
             <li class="filter-rating-select-list-item">
                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select-item.html.twig' with {
                     points: point,

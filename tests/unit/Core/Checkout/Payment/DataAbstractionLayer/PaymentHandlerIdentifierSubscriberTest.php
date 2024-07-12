@@ -13,11 +13,12 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifier
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler;
 
 /**
  * @internal
@@ -37,10 +38,12 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         );
     }
 
-    public function testFormatHandlerIdentifier(): void
+    public function testMultipleFormatHandlerIdentifier(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $paymentMethods = [
-            $this->getPaymentMethod(),
+            $this->getPaymentMethod(SynchronousPaymentHandlerInterface::class),
             $this->getPaymentMethod(AsynchronousPaymentHandlerInterface::class),
             $this->getPaymentMethod(RefundPaymentHandlerInterface::class),
             $this->getPaymentMethod(PreparedPaymentHandlerInterface::class),
@@ -67,6 +70,10 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         static::assertSame('handler_shopware_refundpaymenthandlerinterface', $methods[2]->getFormattedHandlerIdentifier());
         static::assertSame('handler_shopware_preparedpaymenthandlerinterface', $methods[3]->getFormattedHandlerIdentifier());
         static::assertSame('handler_shopware_recurringpaymenthandlerinterface', $methods[4]->getFormattedHandlerIdentifier());
+
+        if (Feature::isActive('v6.7.0.0')) {
+            return;
+        }
 
         static::assertTrue($methods[0]->isSynchronous());
         static::assertFalse($methods[0]->isAsynchronous());
@@ -99,10 +106,10 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         static::assertTrue($methods[4]->isRecurring());
     }
 
-    public function testMultipleHandlerInterface(): void
+    public function testFormatHandlerIdentifier(): void
     {
         $paymentMethods = [
-            $this->getPaymentMethod(MultipleTestPaymentHandler::class),
+            $this->getPaymentMethod(AppPaymentHandler::class),
         ];
 
         $event = new EntityLoadedEvent(
@@ -120,13 +127,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         static::assertContainsOnly(PaymentMethodEntity::class, $methods);
         static::assertCount(1, $methods);
 
-        static::assertSame('handler_shopware_multipletestpaymenthandler', $methods[0]->getFormattedHandlerIdentifier());
-
-        static::assertTrue($methods[0]->isSynchronous());
-        static::assertFalse($methods[0]->isAsynchronous());
-        static::assertFalse($methods[0]->isRefundable());
-        static::assertTrue($methods[0]->isPrepared());
-        static::assertFalse($methods[0]->isRecurring());
+        static::assertSame('handler_shopware_apppaymenthandler', $methods[0]->getFormattedHandlerIdentifier());
     }
 
     public function testNonNamespacedIdentifier(): void
@@ -152,6 +153,10 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
 
         static::assertSame('foo', $methods[0]->getFormattedHandlerIdentifier());
 
+        if (Feature::isActive('v6.7.0.0')) {
+            return;
+        }
+
         static::assertFalse($methods[0]->isSynchronous());
         static::assertFalse($methods[0]->isAsynchronous());
         static::assertFalse($methods[0]->isRefundable());
@@ -161,7 +166,9 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
 
     public function testAppPaymentMethod(): void
     {
-        $method1 = $this->getPaymentMethod();
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $method1 = $this->getPaymentMethod(SynchronousPaymentHandlerInterface::class);
         $method1->setAppPaymentMethod((new AppPaymentMethodEntity())->assign(['payUrl' => 'foo']));
 
         $method2 = $this->getPaymentMethod(AsynchronousPaymentHandlerInterface::class);
@@ -230,7 +237,7 @@ class PaymentHandlerIdentifierSubscriberTest extends TestCase
         static::assertTrue($methods[4]->isRecurring());
     }
 
-    private function getPaymentMethod(string $identifierClass = SynchronousPaymentHandlerInterface::class): PaymentMethodEntity
+    private function getPaymentMethod(string $identifierClass): PaymentMethodEntity
     {
         $entity = new PaymentMethodEntity();
         $entity->assign([

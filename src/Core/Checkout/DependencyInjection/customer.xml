@@ -146,6 +146,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber">
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
@@ -349,9 +354,22 @@
             <argument type="service" id="sales_channel.newsletter_recipient.repository" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService">
             <argument type="service" id="customer.repository" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator">
+            <argument type="string">%env(APP_SECRET)%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">

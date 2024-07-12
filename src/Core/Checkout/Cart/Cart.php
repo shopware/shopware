@@ -48,6 +48,8 @@ class Cart extends Struct
      */
     protected ?string $source = null;
 
+    protected ?string $hash = null;
+
     private ?CartDataCollection $data = null;
 
     /**
@@ -306,5 +308,15 @@ class Cart extends Struct
     public function setSource(?string $source): void
     {
         $this->source = $source;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(?string $hash): void
+    {
+        $this->hash = $hash;
     }
 }

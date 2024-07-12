@@ -127,6 +127,7 @@
             "mappingsTab": "Zuweisungen",
             "advancedTab": "Erweiterte Einstellungen",
             "profileNameFieldLabel": "Profilname",
+            "technicalNameFieldLabel": "Technischer Name",
             "objectTypeFieldLabel": "Objekt-Typ",
             "separatorFieldLabel": "Separator-Zeichen",
             "enclosureFieldLabel": "Einfassungszeichen",
@@ -155,6 +156,7 @@
             },
             "typeColumn": "Typ",
             "nameColumn": "Name",
+            "technicalNameColumn": "Technischer Name",
             "customTypeLabel": "Benutzerdefiniert",
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
@@ -227,6 +229,9 @@
             "startImportLabel": "Import starten",
             "startImportDryrunLabel": "Testlauf starten",
             "startExportLabel": "Export starten"
+        },
+        "errors": {
+            "CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME": "Der technische Name ist nicht eindeutig."
         }
     },
   "sw-privileges": {

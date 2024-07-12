@@ -63,13 +63,14 @@
       "baseCurrency": "Bezugswährung",
       "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei.",
       "labelVatIdRequired": "USt-ID ist Pflichtfeld",
+      "labelIsEu": "Mitgliedstaat der Europäischen Union",
       "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
       "titleOptions": "Optionen",
       "currencyDependentValues": "Währungsabhängige Werte",
       "labelPostalCodeRequired": "Postleitzahl ist Pflichtfeld",
       "labelCheckPostalCodePattern": "Postleitzahl validieren",
       "labelCheckAdvancedPostalCodePattern": "Erweiterte Validierungsregeln",
-      "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an...",
+      "placeholderAdvancedPostalCodePattern": "Gib ein Postleitzahl-Format an ...",
       "helpTextAdvancedPostalCodePattern": "Mögliche Formate: <br><br> ^\\d{5}$ - Genau 5 Ziffern, z. B. 12345 <br>^(\\d{4})\\s*([A-Z]{2})$ - Genau 4 Ziffern und 2 Buchstaben, z. B. 1234 AB",
       "labelCheckDefaultAddressFormat": "Benutzerdefiniertes Adressformat",
       "labelAddressFormatPlain": "Format",
@@ -77,11 +78,11 @@
       "helpTextCheckPostalCodePattern": "Erlaubt die Validierung von Postleitzahlen für eine Auswahl an Ländern",
       "previewTitle": "Vorschau",
       "labelCustomer": "Kunde",
-      "placeholderSelectCustomer": "Wähle einen Kunden aus...",
+      "placeholderSelectCustomer": "Wähle einen Kunden aus ...",
       "buttonResetMarkup": "Addressformat zurücksetzen",
       "newSnippetModalTitle": "Werte einfügen",
       "buttonInsertSnippet": "Wert einfügen",
-      "placeholderSearchSnippet": "Werte durchsuchen..."
+      "placeholderSearchSnippet": "Werte durchsuchen ..."
     }
   },
   "sw-country-state-detail": {

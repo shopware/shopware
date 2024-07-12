@@ -14,6 +14,8 @@ class PaymentDistinguishableNameGenerator
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(private readonly EntityRepository $paymentMethodRepository)
     {
@@ -25,6 +27,9 @@ class PaymentDistinguishableNameGenerator
             $payments = $this->getInstalledPayments($context);
 
             $upsertablePayments = $this->generateDistinguishableNamesPayload($payments);
+            if (empty($upsertablePayments)) {
+                return;
+            }
 
             $this->paymentMethodRepository->upsert($upsertablePayments, $context);
         });
@@ -38,14 +43,14 @@ class PaymentDistinguishableNameGenerator
             ->addAssociation('plugin.translations')
             ->addAssociation('appPaymentMethod.app.translations');
 
-        /** @var PaymentMethodCollection $payments */
-        $payments = $this->paymentMethodRepository
+        return $this->paymentMethodRepository
             ->search($criteria, $context)
             ->getEntities();
-
-        return $payments;
     }
 
+    /**
+     * @return array<array{id: string, distinguishableName: array<string, string>}>
+     */
     private function generateDistinguishableNamesPayload(PaymentMethodCollection $payments): array
     {
         $upsertablePayments = [];
@@ -54,19 +59,24 @@ class PaymentDistinguishableNameGenerator
                 continue;
             }
 
+            if ($payment->getPluginId() === null && $payment->getAppPaymentMethod() === null) {
+                continue;
+            }
+
             foreach ($payment->getTranslations() as $translation) {
                 $languageId = $translation->getLanguageId();
                 $paymentName = $translation->getName() ?? $payment->getTranslation('name');
+                $name = $this->generatePluginBasedName($payment, $languageId, $paymentName)
+                    ?? $this->generateAppBasedName($payment, $languageId, $paymentName);
 
-                if ($payment->getPluginId() === null && $payment->getAppPaymentMethod() === null) {
+                if (!$name) {
                     continue;
                 }
 
                 $upsertablePayments[] = [
                     'id' => $payment->getId(),
                     'distinguishableName' => [
-                        $languageId => $this->generatePluginBasedName($payment, $languageId, $paymentName)
-                            ?? $this->generateAppBasedName($payment, $languageId, $paymentName),
+                        $languageId => $name,
                     ],
                 ];
             }

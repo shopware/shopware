@@ -266,11 +266,6 @@ parameters:
 			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentDistinguishableNameGenerator\\:\\:generateDistinguishableNamesPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentDistinguishableNameGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Event\\\\PaymentMethodIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Event/PaymentMethodIndexerEvent.php

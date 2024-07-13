@@ -23,6 +23,27 @@ const mockCategories = [
     },
 ];
 
+const mockExtraCategories = [
+    {
+        name: 'New Category',
+        id: 'uuid4',
+        cmsPageId: null,
+        attributes: {
+            id: 'uuid4',
+        },
+        relationships: [],
+    },
+    {
+        name: 'Another New Category',
+        id: 'uuid5',
+        cmsPageId: null,
+        attributes: {
+            id: 'uuid5',
+        },
+        relationships: [],
+    },
+];
+
 const mockProducts = [
     {
         name: 'Product 1',
@@ -62,6 +83,17 @@ const mockLandingPages = [
     },
 ];
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/search/category',
+    status: 200,
+    response: {
+        data: mockExtraCategories,
+    },
+});
+
 async function createWrapper(layoutType = 'product_list') {
     return mount(await wrapTestComponent('sw-cms-layout-assignment-modal', {
         sync: true,
@@ -94,7 +126,13 @@ async function createWrapper(layoutType = 'product_list') {
                     template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
                 },
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-category-tree-field': true,
+                'sw-category-tree-field': {
+                    template: `
+                        <div class="sw-category-tree-field-stub">
+                          <div class="sw-category-tree-field-label" @click="$emit(\'categories-load-more\')"></div>
+                        </div>
+                      `,
+                },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-entity-single-select': {
                     props: ['value'],
@@ -111,6 +149,7 @@ async function createWrapper(layoutType = 'product_list') {
                 'sw-icon': true,
                 'sw-cms-product-assignment': true,
                 'sw-inheritance-switch': true,
+                'sw-label': true,
                 transition: false,
             },
             provide: {
@@ -149,6 +188,13 @@ async function createWrapper(layoutType = 'product_list') {
                 shortcutService: {
                     stopEventListener: () => {},
                     startEventListener: () => {},
+                },
+                categoryRepository: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve();
+                        },
+                    }),
                 },
             },
         },
@@ -1137,5 +1183,19 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             page2,
         ]));
         expect(wrapper.emitted('modal-close')).toBeUndefined();
+    });
+
+    it('increments categoryIndex and updates page.categories', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.categoryIndex).toBe(1);
+        expect(wrapper.vm.page.categories).toHaveLength(3);
+
+        await wrapper.find('.sw-category-tree-field-label').trigger('click');
+        await wrapper.vm.$nextTick();
+        await flushPromises();
+
+        expect(wrapper.vm.categoryIndex).toBe(2);
+        expect(wrapper.vm.page.categories).toHaveLength(5);
     });
 });

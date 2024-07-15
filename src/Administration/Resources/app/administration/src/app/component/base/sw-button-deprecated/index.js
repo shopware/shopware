@@ -20,6 +20,7 @@ Component.register('sw-button-deprecated', {
     template,
 
     compatConfig: {
+        ...Shopware.compatConfig,
         // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
         INSTANCE_ATTRS_CLASS_STYLE: false,
     },

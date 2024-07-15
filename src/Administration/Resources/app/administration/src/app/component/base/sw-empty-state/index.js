@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.register('sw-empty-state', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         title: {
             type: String,

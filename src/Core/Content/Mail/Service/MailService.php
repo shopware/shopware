@@ -158,7 +158,7 @@ class MailService extends AbstractMailService
 
         $mail = $this->mailFactory->create(
             $data['subject'],
-            [$senderEmail => $data['senderName']],
+            [(string) $senderEmail => $data['senderName']],
             $recipients,
             $contents,
             $mediaUrls,

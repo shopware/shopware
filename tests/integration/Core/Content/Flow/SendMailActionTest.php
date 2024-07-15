@@ -984,10 +984,6 @@ class TestEmailService extends MailService
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $data
-     * @param array<string, mixed> $templateData
-     */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $this->data = $data;

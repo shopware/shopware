@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuil
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -20,14 +21,6 @@ class MailFactory extends AbstractMailFactory
     {
     }
 
-    /**
-     * @param string[] $sender
-     * @param string[] $recipients
-     * @param string[] $contents
-     * @param string[] $attachments
-     * @param mixed[] $additionalData
-     * @param array<int, mixed[]>|null $binAttachments
-     */
     public function create(
         string $subject,
         array $sender,
@@ -57,7 +50,7 @@ class MailFactory extends AbstractMailFactory
             $mail->addAttachmentUrl($url);
         }
 
-        if (isset($binAttachments)) {
+        if (\is_array($binAttachments)) {
             foreach ($binAttachments as $binAttachment) {
                 $mail->attach(
                     $binAttachment['content'],
@@ -68,30 +61,20 @@ class MailFactory extends AbstractMailFactory
         }
 
         foreach ($additionalData as $key => $value) {
-            switch ($key) {
-                case 'recipientsCc':
-                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
-                    $this->assertValidAddresses(array_keys($mailAddresses));
-                    $mail->addCc(...$this->formatMailAddresses($mailAddresses));
-
-                    break;
-                case 'recipientsBcc':
-                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
-                    $this->assertValidAddresses(array_keys($mailAddresses));
-                    $mail->addBcc(...$this->formatMailAddresses($mailAddresses));
-
-                    break;
-                case 'replyTo':
-                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
-                    $this->assertValidAddresses(array_keys($mailAddresses));
-                    $mail->addReplyTo(...$this->formatMailAddresses($mailAddresses));
-
-                    break;
-                case 'returnPath':
-                    $mailAddresses = \is_array($value) ? $value : [$value => $value];
-                    $this->assertValidAddresses(array_keys($mailAddresses));
-                    $mail->returnPath(...$this->formatMailAddresses($mailAddresses));
+            if (!\is_array($value) && !\is_string($value)) {
+                continue;
             }
+            if (!\in_array($key, ['recipientsCc', 'recipientsBcc', 'replyTo', 'returnPath'], true)) {
+                continue;
+            }
+            $mailAddresses = \is_array($value) ? $value : [$value => $value];
+            $this->assertValidAddresses(array_keys($mailAddresses));
+            match ($key) {
+                'recipientsCc' => $mail->addCc(...$this->formatMailAddresses($mailAddresses)),
+                'recipientsBcc' => $mail->addBcc(...$this->formatMailAddresses($mailAddresses)),
+                'replyTo' => $mail->addReplyTo(...$this->formatMailAddresses($mailAddresses)),
+                'returnPath' => $mail->returnPath(...$this->formatMailAddresses($mailAddresses)),
+            };
         }
 
         return $mail;
@@ -103,7 +86,7 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
-     * @param string[] $addresses
+     * @param list<string> $addresses
      *
      * @throws ConstraintViolationException
      */
@@ -125,15 +108,15 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
-     * @param string[] $addresses
+     * @param array<string, string> $addresses
      *
-     * @return string[]
+     * @return list<Address>
      */
     private function formatMailAddresses(array $addresses): array
     {
         $formattedAddresses = [];
         foreach ($addresses as $mail => $name) {
-            $formattedAddresses[] = $name . ' <' . $mail . '>';
+            $formattedAddresses[] = new Address($mail, $name);
         }
 
         return $formattedAddresses;

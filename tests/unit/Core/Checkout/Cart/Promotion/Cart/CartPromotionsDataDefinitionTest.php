@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 /**
@@ -16,11 +15,8 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**
-     * This test verifies that automatic promotions
-     * are returned with an empty string as code value
-     * within its tuple object.
-     * We add 1 promotion without code, and verify the single tuple
-     * that will be generated.
+     * This test verifies that automatic promotions are returned with an empty string as code value within its tuple object.
+     * We add one promotion without code, and verify the single tuple that will be generated.
      */
     #[Group('promotions')]
     public function testAutomaticPromotionHasEmptyCode(): void
@@ -28,17 +24,14 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition = new CartPromotionsDataDefinition();
         $definition->addAutomaticPromotions([new PromotionEntity()]);
 
-        /** @var PromotionCodeTuple[] $tuples */
         $tuples = $definition->getPromotionCodeTuples();
 
-        static::assertEquals('', $tuples[0]->getCode());
+        static::assertSame('', $tuples[0]->getCode());
     }
 
     /**
-     * This test verifies that promotions with code get the
-     * correct code within its tuple object.
-     * We add 1 promotion with code, and verify the single tuple
-     * that will be generated.
+     * This test verifies that promotions with code get the correct code within its tuple object.
+     * We add one promotion with code, and verify the single tuple that will be generated.
      */
     #[Group('promotions')]
     public function testCodePromotionHasCorrectCode(): void
@@ -46,15 +39,13 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', [new PromotionEntity()]);
 
-        /** @var PromotionCodeTuple[] $tuples */
         $tuples = $definition->getPromotionCodeTuples();
 
-        static::assertEquals('codeA', $tuples[0]->getCode());
+        static::assertSame('codeA', $tuples[0]->getCode());
     }
 
     /**
-     * This test verifies we get 2 tuple objects for a code
-     * if we add 2 promotions for it.
+     * This test verifies we get two tuple objects for a code if we add two promotions for it.
      */
     #[Group('promotions')]
     public function testMultiplePromotionForCode(): void
@@ -62,17 +53,15 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', [new PromotionEntity(), new PromotionEntity()]);
 
-        /** @var PromotionCodeTuple[] $tuples */
         $tuples = $definition->getPromotionCodeTuples();
 
-        static::assertEquals('codeA', $tuples[0]->getCode());
-        static::assertEquals('codeA', $tuples[1]->getCode());
+        static::assertSame('codeA', $tuples[0]->getCode());
+        static::assertSame('codeA', $tuples[1]->getCode());
     }
 
     /**
-     * This test verifies that we can retrieve all added
-     * promotions as 1 single tuple list. This should combine all
-     * code promotions and the automatic promotions
+     * This test verifies that we can retrieve all added promotions as 1 single tuple list.
+     * This should combine all code promotions and the automatic promotions
      */
     #[Group('promotions')]
     public function testGetPromotionCodeTuplesAll(): void
@@ -90,10 +79,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
     }
 
     /**
-     * This test verifies that we get the correct flat list
-     * of added codes from the definition.
-     * This has to return the codes, even if the promotion list is
-     * empty for a code.
+     * This test verifies that we get the correct flat list of added codes from the definition.
+     * This has to return the codes, even if the promotion list is empty for a code.
      */
     #[Group('promotions')]
     public function testGetAllCodes(): void
@@ -103,13 +90,12 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition->addCodePromotions('codeB', []);
         $definition->addAutomaticPromotions([]);
 
-        static::assertEquals(['codeA', 'codeB'], $definition->getAllCodes());
+        static::assertSame(['codeA', 'codeB'], $definition->getAllCodes());
     }
 
     /**
-     * This test verifies that we can successfully remove a code
-     * including the promotions. We add 2 codes with a sum of 4 promotions
-     * and ensure we have 2 codes in the end.
+     * This test verifies that we can successfully remove a code including the promotions.
+     * We add two codes with a sum of four promotions and ensure we have two codes in the end.
      */
     #[Group('promotions')]
     public function testRemoveCode(): void
@@ -127,12 +113,11 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition->removeCode('codeB');
 
         static::assertCount(3, $definition->getPromotionCodeTuples());
-        static::assertEquals(['codeA'], $definition->getAllCodes());
+        static::assertSame(['codeA'], $definition->getAllCodes());
     }
 
     /**
-     * This test verifies that our hasCode returns
-     * true if we have an entry for the code.
+     * This test verifies that our hasCode returns true if we have an entry for the code.
      */
     #[Group('promotions')]
     public function testHasCodeIsTrueEvenIfEmpty(): void
@@ -144,8 +129,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
     }
 
     /**
-     * This test verifies that our hasCode returns
-     * false if we dont have an entry for the code.
+     * This test verifies that our hasCode returns false if we don't have an entry for the code.
      */
     #[Group('promotions')]
     public function testHasCodeIsFalse(): void
@@ -157,9 +141,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
     }
 
     /**
-     * This test verifies that we cast any code that is based on a number
-     * when creating tuples. Otherwise PHP would automatically use INT
-     * which would lead to an exception.
+     * This test verifies that we cast any code that is based on a number when creating tuples.
+     * Otherwise, PHP would automatically use integer which would lead to an exception.
      */
     #[Group('promotions')]
     public function testIntegerCodeIsCastedWhenBuildingTuples(): void
@@ -169,9 +152,8 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('100', [$promotion1]);
 
-        /** @var PromotionCodeTuple $tuple */
         $tuple = $definition->getPromotionCodeTuples()[0];
 
-        static::assertEquals('100', $tuple->getCode());
+        static::assertSame('100', $tuple->getCode());
     }
 }

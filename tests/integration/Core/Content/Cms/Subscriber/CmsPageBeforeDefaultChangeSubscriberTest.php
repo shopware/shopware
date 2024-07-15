@@ -35,8 +35,8 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
     {
         parent::setUp();
 
-        $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->cmsPageRepository = static::getContainer()->get('cms_page.repository');
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
     }
 
     #[DataProvider('validDefaultCmsPageDataProvider')]
@@ -45,17 +45,43 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         $this->createCmsPage($validCmsPageId);
 
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $validCmsPageId, $salesChannelId);
+    }
 
-        // assert no exception was thrown
-        static::assertTrue(true);
+    public static function validDefaultCmsPageDataProvider(): \Generator
+    {
+        $ids = new IdsCollection();
+
+        yield 'validCmsPageId with salesChanelId null' => [
+            'validCmsPageId' => $ids->get('validCmsPageId'),
+            'salesChannelId' => null,
+        ];
+
+        yield 'validCmsPageId with default salesChanelId' => [
+            'validCmsPageId' => $ids->get('validCmsPageId'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ];
     }
 
     #[DataProvider('invalidDefaultCmsPageDataProvider')]
-    public function testSetInvalidDefaultThrow(string $invalidCmsPageId, string $expectedException, ?string $salesChannelId): void
+    public function testSetInvalidDefaultThrow(string $invalidCmsPageId, ?string $salesChannelId): void
     {
-        /** @var class-string<\Throwable> $expectedException */
-        static::expectException($expectedException);
+        $this->expectException(PageNotFoundException::class);
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $invalidCmsPageId, $salesChannelId);
+    }
+
+    public static function invalidDefaultCmsPageDataProvider(): \Generator
+    {
+        $ids = new IdsCollection();
+
+        yield 'invalidCmsPageId with salesChanelId null' => [
+            'invalidCmsPageId' => $ids->get('invalidCmsPageId'),
+            'salesChannelId' => null,
+        ];
+
+        yield 'invalidCmsPageId with default salesChanelId' => [
+            'invalidCmsPageId' => $ids->get('invalidCmsPageId'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ];
     }
 
     public function testDeleteSalesChannelDefaultDoesNotThrow(): void
@@ -68,9 +94,6 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 
         // expect to be able to delete the default
         $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, TestDefaults::SALES_CHANNEL);
-
-        // assert no expection was thrown
-        static::assertTrue(true);
     }
 
     public function testDeleteOverallDefaultThrow(): void
@@ -80,10 +103,10 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         $this->createCmsPage($cmsPage);
 
         // set overall default
-        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage, null);
+        $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $cmsPage);
 
         try {
-            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null, null);
+            $this->systemConfigService->set(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, null);
         } catch (CmsException $exception) {
             static::assertEquals(CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE, $exception->getErrorCode());
             $exceptionWasThrown = true;
@@ -92,38 +115,6 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
                 static::fail('Expected exception with error code ' . CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE . ' to be thrown.');
             }
         }
-    }
-
-    public static function validDefaultCmsPageDataProvider(): \Generator
-    {
-        $ids = new IdsCollection();
-
-        yield [
-            $ids->get('validCmsPageId'),
-            null,
-        ];
-
-        yield [
-            $ids->get('validCmsPageId'),
-            TestDefaults::SALES_CHANNEL,
-        ];
-    }
-
-    public static function invalidDefaultCmsPageDataProvider(): \Generator
-    {
-        $ids = new IdsCollection();
-
-        yield [
-            $ids->get('invalidCmsPageId'),
-            PageNotFoundException::class,
-            null,
-        ];
-
-        yield [
-            $ids->get('invalidCmsPageId'),
-            PageNotFoundException::class,
-            TestDefaults::SALES_CHANNEL,
-        ];
     }
 
     private function createCmsPage(string $cmsPageId): void

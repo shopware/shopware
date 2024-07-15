@@ -26,13 +26,12 @@ class StringFieldTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @param bool|string|null $input
-     * @param Flag[] $flags
+     * @param list<Flag> $flags
      */
     #[DataProvider('stringFieldDataProvider')]
-    public function testStringFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
+    public function testStringFieldSerializer(string $type, bool|string|null $input, ?string $expected, array $flags = []): void
     {
-        $serializer = $this->getContainer()->get(StringFieldSerializer::class);
+        $serializer = static::getContainer()->get(StringFieldSerializer::class);
 
         $name = 'string_' . Uuid::randomHex();
         $data = new KeyValuePair($name, $input, false);
@@ -70,7 +69,7 @@ class StringFieldTest extends TestCase
     }
 
     /**
-     * @return list<array{string, bool|string|null, ?string, Flag[]}>
+     * @return list<array{string, bool|string|null, ?string, list<Flag>}>
      */
     public static function stringFieldDataProvider(): array
     {
@@ -97,13 +96,8 @@ class StringFieldTest extends TestCase
         return $mockBuilder->getMock();
     }
 
-    private function getEntityExisting(): EntityExistence
-    {
-        return new EntityExistence(null, [], true, false, false, []);
-    }
-
     /**
-     * @param Flag[] $flags
+     * @param list<Flag> $flags
      */
     private function getStringField(string $name, array $flags = []): StringField
     {

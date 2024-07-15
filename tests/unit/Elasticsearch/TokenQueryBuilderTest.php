@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Elasticsearch\Product;
+namespace Shopware\Tests\Unit\Elasticsearch;
 
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,16 +15,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -32,19 +28,17 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Elasticsearch\ElasticsearchException;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchConfigLoader;
+use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\TokenQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
-#[CoversClass(AbstractProductSearchQueryBuilder::class)]
-#[CoversClass(ProductSearchQueryBuilder::class)]
-class ProductSearchQueryBuilderTest extends TestCase
+#[CoversClass(TokenQueryBuilder::class)]
+class TokenQueryBuilderTest extends TestCase
 {
     private const SECOND_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20c';
 
@@ -54,7 +48,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
-            new CustomFieldServiceStub([
+            new CustomFieldServiceMock([
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
@@ -62,79 +56,48 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    public function testBuildEmptyQuery(): void
+    public function testBuildWithInvalidField(): void
     {
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty query provided');
-
-        $builder = $this->getBuilder([
-            self::config(field: 'restockTime', ranking: 500, tokenize: true, and: false),
-        ]);
-
-        $criteria = new Criteria();
-        $criteria->setTerm('foo');
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
-
-        static::assertSame([], $parsed->toArray());
+        $query = $this->tokenQueryBuilder->build('product', 'foo', [
+            self::config(field: 'invalid', ranking: 1500),
+        ], []);
+        static::assertNull($query);
     }
 
     public function testBuildWithoutFields(): void
     {
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty query provided');
-
-        $builder = $this->getBuilder(null);
-
-        $criteria = new Criteria();
-
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
-
-        static::assertSame([], $parsed->toArray());
+        $query = $this->tokenQueryBuilder->build('product', 'foo', [], []);
+        static::assertNull($query);
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}} $config
+     * @param SearchFieldConfig[] $config
      * @param array{string: mixed} $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
     public function testBuildSingleLanguage(array $config, string $term, array $expected): void
     {
-        $builder = $this->getBuilder($config);
+        $query = $this->tokenQueryBuilder->build('product', $term, $config, [Defaults::LANGUAGE_SYSTEM]);
 
-        $criteria = new Criteria();
-        $criteria->setTerm($term);
-
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
-
-        static::assertSame($expected, $parsed->toArray());
+        static::assertNotNull($query);
+        static::assertSame($expected, $query->toArray());
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int}} $config
+     * @param SearchFieldConfig[] $config
      * @param array{string: mixed} $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
     public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
     {
-        $builder = $this->getBuilder($config);
+        $query = $this->tokenQueryBuilder->build('product', $term, $config, [Defaults::LANGUAGE_SYSTEM, self::SECOND_LANGUAGE_ID]);
 
-        $criteria = new Criteria();
-        $criteria->setTerm($term);
-
-        $context = new Context(
-            new SystemSource(),
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM, self::SECOND_LANGUAGE_ID],
-        );
-
-        $parsed = $builder->build($criteria, $context);
-
-        static::assertEquals($expected, $parsed->toArray());
+        static::assertNotNull($query);
+        static::assertEquals($expected, $query->toArray());
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
      */
     public static function buildSingleLanguageProvider(): iterable
     {
@@ -146,13 +109,13 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
             ],
             'term' => 'foo',
-            'expected' => self::bool([self::bool([
+            'expected' => self::bool([
                 self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM),
                 self::nested('tags', self::textMatch('tags.name', 'foo', 500)),
-            ])]),
+            ]),
         ];
 
-        yield 'Test multiple fields with terms' => [
+        yield 'Test multiple fields' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000),
                 self::config(field: 'ean', ranking: 2000),
@@ -161,23 +124,10 @@ class ProductSearchQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::bool([
-                    self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                    self::textMatch('ean', 'foo', 2000, null, false),
-                    self::nested('tags', self::textMatch('tags.name', 'foo', 500, null, false)),
-                ]),
-                self::bool([
-                    self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                    self::textMatch('ean', '2023', 2000, null, false),
-                    self::term('restockTime', 2023, 7500),
-                    self::nested('tags', self::textMatch('tags.name', '2023', 500, null, false)),
-                ]),
-                self::bool([
-                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                    self::textMatch('ean', 'foo 2023', 2000, null, false),
-                    self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
-                ]),
-            ], BoolQuery::MUST),
+                self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
+                self::textMatch('ean', 'foo 2023', 2000, null, false),
+                self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
+            ]),
         ];
 
         yield 'Test multiple custom fields with terms' => [
@@ -187,22 +137,18 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
                 self::config(field: 'categories.childCount', ranking: 500),
             ],
-            'term' => 'foo 2023',
+            'term' => '2023',
             'expected' => self::bool([
-                self::textMatch($prefix . 'evolvesText', 'foo', 500, null, false),
-                self::bool([
-                    self::textMatch($prefix . 'evolvesText', '2023', 500, null, false),
-                    self::term($prefix . 'evolvesInt', 2023, 2000),
-                    self::term($prefix . 'evolvesFloat', 2023.0, 2500),
-                    self::nested('categories', self::term('categories.childCount', 2023, 2500)),
-                ]),
-                self::textMatch($prefix . 'evolvesText', 'foo 2023', 500, null, false),
-            ], BoolQuery::MUST),
+                self::textMatch($prefix . 'evolvesText', '2023', 500, null, false),
+                self::term($prefix . 'evolvesInt', 2023, 2000),
+                self::term($prefix . 'evolvesFloat', 2023.0, 2500),
+                self::nested('categories', self::term('categories.childCount', 2023, 2500)),
+            ]),
         ];
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -216,7 +162,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'categories.name', ranking: 200, tokenize: true, and: false),
             ],
             'term' => 'foo',
-            'expected' => self::bool([self::bool([
+            'expected' => self::bool([
                 self::disMax([
                     self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM),
                     self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID),
@@ -226,7 +172,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     self::textMatch('categories.name', 'foo', 200, Defaults::LANGUAGE_SYSTEM),
                     self::textMatch('categories.name', 'foo', 160, self::SECOND_LANGUAGE_ID),
                 ])),
-            ])]),
+            ]),
         ];
 
         yield 'Test multiple fields with terms' => [
@@ -238,67 +184,52 @@ class ProductSearchQueryBuilderTest extends TestCase
             ],
             'term' => 'foo 2023',
             'expected' => self::bool([
-                self::bool([
-                    self::disMax([
-                        self::textMatch('name', 'foo', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                        self::textMatch('name', 'foo', 800, self::SECOND_LANGUAGE_ID, false),
-                    ]),
-                    self::textMatch('ean', 'foo', 2000, null, false),
-                    self::nested('tags', self::textMatch('tags.name', 'foo', 500, null, false)),
+                self::disMax([
+                    self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
+                    self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
                 ]),
-                self::bool([
-                    self::disMax([
-                        self::textMatch('name', '2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                        self::textMatch('name', '2023', 800, self::SECOND_LANGUAGE_ID, false),
-                    ]),
-                    self::textMatch('ean', '2023', 2000, null, false),
-                    self::term('restockTime', 2023, 7500),
-                    self::nested('tags', self::textMatch('tags.name', '2023', 500, null, false)),
-                ]),
-                self::bool([
-                    self::disMax([
-                        self::textMatch('name', 'foo 2023', 1000, Defaults::LANGUAGE_SYSTEM, false),
-                        self::textMatch('name', 'foo 2023', 800, self::SECOND_LANGUAGE_ID, false),
-                    ]),
-                    self::textMatch('ean', 'foo 2023', 2000, null, false),
-                    self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
-                ]),
-            ], BoolQuery::MUST),
+                self::textMatch('ean', 'foo 2023', 2000, null, false),
+                self::nested('tags', self::textMatch('tags.name', 'foo 2023', 500, null, false)),
+            ]),
         ];
 
-        yield 'Test multiple custom fields with terms' => [
+        yield 'Test multiple custom fields with numeric term' => [
             'config' => [
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
                 self::config(field: 'categories.childCount', ranking: 500),
             ],
-            'term' => 'foo 2023',
+            'term' => '2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
-                    self::textMatch($prefixCfLang2 . 'evolvesText', 'foo', 400, null, false),
-                ]),
-                self::bool([
-                    self::disMax([
-                        self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
-                        self::textMatch($prefixCfLang2 . 'evolvesText', '2023', 400, null, false),
-                    ]),
-                    self::disMax([
-                        self::term($prefixCfLang1 . 'evolvesInt', 2023, 2000),
-                        self::term($prefixCfLang2 . 'evolvesInt', 2023, 1600),
-                    ]),
-                    self::disMax([
-                        self::term($prefixCfLang1 . 'evolvesFloat', 2023, 2500),
-                        self::term($prefixCfLang2 . 'evolvesFloat', 2023, 2000),
-                    ]),
-                    self::nested('categories', self::term('categories.childCount', 2023, 2500)),
+                    self::textMatch($prefixCfLang1 . 'evolvesText', '2023', 500, null, false),
+                    self::textMatch($prefixCfLang2 . 'evolvesText', '2023', 400, null, false),
                 ]),
                 self::disMax([
-                    self::textMatch($prefixCfLang1 . 'evolvesText', 'foo 2023', 500, null, false),
-                    self::textMatch($prefixCfLang2 . 'evolvesText', 'foo 2023', 400, null, false),
+                    self::term($prefixCfLang1 . 'evolvesInt', 2023, 2000),
+                    self::term($prefixCfLang2 . 'evolvesInt', 2023, 1600),
                 ]),
-            ], BoolQuery::MUST),
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesFloat', 2023, 2500),
+                    self::term($prefixCfLang2 . 'evolvesFloat', 2023, 2000),
+                ]),
+                self::nested('categories', self::term('categories.childCount', 2023, 2500)),
+            ]),
+        ];
+
+        yield 'Test multiple custom fields with text term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesText', ranking: 500),
+                self::config(field: 'customFields.evolvesInt', ranking: 400),
+                self::config(field: 'customFields.evolvesFloat', ranking: 500),
+                self::config(field: 'categories.childCount', ranking: 500),
+            ],
+            'term' => 'foo',
+            'expected' => self::disMax([
+                self::textMatch($prefixCfLang1 . 'evolvesText', 'foo', 500, null, false),
+                self::textMatch($prefixCfLang2 . 'evolvesText', 'foo', 400, null, false),
+            ]),
         ];
     }
 
@@ -342,48 +273,20 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}}|null $config
-     */
-    private function getBuilder(?array $config): ProductSearchQueryBuilder
+    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true): SearchFieldConfig
     {
-        $configLoader = $this->createMock(SearchConfigLoader::class);
-        $configLoader->method('load')->willReturn($config ?? []);
-
-        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
-        $tokenFilter->method('filter')->willReturnArgument(0);
-
-        return new ProductSearchQueryBuilder(
-            $this->getDefinition(),
-            $tokenFilter,
-            new Tokenizer(2),
-            $configLoader,
-            $this->tokenQueryBuilder
-        );
+        return new SearchFieldConfig($field, $ranking, $tokenize, $and);
     }
 
     /**
-     * @return array{and_logic: string, field: string, tokenize: int, ranking: float}
+     * @return array{term: array<string, array{value: string|int|float, boost: int|float}>}
      */
-    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true): array
-    {
-        return [
-            'and_logic' => $and ? '1' : '0',
-            'field' => $field,
-            'tokenize' => $tokenize ? 1 : 0,
-            'ranking' => $ranking,
-        ];
-    }
-
-    /**
-     * @return array{term: array<string, array{value: string|int|float, boost: float}>}
-     */
-    private static function term(string $field, string|int|float $query, float $boost): array
+    private static function term(string $field, string|int|float $query, int|float $boost): array
     {
         return [
             'term' => [
                 $field => [
-                    'boost' => $boost,
+                    'boost' => (float) $boost,
                     'value' => $query,
                 ],
             ],
@@ -408,7 +311,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function textMatch(string $field, string|int|float $query, float $boost, ?string $languageId = null, ?bool $tokenized = true): array
+    private static function textMatch(string $field, string|int|float $query, int|float $boost, ?string $languageId = null, ?bool $tokenized = true): array
     {
         if ($languageId !== null) {
             $field .= '.' . $languageId;
@@ -418,6 +321,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             self::match($field . '.search', $query, $boost * 5),
             self::matchPhrasePrefix($field . '.search', $query, $boost * 4),
         ];
+
         if ($tokenized) {
             $queries[] = self::match($field . '.search', $query, $boost * 3, 'auto');
             $queries[] = self::match($field . '.ngram', $query, $boost * 2, null);
@@ -431,11 +335,11 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @return array{match: array<string, array{query: string|int|float, boost: float, fuzziness?: int|string|null}>}
      */
-    private static function match(string $field, string|int|float $query, float $boost, int|string|null $fuzziness = 0): array
+    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = 0): array
     {
         $payload = [
             'query' => $query,
-            'boost' => $boost,
+            'boost' => (float) $boost,
         ];
 
         if ($fuzziness !== null) {
@@ -468,11 +372,11 @@ class ProductSearchQueryBuilderTest extends TestCase
      *
      * @return array{ bool: array<string, array<mixed>> }
      */
-    private static function bool(array $queries, string $operator = BoolQuery::SHOULD): array
+    private static function bool(array $queries): array
     {
         return [
             'bool' => [
-                $operator => $queries,
+                BoolQuery::SHOULD => $queries,
             ],
         ];
     }
@@ -498,7 +402,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 /**
  * @internal
  */
-class CustomFieldServiceStub extends CustomFieldService
+class CustomFieldServiceMock extends CustomFieldService
 {
     /**
      * @internal

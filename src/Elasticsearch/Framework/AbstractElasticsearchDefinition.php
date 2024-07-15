@@ -25,7 +25,7 @@ abstract class AbstractElasticsearchDefinition
 
     final public const SEARCH_FIELD = [
         'fields' => [
-            'search' => ['type' => 'text'],
+            'search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer'],
             'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
         ],
     ];

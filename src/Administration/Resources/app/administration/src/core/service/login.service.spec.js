@@ -47,6 +47,7 @@ describe('core/service/login.service.js', () => {
     beforeEach(() => {
         window.localStorage.removeItem('redirectFromLogin');
         cookieStorageMock = '';
+        Shopware.Application.view.router = undefined;
     });
 
     it('should contain all public functions', async () => {
@@ -398,5 +399,32 @@ describe('core/service/login.service.js', () => {
         expect(JSON.parse(clientMock.history.post[0].data).grant_type).toBe('password');
 
         expect(clientMock.history.post[1]).toBeUndefined();
+    });
+
+    it('should set logout refresh cookie correctly', async () => {
+        // Mock Router
+        Shopware.Application.getApplicationRoot = jest.fn(() => {
+            return {
+                $router: {
+                    currentRoute: {
+                        value: {
+                            fullPath: '/sw/dashboard/index',
+                        },
+                    },
+                    push: jest.fn(),
+                },
+            };
+        });
+        const { loginService } = loginServiceFactory();
+
+        const cookieStorage = loginService.getStorage();
+
+        // Check if refresh-after-logout cookie is not set before logout
+        expect(cookieStorage.getItem('refresh-after-logout')).toBeNull();
+
+        loginService.logout();
+
+        // Check if refresh-after-logout cookie is set after logout
+        expect(cookieStorage.getItem('refresh-after-logout')).toBe('true');
     });
 });

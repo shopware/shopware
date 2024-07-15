@@ -71,6 +71,7 @@ class AttributeEntityCompiler
         AutoIncrement::class,
         Serialized::class,
         ForeignKey::class,
+        StateMachineState::class,
         Version::class,
         Field::class,
         OneToMany::class,
@@ -231,6 +232,7 @@ class AttributeEntityCompiler
 
         return match (true) {
             $field instanceof Translations => [$entity . '_translation', $entity . '_id'],
+            $field instanceof StateMachineState => [$storage, $property->getName(), $field->stateMachineName, $field->allowedWriteScopes],
             $field instanceof ForeignKey => [$storage, $property->getName(), $field->entity],
             $field instanceof OneToOne => [$property->getName(), $storageFk, $field->ref, $field->entity, false],
             $field instanceof ManyToOne => [$property->getName(), $storageFk, $field->entity, $field->ref],

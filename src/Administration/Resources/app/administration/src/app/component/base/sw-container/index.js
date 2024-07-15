@@ -20,6 +20,8 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-container', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         columns: {
             type: String,

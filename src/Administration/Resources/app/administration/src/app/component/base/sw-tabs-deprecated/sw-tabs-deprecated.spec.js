@@ -36,18 +36,6 @@ async function mountSwTabs(routes) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
-    // const router = createRouter({
-    //     routes: [
-    //         {
-    //             name: 'index',
-    //             path: '/',
-    //             component: {},
-    //         },
-    //         ...routes,
-    //     ],
-    //     history: createWebHashHistory(),
-    // });
-    // router.
     routes.forEach((route) => {
         router.addRoute(route);
     });

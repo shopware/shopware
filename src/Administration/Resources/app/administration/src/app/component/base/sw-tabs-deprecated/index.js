@@ -38,6 +38,7 @@ Component.register('sw-tabs-deprecated', {
             onNewItemActive: this.registerOnNewItemActiveHandler,
             registerNewTabItem: this.registerNewTabItem,
             unregisterNewTabItem: this.unregisterNewTabItem,
+            swTabsSetActiveItem: this.setActiveItem,
         };
     },
 

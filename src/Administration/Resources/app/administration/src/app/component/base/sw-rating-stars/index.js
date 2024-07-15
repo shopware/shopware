@@ -18,6 +18,8 @@ const { Component } = Shopware;
 Component.register('sw-rating-stars', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: Number,

@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-sorting-select', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         sortBy: {
             type: String,

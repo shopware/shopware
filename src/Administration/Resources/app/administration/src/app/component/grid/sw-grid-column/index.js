@@ -59,6 +59,14 @@ Component.register('sw-grid-column', {
         parentGrid() {
             return this.$parent.$parent.$parent.$parent;
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     watch: {

@@ -12,6 +12,8 @@ const { hasOwnProperty } = Shopware.Utils.object;
 Component.register('sw-desktop', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature', 'appUrlChangeService', 'userActivityApiService'],
 
     data() {

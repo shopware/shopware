@@ -28,6 +28,8 @@ const { Component } = Shopware;
 Component.register('sw-card-view', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         showErrorSummary: {
             type: Boolean,

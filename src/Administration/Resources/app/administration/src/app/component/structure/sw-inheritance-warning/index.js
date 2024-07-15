@@ -17,6 +17,9 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-inheritance-warning', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     props: {
         name: {
             type: String,

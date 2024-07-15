@@ -32,6 +32,9 @@ return [
 
         // Property type change from int to float
         'Type of property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\DaysSinceRule#$daysPassed changed from int|null to float|null',
+        'The parameter $ranking of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#\_\_construct\(\) changed from int to int|float',
+        'The return type of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#getRanking\(\) changed from int to the non-covariant int|float',
+        'The return type of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#getRanking\(\) changed from int to int|float',
 
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',

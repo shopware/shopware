@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 readonly class ServiceRegistryEntry
 {
-    public function __construct(public string $name, public string $description, public string $host, public string $appEndpoint)
+    public function __construct(public string $name, public string $description, public string $host, public string $appEndpoint, public bool $activateOnInstall = true)
     {
     }
 }

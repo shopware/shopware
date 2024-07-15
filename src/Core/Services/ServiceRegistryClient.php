@@ -56,6 +56,7 @@ class ServiceRegistryClient
                     $service['label'],
                     $service['host'],
                     $service['app-endpoint'],
+                    (bool) ($service['activate-on-install'] ?? true),
                 ),
                 $response->toArray()
             );

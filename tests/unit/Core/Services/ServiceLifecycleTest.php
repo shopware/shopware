@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
@@ -31,69 +32,90 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 #[CoversClass(ServiceLifecycle::class)]
 class ServiceLifecycleTest extends TestCase
 {
+    private AbstractAppLifecycle&MockObject $appLifecycle;
+
+    private ServiceRegistryEntry $entry;
+
+    private LoggerInterface&MockObject $logger;
+
+    private ManifestFactory&MockObject $manifestFactory;
+
+    private ServiceClient&MockObject $serviceClient;
+
+    private ServiceClientFactory&MockObject $serviceClientFactory;
+
+    private ServiceRegistryClient&MockObject $serviceRegistryClient;
+
+    private ServiceSourceResolver&MockObject $sourceResolver;
+
+    private AppInfo $appInfo;
+
+    protected function setUp(): void
+    {
+        $this->appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $this->entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
+        $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->serviceClient = $this->createMock(ServiceClient::class);
+        $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $this->serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $this->sourceResolver = $this->createMock(ServiceSourceResolver::class);
+    }
+
+    /**
+     * @param array<AppEntity> $apps
+     *
+     * @return StaticEntityRepository<AppCollection>
+     */
+    private function buildAppRepository(array $apps = []): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection($apps),
+        ]);
+
+        return $appRepository;
+    }
+
     public function testInstallLogsErrorIfAppCannotBeDownloaded(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServicesException::missingAppVersionInfo());
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([]);
+        $this->manifestFactory->expects(static::never())->method('createFromXmlFile');
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServicesException::missingAppVersionInfo());
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->appLifecycle->expects(static::never())->method('install');
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
-
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->expects(static::never())->method('createFromXmlFile');
-
-        $appLifecycle->expects(static::never())->method('install');
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger
+        $this->logger
             ->expects(static::once())
             ->method('error')
             ->with('Cannot install service "MyCoolService" because of error: "Error downloading app. The version information was missing."');
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
-        $lifecycle->install($entry);
+        $lifecycle->install($this->entry);
     }
 
     public function testInstallLogsErrorIfAppCannotBeInstalled(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-        $appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([]);
         $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
-        $logger = $this->createMock(LoggerInterface::class);
-
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
-        $sourceResolver->expects(static::once())
+        $this->sourceResolver->expects(static::once())
             ->method('filesystemForVersion')
-            ->with($appInfo)
+            ->with($this->appInfo)
             ->willReturn(new StaticFilesystem());
 
         $manifest = $this->createManifest();
@@ -104,64 +126,53 @@ class ServiceLifecycleTest extends TestCase
             ->with('/app-root/manifest.xml')
             ->willReturn($manifest);
 
-        $appLifecycle->expects(static::once())
+        $this->appLifecycle->expects(static::once())
             ->method('install')
             ->willThrowException(AppException::notCompatible('MyCoolService'));
 
-        $logger
+        $this->logger
             ->expects(static::once())
             ->method('error')
             ->with('Cannot install service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
             $manifestFactory,
-            $sourceResolver
+            $this->sourceResolver
         );
 
-        static::assertFalse($lifecycle->install($entry));
+        static::assertFalse($lifecycle->install($this->entry));
     }
 
     public function testInstall(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-        $appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([]);
         $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
-        $logger = $this->createMock(LoggerInterface::class);
 
         $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
-        $sourceResolver->expects(static::once())
+        $this->sourceResolver->expects(static::once())
             ->method('filesystemForVersion')
-            ->with($appInfo)
+            ->with($this->appInfo)
             ->willReturn(new StaticFilesystem());
 
         $manifest = $this->createManifest();
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory
+        $this->manifestFactory
             ->expects(static::once())
             ->method('createFromXmlFile')
             ->with('/app-root/manifest.xml')
             ->willReturn($manifest);
 
-        $appLifecycle->expects(static::once())
+        $this->appLifecycle->expects(static::once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(function (Manifest $manifest, bool $activate): void {
+                static::assertTrue($activate);
                 static::assertSame('https://mycoolservice.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -174,13 +185,63 @@ class ServiceLifecycleTest extends TestCase
             });
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
+        );
+
+        static::assertTrue($lifecycle->install($this->entry));
+    }
+
+    public function testInstallDoesNotActivateIfRegistryEntrySpecifiesNotTo(): void
+    {
+        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app', activateOnInstall: false);
+
+        $tempDirectoryFactory = $this->createMock(AbstractTemporaryDirectoryFactory::class);
+        $tempDirectoryFactory->method('path')->willReturn('/tmp/path');
+
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($this->serviceClient);
+
+        $this->sourceResolver->expects(static::once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $manifest = $this->createManifest();
+        $this->manifestFactory
+            ->expects(static::once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willReturn($manifest);
+
+        $this->appLifecycle->expects(static::once())
+            ->method('install')
+            ->willReturnCallback(function (Manifest $manifest, bool $activate): void {
+                static::assertFalse($activate);
+                static::assertSame('https://mycoolservice.com', $manifest->getPath());
+                static::assertSame([
+                    'version' => '6.6.0.0',
+                    'hash' => 'a1bcd',
+                    'revision' => '6.6.0.0-a1bcd',
+                    'zip-url' => 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0',
+                ], $manifest->getSourceConfig());
+                static::assertTrue($manifest->getMetadata()->isSelfManaged());
+                static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
+            });
+
+        $lifecycle = new ServiceLifecycle(
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertTrue($lifecycle->install($entry));
@@ -190,26 +251,16 @@ class ServiceLifecycleTest extends TestCase
     {
         static::expectExceptionObject(ServicesException::notFound('name', 'MyCoolService'));
 
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[]]);
-        $logger = $this->createMock(LoggerInterface::class);
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-
-        $serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($entry);
+        $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $this->createMock(ServiceSourceResolver::class)
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -217,45 +268,33 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateLogsErrorIfAppCannotBeDownloaded(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService']);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[$app]]);
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServicesException::missingAppVersionInfo());
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willThrowException(ServicesException::missingAppVersionInfo());
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
+        $this->manifestFactory->expects(static::never())->method('createFromXmlFile');
 
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->expects(static::never())->method('createFromXmlFile');
+        $this->appLifecycle->expects(static::never())->method('update');
 
-        $appLifecycle->expects(static::never())->method('update');
-
-        $logger
+        $this->logger
             ->expects(static::once())
             ->method('error')
             ->with('Cannot update service "MyCoolService" because of error: "Error downloading app. The version information was missing."');
 
-        $serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($entry);
+        $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository([$app]),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -263,41 +302,30 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateDoesNotPerformUpdateIfNoNewVersionIsAvailable(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
         $appInfo = new AppInfo('MyCoolService', '6.0.0.0', 'a1bcd', '6.0.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
 
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService', 'version' => '6.0.0.0-a1bcd', 'aclRoleId' => Uuid::randomHex()]);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[$app]]);
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
+        $this->manifestFactory->expects(static::never())->method('createFromXmlFile');
 
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->expects(static::never())->method('createFromXmlFile');
+        $this->appLifecycle->expects(static::never())->method('update');
 
-        $appLifecycle->expects(static::never())->method('update');
-
-        $serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($entry);
+        $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository([$app]),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertTrue($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -305,57 +333,45 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateLogsErrorIfAppCannotBeUpdated(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-        $appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService', 'version' => '8.0.0', 'aclRoleId' => Uuid::randomHex()]);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[$app]]);
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
-        $sourceResolver->expects(static::once())
+        $this->sourceResolver->expects(static::once())
             ->method('filesystemForVersion')
-            ->with($appInfo)
+            ->with($this->appInfo)
             ->willReturn(new StaticFilesystem());
 
         $manifest = $this->createManifest();
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory
+        $this->manifestFactory
             ->expects(static::once())
             ->method('createFromXmlFile')
             ->with('/app-root/manifest.xml')
             ->willReturn($manifest);
 
-        $appLifecycle->expects(static::once())
+        $this->appLifecycle->expects(static::once())
             ->method('update')
             ->willThrowException(AppException::notCompatible('MyCoolService'));
 
-        $logger
+        $this->logger
             ->expects(static::once())
             ->method('error')
             ->with('Cannot update service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
-        $serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($entry);
+        $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository([$app]),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -363,39 +379,27 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdate(): void
     {
-        $entry = new ServiceRegistryEntry('MyCoolService', 'MyCoolService', 'https://mycoolservice.com', '/service/lifecycle/choose-app');
-        $appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://mycoolservice.com/service/lifecycle/app-zip/6.6.0.0');
-
-        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
-        $serviceClientFactory = $this->createMock(ServiceClientFactory::class);
-        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setUniqueIdentifier(Uuid::randomHex());
         $app->assign(['name' => 'MyCoolService', 'version' => '6.0.0', 'aclRoleId' => Uuid::randomHex()]);
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[$app]]);
-        $logger = $this->createMock(LoggerInterface::class);
 
-        $serviceClient = $this->createMock(ServiceClient::class);
-        $serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($appInfo);
-        $serviceClientFactory->expects(static::once())->method('newFor')->with($entry)->willReturn($serviceClient);
+        $this->serviceClient->expects(static::once())->method('latestAppInfo')->willReturn($this->appInfo);
+        $this->serviceClientFactory->expects(static::once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
 
-        $sourceResolver = $this->createMock(ServiceSourceResolver::class);
-        $sourceResolver->expects(static::once())
+        $this->sourceResolver->expects(static::once())
             ->method('filesystemForVersion')
-            ->with($appInfo)
+            ->with($this->appInfo)
             ->willReturn(new StaticFilesystem());
 
         $manifest = $this->createManifest();
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory
+        $this->manifestFactory
             ->expects(static::once())
             ->method('createFromXmlFile')
             ->with('/app-root/manifest.xml')
             ->willReturn($manifest);
 
-        $appLifecycle->expects(static::once())
+        $this->appLifecycle->expects(static::once())
             ->method('update')
             ->willReturnCallback(function (Manifest $manifest): void {
                 static::assertSame('https://mycoolservice.com', $manifest->getPath());
@@ -409,16 +413,16 @@ class ServiceLifecycleTest extends TestCase
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
             });
 
-        $serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($entry);
+        $this->serviceRegistryClient->expects(static::once())->method('get')->with('MyCoolService')->willReturn($this->entry);
 
         $lifecycle = new ServiceLifecycle(
-            $serviceRegistryClient,
-            $serviceClientFactory,
-            $appLifecycle,
-            $appRepo,
-            $logger,
-            $manifestFactory,
-            $sourceResolver
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository([$app]),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver
         );
 
         static::assertTrue($lifecycle->update('MyCoolService', Context::createDefaultContext()));

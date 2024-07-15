@@ -58,7 +58,7 @@ class ServiceLifecycle
         $manifest = $this->createManifest($fs->path('manifest.xml'), $serviceEntry->host, $appInfo);
 
         try {
-            $this->appLifecycle->install($manifest, true, Context::createDefaultContext());
+            $this->appLifecycle->install($manifest, $serviceEntry->activateOnInstall, Context::createDefaultContext());
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
             return true;

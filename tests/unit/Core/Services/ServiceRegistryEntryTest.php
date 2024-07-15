@@ -21,4 +21,18 @@ class ServiceRegistryEntryTest extends TestCase
         static::assertEquals('My Cool Service', $entry->description);
         static::assertEquals('/service/lifecycle/choose-app', $entry->appEndpoint);
     }
+
+    public function testServiceRegistryEntryDefaultsToActivateOnInstall(): void
+    {
+        $entry = new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://some-service.com', '/service/lifecycle/choose-app');
+
+        static::assertTrue($entry->activateOnInstall);
+    }
+
+    public function testCanConfigureToNotActivateOnInstall(): void
+    {
+        $entry = new ServiceRegistryEntry('MyCoolService', 'My Cool Service', 'https://some-service.com', '/service/lifecycle/choose-app', false);
+
+        static::assertFalse($entry->activateOnInstall);
+    }
 }

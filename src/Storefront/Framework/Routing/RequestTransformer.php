@@ -75,12 +75,13 @@ class RequestTransformer implements RequestTransformerInterface
     /**
      * @var array<string>
      */
-    private array $whitelist = [
+    private array $allowedList = [
         '/_wdt/',
         '/_profiler/',
         '/_error/',
         '/payment/finalize-transaction',
         '/installer',
+        '/_fragment/',
     ];
 
     /**
@@ -243,7 +244,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
         }
 
-        foreach ($this->whitelist as $prefix) {
+        foreach ($this->allowedList as $prefix) {
             if (str_starts_with($pathInfo, $prefix)) {
                 return false;
             }

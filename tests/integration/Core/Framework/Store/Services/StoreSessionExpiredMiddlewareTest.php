@@ -8,17 +8,20 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class StoreSessionExpiredMiddlewareTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -69,9 +72,10 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
     {
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
 
+        /** @var EntityRepository<UserCollection> $userRepository */
         $userRepository = $this->getContainer()->get('user.repository');
-        /** @var UserEntity $adminUser */
-        $adminUser = $userRepository->search(new Criteria(), Context::createDefaultContext())->first();
+        $adminUser = $userRepository->search(new Criteria(), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($adminUser);
         $userRepository->update([[
             'id' => $adminUser->getId(),
             'store_token' => 's3cr3t',
@@ -98,7 +102,8 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $this->expectException(StoreSessionExpiredException::class);
         $middleware($response);
 
-        $adminUser = $userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->first();
+        $adminUser = $userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($adminUser);
         static::assertNull($adminUser->getStoreToken());
     }
 

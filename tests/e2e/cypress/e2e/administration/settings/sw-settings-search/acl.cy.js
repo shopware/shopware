@@ -9,7 +9,7 @@ describe('Search: Test ACL privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: read search', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: read search', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
             method: 'POST',
@@ -68,7 +68,7 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search-live-search').contains('.sw-card__title', 'Sales Channel live search');
     });
 
-    it('@settings: edit search', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: edit search', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config`,
             method: 'POST',
@@ -117,7 +117,7 @@ describe('Search: Test ACL privileges', () => {
         cy.get('input[name="sw-field--searchBehaviourConfigs-minSearchLength"]').should('have.value', 5);
     });
 
-    it('@settings: create search', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: create search', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -178,7 +178,7 @@ describe('Search: Test ACL privileges', () => {
             .contains('.sw-data-grid__cell-value', 'Example');
     });
 
-    it('@settings: delete search', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: delete search', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

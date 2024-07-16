@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UpdatePostFinishEvent extends UpdateEvent implements Hookable
 {
     public const EVENT_NAME = 'shopware.updated';

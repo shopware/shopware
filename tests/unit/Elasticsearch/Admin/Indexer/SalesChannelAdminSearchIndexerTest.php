@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

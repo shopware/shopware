@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
     name: 'es:admin:index',
     description: 'Index the elasticsearch for the admin search',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class ElasticsearchAdminIndexingCommand extends Command implements EventSubscriberInterface
 {
     use ConsoleProgressTrait;

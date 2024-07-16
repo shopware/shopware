@@ -13,7 +13,7 @@ describe('Language: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of language module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@base @visual: check appearance of language module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
             method: 'POST',

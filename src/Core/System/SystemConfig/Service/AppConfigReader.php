@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class AppConfigReader
 {
     public function __construct(private readonly SourceResolver $sourceResolver, private readonly ConfigReader $configReader)

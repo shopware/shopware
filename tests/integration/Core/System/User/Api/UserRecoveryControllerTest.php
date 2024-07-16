@@ -19,7 +19,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryService;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UserRecoveryControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

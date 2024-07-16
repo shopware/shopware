@@ -11,7 +11,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MailFactory extends AbstractMailFactory
 {
     /**

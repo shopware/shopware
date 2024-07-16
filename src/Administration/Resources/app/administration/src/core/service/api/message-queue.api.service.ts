@@ -6,7 +6,7 @@ import type { LoginService } from '../login.service';
  * Gateway for the API end point "message-queue"
  * @class
  * @extends ApiService
- * @package system-settings
+ * @package services-settings
  */
 class MessageQueueApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'message-queue') {

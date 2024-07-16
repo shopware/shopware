@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class IntegrationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'integration';

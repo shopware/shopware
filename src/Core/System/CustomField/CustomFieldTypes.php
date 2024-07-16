@@ -4,7 +4,7 @@ namespace Shopware\Core\System\CustomField;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class CustomFieldTypes
 {
     public const BOOL = 'bool';

@@ -14,7 +14,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(UserRecoveryRequestEvent::class)]
 class UserRecoveryRequestEventTest extends TestCase
 {

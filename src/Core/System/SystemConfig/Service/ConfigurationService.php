@@ -16,7 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ConfigurationService
 {
     /**

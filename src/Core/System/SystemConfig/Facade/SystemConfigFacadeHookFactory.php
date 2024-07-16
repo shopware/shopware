@@ -13,7 +13,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {
     /**

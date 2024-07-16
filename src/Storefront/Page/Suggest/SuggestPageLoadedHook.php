@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SuggestPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

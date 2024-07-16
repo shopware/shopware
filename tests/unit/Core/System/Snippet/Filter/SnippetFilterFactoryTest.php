@@ -20,7 +20,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(SnippetFilterFactory::class)]
 class SnippetFilterFactoryTest extends TestCase
 {

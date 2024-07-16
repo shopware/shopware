@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetFixer
 {
     /**

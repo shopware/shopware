@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UpdateController extends AbstractController
 {
     public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';

@@ -8,7 +8,7 @@ use Shopware\Core\System\Snippet\SnippetService;
 /**
  * @phpstan-import-type SnippetArray from SnippetService
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractFilter
 {
     abstract public function getName(): string;

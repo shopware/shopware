@@ -52,7 +52,7 @@ describe('Integration: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of integration', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: can view a list of integration', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

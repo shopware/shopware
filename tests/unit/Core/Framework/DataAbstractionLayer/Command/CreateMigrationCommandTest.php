@@ -127,7 +127,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'with namespace' => [
             'entities' => ['test_entity'],
             'namespace' => 'V6_6',
-            'package' => 'system-settings',
+            'package' => 'services-settings',
             'bundle' => null,
             'now' => $now,
             'expectedNamespaces' => [

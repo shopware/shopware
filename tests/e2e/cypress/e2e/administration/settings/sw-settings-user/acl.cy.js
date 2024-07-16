@@ -5,7 +5,7 @@ describe('User: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: view user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: view user', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -49,7 +49,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'max@muster.com');
     });
 
-    it('@settings: edit user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: edit user', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -133,7 +133,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: edit user role', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: edit user role', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
@@ -219,7 +219,7 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'This is a description');
     });
 
-    it('@settings: create user', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: create user', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
@@ -312,7 +312,7 @@ describe('User: Test acl privileges', () => {
         cy.wait('@createCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create user and delete them', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: create user and delete them', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',

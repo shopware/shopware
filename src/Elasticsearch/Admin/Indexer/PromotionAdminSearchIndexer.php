@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @final
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
     /**

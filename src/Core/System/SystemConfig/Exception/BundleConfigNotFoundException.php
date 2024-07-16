@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SystemConfig\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class BundleConfigNotFoundException extends ShopwareHttpException
 {
     public function __construct(

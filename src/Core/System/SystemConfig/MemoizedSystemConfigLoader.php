@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SystemConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MemoizedSystemConfigLoader extends AbstractSystemConfigLoader
 {
     /**

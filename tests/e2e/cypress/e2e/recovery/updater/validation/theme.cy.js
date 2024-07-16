@@ -8,7 +8,7 @@ describe('Validation of theme and cache after auto update', () => {
      * - update-service-mock.js must be running
      */
 
-    it('@update: Check caches after update', { tags: ['pa-system-settings'] }, () => {
+    it('@update: Check caches after update', { tags: ['pa-services-settings'] }, () => {
         cy.login();
         cy.visit('/admin#/sw/settings/cache/index');
         cy.get('.sw-skeleton').should('not.exist');
@@ -20,7 +20,7 @@ describe('Validation of theme and cache after auto update', () => {
             .should('have.css', 'background-color', 'rgb(255, 72, 85)');
     });
 
-    it('@update: Check theme compile', { tags: ['pa-system-settings'] }, () => {
+    it('@update: Check theme compile', { tags: ['pa-services-settings'] }, () => {
         cy.intercept({
             url: '/api/_action/theme/**/assign/**',
             method: 'POST',

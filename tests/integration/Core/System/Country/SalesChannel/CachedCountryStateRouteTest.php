@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[Group('cache')]
 #[Group('store-api')]
 class CachedCountryStateRouteTest extends TestCase

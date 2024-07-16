@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Filter\AddedFilter;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(AddedFilter::class)]
 class AddedFilterTest extends TestCase
 {

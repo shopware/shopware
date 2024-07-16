@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetFileHandler
 {
     public function openJsonFile(string $path): array

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package system-settings
+ * @package services-settings
  * @returns {Promise<Wrapper<Vue>>}
  */
 async function createWrapper() {

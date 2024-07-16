@@ -20,7 +20,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 {
     private const NAME = 'product-suggest-route';

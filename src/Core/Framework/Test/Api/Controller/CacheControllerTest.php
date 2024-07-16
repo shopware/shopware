@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {

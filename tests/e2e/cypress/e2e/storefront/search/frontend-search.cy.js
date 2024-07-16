@@ -17,7 +17,7 @@ describe('Searches for products', () => {
         });
     });
 
-    it('@search does some simple testing of the search', { tags: ['pa-system-settings'] }, () => {
+    it('@search does some simple testing of the search', { tags: ['pa-services-settings'] }, () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 

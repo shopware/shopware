@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'snippet';

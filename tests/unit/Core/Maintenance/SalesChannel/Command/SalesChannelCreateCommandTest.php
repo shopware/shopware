@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

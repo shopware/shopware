@@ -4,7 +4,7 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 
 /**
- * @package system-settings
+ * @package services-settings
  * @returns {{apiService, mockAdapter: MockAdapter}}
  */
 function getApiServiceAndMockAdapter() {

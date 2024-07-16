@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Seo\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -31,9 +30,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver
  */
 #[Package('buyers-experience')]
-#[CoversClass(StoreApiSeoResolver::class)]
 class StoreApiSeoResolverTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
@@ -155,6 +155,14 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
     }
 
+    public function createProductEntity(): SalesChannelProductEntity
+    {
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setUniqueIdentifier('random');
+
+        return $productEntity;
+    }
+
     private function createStoreApiSeoResolver(): StoreApiSeoResolver
     {
         $productDefinition = $this->createMock(ProductDefinition::class);
@@ -195,13 +203,5 @@ class StoreApiSeoResolverTest extends TestCase
             $salesChannelDefinitionInstanceRegistry,
             new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
         );
-    }
-
-    public function createProductEntity(): SalesChannelProductEntity
-    {
-        $productEntity = new SalesChannelProductEntity();
-        $productEntity->setUniqueIdentifier('random');
-
-        return $productEntity;
     }
 }

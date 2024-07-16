@@ -140,7 +140,7 @@ class CheckoutController extends StorefrontController
         try {
             $page = $this->finishPageLoader->load($request, $context);
         } catch (OrderException $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode()));
+            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode(), $exception->getParameters()));
 
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
@@ -187,7 +187,7 @@ class CheckoutController extends StorefrontController
             if ($e->getErrorCode() === CartException::CART_PAYMENT_INVALID_ORDER_STORED_CODE && $e->getParameter('orderId')) {
                 return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $e->getParameter('orderId'), 'changedPayment' => false, 'paymentFailed' => true]);
             }
-            $message = $this->trans('error.' . $e->getErrorCode());
+            $message = $this->trans('error.' . $e->getErrorCode(), $e->getParameters());
             $this->addFlash('danger', $message);
 
             return $this->forwardToRoute('frontend.checkout.confirm.page');

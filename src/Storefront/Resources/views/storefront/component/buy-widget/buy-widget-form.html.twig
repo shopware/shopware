@@ -23,6 +23,7 @@
 
                                 {% block buy_widget_buy_quantity_input_group %}
                                     <div class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true">
+                                        <label class="form-label visually-hidden">{{ 'component.product.quantitySelect.label'|trans|striptags }}</label>
                                         <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}">
                                             {% sw_icon 'minus' style {size: 'xs'} %}
                                         </button>

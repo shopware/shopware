@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Seo\SalesChannel;
+namespace Shopware\Tests\Integration\Core\Content\Seo\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -8,6 +8,7 @@ use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('buyers-experience')]
 class StoreApiSeoResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -105,6 +107,23 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertSame('foo', $response['seoUrls'][0]['pathInfo']);
 
         static::assertIsArray($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
+    }
+
+    public function testEnabledNoAuthentication(): void
+    {
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $this->browser->request('GET', '/store-api/test/store-api-seo-resolver/no-auth-required', ['sales-channel-id' => $this->ids->get('sales-channel')]);
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('seoUrls', $response);
+        static::assertNull($response['seoUrls']);
+
+        static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
     }
 
     private function createData(): void

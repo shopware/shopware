@@ -3,7 +3,6 @@ import { test } from '@fixtures/AcceptanceTest';
 test('Shop customer should be able to see the product image in the Storefront.', { tag: '@Product' }, async ({
     ShopCustomer,
     TestDataService,
-    AdminApiContext,
     StorefrontProductDetail,
     StorefrontHome,
     StorefrontCheckoutCart,
@@ -23,9 +22,9 @@ test('Shop customer should be able to see the product image in the Storefront.',
     OpenSearchSuggestPage,
     Login,
     Logout,
- }) => {
+}) => {
     const product = await TestDataService.createBasicProduct();
-    const media =  await TestDataService.createMediaPNG();
+    const media = await TestDataService.createMediaPNG();
 
     await TestDataService.assignProductMedia(product.id, media.id);
 

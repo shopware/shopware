@@ -8,6 +8,7 @@ test('Registered shop customer should be able to use promotion code during check
     StorefrontCheckoutCart,
     StorefrontCheckoutConfirm,
     StorefrontCheckoutFinish,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
     CartWithProductData,
     Login,
     AddPromotionCodeToCart,

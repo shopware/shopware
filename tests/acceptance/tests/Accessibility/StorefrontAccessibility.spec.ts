@@ -19,7 +19,7 @@ test('The Storefront should implement accessibility best practices.', { tag: '@A
     StorefrontAccountAddresses,
     StorefrontAccountPayment,
 }) => {
-    await test.slow();
+    test.slow();
 
     const product = await TestDataService.createBasicProduct();
     const category = await TestDataService.createCategory();

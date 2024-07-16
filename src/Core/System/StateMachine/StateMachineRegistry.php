@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -257,6 +258,12 @@ class StateMachineRegistry implements ResetInterface
         foreach ($stateMachineTransitions as $transition) {
             /** @var StateMachineStateEntity $toState */
             $toState = $transition->getToStateMachineState();
+            if (!Feature::isActive('v6.7.0.0')) {
+                // Always allow to cancel a payment whether it's a valid transition or not
+                if ($transition->getActionName() === 'cancel' && $transitionName === 'cancel') {
+                    return $toState;
+                }
+            }
 
             // Not the transition that was requested step over
             if ($transition->getActionName() !== $transitionName) {

@@ -702,6 +702,7 @@ class StockStorageTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame(1, $product->getSales());
 
+        $this->transitionOrder($orderId, 'reopen');
         $this->transitionOrder($orderId, 'cancel');
 
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();

@@ -895,4 +895,15 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
         expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe('tooltip message');
     });
+
+    it('should render a row for each item in isRecordDisabled prop', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isRecordDisabled: (record) => record.id === 'uuid1',
+        });
+
+        const row = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+
+        expect(row.classes()).toContain('is--disabled');
+    });
 });

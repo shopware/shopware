@@ -97,7 +97,8 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags')
-                .addAssociation('requestedGroup');
+                .addAssociation('requestedGroup')
+                .addAssociation('boundSalesChannel');
 
             criteria
                 .getAssociation('addresses')

@@ -13,8 +13,7 @@ Component.register('sw-cms-el-location-renderer', {
     template,
 
     mixins: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Mixin.getByName('cms-element') as any,
+        Mixin.getByName('cms-element'),
     ],
 
     props: {
@@ -28,7 +27,6 @@ Component.register('sw-cms-el-location-renderer', {
         src(): string {
             // Add this.element.id to the url as a query param
             const url = new URL(this.elementData.appData.baseUrl);
-            // @ts-expect-error - is defined in mixin
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             url.searchParams.set('elementId', this.element.id);
 
@@ -73,7 +71,6 @@ Component.register('sw-cms-el-location-renderer', {
 
     methods: {
         createdComponent(): void {
-            // @ts-expect-error - is defined in mixin
             this.initElementConfig(this.elementData.name);
             this.updatePublishData();
         },
@@ -96,7 +93,6 @@ Component.register('sw-cms-el-location-renderer', {
             });
 
             this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({
-                // @ts-expect-error - is defined in mixin
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 id: `${this.publishingKey}__${this.element.id}`,
                 path: 'element',

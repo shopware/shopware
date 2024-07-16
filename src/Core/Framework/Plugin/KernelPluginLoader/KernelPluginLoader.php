@@ -52,8 +52,9 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
-     * @return array<int, PluginInfo>
      * Basic information required for instantiating the plugins
+     *
+     * @return array<int, PluginInfo>
      */
     final public function getPluginInfos(): array
     {

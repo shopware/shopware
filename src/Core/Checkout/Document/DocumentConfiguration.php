@@ -195,7 +195,7 @@ class DocumentConfiguration extends Struct
     protected $documentTypeId;
 
     /**
-     * @param string                     $name
+     * @param string $name
      * @param array<array-key, mixed>|bool|int|string|null $value
      */
     public function __set($name, $value): void

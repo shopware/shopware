@@ -40,7 +40,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @param array<string, mixed>      $data
+     * @param array<string, mixed> $data
      * @param array<string, ParameterType::*>|null $types
      */
     public function addInsert(string $table, array $data, ?array $types = null): void

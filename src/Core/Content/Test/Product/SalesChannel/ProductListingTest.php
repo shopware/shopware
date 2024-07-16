@@ -360,7 +360,7 @@ class ProductListingTest extends TestCase
      * Rec. Function to find all possible combinations of $data input
      *
      * @param array<array<string>> $data
-     * @param array<array<string>>$all
+     * @param array<array<string>> $all
      * @param array<string> $group
      *
      * @return array<array<string>>

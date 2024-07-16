@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt\Namespace_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\FileNode;
 use PHPStan\Rules\Rule;
@@ -27,7 +28,7 @@ class ShopwareNamespaceStyleRule implements Rule
         $namespaceNode = null;
 
         foreach ($node->getNodes() as $subNode) {
-            if ($subNode instanceof Node\Stmt\Namespace_) {
+            if ($subNode instanceof Namespace_) {
                 $namespaceNode = $subNode;
 
                 break;

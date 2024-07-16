@@ -101,7 +101,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @param  mixed|null        $initial
+     * @param mixed|null $initial
      *
      * @return mixed|null
      */

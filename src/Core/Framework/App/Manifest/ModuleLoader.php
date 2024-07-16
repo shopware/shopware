@@ -143,7 +143,7 @@ class ModuleLoader
     }
 
     /**
-     * @param Module     $module
+     * @param Module $module
      */
     private function getModuleUrlWithQuery(AppEntity $app, array $module, Context $context): ?string
     {

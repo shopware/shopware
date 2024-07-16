@@ -20,7 +20,7 @@ class EntityProtectionCollection extends Collection
     }
 
     /**
-     * @param string|int       $key
+     * @param string|int $key
      * @param EntityProtection $element
      */
     public function set($key, $element): void

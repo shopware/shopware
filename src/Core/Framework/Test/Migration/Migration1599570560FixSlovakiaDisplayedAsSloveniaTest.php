@@ -114,13 +114,14 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     }
 
     /**
+     * SlovakiaAvailable -> changes if the Migration can find the country
+     * languageEnAvailable -> English language Available
+     * languageDeAvailable -> German language Available
+     * EnTranslation -> sets the name of the country in english
+     * DeTranslation -> sets the name of the country in german
+     * expectedEnTranslation -> What the translation should be after the Migration
+     *
      * @return list<array{0: array<string, bool|string>}>
-     *                    SlovakiaAvailable -> changes if the Migration can find the country
-     *                    languageEnAvailable -> English language Available
-     *                    languageDeAvailable -> German language Available
-     *                    EnTranslation -> sets the name of the country in english
-     *                    DeTranslation -> sets the name of the country in german
-     *                    expectedEnTranslation -> What the translation should be after the Migration
      */
     public static function migrationCases(): array
     {
@@ -257,12 +258,13 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     }
 
     /**
+     * SlovakiaAvailable -> changes if the Migration can find the country
+     * languageEnAvailable -> English language Available
+     * languageDeAvailable -> German language Available
+     * EnTranslation -> sets the name of the country in english
+     * DeTranslation -> sets the name of the country in german
+     *
      * @param array<string, bool|string> $data
-     *                    SlovakiaAvailable -> changes if the Migration can find the country
-     *                    languageEnAvailable -> English language Available
-     *                    languageDeAvailable -> German language Available
-     *                    EnTranslation -> sets the name of the country in english
-     *                    DeTranslation -> sets the name of the country in german
      */
     private function setDB(array $data): void
     {

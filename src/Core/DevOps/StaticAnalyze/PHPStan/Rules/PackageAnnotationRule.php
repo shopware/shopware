@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Name\FullyQualified;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
@@ -146,7 +147,7 @@ class PackageAnnotationRule implements Rule
         foreach ($class->getOriginalNode()->attrGroups as $group) {
             $attribute = $group->attrs[0];
 
-            /** @var Node\Name\FullyQualified $name */
+            /** @var FullyQualified $name */
             $name = $attribute->name;
 
             if ($name->toString() === Package::class) {

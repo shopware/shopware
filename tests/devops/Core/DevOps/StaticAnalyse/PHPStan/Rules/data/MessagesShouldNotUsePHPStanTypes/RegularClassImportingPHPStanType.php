@@ -3,7 +3,7 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\MessagesShouldNotUsePHPStanTypes;
 
 /**
- * @phpstan-import-type PrimaryKeyList from \Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\MessagesShouldNotUsePHPStanTypes\AsyncMessageUsingPHPStanType
+ * @phpstan-import-type PrimaryKeyList from AsyncMessageUsingPHPStanType
  */
 class RegularClassImportingPHPStanType
 {

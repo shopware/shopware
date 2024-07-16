@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,7 +15,7 @@ class RedisIncrementer extends AbstractIncrementer
     /**
      * @internal
      *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
      */
     public function __construct(private $redis)
     {

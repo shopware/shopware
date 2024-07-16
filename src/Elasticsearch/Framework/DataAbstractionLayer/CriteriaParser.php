@@ -690,7 +690,7 @@ class CriteriaParser
                 ),
             ];
 
-            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
+            return $this->constructScriptQuery($scriptContent, $parameters);
         }
 
         if ($this->isCheapestPriceField($filter->getField(), true)) {
@@ -702,7 +702,7 @@ class CriteriaParser
                 ),
             ];
 
-            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
+            return $this->constructScriptQuery($scriptContent, $parameters);
         }
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
@@ -1051,9 +1051,8 @@ class CriteriaParser
     /**
      * @param array<string, mixed> $script
      * @param array<string, mixed> $parameters
-     * Returns an instance of the new ScriptQuery or the legacy ScriptIdQuery based on the version.
      */
-    private function constructScriptQueryOrFallback(array $script, array $parameters): BuilderInterface
+    private function constructScriptQuery(array $script, array $parameters): ScriptQuery
     {
         return new ScriptQuery($script['source'], $parameters);
     }

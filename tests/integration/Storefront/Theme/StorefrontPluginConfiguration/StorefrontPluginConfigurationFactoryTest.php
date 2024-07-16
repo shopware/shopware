@@ -139,7 +139,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, string>>$expected
+     * @param array<string, array<string, string>> $expected
      */
     private function assertFileCollection(array $expected, FileCollection $files): void
     {

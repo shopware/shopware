@@ -79,242 +79,244 @@ class LineItemListPriceRatioRuleTest extends TestCase
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => true,
         ];
 
         yield 'no match / operator equals / different ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'RuleRatio' => 0.75,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'no match / operator equals / without price' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'RuleRatio' => 0.75,
-            'Price' => 0,
-            'List price' => null,
-            'Expected' => false,
-            'Line item without price' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'price' => 0,
+            'listPrice' => null,
+            'expected' => false,
+            'lineItemWithoutPrice' => true,
         ];
 
         yield 'match / operator equals / negative ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'RuleRatio' => 2,
-            'Price' => 10,
-            'List price' => 5,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 2,
+            'price' => 10,
+            'listPrice' => 5,
+            'expected' => true,
         ];
 
         // OPERATOR_NEQ
         yield 'no match / operator not equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'match / operator not equals / different ratio' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'RuleRatio' => 0.75,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => true,
         ];
 
         // OPERATOR_GT
         yield 'no match / operator greater than / lower ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'RuleRatio' => 0.75,
-            'Price' => 50,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.75,
+            'price' => 50,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'no match / operator greater than / same ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'match / operator greater than / higher ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'RuleRatio' => 0.25,
-            'Price' => 100,
-            'List price' => 250,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.25,
+            'price' => 100,
+            'listPrice' => 250,
+            'expected' => true,
         ];
 
         yield 'match / operator greater than / negative ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'RuleRatio' => 1.5,
-            'Price' => 10,
-            'List price' => 5,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 1.5,
+            'price' => 10,
+            'listPrice' => 5,
+            'expected' => true,
         ];
 
         // OPERATOR_GTE
         yield 'no match / operator greater than equals / lower ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'RuleRatio' => 0.75,
-            'Price' => 50,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.75,
+            'price' => 50,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'match / operator greater than equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => true,
         ];
 
         yield 'match / operator greater than equals / higher ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'RuleRatio' => 0.25,
-            'Price' => 100,
-            'List price' => 250,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.25,
+            'price' => 100,
+            'listPrice' => 250,
+            'expected' => true,
         ];
 
         yield 'match / operator greater than equals / negative ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'RuleRatio' => 2,
-            'Price' => 10,
-            'List price' => 5,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 2,
+            'price' => 10,
+            'listPrice' => 5,
+            'expected' => true,
         ];
 
         // OPERATOR_LT
         yield 'match / operator lower than / lower ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'RuleRatio' => 0.5,
-            'Price' => 50,
-            'List price' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.5,
+            'price' => 50,
+            'listPrice' => 200,
+            'expected' => true,
         ];
 
         yield 'no match / operator lower than / same ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'no match / operator lower than / higher ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => false,
         ];
 
         yield 'match / operator lower than / negative ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'RuleRatio' => 1.5,
-            'Price' => 7,
-            'List price' => 5,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 1.5,
+            'price' => 7,
+            'listPrice' => 5,
+            'expected' => true,
         ];
 
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 250,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 250,
+            'expected' => true,
         ];
 
         yield 'match / operator lower than equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'RuleRatio' => 0.5,
-            'Price' => 100,
-            'List price' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.5,
+            'price' => 100,
+            'listPrice' => 200,
+            'expected' => true,
         ];
 
         yield 'no match / operator lower than equals / higher ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'RuleRatio' => 0.25,
-            'Price' => 100,
-            'List price' => 220,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.25,
+            'price' => 100,
+            'listPrice' => 220,
+            'expected' => false,
         ];
 
         yield 'match / operator lower than equals/ negative ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'RuleRatio' => 1.5,
-            'Price' => 7,
-            'List price' => 5,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 1.5,
+            'price' => 7,
+            'listPrice' => 5,
+            'expected' => true,
         ];
 
         // OPERATOR_EMPTY
         yield 'match / operator empty / is empty' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'RuleRatio' => null,
-            'Price' => 100,
-            'List price' => null,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => null,
+            'price' => 100,
+            'listPrice' => null,
+            'expected' => true,
         ];
 
         yield 'no match / operator empty / is not empty' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'RuleRatio' => 0.75,
-            'Price' => 200,
-            'List price' => 250,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'price' => 200,
+            'listPrice' => 250,
+            'expected' => false,
         ];
 
         yield 'match / operator not equals / without price' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'RuleRatio' => 0.75,
-            'Price' => 0,
-            'List price' => null,
-            'Expected' => true,
-            'Line item without price' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'price' => 0,
+            'listPrice' => null,
+            'expected' => true,
+            'lineItemWithoutPrice' => true,
         ];
 
         yield 'match / operator empty / without price' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'RuleRatio' => 0.75,
-            'Price' => 0,
-            'List price' => null,
-            'Expected' => true,
-            'Line item without price' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'price' => 0,
+            'listPrice' => null,
+            'expected' => true,
+            'lineItemWithoutPrice' => true,
         ];
     }
 
     #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
-        ?float $amount,
-        float $price1,
-        ?float $listPrice1,
-        float $price2,
-        ?float $listPrice2,
+        ?float $ruleRatio,
+        float $priceItem1,
+        ?float $listPriceItem1,
+        float $priceItem2,
+        ?float $listPriceItem2,
         bool $expected,
         bool $lineItem1WithoutPrice = false,
-        bool $lineItem2WithoutPrice = false
+        bool $lineItem2WithoutPrice = false,
+        ?float $containerLineItemPrice = null,
+        ?float $containerLineItemListPrice = null
     ): void {
         $this->rule->assign([
-            'amount' => $amount,
+            'amount' => $ruleRatio,
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($price1, $listPrice1);
-        $lineItem2 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($price2, $listPrice2);
+        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
+        $lineItem2 = $lineItem2WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
@@ -334,11 +336,11 @@ class LineItemListPriceRatioRuleTest extends TestCase
     #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
-        ?float $amount,
-        float $price1,
-        ?float $listPrice1,
-        float $price2,
-        ?float $listPrice2,
+        ?float $ruleRatio,
+        float $priceItem1,
+        ?float $listPriceItem1,
+        float $priceItem2,
+        ?float $listPriceItem2,
         bool $expected,
         bool $lineItem1WithoutPrice = false,
         bool $lineItem2WithoutPrice = false,
@@ -346,12 +348,12 @@ class LineItemListPriceRatioRuleTest extends TestCase
         ?float $containerLineItemListPrice = null
     ): void {
         $this->rule->assign([
-            'amount' => $amount,
+            'amount' => $ruleRatio,
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($price1, $listPrice1);
-        $lineItem2 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($price2, $listPrice2);
+        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
+        $lineItem2 = $lineItem2WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
@@ -379,319 +381,319 @@ class LineItemListPriceRatioRuleTest extends TestCase
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 0.5,
-            'Price of item 1' => 100,
-            'List price of item 1' => 200,
-            'Price of item 2' => 50,
-            'List price of item 2' => 500,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.5,
+            'priceItem1' => 100,
+            'listPriceItem1' => 200,
+            'priceItem2' => 50,
+            'listPriceItem2' => 500,
+            'expected' => true,
         ];
 
         yield 'no match / operator equals / different ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 300,
-            'Price of item 2' => 50,
-            'List price of item 2' => 400,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 300,
+            'priceItem2' => 50,
+            'listPriceItem2' => 400,
+            'expected' => false,
         ];
 
         yield 'no match / operator equals / item 1 without price' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 200,
-            'List price of item 2' => 100,
-            'Expected' => false,
-            'Line item 1 without price' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 200,
+            'listPriceItem2' => 100,
+            'expected' => false,
+            'lineItem1WithoutPrice' => true,
         ];
 
         yield 'no match / operator equals / item 2 without price' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 300,
-            'Price of item 2' => 0,
-            'List price of item 2' => null,
-            'Expected' => false,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 300,
+            'priceItem2' => 0,
+            'listPriceItem2' => null,
+            'expected' => false,
+            'lineItem2WithoutPrice' => true,
         ];
 
         yield 'no match / operator equals / item 1 and 2 without price' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 0,
-            'List price of item 2' => null,
-            'Expected' => false,
-            'Line item 1 without price' => true,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 0,
+            'listPriceItem2' => null,
+            'expected' => false,
+            'lineItem1WithoutPrice' => true,
+            'lineItem2WithoutPrice' => true,
         ];
         yield 'match / operator equals / item 1 with negative ratio' => [
-            'Operator' => Rule::OPERATOR_EQ,
-            'Rule ratio' => 1.4,
-            'Price of item 1' => 70,
-            'List price of item 1' => 50,
-            'Price of item 2' => 50,
-            'List price of item 2' => 400,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EQ,
+            'ruleRatio' => 1.4,
+            'priceItem1' => 70,
+            'listPriceItem1' => 50,
+            'priceItem2' => 50,
+            'listPriceItem2' => 400,
+            'expected' => true,
         ];
 
 
         // OPERATOR_NEQ
         yield 'no match / operator not equals / same ratios' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.5,
-            'Price of item 1' => 100,
-            'List price of item 1' => 200,
-            'Price of item 2' => 50,
-            'List price of item 2' => 100,
-            'Expected' => false,
-            'Line item 1 without price' => false,
-            'Line item 2 without price' => false,
-            'Container line item price' => 100,
-            'Container line item list price' => 200,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.5,
+            'priceItem1' => 100,
+            'listPriceItem1' => 200,
+            'priceItem2' => 50,
+            'listPriceItem2' => 100,
+            'expected' => false,
+            'lineItem1WithoutPrice' => false,
+            'lineItem2WithoutPrice' => false,
+            'containerLineItemPrice' => 100,
+            'containerLineItemListPrice' => 200,
         ];
 
         yield 'match / operator not equals / different ratios' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 50,
-            'List price of item 1' => 200,
-            'Price of item 2' => 100,
-            'List price of item 2' => 250,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 50,
+            'listPriceItem1' => 200,
+            'priceItem2' => 100,
+            'listPriceItem2' => 250,
+            'expected' => true,
         ];
 
         yield 'match / operator not equals / different ratios 2' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 300,
-            'Price of item 2' => 200,
-            'List price of item 2' => 100,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 300,
+            'priceItem2' => 200,
+            'listPriceItem2' => 100,
+            'expected' => true,
         ];
 
         // OPERATOR_GT
         yield 'no match / operator greater than / lower ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 50,
-            'List price of item 1' => 70,
-            'Price of item 2' => 50,
-            'List price of item 2' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 50,
+            'listPriceItem1' => 70,
+            'priceItem2' => 50,
+            'listPriceItem2' => 200,
+            'expected' => false,
         ];
 
         yield 'no match / operator greater than / same ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'Rule ratio' => 0.5,
-            'Price of item 1' => 50,
-            'List price of item 1' => 100,
-            'Price of item 2' => 50,
-            'List price of item 2' => 100,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.5,
+            'priceItem1' => 50,
+            'listPriceItem1' => 100,
+            'priceItem2' => 50,
+            'listPriceItem2' => 100,
+            'expected' => false,
         ];
 
         yield 'match / operator greater than / higher ratio' => [
-            'Operator' => Rule::OPERATOR_GT,
-            'Rule ratio' => 0.25,
-            'Price of item 1' => 50,
-            'List price of item 1' => 100,
-            'Price of item 2' => 25,
-            'List price of item 2' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GT,
+            'ruleRatio' => 0.25,
+            'priceItem1' => 50,
+            'listPriceItem1' => 100,
+            'priceItem2' => 25,
+            'listPriceItem2' => 200,
+            'expected' => true,
         ];
 
         // OPERATOR_GTE
         yield 'no match / operator greater than equals / lower ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'Rule ratio' => 0.9,
-            'Price of item 1' => 100,
-            'List price of item 1' => 125,
-            'Price of item 2' => 80,
-            'List price of item 2' => 150,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.9,
+            'priceItem1' => 100,
+            'listPriceItem1' => 125,
+            'priceItem2' => 80,
+            'listPriceItem2' => 150,
+            'expected' => false,
         ];
 
         yield 'match / operator greater than equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'Rule ratio' => 0.5,
-            'Price of item 1' => 50,
-            'List price of item 1' => 100,
-            'Price of item 2' => 50,
-            'List price of item 2' => 100,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.5,
+            'priceItem1' => 50,
+            'listPriceItem1' => 100,
+            'priceItem2' => 50,
+            'listPriceItem2' => 100,
+            'expected' => true,
         ];
 
         yield 'match / operator greater than equals / higher ratio' => [
-            'Operator' => Rule::OPERATOR_GTE,
-            'Rule ratio' => 0.25,
-            'Price of item 1' => 50,
-            'List price of item 1' => 250,
-            'Price of item 2' => 75,
-            'List price of item 2' => 300,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_GTE,
+            'ruleRatio' => 0.25,
+            'priceItem1' => 50,
+            'listPriceItem1' => 250,
+            'priceItem2' => 75,
+            'listPriceItem2' => 300,
+            'expected' => true,
         ];
 
         // OPERATOR_LT
         yield 'match / operator lower than / lower ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 50,
-            'List price of item 1' => 200,
-            'Price of item 2' => 100,
-            'List price of item 2' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 50,
+            'listPriceItem1' => 200,
+            'priceItem2' => 100,
+            'listPriceItem2' => 200,
+            'expected' => true,
         ];
 
         yield 'no match / operator lower than / same ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'Rule ratio' => 0.25,
-            'Price of item 1' => 50,
-            'List price of item 1' => 200,
-            'Price of item 2' => 50,
-            'List price of item 2' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.25,
+            'priceItem1' => 50,
+            'listPriceItem1' => 200,
+            'priceItem2' => 50,
+            'listPriceItem2' => 200,
+            'expected' => false,
         ];
 
         yield 'no match / operator lower than / higher ratio' => [
-            'Operator' => Rule::OPERATOR_LT,
-            'Rule ratio' => 0.25,
-            'Price of item 1' => 50,
-            'List price of item 1' => 200,
-            'Price of item 2' => 50,
-            'List price of item 2' => 200,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LT,
+            'ruleRatio' => 0.25,
+            'priceItem1' => 50,
+            'listPriceItem1' => 200,
+            'priceItem2' => 50,
+            'listPriceItem2' => 200,
+            'expected' => false,
         ];
 
         // OPERATOR_LTE
         yield 'match / operator lower than equals / lower ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 50,
-            'List price of item 1' => 120,
-            'Price of item 2' => 100,
-            'List price of item 2' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 50,
+            'listPriceItem1' => 120,
+            'priceItem2' => 100,
+            'listPriceItem2' => 200,
+            'expected' => true,
         ];
 
         yield 'match / operator lower than equals / same ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'Rule ratio' => 0.5,
-            'Price of item 1' => 50,
-            'List price of item 1' => 200,
-            'Price of item 2' => 100,
-            'List price of item 2' => 200,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.5,
+            'priceItem1' => 50,
+            'listPriceItem1' => 200,
+            'priceItem2' => 100,
+            'listPriceItem2' => 200,
+            'expected' => true,
         ];
 
         yield 'no match / operator lower than equals / higher ratio' => [
-            'Operator' => Rule::OPERATOR_LTE,
-            'Rule ratio' => 0.25,
-            'Price of item 1' => 100,
-            'List price of item 1' => 200,
-            'Price of item 2' => 100,
-            'List price of item 2' => 300,
-            'Expected' => false,
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0.25,
+            'priceItem1' => 100,
+            'listPriceItem1' => 200,
+            'priceItem2' => 100,
+            'listPriceItem2' => 300,
+            'expected' => false,
         ];
 
         // OPERATOR_EMPTY
         yield 'match / operator empty / is empty' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'Rule ratio' => null,
-            'Price of item 1' => 100,
-            'List price of item 1' => null,
-            'Price of item 2' => 100,
-            'List price of item 2' => null,
-            'Expected' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => null,
+            'priceItem1' => 100,
+            'listPriceItem1' => null,
+            'priceItem2' => 100,
+            'listPriceItem2' => null,
+            'expected' => true,
         ];
 
         yield 'no match / operator empty / is not empty' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 200,
-            'Price of item 2' => 250,
-            'List price of item 2' => 300,
-            'Expected' => false,
-            'Line item 1 without price' => false,
-            'Line item 2 without price' => false,
-            'Container line item price' => 100,
-            'Container line item list price' => 200,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 200,
+            'priceItem2' => 250,
+            'listPriceItem2' => 300,
+            'expected' => false,
+            'lineItem1WithoutPrice' => false,
+            'lineItem2WithoutPrice' => false,
+            'containerLineItemPrice' => 100,
+            'containerLineItemListPrice' => 200,
         ];
 
         yield 'match / operator not equals / item 1 and 2 without price' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 0,
-            'List price of item 2' => null,
-            'Expected' => true,
-            'Line item 1 without price' => true,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 0,
+            'listPriceItem2' => null,
+            'expected' => true,
+            'lineItem1WithoutPrice' => true,
+            'lineItem2WithoutPrice' => true,
         ];
 
         yield 'match / operator not equals / item 1 without price' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 100,
-            'List price of item 2' => 100,
-            'Expected' => true,
-            'Line item 1 without price' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 100,
+            'listPriceItem2' => 100,
+            'expected' => true,
+            'lineItem1WithoutPrice' => true,
         ];
 
         yield 'match / operator not equals / item 2 without price' => [
-            'Operator' => Rule::OPERATOR_NEQ,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 100,
-            'Price of item 2' => 100,
-            'List price of item 2' => 100,
-            'Expected' => true,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_NEQ,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 100,
+            'priceItem2' => 100,
+            'listPriceItem2' => 100,
+            'expected' => true,
+            'lineItem2WithoutPrice' => true,
         ];
 
         yield 'match / operator empty / item 1 and 2 without price' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 0,
-            'List price of item 2' => null,
-            'Expected' => true,
-            'Line item 1 without price' => true,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 0,
+            'listPriceItem2' => null,
+            'expected' => true,
+            'lineItem1WithoutPrice' => true,
+            'lineItem2WithoutPrice' => true,
         ];
 
         yield 'match / operator empty / item 1 without price' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 0,
-            'List price of item 1' => null,
-            'Price of item 2' => 100,
-            'List price of item 2' => 100,
-            'Expected' => true,
-            'Line item 1 without price' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 0,
+            'listPriceItem1' => null,
+            'priceItem2' => 100,
+            'listPriceItem2' => 100,
+            'expected' => true,
+            'lineItem1WithoutPrice' => true,
         ];
 
         yield 'match / operator empty / item 2 without price' => [
-            'Operator' => Rule::OPERATOR_EMPTY,
-            'Rule ratio' => 0.75,
-            'Price of item 1' => 100,
-            'List price of item 1' => 100,
-            'Price of item 2' => 0,
-            'List price of item 2' => null,
-            'Expected' => true,
-            'Line item 2 without price' => true,
+            'operator' => Rule::OPERATOR_EMPTY,
+            'ruleRatio' => 0.75,
+            'priceItem1' => 100,
+            'listPriceItem1' => 100,
+            'priceItem2' => 0,
+            'listPriceItem2' => null,
+            'expected' => true,
+            'lineItem2WithoutPrice' => true,
         ];
     }
 

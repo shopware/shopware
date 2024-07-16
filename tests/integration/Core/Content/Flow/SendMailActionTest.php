@@ -877,7 +877,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, string>>$documentTypes
+     * @param array<int, array<string, string>> $documentTypes
      *
      * @return array<array{mailTemplateId: string, documentTypeIds: array<int, string>, recipient: array<string, string|array<string, string>>}>
      */
@@ -984,10 +984,6 @@ class TestEmailService extends MailService
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $data
-     * @param array<string, mixed> $templateData
-     */
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
         $this->data = $data;

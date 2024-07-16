@@ -88,7 +88,7 @@ class RequirementsValidator
     /**
      * dependsOn determines, whether a given plugin depends on another one.
      *
-     * @param PluginEntity $plugin     the plugin to be checked
+     * @param PluginEntity $plugin the plugin to be checked
      * @param PluginEntity $dependency the potential dependency
      */
     private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool

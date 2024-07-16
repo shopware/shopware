@@ -892,7 +892,7 @@ class ThemeTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>              $customConfig
+     * @param array<string, mixed> $customConfig
      * @param array<int, array<string, string>> $saleSchannels
      */
     private function createTheme(ThemeEntity $parentTheme, array $customConfig = [], array $saleSchannels = [], ?string $givenName = null): string

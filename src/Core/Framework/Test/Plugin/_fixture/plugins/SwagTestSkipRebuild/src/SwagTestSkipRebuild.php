@@ -5,6 +5,7 @@ namespace SwagTestSkipRebuild;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
@@ -36,12 +37,12 @@ class SwagTestSkipRebuild extends Plugin
     public $categoryRepository;
 
     /**
-     * @var Plugin\Context\ActivateContext|null
+     * @var ActivateContext|null
      */
     public $preActivateContext;
 
     /**
-     * @var Plugin\Context\ActivateContext|null
+     * @var ActivateContext|null
      */
     public $postActivateContext;
 

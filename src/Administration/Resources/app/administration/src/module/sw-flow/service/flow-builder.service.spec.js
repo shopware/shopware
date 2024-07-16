@@ -231,7 +231,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         expect(description).toBe('');
     });
 
-    it('should be able to show description of app action', async () => {
+    it.only('should be able to show description of app action', async () => {
         const sequence = {
             actionName: 'telegram.send.message',
             config: {

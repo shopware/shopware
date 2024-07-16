@@ -22,28 +22,28 @@ Application.addServiceProvider('flowBuilderService', () => {
 export default function flowBuilderService() {
     const $icon = {
         addEntityTag: 'regular-tag',
-        removeEntityTag: 'regular-tag',
         mailSend: 'regular-envelope',
-        grantDownloadAccess: 'regular-file-signature',
-        setOrderState: 'regular-shopping-bag-alt',
-        generateDocument: 'regular-file-text',
-        changeCustomerGroup: 'regular-users',
-        changeCustomerStatus: 'regular-user',
+        removeEntityTag: 'regular-tag',
         stopFlow: 'regular-times-circle',
+        changeCustomerStatus: 'regular-user',
+        changeCustomerGroup: 'regular-users',
+        generateDocument: 'regular-file-text',
+        setOrderState: 'regular-shopping-bag-alt',
+        grantDownloadAccess: 'regular-file-signature',
         setEntityCustomField: 'regular-file-signature',
         addEntityAffiliateAndCampaignCode: 'regular-file-signature',
     };
 
     const $labelSnippet = {
+        stopFlow: 'sw-flow.actions.stopFlow',
+        mailSend: 'sw-flow.actions.mailSend',
         addEntityTag: 'sw-flow.actions.addTag',
         removeEntityTag: 'sw-flow.actions.removeTag',
-        mailSend: 'sw-flow.actions.mailSend',
-        grantDownloadAccess: 'sw-flow.actions.grantDownloadAccess',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
+        grantDownloadAccess: 'sw-flow.actions.grantDownloadAccess',
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
         changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
-        stopFlow: 'sw-flow.actions.stopFlow',
         setEntityCustomField: 'sw-flow.actions.changeCustomFieldContent',
         addEntityAffiliateAndCampaignCode: 'sw-flow.actions.addAffiliateAndCampaignCode',
     };
@@ -51,58 +51,82 @@ export default function flowBuilderService() {
     const $actionNames = { ...ACTION };
 
     const $groups = {
-        GENERAL: GENERAL_GROUP,
         TAG: TAG_GROUP,
-        CUSTOMER: CUSTOMER_GROUP,
         ORDER: ORDER_GROUP,
+        GENERAL: GENERAL_GROUP,
+        CUSTOMER: CUSTOMER_GROUP,
     };
 
     const $actionGroupsMapping = { ...ACTION_GROUP };
 
+    const $descriptionCallbacks = {
+        [$actionNames.MAIL_SEND]: getMailSendDescription,
+        [$actionNames.STOP_FLOW]: getStopFlowActionDescription,
+        [$actionNames.SET_ORDER_STATE]: getSetOrderStateDescription,
+        [$actionNames.GENERATE_DOCUMENT]: getGenerateDocumentDescription,
+        [$actionNames.CHANGE_CUSTOMER_GROUP]: getCustomerGroupDescription,
+        [$actionNames.GRANT_DOWNLOAD_ACCESS]: getDownloadAccessDescription,
+        [$actionNames.SET_CUSTOMER_CUSTOM_FIELD]: getCustomFieldDescription,
+        [$actionNames.CHANGE_CUSTOMER_STATUS]: getCustomerStatusDescription,
+        [$actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: getAffiliateAndCampaignCodeDescription,
+        [$actionNames.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]: getAffiliateAndCampaignCodeDescription,
+    };
+
     const $entityAction = {
         [$actionNames.ADD_ORDER_TAG]: 'order',
-        [$actionNames.ADD_CUSTOMER_TAG]: 'customer',
         [$actionNames.REMOVE_ORDER_TAG]: 'order',
-        [$actionNames.REMOVE_CUSTOMER_TAG]: 'customer',
+        [$actionNames.ADD_CUSTOMER_TAG]: 'customer',
         [$actionNames.SET_ORDER_CUSTOM_FIELD]: 'order',
+        [$actionNames.REMOVE_CUSTOMER_TAG]: 'customer',
         [$actionNames.SET_CUSTOMER_CUSTOM_FIELD]: 'customer',
+        [$actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: 'order',
         [$actionNames.SET_CUSTOMER_GROUP_CUSTOM_FIELD]: 'customer_group',
         [$actionNames.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]: 'customer',
-        [$actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: 'order',
     };
 
     return {
-        getActionTitle,
-        getActionModalName,
-        convertEntityName,
         mapActionType,
-        getAvailableEntities,
-        rearrangeArrayObjects,
-        getDescription,
-        getActionDescriptions,
-        getCustomerStatusDescription,
-        getAffiliateAndCampaignCodeDescription,
-        getCustomerGroupDescription,
-        getCustomFieldDescription,
-        getSetOrderStateDescription,
-        convertTagString,
-        getGenerateDocumentDescription,
-        getMailSendDescription,
-        getDownloadAccessDescription,
-        convertConfig,
-        getAppFlowActionDescription,
         formatValuePreview,
+        rearrangeArrayObjects,
+        convertConfig,
+        convertTagString,
+        convertEntityName,
         convertLabelPreview,
-        getActionName,
         addActionNames,
+        addDescriptionCallbacks,
+        getDescriptionCallbacks,
         addIcons,
         addLabels,
-        getActionGroupMapping,
+        addGroups,
         addActionGroupMapping,
         getGroup,
-        addGroups,
         getGroups,
+        getActionName,
+        getDescription,
+        getActionTitle,
+        getActionModalName,
+        getAvailableEntities,
+        getActionGroupMapping,
+        getActionDescriptions,
+        getMailSendDescription,
+        getCustomFieldDescription,
+        getAppFlowActionDescription,
+        getSetOrderStateDescription,
+        getCustomerGroupDescription,
+        getStopFlowActionDescription,
+        getDownloadAccessDescription,
+        getCustomerStatusDescription,
+        getGenerateDocumentDescription,
+        getAffiliateAndCampaignCodeDescription,
     };
+
+    function addDescriptionCallbacks(callback) {
+        Object.assign($descriptionCallbacks, callback);
+    }
+
+    function getDescriptionCallbacks() {
+        return $descriptionCallbacks;
+    }
 
     function addIcons(icons) {
         return Object.assign($icon, icons);
@@ -173,6 +197,7 @@ export default function flowBuilderService() {
 
         Object.entries(format).forEach(([key, value]) => {
             let label = value;
+
             if (Utils.types.isPlainObject(value)) {
                 label = Object.values(value).join(', ');
             }
@@ -208,66 +233,45 @@ export default function flowBuilderService() {
 
     function getActionDescriptions(data, sequence, translator) {
         const { actionName, config } = sequence;
-        const {
-            appActions,
-            customerGroups,
-            customFieldSets,
-            customFields,
-            stateMachineState,
-            documentTypes,
-            mailTemplates,
-        } = data;
 
-        if (!actionName) return '';
+        if (!actionName) {
+            return '';
+        }
 
-        const selectedAppAction = appActions?.find(item => item.name === actionName);
+        const selectedAppAction = data.appActions?.find(item => item.name === actionName);
+
         if (selectedAppAction) {
-            return this.getAppFlowActionDescription(appActions, config, actionName);
+            return this.getAppFlowActionDescription(data, sequence);
         }
 
-        switch (actionName) {
-            case $actionNames.STOP_FLOW:
-                return translator.$tc('sw-flow.actions.textStopFlowDescription');
+        const callback = $descriptionCallbacks[actionName];
 
-            case $actionNames.CHANGE_CUSTOMER_STATUS:
-                return this.getCustomerStatusDescription(config, translator);
-
-            case $actionNames.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE:
-            case $actionNames.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE:
-                return this.getAffiliateAndCampaignCodeDescription(config, translator);
-
-            case $actionNames.CHANGE_CUSTOMER_GROUP:
-                return this.getCustomerGroupDescription(customerGroups, config);
-
-            case $actionNames.SET_CUSTOMER_CUSTOM_FIELD:
-                return this.getCustomFieldDescription(customFieldSets, customFields, config, translator);
-
-            case $actionNames.SET_ORDER_STATE:
-                return this.getSetOrderStateDescription(stateMachineState, config, translator);
-
-            case $actionNames.GENERATE_DOCUMENT:
-                return this.getGenerateDocumentDescription(documentTypes, config);
-
-            case $actionNames.MAIL_SEND:
-                return this.getMailSendDescription(mailTemplates, config, translator);
-
-            case $actionNames.GRANT_DOWNLOAD_ACCESS:
-                return this.getDownloadAccessDescription(config, translator);
-
-            default: {
-                const convertedDescription = this.convertConfig(config, translator);
-                return this.getDescription(convertedDescription);
-            }
+        if (typeof callback === 'function') {
+            return callback.call(this, data, sequence, translator);
         }
+
+        const convertedDescription = this.convertConfig(config, translator);
+
+        return this.getDescription(convertedDescription);
     }
 
-    function getAppFlowActionDescription(appActions, config, actionName) {
+    function getStopFlowActionDescription(_data, _sequence, translator) {
+        return translator.$tc('sw-flow.actions.textStopFlowDescription');
+    }
+
+    function getAppFlowActionDescription(data, sequence) {
+        const { actionName, config } = sequence;
+        const { appActions } = data;
+
+        console.log({ appActions, actionName, config });
+
         const cloneConfig = { ...config };
         let descriptions = '';
 
         Object.entries(cloneConfig).forEach(([fieldName]) => {
             if (typeof cloneConfig[fieldName] === 'object' && cloneConfig[fieldName].length > 1) {
                 let html = '';
+
                 cloneConfig[fieldName].forEach((val) => {
                     const valPreview = this.formatValuePreview(appActions, fieldName, actionName, val);
                     html = `${html}- ${valPreview}<br/>`;
@@ -305,6 +309,7 @@ export default function flowBuilderService() {
         if (['single-select', 'multi-select'].includes(config.type)) {
             const value = typeof val === 'string' ? val : val[0];
             const option = config.options.find((opt) => opt.value === value);
+
             if (option === undefined) {
                 return val;
             }
@@ -337,13 +342,15 @@ export default function flowBuilderService() {
         return config.label[this.currentLocale] ?? config.label['en-GB'] ?? fieldName;
     }
 
-    function getCustomerStatusDescription(config, translator) {
-        return config.active
+    function getCustomerStatusDescription(_data, sequence, translator) {
+        return sequence.config.active
             ? translator.$tc('sw-flow.modals.customerStatus.active')
             : translator.$tc('sw-flow.modals.customerStatus.inactive');
     }
 
-    function getAffiliateAndCampaignCodeDescription(config, translator) {
+    function getAffiliateAndCampaignCodeDescription(_data, sequence, translator) {
+        const { config } = sequence;
+
         let description = translator.$tc('sw-flow.actions.labelTo', 0, {
             entity: capitalizeString(config.entity),
         });
@@ -363,14 +370,18 @@ export default function flowBuilderService() {
         return description;
     }
 
-    function getCustomerGroupDescription(customerGroups, config) {
-        const customerGroup = customerGroups.find(item => item.id === config.customerGroupId);
+    function getCustomerGroupDescription(data, sequence) {
+        const customerGroup = data.customerGroups.find(item => item.id === sequence.config.customerGroupId);
         return customerGroup?.translated?.name;
     }
 
-    function getCustomFieldDescription(customFieldSets, customFields, config, translator) {
+    function getCustomFieldDescription(data, sequence, translator) {
+        const { config } = sequence;
+        const { customFields, customFieldSets } = data;
+
         const customFieldSet = customFieldSets.find(item => item.id === config.customFieldSetId);
         const customField = customFields.find(item => item.id === config.customFieldId);
+
         if (!customFieldSet || !customField) {
             return '';
         }
@@ -384,7 +395,10 @@ export default function flowBuilderService() {
         })}`;
     }
 
-    function getSetOrderStateDescription(stateMachineState, config, translator) {
+    function getSetOrderStateDescription(data, sequence, translator) {
+        const { config } = sequence;
+        const { stateMachineState } = data;
+
         const description = [];
         if (config.order) {
             const orderStatus = stateMachineState.find(item => item.technicalName === config.order
@@ -422,15 +436,17 @@ export default function flowBuilderService() {
         return description.join('<br>');
     }
 
-    function getGenerateDocumentDescription(documentTypes, config) {
+    function getGenerateDocumentDescription(data, sequence) {
+        const { config } = sequence;
+
         if (config.documentType) {
-            config = {
-                documentTypes: [config],
-            };
+            Object.assign(config, {
+                documentType: [config],
+            });
         }
 
         const documentType = config.documentTypes.map((type) => {
-            return documentTypes.find(
+            return data.documentTypes.find(
                 item => item.technicalName === type.documentType,
             )?.translated?.name;
         });
@@ -438,8 +454,8 @@ export default function flowBuilderService() {
         return this.convertTagString(documentType);
     }
 
-    function getMailSendDescription(mailTemplates, config, translator) {
-        const mailTemplateData = mailTemplates.find(item => item.id === config.mailTemplateId);
+    function getMailSendDescription(data, sequence, translator) {
+        const mailTemplateData = data.mailTemplates.find(item => item.id === sequence.config.mailTemplateId);
 
         let mailSendDescription = translator.$tc('sw-flow.actions.labelTemplate', 0, {
             template: mailTemplateData?.mailTemplateType?.name,
@@ -461,8 +477,8 @@ export default function flowBuilderService() {
         return mailSendDescription;
     }
 
-    function getDownloadAccessDescription(config, translator) {
-        return config.value
+    function getDownloadAccessDescription(_data, sequence, translator) {
+        return sequence.config.value
             ? translator.$tc('sw-flow.actions.downloadAccessLabel.granted')
             : translator.$tc('sw-flow.actions.downloadAccessLabel.revoked');
     }

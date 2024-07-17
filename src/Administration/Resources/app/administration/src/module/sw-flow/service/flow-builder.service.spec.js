@@ -231,7 +231,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         expect(description).toBe('');
     });
 
-    it.only('should be able to show description of app action', async () => {
+    it('should be able to show description of app action', async () => {
         const sequence = {
             actionName: 'telegram.send.message',
             config: {
@@ -390,5 +390,47 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         };
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toContain('sw-flow.actions.downloadAccessLabel.revoked');
+    });
+
+    it('should add & get custom action description function', () => {
+        service.addDescriptionCallbacks({
+            'action.test': () => {
+                return 'Test';
+            },
+        });
+
+        expect(service.getDescriptionCallbacks()['action.test']).toBeDefined();
+        expect(service.getDescriptionCallbacks()['action.test'].call()).toBe('Test');
+    });
+
+    it('should use description callback when generating action description', () => {
+        const callbackMock = jest.fn(() => 'test');
+        service.addDescriptionCallbacks({
+            'action.test': callbackMock,
+        });
+
+        const sequence = {
+            actionName: 'action.test',
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(callbackMock).toHaveBeenCalled();
+        expect(description).toContain('test');
+    });
+
+    it('should use default description implementation if description callback is wrongly defined', () => {
+        service.addDescriptionCallbacks({
+            'action.test': 'wrong-type',
+        });
+
+        const sequence = {
+            actionName: 'action.test',
+            config: {
+                mailSend: 'sw-flow.actions.mailSend',
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.mailSend');
     });
 });

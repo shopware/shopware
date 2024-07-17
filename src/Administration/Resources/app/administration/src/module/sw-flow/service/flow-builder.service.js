@@ -219,6 +219,7 @@ export default function flowBuilderService() {
             }
 
             const snippet = translator.$tc($labelSnippet[key]);
+
             if (!snippet) {
                 return;
             }
@@ -262,8 +263,6 @@ export default function flowBuilderService() {
     function getAppFlowActionDescription(data, sequence) {
         const { actionName, config } = sequence;
         const { appActions } = data;
-
-        console.log({ appActions, actionName, config });
 
         const cloneConfig = { ...config };
         let descriptions = '';

@@ -722,9 +722,7 @@
     "components": {
       "setDefaultLayoutModal": {
         "title": "Assign default layout",
-        "infoText": "Please note that all {cmsPageType} that are currently assigned to a default layout will be reassigned to this layout and newly created {cmsPageType} will automatically be assigned to it as well. Do you really want to use this layout as default?",
-        "productType": "products",
-        "categoryType": "categories"
+        "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Cancel",

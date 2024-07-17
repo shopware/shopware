@@ -453,8 +453,7 @@
                 v-if="showLayoutSetAsDefaultModal"
                 class="sw-cms-list__confirm-set-as-default-modal"
                 :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {
-                    cmsPageType: newDefaultLayout.type === 'product_detail' ? $tc('sw-cms.components.setDefaultLayoutModal.productType') : $tc('sw-cms.components.setDefaultLayoutModal.categoryType') })"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', newDefaultLayout.type === 'product_detail')"
                 @confirm="onConfirmLayoutSetAsDefault"
                 @cancel="onCloseLayoutSetAsDefault"
                 @close="onCloseLayoutSetAsDefault"

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -449,49 +448,36 @@ class EntityDefinitionQueryHelper
             return;
         }
 
-        $fields = $translationDefinition->getFields();
+        $fields = $translationDefinition->getFields()->filter(
+            fn (Field $field) => $field instanceof StorageAware
+                && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
+        );
         if (!empty($partial)) {
-            $fields = $translationDefinition->getFields()->filter(fn (Field $field) => $field->is(PrimaryKey::class)
-                || isset($partial[$field->getPropertyName()])
-                || $field instanceof FkField);
+            $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
         }
 
-        $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
-
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+        $translationChain = self::buildTranslationChain(
+            $root,
+            $context,
+            includeParent: $definition->isInheritanceAware() && $context->considerInheritance(),
+        );
 
         foreach ($fields as $field) {
-            if (!$field instanceof StorageAware) {
-                continue;
-            }
-
             $selects = [];
-            foreach ($chain as $select) {
+            foreach ($translationChain as $select) {
                 $vars = [
                     '#root#' => $select,
                     '#field#' => $field->getPropertyName(),
                 ];
-
-                $query->addSelect(str_replace(
+                $select = str_replace(
                     array_keys($vars),
                     array_values($vars),
-                    EntityDefinitionQueryHelper::escape('#root#.#field#')
-                ));
-
-                $selects[] = str_replace(
-                    array_keys($vars),
-                    array_values($vars),
-                    self::escape('#root#.#field#')
+                    self::escape('#root#.#field#'),
                 );
-            }
 
-            // check if current field is a translated field of the origin definition
-            $origin = $definition->getFields()->get($field->getPropertyName());
-            if (!$origin instanceof TranslatedField) {
-                continue;
+                $query->addSelect($select);
+                $selects[] = $select;
             }
-
-            $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
 
             // add selection for resolved parent-child and language inheritance
             $query->addSelect(
@@ -553,9 +539,9 @@ class EntityDefinitionQueryHelper
         $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
-            $chain[] = $root . '.translation.fallback_' . $i;
+            $chain[] = $root . '.translation.override_' . $i;
             if ($includeParent) {
-                $chain[] = $root . '.parent.translation.fallback_' . $i;
+                $chain[] = $root . '.parent.translation.override_' . $i;
             }
         }
 
@@ -686,8 +672,8 @@ class EntityDefinitionQueryHelper
         /*
          * Simplified Example:
          * COALESCE(
-             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_2`.`translated_attributes`, '$.path')) AS datetime(3), # child language
-             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_1`.`translated_attributes`, '$.path')) AS datetime(3), # root language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.override_2`.`translated_attributes`, '$.path')) AS datetime(3), # child language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.override_1`.`translated_attributes`, '$.path')) AS datetime(3), # root language
              JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation`.`translated_attributes`, '$.path')) AS datetime(3) # system language
            );
          */
@@ -702,11 +688,15 @@ class EntityDefinitionQueryHelper
         string $original
     ): string {
         if ($field instanceof TranslatedField) {
-            $inheritedChain = self::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
+            $translationChain = self::buildTranslationChain(
+                $root,
+                $context,
+                includeParent: $definition->isInheritanceAware() && $context->considerInheritance(),
+            );
 
             $translatedField = self::getTranslatedField($definition, $field);
 
-            return $this->getTranslationFieldAccessor($translatedField, $original, $inheritedChain, $context);
+            return $this->getTranslationFieldAccessor($translatedField, $original, $translationChain, $context);
         }
 
         $select = $this->buildFieldSelector($root, $field, $context, $original);

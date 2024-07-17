@@ -4201,16 +4201,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/ManyToManyIdFieldIndexerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdaterTest\\:\\:fetch\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdaterTest\\:\\:fetch\\(\\) should return array but returns array\\<string, mixed\\>\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Indexing/TreeUpdaterTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\Aggregate\\\\\\\\CustomerAddress\\\\\\\\CustomerAddressCollection' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressCollection will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Reader/EntityReaderTest.php

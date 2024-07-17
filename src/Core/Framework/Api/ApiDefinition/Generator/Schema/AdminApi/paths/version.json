@@ -5,7 +5,7 @@
         "\/_info\/version": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Get the Shopware version",
                 "description": "Get the version of the Shopware instance",

@@ -4,7 +4,7 @@
     "paths": [],
     "components": {
         "schemas": {
-            "ListPrice": {
+            "CartListPrice": {
                 "type": "object",
                 "description": "",
                 "properties": {

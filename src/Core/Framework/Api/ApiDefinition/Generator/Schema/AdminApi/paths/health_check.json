@@ -5,7 +5,7 @@
         "\/_info\/health-check": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Check that the Application is running",
                 "operationId": "healthCheck",

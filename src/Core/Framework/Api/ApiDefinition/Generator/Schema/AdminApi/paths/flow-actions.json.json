@@ -5,7 +5,7 @@
         "\/_info\/flow-actions.json": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Get actions for flow builder",
                 "description": "Get a list of action for flow builder.",
@@ -16,7 +16,7 @@
                         "content": {
                             "application\/json": {
                                 "schema": {
-                                    "$ref": "#\/components\/schemas\/flowBulderActionsResponse"
+                                    "$ref": "#\/components\/schemas\/flowBuilderActionsResponse"
                                 }
                             }
                         }

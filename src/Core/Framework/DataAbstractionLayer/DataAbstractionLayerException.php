@@ -54,6 +54,7 @@ class DataAbstractionLayerException extends HttpException
     public const UNABLE_TO_FETCH_FOREIGN_KEY = 'FRAMEWORK__UNABLE_TO_FETCH_FOREIGN_KEY';
     public const REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
+    public const FIELD_NOT_FOUND = 'FRAMEWORK__FIELD_NOT_FOUND';
     public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
@@ -294,6 +295,15 @@ class DataAbstractionLayerException extends HttpException
             self::MISSING_PARENT_FOREIGN_KEY,
             'Can not detect foreign key for parent definition {{ entity }}',
             ['entity' => $entity]
+        );
+    }
+
+    public static function fieldNotFound(string $entity, string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_NOT_FOUND,
+            \sprintf('Field %s not found in entity %s', $propertyName, $entity)
         );
     }
 

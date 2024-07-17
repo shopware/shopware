@@ -34,7 +34,7 @@ const findFile = (name) => {
     });
 };
 
-const allFiles = getAllFiles(path.join(__dirname, '../../'));
+const allFiles = getAllFiles(path.join(__dirname, '../../src'));
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout

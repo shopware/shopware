@@ -2,6 +2,9 @@
  * @package admin
  */
 
+import positionIdentifiers from './position-identifiers.json';
+import dataSetIds from './data-sets.json';
+
 /* eslint-disable max-len */
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
@@ -670,4 +673,8 @@ const missingTests = [
 /**
  * @private
  */
-export default missingTests;
+export {
+    missingTests,
+    positionIdentifiers,
+    dataSetIds,
+};

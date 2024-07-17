@@ -5,196 +5,189 @@
     "components": {
         "schemas": {
             "SalesChannelContext": {
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ArrayStruct"
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "description": "Context the user session",
+                        "type": "string"
                     },
-                    {
+                    "currentCustomerGroup": {
                         "type": "object",
+                        "description": "Customer group of the current user",
                         "properties": {
-                            "token": {
-                                "description": "Context the user session",
+                            "name": {
                                 "type": "string"
                             },
-                            "currentCustomerGroup": {
-                                "type": "object",
-                                "description": "Customer group of the current user",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "displayGross": {
-                                        "type": "boolean"
-                                    }
-                                }
+                            "displayGross": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "fallbackCustomerGroup": {
+                        "description": "Fallback group if the default customer group is not applicable",
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
                             },
-                            "fallbackCustomerGroup": {
-                                "description": "Fallback group if the default customer group is not applicable",
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "displayGross": {
-                                        "type": "boolean"
-                                    }
-                                }
+                            "displayGross": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "salesChannel": {
+                        "description": "Information about the current sales channel",
+                        "type": "object",
+                        "properties": {
+                            "typeId": {
+                                "type": "string"
                             },
-                            "currency": {
-                                "$ref": "#/components/schemas/Currency"
+                            "languageId": {
+                                "type": "string"
                             },
-                            "salesChannel": {
-                                "description": "Information about the current sales channel",
-                                "type": "object",
-                                "properties": {
-                                    "typeId": {
-                                        "type": "string"
-                                    },
-                                    "languageId": {
-                                        "type": "string"
-                                    },
-                                    "currencyId": {
-                                        "type": "string"
-                                    },
-                                    "paymentMethodId": {
-                                        "type": "string"
-                                    },
-                                    "shippingMethodId": {
-                                        "type": "string"
-                                    },
-                                    "countryId": {
-                                        "type": "string"
-                                    },
-                                    "navigationCategoryId": {
-                                        "type": "string"
-                                    },
-                                    "navigationCategoryDepth": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "footerCategoryId": {
-                                        "type": "string"
-                                    },
-                                    "serviceCategoryId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "shortName": {
-                                        "type": "string"
-                                    },
-                                    "accessKey": {
-                                        "type": "string"
-                                    },
-                                    "active": {
-                                        "type": "boolean"
-                                    },
-                                    "maintenance": {
-                                        "type": "boolean"
-                                    },
-                                    "maintenanceIpWhitelist": {
-                                        "type": "string"
-                                    },
-                                    "mailHeaderFooterId": {
-                                        "type": "string"
-                                    },
-                                    "customerGroupId": {
-                                        "type": "string"
-                                    },
-                                    "hreflangActive": {
-                                        "type": "boolean"
-                                    },
-                                    "hreflangDefaultDomainId": {
-                                        "type": "string"
-                                    },
-                                    "analyticsId": {
-                                        "type": "string"
-                                    }
-                                }
+                            "currencyId": {
+                                "type": "string"
                             },
-                            "taxRules": {
-                                "type": "array",
-                                "description": "Currently active tax rules and/or rates",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "taxRate": {
-                                            "type": "number",
-                                            "format": "float"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
+                            "paymentMethodId": {
+                                "type": "string"
                             },
-                            "customer": {
-                                "$ref": "#/components/schemas/Customer"
+                            "shippingMethodId": {
+                                "type": "string"
                             },
-                            "paymentMethod": {
-                                "$ref": "#/components/schemas/PaymentMethod"
+                            "countryId": {
+                                "type": "string"
                             },
-                            "shippingLocation": {
-                                "type": "object",
-                                "properties": {
-                                    "apiAlias": {
-                                        "type": "string",
-                                        "enum": [
-                                            "cart_delivery_shipping_location"
-                                        ]
-                                    },
-                                    "country": {
-                                        "$ref": "#/components/schemas/Country"
-                                    },
-                                    "address": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
-                                    }
-                                }
+                            "navigationCategoryId": {
+                                "type": "string"
                             },
-                            "shippingMethod": {
-                                "$ref": "#/components/schemas/ShippingMethod"
+                            "navigationCategoryDepth": {
+                                "type": "integer",
+                                "format": "int32"
                             },
-                            "context": {
-                                "description": "Core context with general configuration values and state",
-                                "type": "object",
-                                "properties": {
-                                    "versionId": {
-                                        "type": "string"
-                                    },
-                                    "currencyId": {
-                                        "type": "string"
-                                    },
-                                    "currencyFactor": {
-                                        "type": "integer"
-                                    },
-                                    "currencyPrecision": {
-                                        "type": "integer",
-                                        "format": "int32"
-                                    },
-                                    "languageIdChain": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "scope": {
-                                        "type": "string"
-                                    },
-                                    "source": {
-                                        "type": "string"
-                                    },
-                                    "taxState": {
-                                        "type": "string"
-                                    },
-                                    "useCache": {
-                                        "type": "boolean"
-                                    }
+                            "footerCategoryId": {
+                                "type": "string"
+                            },
+                            "serviceCategoryId": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "shortName": {
+                                "type": "string"
+                            },
+                            "accessKey": {
+                                "type": "string"
+                            },
+                            "active": {
+                                "type": "boolean"
+                            },
+                            "maintenance": {
+                                "type": "boolean"
+                            },
+                            "maintenanceIpWhitelist": {
+                                "type": "string"
+                            },
+                            "mailHeaderFooterId": {
+                                "type": "string"
+                            },
+                            "customerGroupId": {
+                                "type": "string"
+                            },
+                            "hreflangActive": {
+                                "type": "boolean"
+                            },
+                            "hreflangDefaultDomainId": {
+                                "type": "string"
+                            },
+                            "analyticsId": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "taxRules": {
+                        "type": "array",
+                        "description": "Currently active tax rules and/or rates",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "taxRate": {
+                                    "type": "number",
+                                    "format": "float"
+                                },
+                                "name": {
+                                    "type": "string"
                                 }
                             }
                         }
+                    },
+                    "customer": {
+                        "$ref": "#/components/schemas/Customer"
+                    },
+                    "paymentMethod": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    },
+                    "shippingLocation": {
+                        "type": "object",
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": [
+                                    "cart_delivery_shipping_location"
+                                ]
+                            },
+                            "country": {
+                                "$ref": "#/components/schemas/Country"
+                            },
+                            "address": {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            }
+                        }
+                    },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethod"
+                    },
+                    "context": {
+                        "description": "Core context with general configuration values and state",
+                        "type": "object",
+                        "properties": {
+                            "versionId": {
+                                "type": "string"
+                            },
+                            "currencyId": {
+                                "type": "string"
+                            },
+                            "currencyFactor": {
+                                "type": "integer"
+                            },
+                            "currencyPrecision": {
+                                "type": "integer",
+                                "format": "int32"
+                            },
+                            "languageIdChain": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "scope": {
+                                "type": "string"
+                            },
+                            "source": {
+                                "type": "string"
+                            },
+                            "taxState": {
+                                "type": "string"
+                            },
+                            "useCache": {
+                                "type": "boolean"
+                            }
+                        }
                     }
-                ]
+                }
             }
         }
     }

@@ -41,11 +41,9 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "additionalProperties": true,
                                     "properties": {
                                         "redirectUrl": {
-                                            "type": "string",
-                                            "nullable": true
+                                            "type": "string"
                                         }
                                     },
                                     "required": ["redirectUrl"]

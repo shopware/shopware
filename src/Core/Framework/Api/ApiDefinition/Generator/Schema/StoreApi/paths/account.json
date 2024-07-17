@@ -32,7 +32,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccountNewsletterRecipientResult"
+                                    "$ref": "#/components/schemas/AccountNewsletterRecipient"
                                 }
                             }
                         }
@@ -340,7 +340,27 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ArrayStruct"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "isExpired": {
+                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "required": ["isExpired"]
+                                            }
+                                        },
+                                        "apiAlias": {
+                                            "enum": [
+                                                "array_struct"
+                                            ],
+                                            "type": "string"
+                                        }
+                                    }
                                 }
                             }
                         }

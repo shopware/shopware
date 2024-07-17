@@ -5,7 +5,7 @@
         "\/_info\/config": {
             "get": {
                 "tags": [
-                    "System Info & Healthcheck"
+                    "System Info & Health Check"
                 ],
                 "summary": "Get API information",
                 "description": "Get information about the API",

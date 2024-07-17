@@ -104,10 +104,11 @@
                         }
                     },
                     "priceDefinition": {
-                        "$ref": "#/components/schemas/PriceDefinition"
+                        "$ref": "#/components/schemas/CartPriceQuantity"
                     },
                     "translated": { "type": "object" }
-                }
+                },
+                "required": ["apiAlias"]
             }
         }
     }

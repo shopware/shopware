@@ -4,7 +4,7 @@
     "paths": [],
     "components": {
         "schemas": {
-            "AccountNewsletterRecipientResult": {
+            "AccountNewsletterRecipient": {
                 "type": "object",
                 "properties": {
                     "status": {

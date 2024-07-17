@@ -4,7 +4,7 @@
     "paths": [],
     "components": {
         "schemas": {
-            "PriceDefinition": {
+            "CartPriceQuantity": {
                 "type": "object",
                 "properties": {
                     "apiAlias": {
@@ -13,7 +13,7 @@
                     },
                     "isCalculated": { "type": "boolean" },
                     "listPrice": {
-                        "$ref": "#/components/schemas/ListPrice"
+                        "$ref": "#/components/schemas/CartListPrice"
                     },
                     "price": { "type": "number" },
                     "quantity": { "type": "number" },
@@ -37,7 +37,8 @@
                         }
                     },
                     "type": { "type": "string" }
-                }
+                },
+                "required": ["apiAlias"]
             }
         }
     }

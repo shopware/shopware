@@ -642,8 +642,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.selectedSection.id).toBe('1111');
 
         wrapper.findComponent('#sw-cms-sidebar__section-2222 .sw-cms-sidebar__navigator-section-settings')
-            .vm
-            .$emit('click');
+            .vm.$emit('click');
 
         expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
         expect(wrapper.vm.selectedSection.id).toBe('2222');

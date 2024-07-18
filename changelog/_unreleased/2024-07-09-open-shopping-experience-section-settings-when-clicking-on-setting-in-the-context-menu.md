@@ -1,6 +1,6 @@
 ---
 title: Open Shopping Experience section settings when clicking on "Setting" in the context menu
-issue: NEXT-0000
+issue: NEXT-37327
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

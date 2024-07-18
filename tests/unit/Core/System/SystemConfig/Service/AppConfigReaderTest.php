@@ -29,7 +29,7 @@ class AppConfigReaderTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->expects(static::once())
             ->method('read')
-            ->with('/app-root/Resources/config/config.xml')
+            ->with('Resources/config/config.xml')
             ->willReturn([
                 'config1' => 'value',
             ]);

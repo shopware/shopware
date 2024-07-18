@@ -1,4 +1,4 @@
-import './service/flow-builder.service';
+import './service';
 import './acl';
 
 import flowState from './state/flow.state';

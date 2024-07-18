@@ -19,8 +19,6 @@ class ServicesException extends HttpException
     public const SERVICE_MISSING_APP_VERSION_INFO = 'SERVICE__MISSING_APP_INFO';
     public const SERVICE_CANNOT_WRITE_APP = 'SERVICE__CANNOT_WRITE_APP';
 
-    public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
-
     public static function notFound(string $field, string $value): self
     {
         return new self(
@@ -64,15 +62,6 @@ class ServicesException extends HttpException
             self::SERVICE_REQUEST_TRANSPORT_ERROR,
             'Error performing request. Response code: ' . $responseCode,
             [],
-        );
-    }
-
-    public static function toggleActionNotAllowed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_TOGGLE_ACTION_NOT_ALLOWED,
-            'Service is not allowed to toggle itself.',
         );
     }
 

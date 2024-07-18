@@ -7,7 +7,6 @@
         <service id="Shopware\Core\Services\Api\ServiceController" public="true">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
         </service>
 
         <service id="Shopware\Core\Services\Command\Install">

@@ -24,11 +24,7 @@ type SequenceConfigValues = {
     [key: string]: Primitive | Primitive[] | { [key: string]: Primitive | Primitive[] }
 };
 
-type AppAction = {
-    name: string,
-    label: string,
-    swIcon: string,
-    requirements: string[],
+type AppAction = Entity<'app_flow_action'> & {
     config: Array<{
         name: string,
         type: string,
@@ -65,18 +61,8 @@ type ActionTranslator = {
     getInlineSnippet(value: { [key: string]: string }): string,
 }
 
-type ActionSequence = {
-    id: string,
-    actionName: string,
-    apiAlias: string,
-    appFlowActionId?: string,
-    children: Node[],
-    flowId: string,
-    group: string,
-    icon: string,
-    parentId: string,
-    value: string | number,
-        config: {
+type ActionSequence = Entity<'flow_sequence'> & {
+    config: SequenceConfigValues & {
         value?: boolean,
         entity?: string,
         active?: boolean,
@@ -104,7 +90,11 @@ type ActionSequence = {
     },
 }
 
-type ActionContext = {
+/**
+ * @private
+ * @package services-settings
+ */
+export type ActionContext = {
     data: ActionData,
     sequence: ActionSequence,
     translator: ActionTranslator
@@ -353,7 +343,7 @@ export default class FlowBuilderService {
     }
 
     public getAppFlowActionDescription(context: ActionContext) {
-        const { config } = context.sequence;
+        const { sequence: { config } } = context;
 
         const cloneConfig = { ...config } as SequenceConfigValues;
         let descriptions = '';
@@ -383,8 +373,7 @@ export default class FlowBuilderService {
         fieldName: string,
         val: SequenceConfigValues[keyof SequenceConfigValues],
     ) {
-        const { appActions } = context.data;
-        const { actionName } = context.sequence;
+        const { data: { appActions }, sequence: { actionName } } = context;
 
         const value: string = this.configValuesToString(val);
         const selectedAppAction = appActions.find(item => item.name === actionName);
@@ -424,8 +413,8 @@ export default class FlowBuilderService {
     }
 
     public convertLabelPreview(context: ActionContext, fieldName: string) {
-        const { appActions } = context.data;
-        const { actionName } = context.sequence;
+        const { data: { appActions }, sequence: { actionName } } = context;
+
         const selectedAppAction = appActions.find(item => item.name === actionName);
 
         if (selectedAppAction === undefined) {
@@ -470,9 +459,9 @@ export default class FlowBuilderService {
     }
 
     public getCustomerStatusDescription(context: ActionContext) {
-        const { sequence, translator } = context;
+        const { sequence: { config }, translator } = context;
 
-        return sequence.config.active
+        return config.active
             ? translator.$tc('sw-flow.modals.customerStatus.active')
             : translator.$tc('sw-flow.modals.customerStatus.inactive');
     }
@@ -500,9 +489,9 @@ export default class FlowBuilderService {
     }
 
     public getCustomerGroupDescription(context: ActionContext) {
-        const { data, sequence } = context;
+        const { data, sequence: { config } } = context;
 
-        const customerGroup = data.customerGroups.find(item => item.id === sequence.config.customerGroupId);
+        const customerGroup = data.customerGroups.find(item => item.id === config.customerGroupId);
         return customerGroup?.translated?.name;
     }
 
@@ -606,9 +595,9 @@ export default class FlowBuilderService {
     }
 
     public getMailSendDescription(context: ActionContext) {
-        const { data, sequence, translator } = context;
+        const { data, sequence: { config }, translator } = context;
 
-        const mailTemplateData = data.mailTemplates.find(item => item.id === sequence.config.mailTemplateId);
+        const mailTemplateData = data.mailTemplates.find(item => item.id === config.mailTemplateId);
 
         let mailSendDescription = translator.$tc('sw-flow.actions.labelTemplate', 0, {
             template: mailTemplateData?.mailTemplateType?.name,
@@ -631,9 +620,9 @@ export default class FlowBuilderService {
     }
 
     public getDownloadAccessDescription(context: ActionContext) {
-        const { sequence, translator } = context;
+        const { sequence: { config }, translator } = context;
 
-        return sequence.config.value
+        return config.value
             ? translator.$tc('sw-flow.actions.downloadAccessLabel.granted')
             : translator.$tc('sw-flow.actions.downloadAccessLabel.revoked');
     }
@@ -715,7 +704,6 @@ export default class FlowBuilderService {
             this.flattenNodeList(child, arrayResult);
         });
     }
-
 
     public configValuesToString(val: SequenceConfigValues[keyof SequenceConfigValues]): string {
         if (val === null) {

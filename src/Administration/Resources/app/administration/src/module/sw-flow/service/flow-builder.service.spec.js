@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ */
+
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 

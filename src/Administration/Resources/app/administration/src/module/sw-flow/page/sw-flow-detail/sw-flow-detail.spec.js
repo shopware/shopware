@@ -3,13 +3,14 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
+class MockFlowBuilderService extends FlowBuilderService {
+    rearrangeArrayObjects = jest.fn((sequence) => {
+        return sequence;
+    });
+}
+
 Shopware.Service().register('flowBuilderService', () => {
-    return {
-        ...new FlowBuilderService(),
-        rearrangeArrayObjects: (sequences) => {
-            return sequences;
-        },
-    };
+    return new MockFlowBuilderService();
 });
 
 const sequenceFixture = {

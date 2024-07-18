@@ -386,7 +386,7 @@ export default class FlowBuilderService {
         const { appActions } = context.data;
         const { actionName } = context.sequence;
 
-        const value: string = this.ConfigValuesToString(val);
+        const value: string = this.configValuesToString(val);
         const selectedAppAction = appActions.find(item => item.name === actionName);
 
         if (selectedAppAction === undefined) {
@@ -717,7 +717,7 @@ export default class FlowBuilderService {
     }
 
 
-    public ConfigValuesToString(val: SequenceConfigValues[keyof SequenceConfigValues]): string {
+    public configValuesToString(val: SequenceConfigValues[keyof SequenceConfigValues]): string {
         if (val === null) {
             return 'null';
         }
@@ -727,11 +727,11 @@ export default class FlowBuilderService {
         }
 
         if (Array.isArray(val)) {
-            return `[${val.map(item => this.ConfigValuesToString(item)).join(', ')}]`;
+            return `[${val.map(item => this.configValuesToString(item)).join(', ')}]`;
         }
 
         if (typeof val === 'object') {
-            return `{${Object.keys(val).map(key => `${key}: ${this.ConfigValuesToString(val[key])}`).join(', ')}}`;
+            return `{${Object.keys(val).map(key => `${key}: ${this.configValuesToString(val[key])}`).join(', ')}}`;
         }
 
         return '';

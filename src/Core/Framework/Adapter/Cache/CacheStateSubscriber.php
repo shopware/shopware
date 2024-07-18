@@ -51,10 +51,10 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function cartChanged(CartChangedEvent $event): void
     {
-        $event->getContext()->removeState(self::STATE_CART_FILLED);
+        $event->getSalesChannelContext()->removeState(self::STATE_CART_FILLED);
 
         if ($event->getCart()->getLineItems()->count() > 0) {
-            $event->getContext()->addState(self::STATE_CART_FILLED);
+            $event->getSalesChannelContext()->addState(self::STATE_CART_FILLED);
         }
     }
 

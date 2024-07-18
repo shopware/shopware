@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CartContextHashEvent extends Event implements ShopwareSalesChannelEvent
+class CartContextHashEvent extends Event implements ShopwareSalesChannelEvent, CartEvent
 {
     public function __construct(
         protected readonly SalesChannelContext $salesChannelContext,

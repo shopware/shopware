@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
-class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
+class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @var array<array<string, mixed>>

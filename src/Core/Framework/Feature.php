@@ -230,19 +230,17 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
-        if (!empty(self::$silent[$majorFlag])) {
-            return;
-        }
-
         if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
             throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 
-        if (\PHP_SAPI !== 'cli') {
-            ScriptTraces::addDeprecationNotice($message);
-        }
+        if (empty(self::$silent[$majorFlag])) {
+            if (\PHP_SAPI !== 'cli') {
+                ScriptTraces::addDeprecationNotice($message);
+            }
 
-        trigger_deprecation('shopware/core', '', $message);
+            trigger_deprecation('shopware/core', '', $message);
+        }
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

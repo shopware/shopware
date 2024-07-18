@@ -20,7 +20,7 @@ class AppLifecycleIterator
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
-        private readonly AppLoader $appLoader
+        private readonly AbstractAppLoader $appLoader
     ) {
     }
 

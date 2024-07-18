@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -23,7 +23,7 @@ abstract class AbstractAppUrlChangeStrategy
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly AppLoader $appLoader,
+        private readonly AbstractAppLoader $appLoader,
         private readonly EntityRepository $appRepository,
         private readonly AppRegistrationService $registrationService
     ) {

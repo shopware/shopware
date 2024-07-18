@@ -524,7 +524,7 @@
         <service id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader" decorates="Shopware\Core\Framework\App\Template\TemplateLoader">
             <argument type="service" id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader.inner"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument>%kernel.project_dir%</argument>
         </service>
 

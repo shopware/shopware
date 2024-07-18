@@ -9,9 +9,9 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,7 +37,7 @@ class ShippingMethodPersister
         private readonly EntityRepository $appShippingMethodRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly MediaService $mediaService,
-        private readonly SourceResolver $sourceResolver
+        private readonly AbstractAppLoader $appLoader,
     ) {
         $this->mimeDetector = new FinfoMimeTypeDetector();
     }
@@ -145,13 +145,10 @@ class ShippingMethodPersister
             return null;
         }
 
-        $fs = $this->sourceResolver->filesystemForManifest($manifest);
-
-        if (!$fs->has($iconPath)) {
+        $icon = $this->appLoader->loadFile($manifest->getPath(), $iconPath);
+        if (!$icon) {
             return null;
         }
-
-        $icon = $fs->read($iconPath);
 
         $fileName = sprintf('shipping_app_%s_%s', $manifest->getMetadata()->getName(), $shippingMethod->getIdentifier());
         $extension = pathinfo($iconPath, \PATHINFO_EXTENSION);

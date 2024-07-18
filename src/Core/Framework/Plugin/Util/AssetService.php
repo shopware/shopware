@@ -6,7 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
-use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -31,7 +31,7 @@ class AssetService
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly SourceResolver $sourceResolver,
+        private readonly AbstractAppLoader $appLoader,
         private readonly ParameterBagInterface $parameterBag
     ) {
     }
@@ -63,13 +63,11 @@ class AssetService
 
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
-        $fs = $this->sourceResolver->filesystemForAppName($appName);
+        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
 
-        if (!$fs->has('Resources/public')) {
+        if ($publicDirectory === null) {
             return;
         }
-
-        $publicDirectory = $fs->path('Resources/public');
 
         $this->copyAssetsFromBundleOrApp(
             $publicDirectory,

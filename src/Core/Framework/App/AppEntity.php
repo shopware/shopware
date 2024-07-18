@@ -237,13 +237,6 @@ class AppEntity extends Entity
      */
     protected $templateLoadPriority;
 
-    protected string $sourceType = 'local';
-
-    /**
-     * @var array<string, string|null>
-     */
-    protected array $sourceConfig = [];
-
     public function getId(): string
     {
         return $this->id;
@@ -734,31 +727,5 @@ class AppEntity extends Entity
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;
-    }
-
-    public function getSourceType(): string
-    {
-        return $this->sourceType;
-    }
-
-    public function setSourceType(string $sourceType): void
-    {
-        $this->sourceType = $sourceType;
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    public function getSourceConfig(): array
-    {
-        return $this->sourceConfig;
-    }
-
-    /**
-     * @param array<string, string|null> $config
-     */
-    public function setSourceConfig(array $config): void
-    {
-        $this->sourceConfig = $config;
     }
 }

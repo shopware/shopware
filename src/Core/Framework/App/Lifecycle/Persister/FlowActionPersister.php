@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -19,29 +18,27 @@ class FlowActionPersister
 {
     public function __construct(
         private readonly EntityRepository $flowActionsRepository,
-        private readonly SourceResolver $sourceResolver,
+        private readonly AbstractAppLoader $appLoader,
         private readonly Connection $connection
     ) {
     }
 
-    public function updateActions(AppEntity $app, Action $flowAction, Context $context, string $defaultLocale): void
+    public function updateActions(Action $flowAction, string $appId, Context $context, string $defaultLocale): void
     {
         $existingFlowActions = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_action WHERE app_id = :appId', [
-            'appId' => Uuid::fromHexToBytes($app->getId()),
+            'appId' => Uuid::fromHexToBytes($appId),
         ]);
 
         $flowActions = $flowAction->getActions() ? $flowAction->getActions()->getActions() : [];
-        $fs = $this->sourceResolver->filesystemForApp($app);
         $upserts = [];
 
         foreach ($flowActions as $action) {
-            $icon = $action->getMeta()->getIcon();
-            if ($icon && $fs->has('Resources', $icon)) {
-                $icon = $fs->read('Resources', $icon);
+            if ($icon = $action->getMeta()->getIcon()) {
+                $icon = $this->appLoader->loadFile($flowAction->getPath(), $icon);
             }
 
             $payload = array_merge([
-                'appId' => $app->getId(),
+                'appId' => $appId,
                 'iconRaw' => $icon,
             ], $action->toArray($defaultLocale));
 

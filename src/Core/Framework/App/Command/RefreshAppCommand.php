@@ -131,13 +131,19 @@ class RefreshAppCommand extends Command
 
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
+        $default = true;
+        if (!empty($refreshableApps->getToBeDeleted())) {
+            $default = false;
+        }
+
         if (!$io->confirm(
             sprintf(
                 "%d apps will be installed, %d apps will be updated and %d apps will be deleted.\nDo you want to continue?",
                 \count($refreshableApps->getToBeInstalled()),
                 \count($refreshableApps->getToBeUpdated()),
                 \count($refreshableApps->getToBeDeleted())
-            )
+            ),
+            $default
         )) {
             throw new UserAbortedCommandException();
         }

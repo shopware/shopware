@@ -21,13 +21,17 @@ interface scopeInterface {
 interface publishOptions {
     id: string,
     path: string,
-    scope: scopeInterface
+    scope: scopeInterface,
+    deprecated?: boolean,
+    deprecationMessage?: string,
 }
 
 type dataset = {
     id: string,
     scope: number,
     data: unknown
+    deprecated?: boolean,
+    deprecationMessage?: string,
 }
 
 type transferObject = {
@@ -124,6 +128,27 @@ handleGet((data, additionalOptions) => {
         return null;
     }
 
+    if (registeredDataSet.deprecated) {
+        const extension = Object.values(Shopware.State.get('extensions'))
+            .find(ext => ext.baseUrl.startsWith(additionalOptions._event_.origin));
+
+        if (!extension) {
+            throw new Error(`Extension with the origin "${additionalOptions._event_.origin}" not found.`);
+        }
+
+        const debugArgs = [
+            'CORE',
+            // eslint-disable-next-line max-len
+            `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
+        ];
+        // @ts-expect-error
+        if (process.env !== 'prod') {
+            Shopware.Utils.debug.error(...debugArgs);
+        } else {
+            Shopware.Utils.debug.warn(...debugArgs);
+        }
+    }
+
     const selectors = data.selectors;
 
     if (!selectors) {
@@ -166,7 +191,7 @@ function parsePath(path :string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope }: publishOptions): () => void {
+export function publishData({ id, path, scope, deprecated, deprecationMessage }: publishOptions): () => void {
     if (unregisterPublishDataIds.includes(id)) {
         unregisterPublishDataIds = unregisterPublishDataIds.filter(value => value !== id);
     }
@@ -305,6 +330,8 @@ export function publishData({ id, path, scope }: publishOptions): () => void {
             data: clonedValue,
             // @ts-expect-error
             scope: (scope as vueWithUid)._uid,
+            deprecated,
+            deprecationMessage,
         });
     }, 750), {
         deep: true,

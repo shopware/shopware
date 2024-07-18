@@ -60,6 +60,7 @@ module.exports = {
     ],
 
     setupFilesAfterEnv: [
+        'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
     ],
 

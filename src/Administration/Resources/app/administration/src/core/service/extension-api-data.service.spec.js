@@ -617,4 +617,51 @@ describe('core/service/extension-api-data.service.ts', () => {
         publishedDataSets = getPublishedDataSets();
         expect(publishedDataSets).toHaveLength(0);
     });
+
+    it.each(['dev', 'prod'])('should show deprecation warning in "%s" env', async (env) => {
+        // Setup
+        const wrapper = mount({
+            template: '<h1>jest</h1>',
+            data() {
+                return {
+                    count: 42,
+                };
+            },
+        });
+
+        const mock = jest.fn();
+        let envBefore;
+        if (env === 'prod') {
+            envBefore = process.env;
+            process.env = 'prod';
+            Shopware.Utils.debug.warn = mock;
+        } else {
+            Shopware.Utils.debug.error = mock;
+        }
+
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'JestApp',
+            baseUrl: '', // This only works because it's a startsWith check
+        });
+        // Setup end
+
+        publishData({
+            id: 'jest',
+            path: 'count',
+            scope: wrapper.vm,
+            deprecated: true,
+            deprecationMessage: 'No replacement available, use API instead.',
+        });
+        await flushPromises();
+
+        // Get dataset to trigger deprecation error
+        await send('datasetGet', { id: 'jest' });
+
+        expect(mock).toHaveBeenCalledWith('CORE', 'The extension "JestApp" uses a deprecated data set "jest". No replacement available, use API instead.');
+
+        // Restore env
+        if (envBefore) {
+            process.env = envBefore;
+        }
+    });
 });

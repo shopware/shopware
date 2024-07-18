@@ -17,6 +17,8 @@ const { Component } = Shopware;
 Component.register('sw-label', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         variant: {
             type: String,

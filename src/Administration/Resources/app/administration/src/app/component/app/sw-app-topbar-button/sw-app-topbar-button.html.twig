@@ -1,0 +1,15 @@
+<div class="sw-app-topbar-button">
+    <sw-button
+        v-for="button in topBarButtons"
+        :key="button.label"
+        size="default"
+        @click="runAction(button)"
+    >
+        <sw-icon
+            v-if="button.icon"
+            :name="button.icon"
+            size="14px"
+        />
+        {{  button.label }}
+    </sw-button>
+</div>

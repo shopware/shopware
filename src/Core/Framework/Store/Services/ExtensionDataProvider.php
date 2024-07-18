@@ -32,18 +32,14 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
 
     public function getInstalledExtensions(Context $context, bool $loadCloudExtensions = true, ?Criteria $searchCriteria = null): ExtensionCollection
     {
-        $appCriteria = $searchCriteria ? clone $searchCriteria : new Criteria();
-        $appCriteria->addAssociation('translations');
-        $appCriteria->addFilter(new EqualsFilter('selfManaged', false));
+        $criteria = $searchCriteria ?: new Criteria();
+        $criteria->addAssociation('translations');
 
         /** @var AppCollection $installedApps */
-        $installedApps = $this->appRepository->search($appCriteria, $context)->getEntities();
-
-        $pluginCriteria = $searchCriteria ? clone $searchCriteria : new Criteria();
-        $pluginCriteria->addAssociation('translations');
+        $installedApps = $this->appRepository->search($criteria, $context)->getEntities();
 
         /** @var PluginCollection $installedPlugins */
-        $installedPlugins = $this->pluginRepository->search($pluginCriteria, $context)->getEntities();
+        $installedPlugins = $this->pluginRepository->search($criteria, $context)->getEntities();
         $pluginCollection = $this->extensionLoader->loadFromPluginCollection($context, $installedPlugins);
 
         $localExtensions = $this->extensionLoader->loadFromAppCollection($context, $installedApps)->merge($pluginCollection);

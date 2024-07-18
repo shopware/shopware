@@ -42,8 +42,6 @@ class Metadata extends XmlElement
 
     protected string $name;
 
-    protected bool $selfManaged = false;
-
     protected string $author;
 
     protected string $copyright;
@@ -123,16 +121,6 @@ class Metadata extends XmlElement
         return $this->name;
     }
 
-    public function isSelfManaged(): bool
-    {
-        return $this->selfManaged;
-    }
-
-    public function setSelfManaged(bool $selfManaged): void
-    {
-        $this->selfManaged = $selfManaged;
-    }
-
     public function getAuthor(): string
     {
         return $this->author;
@@ -158,11 +146,6 @@ class Metadata extends XmlElement
     public function getVersion(): string
     {
         return $this->version;
-    }
-
-    public function setVersion(string $version): void
-    {
-        $this->version = $version;
     }
 
     public function getIcon(): ?string

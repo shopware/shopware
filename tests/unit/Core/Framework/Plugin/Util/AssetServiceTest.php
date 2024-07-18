@@ -13,13 +13,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
-use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -45,7 +43,7 @@ class AssetServiceTest extends TestCase
             $kernelMock,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -68,7 +66,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -118,7 +116,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             $pluginLoader,
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -144,7 +142,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -183,7 +181,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -199,9 +197,7 @@ class AssetServiceTest extends TestCase
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver([
-                'TestApp' => new StaticFilesystem(),
-            ]),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -214,15 +210,19 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
+        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
+            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
+
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver([
-                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
-            ]),
+            $appLoader,
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -314,7 +314,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver(),
+            $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 
@@ -362,6 +362,12 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());
 
+        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
+            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
+
         $mockFs = $this->createMock(FilesystemOperator::class);
         $mockFs
             ->expects(static::never())
@@ -377,9 +383,7 @@ class AssetServiceTest extends TestCase
             $this->createMock(KernelInterface::class),
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver([
-                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
-            ]),
+            $appLoader,
             new ParameterBag(['shopware.filesystem.asset.type' => 'local'])
         );
 
@@ -399,6 +403,12 @@ class AssetServiceTest extends TestCase
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn($bundle);
+
+        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader
+            ->method('locatePath')
+            ->with(__DIR__ . '/_fixtures/ExampleBundle', 'Resources/public')
+            ->willReturn(__DIR__ . '/../_fixtures/ExampleBundle/Resources/public');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
 
@@ -424,10 +434,7 @@ class AssetServiceTest extends TestCase
                 $local = $expectedWrites[$path];
                 unset($expectedWrites[$path]);
 
-                static::assertSame(
-                    realpath(__DIR__ . '/../_fixtures/' . $local),
-                    isset($meta['uri']) ? realpath($meta['uri']) : ''
-                );
+                static::assertSame(__DIR__ . '/../_fixtures/' . $local, $meta['uri'] ?? '');
 
                 return true;
             });
@@ -440,9 +447,7 @@ class AssetServiceTest extends TestCase
             $kernel,
             $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
-            new StaticSourceResolver([
-                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
-            ]),
+            $appLoader,
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
 

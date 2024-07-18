@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,7 +20,7 @@ class AppLifecycleIterator
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
-        private readonly AppLoader $appLoader
+        private readonly AbstractAppLoader $appLoader
     ) {
     }
 
@@ -73,8 +72,7 @@ class AppLifecycleIterator
      */
     private function getRegisteredApps(Context $context): array
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('selfManaged', false));
-        $apps = $this->appRepository->search($criteria, $context)->getEntities();
+        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         $appData = [];
         foreach ($apps as $app) {

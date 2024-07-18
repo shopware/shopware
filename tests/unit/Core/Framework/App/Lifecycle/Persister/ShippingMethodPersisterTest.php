@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -17,9 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * @internal
@@ -27,7 +26,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 #[CoversClass(ShippingMethodPersister::class)]
 class ShippingMethodPersisterTest extends TestCase
 {
-    private const ICON_URL = __DIR__ . '/_fixtures/Icons/TestIcon.png';
+    private const ICON_URL = __DIR__ . '/Icons/TestIcon.png';
 
     private const APP_ID = '2b0e78aa591e11ee8c990242ac120002';
 
@@ -57,6 +56,7 @@ class ShippingMethodPersisterTest extends TestCase
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
+            'appLoader' => $this->createMock(AppLoader::class),
             'mediaService' => $this->createMock(MediaService::class),
         ]);
 
@@ -76,9 +76,7 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
-            \array_key_exists('sourceResolver', $services) ? $services['sourceResolver'] : new StaticSourceResolver([
-                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
-            ]),
+            \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
         );
     }
 
@@ -125,6 +123,14 @@ class ShippingMethodPersisterTest extends TestCase
         $mediaServiceMock->expects(static::once())->method('saveFile')->willReturn(self::ICON_URL);
 
         return $mediaServiceMock;
+    }
+
+    private function createAppLoaderMock(): AppLoader&MockObject
+    {
+        $appLoaderMock = $this->createMock(AppLoader::class);
+        $appLoaderMock->expects(static::once())->method('loadFile')->willReturn(self::ICON_URL);
+
+        return $appLoaderMock;
     }
 
     private function getManifest(string $file): Manifest

@@ -14,6 +14,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Log\Package;
@@ -41,6 +42,7 @@ class DecorationPatternRule implements Rule
         AbstractAppUpdater::class,
         RefreshableAppDryRun::class,
         RefreshableAppDryRun::class,
+        AbstractAppLoader::class,
         AbstractAppLifecycle::class,
         AbstractAppUrlChangeStrategy::class,
     ];

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
@@ -25,7 +25,7 @@ class ActiveAppsLoader implements ResetInterface
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly AppLoader $appLoader,
+        private readonly AbstractAppLoader $appLoader,
         private readonly string $projectDir
     ) {
     }

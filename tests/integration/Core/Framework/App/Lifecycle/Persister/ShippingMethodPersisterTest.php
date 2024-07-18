@@ -9,9 +9,9 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -206,7 +206,7 @@ class ShippingMethodPersisterTest extends TestCase
             $this->getContainer()->get('app_shipping_method.repository'),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get(SourceResolver::class),
+            $this->getContainer()->get(AppLoader::class),
         );
 
         $shippingMethodPersister->updateShippingMethods($manifest, $appId, Defaults::LANGUAGE_SYSTEM, Context::createDefaultContext());

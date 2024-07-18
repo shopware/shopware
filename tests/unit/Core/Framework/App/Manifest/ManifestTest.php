@@ -14,18 +14,11 @@ use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 #[CoversClass(Manifest::class)]
 class ManifestTest extends TestCase
 {
-    public function testCreateFromXmlFile(): void
+    public function testCreateFromXml(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
         static::assertEquals(__DIR__ . '/_fixtures/test', $manifest->getPath());
-    }
-
-    public function testCreateFromXml(): void
-    {
-        $manifest = Manifest::createFromXml((string) file_get_contents(__DIR__ . '/_fixtures/test/manifest.xml'));
-
-        static::assertEquals('test', $manifest->getMetadata()->getName());
     }
 
     public function testSetPath(): void
@@ -36,7 +29,7 @@ class ManifestTest extends TestCase
         static::assertEquals('test', $manifest->getPath());
     }
 
-    public function testCreateFromXmlFileThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
+    public function testThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
@@ -44,16 +37,6 @@ class ManifestTest extends TestCase
         $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
 
         Manifest::createFromXmlFile(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml');
-    }
-
-    public function testCreateFromXmlThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
-    {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
-        $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
-        $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
-
-        Manifest::createFromXml((string) file_get_contents(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml'));
     }
 
     public function testXSChoice(): void
@@ -127,21 +110,5 @@ class ManifestTest extends TestCase
         $this->expectExceptionMessage('Unable to parse file "/_fixtures/invalidShippingMethods-manifest.xml". Message: name must not be empty');
 
         Manifest::validate($fileContent, $file);
-    }
-
-    public function testSourceType(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
-        $manifest->setSourceType('test');
-
-        static::assertEquals('test', $manifest->getSourceType());
-    }
-
-    public function testSourceConfig(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
-        $manifest->setSourceConfig(['test' => 'test']);
-
-        static::assertEquals(['test' => 'test'], $manifest->getSourceConfig());
     }
 }

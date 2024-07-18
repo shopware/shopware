@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
-/**
- * @deprecated tag:v6.7.0 Will be removed.
- */
 #[Package('storefront')]
 interface ThemeFileImporterInterface
 {

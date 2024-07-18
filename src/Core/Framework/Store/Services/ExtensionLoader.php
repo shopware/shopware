@@ -6,8 +6,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
-use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -47,8 +46,7 @@ class ExtensionLoader
 
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
-        private readonly AppLoader $appLoader,
-        private readonly SourceResolver $sourceResolver,
+        private readonly AbstractAppLoader $appLoader,
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider
@@ -221,11 +219,7 @@ class ExtensionLoader
 
         foreach ($apps as $name => $app) {
             if ($icon = $app->getMetadata()->getIcon()) {
-                $fs = $this->sourceResolver->filesystemForManifest($app);
-
-                if ($fs->has($icon)) {
-                    $icon = $fs->read($icon);
-                }
+                $icon = $this->appLoader->loadFile($app->getPath(), $icon);
             }
 
             $appArray = $app->getMetadata()->toArray($language);

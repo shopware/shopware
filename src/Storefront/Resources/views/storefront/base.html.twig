@@ -18,6 +18,16 @@
 {% block base_body %}
     <body class="{% block base_body_classes %}is-ctl-{% if controllerName is not empty %}{{ controllerName|lower }}{% endif %} is-act-{% if controllerAction is not empty %}{{ controllerAction|lower }}{% endif %}{% endblock %}">
 
+    {% block base_body_skip_to_content %}
+        <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
+            <div class="container d-flex justify-content-center">
+                <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
+                    {{ 'general.skipToContentLink'|trans|sw_sanitize }}
+                </a>
+            </div>
+        </div>
+    {% endblock %}
+
     {% block base_body_inner %}
         {% block base_noscript %}
             <noscript class="noscript-main">
@@ -69,7 +79,7 @@
         {% endblock %}
 
         {% block base_main %}
-            <main class="content-main">
+            <main class="content-main" id="content-main">
                 {% block base_flashbags %}
                     <div class="flashbags container">
                         {% for type, messages in app.flashes %}

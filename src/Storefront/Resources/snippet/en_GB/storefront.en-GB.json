@@ -52,7 +52,8 @@
     "next": "Next",
     "previous": "Previous",
     "formSubmit": "Submit",
-    "listPricePreviously": "previously %price%"
+    "listPricePreviously": "previously %price%",
+    "skipToContentLink": "Skip to main content"
   },
   "header": {
     "logoLink": "Go to homepage",

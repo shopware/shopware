@@ -19,7 +19,7 @@ class ThemeFileResolver
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeFileImporterInterface $themeFileImporter)
+    public function __construct(private readonly ThemeFilesystemResolver $themeFilesystemResolver)
     {
     }
 
@@ -99,7 +99,7 @@ class ThemeFileResolver
             return $files;
         }
 
-        $this->convertPathsToAbsolute($files);
+        $this->convertPathsToAbsolute($themeConfig, $files);
 
         $resolvedFiles = new FileCollection();
         $nextIncluded = $included;
@@ -112,7 +112,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if ($this->themeFileImporter->fileExists($filepath)) {
+                if (file_exists($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;
@@ -169,18 +169,26 @@ class ThemeFileResolver
         return str_starts_with($file, '@');
     }
 
-    private function convertPathsToAbsolute(FileCollection $files): void
+    private function convertPathsToAbsolute(StorefrontPluginConfiguration $themeConfig, FileCollection $files): void
     {
         foreach ($files->getElements() as $file) {
             if ($this->isInclude($file->getFilepath())) {
                 continue;
             }
 
-            $file->setFilepath($this->themeFileImporter->getRealPath($file->getFilepath()));
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+            $relativePath = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($file->getFilepath(), $themeConfig);
+            if ($fs->has($relativePath)) {
+                $file->setFilepath($fs->realpath($relativePath));
+            }
+
             $mapping = $file->getResolveMapping();
 
             foreach ($mapping as $key => $val) {
-                $mapping[$key] = $this->themeFileImporter->getRealPath($val);
+                $relativePath = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($val, $themeConfig);
+                if ($fs->has($relativePath)) {
+                    $mapping[$key] = $fs->realpath($relativePath);
+                }
             }
 
             $file->setResolveMapping($mapping);

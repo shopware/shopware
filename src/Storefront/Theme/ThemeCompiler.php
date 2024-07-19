@@ -10,6 +10,7 @@ use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +19,7 @@ use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -39,10 +41,11 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly FilesystemOperator $tempFilesystem,
+        private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly ThemeFilesystemResolver $themeFilesystemResolver,
         private readonly iterable $packages,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly LoggerInterface $logger,
@@ -76,11 +79,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         try {
-            $concatenatedStyles = $this->concatenateStyles(
-                $styleFiles,
-                $themeConfig,
-                $salesChannelId
-            );
+            $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
         } catch (\Throwable $e) {
             throw new ThemeCompileException(
                 $themeConfig->getName() ?? '',
@@ -199,7 +198,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $copyFiles = [];
 
-        foreach ($scriptsDist as $folderName => $basePath) {
+        foreach ($scriptsDist as $folderName => [$pluginConfig, $basePath]) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
             $path = str_replace('/Resources', '', $basePath);
             $pathToJsFiles = $path . '/' . $distRelativePath . '/js/' . $folderName;
@@ -207,7 +206,15 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $pathToJsFiles = $path . '/' . $distRelativePath;
             }
 
-            $files = $this->getScriptDistFiles($this->themeFileImporter->getRealPath($pathToJsFiles));
+            if ($pathToJsFiles[0] === '/' || !file_exists($this->projectDir . '/' . $pathToJsFiles)) {
+                $files = $this->getScriptDistFiles($pathToJsFiles);
+            } else {
+                $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
+                $path = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($pathToJsFiles, $pluginConfig);
+
+                $files = $this->getScriptDistFiles($fs->realpath($path));
+            }
+
             if ($files === null) {
                 continue;
             }
@@ -224,7 +231,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, array{0: StorefrontPluginConfiguration, 1: string}>
      */
     private function getScriptDistFolders(StorefrontPluginConfigurationCollection $configurationCollection): array
     {
@@ -247,7 +254,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
             }
 
-            $scriptsDistFolders[$configuration->getAssetName()] = $distPath;
+            $scriptsDistFolders[$configuration->getAssetName()] = [$configuration, $distPath];
         }
 
         return $scriptsDistFolders;
@@ -295,9 +302,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $this->projectDir . '/' . $asset;
             }
 
-            $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
-
-            $collected = [...$collected, ...$assets];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
         }
 
         return array_values($collected);
@@ -499,14 +504,14 @@ PHP_EOL;
 
     private function concatenateStyles(
         FileCollection $styleFiles,
-        StorefrontPluginConfiguration $themeConfig,
         string $salesChannelId
     ): string {
-        $concatenatedStyles = '';
-        foreach ($styleFiles as $file) {
-            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-        }
-        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
+        $styles = $styleFiles->map(fn (File $file) => sprintf('@import \'%s\';', $file->getFilepath()));
+
+        $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
+            implode("\n", $styles),
+            $salesChannelId
+        );
         $this->eventDispatcher->dispatch($concatenatedStylesEvent);
 
         return $concatenatedStylesEvent->getConcatenatedStyles();

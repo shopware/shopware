@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
@@ -32,7 +32,7 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $this->createMock(AbstractAppLoader::class),
+            $this->createMock(AppLoader::class),
             '/'
         );
 
@@ -63,7 +63,7 @@ class ActiveAppsLoaderTest extends TestCase
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
-        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader = $this->createMock(AppLoader::class);
 
         $xmlFile = __DIR__ . '/_fixtures/manifest.xml';
 
@@ -100,7 +100,7 @@ class ActiveAppsLoaderTest extends TestCase
             ->expects(static::never())
             ->method('fetchAllAssociative');
 
-        $appLoader = $this->createMock(AbstractAppLoader::class);
+        $appLoader = $this->createMock(AppLoader::class);
         $appLoader
             ->expects(static::never())
             ->method('load');

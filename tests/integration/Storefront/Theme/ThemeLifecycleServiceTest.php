@@ -5,9 +5,12 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\File\FileNameProvider;
+use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,17 +18,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
+use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
@@ -46,13 +53,40 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private Connection $connection;
 
+    private ThemeFilesystemResolver $themeFilesystemResolver;
+
     protected function setUp(): void
     {
-        $this->themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects(static::once())->method('getBundles')->willReturn([
+            'ThemeWithFileAssociations' => $this->createMock(BundleInterface::class),
+            'ThemeWithLabels' => $this->createMock(BundleInterface::class),
+        ]);
+
+        $this->themeFilesystemResolver = new ThemeFilesystemResolver(
+            $this->getContainer()->get(SourceResolver::class),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $kernel
+        );
         $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->themeLifecycleService = new ThemeLifecycleService(
+            $this->getContainer()->get(StorefrontPluginRegistry::class),
+            $this->themeRepository,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $this->getContainer()->get('theme_media.repository'),
+            $this->getContainer()->get(FileSaver::class),
+            $this->getContainer()->get(FileNameProvider::class),
+            $this->themeFilesystemResolver,
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get('theme_child.repository'),
+            $this->connection,
+            $this->getContainer()->get(StorefrontPluginConfigurationFactory::class)
+        );
+
         $this->context = Context::createDefaultContext();
     }
 

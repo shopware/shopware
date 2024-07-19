@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -19,8 +20,11 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir, private readonly KernelPluginLoader $pluginLoader)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly KernelPluginLoader $pluginLoader,
+        private readonly SourceResolver $sourceResolver
+    ) {
     }
 
     public function getDecorated(): AbstractStorefrontPluginConfigurationFactory
@@ -54,12 +58,13 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     public function createFromApp(string $appName, string $appPath): StorefrontPluginConfiguration
     {
-        $absolutePath = $this->projectDir . '/' . $appPath;
-        if (file_exists($absolutePath . '/Resources/theme.json')) {
-            return $this->createThemeConfig($appName, $absolutePath);
+        $fs = $this->sourceResolver->filesystemForAppName($appName);
+
+        if ($fs->has('/Resources/theme.json')) {
+            return $this->createThemeConfig($appName, $fs->path());
         }
 
-        return $this->createPluginConfig($appName, $absolutePath);
+        return $this->createPluginConfig($appName, $fs->path());
     }
 
     /**

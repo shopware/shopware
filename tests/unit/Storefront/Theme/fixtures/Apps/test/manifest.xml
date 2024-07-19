@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>test</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+        <privacyPolicyExtensions>
+Following personal information will be processed on shopware AG's servers:
+
+- Name
+- Billing address
+- Order value
+        </privacyPolicyExtensions>
+        <privacyPolicyExtensions lang="de-DE">
+Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+
+- Name
+- Rechnungsadresse
+- Bestellwert
+        </privacyPolicyExtensions>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/test/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <storefront>
+        <template-load-priority>100</template-load-priority>
+    </storefront>
+</manifest>

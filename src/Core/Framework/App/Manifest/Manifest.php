@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
@@ -29,6 +30,13 @@ class Manifest
     private const XSD_FILE = __DIR__ . '/Schema/manifest-2.0.xsd';
 
     private bool $managedByComposer = false;
+
+    private ?string $sourceType = null;
+
+    /**
+     * @var array<string, string|null>
+     */
+    private array $sourceConfig = [];
 
     private function __construct(
         private string $path,
@@ -58,6 +66,17 @@ class Manifest
         }
 
         self::create($doc, $file);
+    }
+
+    public static function createFromXml(string $xml): self
+    {
+        try {
+            $doc = XmlUtils::parse($xml, self::XSD_FILE);
+        } catch (\Exception $e) {
+            throw AppXmlParsingException::cannotParseContent($e->getMessage());
+        }
+
+        return self::create($doc, '');
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -206,6 +225,32 @@ class Manifest
     public function setManagedByComposer(bool $managedByComposer): void
     {
         $this->managedByComposer = $managedByComposer;
+    }
+
+    public function getSourceType(): ?string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(string $sourceType): void
+    {
+        $this->sourceType = $sourceType;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function getSourceConfig(): array
+    {
+        return $this->sourceConfig;
+    }
+
+    /**
+     * @param array<string, string|null> $sourceConfig
+     */
+    public function setSourceConfig(array $sourceConfig): void
+    {
+        $this->sourceConfig = $sourceConfig;
     }
 
     private static function create(\DOMDocument $doc, string $xmlFile): self

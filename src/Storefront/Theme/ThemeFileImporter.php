@@ -3,12 +3,16 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @deprecated tag:v6.7.0 Will be removed.
+ */
 #[Package('storefront')]
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
@@ -21,11 +25,15 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
     public function fileExists(string $filePath): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         return file_exists($filePath) && !is_dir($filePath);
     }
 
     public function getRealPath(string $filePath): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         if ($filePath[0] === '/' || !file_exists($this->projectDir . '/' . $filePath)) {
             return $filePath;
         }
@@ -35,16 +43,22 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         return '@import \'' . $file->getFilepath() . '\';' . \PHP_EOL;
     }
 
     public function getConcatenableScriptPath(File $file, StorefrontPluginConfiguration $configuration): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         return file_get_contents($file->getFilepath()) . \PHP_EOL;
     }
 
     public function getCopyBatchInputsForAssets(string $assetPath, string $outputPath, StorefrontPluginConfiguration $configuration): array
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         if (!is_dir($assetPath)) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),

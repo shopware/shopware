@@ -86,7 +86,7 @@ class ProductReviewLoader
     {
         $limit = (int) $request->get('limit', self::LIMIT);
         $page = (int) $request->get('p', self::DEFAULT_PAGE);
-        $offset = $limit * ($page - 1);
+        $offset = max(0, $limit * ($page - 1));
 
         $criteria = new Criteria();
         $criteria->setLimit($limit);

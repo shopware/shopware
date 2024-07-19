@@ -139,7 +139,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _clearSuggestResults() {
-        // reseet arrow navigation helper to enable form submit on enter
+        // reset arrow navigation helper to enable form submit on enter
         this._navigationHelper.resetIterator();
 
         // remove all result popovers

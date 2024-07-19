@@ -64,51 +64,47 @@ class CleanPersonalDataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $type = $input->getArgument('type');
-        $all = $input->getOption('all');
-
-        if (!$all && !\in_array($type, self::VALID_TYPES, true)) {
+        $types = array_filter(($input->getOption('all')) ? self::VALID_TYPES : [$input->getArgument('type')]);
+        if (\count($types) === 0 || \count(\array_diff($types, self::VALID_TYPES)) > 0) {
             throw new \InvalidArgumentException(
-                'Please add the argument "guests" to remove guests without orders or the argument "carts" to remove canceled carts. Use --all to clean both.'
+                'Please add the argument "type=guests" to remove guests without orders or the argument "type=carts" to remove canceled carts. Use --all to clean both.'
             );
         }
 
         $days = (int) $input->getOption('days');
 
-        if ($all || $type === self::TYPE_GUESTS) {
+        if (\in_array(self::TYPE_GUESTS, $types, true)) {
             $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('guest', true));
-            $criteria->addFilter(new EqualsFilter('orderCustomers.id', null));
-            $criteria->addFilter(
-                new RangeFilter(
-                    'createdAt',
-                    [
-                        RangeFilter::LTE => (new \DateTime())->modify(-abs($days) . ' Day')
-                            ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                )
-            );
+            $criteria
+                ->addFilter(new EqualsFilter('guest', true))
+                ->addFilter(new EqualsFilter('orderCustomers.id', null))
+                ->addFilter(new RangeFilter('createdAt', [
+                    RangeFilter::LTE => (new \DateTime())->modify(-abs($days) . ' Day')
+                        ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]));
 
-            $ids = $this->customerRepository
-                ->searchIds($criteria, Context::createCLIContext())
-                ->getIds();
+            $context = Context::createCLIContext();
+            $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
 
-            if ($ids) {
-                $ids = array_map(fn ($id) => ['id' => $id], $ids);
-
-                $this->customerRepository->delete($ids, Context::createCLIContext());
+            if (\count($ids) > 0) {
+                $this->customerRepository->delete(
+                    array_map(fn ($id) => ['id' => $id], $ids),
+                    $context
+                );
             }
+
+            $output->writeln('Personal data for guests successfully cleaned!');
         }
 
-        if ($all || $type === self::TYPE_CARTS) {
+        if (\in_array(self::TYPE_CARTS, $types, true)) {
             $this->connection->executeStatement(
                 'DELETE FROM cart
                 WHERE DATE(created_at) <= (DATE_SUB(CURDATE(), INTERVAL :days DAY))',
                 ['days' => $days]
             );
-        }
 
-        $output->writeln('Personal data for ' . ($all ? implode(' and ', self::VALID_TYPES) : $type) . ' successfully cleaned!');
+            $output->writeln('Personal data for carts successfully cleaned!');
+        }
 
         return self::SUCCESS;
     }

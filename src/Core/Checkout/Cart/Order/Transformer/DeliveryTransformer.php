@@ -48,7 +48,7 @@ class DeliveryTransformer
         Context $context,
         array $addresses = []
     ): array {
-        $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
+        $addressId = $delivery->getLocation()->getAddress()?->getId();
         $shippingAddress = null;
 
         if ($addressId !== null && \array_key_exists($addressId, $addresses)) {
@@ -84,12 +84,9 @@ class DeliveryTransformer
 
     private static function getId(Struct $struct): ?string
     {
-        /** @var IdStruct|null $idStruct */
-        $idStruct = $struct->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class);
-        if ($idStruct !== null) {
-            return $idStruct->getId();
-        }
-
-        return null;
+        return $struct->getExtensionOfType(
+            OrderConverter::ORIGINAL_ID,
+            IdStruct::class
+        )?->getId();
     }
 }

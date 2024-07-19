@@ -3,11 +3,12 @@
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 
 #[Package('checkout')]
 class PaymentDistinguishableNameGenerator
@@ -27,7 +28,7 @@ class PaymentDistinguishableNameGenerator
             $payments = $this->getInstalledPayments($context);
 
             $upsertablePayments = $this->generateDistinguishableNamesPayload($payments);
-            if (empty($upsertablePayments)) {
+            if (\count($upsertablePayments) === 0) {
                 return;
             }
 
@@ -55,81 +56,52 @@ class PaymentDistinguishableNameGenerator
     {
         $upsertablePayments = [];
         foreach ($payments as $payment) {
-            if ($payment->getTranslations() === null) {
+            $pluginOrAppEntity = $payment->getPlugin() ?? $payment->getAppPaymentMethod()?->getApp();
+            if ($pluginOrAppEntity === null || $payment->getTranslations() === null) {
                 continue;
             }
 
-            if ($payment->getPluginId() === null && $payment->getAppPaymentMethod() === null) {
-                continue;
-            }
-
+            $distinguishableNames = [];
             foreach ($payment->getTranslations() as $translation) {
                 $languageId = $translation->getLanguageId();
-                $paymentName = $translation->getName() ?? $payment->getTranslation('name');
-                $name = $this->generatePluginBasedName($payment, $languageId, $paymentName)
-                    ?? $this->generateAppBasedName($payment, $languageId, $paymentName);
 
-                if (!$name) {
-                    continue;
-                }
-
-                $upsertablePayments[] = [
-                    'id' => $payment->getId(),
-                    'distinguishableName' => [
-                        $languageId => $name,
-                    ],
-                ];
+                $distinguishableNames[$languageId] = $this->generatePaymentName(
+                    $pluginOrAppEntity,
+                    $languageId,
+                    $translation->getName() ?? $payment->getTranslation('name'),
+                );
             }
+
+            $distinguishableNames = array_filter($distinguishableNames);
+            if (\count($distinguishableNames) === 0) {
+                continue;
+            }
+
+            $upsertablePayments[] = [
+                'id' => $payment->getId(),
+                'distinguishableName' => $distinguishableNames,
+            ];
         }
 
         return $upsertablePayments;
     }
 
-    private function generatePluginBasedName(PaymentMethodEntity $payment, string $languageId, string $paymentName): ?string
-    {
-        if ($payment->getPlugin() === null) {
+    private function generatePaymentName(
+        AppEntity|PluginEntity $entity,
+        string $languageId,
+        string $paymentName,
+    ): ?string {
+        $label = $entity->getTranslations()?->filterByProperty('languageId', $languageId)->first()?->getLabel()
+            ?? $entity->getTranslation('label');
+
+        if (!\is_string($label)) {
             return null;
         }
-
-        if ($payment->getPlugin()->getTranslations() === null) {
-            return null;
-        }
-
-        $pluginLabel = $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()
-            ? $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
-            : $payment->getPlugin()->getTranslation('label');
-        \assert(\is_string($pluginLabel));
 
         return sprintf(
             '%s | %s',
             $paymentName,
-            $pluginLabel
-        );
-    }
-
-    private function generateAppBasedName(PaymentMethodEntity $payment, string $languageId, string $paymentName): ?string
-    {
-        if ($payment->getAppPaymentMethod() === null) {
-            return null;
-        }
-
-        if ($payment->getAppPaymentMethod()->getApp() === null) {
-            return null;
-        }
-
-        if ($payment->getAppPaymentMethod()->getApp()->getTranslations() === null) {
-            return null;
-        }
-
-        $appLabel = $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()
-            ? $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
-            : $payment->getAppPaymentMethod()->getApp()->getTranslation('label');
-        \assert(\is_string($appLabel));
-
-        return sprintf(
-            '%s | %s',
-            $paymentName,
-            $appLabel
+            $label
         );
     }
 }

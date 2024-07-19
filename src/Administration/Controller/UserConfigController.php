@@ -16,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +29,8 @@ class UserConfigController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserConfigCollection> $userConfigRepository
      */
     public function __construct(
         private readonly EntityRepository $userConfigRepository,
@@ -40,8 +42,8 @@ class UserConfigController extends AbstractController
     public function getConfigMe(Context $context, Request $request): Response
     {
         $userConfigs = $this->getOwnUserConfig($context, $request->query->all('keys'));
+
         $data = [];
-        /** @var UserConfigEntity $userConfig */
         foreach ($userConfigs as $userConfig) {
             $data[$userConfig->getKey()] = $userConfig->getValue();
         }
@@ -63,7 +65,10 @@ class UserConfigController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    private function getOwnUserConfig(Context $context, array $keys): array
+    /**
+     * @param array<string> $keys
+     */
+    private function getOwnUserConfig(Context $context, array $keys): UserConfigCollection
     {
         $userId = $this->getUserId($context);
 
@@ -73,7 +78,7 @@ class UserConfigController extends AbstractController
             $criteria->addFilter(new EqualsAnyFilter('key', $keys));
         }
 
-        return $this->userConfigRepository->search($criteria, $context)->getElements();
+        return $this->userConfigRepository->search($criteria, $context)->getEntities();
     }
 
     private function getUserId(Context $context): string
@@ -90,13 +95,15 @@ class UserConfigController extends AbstractController
         return $userId;
     }
 
+    /**
+     * @param array<string, mixed> $postUpdateConfigs
+     */
     private function massUpsert(Context $context, array $postUpdateConfigs): void
     {
         $userId = $this->getUserId($context);
         $userConfigs = $this->getOwnUserConfig($context, array_keys($postUpdateConfigs));
-        $userConfigsGroupByKey = [];
 
-        /** @var UserConfigEntity $userConfig */
+        $userConfigsGroupByKey = [];
         foreach ($userConfigs as $userConfig) {
             $userConfigsGroupByKey[$userConfig->getKey()] = $userConfig->getId();
         }

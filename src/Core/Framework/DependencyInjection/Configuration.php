@@ -856,7 +856,10 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('system_config');
 
         $rootNode = $treeBuilder->getRootNode();
-        $rootNode->variablePrototype()->end();
+        $rootNode
+            ->children()
+                ->arrayNode('default')->scalarPrototype()->end()
+            ->end();
 
         return $rootNode;
     }

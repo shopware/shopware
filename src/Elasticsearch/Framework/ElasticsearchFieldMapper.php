@@ -189,6 +189,14 @@ class ElasticsearchFieldMapper
 
                 continue;
             }
+            
+            /**
+             * Do not convert/cast fields defined as text.
+             * See https://issues.shopware.com/issues/NEXT-33271
+             */
+            if ($type === CustomFieldTypes::TEXT) {
+                continue;
+            }
 
             if ($type === CustomFieldTypes::BOOL) {
                 $customFields[$name] = (bool) $customField;

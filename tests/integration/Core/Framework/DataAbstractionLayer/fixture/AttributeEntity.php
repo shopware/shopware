@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
@@ -135,6 +136,12 @@ class AttributeEntity extends EntityStruct
      */
     #[ManyToMany(entity: 'currency', onDelete: OnDelete::CASCADE)]
     public ?array $currencies = null;
+
+    /**
+     * @var array<string, ArrayEntity>|null
+     */
+    #[ManyToMany(entity: 'order', onDelete: OnDelete::CASCADE)]
+    public ?array $orders = null;
 
     /**
      * @var array<string, ArrayEntity>|null

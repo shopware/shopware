@@ -33,12 +33,12 @@
             {% endblock %}
             {% endblock %}
 
+            <sw-usage-data-consent-banner :can-be-hidden="true" />
+
             <sw-extension-component-section
                 position-identifier="sw-dashboard__before-content"
                 class="sw-dashboard__before-content"
             />
-
-            <sw-usage-data-consent-banner :can-be-hidden="true" />
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_index_content_info_grid %}
@@ -114,6 +114,10 @@
 
             <sw-dashboard-statistics />
 
+            <sw-extension-component-section
+                position-identifier="sw-dashboard__after-content"
+                class="sw-dashboard__after-content"
+            />
         </sw-card-view>
     </template>
     {% endblock %}

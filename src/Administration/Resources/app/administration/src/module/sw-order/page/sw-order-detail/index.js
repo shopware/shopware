@@ -269,6 +269,8 @@ export default {
             });
 
             if (mappings.length === 0) {
+                State.commit('swOrderDetail/setOrderAddressIds', false);
+
                 return;
             }
 

@@ -167,6 +167,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
             customerAddressId: '652e9e571cc94bd898077f256dcf629f',
             type: 'billing',
+            edited: false,
         }]);
     });
 

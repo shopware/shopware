@@ -71,6 +71,7 @@ class ElasticsearchFieldMapperTest extends TestCase
         $parameterBag = new ParameterBag(['elasticsearch.product.custom_fields_mapping' => [
             'cf_foo' => 'text',
             'cf_baz' => 'int',
+            'cf_bar' => 'text',
         ]]);
 
         $connection = $this->createMock(Connection::class);
@@ -91,24 +92,36 @@ class ElasticsearchFieldMapperTest extends TestCase
                 'cf_foo' => 'danke',
                 'cf_baz' => '234',
                 'cf_bool' => 0,
+                'cf_bar' => '123E321',
             ],
             $enLanguageId => [
                 'cf_foo' => 'thankyou',
                 'cf_baz' => '123',
                 'cf_bool' => 'true',
+                'cf_bar' => '123E321',
             ],
         ], new Context(new SystemSource()));
+
+
+        /**
+         * Specifically check, that this case does not happen anymore:
+         * https://issues.shopware.com/issues/NEXT-33271 (comments)
+         **/
+        static::assertNotEquals($formatted[$deLanguageId]['cf_bar'], \INF);
+        static::assertNotEquals($formatted[$enLanguageId]['cf_bar'], \INF);
 
         static::assertEquals([
             $deLanguageId => [
                 'cf_foo' => 'danke',
                 'cf_baz' => 234.0,
                 'cf_bool' => false,
+                'cf_bar' => '123E321',
             ],
             $enLanguageId => [
                 'cf_foo' => 'thankyou',
                 'cf_baz' => 123.0,
                 'cf_bool' => true,
+                'cf_bar' => '123E321',
             ],
         ], $formatted);
     }

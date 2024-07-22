@@ -49,6 +49,7 @@ interface ComponentData {
 
 /**
  * @package services-settings
+ * @deprecated tag:v6.7.0 - Will be removed without replacement
  *
  * @private
  */

@@ -7,12 +7,16 @@ lowercase() {
   echo "${1}" | tr '[:upper:]' '[:lower:]'
 }
 
+uppercase_first() {
+  echo "$(tr '[:lower:]' '[:upper:]' <<< ${1:0:1})${1:1}"
+}
+
 # Creates a split repository for a subpackage of platform.
 #
 # [1]: A subpackage. e.g.: "Administration"
 split_repo() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
 
   local split_repos_dir="${PLATFORM_DIR}/repos"
   local split_repo_dir="${PLATFORM_DIR}/repos/$(lowercase ${package})"
@@ -47,8 +51,8 @@ split_repo() {
 #
 # [1]: A subpackage. e.g.: "Administration"
 copy_assets() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
 
   if [ -d "${PLATFORM_DIR}/src/${package}/Resources/public" ]; then
     cp -r "${PLATFORM_DIR}/src/${package}/Resources/public" "${PLATFORM_DIR}/repos/${package_lower}/Resources/"
@@ -84,14 +88,13 @@ EOF
 # Checks whether all mandatory assets have been generated and copied to the
 # correct repository.
 check_assets() {
-  local package=${1:-""}
+  local package=$(lowercase "${1:-""}")
 
-
-  if [[ ${package} == "" || ${package,,} == "storefront" ]]; then
+  if [[ ${package} == "" || ${package} == "storefront" ]]; then
     stat -t $(storefront_assets_list) > /dev/null
   fi
 
-  if [[ ${package} == "" || ${package,,} == "administration" ]]; then
+  if [[ ${package} == "" || ${package} == "administration" ]]; then
     stat -t $(admin_assets_list) > /dev/null
   fi
 }
@@ -109,8 +112,8 @@ include_storefront_assets() {
 }
 
 require_core_version() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
   local version="${2}"
   local type="${3:-tag}"
 
@@ -134,8 +137,8 @@ require_core_version() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: The branch name.
 branch() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
   local name="${2}"
   local commit_id=$(git -C "${PLATFORM_DIR}/repos/${package_lower}" log -n1 --format="%H")
 
@@ -147,8 +150,8 @@ branch() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: A commit message.
 commit() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
   local message="${2}"
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" add .
@@ -160,8 +163,8 @@ commit() {
 # [1]: A subpackage. e.g.: "Administration"
 # [2]: The tag name.
 tag() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
   local name="${2}"
 
   git -C "${PLATFORM_DIR}/repos/${package_lower}" tag -m "Release ${name}" "${name}" -f
@@ -173,8 +176,8 @@ tag() {
 # [2]: Base-URL of the remote repository, e.g.: "https://user:pass@git.example.com"
 # [3]: The ref to push to, e.g.: "6.4.20.0"
 push() {
-  local package="${1}"
-  local package_lower=$(lowercase "${package}")
+  local package_lower=$(lowercase "${1}")
+  local package="$(uppercase_first "$package_lower")"
   local remote_base_url="${2}"
   local target_ref="${3}"
 
@@ -193,19 +196,18 @@ push() {
 }
 
 include_assets() {
-  local package="$1"
+  local package=$(lowercase "${1}")
 
-  if [[ ${package,,} == "administration" || ${package,,} == "storefront" ]]; then
+  if [[ ${package} == "administration" || ${package} == "storefront" ]]; then
     copy_assets $package
+    check_assets $package
   fi
 
-  check_assets $package
-
-  if [[ ${package,,} == "administration" ]]; then
+  if [[ ${package} == "administration" ]]; then
     include_admin_assets
   fi
 
-  if [[ ${package,,} == "storefront" ]]; then
+  if [[ ${package} == "storefront" ]]; then
     include_storefront_assets
   fi
 }
@@ -218,7 +220,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         set -x
     fi
 
-    PLATFORM_DIR="${CI_PROJECT_DIR:-$(dirname $(dirname $(dirname ${BASH_SOURCE[0]})))}"
+    export PLATFORM_DIR="$(realpath "${CI_PROJECT_DIR:-$(dirname $(dirname $(dirname ${BASH_SOURCE[0]})))}")"
 
     "$@"
 fi

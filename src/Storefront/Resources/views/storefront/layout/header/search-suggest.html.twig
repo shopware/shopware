@@ -1,7 +1,7 @@
 {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
 
 {% block layout_search_suggest %}
-    <div class="search-suggest js-search-result">
+    <div class="search-suggest js-search-result" aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}">
         {% block layout_search_suggest_container %}
             <ul class="search-suggest-container">
                 {% block layout_search_suggest_results %}

@@ -60,6 +60,8 @@
     "searchPlaceholder": "Enter search term...",
     "searchAllResults": "Show all search results",
     "searchResults": "{1} 1 Result|]1,Inf[ %count% Results",
+    "searchDropdownTitle": "The dropdown search",
+    "searchCloseButton": "Close the dropdown search",
     "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
     "indexLinkService": "Service/help",
     "searchNoResult": "No results found.",

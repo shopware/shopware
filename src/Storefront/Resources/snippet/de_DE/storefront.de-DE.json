@@ -60,6 +60,8 @@
     "searchPlaceholder": "Suchbegriff eingeben ...",
     "searchAllResults": "Alle Suchergebnisse anzeigen",
     "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
+    "searchDropdownTitle": "Die Dropdown-Suche",
+    "searchCloseButton": "Die Dropdown-Suche schließen",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden.",

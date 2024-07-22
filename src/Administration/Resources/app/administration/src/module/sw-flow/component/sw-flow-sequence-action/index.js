@@ -163,7 +163,6 @@ export default {
                 'sequences',
                 'appActions',
                 'getSelectedAppAction',
-                'hasAvailableAction',
             ],
         ),
     },
@@ -489,6 +488,10 @@ export default {
             actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
+        },
+
+        hasAvailableAction(actionName) {
+            return this.availableActions.includes(actionName);
         },
 
         isValidAction(actionName) {

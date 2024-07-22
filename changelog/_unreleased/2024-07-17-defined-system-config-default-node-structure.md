@@ -1,6 +1,6 @@
 ---
 title: defined-system-config-default-node-structure
-issue: NEXT-00000
+issue: NEXT-37373
 author: Michał Daniel
 author_email: michal.daniel@webwirkung.ch
 author_github: webwirkung-michal-d

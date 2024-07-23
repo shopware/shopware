@@ -308,9 +308,11 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $criteria->addAssociation('order.deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('order.billingAddress.country');
         $criteria->addAssociation('order.lineItems');
-        $criteria->addAssociation('order');
+        $criteria->addAssociation('order.transactions.stateMachineState');
+        $criteria->addAssociation('order.transactions.paymentMethod.appPaymentMethod.app');
         $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
+        $criteria->getAssociation('order.transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->addSorting(new FieldSorting('createdAt'));
 
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();

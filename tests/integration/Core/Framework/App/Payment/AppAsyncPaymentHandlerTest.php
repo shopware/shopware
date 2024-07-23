@@ -381,6 +381,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['order']['orderCustomer']);
         static::assertArrayHasKey('customer', $content['order']['orderCustomer']);
         static::assertIsArray($content['order']['orderCustomer']['customer']);
+        static::assertCount(1, $content['order']['transactions']);
         // sensitive data is removed
         static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
         static::assertArrayHasKey('requestData', $content);

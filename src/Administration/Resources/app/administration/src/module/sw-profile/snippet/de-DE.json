@@ -97,7 +97,8 @@
           "tagsName": "Tags",
           "title": "Titel",
           "fileName": "Name",
-          "mediaFolderName": "Ordner"
+          "mediaFolderName": "Ordner",
+          "path": "Pfad"
         },
         "landing_page": {
           "name": "Name",

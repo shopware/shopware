@@ -335,11 +335,11 @@ class TreeUpdater
             return;
         }
 
+        /** @var TreePathField|null $pathField */
         $pathField = $definition->getFields()->filterInstance(TreePathField::class)->first();
-        \assert($pathField instanceof TreePathField);
 
+        /** @var TreeLevelField|null $levelField */
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
-        \assert($levelField instanceof TreeLevelField);
 
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId, $bag);

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
@@ -33,9 +32,7 @@ class InvoicePaymentTest extends TestCase
 
     public function testPay(): void
     {
-        $payment = new InvoicePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new InvoicePayment();
         $response = $payment->pay(
             new Request(),
             new PaymentTransactionStruct(Uuid::randomHex()),
@@ -48,9 +45,7 @@ class InvoicePaymentTest extends TestCase
 
     public function testSupports(): void
     {
-        $payment = new InvoicePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new InvoicePayment();
 
         foreach (PaymentHandlerType::cases() as $case) {
             $supports = $payment->supports(
@@ -66,10 +61,7 @@ class InvoicePaymentTest extends TestCase
     #[DoesNotPerformAssertions]
     public function testRecurring(): void
     {
-        $payment = new InvoicePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
-
+        $payment = new InvoicePayment();
         $payment->recurring(
             new PaymentTransactionStruct(Uuid::randomHex()),
             Context::createDefaultContext(),

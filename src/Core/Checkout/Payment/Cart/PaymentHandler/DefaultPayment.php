@@ -21,13 +21,6 @@ if (Feature::isActive('v6.7.0.0')) {
     #[Package('checkout')]
     class DefaultPayment extends AbstractPaymentHandler
     {
-        /**
-         * @internal
-         */
-        public function __construct(protected readonly OrderTransactionStateHandler $transactionStateHandler)
-        {
-        }
-
         public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
         {
             // needed for payment methods like Cash on delivery and Paid in advance
@@ -48,6 +41,8 @@ if (Feature::isActive('v6.7.0.0')) {
     {
         /**
          * @var OrderTransactionStateHandler
+         *
+         * @deprecated tag:v6.7.0 - will be removed for DefaultPayments
          */
         protected $transactionStateHandler;
 

@@ -68,4 +68,22 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ScalarNodeDefinition::class, $fieldsNodes['name']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $fieldsNodes['sets']);
     }
+
+    public function testSearchTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('search', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $searchNode = $nodes['search']);
+
+        $nodes = $searchNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('preserved_chars', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['preserved_chars']);
+    }
 }

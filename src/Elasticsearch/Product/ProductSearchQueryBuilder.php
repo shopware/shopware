@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 /**
@@ -48,6 +49,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
     public function build(Criteria $criteria, Context $context): BoolQuery
     {
+        $originalTerm = mb_strtolower((string) $criteria->getTerm());
+
         $bool = new BoolQuery();
 
         $searchConfig = $this->fetchConfig($context);
@@ -56,6 +59,14 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $tokens = $this->tokenizer->tokenize((string) $criteria->getTerm());
         $tokens = $this->tokenFilter->filter($tokens, $context);
+
+        if (!\in_array($originalTerm, $tokens, true)) {
+            $tokens[] = $originalTerm;
+        }
+
+        if (empty(array_filter($tokens))) {
+            throw ElasticsearchException::emptyQuery();
+        }
 
         foreach ($tokens as $token) {
             $tokenBool = new BoolQuery();

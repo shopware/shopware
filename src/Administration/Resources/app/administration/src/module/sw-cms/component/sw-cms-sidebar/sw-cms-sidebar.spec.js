@@ -21,7 +21,16 @@ function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
-async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) {
+async function createWrapper(
+    { cmsBlockRegistry } = { cmsBlockRegistry: null },
+    pageType = 'product_list',
+    privileges = [
+        'system_config:read',
+        'system_config:update',
+        'system_config:create',
+        'system_config:delete',
+    ],
+) {
     localStorage.clear();
 
     Shopware.Store.unregister('cmsPageState');
@@ -99,7 +108,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                         }]),
                     }),
                 ],
-                type: 'product_list',
+                type: pageType,
             },
         },
         global: {
@@ -147,6 +156,15 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                 },
             },
             provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
                 repositoryFactory: {
                     create: () => ({
                         create: () => {
@@ -197,7 +215,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                             },
                         };
                     },
-                    isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType),
+                    isBlockAllowedInPageType: (name, currentPageType) => name.startsWith(currentPageType),
                 },
                 cmsPageTypeService: {
                     getTypes: () => {
@@ -227,6 +245,67 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(wrapper.vm).toBeTruthy();
     });
+
+    const showDefaultLayoutSelectionDataProvider = [
+        ['show the default layout selection, when "product_list" page is no default layout', { pageType: 'product_list', isDefaultLayout: false, expectedSelectionCount: 1 }],
+        ['show the default layout selection, when "product_detail" page is no default layout', { pageType: 'product_detail', isDefaultLayout: false, expectedSelectionCount: 1 }],
+        ['not show the default layout selection, when "product_list" page is already a default layout', { pageType: 'product_list', isDefaultLayout: true, expectedSelectionCount: 0 }],
+        ['not show the default layout selection, when "product_detail" page is already a default layout', { pageType: 'product_detail', isDefaultLayout: true, expectedSelectionCount: 0 }],
+        ['not show the default layout selection, when page is "landingpage" (isDefaultLayout = false)', { pageType: 'landingpage', isDefaultLayout: false, expectedSelectionCount: 0 }],
+        ['not show the default layout selection, when page is "landingpage" (isDefaultLayout = true)', { pageType: 'landingpage', isDefaultLayout: true, expectedSelectionCount: 0 }],
+    ];
+    it.each(showDefaultLayoutSelectionDataProvider)('should %s', async (caseName, testData) => {
+        const wrapper = await createWrapper(
+            { cmsBlockRegistry: null },
+            testData.pageType,
+        );
+
+        await wrapper.setProps({
+            isDefaultLayout: testData.isDefaultLayout,
+        });
+        await flushPromises();
+
+        const defaultLayoutSelection = wrapper.findAll('.sw-cms-sidebar__layout-set-as-default-content');
+        expect(defaultLayoutSelection).toHaveLength(testData.expectedSelectionCount);
+    });
+
+    it('should show the default layout selection with sufficient privileges', async () => {
+        const wrapper = await createWrapper();
+
+        const defaultLayoutSelection = wrapper.find('.sw-cms-sidebar__layout-set-as-default-content');
+        expect(defaultLayoutSelection).toBeTruthy();
+    });
+
+    const defaultLayoutSelectionDataProvider = [
+        ['no privileges', []],
+        ['only read', ['system_config:read']],
+        ['only update', ['system_config:update']],
+        ['only create', ['system_config:create']],
+        ['only delete', ['system_config:delete']],
+        ['read + update', ['system_config:read', 'system_config:update']],
+        ['read + create', ['system_config:read', 'system_config:create']],
+        ['read + delete', ['system_config:read', 'system_config:delete']],
+        ['update + create', ['system_config:update', 'system_config:create']],
+        ['update + delete', ['system_config:update', 'system_config:delete']],
+        ['create + delete', ['system_config:create', 'system_config:delete']],
+        ['read + update + create', ['system_config:read', 'system_config:update', 'system_config:create']],
+        ['read + update + delete', ['system_config:read', 'system_config:update', 'system_config:delete']],
+        ['read + create + delete', ['system_config:read', 'system_config:create', 'system_config:delete']],
+        ['update + create + delete', ['system_config:update', 'system_config:create', 'system_config:delete']],
+    ];
+    it.each(defaultLayoutSelectionDataProvider)(
+        'should not show the default layout selection with insufficient privileges. [Case: %s]',
+        async (caseName, testedPrivileges) => {
+            const wrapper = await createWrapper(
+                { cmsBlockRegistry: null },
+                'product_list',
+                testedPrivileges,
+            );
+
+            const defaultLayoutSelection = wrapper.findAll('.sw-cms-sidebar__layout-set-as-default-content');
+            expect(defaultLayoutSelection).toHaveLength(0);
+        },
+    );
 
     it('disable all sidebar items', async () => {
         const wrapper = await createWrapper();

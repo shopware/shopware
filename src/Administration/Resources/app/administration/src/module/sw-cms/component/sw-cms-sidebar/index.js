@@ -229,8 +229,12 @@ export default {
         },
 
         showDefaultLayoutSelection() {
-            if (!this.acl.can('system_config:read') || !this.acl.can('system_config:update')
-                || !this.acl.can('system_config:create') || !this.acl.can('system_config:delete')) {
+            if (
+                !this.acl.can('system_config:read')
+                || !this.acl.can('system_config:update')
+                || !this.acl.can('system_config:create')
+                || !this.acl.can('system_config:delete')
+            ) {
                 return false;
             }
 

@@ -28,7 +28,9 @@ class EntityLoadedEventFactory
      */
     public function create(array $entities, Context $context): EntityLoadedContainerEvent
     {
-        $mapping = $this->recursion($entities, []);
+        $mapping = [];
+
+        $this->recursion($entities, $mapping);
 
         $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context);
 
@@ -40,7 +42,9 @@ class EntityLoadedEventFactory
      */
     public function createPartial(array $entities, Context $context): EntityLoadedContainerEvent
     {
-        $mapping = $this->recursion($entities, []);
+        $mapping = [];
+
+        $this->recursion($entities, $mapping);
 
         $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context);
 
@@ -54,7 +58,9 @@ class EntityLoadedEventFactory
      */
     public function createForSalesChannel(array $entities, SalesChannelContext $context): array
     {
-        $mapping = $this->recursion($entities, []);
+        $mapping = [];
+
+        $this->recursion($entities, $mapping);
 
         $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context->getContext());
 
@@ -73,7 +79,9 @@ class EntityLoadedEventFactory
      */
     public function createPartialForSalesChannel(array $entities, SalesChannelContext $context): array
     {
-        $mapping = $this->recursion($entities, []);
+        $mapping = [];
+
+        $this->recursion($entities, $mapping);
 
         $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context->getContext());
 
@@ -103,10 +111,8 @@ class EntityLoadedEventFactory
     /**
      * @param array<mixed> $entities
      * @param array<string, list<Entity>> $mapping
-     *
-     * @return array<string, list<Entity>>
      */
-    private function recursion(array $entities, array $mapping): array
+    private function recursion(array $entities, array &$mapping): void
     {
         foreach ($entities as $entity) {
             if (!$entity instanceof Entity && !$entity instanceof EntityCollection) {
@@ -114,28 +120,24 @@ class EntityLoadedEventFactory
             }
 
             if ($entity instanceof EntityCollection) {
-                $mapping = $this->recursion($entity->getElements(), $mapping);
+                $this->recursion($entity->getElements(), $mapping);
             } else {
-                $mapping = $this->map($entity, $mapping);
+                $this->map($entity, $mapping);
             }
         }
-
-        return $mapping;
     }
 
     /**
      * @param array<string, list<Entity>> $mapping
-     *
-     * @return array<string, list<Entity>>
      */
-    private function map(Entity $entity, array $mapping): array
+    private function map(Entity $entity, array &$mapping): void
     {
         $mapping[$entity->getInternalEntityName()][] = $entity;
 
         $vars = $entity->getVars();
         foreach ($vars as $value) {
             if ($value instanceof Entity) {
-                $mapping = $this->map($value, $mapping);
+                $this->map($value, $mapping);
 
                 continue;
             }
@@ -147,9 +149,7 @@ class EntityLoadedEventFactory
                 continue;
             }
 
-            $mapping = $this->recursion($value, $mapping);
+            $this->recursion($value, $mapping);
         }
-
-        return $mapping;
     }
 }

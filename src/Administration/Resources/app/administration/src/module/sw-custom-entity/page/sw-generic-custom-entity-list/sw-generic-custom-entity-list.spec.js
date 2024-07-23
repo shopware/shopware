@@ -199,6 +199,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
                 order: 'ASC',
             }],
             term: '',
+            title: null,
             totalCountMode: 1,
         });
 
@@ -270,6 +271,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
                 order: 'ASC',
             }],
             term: 'some-search-term',
+            title: null,
             totalCountMode: 1,
         });
     });
@@ -407,6 +409,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
                 order: 'ASC',
             }],
             term: 'some-search-term',
+            title: null,
             totalCountMode: 1,
         });
     });

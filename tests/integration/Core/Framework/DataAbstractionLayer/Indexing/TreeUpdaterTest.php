@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -187,12 +187,18 @@ class TreeUpdaterTest extends TestCase
         static::assertSame('|' . $ids->get('r') . '|' . $ids->get('a') . '|', $ab['test_path']);
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     private function fetch(string $id, string $table): array
     {
-        return $this->getContainer()->get(Connection::class)->fetchAssociative(
+        /** @var array<string, string|null> $data */
+        $data = $this->getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT test_level, test_path FROM ' . $table . ' WHERE id = :id',
             ['id' => $id]
         );
+
+        return $data;
     }
 }
 

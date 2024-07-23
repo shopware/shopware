@@ -22,6 +22,8 @@ Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: [
         'update:value',
         'search-term-change',

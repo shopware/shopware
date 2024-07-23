@@ -6,5 +6,5 @@ author_email: cedric.engler@pickware.de
 author_github: @Ceddy610
 ---
 # Core
-Enhanced `EntityLoadedEventFactory` performance by using mapping references instead of creating new arrays, reducing memory usage and improving efficiency.
+* Changed `EntityLoadedEventFactory` to use mapping references instead of creating new arrays, reducing memory usage and improving performance.
 

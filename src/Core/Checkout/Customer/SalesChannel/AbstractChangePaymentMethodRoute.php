@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
  * This route is used to change the default payment method of a logged-in user
+ *
+ * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
  */
 #[Package('checkout')]
 abstract class AbstractChangePaymentMethodRoute

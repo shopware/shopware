@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,6 +24,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('core')]
+#[CoversClass(Migration1610523548FixCustomerColumns::class)]
 class Migration1610523548FixCustomerColumnsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -149,7 +152,6 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
@@ -176,6 +178,10 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'doubleOptInEmailSentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'doubleOptInConfirmDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getDefaultPaymentMethodId();
+        }
 
         $this->writer->insert($this->customerDefinition, [$customer], WriteContext::createFromContext(Context::createDefaultContext()));
     }

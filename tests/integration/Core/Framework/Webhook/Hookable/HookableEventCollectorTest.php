@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\Hookable;
+namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;

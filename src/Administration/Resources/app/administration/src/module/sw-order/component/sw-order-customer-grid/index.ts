@@ -26,7 +26,7 @@ interface GridColumn {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -90,7 +90,6 @@ export default Component.wrapComponentConfig({
                 .addAssociation('group')
                 .addAssociation('salutation')
                 .addAssociation('salesChannel.languages')
-                .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
                 .addAssociation('defaultBillingAddress.countryState')
@@ -100,6 +99,10 @@ export default Component.wrapComponentConfig({
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags')
                 .addAssociation('boundSalesChannel');
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('defaultPaymentMethod');
+            }
 
             return criteria;
         },

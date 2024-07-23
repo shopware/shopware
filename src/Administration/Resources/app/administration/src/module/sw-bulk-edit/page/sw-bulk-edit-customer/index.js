@@ -83,21 +83,13 @@ export default {
         },
 
         accountFormFields() {
-            return [{
+            const fields = [{
                 name: 'groupId',
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'customer_group',
                     changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroup.label'),
                     placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroup.placeholder'),
-                },
-            }, {
-                name: 'defaultPaymentMethodId',
-                config: {
-                    componentName: 'sw-entity-single-select',
-                    entity: 'payment_method',
-                    changeLabel: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.label'),
-                    placeholder: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.placeholder'),
                 },
             }, {
                 name: 'active',
@@ -125,6 +117,20 @@ export default {
                     options: this.actionsRequestGroup,
                 },
             }];
+
+            if (this.feature.isActive('v6.7.0.0')) {
+                fields.splice(1, 0, {
+                    name: 'defaultPaymentMethodId',
+                    config: {
+                        componentName: 'sw-entity-single-select',
+                        entity: 'payment_method',
+                        changeLabel: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.label'),
+                        placeholder: this.$tc('sw-bulk-edit.customer.account.defaultPaymentMethod.placeholder'),
+                    },
+                });
+            }
+
+            return fields;
         },
 
         tagsFormFields() {

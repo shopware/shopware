@@ -25,6 +25,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
@@ -40,7 +41,6 @@ class BusinessEventRegistry
         CustomerLogoutEvent::class,
         CustomerDeletedEvent::class,
         UserRecoveryRequestEvent::class,
-        CustomerChangedPaymentMethodEvent::class,
         CheckoutOrderPlacedEvent::class,
         OrderPaymentMethodChangedEvent::class,
         CustomerAccountRecoverRequestEvent::class,
@@ -62,12 +62,24 @@ class BusinessEventRegistry
     ];
 
     /**
+     * @internal
+     */
+    public function __construct()
+    {
+        // @deprecated tag:v6.7.0 - whole constructor can be removed again
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->classes[] = CustomerChangedPaymentMethodEvent::class;
+        }
+    }
+
+    /**
      * @param list<class-string> $classes
      */
     public function addClasses(array $classes): void
     {
         /** @var list<class-string> */
         $classes = array_unique(array_merge($this->classes, $classes));
+
         $this->classes = $classes;
     }
 

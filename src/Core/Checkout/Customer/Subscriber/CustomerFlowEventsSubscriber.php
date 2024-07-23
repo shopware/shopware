@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -50,7 +51,7 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
         $payloads = $event->getPayloads();
 
         foreach ($payloads as $payload) {
-            if (!empty($payload['defaultPaymentMethodId']) && empty($payload['createdAt'])) {
+            if (!Feature::isActive('v6.7.0.0') && !empty($payload['defaultPaymentMethodId']) && empty($payload['createdAt'])) {
                 $this->dispatchCustomerChangePaymentMethodEvent($payload['id'], $event);
 
                 continue;
@@ -82,6 +83,9 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
         $this->dispatcher->dispatch($customerCreated);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+     */
     private function dispatchCustomerChangePaymentMethodEvent(string $customerId, EntityWrittenEvent $event): void
     {
         $context = $event->getContext();

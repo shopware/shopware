@@ -83,22 +83,28 @@
                         </div>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                     {% block page_account_overview_payment %}
+                        {% if not feature('v6.7.0.0') %}
                         <div class="col-lg-6 card-col account-overview-card account-overview-payment">
+                            {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                             {% block page_account_overview_payment_card %}
                                 <div class="card">
                                     <div class="card-body">
+                                        {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                                         {% block page_account_overview_payment_title %}
                                             <h2 class="card-title">
                                                 {{ 'account.overviewPaymentHeader'|trans|sw_sanitize }}
                                             </h2>
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                                         {% block page_account_overview_payment_content %}
                                             <strong>{{ context.customer.defaultPaymentMethod.translated.name }}</strong>
                                             <p>{{ context.customer.defaultPaymentMethod.description }}</p>
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                                         {% block page_account_overview_payment_actions %}
                                             <div class="card-actions">
                                                 {% block page_account_overview_payment_actions_content %}{% endblock %}
@@ -108,6 +114,7 @@
                                 </div>
                             {% endblock %}
                         </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
             {% endblock %}

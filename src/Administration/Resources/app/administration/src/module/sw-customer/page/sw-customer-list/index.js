@@ -109,7 +109,7 @@ export default {
         },
 
         listFilterOptions() {
-            return {
+            const options = {
                 'customer-number-filter': {
                     property: 'customerNumber',
                     type: 'string-filter',
@@ -156,11 +156,6 @@ export default {
                     label: this.$tc('sw-customer.filter.status.label'),
                     placeholder: this.$tc('sw-customer.filter.status.placeholder'),
                 },
-                'default-payment-method-filter': {
-                    property: 'defaultPaymentMethod',
-                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
-                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
-                },
                 'group-filter': {
                     property: 'group',
                     label: this.$tc('sw-customer.filter.customerGroup.label'),
@@ -182,6 +177,16 @@ export default {
                     placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
                 },
             };
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                options['default-payment-method-filter'] = {
+                    property: 'defaultPaymentMethod',
+                    label: this.$tc('sw-customer.filter.defaultPaymentMethod.label'),
+                    placeholder: this.$tc('sw-customer.filter.defaultPaymentMethod.placeholder'),
+                };
+            }
+
+            return options;
         },
 
         listFilters() {

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -172,35 +173,36 @@ class AddressControllerTest extends TestCase
         $addressId = Uuid::randomHex();
 
         $salutationId = $this->getValidSalutationId();
-        $paymentMethodId = $this->getValidPaymentMethodId();
 
-        $customers = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultBillingAddress' => [
-                    'id' => $addressId,
-                    'salutationId' => $salutationId,
-                    'firstName' => 'foo',
-                    'lastName' => 'bar',
-                    'zipcode' => '48599',
-                    'city' => 'gronau',
-                    'street' => 'Schillerstr.',
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'company' => 'nfq',
-                'defaultShippingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not12345',
-                'lastName' => 'not',
-                'firstName' => 'First name',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultBillingAddress' => [
+                'id' => $addressId,
                 'salutationId' => $salutationId,
-                'customerNumber' => 'not',
+                'firstName' => 'foo',
+                'lastName' => 'bar',
+                'zipcode' => '48599',
+                'city' => 'gronau',
+                'street' => 'Schillerstr.',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'company' => 'nfq',
+            'defaultShippingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'not12345',
+            'lastName' => 'not',
+            'firstName' => 'First name',
+            'salutationId' => $salutationId,
+            'customerNumber' => 'not',
         ];
-        $this->customerRepository->create($customers, Context::createDefaultContext());
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
@@ -240,35 +242,36 @@ class AddressControllerTest extends TestCase
         $addressId = Uuid::randomHex();
 
         $salutationId = $this->getValidSalutationId();
-        $paymentMethodId = $this->getValidPaymentMethodId();
 
-        $customers = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultBillingAddress' => [
-                    'id' => $addressId,
-                    'salutationId' => $salutationId,
-                    'firstName' => 'foo',
-                    'lastName' => 'bar',
-                    'zipcode' => '48599',
-                    'city' => 'gronau',
-                    'street' => 'Schillerstr.',
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'company' => 'ABC',
-                'defaultShippingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not12345',
-                'lastName' => 'not',
-                'firstName' => 'First name',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultBillingAddress' => [
+                'id' => $addressId,
                 'salutationId' => $salutationId,
-                'customerNumber' => 'not',
+                'firstName' => 'foo',
+                'lastName' => 'bar',
+                'zipcode' => '48599',
+                'city' => 'gronau',
+                'street' => 'Schillerstr.',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'company' => 'ABC',
+            'defaultShippingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'not12345',
+            'lastName' => 'not',
+            'firstName' => 'First name',
+            'salutationId' => $salutationId,
+            'customerNumber' => 'not',
         ];
-        $this->customerRepository->create($customers, Context::createDefaultContext());
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
@@ -427,38 +430,39 @@ class AddressControllerTest extends TestCase
     {
         $customerId = Uuid::randomHex();
 
-        $data = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $this->addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $this->addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'test@example.com',
-                'password' => 'test12345',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $this->addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'defaultBillingAddressId' => $this->addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'test@example.com',
+            'password' => 'test12345',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, $context);
+        $repo->create([$customer], $context);
 
         $customer = $repo->search(new Criteria([$customerId]), $context)
             ->getEntities()
@@ -478,7 +482,6 @@ class AddressControllerTest extends TestCase
         $id2 = Uuid::randomHex();
 
         $salutationId = $this->getValidSalutationId();
-        $paymentMethodId = $this->getValidPaymentMethodId();
 
         $customers = [
             [
@@ -495,7 +498,6 @@ class AddressControllerTest extends TestCase
                     'country' => ['name' => 'not'],
                 ],
                 'defaultBillingAddressId' => $id1,
-                'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not12345',
@@ -518,7 +520,6 @@ class AddressControllerTest extends TestCase
                     'country' => ['name' => 'not'],
                 ],
                 'defaultBillingAddressId' => $id2,
-                'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not12345',
@@ -528,6 +529,13 @@ class AddressControllerTest extends TestCase
                 'customerNumber' => 'not',
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $paymentMethodId = $this->getValidPaymentMethodId();
+            foreach ($customers as &$customer) {
+                $customer['defaultPaymentMethodId'] = $paymentMethodId;
+            }
+        }
 
         $this->customerRepository->create($customers, Context::createDefaultContext());
 

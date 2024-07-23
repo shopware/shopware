@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -16,6 +17,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @deprecated tag:v6.7.0 - will be removed
+ *
  * @internal
  */
 #[Group('store-api')]
@@ -35,6 +38,8 @@ class ChangePaymentMethodRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->ids = new TestDataCollection();
 
         $this->createData();

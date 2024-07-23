@@ -16,6 +16,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    inject: ['feature'],
+
     emits: ['sales-channel-change'],
 
     props: {

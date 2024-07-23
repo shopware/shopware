@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\Hookable;
+namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -74,6 +74,9 @@ class HookableBusinessEventTest extends TestCase
         static::assertFalse($event->isAllowed(Uuid::randomHex(), $notAllowedPermissions));
     }
 
+    /**
+     * @return array<array{0: FlowEventAware}>
+     */
     public static function getEventsWithoutPermissions(): array
     {
         return [
@@ -84,6 +87,9 @@ class HookableBusinessEventTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array{0: FlowEventAware}>
+     */
     public static function getEventsWithPermissions(): array
     {
         $tax = new TaxEntity();

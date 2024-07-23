@@ -119,6 +119,11 @@ class OrderConverter
             }
 
             $data['orderCustomer'] = CustomerTransformer::transform($customer);
+            $data['orderCustomer']['customer'] = [
+                'id' => $customer->getId(),
+                'lastPaymentMethodId' => $context->getPaymentMethod()->getId(),
+            ];
+            unset($data['orderCustomer']['customerId']);
         }
 
         $data['languageId'] = $context->getLanguageId();

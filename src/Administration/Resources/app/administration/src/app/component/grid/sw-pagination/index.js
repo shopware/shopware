@@ -16,6 +16,8 @@ const { Component } = Shopware;
 Component.register('sw-pagination', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         total: {
             type: Number,

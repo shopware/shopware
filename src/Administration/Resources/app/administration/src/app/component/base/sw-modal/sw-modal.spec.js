@@ -1,6 +1,6 @@
 /**
  * @package admin
- * group disabledCompat
+ * @group disabledCompat
  */
 
 import { shallowMount } from '@vue/test-utils';
@@ -17,6 +17,10 @@ async function createWrapper(additionalSlots = null) {
                         'sw-icon': true,
                     },
                 },
+            },
+            stubs: {
+                'sw-loader': true,
+                'sw-icon': true,
             },
         },
         slots: {

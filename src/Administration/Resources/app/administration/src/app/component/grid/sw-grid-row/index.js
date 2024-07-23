@@ -12,6 +12,8 @@ const utils = Shopware.Utils;
 Component.register('sw-grid-row', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: {
         swGridInlineEditStart: {
             from: 'swGridInlineEditStart',
@@ -31,6 +33,10 @@ Component.register('sw-grid-row', {
         },
         swUnregisterGridDisableInlineEditListener: {
             from: 'swUnregisterGridDisableInlineEditListener',
+            default: null,
+        },
+        swGridSetColumns: {
+            from: 'swGridSetColumns',
             default: null,
         },
     },
@@ -87,8 +93,12 @@ Component.register('sw-grid-row', {
 
     methods: {
         createdComponent() {
-            // Bubble up columns declaration for the column header definition
-            this.$parent.columns = this.columns;
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                // Bubble up columns declaration for the column header definition
+                this.$parent.columns = this.columns;
+            } else {
+                this.swGridSetColumns(this.columns);
+            }
 
             if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
                 this.$parent.$on('sw-grid-disable-inline-editing', (id) => {
@@ -134,8 +144,12 @@ Component.register('sw-grid-row', {
             }
 
             this.isEditingActive = false;
-            this.$parent.$emit('sw-row-inline-edit-cancel', this.id, index);
-            this.$parent.$emit('inline-edit-cancel', this.item, index);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                this.$parent.$emit('sw-row-inline-edit-cancel', this.id, index);
+                this.$parent.$emit('inline-edit-cancel', this.item, index);
+            } else {
+                this.swGridInlineEditCancel(this.item, index);
+            }
         },
 
         onInlineEditFinish() {

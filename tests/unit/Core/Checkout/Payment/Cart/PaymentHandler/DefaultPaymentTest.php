@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
@@ -32,9 +31,7 @@ class DefaultPaymentTest extends TestCase
 
     public function testPay(): void
     {
-        $payment = new DefaultPayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new DefaultPayment();
         $reponse = $payment->pay(
             new Request(),
             new PaymentTransactionStruct(Uuid::randomHex()),
@@ -47,9 +44,7 @@ class DefaultPaymentTest extends TestCase
 
     public function testSupports(): void
     {
-        $payment = new DefaultPayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new DefaultPayment();
 
         foreach (PaymentHandlerType::cases() as $case) {
             static::assertFalse($payment->supports(

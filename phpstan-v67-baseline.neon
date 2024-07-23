@@ -24,3 +24,8 @@ parameters:
 			message: "#^Multiple class/interface/trait is not allowed in single file$#"
 			count: 1
 			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Event/CartChangedEvent.php

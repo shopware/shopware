@@ -1,6 +1,6 @@
 ---
 title: Abstract and reduce rule condition components
-issue: NEXT-00000
+issue: NEXT-37386
 author: Justus Maier
 author_email: jmaier@notebooksbilliger.de
 author_github: @justusNBB

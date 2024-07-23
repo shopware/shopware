@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -92,7 +93,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
             'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
@@ -122,6 +122,10 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getDefaultPaymentMethod();
+        }
 
         $writeContext = WriteContext::createFromContext($context);
 
@@ -178,7 +182,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 // use dummy hashed password, so not need to compute the hash for every customer
                 // password is `shopware`
                 'password' => '$2y$10$XFRhv2TdOz9GItRt6ZgHl.e/HpO5Mfea6zDNXI9Q8BasBRtWbqSTS',
-                'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
@@ -187,6 +190,10 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'tags' => $this->getTags($tags),
                 'createdAt' => $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
+
+            if (!Feature::isActive('v6.7.0.0')) {
+                $customer['defaultPaymentMethodId'] = $this->getDefaultPaymentMethod();
+            }
 
             $payload[] = $customer;
 
@@ -255,6 +262,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
         return $this->salutationIds[array_rand($this->salutationIds)];
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+     */
     private function getDefaultPaymentMethod(): ?string
     {
         if ($this->paymentMethodId === false) {

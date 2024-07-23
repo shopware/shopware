@@ -43,6 +43,7 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
 use Shopware\Core\Content\Product\State;
@@ -602,6 +603,9 @@ class OrderConverterTest extends TestCase
         if ($loginCustomer) {
             $salesChannelContext->method('getCustomer')->willReturn($this->getCustomer($customerWithoutBillingAddress));
         }
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId('payment-method-id');
+        $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
 
         return $salesChannelContext;
     }
@@ -1270,7 +1274,10 @@ class OrderConverterTest extends TestCase
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
-                'customerId' => 'customer-id',
+                'customer' => [
+                    'id' => 'customer-id',
+                    'lastPaymentMethodId' => 'payment-method-id',
+                ],
                 'customerNumber' => 'customer-number',
                 'email' => 'customer-email',
                 'firstName' => 'customer-first-name',

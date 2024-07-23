@@ -432,7 +432,6 @@ class RegisterRoute extends AbstractRegisterRoute
             'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
             'requestedGroupId' => $data->get('requestedGroupId', null),
-            'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
             'lastName' => $data->get('lastName'),
@@ -446,6 +445,10 @@ class RegisterRoute extends AbstractRegisterRoute
             'firstLogin' => new \DateTimeImmutable(),
             'addresses' => [],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $context->getPaymentMethod()->getId();
+        }
 
         if (!$isGuest) {
             $customer['password'] = $data->get('password');

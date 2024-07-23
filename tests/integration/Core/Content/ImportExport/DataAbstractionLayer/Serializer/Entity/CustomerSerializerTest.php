@@ -11,6 +11,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -100,7 +101,9 @@ class CustomerSerializerTest extends TestCase
         $deserialized = \iterator_to_array($deserialized);
 
         static::assertSame($this->customerGroupId, $deserialized['group']['id']);
-        static::assertSame($this->paymentMethodId, $deserialized['defaultPaymentMethod']['id']);
+        if (!Feature::isActive('v6.7.0.0')) {
+            static::assertSame($this->paymentMethodId, $deserialized['defaultPaymentMethod']['id']);
+        }
         static::assertSame($salesChannel['id'], $deserialized['salesChannel']['id']);
         static::assertSame($salesChannel['id'], $deserialized['boundSalesChannel']['id']);
     }

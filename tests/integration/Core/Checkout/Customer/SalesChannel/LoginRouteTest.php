@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -25,7 +26,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -317,32 +317,6 @@ class LoginRouteTest extends TestCase
                 'country' => ['name' => 'Germany'],
             ],
             'defaultBillingAddressId' => $addressId,
-            'defaultPaymentMethod' => [
-                'name' => 'Invoice',
-                'technicalName' => Uuid::randomHex(),
-                'active' => true,
-                'description' => 'Default payment method',
-                'handlerIdentifier' => SyncTestPaymentHandler::class,
-                'availabilityRule' => [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'cartCartAmount',
-                            'value' => [
-                                'operator' => '>=',
-                                'amount' => 0,
-                            ],
-                        ],
-                    ],
-                ],
-                'salesChannels' => [
-                    [
-                        'id' => TestDefaults::SALES_CHANNEL,
-                    ],
-                ],
-            ],
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
             'password' => TestDefaults::HASHED_PASSWORD,
@@ -356,6 +330,10 @@ class LoginRouteTest extends TestCase
 
         if ($languageId !== null) {
             $customer['languageId'] = $languageId;
+        }
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());

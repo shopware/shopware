@@ -290,7 +290,6 @@ class AccountServiceTest extends TestCase
             'legacyEncoder' => $legacyEncoder,
             'legacyPassword' => $legacyEncoder ? $password : null,
             'boundSalesChannelId' => $boundToSalesChannel ? $salesChannelId : null,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
@@ -310,6 +309,10 @@ class AccountServiceTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $this->getContainer()
             ->get('customer.repository')

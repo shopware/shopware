@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -651,12 +652,10 @@ class EntityRepositoryTest extends TestCase
 
         $matchTerm = Random::getAlphanumericString(20);
 
-        $paymentMethod = $this->getValidPaymentMethodId();
         $record = [
             'id' => $recordA,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
-            'defaultPaymentMethodId' => $paymentMethod,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
@@ -668,6 +667,10 @@ class EntityRepositoryTest extends TestCase
                 $address2,
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $record['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $repository = $this->createRepository(CustomerDefinition::class);
         $context = Context::createDefaultContext();

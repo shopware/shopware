@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -2315,7 +2316,6 @@ EOF;
             'customerNumber' => '1337',
             'email' => $ids->get('email') . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $ids->get('address'),
@@ -2334,6 +2334,11 @@ EOF;
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $data['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
         $this->getContainer()->get('customer.repository')
             ->create([$data], Context::createDefaultContext());
 

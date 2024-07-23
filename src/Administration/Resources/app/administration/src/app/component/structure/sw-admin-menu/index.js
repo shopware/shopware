@@ -12,6 +12,8 @@ const { dom, types } = Shopware.Utils;
 Component.register('sw-admin-menu', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'menuService',
         'loginService',
@@ -237,9 +239,16 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.collapseMenuOnSmallViewports();
             this.getUser();
-            this.$root.$on('toggle-offcanvas', (state) => {
-                this.isOffCanvasShown = state;
-            });
+
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$on('toggle-offcanvas', (state) => {
+                    this.isOffCanvasShown = state;
+                });
+            } else {
+                Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
+                    this.isOffCanvasShown = state;
+                });
+            }
 
             this.initNavigation();
         },

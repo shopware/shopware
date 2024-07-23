@@ -19,6 +19,8 @@ const { Component } = Shopware;
 Component.register('sw-error', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         errorObject: {
             type: Object,

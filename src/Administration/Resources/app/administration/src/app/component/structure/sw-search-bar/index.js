@@ -19,6 +19,8 @@ const { cloneDeep } = utils.object;
 Component.register('sw-search-bar', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'searchService',
         'searchTypeService',
@@ -381,7 +383,11 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            } else {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            }
         },
 
         hideSearchBar() {
@@ -470,7 +476,11 @@ Component.register('sw-search-bar', {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$emit('toggle-offcanvas', this.isOffCanvasShown);
+            } else {
+                Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            }
         },
 
         resetSearchType() {

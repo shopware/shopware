@@ -45,6 +45,19 @@ const { dom } = Shopware.Utils;
 Component.register('sw-page', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    provide() {
+        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+            return {};
+        }
+
+        return {
+            setSwPageSidebarOffset: this.setSidebarOffset,
+            removeSwPageSidebarOffset: this.removeSidebarOffset,
+        };
+    },
+
     props: {
         /**
          * Toggles smart bar
@@ -149,7 +162,11 @@ Component.register('sw-page', {
         },
 
         additionalEventListeners() {
-            return this.$listeners;
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
 
         smartBarContentStyle() {
@@ -180,8 +197,11 @@ Component.register('sw-page', {
 
     methods: {
         createdComponent() {
-            this.$on('mount', this.setSidebarOffset);
-            this.$on('destroy', this.removeSidebarOffset);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$on('mount', this.setSidebarOffset);
+                this.$on('destroy', this.removeSidebarOffset);
+            }
+
             window.addEventListener('resize', this.readScreenWidth);
         },
 

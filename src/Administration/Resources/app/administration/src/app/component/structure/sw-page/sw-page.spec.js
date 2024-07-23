@@ -1,5 +1,9 @@
-import { mount } from '@vue/test-utils';
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 
+import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-page';
 
 async function createWrapper() {
@@ -12,6 +16,8 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-app-actions': true,
                 'sw-help-center': true,
+                'sw-help-center-v2': true,
+                'sw-app-topbar-button': true,
             },
             mocks: {
                 $route: {

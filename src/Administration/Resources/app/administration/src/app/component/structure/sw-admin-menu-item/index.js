@@ -114,7 +114,7 @@ Component.register('sw-admin-menu-item', {
             let route = '';
             let match = false;
 
-            route = `/${path.replace(/\./g, '/')}`;
+            route = `/${path.replace(/[\.\-]/g, '/')}`;
             match = this.$router.resolve({
                 path: route,
             });

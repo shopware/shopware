@@ -243,6 +243,7 @@ let consoleHasError = false;
 let consoleHasWarning = false;
 let errorArgs = null;
 let warnArgs = null;
+let warnTrace = null;
 const { error, warn } = console;
 
 global.console.error = (...args) => {
@@ -333,8 +334,15 @@ if (!process.env.DISABLE_JEST_COMPAT_MODE) {
         });
 
         if (!silenceWarning) {
+            // Create an error to preserve the original console.warn stack
+            const e = new Error();
+            warnTrace = e.stack;
+
+            // Set console.warn arguments for global after each
             consoleHasWarning = true;
             warnArgs = args;
+
+            // Call original warn to print to std::out
             warn(...args);
         }
     };
@@ -365,7 +373,14 @@ afterEach(() => {
         consoleHasWarning = false;
 
         if (warnArgs) {
-            throw new Error(...warnArgs);
+            const warnError = new Error(...warnArgs);
+
+            // Replace stack with original console.warn trace
+            if (warnTrace) {
+                warnError.stack = warnTrace;
+            }
+
+            throw warnError;
         }
 
         throw new Error('A console.warn occurred without any arguments.');

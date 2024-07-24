@@ -199,6 +199,12 @@ class AggregationParser
             return null;
         }
 
+        if (str_contains($name, '?') || str_contains($name, ':')) {
+            $exceptions->add(new InvalidAggregationQueryException('The aggregation name should not contain a question mark or colon.'), '/aggregations/' . $index);
+
+            return null;
+        }
+
         $type = $aggregation['type'] ?? null;
 
         if (!\is_string($type) || empty($type) || is_numeric($type)) {

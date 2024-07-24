@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -14,6 +15,12 @@ async function createWrapper(mediaServiceFunctions = {}) {
             },
             stubs: {
                 'sw-media-base-item': true,
+                'sw-media-preview-v2': true,
+                'sw-text-field': true,
+                'sw-context-menu-item': true,
+                'sw-media-modal-replace': true,
+                'sw-media-modal-delete': true,
+                'sw-media-modal-move': true,
             },
         },
     });

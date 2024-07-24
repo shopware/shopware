@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
@@ -28,6 +29,13 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-media-modal-move', { sync: true }), {
         props: {
             itemsToMove: [createMediaEntity()],
+        },
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-media-folder-content': true,
+                'sw-button': true,
+            },
         },
     });
 }

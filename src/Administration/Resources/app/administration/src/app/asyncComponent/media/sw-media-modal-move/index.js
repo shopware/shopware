@@ -15,6 +15,8 @@ const { Mixin, Context, Data: { Criteria } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     provide() {

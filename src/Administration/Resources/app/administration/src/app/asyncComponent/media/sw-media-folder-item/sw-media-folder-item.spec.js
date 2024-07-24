@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -132,6 +133,12 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 'sw-context-menu': {
                     template: '<div><slot></slot></div>',
                 },
+                'sw-icon': true,
+                'sw-text-field': true,
+                'sw-media-modal-folder-settings': true,
+                'sw-media-modal-folder-dissolve': true,
+                'sw-media-modal-move': true,
+                'sw-media-modal-delete': true,
             },
         },
     });

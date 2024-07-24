@@ -16,6 +16,8 @@ const { Context, Mixin, Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     mixins: [

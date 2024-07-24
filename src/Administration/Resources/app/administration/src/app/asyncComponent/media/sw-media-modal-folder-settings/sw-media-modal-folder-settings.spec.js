@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -13,6 +14,21 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
                 'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs-item': true,
+                'sw-text-field': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-entity-single-select': true,
+                'sw-container': true,
+                'sw-field': true,
+                'sw-switch-field': true,
+                'sw-number-field': true,
+                'sw-media-add-thumbnail-form': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-loader': true,
+                'mt-tabs': true,
+                'sw-tabs-deprecated': true,
             },
             provide: {
                 repositoryFactory: {

@@ -35,7 +35,7 @@
                 :alt="alt"
                 :srcset="sourceSet"
                 :sizes="`${width}px`"
-                draggable="false"
+                :draggable="false"
                 @click="$emit('click')"
                 @error="showEvent"
             >
@@ -136,7 +136,7 @@
             <img
                 :src="previewUrl"
                 class="sw-media-preview-v2__item"
-                draggable="false"
+                :draggable="false"
                 :alt="mimeType"
                 @error="removeUrlPreview"
             >

@@ -28,6 +28,9 @@ const { dom } = Shopware.Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['mediaService'],

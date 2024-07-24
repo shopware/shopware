@@ -47,6 +47,8 @@ export default {
     template,
     inheritAttrs: false,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['update:value'],
 
     inject: ['feature'],
@@ -153,21 +155,41 @@ export default {
             return this.noCalendar || this.dateType === 'datetime';
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed. Event listeners are bound via additionalAttrs
+         */
         additionalEventListeners() {
             const listeners = {};
 
+            if (this.isCompatEnabled('INSTANCE_EVENT_LISTENERS')) {
+                /**
+                 * Do not pass "change" or "input" event listeners to the form elements
+                 * because the component implements its own listeners for this event types.
+                 * The callback methods will emit the corresponding event to the parent.
+                 */
+                Object.keys(this.$listeners).forEach((key) => {
+                    if (!['change', 'input'].includes(key)) {
+                        listeners[key] = this.$listeners[key];
+                    }
+                });
+            }
+
+            return listeners;
+        },
+
+        additionalAttrs() {
+            const attrs = {};
+
             /**
-             * Do not pass "change" or "input" event listeners to the form elements
-             * because the component implements its own listeners for this event types.
-             * The callback methods will emit the corresponding event to the parent.
+             * Do not pass "change" or "input" event listeners to the form elements.
              */
-            Object.keys(this.$listeners).forEach((key) => {
-                if (!['change', 'input'].includes(key)) {
-                    listeners[key] = this.$listeners[key];
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!['onChange', 'onInput'].includes(key)) {
+                    attrs[key] = this.$attrs[key];
                 }
             });
 
-            return listeners;
+            return attrs;
         },
 
         userTimeZone() {

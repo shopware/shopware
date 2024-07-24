@@ -11,6 +11,8 @@ import './sw-help-sidebar.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['shortcutService'],
 
     props: {

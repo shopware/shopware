@@ -8,6 +8,8 @@ import './sw-media-add-thumbnail-form.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         disabled: {
             type: Boolean,

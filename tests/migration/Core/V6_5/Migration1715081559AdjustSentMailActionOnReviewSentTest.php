@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_6;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_6\Migration1715081559AdjustSentMailActionOnReviewSent;
+use Shopware\Core\Migration\V6_5\Migration1715081559AdjustSentMailActionOnReviewSent;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_6\Migration1715081559AdjustSentMailActionOnReviewSent
+ * @covers \Shopware\Core\Migration\V6_5\Migration1715081559AdjustSentMailActionOnReviewSent
  */
 class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
 {

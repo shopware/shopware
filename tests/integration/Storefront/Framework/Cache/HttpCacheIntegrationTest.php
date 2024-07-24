@@ -35,19 +35,15 @@ class HttpCacheIntegrationTest extends TestCase
 
     private static string $originalHttpCacheValue;
 
-    public static function setUpBeforeClass(): void
+    public static function setupBeforeClass(): void
     {
         self::$originalHttpCacheValue = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] ?? '';
-        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = '1';
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
     }
 
     protected function setUp(): void
     {
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = '1';
+
         KernelLifecycleManager::bootKernel();
 
         $this->getContainer()
@@ -57,6 +53,8 @@ class HttpCacheIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
+
         $connection = $this->getContainer()->get(Connection::class);
 
         static::assertEquals(

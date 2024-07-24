@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -156,8 +157,6 @@ class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
     public function getPath(): string
     {
-        $reflected = new \ReflectionObject($this);
-
-        return \dirname($reflected->getFileName() ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
+        return \dirname(ReflectionHelper::getFileName(static::class) ?: '') . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

@@ -291,7 +291,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     protected function signResponse(array $content): ResponseInterface
     {
         $json = \json_encode($content, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($json);
+        static::assertIsString($json);
 
         $secret = $this->app->getAppSecret();
         static::assertNotNull($secret);

@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-icon', { sync: true }), {

@@ -234,4 +234,30 @@ describe('components/form/sw-price-field', () => {
 
         expect(convertGrossToNet).toHaveBeenCalled();
     });
+
+    it('should not emit update:value event on price gross change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(wrapper.emitted('update:value')).toBeFalsy();
+    });
+
+    it('should not emit update:value event on price net change', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(wrapper.emitted('update:value')).toBeFalsy();
+    });
 });

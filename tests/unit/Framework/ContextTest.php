@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Framework;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Twig\Environment;
@@ -11,8 +10,9 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Context
  */
-#[CoversClass(Context::class)]
 class ContextTest extends TestCase
 {
     public static function twigMethodProviders(): \Generator

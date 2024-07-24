@@ -31,6 +31,8 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
 
+        'Shopware\\\\Core\\\\Framework\\\\Context.*changed from callable.*',
+
         // Removed boot method from Bundle
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
 

@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -14,8 +12,9 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Migration\V6_6\Migration1715081559AdjustSentMailActionOnReviewSent
  */
-#[CoversClass(Migration1715081559AdjustSentMailActionOnReviewSent::class)]
 class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -29,9 +28,10 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
     }
 
     /**
+     * @dataProvider flowSequences
+     *
      * @param array<string, mixed>|null $expectedConfig
      */
-    #[DataProvider('flowSequences')]
     public function testMigration(?string $actionName, ?string $config, ?array $expectedConfig): void
     {
         $connection = $this->getContainer()->get(Connection::class);

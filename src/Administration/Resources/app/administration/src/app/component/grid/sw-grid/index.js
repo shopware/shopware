@@ -261,6 +261,10 @@ Component.register('sw-grid', {
             return typeof this.selection[itemId] !== 'undefined';
         },
 
+        isGridDisabled(itemId) {
+            return this.isSelected(itemId) && this.selection[itemId].gridDisabled;
+        },
+
         checkSelection() {
             this.allSelectedChecked = !this.items.some((item) => {
                 return this.selection[item.id] === undefined;

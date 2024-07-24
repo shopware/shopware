@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Framework;
-use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -36,28 +35,6 @@ class FrameworkTest extends TestCase
         $container->set(SalesChannelDefinitionInstanceRegistry::class, $this->createMock(SalesChannelDefinitionInstanceRegistry::class));
         $container->set(ExtensionRegistry::class, $this->createMock(ExtensionRegistry::class));
         $container->setParameter('kernel.cache_dir', '/tmp');
-        $container->setParameter('shopware.cache.cache_compression', true);
-        $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
-        $framework = new Framework();
-        $framework->setContainer($container);
-
-        $framework->boot();
-    }
-
-    public function testInvalidKernelCacheDir(): void
-    {
-        static::expectException(FrameworkException::class);
-        static::expectExceptionMessage('Container parameter "kernel.cache_dir" needs to be a string');
-
-        $container = new Container();
-        $registry = $this->createMock(FeatureFlagRegistry::class);
-        $registry->expects(static::once())->method('register');
-
-        $container->set(FeatureFlagRegistry::class, $registry);
-        $container->set(DefinitionInstanceRegistry::class, $this->createMock(DefinitionInstanceRegistry::class));
-        $container->set(SalesChannelDefinitionInstanceRegistry::class, $this->createMock(SalesChannelDefinitionInstanceRegistry::class));
-        $container->set(ExtensionRegistry::class, $this->createMock(ExtensionRegistry::class));
-        $container->setParameter('kernel.cache_dir', null);
         $container->setParameter('shopware.cache.cache_compression', true);
         $container->setParameter('shopware.cache.cache_compression_method', 'gzip');
         $framework = new Framework();

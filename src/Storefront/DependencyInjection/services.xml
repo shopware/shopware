@@ -168,6 +168,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\CanonicalLinkListener">
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Event\BeforeSendResponseEvent"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
             <argument type="service" id="http_kernel"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>

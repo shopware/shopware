@@ -32,6 +32,8 @@ const { dom } = Shopware.Utils;
 Component.register('sw-grid', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     provide() {
         return {
             swGridInlineEditStart: this.inlineEditingStart,
@@ -39,6 +41,8 @@ Component.register('sw-grid', {
             swOnInlineEditStart: this.onInlineEditStart,
             swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
             swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
+            swGridSetColumns: this.setColumns,
+            swGridColumns: this.columns,
         };
     },
 
@@ -220,8 +224,9 @@ Component.register('sw-grid', {
             this.editing = id;
         },
 
-        disableActiveInlineEditing() {
+        disableActiveInlineEditing(item, index) {
             this.editing = null;
+            this.$emit('inline-edit-cancel', item, index);
         },
 
         selectAll(selected) {
@@ -296,6 +301,10 @@ Component.register('sw-grid', {
 
         setScrollbarOffset() {
             this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
+        },
+
+        setColumns(columns) {
+            this.columns = columns;
         },
     },
 });

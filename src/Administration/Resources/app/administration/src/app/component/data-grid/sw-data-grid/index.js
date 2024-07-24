@@ -31,6 +31,8 @@ const utils = Shopware.Utils;
 Component.register('sw-data-grid', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
@@ -672,7 +674,11 @@ Component.register('sw-data-grid', {
         },
 
         selectAll(selected) {
-            this.$delete(this.selection);
+            if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                this.$delete(this.selection);
+            } else {
+                this.selection = {};
+            }
 
             this.records.forEach(item => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {

@@ -68,7 +68,7 @@
     class="sw-button"
     :class="buttonClasses"
     :disabled="disabled || isLoading"
-    v-bind="$attrs"
+    v-bind="filteredAttributes"
     v-on="disabled ? {} : listeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

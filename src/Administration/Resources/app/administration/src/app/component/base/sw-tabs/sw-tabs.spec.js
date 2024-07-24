@@ -1,13 +1,18 @@
 /**
  * @package admin
- * group disabledCompat
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-tabs', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'sw-tabs-deprecated': true,
+                'mt-tabs': true,
+            },
+        },
         props: {},
         ...additionalOptions,
     });

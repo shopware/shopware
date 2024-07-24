@@ -1,6 +1,6 @@
 /**
  * @package admin
- * group disabledCompat
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';

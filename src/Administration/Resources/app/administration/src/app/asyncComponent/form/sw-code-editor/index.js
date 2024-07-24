@@ -22,6 +22,8 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
         'userInputSanitizeService',
@@ -134,6 +136,12 @@ export default {
             required: false,
             default: null,
         },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -184,7 +192,7 @@ export default {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

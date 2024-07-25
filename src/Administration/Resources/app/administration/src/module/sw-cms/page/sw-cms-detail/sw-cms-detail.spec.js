@@ -14,40 +14,7 @@ const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
 const mediaID = 'TEST-MEDIA-ID';
 
-const defaultRepository = {
-    search: () => Promise.resolve(new EntityCollection(
-        '',
-        '',
-        Shopware.Context.api,
-        null,
-        [{ name: 'defaultRepository' }],
-        1,
-    )),
-    get: () => Promise.resolve({
-        sections: [{
-            blocks: [],
-        }],
-        type: CMS.PAGE_TYPES.LANDING,
-    }),
-    save: jest.fn(() => Promise.resolve()),
-    clone: jest.fn(() => Promise.resolve()),
-};
-
-const categoryRepository = {
-    search: () => Promise.resolve([{ id: categoryID, products: { entity: 'product', source: 'source' }, mediaId: mediaID }]),
-};
-
-const productRepository = {
-    search: () => Promise.resolve([{ id: productID }]),
-
-};
-
-const mediaRepository = {
-    get: () => Promise.resolve({ id: mediaID }),
-};
-
-
-async function createWrapper() {
+async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
     const cmsPageTypeService = new CmsPageTypeService();
 
     return mount(await wrapTestComponent('sw-cms-detail', {
@@ -102,20 +69,6 @@ async function createWrapper() {
                 },
             },
             provide: {
-                repositoryFactory: {
-                    create: (name) => {
-                        switch (name) {
-                            case 'category':
-                                return categoryRepository;
-                            case 'product':
-                                return productRepository;
-                            case 'media':
-                                return mediaRepository;
-                            default:
-                                return defaultRepository;
-                        }
-                    },
-                },
                 cmsPageTypeService,
                 entityFactory: {},
                 entityHydrator: {},
@@ -132,7 +85,61 @@ async function createWrapper() {
                     // eslint-disable-next-line prefer-promise-reject-errors
                     resolve: () => Promise.reject('foo'),
                 },
-                systemConfigApiService: {},
+                systemConfigApiService: {
+                    getValues: () => {
+                        return {
+                            'core.cms.default_category_cms_page': '1a',
+                            'core.cms.default_product_cms_page': '1a',
+                        };
+                    },
+                },
+                repositoryFactory: {
+                    create: (name) => {
+                        switch (name) {
+                            case 'category':
+                                return {
+                                    search: () => Promise.resolve([
+                                        {
+                                            id: categoryID,
+                                            products: {
+                                                entity: 'product',
+                                                source: 'source',
+                                            },
+                                            mediaId: mediaID,
+                                        },
+                                    ]),
+                                };
+                            case 'product':
+                                return {
+                                    search: () => Promise.resolve([{ id: productID }]),
+                                };
+                            case 'media':
+                                return {
+                                    get: () => Promise.resolve({ id: mediaID }),
+                                };
+                            default:
+                                return {
+                                    search: () => Promise.resolve(new EntityCollection(
+                                        '',
+                                        '',
+                                        Shopware.Context.api,
+                                        null,
+                                        [{ name: 'defaultRepository' }],
+                                        1,
+                                    )),
+                                    get: () => Promise.resolve({
+                                        sections: [{
+                                            blocks: [],
+                                        }],
+                                        type: CMS.PAGE_TYPES.LANDING,
+                                        versionId: versionId,
+                                    }),
+                                    save: jest.fn(() => Promise.resolve()),
+                                    clone: jest.fn(() => Promise.resolve()),
+                                };
+                        }
+                    },
+                },
             },
         },
     });
@@ -386,6 +393,28 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         expect(saveSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('should not assign as default layout if is not on live version', async () => {
+        global.activeAclRoles = ['system_config:read'];
+        const wrapper = await createWrapper('not-live-version-id');
+
+        expect(wrapper.vm.isDefaultLayout).toBe(false);
+    });
+
+    it('should assign as default layout if is on live version', async () => {
+        global.activeAclRoles = ['system_config:read'];
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            page: {
+                id: '1a',
+                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+            },
+        });
+
+        expect(wrapper.vm.isDefaultLayout).toBe(true);
+    });
+
 
     it('should not set the default layout when canceling and closing', async () => {
         const wrapper = await createWrapper();

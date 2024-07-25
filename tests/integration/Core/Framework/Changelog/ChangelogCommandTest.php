@@ -230,7 +230,7 @@ class ChangelogCommandTest extends TestCase
 
             foreach ($expectedFileContent as $line) {
                 static::assertStringContainsString($line, $fileContents);
-                static::assertSame(1, substr_count($fileContents, $line), sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
+                static::assertSame(1, substr_count($fileContents, $line), \sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
             }
         }
     }

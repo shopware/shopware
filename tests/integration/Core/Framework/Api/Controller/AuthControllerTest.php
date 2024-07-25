@@ -284,7 +284,7 @@ class AuthControllerTest extends TestCase
         /*
          * Try access with new token
          */
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $client->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $client->request('GET', '/api/tax');
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
@@ -507,7 +507,7 @@ class AuthControllerTest extends TestCase
         /*
          * Access protected routes
          */
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $client->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -690,7 +690,7 @@ class AuthControllerTest extends TestCase
             'password' => Uuid::randomHex(),
         ]], Context::createDefaultContext());
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
         $browser->request('GET', '/api/tax');
         static::assertNotFalse($browser->getResponse()->getContent());
 

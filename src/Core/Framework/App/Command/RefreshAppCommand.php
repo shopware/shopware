@@ -137,7 +137,7 @@ class RefreshAppCommand extends Command
         }
 
         if (!$io->confirm(
-            sprintf(
+            \sprintf(
                 "%d apps will be installed, %d apps will be updated and %d apps will be deleted.\nDo you want to continue?",
                 \count($refreshableApps->getToBeInstalled()),
                 \count($refreshableApps->getToBeUpdated()),
@@ -167,7 +167,7 @@ class RefreshAppCommand extends Command
             $this->appPrinter->printPermissions($app, $io, $install);
 
             if (!$io->confirm(
-                sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
+                \sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
                 false
             )) {
                 throw new UserAbortedCommandException();

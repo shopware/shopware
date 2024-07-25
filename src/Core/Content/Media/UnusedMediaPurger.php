@@ -152,7 +152,7 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(sprintf('P%dD', $gracePeriodDays)));
+        $threeDaysAgo = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
         $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $threeDaysAgo->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);
@@ -255,7 +255,7 @@ class UnusedMediaPurger
             }
 
             $criteria->addFilter(
-                new EqualsFilter(sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null)
+                new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null)
             );
         }
 

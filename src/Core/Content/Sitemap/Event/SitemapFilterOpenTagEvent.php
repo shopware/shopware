@@ -43,7 +43,7 @@ class SitemapFilterOpenTagEvent extends Event implements ShopwareEvent
     {
         $namespaces = '';
         foreach ($this->urlsetNamespaces as $name => $namespace) {
-            $namespaces .= sprintf(' %s="%s"', $name, $namespace);
+            $namespaces .= \sprintf(' %s="%s"', $name, $namespace);
         }
 
         return strtr($this->openTag, [

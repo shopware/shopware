@@ -35,7 +35,7 @@ readonly class StagingAppHandler
             $this->connection->delete('app', ['id' => $app['id']]);
             $this->connection->delete('integration', ['id' => $app['integration_id']]);
 
-            $event->io->info(sprintf('Uninstalled app %s, install app again to establish a correct connection ', $app['name']));
+            $event->io->info(\sprintf('Uninstalled app %s, install app again to establish a correct connection ', $app['name']));
         }
     }
 }

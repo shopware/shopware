@@ -239,7 +239,7 @@ class UserController extends AbstractController
         }
 
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
     }
 

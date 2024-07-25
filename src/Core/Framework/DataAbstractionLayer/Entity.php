@@ -112,7 +112,7 @@ class Entity extends Struct
         }
 
         throw new \InvalidArgumentException(
-            sprintf('Property %s do not exist in class %s', $property, static::class)
+            \sprintf('Property %s do not exist in class %s', $property, static::class)
         );
     }
 

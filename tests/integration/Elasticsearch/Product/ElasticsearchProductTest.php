@@ -1439,17 +1439,17 @@ class ElasticsearchProductTest extends TestCase
 
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtolower($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
-                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
 
                 $term = strtoupper($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $this->context);
-                static::assertSame(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertSame(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('product-6')));
             }
         } catch (\Exception $e) {
@@ -2173,7 +2173,7 @@ class ElasticsearchProductTest extends TestCase
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
 
                 foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
+                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
                 }
             }
         } catch (\Exception $e) {
@@ -2439,8 +2439,8 @@ class ElasticsearchProductTest extends TestCase
                 $aggregation = $result->get('price');
 
                 static::assertInstanceOf(StatsResult::class, $aggregation);
-                static::assertSame($case['min'], $aggregation->getMin(), sprintf('Case `%s` failed', $message));
-                static::assertSame($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
+                static::assertSame($case['min'], $aggregation->getMin(), \sprintf('Case `%s` failed', $message));
+                static::assertSame($case['max'], $aggregation->getMax(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();
@@ -2489,8 +2489,8 @@ class ElasticsearchProductTest extends TestCase
 
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
-                static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), sprintf('Case `%s` failed', $message));
-                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), sprintf('Case `%s` failed', $message));
+                static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), \sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();
@@ -3227,7 +3227,7 @@ class ElasticsearchProductTest extends TestCase
 
         foreach ($expected as $index => $key) {
             $id = $actual[$index];
-            static::assertSame($ids->get($key), $id, sprintf('Case `%s` failed for %s', $message, $key));
+            static::assertSame($ids->get($key), $id, \sprintf('Case `%s` failed for %s', $message, $key));
         }
     }
 
@@ -4012,7 +4012,7 @@ class ElasticsearchProductTest extends TestCase
             [
                 [
                     'id' => $id,
-                    'name' => sprintf('name-%s', $id),
+                    'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
                     'translationCode' => [

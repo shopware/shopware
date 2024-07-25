@@ -75,7 +75,7 @@ class ThemeAssignmentException extends ShopwareHttpException
                 $salesChannelNames[] = $salesChannel;
             }
 
-            $output[] = sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));
+            $output[] = \sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));
         }
 
         return implode(', ', $output);

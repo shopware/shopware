@@ -92,7 +92,7 @@ class WriteContext
         $path = $this->buildPathName($entity, $propertyName);
 
         if (!$this->has($entity, $propertyName)) {
-            throw new \InvalidArgumentException(sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
+            throw new \InvalidArgumentException(\sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
         }
 
         return $this->paths[$path];

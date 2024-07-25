@@ -252,7 +252,7 @@ class EntityIndexerRegistry
         $indexer = $this->getIndexer($name);
 
         if (!$indexer instanceof EntityIndexer) {
-            throw new \RuntimeException(sprintf('Entity indexer with name %s not found', $name));
+            throw new \RuntimeException(\sprintf('Entity indexer with name %s not found', $name));
         }
 
         $message = $indexer->iterate($offset);

@@ -245,7 +245,7 @@ class Feature
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
     {
-        $fullQualifiedMethodName = sprintf('%s::%s', $class, $method);
+        $fullQualifiedMethodName = \sprintf('%s::%s', $class, $method);
         if (str_contains($method, '::')) {
             $fullQualifiedMethodName = $method;
         }

@@ -286,7 +286,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
         }
 
         if (\is_resource($var)) {
-            return [sprintf('/* Resource(%s) */', get_resource_type($var)), false, false];
+            return [\sprintf('/* Resource(%s) */', get_resource_type($var)), false, false];
         }
 
         return [$var, true, true];

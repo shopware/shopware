@@ -393,7 +393,7 @@ class ShopConfigurator
         $currencyCode = \mb_strtoupper($currencyCode);
 
         if (!Currencies::exists($currencyCode)) {
-            throw new ShopConfigurationException(sprintf('Currency with iso code "%s" not found', $currencyCode));
+            throw new ShopConfigurationException(\sprintf('Currency with iso code "%s" not found', $currencyCode));
         }
 
         $fractionDigits = Currencies::getFractionDigits($currencyCode);

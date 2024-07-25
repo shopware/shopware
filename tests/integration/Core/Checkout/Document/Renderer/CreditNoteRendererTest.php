@@ -205,13 +205,13 @@ class CreditNoteRendererTest extends TestCase
 
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
-                        sprintf('plus %d%% VAT', $possibleTax),
+                        \sprintf('plus %d%% VAT', $possibleTax),
                         $rendered->getHtml()
                     );
                 }
 
                 static::assertStringContainsString(
-                    sprintf('€%s', number_format((float) -array_sum([-100, -200, -300]), 2)),
+                    \sprintf('€%s', number_format((float) -array_sum([-100, -200, -300]), 2)),
                     $rendered->getHtml()
                 );
             },

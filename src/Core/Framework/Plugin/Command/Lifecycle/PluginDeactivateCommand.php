@@ -44,13 +44,13 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         $deactivatedPluginCount = 0;
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             if ($plugin->getActive() === false) {
-                $io->note(sprintf('Plugin "%s" must be activated. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" must be activated. Skipping.', $plugin->getName()));
 
                 continue;
             }
@@ -58,11 +58,11 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
             $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
             ++$deactivatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getName()));
+            $io->text(\sprintf('Plugin "%s" has been deactivated successfully.', $plugin->getName()));
         }
 
         if ($deactivatedPluginCount !== 0) {
-            $io->success(sprintf('Deactivated %d plugin(s).', $deactivatedPluginCount));
+            $io->success(\sprintf('Deactivated %d plugin(s).', $deactivatedPluginCount));
         }
 
         $this->handleClearCacheOption($input, $io, 'deactivating');

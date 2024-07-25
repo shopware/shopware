@@ -55,7 +55,7 @@ class TemplateLoader extends AbstractTemplateLoader
         $content = $this->appLoader->loadFile($app->getPath(), self::TEMPLATE_DIR . '/' . $path);
 
         if ($content === null) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . self::TEMPLATE_DIR . '/' . $path));
+            throw new \RuntimeException(\sprintf('Unable to read file from: %s.', $app->getPath() . self::TEMPLATE_DIR . '/' . $path));
         }
 
         return $content;

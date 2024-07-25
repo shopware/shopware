@@ -13,7 +13,7 @@ class StaticAnalyzeKernel extends Kernel
 {
     public function getCacheDir(): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/var/cache/%s',
             $this->getProjectDir(),
             $this->getEnvironment()

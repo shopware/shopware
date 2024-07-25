@@ -17,7 +17,7 @@ class MissingPermissionError extends Error
      */
     public function __construct(array $violations)
     {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             "The following permissions are missing:\n- %s",
             implode("\n- ", $violations)
         );

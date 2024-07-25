@@ -74,7 +74,7 @@ class StateMachineGraphvizDumper
     {
         $code = '';
         foreach ($states as $id => $state) {
-            $code .= sprintf("  place_%s [label=\"%s\", shape=circle%s];\n", $this->dotize($id), $this->escape($id), $this->addAttributes($state['attributes']));
+            $code .= \sprintf("  place_%s [label=\"%s\", shape=circle%s];\n", $this->dotize($id), $this->escape($id), $this->addAttributes($state['attributes']));
         }
 
         return $code;
@@ -85,7 +85,7 @@ class StateMachineGraphvizDumper
      */
     private function startDot(array $options): string
     {
-        return sprintf(
+        return \sprintf(
             "digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
             $this->addOptions($options['graph']),
             $this->addOptions($options['node']),
@@ -143,7 +143,7 @@ class StateMachineGraphvizDumper
 
         foreach ($edges as $id => $edgeCases) {
             foreach ($edgeCases as $edge) {
-                $code .= sprintf("  place_%s -> place_%s [label=\"%s\" style=\"%s\"];\n", $this->dotize($id), $this->dotize($edge['to']), $this->escape($edge['name']), 'solid');
+                $code .= \sprintf("  place_%s -> place_%s [label=\"%s\" style=\"%s\"];\n", $this->dotize($id), $this->dotize($edge['to']), $this->escape($edge['name']), 'solid');
             }
         }
 
@@ -157,7 +157,7 @@ class StateMachineGraphvizDumper
     {
         $code = [];
         foreach ($attributes as $k => $v) {
-            $code[] = sprintf('%s="%s"', $k, $this->escape($v));
+            $code[] = \sprintf('%s="%s"', $k, $this->escape($v));
         }
 
         return $code ? ', ' . implode(', ', $code) : '';
@@ -172,7 +172,7 @@ class StateMachineGraphvizDumper
         foreach ($options as $k => $v) {
             \assert(\is_string($k));
             \assert(\is_string($v));
-            $code[] = sprintf('%s="%s"', $k, $v);
+            $code[] = \sprintf('%s="%s"', $k, $v);
         }
 
         return implode(' ', $code);

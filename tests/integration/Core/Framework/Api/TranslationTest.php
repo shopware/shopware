@@ -161,7 +161,7 @@ class TranslationTest extends TestCase
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(RoutingException::LANGUAGE_NOT_FOUND, $data['errors'][0]['code']);
 
-        $langId = sprintf('id=%s', 'foobar');
+        $langId = \sprintf('id=%s', 'foobar');
         $this->getBrowser()->request('GET', $baseResource, [], [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(412, $response->getStatusCode());
@@ -183,7 +183,7 @@ class TranslationTest extends TestCase
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(RoutingException::LANGUAGE_NOT_FOUND, $data['errors'][0]['code']);
 
-        $langId = sprintf('id=%s', Uuid::randomHex());
+        $langId = \sprintf('id=%s', Uuid::randomHex());
         $this->getBrowser()->request('GET', $baseResource, [], [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(412, $response->getStatusCode());

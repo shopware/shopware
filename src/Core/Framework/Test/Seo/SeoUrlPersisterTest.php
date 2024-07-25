@@ -365,7 +365,7 @@ class SeoUrlPersisterTest extends TestCase
             [
                 'foreignKey' => $category->getId(),
                 'routeName' => 'frontend.navigation.page',
-                'pathInfo' => sprintf('navigation/%s', $category->getId()),
+                'pathInfo' => \sprintf('navigation/%s', $category->getId()),
                 'seoPathInfo' => 'FancyCategory',
                 'isCanonical' => true,
                 'isDeleted' => false,
@@ -426,7 +426,7 @@ class SeoUrlPersisterTest extends TestCase
             [
                 'foreignKey' => $categoryId,
                 'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
-                'pathInfo' => sprintf('test/%s', $categoryId),
+                'pathInfo' => \sprintf('test/%s', $categoryId),
                 'salesChannelId' => $salesChannelId,
                 'seoPathInfo' => 'FancyCategory',
                 'isCanonical' => true,

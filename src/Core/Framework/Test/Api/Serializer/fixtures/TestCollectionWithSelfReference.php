@@ -61,13 +61,13 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'customFields' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870', $baseUrl),
+                        'self' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870', $baseUrl),
                     ],
                     'relationships' => [
                         'parent' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/parent', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/parent', $baseUrl),
                             ],
                         ],
                         'children' => [
@@ -78,25 +78,25 @@ class TestCollectionWithSelfReference extends SerializationFixture
                                 ],
                             ],
                             'links' => [
-                                'related' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/children', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/children', $baseUrl),
                             ],
                         ],
                         'media' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/media', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/media', $baseUrl),
                             ],
                         ],
                         'defaultFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/default-folder', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/default-folder', $baseUrl),
                             ],
                         ],
                         'configuration' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/configuration', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/3e352be2d85846dd97529c0f6b544870/configuration', $baseUrl),
                             ],
                         ],
                     ],
@@ -119,37 +119,37 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'customFields' => null,
                     ],
                     'links' => [
-                        'self' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8', $baseUrl),
+                        'self' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8', $baseUrl),
                     ],
                     'relationships' => [
                         'parent' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/parent', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/parent', $baseUrl),
                             ],
                         ],
                         'children' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/children', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/children', $baseUrl),
                             ],
                         ],
                         'media' => [
                             'data' => [],
                             'links' => [
-                                'related' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/media', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/media', $baseUrl),
                             ],
                         ],
                         'defaultFolder' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/default-folder', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/default-folder', $baseUrl),
                             ],
                         ],
                         'configuration' => [
                             'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/configuration', $baseUrl),
+                                'related' => \sprintf('%s/media-folder/5846dd97529c0f6b5448713e352be2d8/configuration', $baseUrl),
                             ],
                         ],
                     ],

@@ -36,7 +36,7 @@ class ChangelogChangeCommand extends Command
         $this->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type. Please leave it blank for the unreleased version.')
             ->addOption('path', 'p', InputOption::VALUE_REQUIRED, 'Renders the output of the command in a markdown file under the given path', '');
         foreach (ChangelogSection::cases() as $changelogSection) {
-            $this->addOption($changelogSection->name, null, InputOption::VALUE_NONE, sprintf('Returns all documented changes in the "%s" section', $changelogSection->value));
+            $this->addOption($changelogSection->name, null, InputOption::VALUE_NONE, \sprintf('Returns all documented changes in the "%s" section', $changelogSection->value));
         }
         $this->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.')
             ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');

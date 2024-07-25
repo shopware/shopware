@@ -77,7 +77,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesMediaId(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/%s/upload',
             $this->mediaId
         );
@@ -110,7 +110,7 @@ class MediaUploadControllerTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/%s/upload',
             $this->mediaId
         );
@@ -146,7 +146,7 @@ class MediaUploadControllerTest extends TestCase
 
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/%s/upload',
             $this->mediaId
         );
@@ -192,7 +192,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/%s/rename',
             $media->getId()
         );
@@ -237,7 +237,7 @@ class MediaUploadControllerTest extends TestCase
 
         $this->getPublicFilesystem()->write($media->getPath(), 'some content');
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/%s/rename',
             $media->getId()
         );
@@ -271,7 +271,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png',
             $media->getFileName()
         );
@@ -294,7 +294,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',
             $media->getFileName(),
             $media->getId()

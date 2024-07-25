@@ -2226,7 +2226,7 @@ class AppLifecycleTest extends TestCase
 
                 break;
             default:
-                static::fail(sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
+                static::fail(\sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
         }
     }
 

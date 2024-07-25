@@ -91,7 +91,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
                 return $templatePath;
             }
 
-            throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
+            throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
         }
 
         // if no other bundle extends the requested template, load the original template
@@ -103,7 +103,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             return $templatePath;
         }
 
-        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
+        throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
     }
 
     public function reset(): void

@@ -55,7 +55,7 @@ class ProductExporterTest extends TestCase
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
 
         static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->fileExists($filePath));
@@ -77,7 +77,7 @@ class ProductExporterTest extends TestCase
         $id = Uuid::randomHex();
 
         static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(sprintf('Product export with ID %s not found', $id));
+        static::expectExceptionMessage(\sprintf('Product export with ID %s not found', $id));
 
         $this->service->export($this->salesChannelContext, new ExportBehavior(), $id);
     }

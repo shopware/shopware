@@ -171,6 +171,6 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $accessToken = $data['access_token'];
         static::assertIsString($accessToken);
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $accessToken));
     }
 }

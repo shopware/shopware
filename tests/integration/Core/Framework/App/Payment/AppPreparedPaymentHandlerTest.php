@@ -98,7 +98,7 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
         $this->expectException(AppException::class);
-        $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
+        $this->expectExceptionMessageMatches(\sprintf('/%s/', self::ERROR_MESSAGE));
         $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 

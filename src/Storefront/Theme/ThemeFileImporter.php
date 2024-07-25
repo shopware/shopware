@@ -48,7 +48,7 @@ class ThemeFileImporter implements ThemeFileImporterInterface
         if (!is_dir($assetPath)) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
-                sprintf('Unable to find asset. Path: "%s"', $assetPath)
+                \sprintf('Unable to find asset. Path: "%s"', $assetPath)
             );
         }
 

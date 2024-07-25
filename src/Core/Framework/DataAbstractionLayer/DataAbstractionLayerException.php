@@ -245,7 +245,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_PARENT_FOREIGN_KEY,
-            sprintf('Can not detect foreign key for parent definition %s', $entity)
+            \sprintf('Can not detect foreign key for parent definition %s', $entity)
         );
     }
 
@@ -254,7 +254,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            sprintf('Field by storage name %s not found in entity %s', $storageName, $entity)
+            \sprintf('Field by storage name %s not found in entity %s', $storageName, $entity)
         );
     }
 
@@ -263,7 +263,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INCONSISTENT_PRIMARY_KEY,
-            sprintf('Inconsistent primary key %s for entity %s', $primaryKey, $entity)
+            \sprintf('Inconsistent primary key %s for entity %s', $primaryKey, $entity)
         );
     }
 
@@ -272,7 +272,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
+            \sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
         );
     }
 
@@ -285,7 +285,7 @@ class DataAbstractionLayerException extends HttpException
     {
         if (!Feature::isActive('v6.7.0.0')) {
             return new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Could not find FK field "%s" from definition "%s"',
                     $storageName,
                     $definitionClass,
@@ -296,7 +296,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            sprintf('Can not detect FK field with storage name %s in definition %s', $storageName, $definitionClass)
+            \sprintf('Can not detect FK field with storage name %s in definition %s', $storageName, $definitionClass)
         );
     }
 
@@ -309,7 +309,7 @@ class DataAbstractionLayerException extends HttpException
     {
         if (!Feature::isActive('v6.7.0.0')) {
             return new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Could not find language field "%s" in definition "%s"',
                     $storageName,
                     $definitionClass
@@ -320,7 +320,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            sprintf('Can not detect language field with storage name %s in definition %s', $storageName, $definitionClass)
+            \sprintf('Can not detect language field with storage name %s in definition %s', $storageName, $definitionClass)
         );
     }
 
@@ -373,7 +373,7 @@ class DataAbstractionLayerException extends HttpException
     public static function definitionFieldDoesNotExist(string $definitionClass, string $field): self|\RuntimeException
     {
         if (!Feature::isActive('v6.7.0.0')) {
-            return new \RuntimeException(sprintf(
+            return new \RuntimeException(\sprintf(
                 'Could not find reference field "%s" from definition "%s"',
                 $field,
                 $definitionClass

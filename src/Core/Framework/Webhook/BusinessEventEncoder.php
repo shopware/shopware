@@ -139,7 +139,7 @@ class BusinessEventEncoder
         }
 
         throw new \RuntimeException(
-            sprintf(
+            \sprintf(
                 'Invalid available DataMapping, could not get property "%s" on instance of %s',
                 $propertyName,
                 \is_object($object) ? $object::class : 'array'

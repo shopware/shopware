@@ -189,8 +189,8 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertEquals(
             CompositeExpression::and(
-                sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')),
-                sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('test_version_id')),
+                \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')),
+                \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('test_version_id')),
             ),
             $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
         );

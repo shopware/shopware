@@ -74,7 +74,7 @@ class InstallerKernel extends HttpKernel
         /** @var string $dir */
         $dir = $r->getFileName();
         if (!file_exists($dir)) {
-            throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
+            throw new \LogicException(\sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
         }
 
         $dir = $rootDir = \dirname($dir);

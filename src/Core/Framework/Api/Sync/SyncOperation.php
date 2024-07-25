@@ -69,14 +69,14 @@ class SyncOperation extends Struct
         $errors = [];
 
         if (empty($this->entity)) {
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 'Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.',
                 $this->key
             );
         }
 
         if (empty($this->action) || !\in_array($this->action, $this->getSupportedActions(), true)) {
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 'Missing or invalid "action" argument for operation with key "%s". Supported actions are [%s]',
                 $this->key,
                 implode(', ', $this->getSupportedActions())
@@ -84,7 +84,7 @@ class SyncOperation extends Struct
         }
 
         if (empty($this->payload) && empty($this->criteria)) {
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 'Missing "payload"|"criteria" argument for operation with key "%s". It needs to be a non-empty array.',
                 $this->key
             );

@@ -42,7 +42,7 @@ class ServerTiming implements ProfilerInterface
             return;
         }
 
-        $this->elements[] = sprintf('%s;dur=%d', str_replace('::', '.', $title), $stopwatchEvent->getDuration());
+        $this->elements[] = \sprintf('%s;dur=%d', str_replace('::', '.', $title), $stopwatchEvent->getDuration());
     }
 
     public function onResponseEvent(ResponseEvent $event): void

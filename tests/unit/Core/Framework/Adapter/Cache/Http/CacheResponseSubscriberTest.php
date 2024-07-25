@@ -237,13 +237,13 @@ class CacheResponseSubscriberTest extends TestCase
                         static::assertEquals(
                             $value,
                             $cookie->getValue(),
-                            sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
+                            \sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
                         );
                     } else {
                         static::assertNotEquals(
                             $value,
                             $cookie->getValue(),
-                            sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
+                            \sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
                         );
                     }
                 }

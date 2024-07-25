@@ -43,7 +43,7 @@ class PaymentMethodChangedError extends Error
 
     public function getId(): string
     {
-        return sprintf('%s-%s-%s', self::KEY, $this->oldPaymentMethodName, $this->newPaymentMethodName);
+        return \sprintf('%s-%s-%s', self::KEY, $this->oldPaymentMethodName, $this->newPaymentMethodName);
     }
 
     public function getLevel(): int

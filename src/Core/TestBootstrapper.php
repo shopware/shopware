@@ -161,7 +161,7 @@ class TestBootstrapper
 
         $auth = isset($dbUrlParts['user']) ? ($dbUrlParts['user'] . (isset($dbUrlParts['pass']) ? (':' . $dbUrlParts['pass']) : '') . '@') : '';
 
-        return $this->databaseUrl = sprintf(
+        return $this->databaseUrl = \sprintf(
             '%s://%s%s%s%s%s',
             $dbUrlParts['scheme'] ?? 'mysql',
             $auth,
@@ -310,7 +310,7 @@ class TestBootstrapper
         foreach ($this->activePlugins as $pluginName) {
             $pluginPath = $this->getPluginPath($pluginName);
             if (!$pluginPath) {
-                throw new \RuntimeException(sprintf('Could not find plugin: %s', $pluginName));
+                throw new \RuntimeException(\sprintf('Could not find plugin: %s', $pluginName));
             }
             $plugin = json_decode((string) file_get_contents($pluginPath . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
 

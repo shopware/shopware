@@ -33,7 +33,7 @@ class ScriptExecutionFailedException extends ScriptException
         parent::__construct(
             $statusCode,
             $errorCode,
-            sprintf(
+            \sprintf(
                 'Execution of script "%s" for Hook "%s" failed with message: %s',
                 $scriptName,
                 $hook,

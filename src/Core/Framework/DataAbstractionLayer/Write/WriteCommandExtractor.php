@@ -545,7 +545,7 @@ class WriteCommandExtractor
         $violationList = new ConstraintViolationList();
         $violationList->add(
             new ConstraintViolation(
-                sprintf(
+                \sprintf(
                     $message,
                     $parameters->getContext()->getContext()->getScope(),
                     $allowedOrigins

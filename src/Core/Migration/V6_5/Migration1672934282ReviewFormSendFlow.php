@@ -61,7 +61,7 @@ class Migration1672934282ReviewFormSendFlow extends MigrationStep
                 'position' => 1,
                 'true_case' => 0,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => sprintf(
+                'config' => \sprintf(
                     '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                     Uuid::fromBytesToHex($mailtTemplateId)
                 ),

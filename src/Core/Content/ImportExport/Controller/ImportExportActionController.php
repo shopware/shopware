@@ -212,7 +212,7 @@ class ImportExportActionController extends AbstractController
         $missingPrivileges = [];
 
         $sourceEntity = $profile->getSourceEntity();
-        $privilege = sprintf('%s:%s', $sourceEntity, AclRoleDefinition::PRIVILEGE_READ);
+        $privilege = \sprintf('%s:%s', $sourceEntity, AclRoleDefinition::PRIVILEGE_READ);
 
         if (!$context->isAllowed($privilege)) {
             $missingPrivileges[] = $privilege;
@@ -254,7 +254,7 @@ class ImportExportActionController extends AbstractController
         }
 
         $definition = $property->getReferenceDefinition();
-        $privilege = sprintf('%s:%s', $definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
+        $privilege = \sprintf('%s:%s', $definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
 
         if (!$context->isAllowed($privilege)) {
             $missingPrivileges[] = $privilege;

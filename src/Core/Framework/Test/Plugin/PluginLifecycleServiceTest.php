@@ -437,7 +437,7 @@ class PluginLifecycleServiceTest extends TestCase
 
             static::assertEquals(self::PLUGIN_NAME, $dependencyName);
             static::assertCount(1, $dependants);
-            static::assertEquals(sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+            static::assertEquals(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
             $dependant = array_pop($dependants);
 
@@ -631,7 +631,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
     }
 
@@ -668,7 +668,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
 
         static::expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
@@ -685,7 +685,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->activatePlugin($plugin, $context);
     }
 
@@ -708,7 +708,7 @@ class PluginLifecycleServiceTest extends TestCase
         $plugin = $this->getPlugin($context);
 
         $this->expectException(PluginNotInstalledException::class);
-        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($plugin, $context);
     }
 
@@ -719,7 +719,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->expectException(PluginNotActivatedException::class);
-        $this->expectExceptionMessage(sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
+        $this->expectExceptionMessage(\sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $context);
     }
 

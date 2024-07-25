@@ -240,7 +240,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
             $elementClass = $element::class;
 
             throw new \InvalidArgumentException(
-                sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
+                \sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
             );
         }
     }

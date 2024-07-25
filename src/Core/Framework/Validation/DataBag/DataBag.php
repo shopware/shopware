@@ -46,7 +46,7 @@ class DataBag extends ParameterBag
         }
 
         if (!\is_array($value = $data[$key] ?? [])) {
-            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
+            throw new BadRequestException(\sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
         }
 
         return $value;

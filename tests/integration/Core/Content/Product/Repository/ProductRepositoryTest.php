@@ -2578,7 +2578,7 @@ class ProductRepositoryTest extends TestCase
 
         foreach (['', '.listPrice'] as $priceType) {
             $criteria = new Criteria($ids->all());
-            $criteria->addSorting(new FieldSorting(sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType)));
+            $criteria->addSorting(new FieldSorting(\sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType)));
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
@@ -2588,7 +2588,7 @@ class ProductRepositoryTest extends TestCase
             );
 
             $criteria = new Criteria($ids->all());
-            $criteria->addSorting(new FieldSorting(sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType), 'DESC'));
+            $criteria->addSorting(new FieldSorting(\sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType), 'DESC'));
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
@@ -3330,7 +3330,7 @@ class ProductRepositoryTest extends TestCase
             [
                 [
                     'id' => $id,
-                    'name' => sprintf('name-%s', $id),
+                    'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
                     'translationCode' => [

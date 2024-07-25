@@ -303,7 +303,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -491,7 +491,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
@@ -520,7 +520,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);
     }
@@ -721,7 +721,7 @@ class ThemeServiceTest extends TestCase
     {
         $themeId = Uuid::randomHex();
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
-        $fs->write(sprintf('theme-config/%s.json', $themeId), (string) json_encode([
+        $fs->write(\sprintf('theme-config/%s.json', $themeId), (string) json_encode([
             'styleFiles' => [],
             'scriptFiles' => [],
         ]));

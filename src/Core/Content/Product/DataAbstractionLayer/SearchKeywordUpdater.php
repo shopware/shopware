@@ -257,7 +257,7 @@ class SearchKeywordUpdater implements ResetInterface
 
             // filter the associations that have no translations in given language,
             // as we automatically use the parent languages keywords for those
-            $translationLanguageAccessor = sprintf(
+            $translationLanguageAccessor = \sprintf(
                 '%s.%s.languageId',
                 $association,
                 $translationField->getPropertyName()

@@ -35,7 +35,7 @@ class TemplateIterator implements \IteratorAggregate
                 continue;
             }
 
-            $search[] = sprintf('@%s/', $bundleName);
+            $search[] = \sprintf('@%s/', $bundleName);
             $replace[] = '';
         }
 

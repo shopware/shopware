@@ -25,7 +25,7 @@ class DefaultPaymentTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
         if (!\is_a(DefaultPayment::class, AbstractPaymentHandler::class, true)) {
-            static::markTestSkipped(sprintf('Class %s must extend %s', DefaultPayment::class, AbstractPaymentHandler::class));
+            static::markTestSkipped(\sprintf('Class %s must extend %s', DefaultPayment::class, AbstractPaymentHandler::class));
         }
     }
 

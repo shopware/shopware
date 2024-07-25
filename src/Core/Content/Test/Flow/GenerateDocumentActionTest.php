@@ -171,7 +171,7 @@ class GenerateDocumentActionTest extends TestCase
         static::assertNotEmpty($handler->getRecords());
         static::assertNotEmpty($record = $handler->getRecords()[0]);
         static::assertEquals(
-            sprintf(
+            \sprintf(
                 'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
                 str_replace('_', ' ', $documentType),
                 $order->getId(),
@@ -307,7 +307,7 @@ class GenerateDocumentActionTest extends TestCase
         // add credit item to order
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/order/%s/creditItem',
                 $orderId
             ),
@@ -335,7 +335,7 @@ class GenerateDocumentActionTest extends TestCase
     {
         $this->getBrowser()->request(
             'POST',
-            sprintf(
+            \sprintf(
                 '/api/_action/version/order/%s',
                 $orderId
             )

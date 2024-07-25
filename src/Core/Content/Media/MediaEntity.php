@@ -457,7 +457,7 @@ class MediaEntity extends Entity
             return null;
         }
 
-        return sprintf('%s.%s', $this->fileName, $this->fileExtension);
+        return \sprintf('%s.%s', $this->fileName, $this->fileExtension);
     }
 
     public function setFileName(string $fileName): void

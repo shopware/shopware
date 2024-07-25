@@ -76,7 +76,7 @@ class SalesChannelMaintenanceDisableCommandTest extends TestCase
         $commandTester->execute(['--all' => true]);
 
         static::assertEquals(
-            sprintf('Updated maintenance mode for %d sales channel(s)', $count),
+            \sprintf('Updated maintenance mode for %d sales channel(s)', $count),
             $commandTester->getDisplay()
         );
     }

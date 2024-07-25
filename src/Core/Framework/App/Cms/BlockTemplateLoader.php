@@ -18,7 +18,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             $templateFiles = (new Finder())
                 ->files()
                 ->name('preview.html')
-                ->in(sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
+                ->in(\sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
 
             foreach ($templateFiles as $templateFile) {
                 return $templateFile->getContents();
@@ -26,7 +26,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(sprintf('Preview file for block "%s" is missing', $blockName));
+        throw new AppCmsExtensionException(\sprintf('Preview file for block "%s" is missing', $blockName));
     }
 
     public function getStylesForBlock(CmsExtensions $cmsExtensions, string $blockName): string
@@ -35,7 +35,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             $styleFiles = (new Finder())
                 ->files()
                 ->name('styles.css')
-                ->in(sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
+                ->in(\sprintf('%s/cms/blocks/%s', $cmsExtensions->getPath(), $blockName));
 
             foreach ($styleFiles as $styleFile) {
                 return $styleFile->getContents();
@@ -43,6 +43,6 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
         } catch (\Exception) {
         }
 
-        throw new AppCmsExtensionException(sprintf('Style file for block "%s" is missing', $blockName));
+        throw new AppCmsExtensionException(\sprintf('Style file for block "%s" is missing', $blockName));
     }
 }

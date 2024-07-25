@@ -181,7 +181,7 @@ class InvoiceRendererTest extends TestCase
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Date %s', $formattedDate),
+                    \sprintf('Date %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -243,7 +243,7 @@ class InvoiceRendererTest extends TestCase
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Datum %s', $formattedDate),
+                    \sprintf('Datum %s', $formattedDate),
                     $rendered->getHtml()
                 );
             },
@@ -284,7 +284,7 @@ class InvoiceRendererTest extends TestCase
             function (RenderedDocument $rendered): void {
                 foreach ([7, 19, 22] as $possibleTax) {
                     static::assertStringContainsString(
-                        sprintf('plus %d%% VAT', $possibleTax),
+                        \sprintf('plus %d%% VAT', $possibleTax),
                         $rendered->getHtml()
                     );
                 }

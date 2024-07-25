@@ -19,7 +19,7 @@ class AutoPromotionNotFoundError extends Error
     {
         $this->name = $name;
 
-        $this->message = sprintf('Promotion %s was no longer valid!', $this->name);
+        $this->message = \sprintf('Promotion %s was no longer valid!', $this->name);
 
         parent::__construct($this->message);
     }
@@ -36,7 +36,7 @@ class AutoPromotionNotFoundError extends Error
 
     public function getId(): string
     {
-        return sprintf('%s-%s', self::KEY, $this->name);
+        return \sprintf('%s-%s', self::KEY, $this->name);
     }
 
     public function getMessageKey(): string

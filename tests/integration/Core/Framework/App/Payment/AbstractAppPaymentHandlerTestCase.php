@@ -266,7 +266,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     protected function getPaymentMethodId(string $name): string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('handlerIdentifier', sprintf('app\\testPayments_%s', $name)));
+        $criteria->addFilter(new EqualsFilter('handlerIdentifier', \sprintf('app\\testPayments_%s', $name)));
         $id = $this->paymentMethodRepository->searchIds($criteria, $this->context)->firstId();
         static::assertNotNull($id);
 

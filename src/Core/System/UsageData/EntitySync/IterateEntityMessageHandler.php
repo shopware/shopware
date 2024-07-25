@@ -34,7 +34,7 @@ final class IterateEntityMessageHandler
         }
 
         if ($this->entityDefinitionService->getAllowedEntityDefinition($message->entityName) === null) {
-            throw new UnrecoverableMessageHandlingException(sprintf(
+            throw new UnrecoverableMessageHandlingException(\sprintf(
                 'Entity definition for entity %s not found.',
                 $message->entityName,
             ));
@@ -42,7 +42,7 @@ final class IterateEntityMessageHandler
 
         $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
         if ($lastApprovalDate === null) {
-            throw new UnrecoverableMessageHandlingException(sprintf(
+            throw new UnrecoverableMessageHandlingException(\sprintf(
                 'No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
                 $message->entityName,
                 $message->operation->value,

@@ -125,7 +125,7 @@ class CriteriaQueryBuilder
             $accessor = $this->helper->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
 
             if ($sorting instanceof CountSorting) {
-                $query->addOrderBy(sprintf('COUNT(%s)', $accessor), $sorting->getDirection());
+                $query->addOrderBy(\sprintf('COUNT(%s)', $accessor), $sorting->getDirection());
 
                 continue;
             }

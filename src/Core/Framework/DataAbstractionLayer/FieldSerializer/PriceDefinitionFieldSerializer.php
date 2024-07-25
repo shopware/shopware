@@ -261,7 +261,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     {
         $list = new ConstraintViolationList();
         foreach ($fieldValidations as $fieldName => $validations) {
-            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
+            $currentPath = \sprintf('%s/%s', $basePath, $fieldName);
             $list->addAll(
                 $this->validator->startContext()
                     ->atPath($currentPath)
@@ -271,7 +271,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
 
         foreach ($payload as $fieldName => $_value) {
-            $currentPath = sprintf('%s/%s', $basePath, $fieldName);
+            $currentPath = \sprintf('%s/%s', $basePath, $fieldName);
 
             if (!\array_key_exists($fieldName, $fieldValidations)) {
                 $list->add(

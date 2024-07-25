@@ -13,7 +13,7 @@ class ShippingAddressSalutationMissingError extends SalutationMissingError
 
     public function __construct(CustomerAddressEntity $address)
     {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'A salutation needs to be defined for the shipping address "%s %s, %s %s".',
             $address->getFirstName(),
             $address->getLastName(),

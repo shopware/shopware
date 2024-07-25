@@ -41,7 +41,7 @@ class CacheClearer
         }
 
         if (!is_writable($this->cacheDir)) {
-            throw new \RuntimeException(sprintf('Unable to write in the "%s" directory', $this->cacheDir));
+            throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
         }
 
         $this->cacheClearer->clear($this->cacheDir);

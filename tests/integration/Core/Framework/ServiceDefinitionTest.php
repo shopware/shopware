@@ -123,7 +123,7 @@ class ServiceDefinitionTest extends TestCase
             $fullMatch = $match[0];
             /** @var positive-int $position */
             $position = $fullMatch[1];
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 '%s:%d - invalid order (type should be first)',
                 (string) ($match['id'][0] ?? $fullMatch[0]),
                 $this->getLineNumber($content, $position)
@@ -156,7 +156,7 @@ class ServiceDefinitionTest extends TestCase
             $fullMatch = $match[0];
             /** @var positive-int $position */
             $position = $fullMatch[1];
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 '%s:%d - parameter class and id are identical. class parameter should be removed',
                 (string) ($match['class'][0] ?? $fullMatch[0]),
                 $this->getLineNumber($content, $position)

@@ -33,7 +33,7 @@ class MultiInsertQueryQueue
     ) {
         if ($chunkSize < 1) {
             throw new \InvalidArgumentException(
-                sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
+                \sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
             );
         }
         $this->chunkSize = $chunkSize;
@@ -117,7 +117,7 @@ class MultiInsertQueryQueue
                 $values = [];
                 foreach ($this->updateFieldsOnDuplicateKey[$table] ?? [] as $field) {
                     // see https://stackoverflow.com/a/2714653/10064036
-                    $values[] = sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
+                    $values[] = \sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
                 }
 
                 $tableTemplate .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $values);
@@ -132,7 +132,7 @@ class MultiInsertQueryQueue
 
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
-                $queries[] = sprintf(
+                $queries[] = \sprintf(
                     $tableTemplate,
                     EntityDefinitionQueryHelper::escape($table),
                     implode(', ', $columns),

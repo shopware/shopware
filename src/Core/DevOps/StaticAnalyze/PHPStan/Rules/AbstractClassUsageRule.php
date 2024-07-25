@@ -57,7 +57,7 @@ class AbstractClassUsageRule implements Rule
                         continue;
                     }
 
-                    $errors[] = RuleErrorBuilder::message(sprintf(
+                    $errors[] = RuleErrorBuilder::message(\sprintf(
                         'Decoration error: Parameter %s $%s of %s is using the decoration pattern, but non-abstract constructor parameter is used.',
                         $parameterClass->getName(),
                         $parameter->getName(),

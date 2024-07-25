@@ -46,7 +46,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         $uninstalledPluginCount = 0;
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
@@ -54,11 +54,11 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
             $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
             ++$uninstalledPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getName()));
+            $io->text(\sprintf('Plugin "%s" has been uninstalled successfully.', $plugin->getName()));
         }
 
         if ($uninstalledPluginCount !== 0) {
-            $io->success(sprintf('Uninstalled %d plugins.', $uninstalledPluginCount));
+            $io->success(\sprintf('Uninstalled %d plugins.', $uninstalledPluginCount));
         }
 
         $this->handleClearCacheOption($input, $io, 'uninstalling');

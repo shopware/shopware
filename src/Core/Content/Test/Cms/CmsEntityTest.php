@@ -89,7 +89,7 @@ class CmsEntityTest extends TestCase
             }
         }
 
-        static::fail(sprintf('Could not find %s in collection', $className));
+        static::fail(\sprintf('Could not find %s in collection', $className));
     }
 
     private function getCmsPageFixture(): array

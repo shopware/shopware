@@ -210,7 +210,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         ]], $this->context);
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             $testApp->getName(),
@@ -256,7 +256,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->expectException(StoreException::class);
         $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
-        $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             'TestAppTheme',

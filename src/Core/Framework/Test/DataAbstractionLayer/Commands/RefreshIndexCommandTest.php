@@ -69,7 +69,7 @@ class RefreshIndexCommandTest extends TestCase
         $commandTester->execute(['--skip' => $skip]);
 
         $seoUrl = $repo->search(
-            (new Criteria())->addFilter(new EqualsFilter('pathInfo', sprintf('/navigation/%s', $categoryA))),
+            (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryA))),
             $context
         )->first();
 
@@ -82,7 +82,7 @@ class RefreshIndexCommandTest extends TestCase
         $commandTester->execute(['--skip' => $skip]);
 
         $seoUrl = $repo->search(
-            (new Criteria())->addFilter(new EqualsFilter('pathInfo', sprintf('/navigation/%s', $categoryB))),
+            (new Criteria())->addFilter(new EqualsFilter('pathInfo', \sprintf('/navigation/%s', $categoryB))),
             $context
         )->first();
 
@@ -103,7 +103,7 @@ class RefreshIndexCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement(
             'DELETE FROM seo_url WHERE path_info = :pathInfo',
-            ['pathInfo' => sprintf('/navigation/%s', $id)]
+            ['pathInfo' => \sprintf('/navigation/%s', $id)]
         );
 
         return $id;

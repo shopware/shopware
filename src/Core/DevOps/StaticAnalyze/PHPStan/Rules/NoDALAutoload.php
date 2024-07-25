@@ -117,7 +117,7 @@ class NoDALAutoload implements Rule
             }
 
             return [
-                RuleErrorBuilder::message(sprintf(
+                RuleErrorBuilder::message(\sprintf(
                     '%s.%s association has a configured autoload===true, this is forbidden for platform integrations',
                     $constantValue->value,
                     $propType->getConstantStrings()[0]->getValue()

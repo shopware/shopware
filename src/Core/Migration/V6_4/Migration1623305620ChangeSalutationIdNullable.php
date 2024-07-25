@@ -33,7 +33,7 @@ SQL;
 
     public function update(Connection $connection): void
     {
-        $sql = array_map(static fn (string $table): string => sprintf(self::TEMPLATE, $table), self::TABLES);
+        $sql = array_map(static fn (string $table): string => \sprintf(self::TEMPLATE, $table), self::TABLES);
 
         $connection->executeStatement(implode('', $sql));
     }

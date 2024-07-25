@@ -47,7 +47,7 @@ class PaymentMethodPersister
 
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($defaultLocale);
-            $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+            $payload['handlerIdentifier'] = \sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
             $payload['technicalName'] = \sprintf('payment_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();
@@ -143,7 +143,7 @@ class PaymentMethodPersister
             return null;
         }
 
-        $fileName = sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+        $fileName = \sprintf('payment_app_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
         $extension = pathinfo($paymentMethod->getIcon() ?? '', \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
         $mediaId = $existing !== null ? $existing->getOriginalMediaId() : null;

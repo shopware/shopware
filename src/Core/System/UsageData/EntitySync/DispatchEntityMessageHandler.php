@@ -109,7 +109,7 @@ final class DispatchEntityMessageHandler
      */
     private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): void
     {
-        throw new UnrecoverableMessageHandlingException(sprintf(
+        throw new UnrecoverableMessageHandlingException(\sprintf(
             '%s. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
             $errorMessage,
             $message->entityName,

@@ -80,7 +80,7 @@ abstract class ZipCodeRule extends Rule
     {
         return array_filter((array) $this->zipCodes, function (string $zipCodeMatch) use ($zipCode) {
             $zipCodeMatch = str_replace('\*', '(.*?)', preg_quote($zipCodeMatch, '/'));
-            $regex = sprintf('/^%s$/i', $zipCodeMatch);
+            $regex = \sprintf('/^%s$/i', $zipCodeMatch);
 
             return preg_match($regex, $zipCode) === 1;
         });

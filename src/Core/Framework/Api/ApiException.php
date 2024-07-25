@@ -60,7 +60,7 @@ class ApiException extends HttpException
         $parameters = [];
 
         foreach ($exceptions as $i => $exception) {
-            $message[] = sprintf(
+            $message[] = \sprintf(
                 'Can not resolve foreign key at position %s. Reference field: %s',
                 $exception['pointer'],
                 $exception['entity']
@@ -158,7 +158,7 @@ class ApiException extends HttpException
 
     public static function unsupportedMediaType(string $contentType): SymfonyHttpException
     {
-        return new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+        return new UnsupportedMediaTypeHttpException(\sprintf('The Content-Type "%s" is unsupported.', $contentType));
     }
 
     public static function badRequest(string $message): SymfonyHttpException

@@ -140,7 +140,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
         $assetName = $config->getAssetName();
 
-        $scriptPath = $path . \DIRECTORY_SEPARATOR . sprintf('Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
+        $scriptPath = $path . \DIRECTORY_SEPARATOR . \sprintf('Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
 
         if (file_exists($scriptPath)) {
             $config->setScriptFiles(FileCollection::createFromArray([$this->stripProjectDir($scriptPath)]));
@@ -183,7 +183,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         } catch (\Exception $e) {
             throw new ThemeCompileException(
                 $name,
-                sprintf(
+                \sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()
                 ),

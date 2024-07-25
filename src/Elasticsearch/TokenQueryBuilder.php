@@ -178,9 +178,9 @@ class TokenQueryBuilder
         if ($fieldConfig->isCustomField()) {
             $parts = explode('.', $fieldConfig->getField());
 
-            return sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
+            return \sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
         }
 
-        return sprintf('%s.%s', $fieldConfig->getField(), $languageId);
+        return \sprintf('%s.%s', $fieldConfig->getField(), $languageId);
     }
 }

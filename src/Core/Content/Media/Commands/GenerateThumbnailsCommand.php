@@ -172,7 +172,7 @@ class GenerateThumbnailsCommand extends Command
                     }
                 } catch (\Throwable $e) {
                     ++$errored;
-                    $errors[] = [sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
+                    $errors[] = [\sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
                 }
             }
             $this->io->progressAdvance($result->count());
@@ -208,7 +208,7 @@ class GenerateThumbnailsCommand extends Command
     private function generateSynchronous(RepositoryIterator $mediaIterator, Context $context): void
     {
         $totalMediaCount = $mediaIterator->getTotal();
-        $this->io->comment(sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
+        $this->io->comment(\sprintf('Generating Thumbnails for %d files. This may take some time...', $totalMediaCount));
         $this->io->progressStart($totalMediaCount);
 
         $result = $this->generateThumbnails($mediaIterator, $context);
@@ -253,6 +253,6 @@ class GenerateThumbnailsCommand extends Command
             $this->messageBus->dispatch($msg);
             ++$batchCount;
         }
-        $this->io->success(sprintf('Generated %d Batch jobs!', $batchCount));
+        $this->io->success(\sprintf('Generated %d Batch jobs!', $batchCount));
     }
 }

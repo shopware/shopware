@@ -42,7 +42,7 @@ class CanonicalRedirectService
         $queryString = $request->getQueryString();
 
         if ($queryString) {
-            $canonical = sprintf('%s?%s', $canonical, $queryString);
+            $canonical = \sprintf('%s?%s', $canonical, $queryString);
         }
 
         return new RedirectResponse($canonical, Response::HTTP_MOVED_PERMANENTLY);

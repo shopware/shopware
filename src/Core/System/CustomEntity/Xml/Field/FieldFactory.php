@@ -32,7 +32,7 @@ class FieldFactory
         $class = self::MAPPING[$element->tagName] ?? null;
 
         if (!$class) {
-            throw new \RuntimeException(sprintf('Field type "%s" not found', $element->tagName));
+            throw new \RuntimeException(\sprintf('Field type "%s" not found', $element->tagName));
         }
 
         return $class::fromXml($element);

@@ -39,7 +39,7 @@ class CurrencyFormatterTest extends TestCase
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO): void
     {
         $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
-        $pattern = sprintf('/\%s\d{%s}/', $expectedSeparator, (string) $decimalPlaces);
+        $pattern = \sprintf('/\%s\d{%s}/', $expectedSeparator, (string) $decimalPlaces);
         $formattedPrice = $this->formatter->formatCurrencyByLanguage(
             $price,
             $currencyISO,

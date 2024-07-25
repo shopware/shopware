@@ -79,7 +79,7 @@ class PluginListCommand extends Command
         $io->title('Shopware Plugin Service');
 
         if ($filter) {
-            $io->comment(sprintf('Filtering for: %s', $filter));
+            $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
         foreach ($plugins as $plugin) {
@@ -138,7 +138,7 @@ class PluginListCommand extends Command
             $pluginTable
         );
         $io->text(
-            sprintf(
+            \sprintf(
                 '%d plugins, %d installed, %d active , %d upgradeable',
                 \count($pluginTable),
                 $installed,

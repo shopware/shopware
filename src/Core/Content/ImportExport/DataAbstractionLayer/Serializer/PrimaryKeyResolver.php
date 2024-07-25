@@ -164,7 +164,7 @@ class PrimaryKeyResolver
         }
 
         $criteria->addFilter(new EqualsFilter(
-            sprintf('%s.languageId', $updateByFieldPath[0]),
+            \sprintf('%s.languageId', $updateByFieldPath[0]),
             $languageId
         ));
 

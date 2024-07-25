@@ -111,7 +111,7 @@ class DeliveryNoteRendererTest extends TestCase
                 static::assertStringContainsString('</html>', $html);
 
                 static::assertStringContainsString('Delivery note ' . $deliveryNoteNumber, $html);
-                static::assertStringContainsString(sprintf('Delivery note %s for Order %s ', $deliveryNoteNumber, $orderNumber), $html);
+                static::assertStringContainsString(\sprintf('Delivery note %s for Order %s ', $deliveryNoteNumber, $orderNumber), $html);
             },
         ];
 

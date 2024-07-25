@@ -264,7 +264,7 @@ class TranslatedVersionsTest extends TestCase
             ->search(new Criteria([$id]), $context)->first();
 
         static::assertTrue($context->considerInheritance());
-        static::assertSame($name, $product->getTranslated()['name'], sprintf(
+        static::assertSame($name, $product->getTranslated()['name'], \sprintf(
             'Expected %s with language chain %s but got %s, version context: %s',
             $name,
             (string) print_r($context->getLanguageIdChain(), true),

@@ -81,7 +81,7 @@ class HttpCacheKeyGenerator
         $baseUrl = $request->attributes->get(self::SALES_CHANNEL_BASE_URL) ?? '';
         \assert(\is_string($baseUrl));
 
-        return sprintf(
+        return \sprintf(
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
             $baseUrl,

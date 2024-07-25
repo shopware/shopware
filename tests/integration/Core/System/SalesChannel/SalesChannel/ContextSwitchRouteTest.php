@@ -52,7 +52,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -63,7 +63,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -159,7 +159,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -171,7 +171,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -211,7 +211,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "language" entity with id "%s" does not exist.', $id),
+            \sprintf('The "language" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -290,7 +290,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "currency" entity with id "%s" does not exist.', $id),
+            \sprintf('The "currency" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }

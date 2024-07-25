@@ -255,10 +255,10 @@ class EntityReader implements EntityReaderInterface
                 if ($field instanceof JsonField) {
                     // merged in hydrator
                     $parentFieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.inherited');
-                    $query->addSelect(sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
+                    $query->addSelect(\sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
                 }
                 // add selection for resolved parent-child inheritance field
-                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                $query->addSelect(\sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
                 continue;
             }
@@ -751,7 +751,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!$reference) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'No inverse many to many association found, for association %s',
                     $association->getPropertyName()
                 )
@@ -915,7 +915,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!$association->getReferenceDefinition()->getField('id')) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Paginated to many association must have an id field. No id field found for association %s.%s',
                     $definition->getEntityName(),
                     $association->getPropertyName()
@@ -961,7 +961,7 @@ class EntityReader implements EntityReaderInterface
         );
 
         foreach ($sortings as $i => $sorting) {
-            $wrapper->addOrderBy(sprintf('sort_%s', $i), $sorting->getDirection());
+            $wrapper->addOrderBy(\sprintf('sort_%s', $i), $sorting->getDirection());
         }
 
         $wrapper->from($root, $root);
@@ -1068,7 +1068,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!$ref) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Reference field %s not found in definition %s for definition %s',
                     $association->getReferenceField(),
                     $reference->getEntityName(),
@@ -1109,7 +1109,7 @@ class EntityReader implements EntityReaderInterface
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
                 $this->logger->warning(
-                    sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
+                    \sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
                 );
 
                 continue;
@@ -1172,7 +1172,7 @@ class EntityReader implements EntityReaderInterface
         // This line removes duplicate entries, so after fetchAssociations the association must be reassigned
         $relatedCollection = new $collectionClass();
         if (!$relatedCollection instanceof EntityCollection) {
-            throw new \RuntimeException(sprintf('Collection class %s has to be an instance of EntityCollection', $collectionClass));
+            throw new \RuntimeException(\sprintf('Collection class %s has to be an instance of EntityCollection', $collectionClass));
         }
 
         $relatedCollection->fill($related);

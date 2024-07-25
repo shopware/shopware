@@ -78,10 +78,10 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
         $message = $commandTester->getDisplay();
         static::assertMatchesRegularExpression(
-            sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
+            \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
             $message
         );
-        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
+        static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
 
         $this->runWorker();
 
@@ -118,10 +118,10 @@ class DeleteExpiredFilesCommandTest extends TestCase
         $numExpired = \count($expiredIds);
         $message = $commandTester->getDisplay();
         static::assertMatchesRegularExpression(
-            sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
+            \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $numExpired),
             $message
         );
-        static::assertMatchesRegularExpression(sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
+        static::assertMatchesRegularExpression(\sprintf('/\[OK\] Successfully deleted %d expired files./', $numExpired), $message);
 
         $results = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertEquals($num - $numExpired, \count($results));
@@ -165,7 +165,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $message = $commandTester->getDisplay();
             static::assertMatchesRegularExpression(
-                sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
+                \sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
                 $message
             );
             static::assertMatchesRegularExpression('/\[CAUTION\] Aborting due to user input./', $message);
@@ -188,7 +188,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
                 'path' => $filePath,
                 'expireDate' => date('Y-m-d H:i:s', (int) strtotime('+' . $i . ' day')),
                 'size' => $i * 51,

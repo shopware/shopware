@@ -104,7 +104,7 @@ class TranslationValidator implements EventSubscriberInterface
         $pks = $definition->getPrimaryKeys();
         $idField = $pks->getByStorageName($idStorageName);
         if (!$idField || !$idField instanceof FkField) {
-            throw new \RuntimeException(sprintf('`%s` primary key should have column `%s`', $definition->getEntityName(), $idStorageName));
+            throw new \RuntimeException(\sprintf('`%s` primary key should have column `%s`', $definition->getEntityName(), $idStorageName));
         }
         $fields = [
             'id' => $idField,

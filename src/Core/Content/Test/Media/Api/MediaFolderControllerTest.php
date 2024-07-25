@@ -40,7 +40,7 @@ class MediaFolderControllerTest extends TestCase
 
     public function testDissolveWithNonExistingFolder(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media-folder/%s/dissolve',
             Uuid::randomHex()
         );
@@ -74,7 +74,7 @@ class MediaFolderControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/_action/media-folder/%s/dissolve',
             $folderId
         );

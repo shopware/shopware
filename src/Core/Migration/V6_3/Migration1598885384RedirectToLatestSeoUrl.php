@@ -58,7 +58,7 @@ class Migration1598885384RedirectToLatestSeoUrl extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => sprintf('{"_value": %s}', $isActiveByDefault ? 'true' : 'false'),
+            'configuration_value' => \sprintf('{"_value": %s}', $isActiveByDefault ? 'true' : 'false'),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

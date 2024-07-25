@@ -101,7 +101,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                 if ($value instanceof EntityCollection) {
                     $values = [];
                     if (!empty($parts)) {
-                        $part .= sprintf('.%s', implode('.', $parts));
+                        $part .= \sprintf('.%s', implode('.', $parts));
                     }
                     foreach ($value as $item) {
                         $values = [...$values, ...$this->resolveEntityValue($item, $part)];

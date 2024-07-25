@@ -39,7 +39,7 @@ class CleanupSalesChannelContextTaskHandlerTest extends TestCase
         $this->createSalesChannelContext($ids->create('context-1'));
 
         $date = new \DateTime();
-        $date->modify(sprintf('-%d day', 121));
+        $date->modify(\sprintf('-%d day', 121));
         $this->createSalesChannelContext($ids->create('context-2'), $date);
 
         $this->handler->run();

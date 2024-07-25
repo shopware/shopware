@@ -69,7 +69,7 @@ class AdditionalPermissionValidationTest extends TestCase
             $regexParts[$permission] = '(\"|\')' . $permission . '(\"|\')';
         }
 
-        $regex = sprintf('/%s/s', implode('|', $regexParts));
+        $regex = \sprintf('/%s/s', implode('|', $regexParts));
 
         $finder = new Finder();
         $finder->in($this->rootDirs)
@@ -94,7 +94,7 @@ class AdditionalPermissionValidationTest extends TestCase
         }
 
         if (!empty($regexParts)) {
-            static::fail(sprintf(
+            static::fail(\sprintf(
                 'Found additional permission privileges not validated: %s',
                 implode(', ', array_keys($regexParts))
             ));

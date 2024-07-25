@@ -37,7 +37,7 @@ class EntityDispatchService
 
     public static function getLastRunKeyForEntity(string $entityName): string
     {
-        return sprintf('%s-%s', self::LAST_RUN_CONFIG_KEY, $entityName);
+        return \sprintf('%s-%s', self::LAST_RUN_CONFIG_KEY, $entityName);
     }
 
     public function dispatchCollectEntityDataMessage(): void

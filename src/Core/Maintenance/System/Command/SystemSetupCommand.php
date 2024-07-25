@@ -218,7 +218,7 @@ class SystemSetupCommand extends Command
         $dbSslKey = $io->ask('Database SSL Key Path', '');
         $dbSslDontVerify = $io->askQuestion(new ConfirmationQuestion('Skip verification of the database server\'s SSL certificate?', false));
 
-        $dsnWithoutDb = sprintf(
+        $dsnWithoutDb = \sprintf(
             'mysql://%s:%s@%s:%d',
             (string) $dbUser,
             rawurlencode((string) $dbPass),
@@ -311,7 +311,7 @@ class SystemSetupCommand extends Command
         $jwtDir = $this->projectDir . '/config/jwt';
 
         if (!file_exists($jwtDir) && !mkdir($jwtDir, 0700, true) && !is_dir($jwtDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $jwtDir));
+            throw new \RuntimeException(\sprintf('Directory "%s" was not created', $jwtDir));
         }
 
         // TODO: make it regenerate the public key if only private exists

@@ -86,7 +86,7 @@ class MakeCoverageTestCommand extends Command
             $testFileName = $folderPath . '/' . $reflection->getShortName() . 'Test.php';
 
             if ($this->filesystem->exists($testFileName)) {
-                $io->note(sprintf('Test file %s already exists', $testFileName));
+                $io->note(\sprintf('Test file %s already exists', $testFileName));
 
                 continue;
             }
@@ -134,7 +134,7 @@ class MakeCoverageTestCommand extends Command
             $class = $this->getClassname($class);
 
             if ($class === null || !class_exists($class)) {
-                $io->warning(sprintf('Class or file %s does not exist', $class));
+                $io->warning(\sprintf('Class or file %s does not exist', $class));
 
                 continue;
             }
@@ -145,7 +145,7 @@ class MakeCoverageTestCommand extends Command
             $parentClass = $reflection->getParentClass();
 
             if ($parentClass && ($parentClass->getName() === Struct::class || $parentClass->getName() === Collection::class)) {
-                $io->note(sprintf('Skip coverage test for excluded struct: %s', $fileName));
+                $io->note(\sprintf('Skip coverage test for excluded struct: %s', $fileName));
 
                 continue;
             }
@@ -156,19 +156,19 @@ class MakeCoverageTestCommand extends Command
                 }
 
                 if (!empty($excludedDir->prefix()) && str_ends_with($fileName, $excludedDir->prefix())) {
-                    $failReason = sprintf('Skip coverage test for excluded directory: %s', $fileName);
+                    $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
                 if (!empty($excludedDir->suffix()) && str_ends_with($fileName, $excludedDir->suffix())) {
-                    $failReason = sprintf('Skip coverage test for excluded directory: %s', $fileName);
+                    $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }
 
             foreach ($excludedFiles as $excludedFile) {
                 if ($excludedFile->path() === $fileName) {
-                    $failReason = sprintf('Skip coverage test for excluded file: %s', $fileName);
+                    $failReason = \sprintf('Skip coverage test for excluded file: %s', $fileName);
                 }
             }
 
@@ -251,7 +251,7 @@ class MakeCoverageTestCommand extends Command
     private function validateClass(string $class, SymfonyStyle $io): bool
     {
         if (str_ends_with($class, 'Test')) {
-            $io->note(sprintf('Skip coverage test for test file: %s', $class));
+            $io->note(\sprintf('Skip coverage test for test file: %s', $class));
 
             return false;
         }
@@ -259,13 +259,13 @@ class MakeCoverageTestCommand extends Command
         $reflection = new \ReflectionClass($class);
 
         if (!$reflection->isInstantiable()) {
-            $io->note(sprintf('Skip coverage test for non instantiable class: %s', $class));
+            $io->note(\sprintf('Skip coverage test for non instantiable class: %s', $class));
 
             return false;
         }
 
         if ($reflection->getDocComment() && str_contains($reflection->getDocComment(), '* @codeCoverageIgnore')) {
-            $io->note(sprintf('Skip coverage test for class with @codeCoverageIgnore: %s', $class));
+            $io->note(\sprintf('Skip coverage test for class with @codeCoverageIgnore: %s', $class));
 
             return false;
         }

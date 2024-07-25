@@ -35,7 +35,7 @@ class MigrationExecuteQueryTest extends TestCase
             }
         } catch (\Exception $e) {
             if ($e->getMessage() === NullConnection::EXCEPTION_MESSAGE) {
-                static::fail(sprintf('%s Trace: %s', NullConnection::EXCEPTION_MESSAGE, $e->getTraceAsString()));
+                static::fail(\sprintf('%s Trace: %s', NullConnection::EXCEPTION_MESSAGE, $e->getTraceAsString()));
             }
             // ignore error because it is possible that older migrations just don't work on read anymore
         }

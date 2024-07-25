@@ -110,7 +110,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $description = $tags[0]->getDescription();
 
         if (!$description || !\in_array($description->render(), array_keys(self::GROUPS), true)) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Script Services "%s" is not correctly tagged to the group. Available groups are: "%s".',
                 $reflection->getName(),
                 implode('", "', array_keys(self::GROUPS)),
@@ -279,7 +279,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
 
             if (!$method->getDocComment()) {
-                throw new \RuntimeException(sprintf(
+                throw new \RuntimeException(\sprintf(
                     'DocBlock is missing for method "%s() in class "%s".',
                     $method->getName(),
                     $reflection->getName()
@@ -366,7 +366,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
         }
 
-        throw new \RuntimeException(sprintf(
+        throw new \RuntimeException(\sprintf(
             'Missing doc block for param "$%s" on method "%s()" in class "%s",',
             $name,
             $method->getName(),
@@ -409,7 +409,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         /** @var Return_[] $tags */
         $tags = $docBlock->getTagsWithTypeByName('return');
         if (\count($tags) < 1) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Missing @return annotation on method "%s()" in class "%s",',
                 $method->getName(),
                 $method->getDeclaringClass()->getName()
@@ -480,7 +480,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
 
             if (\count($files) === 0) {
-                throw new \RuntimeException(sprintf(
+                throw new \RuntimeException(\sprintf(
                     'Cannot find configured example file in `@example` annotation for method "%s()" in class "%s". File with pattern "%s" can not be found.',
                     $method->getName(),
                     $method->getDeclaringClass()->getName(),
@@ -489,7 +489,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
 
             if (\count($files) > 1) {
-                throw new \RuntimeException(sprintf(
+                throw new \RuntimeException(\sprintf(
                     'Configured file pattern in `@example` annotation for method "%s()" in class "%s" is not unique. File pattern "%s" matched "%s".',
                     $method->getName(),
                     $method->getDeclaringClass()->getName(),

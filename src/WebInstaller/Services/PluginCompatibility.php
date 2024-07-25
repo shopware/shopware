@@ -34,7 +34,7 @@ class PluginCompatibility
         private string $projectComposerJsonFile,
         private string $shopwareUpgradeVersion,
     ) {
-        $installedJsonLocation = sprintf(
+        $installedJsonLocation = \sprintf(
             '%s/vendor/composer/installed.json',
             \dirname((string) realpath($this->projectComposerJsonFile))
         );
@@ -119,7 +119,7 @@ class PluginCompatibility
     {
         if (isset($this->installedPackages[$name]['install-path'])) {
             // install path is relative to installed.json
-            $path = sprintf(
+            $path = \sprintf(
                 '%s/vendor/composer/%s',
                 \dirname($this->projectComposerJsonFile),
                 $this->installedPackages[$name]['install-path']

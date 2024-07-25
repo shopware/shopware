@@ -75,7 +75,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
                 )
             );',
             [
-                'currencyKey' => sprintf('c%s', $defaultCurrencyId),
+                'currencyKey' => \sprintf('c%s', $defaultCurrencyId),
                 'currencyId' => $defaultCurrencyId,
             ]
         );
@@ -87,7 +87,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
      */
     private function addUpdateDatabaseTrigger(Connection $connection): void
     {
-        $query = sprintf(
+        $query = \sprintf(
             'CREATE TRIGGER product_purchase_prices_update BEFORE UPDATE ON product
                 FOR EACH ROW BEGIN
                     IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN
@@ -132,7 +132,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
      */
     private function addInsertDatabaseTrigger(Connection $connection): void
     {
-        $query = sprintf(
+        $query = \sprintf(
             'CREATE TRIGGER product_purchase_prices_insert BEFORE INSERT ON product
                 FOR EACH ROW BEGIN
                     IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN

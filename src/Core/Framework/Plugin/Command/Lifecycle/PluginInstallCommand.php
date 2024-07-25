@@ -51,14 +51,14 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             }
 
             if ($activatePlugins && $plugin->getInstalledAt() && $plugin->getActive() === false) {
-                $io->note(sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
                 $this->pluginLifecycleService->activatePlugin($plugin, $context);
 
                 continue;
             }
 
             if ($plugin->getInstalledAt()) {
-                $io->note(sprintf('Plugin "%s" is already installed. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" is already installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
@@ -78,11 +78,11 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
                 }
             }
 
-            $io->text(sprintf($message, $plugin->getName(), $activationSuffix));
+            $io->text(\sprintf($message, $plugin->getName(), $activationSuffix));
         }
 
         if ($installedPluginCount !== 0) {
-            $io->success(sprintf('Installed %d plugin(s).', $installedPluginCount));
+            $io->success(\sprintf('Installed %d plugin(s).', $installedPluginCount));
         }
 
         if ($activatePlugins) {

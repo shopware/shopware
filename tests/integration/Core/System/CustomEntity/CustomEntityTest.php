@@ -1124,7 +1124,7 @@ class CustomEntityTest extends TestCase
                 $field->compile($container->get(DefinitionInstanceRegistry::class));
 
                 $name = $field->getPropertyName();
-                $message = sprintf('Assertion for field "%s" in entity "%s" failed', $name, $entity);
+                $message = \sprintf('Assertion for field "%s" in entity "%s" failed', $name, $entity);
 
                 static::assertTrue($definition->getFields()->has($name), $message . ' - field not found');
 

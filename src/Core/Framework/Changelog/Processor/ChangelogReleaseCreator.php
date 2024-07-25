@@ -79,12 +79,12 @@ class ChangelogReleaseCreator extends ChangelogProcessor
     private function releaseChangelogGlobal(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
     {
         $append = [];
-        $append[] = sprintf('## %s', $version);
+        $append[] = \sprintf('## %s', $version);
 
         $releaseDir = $this->getTargetReleaseDir($version, false);
 
         foreach ($collection as $changelog) {
-            $log = sprintf(
+            $log = \sprintf(
                 '*  [%s - %s](./changelog/%s)',
                 $changelog->getDefinition()->getIssue(),
                 $changelog->getDefinition()->getTitle(),
@@ -95,7 +95,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $authorEmail = $changelog->getDefinition()->getAuthorEmail() ?? '';
             $github = $changelog->getDefinition()->getAuthorGitHub() ?? '';
             if (!empty($author) && !empty($github) && !empty($authorEmail) && !str_contains($authorEmail, '@shopware.com')) {
-                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
+                $log .= \sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
             }
 
             $append[] = $log;
@@ -148,7 +148,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             return $output;
         }
 
-        array_unshift($append, sprintf('# %s', $version));
+        array_unshift($append, \sprintf('# %s', $version));
 
         $upgradeFile = $this->getTargetUpgradeFile($version);
         if (!$dryRun) {
@@ -204,7 +204,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         $nextMajorVersionHeadline = '# ' . $this->getNextMajorVersion($version) . '.0.0' . \PHP_EOL;
 
-        array_unshift($append, sprintf('## Introduced in %s', $version));
+        array_unshift($append, \sprintf('## Introduced in %s', $version));
 
         $upgradeFile = $this->getTargetNextMajorUpgradeFile($version);
         if (!$dryRun) {

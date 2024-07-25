@@ -38,7 +38,7 @@ class MockSnippetFile extends AbstractSnippetFile
 
     public function getPath(): string
     {
-        return sprintf('%s/_fixtures/%s.json', __DIR__, $this->getName());
+        return \sprintf('%s/_fixtures/%s.json', __DIR__, $this->getName());
     }
 
     public function getIso(): string

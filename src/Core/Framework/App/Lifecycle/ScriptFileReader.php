@@ -50,7 +50,7 @@ class ScriptFileReader
         $content = $this->appLoader->loadFile($appPath, self::SCRIPT_DIR . '/' . $name);
 
         if ($content === null) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $appPath . self::SCRIPT_DIR . '/' . $name));
+            throw new \RuntimeException(\sprintf('Unable to read file from: %s.', $appPath . self::SCRIPT_DIR . '/' . $name));
         }
 
         return $content;

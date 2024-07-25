@@ -287,7 +287,7 @@ class EntityWriteResultFactory
      */
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
-        $fetchQuery = sprintf(
+        $fetchQuery = \sprintf(
             'SELECT DISTINCT LOWER(HEX(parent_id)) as id FROM %s WHERE id IN (:ids)',
             EntityDefinitionQueryHelper::escape($definition->getEntityName())
         );

@@ -124,7 +124,7 @@ class PackageAnnotationRule implements Rule
             return [];
         }
 
-        return [sprintf('This class is missing the "#[Package(...)]" attribute (recommendation: %s)', $area ?? 'unknown')];
+        return [\sprintf('This class is missing the "#[Package(...)]" attribute (recommendation: %s)', $area ?? 'unknown')];
     }
 
     private function getProductArea(InClassNode $node): ?string

@@ -470,7 +470,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -479,7 +479,7 @@ class ApiController extends AbstractController
             if ($parentDefinition->isVersionAware()) {
                 $criteria->addFilter(
                     new EqualsFilter(
-                        sprintf('%s.%s.versionId', $definition->getEntityName(), $reverse->getPropertyName()),
+                        \sprintf('%s.%s.versionId', $definition->getEntityName(), $reverse->getPropertyName()),
                         $context->getVersionId()
                     )
                 );
@@ -524,7 +524,7 @@ class ApiController extends AbstractController
             $criteria->addFilter(
                 new EqualsFilter(
                     // filter inverse association to parent value:  manufacturer.products.id = SW1
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -548,7 +548,7 @@ class ApiController extends AbstractController
             $criteria->addFilter(
                 new EqualsFilter(
                     // filter inverse association to parent value:  order_customer.order_id = xxxx
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -613,7 +613,7 @@ class ApiController extends AbstractController
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
-            throw ApiException::methodNotAllowed($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
+            throw ApiException::methodNotAllowed($methods, \sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
         }
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
@@ -890,7 +890,7 @@ class ApiController extends AbstractController
             }
 
             if (!($field instanceof AssociationField)) {
-                $message = sprintf('Field "%s" is not a valid association field.', $part['entity']);
+                $message = \sprintf('Field "%s" is not a valid association field.', $part['entity']);
 
                 throw ApiException::pathIsNoAssociationField($message);
             }

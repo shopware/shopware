@@ -80,7 +80,7 @@ class InheritanceUpdater
 
             $versionKey = \substr($foreignKey, 0, -3) . '_version_id';
 
-            $sql = sprintf(
+            $sql = \sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
                         (
                             SELECT #reference#.#entity_id#

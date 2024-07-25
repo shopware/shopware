@@ -22,7 +22,7 @@ class ScriptTwigLoader implements LoaderInterface
         $script = $this->get($name);
 
         if ($script === null) {
-            throw new LoaderError(sprintf('Template "%s" is not defined.', $name));
+            throw new LoaderError(\sprintf('Template "%s" is not defined.', $name));
         }
 
         return new Source($script->getScript(), $name);

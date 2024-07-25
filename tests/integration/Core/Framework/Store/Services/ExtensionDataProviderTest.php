@@ -88,7 +88,7 @@ class ExtensionDataProviderTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s"', $id));
+        $this->expectExceptionMessage(\sprintf('Could not find extension with id "%s"', $id));
         $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 

@@ -63,14 +63,14 @@ class ContainerCartProcessorTest extends TestCase
         foreach ($expected->getCalculatedTaxes() as $tax) {
             $actual = $item->getPrice()->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
 
         foreach ($item->getPrice()->getCalculatedTaxes() as $tax) {
             $actual = $expected->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
     }

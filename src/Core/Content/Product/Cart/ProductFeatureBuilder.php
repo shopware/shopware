@@ -251,7 +251,7 @@ class ProductFeatureBuilder
      */
     private function getCustomField(string $name, CartDataCollection $data, SalesChannelProductEntity $product): ?array
     {
-        $fieldKey = sprintf('custom-field-%s', $name);
+        $fieldKey = \sprintf('custom-field-%s', $name);
         $translation = $product->getTranslation('customFields');
 
         if ($translation === null || !\array_key_exists($name, $translation)) {

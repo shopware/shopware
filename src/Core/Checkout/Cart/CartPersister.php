@@ -127,7 +127,7 @@ class CartPersister extends AbstractCartPersister
     public function prune(int $days): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%d day', $days));
+        $time->modify(\sprintf('-%d day', $days));
 
         $stmt = $this->connection->prepare(<<<'SQL'
             DELETE FROM cart

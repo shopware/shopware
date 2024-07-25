@@ -116,7 +116,7 @@ class TaskScheduler
         $taskClass = $taskEntity->getScheduledTaskClass();
 
         if (!\is_a($taskClass, ScheduledTask::class, true)) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Tried to schedule "%s", but class does not extend ScheduledTask',
                 $taskClass
             ));
@@ -181,7 +181,7 @@ class TaskScheduler
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
-        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
+        $newNextExecutionTime = $nextExecutionTime->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));
 
         return $newNextExecutionTime < $now ? $now : $newNextExecutionTime;
     }

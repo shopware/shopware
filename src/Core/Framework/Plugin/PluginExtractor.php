@@ -33,7 +33,7 @@ class PluginExtractor
         $destination = $this->extensionDirectories[$type];
 
         if (!is_writable($destination)) {
-            throw new PluginExtractionException(sprintf('Destination directory "%s" is not writable', $destination));
+            throw new PluginExtractionException(\sprintf('Destination directory "%s" is not writable', $destination));
         }
 
         $pluginName = $this->getPluginName($archive);
@@ -112,7 +112,7 @@ class PluginExtractor
     {
         if (mb_strpos($filename, $prefix) !== 0) {
             throw new PluginExtractionException(
-                sprintf(
+                \sprintf(
                     'Detected invalid file/directory %s in the plugin zip: %s',
                     $filename,
                     $prefix

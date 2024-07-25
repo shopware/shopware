@@ -900,7 +900,7 @@ class ProductCartProcessorTest extends TestCase
             [
                 [
                     'id' => $id,
-                    'name' => sprintf('name-%s', $id),
+                    'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
                     'translationCode' => [

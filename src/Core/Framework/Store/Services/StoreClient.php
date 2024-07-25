@@ -340,7 +340,7 @@ class StoreClient
         try {
             $this->client->request(
                 Request::METHOD_POST,
-                sprintf($this->endpoints['cancel_license'], $licenseId),
+                \sprintf($this->endpoints['cancel_license'], $licenseId),
                 [
                     'query' => $this->getQueries($context),
                     'headers' => $this->getHeaders($context),
@@ -365,7 +365,7 @@ class StoreClient
         try {
             $this->client->request(
                 Request::METHOD_POST,
-                sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
+                \sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
                 [
                     'query' => $this->getQueries($context),
                     'headers' => $this->getHeaders($context),

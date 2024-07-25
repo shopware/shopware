@@ -66,15 +66,15 @@ class MigrationCollectionFactory
         $hasAdminMigrations = is_dir($adminBasePath);
 
         $source = new MigrationSource('core.' . $version, [
-            sprintf('%s/Migration/%s', $coreBasePath, $version) => sprintf('Shopware\\Core\\Migration\\%s', $version),
+            \sprintf('%s/Migration/%s', $coreBasePath, $version) => \sprintf('Shopware\\Core\\Migration\\%s', $version),
         ]);
 
         if ($hasStorefrontMigrations) {
-            $source->addDirectory(sprintf('%s/Migration/%s', $storefrontBasePath, $version), sprintf('Shopware\\Storefront\\Migration\\%s', $version));
+            $source->addDirectory(\sprintf('%s/Migration/%s', $storefrontBasePath, $version), \sprintf('Shopware\\Storefront\\Migration\\%s', $version));
         }
 
         if ($hasAdminMigrations) {
-            $source->addDirectory(sprintf('%s/Migration/%s', $adminBasePath, $version), sprintf('Shopware\\Administration\\Migration\\%s', $version));
+            $source->addDirectory(\sprintf('%s/Migration/%s', $adminBasePath, $version), \sprintf('Shopware\\Administration\\Migration\\%s', $version));
         }
 
         return $source;

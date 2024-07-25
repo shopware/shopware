@@ -72,7 +72,7 @@ class Migration1698682149MakeTranslatableFieldsNullable extends MigrationStep
                 $type = $this->getFieldType($connection, $table, $column);
 
                 $connection->executeStatement(
-                    sprintf(
+                    \sprintf(
                         'ALTER TABLE `%s` MODIFY `%s` %s DEFAULT NULL;',
                         $table,
                         $column,

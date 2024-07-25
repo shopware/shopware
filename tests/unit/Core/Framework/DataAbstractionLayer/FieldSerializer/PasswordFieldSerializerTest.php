@@ -79,7 +79,7 @@ class PasswordFieldSerializerTest extends TestCase
         if ($shouldThrowViolationException) {
             $constraintViolations->add(new ConstraintViolation('test', 'test', [], '', '', ''));
             static::expectException(WriteConstraintViolationException::class);
-            static::expectExceptionMessage(sprintf('Caught %d constraint violation errors.', \count($constraints)));
+            static::expectExceptionMessage(\sprintf('Caught %d constraint violation errors.', \count($constraints)));
         }
 
         $existence = new EntityExistence('product', [], false, false, false, []);

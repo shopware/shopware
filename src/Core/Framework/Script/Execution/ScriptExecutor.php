@@ -116,7 +116,7 @@ class ScriptExecutor
 
             $requiredFromVersion = $hook->willBeRequiredInVersion();
             if ($requiredFromVersion) {
-                ScriptTraces::addDeprecationNotice(sprintf(
+                ScriptTraces::addDeprecationNotice(\sprintf(
                     'Function "%s" will be required from %s onward, but is not implemented in script "%s", please make sure you add the block in your script.',
                     $hook->getFunctionName(),
                     $requiredFromVersion,

@@ -61,14 +61,14 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, (string) $this->connection->quote($query->getScore()), $field)
+                        \sprintf('IF(%s , %s * %s, 0)', $where, (string) $this->connection->quote($query->getScore()), $field)
                     );
 
                     continue;
                 }
 
                 $result->addWhere(
-                    sprintf('IF(%s , %s, 0)', $where, (string) $this->connection->quote($query->getScore()))
+                    \sprintf('IF(%s , %s, 0)', $where, (string) $this->connection->quote($query->getScore()))
                 );
             }
 
@@ -107,7 +107,7 @@ class SqlQueryParser
             $query instanceof RangeFilter => $this->parseRangeFilter($query, $definition, $root, $context),
             $query instanceof NotFilter => $this->parseNotFilter($query, $definition, $root, $context),
             $query instanceof MultiFilter => $this->parseMultiFilter($query, $definition, $root, $context, $negated),
-            default => throw new \RuntimeException(sprintf('Unsupported query %s', $query::class)),
+            default => throw new \RuntimeException(\sprintf('Unsupported query %s', $query::class)),
         };
     }
 
@@ -207,7 +207,7 @@ class SqlQueryParser
 
             foreach ($query->getValue() as $value) {
                 $key = $this->getKey();
-                $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
+                $where[] = \sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
                 $result->addParameter($key, $value);
             }
             $result->addWhere('(' . implode(' OR ', $where) . ')');

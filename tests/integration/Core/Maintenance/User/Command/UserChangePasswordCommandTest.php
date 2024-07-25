@@ -94,9 +94,9 @@ class UserChangePasswordCommandTest extends TestCase
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
-                'firstName' => sprintf('Foo%s', Uuid::randomHex()),
-                'lastName' => sprintf('Bar%s', Uuid::randomHex()),
-                'email' => sprintf('%s@foo.bar', $uuid),
+                'firstName' => \sprintf('Foo%s', Uuid::randomHex()),
+                'lastName' => \sprintf('Bar%s', Uuid::randomHex()),
+                'email' => \sprintf('%s@foo.bar', $uuid),
             ],
         ], $this->context);
 

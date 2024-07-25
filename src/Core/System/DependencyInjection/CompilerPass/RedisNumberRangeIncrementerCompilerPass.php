@@ -27,7 +27,7 @@ class RedisNumberRangeIncrementerCompilerPass implements CompilerPassInterface
 
         // @deprecated tag:v6.7.0 - remove this if block
         if (\in_array($storage, array_keys(self::DEPRECATED_MAPPING), true)) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', sprintf(
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', \sprintf(
                 'Parameter value "%s" will not be supported. Please use one of the following values: %s',
                 $storage,
                 implode(', ', self::DEPRECATED_MAPPING)

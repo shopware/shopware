@@ -44,7 +44,7 @@ class CreateGeneratorScaffoldingCommandPass implements CompilerPassInterface
             $commandDefinition->addTag('console.command', $tagAttributes);
 
             $container->setDefinition(
-                sprintf('make.auto_command.%s', self::asSnake($ref->getShortName())),
+                \sprintf('make.auto_command.%s', self::asSnake($ref->getShortName())),
                 $commandDefinition
             );
         }

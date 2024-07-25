@@ -95,7 +95,7 @@ class EntityDispatcher
             }
 
             throw new UnrecoverableMessageHandlingException(
-                sprintf('Error while dispatching entity: %s', $exception->getMessage()),
+                \sprintf('Error while dispatching entity: %s', $exception->getMessage()),
                 previous: $exception
             );
         }

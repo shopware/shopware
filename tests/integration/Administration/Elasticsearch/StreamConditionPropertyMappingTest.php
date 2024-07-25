@@ -49,7 +49,7 @@ class StreamConditionPropertyMappingTest extends TestCase
             static::fail('could not find product properties in product-stream-condition.service.js');
         }
 
-        $json = sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
+        $json = \sprintf('[%s]', rtrim(trim(str_replace(['\'', \PHP_EOL], ['"', ''], $matches[2])), ','));
         $properties = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\is_array($properties)) {
@@ -69,7 +69,7 @@ class StreamConditionPropertyMappingTest extends TestCase
             return !\in_array($property, $mappedProperties, true);
         });
 
-        static::assertEmpty($unmappedProperties, sprintf(
+        static::assertEmpty($unmappedProperties, \sprintf(
             'The following product fields available for filters in product streams are not mapped for elasticsearch: %s',
             implode(', ', $unmappedProperties)
         ));

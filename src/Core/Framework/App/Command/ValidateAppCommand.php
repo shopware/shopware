@@ -137,7 +137,7 @@ class ValidateAppCommand extends Command
 
         if ($folders === []) {
             $io->error(
-                sprintf(
+                \sprintf(
                     'No app with name "%s" found. Please make sure that a folder with that exact name exist in the custom/apps folder.',
                     $name
                 )

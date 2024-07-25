@@ -206,7 +206,7 @@ class RequirementsValidatorTest extends TestCase
         $regexTemplate = '#.*"%s" conflicts with plugin/package "%s == 6\.[0-9]+\.[0-9]+\.[0-9]+.*#im';
 
         static::assertIsString($plugin->getComposerName());
-        $this->expectExceptionMessageMatches(sprintf(
+        $this->expectExceptionMessageMatches(\sprintf(
             $regexTemplate,
             preg_quote($plugin->getComposerName(), '#'),
             preg_quote('shopware/core', '#')

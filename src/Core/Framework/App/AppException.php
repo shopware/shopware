@@ -151,7 +151,7 @@ class AppException extends HttpException
     {
         $featuresAsString = \count($features) < 3
             ? implode(' and ', $features)
-            : sprintf('%s and %s', implode(', ', \array_slice($features, 0, -1)), array_pop($features));
+            : \sprintf('%s and %s', implode(', ', \array_slice($features, 0, -1)), array_pop($features));
 
         return new self(
             Response::HTTP_BAD_REQUEST,

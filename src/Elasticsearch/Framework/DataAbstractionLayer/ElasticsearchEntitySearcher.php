@@ -188,7 +188,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         foreach ($groupings as $grouping) {
             $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
 
-            $fields[] = sprintf(
+            $fields[] = \sprintf(
                 '
                 if (doc[\'%s\'].size()==0) {
                     value = value + \'empty\';

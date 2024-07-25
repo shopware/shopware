@@ -150,7 +150,7 @@ class ShippingMethodPersister
             return null;
         }
 
-        $fileName = sprintf('shipping_app_%s_%s', $manifest->getMetadata()->getName(), $shippingMethod->getIdentifier());
+        $fileName = \sprintf('shipping_app_%s_%s', $manifest->getMetadata()->getName(), $shippingMethod->getIdentifier());
         $extension = pathinfo($iconPath, \PATHINFO_EXTENSION);
         $mimeType = $this->mimeDetector->detectMimeTypeFromBuffer($icon);
 

@@ -182,12 +182,12 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
         // schema has http methods as keys, we want to check all of them
         foreach ($schema as $operation) {
-            static::assertContains('Experimental', $operation['tags'], sprintf('Route "%s" is experimental but not tagged as such in the schema, please add the "Experimental" tag.', $route->getPath()));
+            static::assertContains('Experimental', $operation['tags'], \sprintf('Route "%s" is experimental but not tagged as such in the schema, please add the "Experimental" tag.', $route->getPath()));
 
             static::assertStringContainsString(
                 'Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.',
                 $operation['summary'],
-                sprintf('Route "%s" is experimental but not documented as such in the schema, please add that note to the summary.', $route->getPath())
+                \sprintf('Route "%s" is experimental but not documented as such in the schema, please add that note to the summary.', $route->getPath())
             );
         }
     }
@@ -235,7 +235,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 $parameterName = $item['name'];
                 $key = $route->getPath() . ':' . $parameterName;
 
-                static::assertContains($key, $whitelist, sprintf('Route "%s" has a query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+                static::assertContains($key, $whitelist, \sprintf('Route "%s" has a query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
             }
         }
     }

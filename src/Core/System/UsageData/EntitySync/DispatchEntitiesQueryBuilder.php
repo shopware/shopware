@@ -62,7 +62,7 @@ class DispatchEntitiesQueryBuilder
     public function withPersonalUniqueIdentifier(): self
     {
         $concatenatedFields = array_map(
-            static fn (string $field) => sprintf('LOWER(%s)', EntityDefinitionQueryHelper::escape($field)),
+            static fn (string $field) => \sprintf('LOWER(%s)', EntityDefinitionQueryHelper::escape($field)),
             [
                 EntityDefinitionService::PUID_FIELDS['firstName'],
                 EntityDefinitionService::PUID_FIELDS['lastName'],
@@ -70,7 +70,7 @@ class DispatchEntitiesQueryBuilder
             ]
         );
 
-        $this->queryBuilder->addSelect(sprintf(
+        $this->queryBuilder->addSelect(\sprintf(
             'SHA2(CONCAT(%s), 512) AS %s',
             implode(', ', $concatenatedFields),
             EntityDefinitionQueryHelper::escape(self::PUID_FIELD_NAME)
@@ -92,8 +92,8 @@ class DispatchEntitiesQueryBuilder
 
             foreach ($primaryKey as $column => $id) {
                 ++$pkCount;
-                $condition = sprintf('%s = :pk_%s', EntityDefinitionQueryHelper::escape($column), (string) $pkCount);
-                $this->queryBuilder->setParameter(sprintf('pk_%s', (string) $pkCount), Uuid::fromHexToBytes($id));
+                $condition = \sprintf('%s = :pk_%s', EntityDefinitionQueryHelper::escape($column), (string) $pkCount);
+                $this->queryBuilder->setParameter(\sprintf('pk_%s', (string) $pkCount), Uuid::fromHexToBytes($id));
 
                 $combinedKeyCondition = $combinedKeyCondition === null
                     ? CompositeExpression::and($condition)
@@ -122,7 +122,7 @@ class DispatchEntitiesQueryBuilder
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 $hasVersionFields = true;
                 $this->queryBuilder->andWhere(
-                    sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
+                    \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
                 );
             }
         }

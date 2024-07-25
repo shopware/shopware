@@ -77,7 +77,7 @@ class RuleTest extends TestCase
                 $rule->match($scope);
                 $rule->match($lineItemScope);
             } catch (\Throwable $exception) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Condition %s threw exception matching with empty operator and no other assigned values: %s',
                     $rule->getName(),
                     $exception->getMessage()
@@ -99,7 +99,7 @@ class RuleTest extends TestCase
                     ],
                 ], $this->context);
             } catch (\Throwable $exception) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Threw exception persisting condition %s with empty operator and no other assigned values: %s',
                     $rule->getName(),
                     $exception->getMessage()
@@ -131,14 +131,14 @@ class RuleTest extends TestCase
             }
 
             if (empty($constraints['operator']) && !empty($configOperators)) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Missing constraints in condition %s for operator while config has operator set',
                     $rule->getName()
                 ));
             }
 
             if (!empty($constraints['operator']) && empty($configOperators)) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Missing operator set for config of condition %s while constraints require operator',
                     $rule->getName()
                 ));
@@ -151,7 +151,7 @@ class RuleTest extends TestCase
             }
 
             static::assertIsArray($choiceConstraint->choices);
-            static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), sprintf(
+            static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), \sprintf(
                 'Constraints and config for operator differ in condition %s',
                 $rule->getName()
             ));
@@ -164,7 +164,7 @@ class RuleTest extends TestCase
         foreach ($this->getRules() as $rule) {
             $ruleNameConstant = $rule::RULE_NAME; /* @phpstan-ignore-line */
 
-            static::assertNotNull($ruleNameConstant, sprintf(
+            static::assertNotNull($ruleNameConstant, \sprintf(
                 'Rule name constant is empty in condition %s',
                 $rule->getName()
             ));

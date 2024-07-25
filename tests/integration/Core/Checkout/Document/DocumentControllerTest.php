@@ -171,7 +171,7 @@ class DocumentControllerTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
         static::assertNotNull($order);
 
-        $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', Uuid::randomHex(), $order->getDeepLinkCode());
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
@@ -179,7 +179,7 @@ class DocumentControllerTest extends TestCase
         static::assertNotEmpty($response['errors']);
         static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
-        $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
         $this->getBrowser()->request('GET', $endpoint);
 
         static::assertEquals($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
@@ -187,7 +187,7 @@ class DocumentControllerTest extends TestCase
         static::assertNotEmpty($response['errors']);
         static::assertEquals('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
-        $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
 
         $this->getBrowser()->request('GET', $endpoint);
 
@@ -210,7 +210,7 @@ class DocumentControllerTest extends TestCase
             []
         )->authorizeBrowser($this->getBrowser());
 
-        $endpoint = sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
+        $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, $order->getDeepLinkCode());
 
         $this->getBrowser()->request('GET', $endpoint);
 

@@ -42,13 +42,13 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
         $activatedPluginCount = 0;
         foreach ($plugins as $plugin) {
             if ($plugin->getInstalledAt() === null) {
-                $io->note(sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" must be installed. Skipping.', $plugin->getName()));
 
                 continue;
             }
 
             if ($plugin->getActive()) {
-                $io->note(sprintf('Plugin "%s" is already active. Skipping.', $plugin->getName()));
+                $io->note(\sprintf('Plugin "%s" is already active. Skipping.', $plugin->getName()));
 
                 continue;
             }
@@ -56,11 +56,11 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
             $this->pluginLifecycleService->activatePlugin($plugin, $context);
             ++$activatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been activated successfully.', $plugin->getName()));
+            $io->text(\sprintf('Plugin "%s" has been activated successfully.', $plugin->getName()));
         }
 
         if ($activatedPluginCount !== 0) {
-            $io->success(sprintf('Activated %d plugin(s).', $activatedPluginCount));
+            $io->success(\sprintf('Activated %d plugin(s).', $activatedPluginCount));
         }
 
         $this->handleClearCacheOption($input, $io, 'activating');

@@ -660,10 +660,10 @@ class ImportExport
         string $entityName
     ): array {
         $defaultTemplate = [
-            sprintf('%sSkip', EntityWriteResult::OPERATION_INSERT) => 0,
-            sprintf('%sSkip', EntityWriteResult::OPERATION_UPDATE) => 0,
-            sprintf('%sError', EntityWriteResult::OPERATION_INSERT) => 0,
-            sprintf('%sError', EntityWriteResult::OPERATION_UPDATE) => 0,
+            \sprintf('%sSkip', EntityWriteResult::OPERATION_INSERT) => 0,
+            \sprintf('%sSkip', EntityWriteResult::OPERATION_UPDATE) => 0,
+            \sprintf('%sError', EntityWriteResult::OPERATION_INSERT) => 0,
+            \sprintf('%sError', EntityWriteResult::OPERATION_UPDATE) => 0,
             'otherError' => 0,
             EntityWriteResult::OPERATION_INSERT => 0,
             EntityWriteResult::OPERATION_UPDATE => 0,
@@ -689,7 +689,7 @@ class ImportExport
                     ? EntityWriteResult::OPERATION_UPDATE
                     : EntityWriteResult::OPERATION_INSERT;
                 $type = $writeCommand->isFailed() ? 'Error' : 'Skip';
-                ++$entityResult[sprintf('%s%s', $operation, $type)];
+                ++$entityResult[\sprintf('%s%s', $operation, $type)];
                 $overallResults[$entityName] = $entityResult;
             }
 

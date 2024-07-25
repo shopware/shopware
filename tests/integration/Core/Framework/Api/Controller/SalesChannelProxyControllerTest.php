@@ -1233,7 +1233,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getUrl(string $salesChannelId, string $url): string
     {
-        return sprintf(
+        return \sprintf(
             '/api/_proxy/store-api/%s/%s',
             $salesChannelId,
             ltrim($url, '/')
@@ -1242,7 +1242,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getStoreApiUrl(string $salesChannelId, string $url): string
     {
-        return sprintf(
+        return \sprintf(
             '/api/_proxy/store-api/%s/%s',
             $salesChannelId,
             ltrim($url, '/')
@@ -1251,7 +1251,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getCreateOrderApiUrl(string $salesChannelId): string
     {
-        return sprintf(
+        return \sprintf(
             '/api/_proxy-order/%s',
             $salesChannelId
         );
@@ -1259,7 +1259,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function getRootProxyUrl(string $url): string
     {
-        return sprintf(
+        return \sprintf(
             '/api/_proxy/%s',
             ltrim($url, '/')
         );

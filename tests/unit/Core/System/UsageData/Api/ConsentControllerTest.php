@@ -59,7 +59,7 @@ class ConsentControllerTest extends TestCase
         );
 
         static::expectException(UsageDataException::class);
-        static::expectExceptionMessage(sprintf(
+        static::expectExceptionMessage(\sprintf(
             'Expected context source to be "%s" but got "%s".',
             AdminApiSource::class,
             SystemSource::class

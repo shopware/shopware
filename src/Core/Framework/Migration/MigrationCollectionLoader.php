@@ -103,7 +103,7 @@ class MigrationCollectionLoader
     public function getLastSafeMajorVersion(string $currentVersion, string $mode = self::VERSION_SELECTION_ALL): int
     {
         if (!\in_array($mode, self::VALID_VERSION_SELECTION_SAFE_VALUES, true)) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'mode needs to be one of these values: "%s"',
                 implode('", "', self::VALID_VERSION_SELECTION_SAFE_VALUES)
             ));

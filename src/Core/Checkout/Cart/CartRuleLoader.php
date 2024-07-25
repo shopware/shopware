@@ -143,7 +143,7 @@ class CartRuleLoader implements ResetInterface
             foreach ($rules as $rule) {
                 ++$index;
                 $this->logger->info(
-                    sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+                    \sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
                 );
             }
 

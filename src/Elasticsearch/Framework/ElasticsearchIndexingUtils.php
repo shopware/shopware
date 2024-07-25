@@ -42,7 +42,7 @@ class ElasticsearchIndexingUtils
             return $this->customFieldsTypes[$entity];
         }
 
-        $mappingKey = sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
+        $mappingKey = \sprintf('elasticsearch.%s.custom_fields_mapping', $entity);
         $customFieldsMapping = $this->parameterBag->has($mappingKey) ? $this->parameterBag->get($mappingKey) : [];
 
         /** @var array<string, string> $mappings */

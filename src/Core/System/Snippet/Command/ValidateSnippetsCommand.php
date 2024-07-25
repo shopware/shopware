@@ -74,7 +74,7 @@ class ValidateSnippetsCommand extends Command
         $questionHelper = $this->getHelper('question');
 
         foreach ($missingSnippetsCollection->getIterator() as $missingSnippetStruct) {
-            $question = sprintf(
+            $question = \sprintf(
                 "<info>Available translation: '%s' in locale '%s'.</info>\n<question>Please enter translation for locale '%s':</question>",
                 $missingSnippetStruct->getAvailableTranslation(),
                 $missingSnippetStruct->getAvailableISO(),

@@ -19,7 +19,7 @@ class PromotionNotEligibleError extends Error
     {
         $this->name = $name;
 
-        $this->message = sprintf('Promotion %s not eligible for cart!', $this->name);
+        $this->message = \sprintf('Promotion %s not eligible for cart!', $this->name);
 
         parent::__construct($this->message);
     }

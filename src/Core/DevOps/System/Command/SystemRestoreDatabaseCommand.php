@@ -37,14 +37,14 @@ class SystemRestoreDatabaseCommand extends Command
         /** @var Params&OverrideParams $params */
         $params = $this->connection->getParams();
 
-        $path = sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
+        $path = \sprintf('%s/%s_%s.sql', $this->defaultDirectory, $params['host'] ?? '', $dbName);
 
         $portString = '';
         if ($params['password'] ?? '') {
             $portString = '-p' . escapeshellarg($params['password']);
         }
 
-        $cmd = sprintf(
+        $cmd = \sprintf(
             'mysql -u %s %s -h %s --port=%s %s < %s',
             escapeshellarg($params['user'] ?? ''),
             $portString,

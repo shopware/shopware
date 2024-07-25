@@ -61,7 +61,7 @@ class ProductExportException extends HttpException
 
     private static function getErrorMessage(string $message): string
     {
-        return sprintf('Failed rendering string template using Twig: %s', $message);
+        return \sprintf('Failed rendering string template using Twig: %s', $message);
     }
 
     public static function salesChannelNotAllowed(): self

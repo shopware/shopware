@@ -30,11 +30,11 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         // @see https://github.com/php/php-src/issues/9950
         if ($tokenStruct->getExpires() > 0) {
             $expires = $expires->modify(
-                sprintf('+%d seconds', $tokenStruct->getExpires())
+                \sprintf('+%d seconds', $tokenStruct->getExpires())
             );
         } else {
             $expires = $expires->modify(
-                sprintf('-%d seconds', abs($tokenStruct->getExpires()))
+                \sprintf('-%d seconds', abs($tokenStruct->getExpires()))
             );
         }
 

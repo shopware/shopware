@@ -325,11 +325,11 @@ class Translator extends AbstractTranslator
     {
         $this->resolveSalesChannelId();
 
-        $key = sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
+        $key = \sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
 
         return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
             $item->tag('translation.catalog.' . $snippetSetId);
-            $item->tag(sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
+            $item->tag(\sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
 
             return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
         });

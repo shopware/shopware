@@ -95,7 +95,7 @@ class SitemapExporter implements SitemapExporterInterface
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
-        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getLanguageId());
+        return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getLanguageId());
     }
 
     private function initSitemapHandles(SalesChannelContext $context): void

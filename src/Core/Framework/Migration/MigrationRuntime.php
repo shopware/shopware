@@ -28,7 +28,7 @@ class MigrationRuntime
 
         foreach ($migrations as $migration) {
             if (!class_exists($migration)) {
-                $this->logger->notice(sprintf('Migration "%s" does not exists. Ignoring it', $migration));
+                $this->logger->notice(\sprintf('Migration "%s" does not exists. Ignoring it', $migration));
 
                 continue;
             }
@@ -58,7 +58,7 @@ class MigrationRuntime
 
         foreach ($migrations as $migration) {
             if (!class_exists($migration)) {
-                $this->logger->notice(sprintf('Migration "%s" does not exists. Ignoring it', $migration));
+                $this->logger->notice(\sprintf('Migration "%s" does not exists. Ignoring it', $migration));
 
                 continue;
             }

@@ -169,10 +169,10 @@ trait TestShortHands
             ['id' => Uuid::fromHexToBytes($productId)]
         );
 
-        static::assertNotEmpty($stocks, sprintf('Product with id %s not found', $productId));
+        static::assertNotEmpty($stocks, \sprintf('Product with id %s not found', $productId));
 
-        static::assertEquals($stock, (int) $stocks['stock'], sprintf('Product with id %s has wrong stock', $productId));
+        static::assertEquals($stock, (int) $stocks['stock'], \sprintf('Product with id %s has wrong stock', $productId));
 
-        static::assertEquals($available, $stocks['available_stock'], sprintf('Product with id %s has wrong available stock', $productId));
+        static::assertEquals($available, $stocks['available_stock'], \sprintf('Product with id %s has wrong available stock', $productId));
     }
 }

@@ -79,17 +79,17 @@ class ScheduledTaskRunner extends Command
 
             if ($this->shouldRestart($startTime)) {
                 $this->shouldStop = true;
-                $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
+                $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
             if ($endTime && $endTime < microtime(true)) {
                 $this->shouldStop = true;
-                $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
+                $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
             if ($memoryLimit && memory_get_usage() > $memoryLimit) {
                 $this->shouldStop = true;
-                $output->writeln(sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
+                $output->writeln(\sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
             }
         }
 

@@ -13,7 +13,7 @@ class HookInjectionException extends \RuntimeException
         string $class,
         string $required
     ) {
-        parent::__construct(sprintf(
+        parent::__construct(\sprintf(
             'Class %s is only executable in combination with hooks that implement the %s interface. Hook %s does not implement this interface',
             $class,
             $required,

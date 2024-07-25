@@ -190,7 +190,7 @@ EOF;
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertArrayHasKey('data', $responseData);
-        static::assertCount(1, $responseData['data'], sprintf('Expected country %s has only one state', $id));
+        static::assertCount(1, $responseData['data'], \sprintf('Expected country %s has only one state', $id));
 
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
@@ -1805,7 +1805,7 @@ EOF;
 
         $this->getBrowser()->request(
             'POST',
-            sprintf('/api/_action/version/category/%s', $id)
+            \sprintf('/api/_action/version/category/%s', $id)
         );
         $response = $this->getBrowser()->getResponse();
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -2160,7 +2160,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = $content['errors'][0];
 
-        static::assertSame(sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
+        static::assertSame(\sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
     }
 
     public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
@@ -2177,7 +2177,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = $content['errors'][0];
 
-        static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
+        static::assertSame(\sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error['detail']);
     }
 
     public function testDirectlyAddMappingEntry(): void

@@ -25,7 +25,7 @@ class AdapterExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_NOT_ACCEPTABLE, $exception->getStatusCode());
         static::assertSame(AdapterException::UNEXPECTED_TWIG_EXPRESSION, $exception->getErrorCode());
-        static::assertSame(sprintf('Unexpected Expression of type "%s".', $type), $exception->getMessage());
+        static::assertSame(\sprintf('Unexpected Expression of type "%s".', $type), $exception->getMessage());
         static::assertSame(['type' => $type], $exception->getParameters());
     }
 

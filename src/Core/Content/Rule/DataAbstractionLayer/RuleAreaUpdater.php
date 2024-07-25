@@ -231,7 +231,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
         if ($associationField instanceof OneToOneAssociationField || $associationField instanceof ManyToOneAssociationField) {
             $template = 'IF(%s.%s IS NOT NULL, 1, 0) AS %s';
-            $query->addSelect(sprintf($template, '`rule`', $this->escape($associationField->getStorageName()), $propertyName));
+            $query->addSelect(\sprintf($template, '`rule`', $this->escape($associationField->getStorageName()), $propertyName));
 
             return;
         }
@@ -244,9 +244,9 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $subQuery = (new QueryBuilder($this->connection))
                 ->select('1')
                 ->from($mappingTable)
-                ->andWhere(sprintf('%s = `rule`.%s', $mappingLocalColumn, $localColumn));
+                ->andWhere(\sprintf('%s = `rule`.%s', $mappingLocalColumn, $localColumn));
 
-            $query->addSelect(sprintf($template, $subQuery->getSQL(), $propertyName));
+            $query->addSelect(\sprintf($template, $subQuery->getSQL(), $propertyName));
 
             return;
         }
@@ -259,9 +259,9 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $subQuery = (new QueryBuilder($this->connection))
                 ->select('1')
                 ->from($referenceTable)
-                ->andWhere(sprintf('%s = `rule`.%s', $referenceColumn, $localColumn));
+                ->andWhere(\sprintf('%s = `rule`.%s', $referenceColumn, $localColumn));
 
-            $query->addSelect(sprintf($template, $subQuery->getSQL(), $propertyName));
+            $query->addSelect(\sprintf($template, $subQuery->getSQL(), $propertyName));
         }
     }
 
@@ -273,7 +273,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             ->andWhere('`rule_id` = `rule`.`id`')
             ->andWhere('`type` IN (:flowTypes)');
 
-        $query->addSelect(sprintf('EXISTS(%s) AS flowCondition', $subQuery->getSQL()));
+        $query->addSelect(\sprintf('EXISTS(%s) AS flowCondition', $subQuery->getSQL()));
     }
 
     private function escape(string $string): string

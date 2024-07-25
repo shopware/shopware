@@ -49,7 +49,7 @@ class RouteScopeRule implements Rule
             }
 
             if ($this->resetsRouteScope($methodRouteAttr)) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
+                $errors[] = RuleErrorBuilder::message(\sprintf(
                     'Method %s::%s() has no route scope defined. Please add a route scope to the method or the class.',
                     $method->getDeclaringClass()->getName(),
                     $method->getName()
@@ -64,7 +64,7 @@ class RouteScopeRule implements Rule
             $routeScopeIsDefined = $hasClassLevelScope || $this->definesRouteScopes($methodRouteAttr);
             if (!$routeScopeIsDefined) {
                 $errors[] = RuleErrorBuilder::message(
-                    sprintf(
+                    \sprintf(
                         'Method %s::%s() has no route scope defined. Please add a route scope to the method or the class.',
                         $method->getDeclaringClass()->getName(),
                         $method->getName()

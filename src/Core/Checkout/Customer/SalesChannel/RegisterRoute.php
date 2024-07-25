@@ -383,7 +383,7 @@ class RegisterRoute extends AbstractRegisterRoute
         \assert(\is_numeric($birthdayMonth));
         \assert(\is_numeric($birthdayYear));
 
-        return new \DateTime(sprintf(
+        return new \DateTime(\sprintf(
             '%d-%d-%d',
             $birthdayYear,
             $birthdayMonth,

@@ -31,6 +31,6 @@ class EntityDefinitionHasSinceTest extends TestCase
             }
         }
 
-        static::assertCount(0, $definitionsWithoutSince, sprintf('Following definitions does not have a since version: %s', implode(',', $definitionsWithoutSince)));
+        static::assertCount(0, $definitionsWithoutSince, \sprintf('Following definitions does not have a since version: %s', implode(',', $definitionsWithoutSince)));
     }
 }

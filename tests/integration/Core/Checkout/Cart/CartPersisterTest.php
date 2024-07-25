@@ -298,12 +298,12 @@ class CartPersisterTest extends TestCase
 
         $this->createCart($ids->create('cart-1'), $now);
 
-        $expiredDate1 = $now->modify(sprintf('-%d day', 121));
+        $expiredDate1 = $now->modify(\sprintf('-%d day', 121));
         $this->createCart($ids->create('cart-2'), $expiredDate1);
 
         $this->createCart($ids->create('cart-3'), $expiredDate1, $now);
 
-        $expiredDate2 = $now->modify(sprintf('-%d day', 122));
+        $expiredDate2 = $now->modify(\sprintf('-%d day', 122));
         $this->createCart($ids->create('cart-4'), $expiredDate2, $expiredDate1);
 
         $this->getContainer()->get(CartPersister::class)->prune(30);

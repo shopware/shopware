@@ -146,7 +146,7 @@ class TaskSchedulerTest extends TestCase
         $scheduledTask = new ScheduledTaskEntity();
 
         $nextExecutionTime = new \DateTimeImmutable();
-        $nextExecutionTime = $nextExecutionTime->modify(sprintf('-%d seconds', InvalidateCacheTask::getDefaultInterval() + 100));
+        $nextExecutionTime = $nextExecutionTime->modify(\sprintf('-%d seconds', InvalidateCacheTask::getDefaultInterval() + 100));
 
         $scheduledTask->setId('1');
         $scheduledTask->setRunInterval(InvalidateCacheTask::getDefaultInterval());

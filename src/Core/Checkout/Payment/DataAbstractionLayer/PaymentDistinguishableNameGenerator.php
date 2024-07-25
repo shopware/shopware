@@ -98,7 +98,7 @@ class PaymentDistinguishableNameGenerator
             return null;
         }
 
-        return sprintf(
+        return \sprintf(
             '%s | %s',
             $paymentName,
             $label

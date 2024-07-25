@@ -56,7 +56,7 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
      */
     private function getSchema(): string
     {
-        $schema = $this->connection->fetchAssociative(sprintf('SHOW CREATE TABLE `%s`', 'state_machine_history'));
+        $schema = $this->connection->fetchAssociative(\sprintf('SHOW CREATE TABLE `%s`', 'state_machine_history'));
         static::assertNotFalse($schema);
         static::assertIsString($schema['Create Table']);
 

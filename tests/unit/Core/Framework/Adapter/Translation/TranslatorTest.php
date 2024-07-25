@@ -161,8 +161,8 @@ class TranslatorTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::exactly(3))->method('fetchFirstColumn')->willReturn([$injectSnippetSetId, $domainSnippetSetId]);
 
-        $key1 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
-        $key2 = sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
+        $key1 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $injectSnippetSetId);
+        $key2 = \sprintf('translation.catalog.%s.%s', TestDefaults::SALES_CHANNEL, $domainSnippetSetId);
         $snippetService = $this->createMock(SnippetService::class);
         $snippetService->expects(static::once())->method('findSnippetSetId')->with(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB')->willReturn($injectSnippetSetId);
 
@@ -202,7 +202,7 @@ class TranslatorTest extends TestCase
         yield 'without request' => [
             $snippetSetId,
             null,
-            sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
         ];
         yield 'without snippetSetId' => [
             null,
@@ -213,13 +213,13 @@ class TranslatorTest extends TestCase
         yield 'without salesChannelId' => [
             $snippetSetId,
             self::createRequest(null, $snippetSetId),
-            sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
         ];
 
         yield 'with injectSettings' => [
             $snippetSetId,
             null,
-            sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
+            \sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
         ];
     }

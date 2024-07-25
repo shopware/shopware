@@ -27,7 +27,7 @@ class MissingTranslationError extends Error
             $validations[] = $field . ': ' . implode(', ', $missingTranslation);
         }
 
-        $message = sprintf(
+        $message = \sprintf(
             "Missing translations for \"%s\":\n- %s",
             $xmlClassName,
             implode("\n- ", $validations)

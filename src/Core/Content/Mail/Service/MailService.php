@@ -259,8 +259,8 @@ class MailService extends AbstractMailService
             \assert(\is_string($data['contentHtml']));
 
             return [
-                'text/plain' => sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
-                'text/html' => sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
+                'text/plain' => \sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
+                'text/html' => \sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
             ];
         }
 

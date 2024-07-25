@@ -88,7 +88,7 @@ class EntityGenerator implements ScaffoldingGenerator
         $tableName = $this->getTableName($entityName);
         $timeStamp = (string) $this->now->getTimestamp();
 
-        $migrationPath = sprintf(
+        $migrationPath = \sprintf(
             'src/Migration/Migration%sCreate%sTable.php',
             $timeStamp,
             $entityName
@@ -108,7 +108,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
     private function createEntityClass(PluginScaffoldConfiguration $configuration, string $entityName): Stub
     {
-        $entityClassPath = sprintf(
+        $entityClassPath = \sprintf(
             'src/Core/Content/%s/%sEntity.php',
             $entityName,
             $entityName
@@ -128,7 +128,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $tableName = $this->getTableName($entityName);
 
-        $entityDefinitionPath = sprintf(
+        $entityDefinitionPath = \sprintf(
             'src/Core/Content/%s/%sDefinition.php',
             $entityName,
             $entityName
@@ -147,7 +147,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
     private function createEntityCollection(PluginScaffoldConfiguration $configuration, string $entityName): Stub
     {
-        $entityCollectionPath = sprintf(
+        $entityCollectionPath = \sprintf(
             'src/Core/Content/%s/%sCollection.php',
             $entityName,
             $entityName

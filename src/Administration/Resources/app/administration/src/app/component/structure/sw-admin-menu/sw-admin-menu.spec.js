@@ -1,8 +1,9 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import createMenuService from 'src/app/service/menu.service';
 import catalogues from './_sw-admin-menu-item/catalogues';
@@ -15,6 +16,32 @@ const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
 async function createWrapper(options = {}) {
+    const router = createRouter({
+        routes: [
+            ...Shopware.Module.getModuleRoutes(),
+            {
+                path: '/sw/custom/entity/index',
+                name: 'sw.custom.entity.index',
+                type: 'core',
+                components: { default: 'sw-index' },
+                isChildren: false,
+                routeKey: 'index',
+            },
+        ],
+        route: {
+            meta: {
+                $module: {
+                    name: '',
+                },
+            },
+        },
+        history: createWebHashHistory(),
+    });
+
+    router.resolve = jest.fn(() => {
+        return {};
+    });
+
     return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
         global: {
             stubs: {
@@ -24,6 +51,9 @@ async function createWrapper(options = {}) {
                 'sw-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
+                'router-link': {
+                    template: '<div><slot /></div>',
+                },
             },
             provide: {
                 menuService,
@@ -60,17 +90,7 @@ async function createWrapper(options = {}) {
             },
             mocks: {
                 $route: { meta: { $module: { name: '' } } },
-                $router: createRouter({
-                    routes: Shopware.Module.getModuleRoutes(),
-                    route: {
-                        meta: {
-                            $module: {
-                                name: '',
-                            },
-                        },
-                    },
-                    history: createWebHashHistory(),
-                }),
+                $router: router,
             },
         },
         ...options,
@@ -97,19 +117,24 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 },
             },
         });
-    });
-
-    beforeEach(async () => {
-        jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
-
-        Shopware.State.commit('setCurrentUser', null);
-        Shopware.State.get('settingsItems').settingsGroups.shop = [];
-        Shopware.State.get('settingsItems').settingsGroups.system = [];
 
         Shopware.Module.getModuleRegistry().clear();
         adminModules.forEach((adminModule) => {
             Shopware.Module.register(adminModule.name, adminModule);
         });
+    });
+
+    beforeEach(async () => {
+        // This is here to fix v-bind false error for transition "persisted"
+        config.global.stubs = {
+            transition: false,
+        };
+
+        jest.spyOn(Shopware.Utils.debug, 'error').mockImplementation(() => true);
+
+        Shopware.State.commit('setCurrentUser', null);
+        Shopware.State.get('settingsItems').settingsGroups.shop = [];
+        Shopware.State.get('settingsItems').settingsGroups.system = [];
 
         Shopware.State.commit('shopwareApps/setApps', []);
 

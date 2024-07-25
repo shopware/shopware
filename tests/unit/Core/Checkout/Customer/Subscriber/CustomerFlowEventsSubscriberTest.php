@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -69,6 +70,10 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testOnCustomerUpdateWithoutCustomerInContext(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -92,6 +97,10 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $this->customerFlowEventsSubscriber->onCustomerWritten($event);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testOnCustomerUpdateWithCustomer(): void
     {
         $event = $this->createMock(EntityWrittenEvent::class);

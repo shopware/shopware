@@ -22,6 +22,17 @@ export default {
             type: Object,
             required: true,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    watch: {
+        disabled() {
+            this.selectOptions(this.$refs.optionGrid);
+        },
     },
 
     computed: {
@@ -59,10 +70,10 @@ export default {
 
         selectOptions(grid) {
             grid.selectAll(false);
-
             this.preventSelection = true;
             this.options.forEach((configurator) => {
                 if (configurator.option) {
+                    configurator.option.gridDisabled = this.disabled && !configurator._isNew;
                     grid.selectItem(!configurator.isDeleted, configurator.option);
                 }
             });

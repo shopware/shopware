@@ -224,7 +224,7 @@ class ScriptRuleTest extends TestCase
     #[DataProvider('manifestPathProvider')]
     public function testRuleValidationSucceedsWithArbitraryProperties(string $manifestPath, array $value): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
+        $fixturesPath = __DIR__ . '/../App/Manifest/_fixtures';
         $manifest = Manifest::createFromXmlFile($fixturesPath . $manifestPath);
         $this->setupApp($manifest);
 
@@ -347,7 +347,7 @@ class ScriptRuleTest extends TestCase
 
     private function installApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
+        $fixturesPath = __DIR__ . '/../App/Manifest/_fixtures';
 
         $manifest = Manifest::createFromXmlFile($fixturesPath . '/test/manifest.xml');
         $this->setupApp($manifest);

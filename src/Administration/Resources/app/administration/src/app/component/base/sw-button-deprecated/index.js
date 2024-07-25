@@ -19,6 +19,8 @@ const { Component } = Shopware;
 Component.register('sw-button-deprecated', {
     template,
 
+    inheritAttrs: false,
+
     compatConfig: {
         ...Shopware.compatConfig,
         // Needed so that Button classes are bound correctly via `v-bind="$attrs"`
@@ -107,6 +109,17 @@ Component.register('sw-button-deprecated', {
             }
 
             return {};
+        },
+
+        filteredAttributes() {
+            const attributes = { ...this.$attrs };
+
+            if (this.disabled) {
+                // Remove onClick event if button is disabled
+                attributes.onClick = null;
+            }
+
+            return attributes;
         },
     },
 });

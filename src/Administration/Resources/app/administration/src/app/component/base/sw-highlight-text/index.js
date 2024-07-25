@@ -16,6 +16,8 @@ const { Component, Context } = Shopware;
 Component.register('sw-highlight-text', {
     template: '',
 
+    compatConfig: Shopware.compatConfig,
+
     render(createElement) {
         // Vue2 syntax
         if (typeof createElement === 'function') {

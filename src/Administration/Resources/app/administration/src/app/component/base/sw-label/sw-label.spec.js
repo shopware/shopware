@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -9,6 +10,7 @@ async function createWrapper(propsData = {}) {
         global: {
             stubs: {
                 'sw-icon': true,
+                'sw-color-badge': true,
             },
         },
         props: propsData,

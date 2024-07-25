@@ -134,6 +134,7 @@
                                     <sw-checkbox-field
                                         :id="item.id"
                                         :value="isSelected(item.id)"
+                                        :disabled="isGridDisabled(item.id)"
                                         @update:value="selectItem($event, item)"
                                     />
                                 </div>

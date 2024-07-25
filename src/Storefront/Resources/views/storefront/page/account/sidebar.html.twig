@@ -40,12 +40,15 @@
                                 </a>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - default payment method of a customer will be removed #}
                             {% block page_account_sidebar_link_payment %}
+                                {% if not feature('v6.7.0.0') %}
                                 <a href="{{ path('frontend.account.payment.page') }}"
                                    title="{{ 'account.paymentLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}">
                                     {{ 'account.paymentLink'|trans|sw_sanitize }}
                                 </a>
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_account_sidebar_link_orders %}

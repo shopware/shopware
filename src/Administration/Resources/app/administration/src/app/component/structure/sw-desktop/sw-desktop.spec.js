@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount, config } from '@vue/test-utils';
@@ -9,6 +10,9 @@ const routes = [
     {
         name: 'sw.dashboard.index',
         path: '/sw/dashboard/index',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 name: 'dashboard',
@@ -18,6 +22,9 @@ const routes = [
     {
         name: 'sw.product.index',
         path: '/sw/product/index',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',
@@ -32,6 +39,9 @@ const routes = [
     {
         name: 'sw.product.create.base',
         path: '/sw/product/create/base',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',
@@ -59,7 +69,10 @@ const routes = [
     },
     {
         name: 'sw.product.detail.base',
-        path: '/sw/product/detail/a34943fe8fe040cd9ce25742a7cf77b2/base',
+        path: '/sw/product/detail/:id/base',
+        component: {
+            template: '<div></div>',
+        },
         meta: {
             $module: {
                 entity: 'product',

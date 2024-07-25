@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
-use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
@@ -51,7 +50,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         private readonly bool $httpCacheEnabled,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         private readonly RequestStack $requestStack,
-        private readonly bool $reverseProxyEnabled,
         private readonly ?string $staleWhileRevalidate,
         private readonly ?string $staleIfError
     ) {
@@ -68,7 +66,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
@@ -189,32 +186,6 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
-    }
-
-    /**
-     * In the default HttpCache implementation the reverse proxy cache is implemented too in PHP and triggered before the response is send to the client. We don't need to send the "real" cache-control headers to the end client (browser/cloudflare).
-     * If a external reverse proxy cache is used we still need to provide the actual cache-control, so the external system can cache the system correctly and set the cache-control again to
-     */
-    public function updateCacheControlForBrowser(BeforeSendResponseEvent $event): void
-    {
-        if ($this->reverseProxyEnabled) {
-            return;
-        }
-
-        $response = $event->getResponse();
-
-        $noStore = $response->headers->getCacheControlDirective('no-store');
-
-        // We don't want that the client will cache the website, if no reverse proxy is configured
-        $response->headers->remove('cache-control');
-        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
-        $response->setPrivate();
-
-        if ($noStore) {
-            $response->headers->addCacheControlDirective('no-store');
-        } else {
-            $response->headers->addCacheControlDirective('no-cache');
-        }
     }
 
     /**

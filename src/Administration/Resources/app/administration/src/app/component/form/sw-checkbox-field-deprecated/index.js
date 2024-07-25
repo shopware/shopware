@@ -16,6 +16,7 @@ const utils = Shopware.Utils;
  */
 Component.register('sw-checkbox-field-deprecated', {
     template,
+
     inheritAttrs: false,
 
     compatConfig: Shopware.compatConfig,
@@ -102,13 +103,19 @@ Component.register('sw-checkbox-field-deprecated', {
 
     computed: {
         swCheckboxFieldClasses() {
-            return {
+            const classes = {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
                 'is--partly-checked': this.isPartlyChecked,
                 'sw-field__checkbox--ghost': this.ghostValue,
             };
+
+            if (this.$attrs.class) {
+                classes[this.$attrs.class] = true;
+            }
+
+            return classes;
         },
 
         swCheckboxFieldContentClasses() {

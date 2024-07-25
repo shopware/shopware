@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -28,8 +27,8 @@ use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
@@ -39,18 +38,15 @@ class AccountEditOrderPageLoader
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly OrderConverter $orderConverter,
         private readonly OrderService $orderService,
-        private readonly ?AbstractTranslator $translator = null
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -95,19 +91,14 @@ class AccountEditOrderPageLoader
 
     protected function setMetaInformation(AccountEditOrderPage $page): void
     {
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
-
-        if ($this->translator !== null && $page->getMetaInformation() === null) {
+        if ($page->getMetaInformation() === null) {
             $page->setMetaInformation(new MetaInformation());
         }
 
-        if ($this->translator !== null) {
-            $page->getMetaInformation()?->setMetaTitle(
-                $this->translator->trans('account.completePaymentMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
-            );
-        }
+        $page->getMetaInformation()?->setRobots('noindex,follow');
+        $page->getMetaInformation()?->setMetaTitle(
+            $this->translator->trans('account.completePaymentMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+        );
     }
 
     private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponse
@@ -158,12 +149,7 @@ class AccountEditOrderPageLoader
 
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
-
         $routeRequest = $request->duplicate();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-
         if (!Feature::isActive('v6.7.0.0')) {
             /**
              * @deprecated tag:v6.7.0 - onlyAvailable is no longer set in query
@@ -171,7 +157,7 @@ class AccountEditOrderPageLoader
             $routeRequest->query->set('onlyAvailable', '1');
         }
 
-        $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context, $criteria);
+        $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
         $cart = $this->orderConverter->convertToCart($order, $context->getContext());
@@ -179,7 +165,7 @@ class AccountEditOrderPageLoader
         $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
         $options = $this->checkoutGatewayRoute->load($event->getStoreApiRequest(), $cart, $orderContext);
 
-        $paymentMethods = $options->getPaymentMethods();
+        $paymentMethods = $options->getPaymentMethods()->filterByProperty('afterOrderEnabled', true);
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
         return $paymentMethods;

@@ -24,7 +24,7 @@ Component.register('sw-price-field', {
     compatConfig: Shopware.compatConfig,
 
     emits: [
-        'update:value',
+        'change',
         'price-lock-change',
         'price-calculate',
         'price-gross-change',
@@ -265,7 +265,7 @@ Component.register('sw-price-field', {
             this.priceForCurrency.linked = !this.priceForCurrency.linked;
             this.$emit('price-lock-change', this.priceForCurrency.linked);
 
-            this.$emit('update:value', this.priceForCurrency);
+            this.$emit('change', this.priceForCurrency);
         },
 
         onPriceGrossInputChange(value) {
@@ -292,7 +292,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-gross-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertGrossToNet(value);
             }
         },
@@ -301,7 +301,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertNetToGross(value);
             }
         },

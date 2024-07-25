@@ -165,12 +165,17 @@
                                                 {% endblock %}
 
                                                 <sw-context-menu-item
-                                                    v-if="cmsPage.type === 'product_list' && defaultCategoryId !== cmsPage.id"
+                                                    v-if="showDefaultLayoutContextMenu(cmsPage)"
                                                     class="sw-cms-list-item__option-set-as-default"
-                                                    :disabled="!acl.can('system_config.editor')"
+                                                    :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete')"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                    <template v-if="cmsPage.type == 'product_detail'">
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                    </template>
                                                 </sw-context-menu-item>
 
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -334,12 +339,17 @@
                                         {% endblock %}
 
                                         <sw-context-menu-item
-                                            v-if="item.type === 'product_list' && defaultCategoryId !== item.id"
+                                            v-if="showDefaultLayoutContextMenu(item)"
                                             class="sw-cms-list-item__option-set-as-default"
-                                            :disabled="!acl.can('system_config.editor')"
+                                            :disabled="!acl.can('system_config:update') || !acl.can('system_config:create') || !acl.can('system_config:delete')"
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                            <template v-if="item.type == 'product_detail'">
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                            </template>
                                         </sw-context-menu-item>
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -443,7 +453,7 @@
                 v-if="showLayoutSetAsDefaultModal"
                 class="sw-cms-list__confirm-set-as-default-modal"
                 :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText')"
+                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', newDefaultLayout.type === 'product_detail')"
                 @confirm="onConfirmLayoutSetAsDefault"
                 @cancel="onCloseLayoutSetAsDefault"
                 @close="onCloseLayoutSetAsDefault"

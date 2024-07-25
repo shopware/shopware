@@ -69,7 +69,6 @@ export default {
                 .addAssociation('group')
                 .addAssociation('salutation')
                 .addAssociation('salesChannel')
-                .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
                 .addAssociation('defaultBillingAddress.countryState')
@@ -78,6 +77,10 @@ export default {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
+
+            if (!this.feature.isActive('v6.7.0.0')) {
+                criteria.addAssociation('defaultPaymentMethod');
+            }
 
             return criteria;
         },

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -126,13 +127,13 @@ class EntityReaderTest extends TestCase
         static::assertSame('p1', $entity->get('name'));
         static::assertNull($entity->get('active'));
 
-        static::assertInstanceOf(PartialEntity::class, $entity->get('categories')->first());
-
         /** @var EntityCollection<PartialEntity> $collection */
         $collection = $entity->get('categories');
+
+        static::assertInstanceOf(PartialEntity::class, $collection->first());
         $collection->sortByIdArray([$ids->get('c1'), $ids->get('c2')]);
 
-        static::assertSame('c1', $entity->get('categories')->first()->get('name'));
+        static::assertSame('c1', $collection->first()?->get('name'));
     }
 
     public function testPartialLoadingManyToOne(): void
@@ -528,7 +529,6 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
 
         // price and tax are inherited by parent
-        static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
         static::assertInstanceOf(TaxEntity::class, $red->getTax());
         static::assertEquals($parentTax, $red->getTaxId());
         static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
@@ -625,7 +625,6 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($productPriceCollection);
 
         static::assertCount(2, $productPriceCollection);
-        static::assertInstanceOf(ProductPriceCollection::class, $productPriceCollection);
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -795,7 +794,6 @@ class EntityReaderTest extends TestCase
 
         // validate parent view data contains same categories
         $categoryCollectionParent = $parent->getCategories();
-        static::assertNotNull($categoryCollectionParent);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
         static::assertCount(2, $categoryCollectionParent);
         static::assertTrue($categoryCollectionParent->has($category1));
@@ -803,16 +801,13 @@ class EntityReaderTest extends TestCase
 
         // validate red view data contains the categories of the parent
         $categoryCollection = $red->getCategories();
-        static::assertNotNull($categoryCollection);
-
-        static::assertCount(2, $categoryCollection);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollection);
+        static::assertCount(2, $categoryCollection);
         static::assertTrue($categoryCollection->has($category1));
         static::assertTrue($categoryCollection->has($category3));
 
         // validate green view data contains same categories
         $categoryCollectionGreen = $green->getCategories();
-        static::assertNotNull($categoryCollectionGreen);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
         static::assertCount(1, $categoryCollectionGreen);
         static::assertTrue($categoryCollectionGreen->has($category2));
@@ -839,7 +834,6 @@ class EntityReaderTest extends TestCase
 
         // validate parent contains own categories
         static::assertCount(2, $categoryCollectionParent);
-        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
         static::assertTrue($categoryCollectionParent->has($category1));
         static::assertTrue($categoryCollectionParent->has($category3));
 
@@ -850,7 +844,6 @@ class EntityReaderTest extends TestCase
 
         // validate green contains own categories
         static::assertCount(1, $categoryCollectionGreen);
-        static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
         static::assertTrue($categoryCollectionGreen->has($category2));
     }
 
@@ -927,7 +920,6 @@ class EntityReaderTest extends TestCase
 
         // validate parent view data contains same categories
         $parentCategories = $parent->getCategories();
-        static::assertNotNull($parentCategories);
         static::assertInstanceOf(CategoryCollection::class, $parentCategories);
         static::assertCount(2, $parentCategories);
         static::assertTrue($parentCategories->has($category1));
@@ -935,9 +927,8 @@ class EntityReaderTest extends TestCase
 
         // validate red view data contains the categories of the parent
         $redCategories = $red->getCategories();
-        static::assertNotNull($redCategories);
-        static::assertCount(2, $redCategories);
         static::assertInstanceOf(CategoryCollection::class, $redCategories);
+        static::assertCount(2, $redCategories);
         static::assertTrue($redCategories->has($category1));
         static::assertTrue($redCategories->has($category3));
 
@@ -997,29 +988,32 @@ class EntityReaderTest extends TestCase
             'countryId' => $this->getValidCountryId(),
         ];
 
-        $repository->upsert([
-            [
-                'id' => $id,
-                'firstName' => 'Test',
-                'lastName' => 'Test',
-                'customerNumber' => 'A',
-                'salutationId' => $this->getValidSalutationId(),
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'email' => 'test@test.com' . $id,
-                'defaultShippingAddressId' => $defaultAddressId,
-                'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'group' => ['name' => 'test'],
-                'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
-                    $address,
-                    $address,
-                    $address,
-                    $address,
-                ],
+        $customer = [
+            'id' => $id,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . $id,
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                array_merge(['id' => $defaultAddressId], $address),
+                $address,
+                $address,
+                $address,
+                $address,
             ],
-        ], $context);
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $repository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
         /** @var CustomerEntity $customer */
@@ -1046,29 +1040,32 @@ class EntityReaderTest extends TestCase
             'countryId' => $this->getValidCountryId(),
         ];
 
-        $repository->upsert([
-            [
-                'id' => $id,
-                'firstName' => 'Test',
-                'lastName' => 'Test',
-                'customerNumber' => 'A',
-                'salutationId' => $this->getValidSalutationId(),
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'email' => 'test@test.com' . $id,
-                'defaultShippingAddressId' => $defaultAddressId,
-                'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'group' => ['name' => 'test'],
-                'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
-                    $address,
-                    $address,
-                    $address,
-                    $address,
-                ],
+        $customer = [
+            'id' => $id,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . $id,
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                array_merge(['id' => $defaultAddressId], $address),
+                $address,
+                $address,
+                $address,
+                $address,
             ],
-        ], $context);
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $repository->upsert([$customer], $context);
 
         $addresses = $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertEquals(5, $addresses);
@@ -1109,9 +1106,12 @@ class EntityReaderTest extends TestCase
             'password' => TestDefaults::HASHED_PASSWORD,
             'email' => 'test@example.com',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $repository->upsert([
             array_merge(
@@ -1207,9 +1207,12 @@ class EntityReaderTest extends TestCase
             'customerNumber' => 'A',
             'password' => TestDefaults::HASHED_PASSWORD,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $repository->upsert([
             array_merge(
@@ -1269,7 +1272,6 @@ class EntityReaderTest extends TestCase
             array_values($customer1->getAddresses()->getIds())
         );
 
-        static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         $customerAddressCollection = $customer2->getAddresses();
         static::assertNotNull($customerAddressCollection);
         static::assertCount(3, $customerAddressCollection);
@@ -1323,29 +1325,32 @@ class EntityReaderTest extends TestCase
             'countryId' => $this->getValidCountryId(),
         ];
 
-        $repository->upsert([
-            [
-                'id' => $id,
-                'firstName' => 'Test',
-                'lastName' => 'Test',
-                'customerNumber' => 'A',
-                'salutationId' => $this->getValidSalutationId(),
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'email' => 'test@test.com' . Uuid::randomHex(),
-                'defaultShippingAddressId' => $defaultAddressId,
-                'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'group' => ['name' => 'test'],
-                'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
-                    array_merge($address, ['street' => 'B']),
-                    array_merge($address, ['street' => 'X']),
-                    array_merge($address, ['street' => 'E']),
-                    array_merge($address, ['street' => 'D']),
-                ],
+        $customer = [
+            'id' => $id,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . Uuid::randomHex(),
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                array_merge(['id' => $defaultAddressId], $address),
+                array_merge($address, ['street' => 'B']),
+                array_merge($address, ['street' => 'X']),
+                array_merge($address, ['street' => 'E']),
+                array_merge($address, ['street' => 'D']),
             ],
-        ], $context);
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $repository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
@@ -1391,29 +1396,32 @@ class EntityReaderTest extends TestCase
             'countryId' => $this->getValidCountryId(),
         ];
 
-        $repository->upsert([
-            [
-                'id' => $id,
-                'firstName' => 'Test',
-                'lastName' => 'Test',
-                'customerNumber' => 'A',
-                'salutationId' => $this->getValidSalutationId(),
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'email' => 'test@test.com' . Uuid::randomHex(),
-                'defaultShippingAddressId' => $defaultAddressId,
-                'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'group' => ['name' => 'test'],
-                'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
-                    $address,
-                    $address,
-                    $address,
-                    $address,
-                ],
+        $customer = [
+            'id' => $id,
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'customerNumber' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'email' => 'test@test.com' . Uuid::randomHex(),
+            'defaultShippingAddressId' => $defaultAddressId,
+            'defaultBillingAddressId' => $defaultAddressId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'group' => ['name' => 'test'],
+            'addresses' => [
+                array_merge(['id' => $defaultAddressId], $address),
+                $address,
+                $address,
+                $address,
+                $address,
             ],
-        ], $context);
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $repository->upsert([$customer], $context);
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(1);

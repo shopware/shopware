@@ -829,7 +829,7 @@ class CartOrderRouteTest extends TestCase
                     'countryId' => $validCountryId ?? $this->getValidCountryId($this->ids->get('sales-channel')),
                 ],
                 'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
+                'lastPaymentMethod' => [
                     'name' => 'Invoice',
                     'technicalName' => Uuid::randomHex(),
                     'active' => true,

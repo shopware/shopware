@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -51,7 +52,7 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
             }
         }
 
-        if (!isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
+        if (!Feature::isActive('v6.7.0.0') && !isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
             $name = $entity['defaultPaymentMethod']['translations']['DEFAULT']['name'] ?? null;
             $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name, $context);
 
@@ -113,6 +114,9 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
         return $this->cacheCustomerGroups[$name];
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+     */
     private function getDefaultPaymentMethodId(?string $name, Context $context): ?string
     {
         if (!$name) {

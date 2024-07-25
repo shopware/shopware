@@ -155,6 +155,7 @@
         <div class="sw-page__main-content">
             <div
                 class="sw-page__main-content-inner"
+                v-bind="$attrs"
                 v-on="additionalEventListeners"
             >
                 <slot name="content">

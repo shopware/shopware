@@ -3,6 +3,7 @@
 namespace Shopware\Core\Test\Integration\Builder\Customer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -44,6 +45,9 @@ class CustomerBuilder
 
     protected string $defaultShippingAddressId;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     protected string $defaultPaymentMethodId;
 
     /**
@@ -57,6 +61,8 @@ class CustomerBuilder
     protected array $group = [];
 
     /**
+     * @deprecated tag:v6.7.0 - will be removed
+     *
      * @var array<string, mixed>
      */
     protected array $defaultPaymentMethod = [];
@@ -85,13 +91,15 @@ class CustomerBuilder
         $this->defaultBillingAddress($billingAddress);
         $this->defaultShippingAddress($shippingAddress);
 
-        $this->defaultPaymentMethodId = self::connection()->fetchOne(
-            'SELECT LOWER(HEX(payment_method_id))
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->defaultPaymentMethodId = self::connection()->fetchOne(
+                'SELECT LOWER(HEX(payment_method_id))
                    FROM sales_channel_payment_method
                    JOIN payment_method ON sales_channel_payment_method.payment_method_id = payment_method.id
                    WHERE sales_channel_id = :id AND payment_method.active = true LIMIT 1',
-            ['id' => Uuid::fromHexToBytes($salesChannelId)]
-        );
+                ['id' => Uuid::fromHexToBytes($salesChannelId)]
+            );
+        }
     }
 
     public function customerNumber(string $customerNumber): self
@@ -152,6 +160,9 @@ class CustomerBuilder
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
     public function defaultPaymentMethod(string $key): self
     {
         $this->defaultPaymentMethod = [

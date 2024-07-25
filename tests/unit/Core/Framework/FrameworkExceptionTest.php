@@ -21,12 +21,4 @@ class FrameworkExceptionTest extends TestCase
 
         throw FrameworkException::projectDirNotExists('test');
     }
-
-    public function testInvalidKernelCacheDir(): void
-    {
-        static::expectException(FrameworkException::class);
-        static::expectExceptionMessage('Container parameter "kernel.cache_dir" needs to be a string.');
-
-        throw FrameworkException::invalidKernelCacheDir();
-    }
 }

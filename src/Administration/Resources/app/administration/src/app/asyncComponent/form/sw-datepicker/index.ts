@@ -11,6 +11,8 @@ import template from './sw-datepicker.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: String,
@@ -19,6 +21,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         modelValue: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+
+        placeholder: {
             type: String,
             required: false,
             default: undefined,
@@ -50,6 +58,16 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$emit('update:value', value);
                 this.$emit('update:modelValue', value);
             },
+        },
+
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        listeners(): Record<string, Function | Function[]> {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

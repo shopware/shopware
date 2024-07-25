@@ -10,7 +10,6 @@ use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
@@ -73,9 +72,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ],
             CustomerLogoutEvent::class => [
                 'updateSessionAfterLogout',
-            ],
-            BeforeSendResponseEvent::class => [
-                ['setCanonicalUrl'],
             ],
             StorefrontRenderEvent::class => [
                 ['addHreflang'],
@@ -243,19 +239,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $this->updateSession($context->getToken());
-    }
-
-    public function setCanonicalUrl(BeforeSendResponseEvent $event): void
-    {
-        if (!$event->getResponse()->isSuccessful()) {
-            return;
-        }
-
-        if ($canonical = $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK)) {
-            \assert(\is_string($canonical));
-            $canonical = sprintf('<%s>; rel="canonical"', $canonical);
-            $event->getResponse()->headers->set('Link', $canonical);
-        }
     }
 
     public function addHreflang(StorefrontRenderEvent $event): void

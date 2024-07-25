@@ -3,37 +3,66 @@
  */
 import { mount } from '@vue/test-utils';
 
-let currentCustomField = {};
-
-async function createWrapper() {
-    return mount(await wrapTestComponent('sw-custom-field-type-select', {
-        sync: true,
-    }), {
-        props: {
-            currentCustomField,
-            set: {
-                name: 'technical_test',
-                config: { label: { 'en-GB': 'test_label' } },
-                active: true,
-                global: false,
-                position: 1,
-                appId: null,
-                createdAt: '2021-06-30T08:02:28.996+00:00',
-                updatedAt: null,
-                apiAlias: null,
-                id: 'd2667dfae415440592a0944fbea2d3ce',
-                customFields: [],
-                relations: [{
-                    customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
-                    entityName: 'product',
-                    createdAt: '2021-06-30T08:02:28.996+00:00',
-                    updatedAt: null,
-                    apiAlias: null,
-                    id: '559b6ae735b04e199505fd4c5ac5f22c',
-                }],
-                products: [],
+const currentCustomField = {
+    name: 'technical_test',
+    type: 'select',
+    config: {
+        label: { 'en-GB': null },
+        options: [
+            {
+                label: { 'en-GB': 'translated-label-1' },
+                value: 'label-with-translated-value',
             },
-        },
+            {
+                label: {},
+                value: 'label-without-translated-value',
+            },
+            {
+                label: [],
+                value: 'label-with-incorrect-value',
+            },
+        ],
+        helpText: { 'en-GB': null },
+        placeholder: { 'en-GB': null },
+        componentName: 'sw-single-select',
+        customFieldType: 'select',
+        customFieldPosition: 1,
+    },
+    active: true,
+    customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
+    id: '8e1ab96faf374836a4d68febc8d4f1e1',
+    productSearchConfigFields: [],
+};
+
+const defaultProps = {
+    currentCustomField,
+    set: {
+        name: 'technical_test',
+        config: { label: { 'en-GB': 'test_label' } },
+        active: true,
+        global: false,
+        position: 1,
+        appId: null,
+        createdAt: '2021-06-30T08:02:28.996+00:00',
+        updatedAt: null,
+        apiAlias: null,
+        id: 'd2667dfae415440592a0944fbea2d3ce',
+        customFields: [],
+        relations: [{
+            customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
+            entityName: 'product',
+            createdAt: '2021-06-30T08:02:28.996+00:00',
+            updatedAt: null,
+            apiAlias: null,
+            id: '559b6ae735b04e199505fd4c5ac5f22c',
+        }],
+        products: [],
+    },
+};
+
+async function createWrapper(props = defaultProps) {
+    return mount(await wrapTestComponent('sw-custom-field-type-select', { sync: true }), {
+        props,
         global: {
             renderStubDefaultSlot: true,
             mocks: {
@@ -50,7 +79,8 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,
-                'sw-button': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
             },
@@ -59,45 +89,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-select', () => {
-    beforeEach(async () => {
-        currentCustomField = {
-            name: 'technical_test',
-            type: 'select',
-            config: {
-                label: { 'en-GB': null },
-                options: [
-                    {
-                        label: { 'en-GB': 'translated-label-1' },
-                        value: 'label-with-translated-value',
-                    },
-                    {
-                        label: {},
-                        value: 'label-without-translated-value',
-                    },
-                    {
-                        label: [],
-                        value: 'label-with-incorrect-value',
-                    },
-                ],
-                helpText: { 'en-GB': null },
-                placeholder: { 'en-GB': null },
-                componentName: 'sw-single-select',
-                customFieldType: 'select',
-                customFieldPosition: 1,
-            },
-            active: true,
-            customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
-            id: '8e1ab96faf374836a4d68febc8d4f1e1',
-            productSearchConfigFields: [],
-        };
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should allow saving of labels for options', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -150,5 +141,18 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
                 'en-GB': null,
             },
         });
+    });
+
+    it('should allow adding new options', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const addButton = wrapper.find('.sw-custom-field-type-select__button-add');
+        expect(wrapper.vm.currentCustomField.config.options).toHaveLength(3);
+
+        await addButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomField.config.options).toHaveLength(4);
     });
 });

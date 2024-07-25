@@ -598,7 +598,6 @@ const missingTests = [
     'src/module/sw-settings-country/index.js',
     'src/module/sw-settings-country/page/sw-settings-country-create/index.js',
     'src/module/sw-settings-currency/index.js',
-    'src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js',

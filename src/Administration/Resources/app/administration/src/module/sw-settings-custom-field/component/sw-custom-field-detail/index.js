@@ -44,12 +44,15 @@ export default {
 
             return [this.$root.$i18n.fallbackLocale];
         },
+
         canSave() {
             return this.currentCustomField.config.customFieldType;
         },
+
         renderComponentName() {
             return this.fieldTypes[this.currentCustomField.config.customFieldType]?.configRenderComponent;
         },
+
         modalTitle() {
             if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
@@ -57,6 +60,7 @@ export default {
 
             return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
         },
+
         labelSaveButton() {
             if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
@@ -64,6 +68,7 @@ export default {
 
             return this.$tc('sw-settings-custom-field.customField.detail.buttonEditApply');
         },
+
         isProductCustomField() {
             if (!this.set.relations) {
                 return false;
@@ -71,6 +76,7 @@ export default {
 
             return this.set.relations.filter(relation => relation.entityName === 'product').length !== 0;
         },
+
         ruleConditionRepository() {
             return this.repositoryFactory.create('rule_condition');
         },

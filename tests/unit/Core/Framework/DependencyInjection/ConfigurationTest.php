@@ -149,4 +149,22 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('preserved_chars', $nodes);
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['preserved_chars']);
     }
+
+    public function testSystemConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('system_config', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['system_config']);
+
+        $nodes = $nodes['system_config']->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('default', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['default']);
+    }
 }

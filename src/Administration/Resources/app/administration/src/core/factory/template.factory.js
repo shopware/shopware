@@ -197,6 +197,7 @@ function registerTemplateOverride(
         index: overrideIndex,
         raw: templateOverride,
     });
+    component.overrides.sort((a, b) => a.index - b.index);
     templateRegistry.set(componentName, component);
     return true;
 }

@@ -59,7 +59,8 @@ export default {
         },
 
         async cloneParent(number) {
-            const variantListingConfigOverwrite = this.product.variantListingConfig;
+            // Create shallow copy to prevent changing the original product
+            const variantListingConfigOverwrite = { ...this.product.variantListingConfig };
             if (variantListingConfigOverwrite && variantListingConfigOverwrite.mainVariantId) {
                 variantListingConfigOverwrite.mainVariantId = null;
             }

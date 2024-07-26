@@ -99,7 +99,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

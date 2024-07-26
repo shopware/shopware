@@ -62,7 +62,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !hasSelectedChanges"
+            :disabled="isLoading || !hasSelectedChanges || undefined"
             @click="openModal"
         >
             {{ $tc('sw-bulk-edit.applyChanges') }}
@@ -211,7 +211,7 @@
                             :criteria="ruleCriteria"
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
-                            :disabled="!!bulkEditProduct[formField.name].isInherited"
+                            :disabled="!!bulkEditProduct[formField.name].isInherited || undefined"
                             @update:entity-collection="onRuleChange"
                         >
                             <template #selection-label-property="{ item }">
@@ -221,7 +221,7 @@
                             <template #result-item="{ item, index, labelProperty, isSelected, addItem, getKey }">
                                 <sw-select-result
                                     :selected="isSelected(item)"
-                                    :disabled="!!priceRuleGroups[item.id]"
+                                    :disabled="!!priceRuleGroups[item.id] || undefined"
                                     v-bind="{ item, index }"
                                     @item-select="addItem"
                                 >

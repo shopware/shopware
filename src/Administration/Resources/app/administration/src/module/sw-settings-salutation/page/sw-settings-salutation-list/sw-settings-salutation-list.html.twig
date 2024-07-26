@@ -60,7 +60,7 @@
             v-tooltip.bottom="tooltipAdd"
             class="sw-settings-salutation-list__create"
             variant="primary"
-            :disabled="!acl.can('salutation.creator')"
+            :disabled="!acl.can('salutation.creator') || undefined"
             :router-link="{ name: 'sw.settings.salutation.create' }"
         >
             {{ $tc('sw-settings-salutation.general.buttonCreate') }}
@@ -94,11 +94,11 @@
                         :full-page="false"
                         detail-route="sw.settings.salutation.detail"
                         :disable-data-fetching="true"
-                        :show-selection="acl.can('salutation.deleter')"
-                        :allow-edit="acl.can('salutation.editor')"
-                        :allow-inline-edit="acl.can('salutation.editor')"
-                        :allow-view="acl.can('salutation.viewer')"
-                        :allow-delete="acl.can('salutation.deleter')"
+                        :show-selection="acl.can('salutation.deleter') || undefined"
+                        :allow-edit="acl.can('salutation.editor') || undefined"
+                        :allow-inline-edit="acl.can('salutation.editor') || undefined"
+                        :allow-view="acl.can('salutation.viewer') || undefined"
+                        :allow-delete="acl.can('salutation.deleter') || undefined"
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
                     />

@@ -71,7 +71,7 @@
         class="sw-settings-search-live-search__search_box"
         variant="form"
         :delay="1000"
-        :disabled="!isSearchEnable"
+        :disabled="!isSearchEnable || undefined"
         @search-term-change="searchOnStorefront"
     >
 

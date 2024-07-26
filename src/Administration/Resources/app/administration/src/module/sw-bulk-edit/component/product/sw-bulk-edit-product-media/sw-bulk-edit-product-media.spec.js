@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  * @returns {Promise<Wrapper<Vue>>}
  */
 async function createWrapper() {
@@ -9,6 +10,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-bulk-edit-product-media-form': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 repositoryFactory: {

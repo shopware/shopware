@@ -7,6 +7,8 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     created() {
         this.createdComponent();
     },

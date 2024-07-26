@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -13,6 +14,8 @@ async function createWrapper() {
                 'sw-product-visibility-select': true,
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-icon': true,
+                'sw-product-visibility-detail': true,
+                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {

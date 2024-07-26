@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -42,6 +43,10 @@ async function createWrapper() {
                     },
                 },
                 'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                'sw-loader': true,
+                'sw-switch-field': true,
+                'sw-alert': true,
+                'router-link': true,
             },
             mocks: {
                 $route: { name: 'sw.bulk.edit.product.save.confirm' },

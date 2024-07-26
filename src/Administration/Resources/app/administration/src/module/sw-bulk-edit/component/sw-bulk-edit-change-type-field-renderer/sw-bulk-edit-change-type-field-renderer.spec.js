@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -10,6 +11,11 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-bulk-edit-change-type-field-renderer': true,
+                'sw-checkbox-field': true,
+                'sw-bulk-edit-form-field-renderer': true,
+                'sw-bulk-edit-change-type': true,
+                'sw-inheritance-switch': true,
+                'sw-container': true,
             },
         },
         props: {

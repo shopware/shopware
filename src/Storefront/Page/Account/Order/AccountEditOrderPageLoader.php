@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -46,7 +47,8 @@ class AccountEditOrderPageLoader
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly OrderConverter $orderConverter,
         private readonly OrderService $orderService,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly CartService $cartService
     ) {
     }
 
@@ -161,8 +163,11 @@ class AccountEditOrderPageLoader
         $this->eventDispatcher->dispatch($event);
 
         $cart = $this->orderConverter->convertToCart($order, $context->getContext());
-
         $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
+
+        $cart->setToken($orderContext->getToken());
+        $this->cartService->setCart($cart);
+
         $options = $this->checkoutGatewayRoute->load($event->getStoreApiRequest(), $cart, $orderContext);
 
         $paymentMethods = $options->getPaymentMethods()->filterByProperty('afterOrderEnabled', true);

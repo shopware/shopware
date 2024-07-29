@@ -12,7 +12,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 final class Detail extends ConfigXmlElement
 {
     protected Tabs $tabs;

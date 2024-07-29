@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 final class ReviewFormEvent extends Event implements SalesChannelAware, MailAware, ProductAware, CustomerAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'review_form.send';

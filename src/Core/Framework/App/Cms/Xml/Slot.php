@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class Slot extends XmlElement
 {
     protected string $name;

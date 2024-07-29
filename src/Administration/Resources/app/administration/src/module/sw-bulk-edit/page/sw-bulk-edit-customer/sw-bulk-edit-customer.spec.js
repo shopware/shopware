@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -84,6 +85,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-save-modal-success': await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
                     'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
+                    'sw-app-topbar-button': true,
+                    'sw-help-center-v2': true,
+                    'mt-button': true,
+                    'mt-loader': true,
+                    'sw-loader-deprecated': true,
+                    'mt-card': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-inheritance-switch': true,
+                    'sw-inherit-wrapper': true,
+                    'sw-media-collapse': true,
+                    'mt-tabs': true,
+                    'mt-checkbox': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-product-variant-info': true,
+                    'mt-switch': true,
                 },
                 provide: {
                     validationService: {},
@@ -174,11 +193,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             {
                 name: 'sw.bulk.edit.customer',
                 path: '/index',
+                component: {
+                    template: '<div></div>',
+                },
             },
             {
                 name: 'sw.bulk.edit.customer.save',
                 path: '',
-                component: await wrapTestComponent('sw-bulk-edit-save-modal'),
+                component: await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                 meta: {
                     $module: {
                         title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -191,7 +213,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.confirm',
                         path: '/confirm',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-confirm', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -201,7 +223,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.process',
                         path: '/process',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-process', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -211,7 +233,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.success',
                         path: '/success',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-success', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',
@@ -221,7 +243,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     {
                         name: 'sw.bulk.edit.customer.save.error',
                         path: '/error',
-                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error'),
+                        component: await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }),
                         meta: {
                             $module: {
                                 title: 'sw-bulk-edit-customer.general.mainMenuTitle',

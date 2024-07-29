@@ -30,7 +30,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="false"
-            :disabled="isLoading || !hasChanges"
+            :disabled="isLoading || !hasChanges || undefined"
             @click="openModal"
         >
             {{ $tc('sw-bulk-edit.applyChanges') }}
@@ -137,7 +137,7 @@
                 <sw-bulk-edit-custom-fields
                     class="sw-bulk-edit__custom-fields"
                     :sets="customFieldSets"
-                    @change="onCustomFieldsChange"
+                    @change.self="onCustomFieldsChange"
                 />
             </sw-card>
             {% endblock %}

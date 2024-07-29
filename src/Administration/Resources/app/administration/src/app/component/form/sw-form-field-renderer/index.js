@@ -113,8 +113,23 @@ Component.register('sw-form-field-renderer', {
 
     computed: {
         bind() {
-            const bind = {
-                ...this.$attrs,
+            let bind = {};
+
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                // Filter all listeners from the $attrs object
+                Object.keys(this.$attrs).forEach((key) => {
+                    if (!['onUpdate:value'].includes(key)) {
+                        bind[key] = this.$attrs[key];
+                    }
+                });
+            } else {
+                bind = {
+                    ...this.$attrs,
+                };
+            }
+
+            bind = {
+                ...bind,
                 ...this.config,
                 ...this.swFieldType,
                 ...this.translations,

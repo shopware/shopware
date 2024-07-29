@@ -200,6 +200,23 @@ Component.register('sw-price-field', {
             },
         },
 
+        attributesWithoutListeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$attrs;
+            }
+
+            const attributes = {};
+
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!key.startsWith('on')) {
+                    attributes[key] = this.$attrs[key];
+                }
+            });
+
+            return attributes;
+        },
+
         isInherited() {
             if (this.inherited !== undefined) {
                 return this.inherited;

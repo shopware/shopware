@@ -42,9 +42,15 @@ export default {
 
         toggleItemCheck($event, item) {
             if ($event) {
-                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
-            } else {
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+                } else {
+                    this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+                }
+            } else if (this.isCompatEnabled('INSTANCE_DELETE')) {
                 this.$delete(this.selectedCustomFields, item.name);
+            } else {
+                delete this.selectedCustomFields[item.name];
             }
         },
 
@@ -56,7 +62,11 @@ export default {
                 return;
             }
 
-            this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+            } else {
+                this.selectedCustomFields[item.name] = this.entity.customFields[item.name];
+            }
         },
     },
 };

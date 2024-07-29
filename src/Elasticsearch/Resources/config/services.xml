@@ -396,6 +396,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument type="service" id="shopware.elasticsearch.logger"/>
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>
 

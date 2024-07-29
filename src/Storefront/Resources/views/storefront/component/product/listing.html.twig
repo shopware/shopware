@@ -21,8 +21,11 @@
     dataUrl: dataUrl,
     filterUrl: filterUrl,
     disableEmptyFilter: disableEmptyFilter,
+    ariaLiveUpdates: ariaLiveUpdates,
     snippets: {
-        resetAllButtonText: 'listing.filterPanelResetAll'|trans|sw_sanitize
+        resetAllButtonText: 'listing.filterPanelResetAll'|trans|sw_sanitize,
+        resetAllFiltersAriaLabel: 'listing.filterResetAllAriaLabel'|trans|sw_sanitize,
+        removeFilterAriaLabel: 'listing.filterRemoveAriaLabel'|trans|sw_sanitize
     }
 } %}
 
@@ -69,11 +72,19 @@
                 {% endif %}
 
                 {% block element_product_listing_row %}
-                    <div class="row cms-listing-row js-listing-wrapper">
+                    {% set ariaLiveText %}{% apply spaceless %}
+                        {% if searchResult.total > searchResult.limit %}
+                            {{ 'listing.filterPanelAriaLivePaginated'|trans({'%count%': searchResult.entities.elements|length, '%total%': searchResult.total})|sw_sanitize }}
+                        {% else %}
+                            {{ 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize }}
+                        {% endif %}
+                    {% endapply %}{% endset %}
+
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{ ariaLiveText }}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
                                 {% for product in searchResult %}
-                                    <div class="cms-listing-col {{ listingColumns }}">
+                                    <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
                                             {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
                                                 layout: boxLayout,

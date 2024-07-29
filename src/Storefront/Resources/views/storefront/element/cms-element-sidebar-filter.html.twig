@@ -34,7 +34,8 @@
                 >
                     {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
                         listing: listing,
-                        sidebar: sidebar
+                        sidebar: sidebar,
+                        ariaLiveUpdates: true
                     } %}
                 </div>
             {% endblock %}

@@ -20,6 +20,7 @@ export default class ListingPlugin extends Plugin {
         filterPanelSelector: '.filter-panel',
         cmsProductListingSelector: '.cms-element-product-listing',
         cmsProductListingWrapperSelector: '.cms-element-product-listing-wrapper',
+        cmsProductListingResultsSelector: '.js-listing-wrapper',
         activeFilterContainerSelector: '.filter-panel-active-container',
         activeFilterLabelClass: 'filter-active',
         activeFilterLabelRemoveClass: 'filter-active-remove',
@@ -28,9 +29,13 @@ export default class ListingPlugin extends Plugin {
         resetAllFilterButtonSelector: '.filter-reset-all',
         loadingIndicatorClass: 'is-loading',
         loadingElementLoaderClass: 'has-element-loader',
+        ariaLiveSelector: '.filter-panel-aria-live',
+        ariaLiveUpdates: true,
         disableEmptyFilter: false,
         snippets: {
             resetAllButtonText: 'Reset all',
+            resetAllFiltersAriaLabel: 'Reset all filters',
+            removeFilterAriaLabel: 'Remove filter',
         },
         //if the window should be scrolled to top of to the listingWrapper element
         scrollTopListingWrapper: true,
@@ -55,6 +60,7 @@ export default class ListingPlugin extends Plugin {
                 document,
                 this.options.activeFilterContainerSelector
             );
+            this.ariaLiveContainer = DomAccess.querySelector(document, this.options.ariaLiveSelector, false);
         }
 
         this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
@@ -337,9 +343,10 @@ export default class ListingPlugin extends Plugin {
         return `
         <span class="${this.options.activeFilterLabelClass}">
             ${this.getLabelPreviewTemplate(label)}
-            ${label.label}
+            <span aria-hidden="true">${label.label}</span>
             <button class="${this.options.activeFilterLabelRemoveClass}"
-                    data-id="${label.id}">
+                    data-id="${label.id}"
+                    aria-label="${this.options.snippets.removeFilterAriaLabel}: ${label.label}">
                 &times;
             </button>
         </span>
@@ -366,7 +373,7 @@ export default class ListingPlugin extends Plugin {
 
     getResetAllButtonTemplate() {
         return `
-        <button class="${this.options.resetAllFilterButtonClasses}">
+        <button class="${this.options.resetAllFilterButtonClasses}" aria-label="${this.options.snippets.resetAllFiltersAriaLabel}">
             ${this.options.snippets.resetAllButtonText}
         </button>
         `;
@@ -424,6 +431,7 @@ export default class ListingPlugin extends Plugin {
 
             if (this._filterPanelActive) {
                 this.removeLoadingIndicatorClass();
+                this._updateAriaLive();
             }
 
             if (this._cmsProductListingWrapperActive) {
@@ -477,6 +485,24 @@ export default class ListingPlugin extends Plugin {
         window.PluginManager.initializePlugins();
 
         this.$emitter.publish('Listing/afterRenderResponse', { response });
+    }
+
+    /**
+     * Update the aria-live region with the current listing results.
+     *
+     * @private
+     */
+    _updateAriaLive() {
+        if (!this.options.ariaLiveUpdates) {
+            return;
+        }
+
+        if (!this.ariaLiveContainer) {
+            return;
+        }
+
+        const listingResultsEl = this.el.querySelector(this.options.cmsProductListingResultsSelector);
+        this.ariaLiveContainer.innerHTML = listingResultsEl.dataset.ariaLiveText;
     }
 
     /**

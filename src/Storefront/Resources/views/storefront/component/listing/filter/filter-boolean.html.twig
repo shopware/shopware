@@ -3,12 +3,15 @@
         name: name,
         displayName: displayName,
         snippets: {
-            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize,
+            altText: altText,
+            altTextActive: altTextActive
         }
     } %}
 
     {% block component_filter_boolean_panel_item %}
         <div class="filter-boolean filter-panel-item"
+             role="listitem"
              data-filter-boolean="true"
              data-filter-boolean-options="{{ filterBooleanOptions|json_encode }}">
             {% block component_filter_boolean_container %}
@@ -23,7 +26,12 @@
                     {% block component_filter_boolean_label %}
                         <label for="{{ name }}" class="filter-boolean-label custom-control-label">
                             {% block component_filter_boolean_display_name %}
-                                {{ displayName }}
+                                {% if altText %}
+                                    <span class="filter-boolean-alt-text visually-hidden">{{ altText }}</span>
+                                    <span aria-hidden="true">{{ displayName }}</span>
+                                {% else %}
+                                    {{ displayName }}
+                                {% endif %}
                             {% endblock %}
                         </label>
                     {% endblock %}

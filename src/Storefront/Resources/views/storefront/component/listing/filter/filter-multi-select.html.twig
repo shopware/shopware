@@ -7,20 +7,27 @@
 {% if dataPluginSelectorOptions is not defined %}
     {% set dataPluginSelectorOptions = {
         name: name,
+        displayName: displayName,
         snippets: {
-            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize,
+            ariaLabel: ariaLabel,
+            ariaLabelCount: 'listing.filterCountAriaLabel'|trans|sw_sanitize
         }
     } %}
 {% endif %}
 
 {% block component_filter_multi_select %}
     <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
+         role="listitem"
          data-{{ pluginSelector }}="true"
          data-{{ pluginSelector }}-options='{{ dataPluginSelectorOptions|json_encode }}'>
 
         {% block component_filter_multi_select_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
+                    {% if ariaLabel %}
+                    aria-label="{{ ariaLabel }}"
+                    {% endif %}
                     {% if sidebar %}
                     data-bs-toggle="collapse"
                     data-bs-target="#{{ filterItemId }}"
@@ -51,7 +58,7 @@
             <div class="filter-multi-select-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
                  id="{{ filterItemId }}">
                 {% block component_filter_multi_select_list %}
-                    <ul class="filter-multi-select-list">
+                    <ul class="filter-multi-select-list" aria-label="{{ displayName }}">
                         {% for element in elements %}
                             {% block component_filter_multi_select_list_item %}
                                 <li class="filter-multi-select-list-item">

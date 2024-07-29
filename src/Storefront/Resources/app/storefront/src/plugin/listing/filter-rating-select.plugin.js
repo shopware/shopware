@@ -16,9 +16,11 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
             filterRatingActiveLabelEndSingular: 'star',
             filterRatingActiveLabelEnd: 'stars',
             disabledFilterText: 'Filter not active',
+            ariaLabel: '',
+            ariaLabelCount: '',
+            ariaLabelCountSingular: '',
         },
     });
-
 
     /**
      * @return {Object}
@@ -132,6 +134,33 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
      * @private
      */
     _updateCount() {
-        this.counter.innerText = this.currentRating ? `(${this.currentRating}/${this.options.maxPoints})` : '';
+        this.counter.textContent = this.currentRating ? `(${this.currentRating}/${this.options.maxPoints})` : '';
+
+        this._updateAriaLabel();
+    }
+
+    /**
+     * Update the aria-label for the filter toggle button to reflect the number of already selected stars.
+     * @private
+     */
+    _updateAriaLabel() {
+        if (!this.options.snippets.ariaLabel) {
+            return;
+        }
+
+        if (this.currentRating === undefined) {
+            this.mainFilterButton.setAttribute('aria-label', this.options.snippets.ariaLabel);
+            return;
+        }
+
+        if (parseInt(this.currentRating) === 1) {
+            this.mainFilterButton.setAttribute('aria-label', `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCountSingular})`);
+            return;
+        }
+
+        this.mainFilterButton.setAttribute(
+            'aria-label',
+            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%stars%', this.currentRating)})`
+        );
     }
 }

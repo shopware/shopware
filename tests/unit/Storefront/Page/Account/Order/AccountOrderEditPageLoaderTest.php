@@ -5,8 +5,10 @@ namespace Shopware\Tests\Unit\Storefront\Page\Account\Order;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -52,6 +54,10 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
     private AbstractCheckoutGatewayRoute&MockObject $checkoutGatewayRoute;
 
+    private OrderConverter&MockObject $orderConverter;
+
+    private CartService&MockObject $cartService;
+
     protected function setUp(): void
     {
         $this->eventDispatcher = new CollectingEventDispatcher();
@@ -59,15 +65,18 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $this->translator = $this->createMock(AbstractTranslator::class);
         $this->genericPageLoader = $this->createMock(GenericPageLoader::class);
         $this->checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $this->orderConverter = $this->createMock(OrderConverter::class);
+        $this->cartService = $this->createMock(CartService::class);
 
         $this->pageLoader = new AccountEditOrderPageLoader(
             $this->genericPageLoader,
             $this->eventDispatcher,
             $this->orderRoute,
             $this->checkoutGatewayRoute,
-            $this->createMock(OrderConverter::class),
+            $this->orderConverter,
             $this->createMock(OrderService::class),
-            $this->translator
+            $this->translator,
+            $this->cartService,
         );
     }
 
@@ -137,5 +146,71 @@ class AccountOrderEditPageLoaderTest extends TestCase
         static::assertInstanceOf(OrderRouteRequestEvent::class, $events[0]);
         static::assertInstanceOf(PaymentMethodRouteRequestEvent::class, $events[1]);
         static::assertInstanceOf(AccountEditOrderPageLoadedEvent::class, $events[2]);
+    }
+
+    public function testCartInCartService(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $orders = new OrderCollection([$order]);
+
+        $orderResponse = new OrderRouteResponse(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                $orders,
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $this->checkoutGatewayRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn(new CheckoutGatewayRouteResponse(
+                new PaymentMethodCollection(),
+                new ShippingMethodCollection(),
+                new ErrorCollection(),
+            ));
+
+        $this->orderRoute
+            ->expects(static::once())
+            ->method('load')
+            ->willReturn($orderResponse);
+
+        $orderContext = Generator::createSalesChannelContext();
+
+        $this->cartService
+            ->expects(static::once())
+            ->method('setCart')
+            ->with(static::callback(function (Cart $cart) use ($orderContext) {
+                return $cart->getToken() === $orderContext->getToken();
+            }));
+
+        $cart = new Cart('some-token');
+        $this->orderConverter
+            ->expects(static::once())
+            ->method('convertToCart')
+            ->willReturn($cart);
+
+        $this->orderConverter
+            ->expects(static::once())
+            ->method('assembleSalesChannelContext')
+            ->willReturn($orderContext);
+
+        $request = new Request();
+        $this->checkoutGatewayRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $cart, $orderContext)
+            ->willReturn(new CheckoutGatewayRouteResponse(
+                new PaymentMethodCollection(),
+                new ShippingMethodCollection(),
+                new ErrorCollection(),
+            ));
+
+        $this->pageLoader->load($request, Generator::createSalesChannelContext());
     }
 }

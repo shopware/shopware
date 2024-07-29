@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent
+class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @var LineItem

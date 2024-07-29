@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
+class CartMergedEvent extends Event implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
      * @internal

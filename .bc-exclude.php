@@ -20,6 +20,7 @@ return [
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php', // duplicate class declarations for compatibility reasons
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php', // duplicate class declarations for compatibility reasons
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Cart/Event/CartChangedEvent.php', // duplicate class declarations for compatibility reasons
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

@@ -359,18 +359,7 @@ Component.register('sw-search-bar', {
             this.loadSearchTrends().then(response => {
                 this.resultsSearchTrends = response;
 
-                this.showResultsSearchTrends = true;
-            });
-
-            if (this.resultsSearchTrends?.length) {
-                this.showResultsSearchTrends = true;
-                return;
-            }
-
-            this.loadSearchTrends().then(response => {
-                this.resultsSearchTrends = response;
-
-                this.showResultsSearchTrends = true;
+                this.showResultsSearchTrends = !!response?.length;
             });
         },
 

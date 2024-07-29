@@ -10,7 +10,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsExtensions
 {
     private const XSD_FILE = __DIR__ . '/Schema/cms-1.0.xsd';

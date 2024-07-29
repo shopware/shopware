@@ -5242,11 +5242,6 @@ parameters:
 			path: src/Storefront/Event/CartMergedSubscriber.php
 
 		-
-			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php

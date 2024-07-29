@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class BlockTemplateLoader extends AbstractBlockTemplateLoader
 {
     public function getTemplateForBlock(CmsExtensions $cmsExtensions, string $blockName): string

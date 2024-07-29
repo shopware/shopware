@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Packages;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     private const CMS_SNIPPET_DEFAULT_MEDIA_NAME = 'component.cms.defaultMedia';

@@ -21,7 +21,7 @@
                 :options="mergedOptions"
                 :series="serie.data"
                 :height="height"
-                v-on="$listeners"
+                v-on="listeners"
             />
         </template>
         {% endblock %}
@@ -37,7 +37,7 @@
         :options="mergedOptions"
         :series="optimizedSeries"
         :height="height"
-        v-on="$listeners"
+        v-on="listeners"
     />
     {% endblock %}
 </div>

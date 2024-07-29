@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -13,6 +14,9 @@ async function createWrapper(customOptions = {}) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-icon': true,
                 'sw-field-error': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         ...customOptions,
@@ -111,6 +115,9 @@ describe('src/app/component/form/sw-datepicker', () => {
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                     'sw-icon': true,
                     'sw-field-error': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });

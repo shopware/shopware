@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
@@ -72,5 +74,10 @@ class ProductException extends HttpException
             self::PRODUCT_CONFIGURATION_OPTION_ALREADY_EXISTS,
             'Configuration option already exists'
         );
+    }
+
+    public static function reviewNotActive(): ShopwareHttpException
+    {
+        return new ReviewNotActiveExeption();
     }
 }

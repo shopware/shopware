@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -54,8 +55,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     {
         $this->checkReviewsActive($context);
 
-        /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
+        \assert($customer instanceof CustomerEntity);
 
         $languageId = $context->getContext()->getLanguageId();
         $salesChannelId = $context->getSalesChannel()->getId();
@@ -97,12 +98,12 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         $this->repository->upsert([$review], $context->getContext());
 
-        $mail = $this->config->get('core.basicInformation.email', $context->getSalesChannel()->getId());
+        $mail = $review['externalEmail'];
         $mail = \is_string($mail) ? $mail : '';
         $event = new ReviewFormEvent(
             $context->getContext(),
             $context->getSalesChannel()->getId(),
-            new MailRecipientStruct([$mail => $mail]),
+            new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
             $customerId
@@ -126,9 +127,10 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
+
         if ($data->get('id')) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
             $criteria->addFilter(new EqualsFilter('id', $data->get('id')));
 
             $definition->add('id', new EntityExists([
@@ -137,8 +139,6 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
                 'criteria' => $criteria,
             ]));
         } else {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
             $criteria->addFilter(new EqualsFilter('productId', $data->get('productId')));
 
             $definition->add('customerId', new EntityNotExists([
@@ -167,7 +167,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannel()->getId());
 
         if (!$showReview) {
-            throw new ReviewNotActiveExeption();
+            throw ProductException::reviewNotActive();
         }
     }
 }

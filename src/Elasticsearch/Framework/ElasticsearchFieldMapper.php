@@ -192,11 +192,16 @@ class ElasticsearchFieldMapper
 
             if ($type === CustomFieldTypes::BOOL) {
                 $customFields[$name] = (bool) $customField;
-            } elseif (\is_numeric($customField)) {
+            } elseif ($this->isNumberType($type) && \is_numeric($customField)) {
                 $customFields[$name] = (float) $customField;
             }
         }
 
         return $customFields;
+    }
+
+    private function isNumberType(string $type): bool
+    {
+        return \in_array($type, [CustomFieldTypes::NUMBER, CustomFieldTypes::INT, CustomFieldTypes::FLOAT], true);
     }
 }

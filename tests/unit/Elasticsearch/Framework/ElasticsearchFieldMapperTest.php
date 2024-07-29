@@ -76,6 +76,7 @@ class ElasticsearchFieldMapperTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())->method('fetchAllKeyValue')->willReturn([
             'cf_bool' => 'bool',
+            'cf_text' => 'text',
         ]);
 
         $utils = new ElasticsearchIndexingUtils(
@@ -91,24 +92,29 @@ class ElasticsearchFieldMapperTest extends TestCase
                 'cf_foo' => 'danke',
                 'cf_baz' => '234',
                 'cf_bool' => 0,
+                'cf_text' => 'text',
             ],
             $enLanguageId => [
                 'cf_foo' => 'thankyou',
                 'cf_baz' => '123',
                 'cf_bool' => 'true',
+                'cf_text' => '10.0',
             ],
         ], new Context(new SystemSource()));
 
-        static::assertEquals([
+        static::assertSame([
             $deLanguageId => [
                 'cf_foo' => 'danke',
                 'cf_baz' => 234.0,
                 'cf_bool' => false,
+                'cf_text' => 'text',
+
             ],
             $enLanguageId => [
                 'cf_foo' => 'thankyou',
                 'cf_baz' => 123.0,
                 'cf_bool' => true,
+                'cf_text' => '10.0',
             ],
         ], $formatted);
     }

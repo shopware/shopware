@@ -224,7 +224,15 @@
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
-            <dd>{{ customer.affiliateCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">{{ customer.affiliateCode || '-' }}</dd>
+            <dd v-else>
+                <sw-text-field
+                    v-model:value="customer.affiliateCode"
+                    name="sw-field--customer-customerAffiliateCode"
+                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
+                    size="small"
+                />
+            </dd>
         </sw-description-list>
         {% endblock %}
 
@@ -232,7 +240,15 @@
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
-            <dd>{{ customer.campaignCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">{{ customer.campaignCode || '-' }}</dd>
+            <dd v-else>
+                <sw-text-field
+                    v-model:value="customer.campaignCode"
+                    name="sw-field--customer-customerCampaignCode"
+                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
+                    size="small"
+                />
+            </dd>
         </sw-description-list>
         {% endblock %}
     </div>

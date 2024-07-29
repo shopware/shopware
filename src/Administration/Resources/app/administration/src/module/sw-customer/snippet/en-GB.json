@@ -136,7 +136,9 @@
       "emptyTextBirthday": "No information",
       "labelBoundSalesChannel": "Sales Channel",
       "emptyBoundSalesChannel": "All",
-      "helpTextBoundSalesChannel": "This customer can log in to the following Sales Channels"
+      "helpTextBoundSalesChannel": "This customer can log in to the following Sales Channels",
+      "placeholderCustomerAffiliateCode": "Enter an affiliate code...",
+      "placeholderCustomerCampaignCode": "Enter a campaign code..."
     },
     "detailBase": {
       "labelAccountCard": "Account",

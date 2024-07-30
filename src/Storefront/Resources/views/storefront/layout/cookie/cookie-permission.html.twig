@@ -4,7 +4,9 @@
         {% set acceptAllCookies = config('core.basicInformation.acceptAllCookies') %}
         <div
             class="cookie-permission-container"
-            data-cookie-permission="true">
+            data-cookie-permission="true"
+            role="region"
+            aria-label="{{ 'cookie.headline'|trans|sw_sanitize }}">
             <div class="container">
                 <div class="row align-items-center">
                     {% block layout_cookie_permission_inner_content %}

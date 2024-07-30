@@ -25,6 +25,8 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -183,7 +185,10 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
-            return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            }
+            return Object.keys(this.$attrs).includes('onMediaUploadSidebarOpen');
         },
 
         isDragActiveClass() {
@@ -249,7 +254,7 @@ export default {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

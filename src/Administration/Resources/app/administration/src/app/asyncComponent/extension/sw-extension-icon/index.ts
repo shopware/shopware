@@ -8,6 +8,8 @@ import './sw-extension-icon.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         src: {
             type: String,

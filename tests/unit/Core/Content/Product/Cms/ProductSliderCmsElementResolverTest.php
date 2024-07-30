@@ -518,6 +518,13 @@ class ProductSliderCmsElementResolverTest extends TestCase
                 self::createProduct($parentId, null, new VariantListingConfig(false, $nonExistentId, [])),
             ],
         ];
+
+        yield 'empty variantListingConfig' => [
+            'expectedProductIds' => [$parentId],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(null, null, [])),
+            ],
+        ];
     }
 
     private static function createProduct(string $id, ?string $parentId, ?VariantListingConfig $config = null): SalesChannelProductEntity

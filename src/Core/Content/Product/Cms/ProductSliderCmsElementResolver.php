@@ -234,7 +234,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         foreach ($streamResult as $product) {
             $variantConfig = $product->getVariantListingConfig();
 
-            if (!$variantConfig) {
+            if (!$variantConfig || ($variantConfig->getMainVariantId() === null && $variantConfig->getDisplayParent() === null)) {
                 $finalProducts->add($product);
                 continue;
             }

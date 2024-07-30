@@ -7,6 +7,8 @@ import template from './sw-settings-search-view-general.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         productSearchConfigs: {
             type: Object,
@@ -30,6 +32,17 @@ export default {
     watch: {
         productSearchConfigs(newValue) {
             this.searchConfigId = newValue.id || '';
+        },
+    },
+
+    computed: {
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

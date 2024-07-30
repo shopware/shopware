@@ -14,7 +14,7 @@
     <sw-settings-search-searchable-content
         :product-search-configs="productSearchConfigs"
         :search-config-id="searchConfigId"
-        v-on="$listeners"
+        v-on="listeners"
     />
     {% endblock %}
 
@@ -23,7 +23,7 @@
     <sw-settings-search-excluded-search-terms
         :search-configs="productSearchConfigs"
         :is-excluded-terms-loading="isLoading"
-        v-on="$listeners"
+        v-on="listeners"
         @data-load="loadData"
     />
     {% endblock %}

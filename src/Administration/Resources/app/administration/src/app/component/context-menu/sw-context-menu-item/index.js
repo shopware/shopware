@@ -59,7 +59,11 @@ Component.register('sw-context-menu-item', {
         },
 
         contextListeners() {
-            return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
+            }
+
+            return {};
         },
     },
 });

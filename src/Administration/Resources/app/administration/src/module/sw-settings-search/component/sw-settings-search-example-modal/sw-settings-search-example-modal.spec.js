@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -23,6 +24,7 @@ async function createWrapper() {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-button': true,
                 'sw-icon': true,
+                'sw-loader': true,
             },
         },
     });

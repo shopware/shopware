@@ -13,6 +13,9 @@ const { Component } = Shopware;
  */
 Component.register('sw-select-base', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     props: {

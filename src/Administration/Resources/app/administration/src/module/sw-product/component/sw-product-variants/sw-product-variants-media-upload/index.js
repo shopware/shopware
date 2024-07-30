@@ -93,10 +93,12 @@ export default {
             this.getMediaDefaultFolderId()
                 .then((id) => {
                     this.mediaDefaultFolderId = id;
+                    this.defaultFolderId = id;
                     this.updateMediaItemPositions();
                 })
                 .catch(() => {
                     this.mediaDefaultFolderId = null;
+                    this.defaultFolderId = null;
                 });
         },
 

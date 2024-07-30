@@ -308,9 +308,9 @@ class ImportExportFileApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
-                'path' => sprintf('/test/%d/%s', $i, $add),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
+                'path' => \sprintf('/test/%d/%s', $i, $add),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

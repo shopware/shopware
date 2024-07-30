@@ -15,6 +15,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_tree_field_input %}
         <template #sw-field-input="{ identification, error, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+            <sw-loader
+                v-if="isCategoriesLoading"
+                class="sw-cms-layout-assignment-modal__loader"
+            />
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_tree_field_input_labels %}

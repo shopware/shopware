@@ -1,5 +1,6 @@
 /**
- * @package system-settings
+ * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -117,6 +118,7 @@ async function createWrapper(privileges = []) {
                 'sw-context-menu-item': true,
                 'sw-icon': true,
                 'sw-button': true,
+                'sw-checkbox-field': true,
             },
         },
     });

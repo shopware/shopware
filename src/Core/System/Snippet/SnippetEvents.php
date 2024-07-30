@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetEvents
 {
     final public const SNIPPET_WRITTEN_EVENT = 'snippet.written';

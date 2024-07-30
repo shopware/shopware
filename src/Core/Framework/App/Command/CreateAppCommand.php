@@ -90,7 +90,7 @@ class CreateAppCommand extends Command
                 Context::createCLIContext()
             );
 
-            $io->success(sprintf('App %s has been successfully installed.', $details['name']));
+            $io->success(\sprintf('App %s has been successfully installed.', $details['name']));
         }
 
         return self::SUCCESS;
@@ -297,7 +297,7 @@ class CreateAppCommand extends Command
     private function createApp(string $appDirectory, array $details, bool $createThemeConfig): void
     {
         if (file_exists($appDirectory)) {
-            throw new \RuntimeException(sprintf('App directory %s already exists', $details['name']));
+            throw new \RuntimeException(\sprintf('App directory %s already exists', $details['name']));
         }
 
         $manifestContent = $this->replaceTemplateValues(
@@ -328,7 +328,7 @@ class CreateAppCommand extends Command
     private function createDirectory(string $pathName): void
     {
         if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
-            throw new \RuntimeException(sprintf('Unable to create directory "%s". Please check permissions', $pathName));
+            throw new \RuntimeException(\sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 
@@ -338,7 +338,7 @@ class CreateAppCommand extends Command
     private function replaceTemplateValues(string $manifestTemplate, array $details): string
     {
         return str_replace(
-            array_map(fn ($param) => sprintf('{{%s}}', $param), array_keys($details)),
+            array_map(fn ($param) => \sprintf('{{%s}}', $param), array_keys($details)),
             array_values($details),
             $manifestTemplate
         );

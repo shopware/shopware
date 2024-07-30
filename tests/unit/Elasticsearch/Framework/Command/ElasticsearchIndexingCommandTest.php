@@ -11,7 +11,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

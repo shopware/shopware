@@ -17,7 +17,7 @@ class CmsSlotCollection extends EntityCollection
     private ?array $slotCache = null;
 
     /**
-     * @param string        $key
+     * @param string $key
      * @param CmsSlotEntity $entity
      */
     public function set($key, $entity): void

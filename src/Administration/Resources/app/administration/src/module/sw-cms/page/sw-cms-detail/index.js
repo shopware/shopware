@@ -235,6 +235,7 @@ export default {
 
             criteria
                 .getAssociation('categories')
+                .setPage(1)
                 .setLimit(25);
             criteria
                 .getAssociation('landingPages')
@@ -338,10 +339,6 @@ export default {
                 });
             }
 
-            if (this.acl.can('system_config.read')) {
-                this.getDefaultLayouts();
-            }
-
             this.setPageContext();
         },
 
@@ -385,6 +382,10 @@ export default {
                 this.page = page;
 
                 this.cmsPageState.setCurrentPageType(page.type);
+
+                if (this.acl.can('system_config:read')) {
+                    this.setDefaultLayout();
+                }
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
@@ -1122,12 +1123,13 @@ export default {
             this.showLayoutSetAsDefaultModal = false;
         },
 
-        async getDefaultLayouts() {
+        async setDefaultLayout() {
             const response = await this.systemConfigApiService.getValues('core.cms');
             const productDetailId = response['core.cms.default_category_cms_page'];
             const productListId = response['core.cms.default_product_cms_page'];
+            const isLiveVersion = this.page.versionId === Shopware.Context.api.liveVersionId;
 
-            if ([productDetailId, productListId].includes(this.pageId)) {
+            if (isLiveVersion && [productDetailId, productListId].includes(this.pageId)) {
                 this.isDefaultLayout = true;
             }
         },

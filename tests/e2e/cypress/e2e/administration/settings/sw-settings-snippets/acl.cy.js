@@ -8,7 +8,7 @@ describe('Snippets: Test acl privileges', () => {
             });
     });
 
-    it('@settings: Read snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: Read snippets', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -50,7 +50,7 @@ describe('Snippets: Test acl privileges', () => {
             .then(content => cy.expect(content).to.contain(''));
     });
 
-    it('@settings: Edit snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: Edit snippets', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -88,7 +88,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: Create snippets', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: Create snippets', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -143,7 +143,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: Create snippet set', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@settings: Create snippet set', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',

@@ -161,11 +161,16 @@
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
-            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
             <argument>%shopware.http_cache.stale_while_revalidate%</argument>
             <argument>%shopware.http_cache.stale_if_error%</argument>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener" autoconfigure="true" autowire="true">
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
+
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\Event\BeforeSendResponseEvent" />
         </service>
 
         <service id="shopware.cache.reverse_proxy.redis" class="Redis">

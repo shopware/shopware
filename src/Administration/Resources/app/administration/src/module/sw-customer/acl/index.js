@@ -15,6 +15,7 @@ Shopware.Service('privileges')
                     'customer_group:read',
                     'salutation:read',
                     'sales_channel:read',
+                    'sales_channel_domain:read',
                     'payment_method:read',
                     'country:read',
                     'country_state:read',
@@ -43,6 +44,7 @@ Shopware.Service('privileges')
                     'customer_group:update',
                     'custom_field:update',
                     'system_config:read',
+                    'api_proxy_imitate-customer',
                 ],
                 dependencies: [
                     'customer.viewer',

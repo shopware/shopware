@@ -19,6 +19,8 @@ const { Component, Application } = Shopware;
 Component.register('sw-search-more-results', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'searchTypeService',
     ],

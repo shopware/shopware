@@ -34,7 +34,7 @@ class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep
             AND `updated_at` IS NULL;
         ');
 
-        $connection->executeStatement(sprintf('
+        $connection->executeStatement(\sprintf('
             UPDATE `mail_template_type`
             SET `available_entities` = REPLACE(`available_entities`, \'urlResetPassword\', \'resetUrl\')
             WHERE `technical_name` = \'%s\'

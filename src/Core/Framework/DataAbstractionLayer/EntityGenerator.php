@@ -270,7 +270,7 @@ EOF;
 
                 break;
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', $field::class));
+                throw new \RuntimeException(\sprintf('Unknown field %s', $field::class));
         }
 
         $template = str_replace(

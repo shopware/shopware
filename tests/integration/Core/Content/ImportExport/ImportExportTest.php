@@ -92,7 +92,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportTest extends AbstractImportExportTestCase
 {
     use OrderFixture;
@@ -145,7 +145,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
 
         $csv = $this->getCsvContent($progress->getLogId());
-        static::assertStringContainsString(sprintf(';%s;', $newStock), $csv);
+        static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
     }
 
     public function testImportEvents(): void
@@ -204,7 +204,7 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
-        $csvContent = sprintf('url
+        $csvContent = \sprintf('url
 %s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
 
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
@@ -799,7 +799,7 @@ class ImportExportTest extends AbstractImportExportTestCase
             $this->projectDir . self::PUBLIC_MEDIA_PATH . '/' . $imageName
         );
 
-        $csvContent = sprintf(
+        $csvContent = \sprintf(
             'product_number;stock;name;price_net;price_gross;tax_id;tax_rate;tax_name;cover_media_url
 SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s',
             EnvironmentHelper::getVariable('APP_URL') . '/media/' . $imageName . $queryParameter

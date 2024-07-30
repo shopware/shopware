@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-base-filter', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         title: {
             type: String,

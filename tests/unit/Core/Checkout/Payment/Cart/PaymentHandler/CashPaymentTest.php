@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
@@ -26,15 +25,13 @@ class CashPaymentTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
         if (!\is_a(CashPayment::class, AbstractPaymentHandler::class, true)) {
-            static::markTestSkipped(sprintf('Class %s must extend %s', CashPayment::class, AbstractPaymentHandler::class));
+            static::markTestSkipped(\sprintf('Class %s must extend %s', CashPayment::class, AbstractPaymentHandler::class));
         }
     }
 
     public function testPay(): void
     {
-        $payment = new CashPayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new CashPayment();
         $reponse = $payment->pay(
             new Request(),
             new PaymentTransactionStruct(Uuid::randomHex()),
@@ -47,9 +44,7 @@ class CashPaymentTest extends TestCase
 
     public function testSupports(): void
     {
-        $payment = new CashPayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new CashPayment();
 
         foreach (PaymentHandlerType::cases() as $case) {
             static::assertFalse($payment->supports(

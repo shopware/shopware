@@ -19,7 +19,7 @@ class PromotionNotFoundError extends Error
     {
         $this->promotionCode = $promotionCode;
 
-        $this->message = sprintf('Promotion with code %s not found!', $this->promotionCode);
+        $this->message = \sprintf('Promotion with code %s not found!', $this->promotionCode);
 
         parent::__construct($this->message);
     }

@@ -198,8 +198,8 @@ abstract class AbstractAsset
      * very long names.
      *
      * @param array<string> $columnNames
-     * @param string   $prefix
-     * @param int      $maxSize
+     * @param string $prefix
+     * @param int $maxSize
      *
      * @return string
      */

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetValidator implements SnippetValidatorInterface
 {
     /**

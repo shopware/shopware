@@ -34,7 +34,7 @@ class TranslationFieldResolver extends AbstractFieldResolver
         $definition = $context->getDefinition();
         $translationDefinition = $definition->getTranslationDefinition();
         if (!$translationDefinition) {
-            throw new \RuntimeException(sprintf('Can not detect translation definition of entity %s', $definition->getEntityName()));
+            throw new \RuntimeException(\sprintf('Can not detect translation definition of entity %s', $definition->getEntityName()));
         }
 
         $alias = $context->getAlias() . '.' . $definition->getEntityName() . '_translation';

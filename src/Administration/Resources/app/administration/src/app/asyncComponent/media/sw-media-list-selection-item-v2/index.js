@@ -10,6 +10,8 @@ import './sw-media-list-selection-item-v2.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         // eslint-disable-next-line vue/require-prop-types
         item: {

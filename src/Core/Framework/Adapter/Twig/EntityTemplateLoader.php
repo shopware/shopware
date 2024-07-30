@@ -47,7 +47,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $template = $this->findDatabaseTemplate($name);
 
         if (!$template) {
-            throw new LoaderError(sprintf('Template "%s" is not defined.', $name));
+            throw new LoaderError(\sprintf('Template "%s" is not defined.', $name));
         }
 
         return new Source($template['template'], $name);

@@ -50,7 +50,7 @@ class SeoUrlUpdater
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if ($route === null) {
-            throw new \RuntimeException(sprintf('Route by name %s not found', $routeName));
+            throw new \RuntimeException(\sprintf('Route by name %s not found', $routeName));
         }
 
         $context = Context::createDefaultContext();

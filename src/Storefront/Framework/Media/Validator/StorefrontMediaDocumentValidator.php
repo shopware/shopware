@@ -7,7 +7,7 @@ use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class StorefrontMediaDocumentValidator implements StorefrontMediaValidatorInterface
 {
     use MimeTypeValidationTrait;
@@ -24,7 +24,7 @@ class StorefrontMediaDocumentValidator implements StorefrontMediaValidatorInterf
         ]);
 
         if (!$valid) {
-            throw new FileTypeNotAllowedException($file->getMimeType(), $this->getType());
+            throw new FileTypeNotAllowedException((string) $file->getMimeType(), $this->getType());
         }
     }
 }

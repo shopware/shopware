@@ -264,7 +264,7 @@ class EntityCollection extends Collection
         $uses = \class_uses($first);
         if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
             throw new \RuntimeException(
-                sprintf('%s() is only supported for entities that use the EntityCustomFieldsTrait', $methodName)
+                \sprintf('%s() is only supported for entities that use the EntityCustomFieldsTrait', $methodName)
             );
         }
 

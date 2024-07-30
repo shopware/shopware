@@ -21,7 +21,7 @@
     "@babel/core": "^7.7.7",
     "@babel/register": "^7.7.4",
     "@percy/cypress": "^3.1.0",
-    "@shopware-ag/e2e-testsuite-platform": "^8.0.0",
+    "@shopware-ag/e2e-testsuite-platform": "8.0.1",
     "axios": "^0.21.4",
     "cypress-file-upload": "^5.0.8",
     "cypress-multi-reporters": "^1.4.0",

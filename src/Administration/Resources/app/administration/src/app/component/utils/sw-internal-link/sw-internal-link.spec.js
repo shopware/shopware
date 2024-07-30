@@ -1,8 +1,9 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
-import { mount } from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 // initial component setup
 const setup = async (propOverride) => {
@@ -15,7 +16,7 @@ const setup = async (propOverride) => {
         global: {
             stubs: {
                 'sw-icon': true,
-                RouterLink: {
+                RouterLink: process.env.DISABLE_JEST_COMPAT_MODE ? RouterLinkStub : {
                     name: 'RouterLinkStub',
 
                     props: {

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:config:get',
     description: 'Get a config value',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ConfigGet extends Command
 {
     private const FORMAT_DEFAULT = 'default';

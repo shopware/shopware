@@ -205,7 +205,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @param array<string, array<string, FkField>>  $foreignKeys
+     * @param array<string, array<string, FkField>> $foreignKeys
      * @param array<string, bool> $mapping
      */
     private function hasUnresolvedForeignKey(string $entity, array $foreignKeys, array $mapping, WriteCommand $command): bool

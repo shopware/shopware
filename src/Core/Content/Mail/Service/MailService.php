@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MailService extends AbstractMailService
 {
     /**
@@ -158,7 +158,7 @@ class MailService extends AbstractMailService
 
         $mail = $this->mailFactory->create(
             $data['subject'],
-            [$senderEmail => $data['senderName']],
+            [(string) $senderEmail => $data['senderName']],
             $recipients,
             $contents,
             $mediaUrls,
@@ -237,11 +237,9 @@ class MailService extends AbstractMailService
     /**
      * Attaches header and footer to given email bodies
      *
-     * @param array<string, mixed> $data
-     * e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
+     * @param array<string, mixed> $data e.g. ['contentHtml' => 'foobar', 'contentPlain' => '<h1>foobar</h1>']
      *
-     * @return array{'text/plain': string, 'text/html': string}
-     * e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
+     * @return array{'text/plain': string, 'text/html': string} e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
      */
@@ -261,8 +259,8 @@ class MailService extends AbstractMailService
             \assert(\is_string($data['contentHtml']));
 
             return [
-                'text/plain' => sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
-                'text/html' => sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
+                'text/plain' => \sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
+                'text/html' => \sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
             ];
         }
 

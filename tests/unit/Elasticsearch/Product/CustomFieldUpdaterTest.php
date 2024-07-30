@@ -166,7 +166,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -180,7 +183,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -330,7 +336,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -344,7 +353,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -460,7 +472,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -474,7 +489,10 @@ class CustomFieldUpdaterTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
-                                'search' => ['type' => 'text'],
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
                                 'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                             ],
                         ],
@@ -596,7 +614,10 @@ class CustomFieldUpdaterTest extends TestCase
                 'type' => 'keyword',
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
-                    'search' => ['type' => 'text'],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
                     'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                 ],
             ],

@@ -16,8 +16,11 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
+ * @deprecated tag:v6.7.0 - will be removed
+ *
  * @internal
  */
 #[Package('services-settings')]
@@ -32,11 +35,13 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
         $this->rule = new CustomerDefaultPaymentMethodRule();
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testName(): void
     {
         static::assertSame('customerDefaultPaymentMethod', $this->rule->getName());
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConstraints(): void
     {
         $constraints = $this->rule->getConstraints();
@@ -52,6 +57,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
      * @param list<string> $methodIds
      */
     #[DataProvider('getMatchValues')]
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testCustomerDefaultPaymentMethodRuleMatching(bool $expected, string $customerDefaultPaymentMethod, array $methodIds, string $operator): void
     {
         $customer = new CustomerEntity();
@@ -70,6 +76,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
         static::assertSame($expected, $isMatching);
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testCustomerNotLoggedInReturnsFalse(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -79,6 +86,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testInvalidScopeIsFalse(): void
     {
         $scope = $this->createMock(TestRuleScope::class);
@@ -86,6 +94,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConfig(): void
     {
         $config = (new CustomerDefaultPaymentMethodRule())->getConfig();

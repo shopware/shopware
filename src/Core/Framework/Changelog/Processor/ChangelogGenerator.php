@@ -25,7 +25,7 @@ class ChangelogGenerator extends ChangelogProcessor
 
     private function getTemplateFile(ChangelogDefinition $template, string $date): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/%s-%s.md',
             $this->getUnreleasedDir(),
             $date,

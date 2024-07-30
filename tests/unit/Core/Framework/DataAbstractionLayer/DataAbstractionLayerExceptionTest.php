@@ -150,7 +150,7 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $e = DataAbstractionLayerException::decodeHandledByHydrator($field);
 
         static::assertEquals(
-            sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class),
+            \sprintf('Decoding of %s is handled by the entity hydrator.', ManyToManyAssociationField::class),
             $e->getMessage()
         );
         static::assertEquals(ManyToManyAssociationField::class, $e->getParameters()['fieldClass']);

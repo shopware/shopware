@@ -20,6 +20,8 @@ const { Component } = Shopware;
 Component.register('sw-version', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         version() {
             let output = '';

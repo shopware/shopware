@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -671,5 +672,55 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         await flushPromises();
 
         expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
+    });
+
+    it('should not show the icon on sub menu items', async () => {
+        const wrapper = await createWrapper({
+            privileges: [],
+            props: {
+                entry: {
+                    id: 'sw-product',
+                    label: 'sw-product.general.mainMenuItemGeneral',
+                    color: '#57D9A3',
+                    path: 'sw.product.index',
+                    icon: 'default-symbol-products',
+                    parent: 'sw-catalogue',
+                    position: 10,
+                    level: 1,
+                    moduleType: 'core',
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const childMenuItem = wrapper.findComponent('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
+        expect(childMenuItem.props().displayIcon).toBe(false);
     });
 });

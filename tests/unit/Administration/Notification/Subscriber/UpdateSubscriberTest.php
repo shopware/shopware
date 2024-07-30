@@ -30,7 +30,7 @@ class UpdateSubscriberTest extends TestCase
 
     public function testUpdateSuccessful(): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createDefaultContext(new AdminApiSource('userId123', 'integrationId321'));
         $version = '6.0.1_test';
 
         $notificationServiceMock = $this->createMock(NotificationService::class);
@@ -51,7 +51,7 @@ class UpdateSubscriberTest extends TestCase
 
     public function testUpdateWithoutMessageGetsSkipped(): void
     {
-        $context = Context::createDefaultContext(new AdminApiSource('userId123', 'integrationId321'));
+        $context = Context::createDefaultContext();
         $version = '6.0.1_test';
 
         $notificationServiceMock = $this->createMock(NotificationService::class);

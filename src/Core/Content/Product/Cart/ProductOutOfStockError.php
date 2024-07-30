@@ -25,7 +25,7 @@ class ProductOutOfStockError extends Error
     ) {
         $this->id = $id;
 
-        $this->message = sprintf('The product %s is no longer available', $name);
+        $this->message = \sprintf('The product %s is no longer available', $name);
 
         parent::__construct($this->message);
         $this->name = $name;

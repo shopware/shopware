@@ -15,7 +15,7 @@ class AppUrlChangeDetectedException extends \Exception
         private readonly string $currentUrl,
         private readonly string $shopId,
     ) {
-        parent::__construct(sprintf('Detected APP_URL change, was "%s" and is now "%s".', $previousUrl, $currentUrl));
+        parent::__construct(\sprintf('Detected APP_URL change, was "%s" and is now "%s".', $previousUrl, $currentUrl));
     }
 
     public function getPreviousUrl(): string

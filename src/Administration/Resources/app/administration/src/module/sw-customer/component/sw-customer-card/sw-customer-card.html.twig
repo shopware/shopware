@@ -7,6 +7,45 @@
     :is-loading="isLoading"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_customer_card_header_right %}
+    <template #header-right>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_card_imitate_customer_modal %}
+        <sw-customer-imitate-customer-modal
+            v-if="showImitateCustomerModal"
+            :customer="customer"
+            @modal-close="onCloseImitateCustomerModal"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_card_action_customer_impersonation %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('api_proxy_imitate-customer'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!canUseCustomerImitation"
+            variant="action"
+            @click="onImitateCustomer"
+        >
+            <template v-if="hasSingleBoundSalesChannelUrl">
+                {{ $tc('sw-customer.card.buttonImitateCustomer') }}
+                <sw-icon
+                    name="regular-external-link-s"
+                    size="12px"
+                />
+            </template>
+            <template v-else>
+                {{ $tc('sw-customer.card.buttonImitateCustomer') }}
+            </template>
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_card_rows %}
     <template #grid>
         <sw-container rows="auto auto">

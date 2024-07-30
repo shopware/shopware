@@ -158,7 +158,7 @@ class BaseContextFactoryTest extends TestCase
             'fetchDataResult' => false,
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => sprintf('No context data found for SalesChannel "%s"', TestDefaults::SALES_CHANNEL),
+            'exceptionMessage' => \sprintf('No context data found for SalesChannel "%s"', TestDefaults::SALES_CHANNEL),
         ];
 
         yield 'provided language not available' => [
@@ -171,7 +171,7 @@ class BaseContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [],
-            'exceptionMessage' => sprintf('Provided language "%s" is not in list of available languages: %s', $invalidSalesChannelId, Defaults::LANGUAGE_SYSTEM),
+            'exceptionMessage' => \sprintf('Provided language "%s" is not in list of available languages: %s', $invalidSalesChannelId, Defaults::LANGUAGE_SYSTEM),
         ];
 
         yield 'language id is not uuid' => [
@@ -212,7 +212,7 @@ class BaseContextFactoryTest extends TestCase
             ],
             'fetchParentLanguageResult' => Uuid::randomHex(),
             'entitySearchResult' => [],
-            'exceptionMessage' => sprintf('Sales channel with id "%s" not found or not valid!.', TestDefaults::SALES_CHANNEL),
+            'exceptionMessage' => \sprintf('Sales channel with id "%s" not found or not valid!.', TestDefaults::SALES_CHANNEL),
         ];
 
         yield 'currency not found' => [
@@ -256,7 +256,7 @@ class BaseContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => sprintf('Could not find country state with id "%s"', $countryStateId),
+            'exceptionMessage' => \sprintf('Could not find country state with id "%s"', $countryStateId),
         ];
 
         yield 'country not found' => [
@@ -280,7 +280,7 @@ class BaseContextFactoryTest extends TestCase
                     $currencyId => $currency,
                 ],
             ],
-            'exceptionMessage' => sprintf('Could not find country with id "%s"', $countryId),
+            'exceptionMessage' => \sprintf('Could not find country with id "%s"', $countryId),
         ];
 
         yield 'payment method not found' => [
@@ -307,7 +307,7 @@ class BaseContextFactoryTest extends TestCase
                     $countryId => $country,
                 ],
             ],
-            'exceptionMessage' => sprintf('Could not find payment method with id "%s"', $paymentMethodId),
+            'exceptionMessage' => \sprintf('Could not find payment method with id "%s"', $paymentMethodId),
         ];
 
         yield 'create base context successfully' => [

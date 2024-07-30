@@ -90,7 +90,6 @@ export default {
     },
 
     methods: {
-
         onAddRelation(relation) {
             this.set.relations.push(relation);
         },

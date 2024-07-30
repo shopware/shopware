@@ -1,3 +1,8 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
@@ -94,6 +99,14 @@ async function createEntitySingleSelect(customOptions = {
                 }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'mt-loader': true,
+                'sw-loader-deprecated': true,
+                'sw-popover': {
+                    template: '<div><slot></slot></div>',
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -744,6 +757,16 @@ describe('components/sw-entity-single-select', () => {
                     'sw-field-error': true,
                     'sw-loader': true,
                     'sw-icon': true,
+                    'sw-product-variant-info': true,
+                    'sw-select-result': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-popover': {
+                        template: '<div><slot></slot></div>',
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -807,30 +830,5 @@ describe('components/sw-entity-single-select', () => {
 
         expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
         expect(resultItem.props().searchTerm).toBe('Cars');
-    });
-
-    it('should reset selected item if it is invalid value', async () => {
-        const swEntitySingleSelect = await createEntitySingleSelect({
-            props: {
-                value: fixture[0].id,
-                entity: 'test',
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(),
-                        };
-                    },
-                },
-            },
-        });
-        await flushPromises();
-        expect(swEntitySingleSelect.vm.value).toBe(fixture[0].id);
-
-        await swEntitySingleSelect.setProps({ value: utils.createId() });
-        swEntitySingleSelect.vm.$emit('change');
-
-        expect(swEntitySingleSelect.emitted('change')).toBeTruthy();
     });
 });

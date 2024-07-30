@@ -32,4 +32,10 @@ class KnownIpsCollectorTest extends TestCase
             '2001:0db8:0123:4500::/56' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56',
         ], $suggestions);
     }
+
+    public function testCollectIpsWithNoIpGiven(): void
+    {
+        $als = new KnownIpsCollector();
+        static::assertEquals([], $als->collectIps(new Request(server: [''])));
+    }
 }

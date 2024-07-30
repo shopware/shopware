@@ -9,6 +9,7 @@ import Vue, { compatUtils } from 'vue';
 import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
+import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
@@ -85,7 +86,12 @@ Shopware.Service().list().forEach(serviceKey => {
 // Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
-        return Vue.set(target, propertyName, value);
+        if (compatUtils.isCompatEnabled('GLOBAL_SET')) {
+            return Vue.set(target, propertyName, value);
+        }
+
+        // eslint-disable-next-line no-return-assign
+        return target[propertyName] = value;
     },
     deleteReactive(target, propertyName) {
         Vue.delete(target, propertyName);
@@ -187,6 +193,7 @@ config.global.plugins = [
             };
         },
     },
+    VirtualCallStackPlugin,
 ];
 
 global.allowedErrors = [
@@ -222,7 +229,7 @@ global.allowedErrors = [
             }
 
             return msg0?.includes('is deprecated and will be removed in v6.7.0.0. Please use') ||
-                msg1?.includes('is deprecated and will be removed in v6.7.0.0. Please use');
+                msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
         },
     },
     sendTimeoutExpired,
@@ -236,6 +243,7 @@ let consoleHasError = false;
 let consoleHasWarning = false;
 let errorArgs = null;
 let warnArgs = null;
+let warnTrace = null;
 const { error, warn } = console;
 
 global.console.error = (...args) => {
@@ -326,8 +334,15 @@ if (!process.env.DISABLE_JEST_COMPAT_MODE) {
         });
 
         if (!silenceWarning) {
+            // Create an error to preserve the original console.warn stack
+            const e = new Error();
+            warnTrace = e.stack;
+
+            // Set console.warn arguments for global after each
             consoleHasWarning = true;
             warnArgs = args;
+
+            // Call original warn to print to std::out
             warn(...args);
         }
     };
@@ -358,7 +373,14 @@ afterEach(() => {
         consoleHasWarning = false;
 
         if (warnArgs) {
-            throw new Error(...warnArgs);
+            const warnError = new Error(...warnArgs);
+
+            // Replace stack with original console.warn trace
+            if (warnTrace) {
+                warnError.stack = warnTrace;
+            }
+
+            throw warnError;
         }
 
         throw new Error('A console.warn occurred without any arguments.');

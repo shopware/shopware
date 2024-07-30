@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-notifications', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

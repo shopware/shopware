@@ -58,6 +58,6 @@ final class ScalarTypeSerializer
 
     private static function isValidEmpty(string $value, bool $isRequiredByUser): bool
     {
-        return $value === '' && !$isRequiredByUser;
+        return \trim($value) === '' && !$isRequiredByUser;
     }
 }

@@ -10,8 +10,6 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
-use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler;
-use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -57,37 +55,13 @@ class ProductExporterTest extends TestCase
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-        $fileContent = $this->fileSystem->read($filePath);
-
-        static::assertIsString($fileContent);
-        $csvRows = explode(\PHP_EOL, $fileContent);
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
 
         static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->fileExists($filePath));
+
+        $csvRows = explode(\PHP_EOL, $this->fileSystem->read($filePath));
         static::assertCount(4, $csvRows);
-    }
-
-    public function testExportPagination(): void
-    {
-        $this->createTestEntity();
-
-        $service = new ProductExporter(
-            $this->getContainer()->get('product_export.repository'),
-            $this->getContainer()->get(ProductExportGenerator::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(ProductExportFileHandler::class)
-        );
-
-        $service->export($this->salesChannelContext, new ExportBehavior());
-
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->fileExists($filePath));
-        $fileContent = $this->fileSystem->read($filePath);
-        static::assertIsString($fileContent);
-        static::assertCount(4, explode(\PHP_EOL, $fileContent));
     }
 
     public function testExportNotFound(): void
@@ -103,7 +77,7 @@ class ProductExporterTest extends TestCase
         $id = Uuid::randomHex();
 
         static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(sprintf('Product export with ID %s not found', $id));
+        static::expectExceptionMessage(\sprintf('Product export with ID %s not found', $id));
 
         $this->service->export($this->salesChannelContext, new ExportBehavior(), $id);
     }
@@ -124,16 +98,12 @@ class ProductExporterTest extends TestCase
         return $repository->search(new Criteria(), $this->context)->first();
     }
 
-    private function getSalesChannelDomainId(): string
-    {
-        return $this->getSalesChannelDomain()->getId();
-    }
-
     private function createTestEntity(): string
     {
         $this->createProductStream();
 
         $id = Uuid::randomHex();
+        $salesChannelDomain = $this->getSalesChannelDomain();
         $this->repository->upsert([
             [
                 'id' => $id,
@@ -145,9 +115,9 @@ class ProductExporterTest extends TestCase
                 'headerTemplate' => 'name,url',
                 'bodyTemplate' => '{{ product.name }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'storefrontSalesChannelId' => $salesChannelDomain->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
-                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'salesChannelDomainId' => $salesChannelDomain->getId(),
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
             ],

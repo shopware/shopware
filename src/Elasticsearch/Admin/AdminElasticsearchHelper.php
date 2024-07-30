@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class AdminElasticsearchHelper
 {
     public function __construct(

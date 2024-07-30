@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-tabs', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         /**
          * Only used for new mt-tabs component

@@ -7,7 +7,7 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @phpstan-import-type LanguageData from \Shopware\Core\System\Language\LanguageLoaderInterface
+ * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 #[Package('buyers-experience')]
 class LanguageLocaleCodeProvider implements ResetInterface

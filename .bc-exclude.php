@@ -20,6 +20,7 @@ return [
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php', // duplicate class declarations for compatibility reasons
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php', // duplicate class declarations for compatibility reasons
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php', // duplicate class declarations for compatibility reasons
+        '**/src/Core/Checkout/Cart/Event/CartChangedEvent.php', // duplicate class declarations for compatibility reasons
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
@@ -32,6 +33,9 @@ return [
 
         // Property type change from int to float
         'Type of property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\DaysSinceRule#$daysPassed changed from int|null to float|null',
+        'The parameter $ranking of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#\_\_construct\(\) changed from int to int|float',
+        'The return type of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#getRanking\(\) changed from int to the non-covariant int|float',
+        'The return type of Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig\#getRanking\(\) changed from int to int|float',
 
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',

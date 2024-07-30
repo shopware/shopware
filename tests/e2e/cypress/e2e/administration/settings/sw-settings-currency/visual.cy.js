@@ -13,7 +13,7 @@ describe('Currency: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of  currency module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of  currency module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/currency`,
             method: 'POST',

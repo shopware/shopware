@@ -17,6 +17,8 @@ const { Component } = Shopware;
 Component.register('sw-loader-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         size: {
             type: String,

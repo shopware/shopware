@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
@@ -76,7 +77,7 @@ class RuleTest extends TestCase
                 $rule->match($scope);
                 $rule->match($lineItemScope);
             } catch (\Throwable $exception) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Condition %s threw exception matching with empty operator and no other assigned values: %s',
                     $rule->getName(),
                     $exception->getMessage()
@@ -98,7 +99,7 @@ class RuleTest extends TestCase
                     ],
                 ], $this->context);
             } catch (\Throwable $exception) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Threw exception persisting condition %s with empty operator and no other assigned values: %s',
                     $rule->getName(),
                     $exception->getMessage()
@@ -130,14 +131,14 @@ class RuleTest extends TestCase
             }
 
             if (empty($constraints['operator']) && !empty($configOperators)) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Missing constraints in condition %s for operator while config has operator set',
                     $rule->getName()
                 ));
             }
 
             if (!empty($constraints['operator']) && empty($configOperators)) {
-                static::fail(sprintf(
+                static::fail(\sprintf(
                     'Missing operator set for config of condition %s while constraints require operator',
                     $rule->getName()
                 ));
@@ -150,7 +151,7 @@ class RuleTest extends TestCase
             }
 
             static::assertIsArray($choiceConstraint->choices);
-            static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), sprintf(
+            static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), \sprintf(
                 'Constraints and config for operator differ in condition %s',
                 $rule->getName()
             ));
@@ -163,7 +164,7 @@ class RuleTest extends TestCase
         foreach ($this->getRules() as $rule) {
             $ruleNameConstant = $rule::RULE_NAME; /* @phpstan-ignore-line */
 
-            static::assertNotNull($ruleNameConstant, sprintf(
+            static::assertNotNull($ruleNameConstant, \sprintf(
                 'Rule name constant is empty in condition %s',
                 $rule->getName()
             ));
@@ -221,35 +222,36 @@ class RuleTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $data = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'foo@bar.de',
-                'password' => TestDefaults::HASHED_PASSWORD,
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'foo@bar.de',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, $this->context);
+        $repo->create([$customer], $this->context);
 
         return $customerId;
     }

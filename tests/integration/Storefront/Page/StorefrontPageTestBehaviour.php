@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -272,36 +273,37 @@ trait StorefrontPageTestBehaviour
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $data = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['id' => $this->getValidCountryId()],
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'foo@bar.de',
-                'password' => 'password',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'country' => ['id' => $this->getValidCountryId()],
             ],
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'foo@bar.de',
+            'password' => 'password',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, Context::createDefaultContext());
+        $repo->create([$customer], Context::createDefaultContext());
 
         $customer = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($customer);

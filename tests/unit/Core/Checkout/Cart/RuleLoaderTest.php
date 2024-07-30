@@ -25,7 +25,7 @@ class RuleLoaderTest extends TestCase
     public function testDecorated(): void
     {
         $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage(sprintf(
+        $this->expectExceptionMessage(\sprintf(
             'The getDecorated() function of core class %s cannot be used. This class is the base class.',
             RuleLoader::class,
         ));

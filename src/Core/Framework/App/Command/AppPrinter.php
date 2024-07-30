@@ -93,7 +93,7 @@ class AppPrinter
         }
 
         $io->caution(
-            sprintf(
+            \sprintf(
                 'App "%s" should be %s but requires the following permissions:',
                 $manifest->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'
@@ -129,7 +129,7 @@ class AppPrinter
     private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
     {
         $io->caution(
-            sprintf(
+            \sprintf(
                 'App "%s" should be %s but requires communication with the following hosts:',
                 $app->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'

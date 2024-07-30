@@ -463,7 +463,17 @@
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Customer number",
         "columnSalesChannel": "Sales Channel",
-        "columnEmailAddress": "Email address"
+        "columnEmailAddress": "Email address",
+        "titleSelectSalesChannel": "Select Sales Channel",
+        "descriptionSelectSalesChannel": "The selected customer has access to multiple Sales Channels, please select the Sales Channel you wish to use for this order.",
+        "alertSelectSalesChannel": "Because the selected Sales channel channel determines the available products and options, changing it will remove the products and reset the options.",
+        "labelSalesChannel": "Use Sales Channel",
+        "placeholderSalesChannel": "Select a Sales Channel...",
+        "buttonSelectSalesChannel": "Select",
+        "labelAllChannel": "All Channels",
+        "titleCustomerChanges": "Change Customer",
+        "descriptionCustomerChanges": "Are you sure you want to change the customer for this order? This customer has a different sales channel, this will remove the products and reset the options.",
+        "buttonChangeCustomer": "Change customer"
       },
       "options": {
         "textHeadlineOrder": "Order",
@@ -473,6 +483,9 @@
         "labelSameAsBillingAddress": "Shipping address is same as billing address",
         "textSameAsBillingAddress": "Same as billing address",
         "labelShippingCosts": "Shipping costs"
+      },
+      "tooltip": {
+        "customerUnavailable": "This customer can only use one sales channel. The Sales Channel is currently inactive or does not exist anymore."
       }
     },
     "filters": {

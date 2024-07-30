@@ -5,7 +5,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\Mes
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @phpstan-import-type PrimaryKeyList from \Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\MessagesShouldNotUsePHPStanTypes\AsyncMessageUsingPHPStanType
+ * @phpstan-import-type PrimaryKeyList from AsyncMessageUsingPHPStanType
  */
 class AsyncMessageImportingPHPStanType implements AsyncMessageInterface
 {

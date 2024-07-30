@@ -26,13 +26,13 @@ class UserProvisioner
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
         if ($this->userExists($username)) {
-            throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
+            throw new \RuntimeException(\sprintf('User with username "%s" already exists.', $username));
         }
 
         $minPasswordLength = $this->getAdminPasswordMinLength();
 
         if ($password && \strlen($password) < $minPasswordLength) {
-            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %d characters.', $minPasswordLength));
+            throw new \InvalidArgumentException(\sprintf('The password length cannot be shorter than %d characters.', $minPasswordLength));
         }
 
         $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));

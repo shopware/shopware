@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -19,6 +20,9 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+ */
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 #[Package('checkout')]
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
@@ -35,12 +39,19 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 
     public function getDecorated(): AbstractChangePaymentMethodRoute
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'customer has no default payment method anymore');
+
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, customer has no default payment method anymore
+     */
     #[Route(path: '/store-api/account/change-payment-method/{paymentMethodId}', name: 'store-api.account.set.payment-method', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'customer has no default payment method anymore');
+
         $this->validatePaymentMethodId($paymentMethodId, $context->getContext());
 
         $this->customerRepository->update([

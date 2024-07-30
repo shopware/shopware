@@ -15,6 +15,9 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  */
 Component.register('sw-condition-base', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: [
@@ -91,7 +94,12 @@ Component.register('sw-condition-base', {
                 this.$store.commit('error/removeApiError', { expression: this.valueErrorPath });
             }
             if (this.isEmpty && !!this.inputKey) {
-                this.$delete(this.condition.value, this.inputKey);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.condition.value, this.inputKey);
+                } else {
+                    // eslint-disable-next-line vue/no-mutating-props
+                    delete this.condition.value[this.inputKey];
+                }
             }
         },
     },

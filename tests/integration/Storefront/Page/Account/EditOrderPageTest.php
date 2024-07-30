@@ -16,6 +16,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -159,9 +160,11 @@ class EditOrderPageTest extends TestCase
         // selected payment method should be first
         static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
 
-        // default payment method of customer should be second
-        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-        static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
+        if (!Feature::isActive('v6.7.0.0')) {
+            // default payment method of customer should be second
+            static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
+            static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
+        }
     }
 
     public function testShouldNotAllowPaymentMethodChangeOnCertainTransactionStates(): void

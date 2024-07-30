@@ -5,24 +5,17 @@
     "components": {
         "schemas": {
             "Sitemap": {
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ArrayStruct"
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "type": "string"
                     },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "filename": {
-                                "type": "string"
-                            },
-                            "created": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "required": ["filename", "created"]
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
                     }
-                ]
+                },
+                "required": ["filename", "created"]
             }
         }
     }

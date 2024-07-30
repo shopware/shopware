@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,6 +40,16 @@ async function createWrapper() {
                     'sw-checkbox-field': {
                         template: '<div class="checkbox"></div>',
                     },
+                    'sw-empty-state': true,
+                    'mt-text-field': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'mt-button': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-select-field': true,
                 },
                 provide: {
                     validationService: {},

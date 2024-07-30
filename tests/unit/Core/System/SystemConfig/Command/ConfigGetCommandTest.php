@@ -14,7 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ConfigGet::class)]
 class ConfigGetCommandTest extends TestCase
 {

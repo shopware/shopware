@@ -193,7 +193,7 @@ class QueryStringParser
         }
         \assert(\is_string($query['type']));
 
-        throw DataAbstractionLayerException::invalidFilterQuery(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
+        throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
 
     /**
@@ -242,7 +242,7 @@ class QueryStringParser
                 'field' => $query->getField(),
                 'value' => implode('|', $query->getValue()),
             ],
-            default => throw DataAbstractionLayerException::invalidFilterQuery(sprintf('Unsupported filter type %s', $query::class)),
+            default => throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Unsupported filter type %s', $query::class)),
         };
     }
 
@@ -274,15 +274,15 @@ class QueryStringParser
         \assert(\is_string($query['type']));
 
         if (empty($query['field'])) {
-            throw DataAbstractionLayerException::invalidFilterQuery(sprintf('Parameter "field" for %s filter is missing.', $query['type']), $path . '/field');
+            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "field" for %s filter is missing.', $query['type']), $path . '/field');
         }
 
         if (empty($query['value'])) {
-            throw DataAbstractionLayerException::invalidFilterQuery(sprintf('Parameter "value" for %s filter is missing.', $query['type']), $path . '/value');
+            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "value" for %s filter is missing.', $query['type']), $path . '/value');
         }
 
         if (empty($query['parameters']['operator'])) {
-            throw DataAbstractionLayerException::invalidFilterQuery(sprintf('Parameter "parameter.operator" for %s filter is missing.', $query['type']), $path . '/parameter');
+            throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $query['type']), $path . '/parameter');
         }
 
         $now = new \DateTimeImmutable();

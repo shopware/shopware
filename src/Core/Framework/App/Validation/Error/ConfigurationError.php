@@ -17,7 +17,7 @@ class ConfigurationError extends Error
      */
     public function __construct(array $violations)
     {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             "The following custom components are not allowed to be used in app configuration:\n- %s",
             implode("\n- ", $violations)
         );

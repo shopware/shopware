@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * This route is used for the product suggest in the page header
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractProductSuggestRoute
 {
     abstract public function getDecorated(): AbstractProductSuggestRoute;

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
 
 /**
- * @package system-settings
+ * @package services-settings
  *
  * @internal
  */

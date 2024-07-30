@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-icon', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         name: {
             type: String,
@@ -35,5 +37,14 @@ Component.register('sw-icon', {
 
             return false;
         },
+
+        listeners() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        }
     },
 });

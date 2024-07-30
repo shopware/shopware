@@ -13,6 +13,7 @@ export default {
     template,
 
     inject: [
+        'repositoryFactory',
         'systemConfigApiService',
         'acl',
     ],
@@ -50,6 +51,8 @@ export default {
             hasProductsWithAssignedLayouts: false,
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: null,
+            categoryIndex: 1,
+            isCategoriesLoading: false,
         };
     },
 
@@ -131,6 +134,10 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
         },
     },
 
@@ -443,6 +450,23 @@ export default {
 
         onInputSalesChannelSelect() {
             this.loadSystemConfig();
+        },
+
+        onExtraCategories() {
+            this.isCategoriesLoading = true;
+            this.categoryIndex += 1;
+
+            const criteria = new Criteria(this.categoryIndex, 25);
+
+            criteria.addFilter(Criteria.equals('cmsPageId', this.page.id));
+
+            this.categoryRepository.search(criteria).then((result) => {
+                if (!!result && result.length > 0) {
+                    this.page.categories.push(...result);
+                }
+
+                this.isCategoriesLoading = false;
+            });
         },
     },
 };

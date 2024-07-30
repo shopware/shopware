@@ -275,6 +275,18 @@
                 :help-text="$tc('sw-settings-country.detail.helpTextLabelVatIdRequired')"
             />
             {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_general_content_field_is_eu %}
+            <sw-switch-field
+                v-model:value="country.isEu"
+                name="sw-field--country-isEu"
+                class="sw-settings-country-general__is-eu sw-settings-country-general__option-items"
+                bordered
+                :disabled="!acl.can('country.editor')"
+                :label="$tc('sw-settings-country.detail.labelIsEu')"
+            />
+            {% endblock %}
         </sw-container>
     </sw-card>
     {% endblock %}

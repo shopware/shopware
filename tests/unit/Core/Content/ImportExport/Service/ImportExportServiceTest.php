@@ -39,7 +39,7 @@ class ImportExportServiceTest extends TestCase
         } else {
             $this->expectException(ImportExportException::class);
         }
-        $this->expectExceptionMessage(sprintf('The import/export profile with id %s can only be used for import', $profileId));
+        $this->expectExceptionMessage(\sprintf('The import/export profile with id %s can only be used for import', $profileId));
 
         $this->createImportExportService($profileId)->prepareExport(
             Context::createDefaultContext(),

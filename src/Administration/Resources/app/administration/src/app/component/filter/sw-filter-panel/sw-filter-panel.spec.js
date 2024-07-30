@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import 'src/app/component/filter/sw-filter-panel';
 import 'src/app/component/filter/sw-boolean-filter';
 import 'src/app/component/filter/sw-existence-filter';
@@ -89,6 +92,13 @@ async function createWrapper() {
                 'sw-string-filter': true,
                 'sw-number-filter': true,
                 'sw-date-filter': true,
+                'sw-help-text': true,
+                'sw-select-result': true,
+                'sw-highlight-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-inheritance-switch': true,
+                'sw-loader': true,
+                'mt-select': true,
             },
             provide: {
                 repositoryFactory: {

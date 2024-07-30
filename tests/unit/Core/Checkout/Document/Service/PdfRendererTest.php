@@ -8,15 +8,22 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(PdfRenderer::class)]
 class PdfRendererTest extends TestCase
 {
+    public function testGetContentType(): void
+    {
+        $pdfRenderer = new PdfRenderer([]);
+
+        static::assertEquals('application/pdf', $pdfRenderer->getContentType());
+    }
+
     public function testRender(): void
     {
         $html = '

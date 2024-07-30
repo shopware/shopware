@@ -11,6 +11,8 @@ const { createId, types } = Shopware.Utils;
 Component.register('sw-admin-menu-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl', 'feature'],
 
     props: {
@@ -112,7 +114,7 @@ Component.register('sw-admin-menu-item', {
             let route = '';
             let match = false;
 
-            route = `/${path.replace(/\./g, '/')}`;
+            route = `/${path.replace(/[\.\-]/g, '/')}`;
             match = this.$router.resolve({
                 path: route,
             });

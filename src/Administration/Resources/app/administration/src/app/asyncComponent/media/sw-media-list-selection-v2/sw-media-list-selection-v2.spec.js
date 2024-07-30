@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
@@ -44,6 +45,7 @@ async function createWrapper() {
                 },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
+                'sw-loader': true,
             },
         },
     });

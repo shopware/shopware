@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -825,7 +826,6 @@ class SalesChannelContextTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $shippingAddress,
             'defaultBillingAddress' => $billingAddress,
-            'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'guest' => $isGuest,
@@ -835,6 +835,10 @@ class SalesChannelContextTest extends TestCase
             'salutationId' => $salutationId,
             'customerNumber' => '12345',
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getAvailablePaymentMethod()->getId();
+        }
 
         $customerRepository->create([$customer], Context::createDefaultContext());
     }

@@ -9,12 +9,13 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 Shopware.Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', swProductVariantsConfiguratorSelection);
 
-async function createWrapper() {
+async function createWrapper(additionalProps = {}) {
+    const defaultProps = {
+        options: [],
+        product: {},
+    };
     return mount(await wrapTestComponent('sw-product-variants-configurator-selection', { sync: true }), {
-        props: {
-            options: [],
-            product: {},
-        },
+        props: { ...defaultProps, ...additionalProps },
         global: {
             provide: {
                 repositoryFactory: {
@@ -37,6 +38,7 @@ async function createWrapper() {
                 'sw-icon': {
                     template: '<div></div>',
                 },
+                'sw-grid': await wrapTestComponent('sw-grid', { sync: true }),
             },
         },
     });
@@ -52,6 +54,9 @@ function getPropertyCollection() {
             {
                 id: '1',
                 optionId: '1',
+                option: {
+                    gridDisabled: false,
+                },
             },
         ],
     );
@@ -121,5 +126,22 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         });
 
         expect(wrapper.vm.options).toHaveLength(2);
+    });
+
+    it('should be able to select options once again when the add only toggle get changed', async () => {
+        await wrapper.setData({
+            displayTree: true,
+        });
+        await wrapper.setProps({
+            disabled: true,
+        });
+
+        const selectionOption = jest.spyOn(wrapper.vm, 'selectOptions');
+        const entityCollection = getPropertyCollection();
+        await wrapper.setProps({
+            disabled: false,
+            options: entityCollection,
+        });
+        expect(selectionOption).toHaveBeenCalled();
     });
 });

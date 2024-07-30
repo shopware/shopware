@@ -24,13 +24,13 @@ class MigrationNameAndTimestampTest extends TestCase
                 $matches = [];
                 $result = preg_match('/\\\\(?<name>Migration(?<timestamp>\d+)\w+)$/', (string) $className, $matches);
 
-                static::assertEquals(1, $result, sprintf(
+                static::assertEquals(1, $result, \sprintf(
                     'Invalid migration name "%s". Example for a valid format: Migration1536232684Order',
                     $className
                 ));
 
                 $timestamp = (int) $matches['timestamp'];
-                static::assertEquals($migration->getCreationTimestamp(), $timestamp, sprintf(
+                static::assertEquals($migration->getCreationTimestamp(), $timestamp, \sprintf(
                     'Timestamp in migration name "%s" does not match timestamp of method "getCreationTimestamp"',
                     $className
                 ));

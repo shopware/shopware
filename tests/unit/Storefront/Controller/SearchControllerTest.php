@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -71,6 +72,7 @@ class SearchControllerTest extends TestCase
         $this->container = new ContainerBuilder();
         $this->container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
         $this->container->set(SeoUrlPlaceholderHandlerInterface::class, $this->createMock(SeoUrlPlaceholderHandlerInterface::class));
+        $this->container->set(MediaUrlPlaceholderHandlerInterface::class, $this->createMock(MediaUrlPlaceholderHandlerInterface::class));
         $this->container->set('event_dispatcher', new EventDispatcher());
         $this->container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
         $this->container->set('http_kernel', $this->createMock(HttpKernelInterface::class));

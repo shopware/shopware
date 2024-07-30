@@ -36,7 +36,7 @@ class DependencyInjectionException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::TAGGED_SERVICE_HAS_WRONG_TYPE,
-            sprintf('Service "%s" is tagged as "%s" and must therefore be of type "%s".', $service, $tag, $type)
+            \sprintf('Service "%s" is tagged as "%s" and must therefore be of type "%s".', $service, $tag, $type)
         );
     }
 }

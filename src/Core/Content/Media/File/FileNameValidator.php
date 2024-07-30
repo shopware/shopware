@@ -79,7 +79,7 @@ class FileNameValidator
     {
         foreach (self::RESTRICTED_CHARACTERS as $character) {
             if (mb_strpos($fileName, $character) !== false) {
-                throw MediaException::illegalFileName($fileName, sprintf(
+                throw MediaException::illegalFileName($fileName, \sprintf(
                     'Filename must not contain "%s"',
                     $character
                 ));
@@ -91,7 +91,7 @@ class FileNameValidator
     {
         foreach (range(0, 31) as $controlCharacter) {
             if (mb_strpos($fileName, \chr($controlCharacter)) !== false) {
-                throw MediaException::illegalFileName($fileName, sprintf(
+                throw MediaException::illegalFileName($fileName, \sprintf(
                     'Filename must not contain character "%x"',
                     $controlCharacter
                 ));

@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
-use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -53,7 +52,6 @@ class CacheResponseSubscriberTest extends TestCase
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
             ],
-            BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
         ];
@@ -69,7 +67,6 @@ class CacheResponseSubscriberTest extends TestCase
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -104,7 +101,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -134,7 +130,6 @@ class CacheResponseSubscriberTest extends TestCase
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -164,7 +159,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -198,7 +192,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -244,13 +237,13 @@ class CacheResponseSubscriberTest extends TestCase
                         static::assertEquals(
                             $value,
                             $cookie->getValue(),
-                            sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
+                            \sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
                         );
                     } else {
                         static::assertNotEquals(
                             $value,
                             $cookie->getValue(),
-                            sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
+                            \sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
                         );
                     }
                 }
@@ -280,7 +273,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
-            false,
             null,
             null
         );
@@ -328,7 +320,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
-            false,
             null,
             null
         );
@@ -373,85 +364,6 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Cache requests if ip is not whitelisted' => [true, ['120.0.0.0'], true];
     }
 
-    #[DataProvider('headerCases')]
-    public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
-    {
-        $response = new Response();
-        $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, 'foo');
-
-        if ($beforeHeader) {
-            $response->headers->set('cache-control', $beforeHeader);
-        }
-
-        $subscriber = new CacheResponseSubscriber(
-            $this->createMock(CartService::class),
-            100,
-            true,
-            new MaintenanceModeResolver(new EventDispatcher()),
-            new RequestStack(),
-            $reverseProxyEnabled,
-            null,
-            null
-        );
-
-        $subscriber->updateCacheControlForBrowser(new BeforeSendResponseEvent(new Request(), $response));
-
-        static::assertSame($afterHeader, $response->headers->get('cache-control'));
-
-        if (!$reverseProxyEnabled) {
-            static::assertFalse($response->headers->has(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
-        }
-    }
-
-    /**
-     * @return array<string, array<int, bool|string|null>>
-     */
-    public static function headerCases(): iterable
-    {
-        yield 'no cache proxy, default response' => [
-            false,
-            null,
-            'no-cache, private',
-        ];
-
-        yield 'no cache proxy, default response with no-store (/account)' => [
-            false,
-            'no-store, private',
-            'no-store, private',
-        ];
-
-        // @see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#preventing_storing
-        yield 'no cache proxy, no-cache will be replaced with no-store' => [
-            false,
-            'no-store, no-cache, private',
-            'no-store, private',
-        ];
-
-        yield 'no cache proxy, public content served as private for end client' => [
-            false,
-            'public, s-maxage=64000',
-            'no-cache, private',
-        ];
-
-        yield 'cache proxy, cache-control is not touched' => [
-            true,
-            'public',
-            'public',
-        ];
-
-        yield 'cache proxy, cache-control is not touched #2' => [
-            true,
-            'public, s-maxage=64000',
-            'public, s-maxage=64000',
-        ];
-
-        yield 'cache proxy, cache-control is not touched #3' => [
-            true,
-            'private, no-store',
-            'no-store, private', // Symfony sorts the cache-control
-        ];
-    }
-
     public function testAddHttpCacheToCoreRoutes(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -460,7 +372,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -481,7 +392,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -525,7 +435,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -558,7 +467,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -599,7 +507,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -654,7 +561,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -691,7 +597,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             '5',
             '6'
         );
@@ -776,7 +681,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
-            false,
             null,
             null
         );
@@ -833,7 +737,6 @@ class CacheResponseSubscriberTest extends TestCase
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
-            false,
             null,
             null
         );

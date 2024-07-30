@@ -2,17 +2,17 @@
  * This module creates a live reload server for the Shopware storefront.
  */
 
-module.exports = function createLiveReloadServer(socketPath) {
+module.exports = function createLiveReloadServer() {
     return new Promise((resolve, reject) => {
         const webpack = require('webpack');
         const WebpackDevServer = require('webpack-dev-server');
         const webpackConfig = require('../../webpack.config');
-        webpackConfig[0].devServer.ipc = socketPath;
 
         const compiler = webpack(webpackConfig);
 
         const devServerOptions = Object.assign({}, webpackConfig[0].devServer, {
             open: false,
+            host: '0.0.0.0',
             devMiddleware: {
                 stats: {
                     colors: true,

@@ -75,7 +75,7 @@ class AppLifecycleSubscriberTest extends TestCase
     }
 
     /**
-     * @return  array<string, array<int, bool>>
+     * @return array<string, array<int, bool>>
      */
     public static function themeProvideData(): array
     {

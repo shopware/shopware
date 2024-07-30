@@ -54,7 +54,7 @@ class DeliveryDate extends Struct
                 self::create('P' . $deliveryTime->getMin() . 'Y'),
                 self::create('P' . $deliveryTime->getMax() . 'Y')
             ),
-            default => throw new \RuntimeException(sprintf('Not supported unit %s', $deliveryTime->getUnit())),
+            default => throw new \RuntimeException(\sprintf('Not supported unit %s', $deliveryTime->getUnit())),
         };
     }
 

@@ -246,8 +246,8 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         foreach ($salesChannelIds as $id) {
             $violations->add(new ConstraintViolation(
-                sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
-                sprintf(self::INSERT_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
+                \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                \sprintf(self::INSERT_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
                 ['{{ salesChannelId }}' => $id],
                 null,
                 '/',
@@ -274,8 +274,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         foreach ($duplicates as $id => $duplicateLanguages) {
             foreach ($duplicateLanguages as $languageId) {
                 $violations->add(new ConstraintViolation(
-                    sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, $languageId, $id),
-                    sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, '{{ languageId }}', '{{ salesChannelId }}'),
+                    \sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, $languageId, $id),
+                    \sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, '{{ languageId }}', '{{ salesChannelId }}'),
                     [
                         '{{ salesChannelId }}' => $id,
                         '{{ languageId }}' => $languageId,
@@ -306,8 +306,8 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         foreach ($salesChannelIds as $id) {
             $violations->add(new ConstraintViolation(
-                sprintf(self::DELETE_VALIDATION_MESSAGE, $id),
-                sprintf(self::DELETE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
+                \sprintf(self::DELETE_VALIDATION_MESSAGE, $id),
+                \sprintf(self::DELETE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
                 ['{{ salesChannelId }}' => $id],
                 null,
                 '/',
@@ -334,8 +334,8 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         foreach ($salesChannelIds as $id) {
             $violations->add(new ConstraintViolation(
-                sprintf(self::UPDATE_VALIDATION_MESSAGE, $id),
-                sprintf(self::UPDATE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
+                \sprintf(self::UPDATE_VALIDATION_MESSAGE, $id),
+                \sprintf(self::UPDATE_VALIDATION_MESSAGE, '{{ salesChannelId }}'),
                 ['{{ salesChannelId }}' => $id],
                 null,
                 '/',

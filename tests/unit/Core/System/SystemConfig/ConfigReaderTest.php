@@ -11,7 +11,7 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ConfigReader::class)]
 class ConfigReaderTest extends TestCase
 {

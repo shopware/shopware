@@ -1,0 +1,45 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartPriceQuantity": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart_price_quantity"]
+                    },
+                    "isCalculated": { "type": "boolean" },
+                    "listPrice": {
+                        "$ref": "#/components/schemas/CartListPrice"
+                    },
+                    "price": { "type": "number" },
+                    "quantity": { "type": "number" },
+                    "regulationPrice": {
+                        "properties": {
+                            "price": { "type": "number", "format": "float" }
+                        },
+                        "type": "object"
+                    },
+                    "taxRules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "taxRate": {
+                                    "type": "number",
+                                    "format": "float"
+                                },
+                                "name": { "type": "string" }
+                            }
+                        }
+                    },
+                    "type": { "type": "string" }
+                },
+                "required": ["apiAlias"]
+            }
+        }
+    }
+}

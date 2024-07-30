@@ -243,17 +243,17 @@ class ProductDetailRouteTest extends TestCase
         foreach ($expected as $key => $value) {
             $current = \implode('.', \array_filter([$pointer, (string) $key]));
 
-            static::assertArrayHasKey($key, $actual, sprintf('Missing key %s', $current));
+            static::assertArrayHasKey($key, $actual, \sprintf('Missing key %s', $current));
 
             if (\is_array($value)) {
-                static::assertIsArray($actual[$key], sprintf('Field %s is not an array', $current));
+                static::assertIsArray($actual[$key], \sprintf('Field %s is not an array', $current));
 
                 $this->assertArray($value, $actual[$key], $current);
 
                 continue;
             }
 
-            static::assertEquals($value, $actual[$key], sprintf('Value for key %s not matching', $current));
+            static::assertEquals($value, $actual[$key], \sprintf('Value for key %s not matching', $current));
         }
     }
 

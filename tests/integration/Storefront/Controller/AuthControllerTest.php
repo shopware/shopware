@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -658,37 +660,38 @@ class AuthControllerTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $data = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'doubleOptInRegistration' => $doubleOptInReg,
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'test@example.com',
-                'password' => 'test12345',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
-                'active' => $active,
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'doubleOptInRegistration' => $doubleOptInReg,
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'test@example.com',
+            'password' => 'test12345',
+            'firstName' => 'Max',
+            'active' => $active,
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
 
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, Context::createDefaultContext());
+        $repo->create([$customer], Context::createDefaultContext());
 
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
@@ -703,6 +706,7 @@ class AuthControllerTest extends TestCase
             $this->getContainer()->get(ResetPasswordRoute::class),
             $this->getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
+            $this->getContainer()->get(ImitateCustomerRoute::class),
             $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(AccountRecoverPasswordPageLoader::class)
         );

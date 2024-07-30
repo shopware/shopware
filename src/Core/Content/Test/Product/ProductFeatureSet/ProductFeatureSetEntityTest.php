@@ -85,7 +85,7 @@ class ProductFeatureSetEntityTest extends TestCase
 
         static::assertInstanceOf(TranslationsAssociationField::class, $translationsField);
         static::assertEquals(
-            sprintf('%s_id', ProductFeatureSetDefinition::ENTITY_NAME),
+            \sprintf('%s_id', ProductFeatureSetDefinition::ENTITY_NAME),
             $translationsField->getReferenceField()
         );
     }

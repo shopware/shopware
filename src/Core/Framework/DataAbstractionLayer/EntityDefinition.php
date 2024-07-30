@@ -155,7 +155,7 @@ abstract class EntityDefinition
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {
-                    throw new \Exception(sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
+                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
                 }
 
                 $fields->add($field);
@@ -375,7 +375,7 @@ abstract class EntityDefinition
         $field = $this->getField($property);
 
         if ($field === null) {
-            throw new \RuntimeException(sprintf('Field %s not found', $property));
+            throw new \RuntimeException(\sprintf('Field %s not found', $property));
         }
 
         return $field->getSerializer()->decode($field, $value);

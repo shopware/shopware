@@ -1726,4 +1726,45 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
             });
         });
+
+    it.each([
+        { name: 'default', customFields: { field1: 'de' }, expected: 'de' },
+        { name: 'empty', customFields: { field: null }, expected: undefined },
+    ])('should not use the custom field translation as a fallback for input fields: $name', async ({ customFields, expected }) => {
+        const props = {
+            entity: {
+                customFields,
+                translated: {
+                    customFields: {
+                        field1: 'en',
+                    },
+                },
+            },
+            sets: createEntityCollection([{
+                id: 'set1',
+                name: 'set1',
+                config: {
+                    label: {
+                        'en-GB': 'Set 1 Label GB',
+                        'de-DE': 'Set 1 Label DE',
+                    },
+                },
+                customFields: [{
+                    name: 'field1',
+                    type: 'text',
+                    config: {
+                        label: 'field1Label',
+                    },
+                }],
+            }]),
+        };
+
+        wrapper = await createWrapper(props);
+        await flushPromises();
+
+        const inputField = wrapper.find('.sw-form-field-renderer-field__field1 input');
+        expect(inputField.exists()).toBe(true);
+
+        expect(inputField.attributes('value')).toBe(expected);
+    });
 });

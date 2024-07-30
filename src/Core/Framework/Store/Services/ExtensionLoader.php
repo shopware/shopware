@@ -184,7 +184,7 @@ class ExtensionLoader
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
             'isTheme' => $isTheme,
-            'configurable' => $this->configurationService->checkConfiguration(sprintf('%s.config', $plugin->getName()), $context),
+            'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
         ];

@@ -169,6 +169,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -338,6 +339,10 @@
         <service id="Shopware\Core\Framework\Api\Route\ApiRouteLoader">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="routing.loader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver">
+            <argument type="service" id="router.default" />
         </service>
 
         <service id="Shopware\Core\Framework\Validation\DataValidator">

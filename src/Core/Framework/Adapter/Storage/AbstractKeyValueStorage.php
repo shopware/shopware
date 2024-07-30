@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Storage;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractKeyValueStorage
 {
     abstract public function has(string $key): bool;

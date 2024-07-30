@@ -43,7 +43,7 @@ class BenchExtension implements ExtensionInterface
         (new Fixtures())->load(__DIR__ . '/data.json');
 
         // TODO: Resolve autoloading to [Commercial]/tests/performance/bench so native phpbench `core.extensions` can be used
-        $fixturePath = $bootstrapper->getProjectDir() . '/custom/plugins/SwagCommercial/tests/performance/bench/Common';
+        $fixturePath = $bootstrapper->getPluginPath('SwagCommercial') . '/tests/performance/bench/Common';
         $symfonyContainer = KernelLifecycleManager::getKernel()->getContainer();
         $container->register('symfony-container', fn () => $symfonyContainer);
         $runGroup = $this->getRunGroup();

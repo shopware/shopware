@@ -30,6 +30,11 @@ Component.register('sw-sidebar', {
         };
     },
 
+    inject: [
+        'setSwPageSidebarOffset',
+        'removeSwPageSidebarOffset',
+    ],
+
     props: {
         propagateWidth: {
             type: Boolean,
@@ -97,13 +102,23 @@ Component.register('sw-sidebar', {
             if (this.propagateWidth) {
                 const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
 
-                this._parent.$emit('mount', sidebarWidth);
+                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER') && this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                    this._parent.$emit('mount', sidebarWidth);
+                } else {
+                    this.setSwPageSidebarOffset(sidebarWidth);
+                }
             }
         },
 
         destroyedComponent() {
-            if (this.propagateWidth) {
+            if (!this.propagateWidth) {
+                return;
+            }
+
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER') && this.isCompatEnabled('INSTANCE_CHILDREN')) {
                 this._parent.$emit('destroy');
+            } else {
+                this.removeSwPageSidebarOffset();
             }
         },
 

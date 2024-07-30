@@ -266,7 +266,7 @@ class GrantDownloadAccessActionTest extends TestCase
                     static::fail('Download route returned response without access granted');
                 } catch (\Throwable $exception) {
                     static::assertInstanceOf(CustomerException::class, $exception);
-                    static::assertSame(sprintf('Line item download file with id "%s" not found.', $download->getId()), $exception->getMessage());
+                    static::assertSame(\sprintf('Line item download file with id "%s" not found.', $download->getId()), $exception->getMessage());
                 }
             }
         }

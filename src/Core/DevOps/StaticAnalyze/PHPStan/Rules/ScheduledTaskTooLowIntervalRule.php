@@ -59,7 +59,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {
                     return [
-                        sprintf('Scheduled task has an interval of %d seconds, it should have an minimum of %d seconds.', $interval, self::MIN_SCHEDULED_TASK_INTERVAL),
+                        \sprintf('Scheduled task has an interval of %d seconds, it should have an minimum of %d seconds.', $interval, self::MIN_SCHEDULED_TASK_INTERVAL),
                     ];
                 }
             }

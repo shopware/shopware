@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -27,7 +28,7 @@ class PluginListCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $pluginRepo)
+    public function __construct(private readonly EntityRepository $pluginRepo, private readonly ComposerPluginLoader $composerPluginLoader)
     {
         parent::__construct();
     }
@@ -70,13 +71,15 @@ class PluginListCommand extends Command
             return self::SUCCESS;
         }
 
+        $composerInstalled = $this->getComposerPluginLoaderPackages();
+
         $pluginTable = [];
         $active = $installed = $upgradeable = 0;
 
         $io->title('Shopware Plugin Service');
 
         if ($filter) {
-            $io->comment(sprintf('Filtering for: %s', $filter));
+            $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
         foreach ($plugins as $plugin) {
@@ -93,7 +96,12 @@ class PluginListCommand extends Command
                 $pluginInstalled ? 'Yes' : 'No',
                 $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',
+                isset($composerInstalled[$plugin->getComposerName()]) ? 'Yes' : 'No',
             ];
+
+            if (isset($composerInstalled[$plugin->getComposerName()])) {
+                $composerInstalledAndRegistered[$plugin->getComposerName()] = true;
+            }
 
             if ($pluginActive) {
                 ++$active;
@@ -108,14 +116,31 @@ class PluginListCommand extends Command
             }
         }
 
+        foreach ($composerInstalled as $composerName => $plugin) {
+            if (isset($composerInstalledAndRegistered[$composerName])) {
+                continue;
+            }
+            $pluginTable[] = [
+                $plugin['name'],
+                '',
+                $plugin['version'],
+                '',
+                '',
+                'No',
+                'No',
+                '',
+                'Yes',
+            ];
+        }
+
         $io->table(
-            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable'],
+            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable', 'Required by composer'],
             $pluginTable
         );
         $io->text(
-            sprintf(
+            \sprintf(
                 '%d plugins, %d installed, %d active , %d upgradeable',
-                \count($plugins),
+                \count($pluginTable),
                 $installed,
                 $active,
                 $upgradeable
@@ -123,5 +148,19 @@ class PluginListCommand extends Command
         );
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getComposerPluginLoaderPackages(): array
+    {
+        $plugins = $this->composerPluginLoader->fetchPluginInfos();
+        $packages = [];
+        foreach ($plugins as $plugin) {
+            $packages[$plugin['composerName']] = $plugin;
+        }
+
+        return $packages;
     }
 }

@@ -8,6 +8,8 @@ import './sw-settings-search-live-search-keyword.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         text: {
             type: String,

@@ -99,7 +99,7 @@ class TimeBackoffLimiterTest extends TestCase
         }
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage(sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d)', $consume, $maxLimit));
+        static::expectExceptionMessage(\sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d)', $consume, $maxLimit));
         $this->limiter->consume($consume);
     }
 

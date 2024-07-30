@@ -34,7 +34,7 @@ class CustomEntityLifecycleService
     public function updatePlugin(string $pluginId, string $pluginPath): ?CustomEntityXmlSchema
     {
         return $this->update(
-            sprintf(
+            \sprintf(
                 '%s/%s/src/Resources/',
                 $this->projectDir,
                 $pluginPath,

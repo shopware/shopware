@@ -8,7 +8,7 @@
                     "System Operations"
                 ],
                 "summary": "Consume messages from the message queue.",
-                "description": "This route can be used to consume messenges from the message queue. It is intended to be used if\nno cronjob is configured to consume messages regulary.",
+                "description": "This route can be used to consume messages from the message queue. It is intended to be used if\nno cronjob is configured to consume messages regularly.",
                 "operationId": "consumeMessages",
                 "requestBody": {
                     "required": true,

@@ -226,6 +226,12 @@ module.exports = {
                 'jest/prefer-to-contain': 'error',
                 'jest/prefer-to-have-length': 'error',
                 'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
+                'jest/valid-expect': [
+                    'error',
+                    {
+                        maxArgs: 2,
+                    },
+                ],
             },
             extends: ['plugin:jest/recommended'],
         }, {

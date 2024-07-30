@@ -32,7 +32,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         $currencyId = $context->getCurrencyId();
-        $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
+        $currencyFactor = \sprintf('* %F', $context->getCurrencyFactor());
         $jsonAccessor = 'net';
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $jsonAccessor = 'gross';
@@ -60,7 +60,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         // is specific currency id provided? => overwrite currency id and currency factor
         if (Uuid::isValid((string) end($parts))) {
             $currencyId = end($parts);
-            $currencyFactor = sprintf(
+            $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
                 (string) $this->connection->quote($currencyId)
             );
@@ -123,7 +123,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');
         }
 
-        return sprintf($template, implode(',', $select));
+        return \sprintf($template, implode(',', $select));
     }
 
     private function useCashRounding(Context $context): bool

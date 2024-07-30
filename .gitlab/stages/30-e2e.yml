@@ -155,10 +155,10 @@ acceptance:
     KUBERNETES_SERVICE_MEMORY_REQUEST: "512Mi"
     KUBERNETES_SERVICE_MEMORY_LIMIT: "2Gi"
     PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
-  before_script: []
-  script:
+  before_script:
     - cd tests/acceptance
     - npm ci
+  script:
     - npx playwright test --workers=1 --project=${ACCEPTANCE_PROJECT}
   after_script:
     - |
@@ -172,6 +172,24 @@ acceptance:
     paths:
       - $CI_PROJECT_DIR/tests/acceptance/test-results/*
       - $CI_PROJECT_DIR/tests/acceptance/playwright-report/*
+
+acceptance (changed):
+  extends: acceptance
+  parallel:
+    matrix:
+      - _DUMMY_VAR: ["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"]
+  rules:
+    - !reference [.rules, skip]
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+      changes:
+        - "tests/acceptance/tests/**/*.spec.ts"
+  script:
+    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/acceptance/tests/")'
+    - 'echo "Changed files: $CHANGED_FILES"'
+    # remove prefix tests/acceptance/
+    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/acceptance/||g")'
+    - 'echo "Test spec: $TEST_SPEC"'
+    - npx playwright test --workers=2 --repeat-each 10 --retries 0 --trace retain-on-failure --project Platform -- $TEST_SPEC
 
 install test:
   extends: acceptance
@@ -235,3 +253,5 @@ update test:
     SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
   before_script:
     - echo "Testing update from version $SHOPWARE_CORE_VERSION"
+    - cd tests/acceptance
+    - npm ci

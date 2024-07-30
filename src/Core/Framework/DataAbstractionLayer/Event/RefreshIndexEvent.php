@@ -8,7 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class RefreshIndexEvent extends Event
 {
     /**

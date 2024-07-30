@@ -284,6 +284,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         wrapper.vm.createdComponent();
 
         expect(wrapper.vm.mediaDefaultFolderId).toBe('id');
+        expect(wrapper.vm.defaultFolderId).toBe('id');
         wrapper.vm.getMediaDefaultFolderId.mockRestore();
     });
 

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -268,7 +269,7 @@ class SetOrderStateActionTest extends TestCase
         $countryStateId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        return [
+        $order = [
             [
                 'id' => $orderId,
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
@@ -335,7 +336,6 @@ class SetOrderStateActionTest extends TestCase
                         'customerNumber' => 'Test',
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
-                        'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
@@ -379,6 +379,12 @@ class SetOrderStateActionTest extends TestCase
                 ],
             ],
         ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $order[0]['orderCustomer']['customer']['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        return $order;
     }
 
     private function getPrePaymentMethodId(): string

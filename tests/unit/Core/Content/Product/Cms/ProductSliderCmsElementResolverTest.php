@@ -422,17 +422,16 @@ class ProductSliderCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
-     *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
+     * @return list<array{closeout: bool, hidden: bool, availableStock: int}>
      */
     public static function enrichDataProvider(): array
     {
         return [
-            [false, false, 1],
-            [false, true, 1],
-            [true, false, 1],
-            [true, true, 1],
-            [true, true, 0],
+            ['closeout' => false, 'hidden' => false, 'availableStock' => 1],
+            ['closeout' => false, 'hidden' => true, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => false, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => true, 'availableStock' => 1],
+            ['closeout' => true, 'hidden' => true, 'availableStock' => 0],
         ];
     }
 
@@ -517,6 +516,13 @@ class ProductSliderCmsElementResolverTest extends TestCase
             'expectedProductIds' => [],
             'streamProducts' => [
                 self::createProduct($parentId, null, new VariantListingConfig(false, $nonExistentId, [])),
+            ],
+        ];
+
+        yield 'empty variantListingConfig' => [
+            'expectedProductIds' => [$parentId],
+            'streamProducts' => [
+                self::createProduct($parentId, null, new VariantListingConfig(null, null, [])),
             ],
         ];
     }

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetFileHandler
 {
     public function openJsonFile(string $path): array
@@ -16,7 +16,7 @@ class SnippetFileHandler
 
         $jsonError = json_last_error();
         if ($jsonError !== 0) {
-            throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
+            throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
         }
 
         return $json;

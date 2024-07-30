@@ -23,6 +23,8 @@ const { Component } = Shopware;
 Component.register('sw-snippet-field-edit-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',

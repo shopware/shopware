@@ -29,7 +29,7 @@ class MappingCollection extends Collection
     }
 
     /**
-     * @param string  $key
+     * @param string $key
      * @param Mapping $mapping
      */
     public function set($key, $mapping): void

@@ -121,6 +121,10 @@ final class StornoRenderer extends AbstractDocumentRenderer
                         'stornoNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
+                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                        $config->jsonSerialize(),
+                        $order,
+                    ),
                 ]);
 
                 if ($operation->isStatic()) {

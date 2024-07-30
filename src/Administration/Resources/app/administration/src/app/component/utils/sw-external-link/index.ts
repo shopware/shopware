@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-external-link', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         useMeteorComponent() {
             // Use new meteor component in major
@@ -28,16 +30,27 @@ Component.register('sw-external-link', {
 
             return false;
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {
         getSlots() {
-            const allSlots = {
-                ...this.$slots,
-                ...this.$scopedSlots,
-            };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return {
+                    ...this.$slots,
+                    ...this.$scopedSlots,
+                };
+            }
 
-            return allSlots;
+            return this.$slots;
         },
     },
 });

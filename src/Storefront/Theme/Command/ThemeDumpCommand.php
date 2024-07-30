@@ -80,7 +80,7 @@ class ThemeDumpCommand extends Command
 
         $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($technicalName);
         if ($themeConfig === null) {
-            $this->io->error(sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
+            $this->io->error(\sprintf('No theme config found for theme "%s"', $themeEntity->getName()));
 
             return self::FAILURE;
         }

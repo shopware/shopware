@@ -42,12 +42,12 @@ class AssetInstallCommand extends Command
         $io = new ShopwareStyle($input, $output);
 
         foreach ($this->kernel->getBundles() as $bundle) {
-            $io->writeln(sprintf('Copying files for bundle: %s', $bundle->getName()));
+            $io->writeln(\sprintf('Copying files for bundle: %s', $bundle->getName()));
             $this->assetService->copyAssetsFromBundle($bundle->getName(), $input->getOption('force'));
         }
 
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
-            $io->writeln(sprintf('Copying files for app: %s', $app['name']));
+            $io->writeln(\sprintf('Copying files for app: %s', $app['name']));
             $this->assetService->copyAssetsFromApp($app['name'], $app['path'], $input->getOption('force'));
         }
 

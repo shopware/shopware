@@ -37,7 +37,7 @@ abstract class MigrationStep
     public function removeTrigger(Connection $connection, string $name): void
     {
         try {
-            $connection->executeStatement(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+            $connection->executeStatement(\sprintf('DROP TRIGGER IF EXISTS %s', $name));
         } catch (Exception) {
         }
     }
@@ -80,7 +80,7 @@ abstract class MigrationStep
 
     protected function dropTableIfExists(Connection $connection, string $table): void
     {
-        $sql = sprintf('DROP TABLE IF EXISTS `%s`', $table);
+        $sql = \sprintf('DROP TABLE IF EXISTS `%s`', $table);
         $connection->executeStatement($sql);
     }
 
@@ -90,7 +90,7 @@ abstract class MigrationStep
     protected function dropColumnIfExists(Connection $connection, string $table, string $column): bool
     {
         try {
-            $connection->executeStatement(sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $column));
+            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $column));
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -112,7 +112,7 @@ abstract class MigrationStep
      */
     protected function dropForeignKeyIfExists(Connection $connection, string $table, string $column): bool
     {
-        $sql = sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
+        $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $column);
 
         try {
             $connection->executeStatement($sql);
@@ -137,7 +137,7 @@ abstract class MigrationStep
      */
     protected function dropIndexIfExists(Connection $connection, string $table, string $index): bool
     {
-        $sql = sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
+        $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $index);
 
         try {
             $connection->executeStatement($sql);

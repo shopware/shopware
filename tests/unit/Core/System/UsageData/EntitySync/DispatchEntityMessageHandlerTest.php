@@ -135,7 +135,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(sprintf('No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -190,7 +190,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -640,7 +640,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             $definition->getEntityName(),
             Operation::CREATE,

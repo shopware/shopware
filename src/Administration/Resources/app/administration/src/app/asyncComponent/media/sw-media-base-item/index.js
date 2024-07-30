@@ -16,6 +16,8 @@ import './sw-media-base-item.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['systemConfigApiService'],
 
     props: {

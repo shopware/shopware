@@ -41,7 +41,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         if (!\is_array($value)) {
             throw DataAbstractionLayerException::expectedArray(
-                sprintf('%s/%s', $parameters->getPath(), $key)
+                \sprintf('%s/%s', $parameters->getPath(), $key)
             );
         }
 
@@ -97,7 +97,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         if (!\is_array($data->getValue())) {
             throw DataAbstractionLayerException::expectedArray(
-                sprintf('%s/%s', $parameters->getPath(), $data->getKey())
+                \sprintf('%s/%s', $parameters->getPath(), $data->getKey())
             );
         }
 

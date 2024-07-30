@@ -33,7 +33,7 @@ class ProductListingResolvePreviewEvent extends NestedEvent implements ShopwareS
     public function replace(string $originalId, string $newId): void
     {
         if (!\array_key_exists($originalId, $this->mapping)) {
-            throw new \RuntimeException(sprintf('Cannot find originalId %s in listing mapping', $originalId));
+            throw new \RuntimeException(\sprintf('Cannot find originalId %s in listing mapping', $originalId));
         }
 
         $this->mapping[$originalId] = $newId;

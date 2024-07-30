@@ -81,7 +81,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
 
         $this->salesChannelRepository->update($update, $context);
 
-        $output->write(sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
+        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
 
         return self::SUCCESS;
     }

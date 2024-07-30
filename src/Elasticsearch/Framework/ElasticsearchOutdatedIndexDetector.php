@@ -61,7 +61,7 @@ class ElasticsearchOutdatedIndexDetector
         $prefixes = [];
 
         foreach ($definitions as $definition) {
-            $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
+            $prefixes[] = \sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition()));
         }
 
         return $prefixes;

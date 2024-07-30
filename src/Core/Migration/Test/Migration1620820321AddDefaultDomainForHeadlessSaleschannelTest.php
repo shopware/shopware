@@ -82,7 +82,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
             $salesChannelRepository->delete([['id' => TestDefaults::SALES_CHANNEL]], Context::createDefaultContext());
         } catch (\Exception $e) {
             if (!($e instanceof ForeignKeyConstraintViolationException)) {
-                static::fail(sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
+                static::fail(\sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
             }
             // ignore error because it is possible that other tests (e.g. order tests that refer to the saleschannel) block the deletion of the sales channel
         }
@@ -107,7 +107,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
             ');
         } catch (\Exception $e) {
             if (!($e instanceof ForeignKeyConstraintViolationException)) {
-                static::fail(sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
+                static::fail(\sprintf('%s Trace: %s', $e->getMessage(), $e->getTraceAsString()));
             }
             // ignore error because it is possible that other tests (e.g. order tests that refer to the saleschannel) block the deletion of the sales channel
         }

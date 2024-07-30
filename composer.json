@@ -68,7 +68,7 @@
         "ext-xml": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
-        "composer-runtime-api": "^2.0",
+        "composer-runtime-api": "^2.1",
         "cocur/slugify": "^4.3.0",
         "composer/composer": "^2.7",
         "composer/semver": "^3.2",
@@ -210,6 +210,8 @@
         "admin:code-mods": "Run admin code mods",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
+        "admin:generate-position-identifier-list":  "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:generate-data-set-list":  "Generate the list of all data sets. Used to track breaking changes.",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:disabled-compat": "Launches the jest unit test-suite for the Admin with disabled compat mode",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
@@ -296,6 +298,12 @@
             "@framework:schema:dump",
             "@npm:admin run convert-entity-schema"
         ],
+        "admin:generate-position-identifier-list": [
+            "@npm:admin run generate-position-identifier-list"
+        ],
+        "admin:generate-data-set-list": [
+            "@npm:admin run generate-data-set-list"
+        ],
         "admin:unit": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
@@ -305,6 +313,7 @@
         "admin:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@framework:schema:dump",
+            "@npm:admin run unit-setup",
             "@npm:admin run unit-watch"
         ],
         "admin:unit:disabled-compat": [

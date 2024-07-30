@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import ApiService from '../api.service';
 

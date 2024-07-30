@@ -73,7 +73,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(sprintf('Create without required property \'%s\'', $property));
+                static::fail(\sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }
@@ -287,9 +287,9 @@ class ImportExportFileRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
-                'path' => sprintf('/test/%d/%s', $i, $add),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
+                'path' => \sprintf('/test/%d/%s', $i, $add),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

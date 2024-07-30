@@ -68,7 +68,7 @@
             :inherited="isInherited"
             class="sw-list-price-field__list-price-field"
             :currency="currency"
-            @update:value="listPriceChanged"
+            @change="listPriceChanged"
         />
         {% endblock %}
     </div>
@@ -93,7 +93,7 @@
             :inherited="isInherited"
             class="sw-list-price-field__regulation-price-field"
             :currency="currency"
-            @update:value="regulationPriceChanged"
+            @change="regulationPriceChanged"
         />
         {% endblock %}
     </div>

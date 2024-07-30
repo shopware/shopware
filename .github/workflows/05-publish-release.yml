@@ -137,12 +137,12 @@ jobs:
         run: |
           bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
       - name: Publish sbp release
-        if: github.ref_type == 'tag' && github.ref_protected
+        if: github.ref_type == 'tag'
         run: |
           bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
 
   post-slack-release-message:
-    if: github.ref_type == 'tag' && github.ref_protected && github.repository == 'shopware/shopware' && github.event.action == 'published'
+    if: github.ref_type == 'tag' && github.repository == 'shopware/shopware' && github.event.action == 'published'
     needs: publish-sbp-release
     runs-on: ubuntu-latest
     steps:

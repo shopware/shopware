@@ -48,7 +48,7 @@ class HtmlSanitizer
 
         $options ??= [];
 
-        $hash = md5(sprintf('%s%s', json_encode($options, \JSON_THROW_ON_ERROR), $field));
+        $hash = md5(\sprintf('%s%s', json_encode($options, \JSON_THROW_ON_ERROR), $field));
 
         if ($override) {
             $hash .= '-override';

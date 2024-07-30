@@ -24,7 +24,7 @@ Component.register('sw-price-field', {
     compatConfig: Shopware.compatConfig,
 
     emits: [
-        'update:value',
+        'change',
         'price-lock-change',
         'price-calculate',
         'price-gross-change',
@@ -200,6 +200,23 @@ Component.register('sw-price-field', {
             },
         },
 
+        attributesWithoutListeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$attrs;
+            }
+
+            const attributes = {};
+
+            // Filter all listeners from the $attrs object
+            Object.keys(this.$attrs).forEach((key) => {
+                if (!key.startsWith('on')) {
+                    attributes[key] = this.$attrs[key];
+                }
+            });
+
+            return attributes;
+        },
+
         isInherited() {
             if (this.inherited !== undefined) {
                 return this.inherited;
@@ -265,21 +282,17 @@ Component.register('sw-price-field', {
             this.priceForCurrency.linked = !this.priceForCurrency.linked;
             this.$emit('price-lock-change', this.priceForCurrency.linked);
 
-            this.$emit('update:value', this.priceForCurrency);
+            this.$emit('change', this.priceForCurrency);
         },
 
         onPriceGrossInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.priceForCurrency.gross = value;
-
                 this.onPriceGrossChangeDebounce(value);
             }
         },
 
         onPriceNetInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.priceForCurrency.net = value;
-
                 this.onPriceNetChangeDebounce(value);
             }
         },
@@ -296,7 +309,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-gross-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertGrossToNet(value);
             }
         },
@@ -305,7 +318,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
-                this.$emit('update:value', this.priceForCurrency);
+                this.$emit('change', this.priceForCurrency);
                 this.convertNetToGross(value);
             }
         },

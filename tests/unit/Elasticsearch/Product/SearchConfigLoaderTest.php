@@ -22,8 +22,8 @@ use Shopware\Elasticsearch\Product\SearchConfigLoader;
 class SearchConfigLoaderTest extends TestCase
 {
     /**
-     * @param array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: int}>> $configKeyedByLanguageId
-     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: int}> $expectedResult
+     * @param array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
+     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
     public function testLoad(array $configKeyedByLanguageId, array $expectedResult): void

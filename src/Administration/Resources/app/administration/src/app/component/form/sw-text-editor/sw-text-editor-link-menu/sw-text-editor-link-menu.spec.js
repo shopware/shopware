@@ -31,6 +31,16 @@ const linkDataProvider = [{
     placeholder: 'sw-text-editor-toolbar.link.placeholderPhoneNumber',
 }, {
     buttonConfig: {
+        value: 'puppy.png?ts=1719991125',
+        type: 'media',
+    },
+    value: 'puppy.png?ts=1719991125',
+    type: 'media',
+    prefix: '124c71d524604ccbad6042edce3ac799/mediaId/',
+    selector: '.sw-field--media input',
+    label: 'sw-text-editor-toolbar.link.linkTo',
+}, {
+    buttonConfig: {
         value: 'mailto:test@shopware.com',
         type: 'email',
     },
@@ -53,7 +63,6 @@ const linkDataProvider = [{
     placeholder: 'sw-text-editor-toolbar.link.placeholderProduct',
 }];
 
-
 async function createWrapper(buttonConfig) {
     return mount(await wrapTestComponent('sw-text-editor-link-menu', { sync: true }), {
         global: {
@@ -69,6 +78,18 @@ async function createWrapper(buttonConfig) {
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-category-tree-field': await wrapTestComponent('sw-category-tree-field'),
+                'sw-media-field': await wrapTestComponent('sw-media-field'),
+                'sw-media-modal-move': true,
+                'sw-media-modal-replace': true,
+                'sw-media-modal-delete': true,
+                'sw-context-menu-item': true,
+                'sw-media-preview-v2': true,
+                'sw-pagination': true,
+                'sw-simple-search-field': true,
+                'sw-media-upload-v2': true,
+                'sw-upload-listener': true,
+                'sw-media-base-item': true,
+                'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -116,6 +137,9 @@ async function createWrapper(buttonConfig) {
                 active: false,
                 ...buttonConfig,
             },
+        },
+        provide: {
+            mediaService: {},
         },
     });
 }
@@ -173,6 +197,27 @@ responses.addResponse({
     },
 });
 
+responses.addResponse({
+    method: 'Post',
+    url: '/search/media',
+    status: 200,
+    response: {
+        data: [
+            {
+                id: 'aaaaaaa524604ccbad6042edce3ac799',
+                attributes: {
+                    id: 'aaaaaaa524604ccbad6042edce3ac799',
+                    fileName: 'puppy',
+                    mediaFolderId: '01907293a32d718ea5a33a1e066730dd',
+                    mimeType: 'image/png',
+                    fileExtension: 'png',
+                },
+                relationships: [],
+            },
+        ],
+    },
+});
+
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
@@ -181,7 +226,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
     });
 
     linkDataProvider.forEach(link => {
-        it(`parses ${link.type} URL's correctly`, async () => {
+        it(`parses ${link.type} URLs correctly`, async () => {
             const wrapper = await createWrapper(link.buttonConfig);
             await flushPromises();
 
@@ -192,16 +237,19 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
             const inputField = wrapper.find(link.selector);
 
             // sw-entity-single-select only uses the input field for the search
-            if (link.type !== 'detail') {
+            if (!['detail', 'media'].includes(link.type)) {
                 // eslint-disable-next-line jest/no-conditional-expect
                 expect(inputField.element.value).toBe(link.value);
             }
 
-            // Placeholder should be set for all types
-            expect(inputField.attributes('placeholder')).toBe(link.placeholder);
-
             let placeholderId = 'some-id';
-            await inputField.setValue(placeholderId);
+            if (!['media'].includes(link.type)) {
+                // Placeholder should be set for all types
+                // eslint-disable-next-line jest/no-conditional-expect
+                expect(inputField.attributes('placeholder')).toBe(link.placeholder);
+
+                await inputField.setValue(placeholderId);
+            }
 
             // sw-entity-single-select specific changes
             if (link.type === 'detail') {
@@ -211,6 +259,14 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 await wrapper.find('.sw-select-option--1').trigger('click');
 
                 placeholderId += '#';
+            } else if (link.type === 'media') {
+                await wrapper.find('.sw-media-field__toggle-button').trigger('click');
+                await flushPromises();
+
+                await wrapper.find('.sw-media-field__media-list-item').trigger('click');
+                await flushPromises();
+
+                placeholderId = `${link.value}#`;
             }
 
             await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
@@ -224,7 +280,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                     displayAsButton: true,
                     newTab: true,
                     type: 'link',
-                    value: link.prefix += placeholderId,
+                    value: link.prefix + placeholderId,
                 },
             ]);
         });

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetSetDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'snippet_set';

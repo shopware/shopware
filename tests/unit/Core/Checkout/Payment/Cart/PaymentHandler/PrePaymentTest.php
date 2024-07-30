@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
@@ -27,15 +26,13 @@ class PrePaymentTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
         if (!\is_a(PrePayment::class, AbstractPaymentHandler::class, true)) {
-            static::markTestSkipped(sprintf('Class %s must extend %s', PrePayment::class, AbstractPaymentHandler::class));
+            static::markTestSkipped(\sprintf('Class %s must extend %s', PrePayment::class, AbstractPaymentHandler::class));
         }
     }
 
     public function testPay(): void
     {
-        $payment = new PrePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new PrePayment();
         $response = $payment->pay(
             new Request(),
             new PaymentTransactionStruct(Uuid::randomHex()),
@@ -48,9 +45,7 @@ class PrePaymentTest extends TestCase
 
     public function testSupports(): void
     {
-        $payment = new PrePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new PrePayment();
 
         foreach (PaymentHandlerType::cases() as $case) {
             $supports = $payment->supports(
@@ -66,10 +61,7 @@ class PrePaymentTest extends TestCase
     #[DoesNotPerformAssertions]
     public function testRecurring(): void
     {
-        $payment = new PrePayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
-
+        $payment = new PrePayment();
         $payment->recurring(
             new PaymentTransactionStruct(Uuid::randomHex()),
             Context::createDefaultContext(),

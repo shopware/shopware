@@ -26,6 +26,9 @@ const { debounce, get } = Shopware.Utils;
  */
 Component.register('sw-multi-select', {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     emits: [

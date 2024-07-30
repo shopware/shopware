@@ -1,5 +1,6 @@
 /**
- * @package system-settings
+ * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -44,6 +45,16 @@ async function createWrapper() {
                 'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
                 'sw-context-button': true,
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-single-select': true,
+                'sw-number-field': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-bulk-edit-modal': true,
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
             },
         },
 

@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-number-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         /**
          * For providing backwards compatibility with the old sw-number-field component

@@ -33,16 +33,6 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% endif %}
 {% endblock %}
 
-{% block document_payment_shipping_inner %}
-    {{ parent() }}
-
-    {% block document_intra_community %}
-        {% if config.intraCommunityDelivery %}
-            {{ 'document.intraCommunity'|trans|sw_sanitize }}
-        {% endif %}
-    {% endblock %}
-{% endblock %}
-
 {% set shippingAddress = order.deliveries.first.getShippingOrderAddress %}
 
 {% block shipping_address %}

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
+use Predis\ClientInterface;
+use Relay\Relay;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,7 +17,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     /**
      * param cannot be natively typed, as symfony might change the type in the future
      *
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
+     * @param \Redis|\RedisArray|\RedisCluster|ClientInterface|Relay $redis
      */
     public function __construct(
         private $redis,

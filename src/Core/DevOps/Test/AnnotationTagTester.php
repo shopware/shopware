@@ -23,7 +23,7 @@ class AnnotationTagTester
     /**
      * captures a manifest schema version like 1.0
      */
-    private const MANIFEST_VERSION_SCHEMA = '\d+\.\d+';
+    private const MANIFEST_VERSION_SCHEMA = '(\d+\.\d+)';
 
     public function __construct(
         private readonly string $shopwareVersion,
@@ -46,7 +46,7 @@ class AnnotationTagTester
     public static function getPlatformVersionFromGitTag(string $gitTag): ?string
     {
         $matches = [];
-        $pattern = sprintf('/^v(%s)$/', self::PLATFORM_VERSION_SCHEMA);
+        $pattern = \sprintf('/^v(%s)$/', self::PLATFORM_VERSION_SCHEMA);
         preg_match($pattern, $gitTag, $matches);
 
         return $matches[1] ?? null;
@@ -55,7 +55,7 @@ class AnnotationTagTester
     public static function getVersionFromManifestFileName(string $fileName): ?string
     {
         $matches = [];
-        $pattern = sprintf('/^manifest-(%s).xsd/', self::MANIFEST_VERSION_SCHEMA);
+        $pattern = \sprintf('/^manifest-%s.xsd/', self::MANIFEST_VERSION_SCHEMA);
         preg_match($pattern, $fileName, $matches);
 
         return $matches[1] ?? null;
@@ -90,7 +90,7 @@ class AnnotationTagTester
         /*
          * captures everything between opening and closing </deprecated> element
          */
-        $elementPattern = sprintf(
+        $elementPattern = \sprintf(
             '/%s\s?(.*)\s?%s/',
             preg_quote('<deprecated>', '/'),
             preg_quote('</deprecated>', '/')
@@ -161,7 +161,7 @@ class AnnotationTagTester
 
     private function validateAgainstPlatformVersion(string $version): void
     {
-        $pattern = sprintf('/^%s$/', self::PLATFORM_DEPRECATION_SCHEMA);
+        $pattern = \sprintf('/^%s$/', self::PLATFORM_DEPRECATION_SCHEMA);
         $matches = [];
         if (!preg_match($pattern, $version, $matches)) {
             throw new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.');
@@ -172,13 +172,13 @@ class AnnotationTagTester
 
     private function validateAgainstManifestVersion(string $version): void
     {
-        $pattern = sprintf('/^v%s$/', self::MANIFEST_VERSION_SCHEMA);
-
-        if (!preg_match($pattern, $version)) {
+        $pattern = \sprintf('/^v%s$/', self::MANIFEST_VERSION_SCHEMA);
+        $matches = [];
+        if (!preg_match($pattern, $version, $matches)) {
             throw new \InvalidArgumentException('Manifest version must have 2 digits.');
         }
 
-        $this->compareVersion($this->manifestVersion, $version);
+        $this->compareVersion($this->manifestVersion, $matches[1]);
     }
 
     private function compareVersion(string $highestVersion, string $deprecatedVersion): void

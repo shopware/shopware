@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class CustomEntityConfigurationException extends HttpException
 {
     final public const ENTITY_NOT_GIVEN_CODE = 'CUSTOM_ENTITY_NOT_GIVEN';

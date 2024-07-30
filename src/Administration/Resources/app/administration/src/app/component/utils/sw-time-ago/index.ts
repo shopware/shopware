@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @package checkout
  * @description Render datetimes with relative values like "13 minutes ago" - works with dates in the past and future
  * @status ready
  * @example-type dynamic
@@ -14,6 +15,8 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-time-ago', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         date: {
@@ -102,7 +105,7 @@ Component.register('sw-time-ago', {
         }, 30000);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.interval) {
             clearInterval(this.interval);
         }

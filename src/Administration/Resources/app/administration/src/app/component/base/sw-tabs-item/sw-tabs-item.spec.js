@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(props = {}) {
@@ -7,18 +10,20 @@ async function createWrapper(props = {}) {
             stubs: {
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
+                'router-link': true,
+                'mt-icon': true,
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },

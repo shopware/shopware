@@ -81,7 +81,7 @@ class ParentRelationValidatorTest extends TestCase
         $violation = $exception->getViolations()->get(0);
         static::assertSame(ParentRelationValidator::VIOLATION_PARENT_RELATION_DOES_NOT_ALLOW_SELF_REFERENCES, $violation->getCode());
         static::assertSame(
-            sprintf('The product entity with id "%s" can not reference to itself as parent.', Uuid::fromBytesToHex($id)),
+            \sprintf('The product entity with id "%s" can not reference to itself as parent.', Uuid::fromBytesToHex($id)),
             $violation->getMessage()
         );
         static::assertSame('/insert/parentId', $violation->getPropertyPath());
@@ -106,7 +106,7 @@ class ParentRelationValidatorTest extends TestCase
         $violation = $exception->getViolations()->get(0);
         static::assertSame(ParentRelationValidator::VIOLATION_PARENT_RELATION_DOES_NOT_ALLOW_SELF_REFERENCES, $violation->getCode());
         static::assertSame(
-            sprintf('The product entity with id "%s" can not reference to itself as parent.', Uuid::fromBytesToHex($id)),
+            \sprintf('The product entity with id "%s" can not reference to itself as parent.', Uuid::fromBytesToHex($id)),
             $violation->getMessage()
         );
         static::assertSame('/update/parentId', $violation->getPropertyPath());

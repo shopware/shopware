@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-inline-edit', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
     ],
@@ -64,11 +66,15 @@ Component.register('sw-data-grid-inline-edit', {
         createdComponent() {
             this.currentValue = this.value;
 
-            this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
+            }
         },
 
         beforeDestroyComponent() {
-            this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
+            if (this.isCompatEnabled('INSTANCE_CHILDREN') && this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
+            }
         },
 
         emitInput() {

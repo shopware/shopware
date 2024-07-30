@@ -16,7 +16,7 @@ use Symfony\Component\Mime\RawMessage;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MailerTransportDecorator implements TransportInterface, \Stringable
 {
     public function __construct(

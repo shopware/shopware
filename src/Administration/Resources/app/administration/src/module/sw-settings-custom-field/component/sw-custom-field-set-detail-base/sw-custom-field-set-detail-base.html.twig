@@ -69,7 +69,6 @@
         @item-add="onAddRelation"
         @item-remove="onRemoveRelation"
     >
-
         <template #result-label-property="{ item }">
             {{ $tc(`global.entities.${item.entityName}`, 2) }}
         </template>

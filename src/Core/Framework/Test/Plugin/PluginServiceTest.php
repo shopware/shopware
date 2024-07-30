@@ -373,7 +373,7 @@ class PluginServiceTest extends TestCase
         /** @var LocaleEntity|null $locale */
         $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
 
-        static::assertNotNull($locale, sprintf('Locale with code %s not found', $iso));
+        static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 
         return $locale->getId();
     }

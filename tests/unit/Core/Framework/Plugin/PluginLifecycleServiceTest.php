@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -447,7 +448,7 @@ class PluginLifecycleServiceTest extends TestCase
         $kernelMock->expects(static::once())->method('reboot');
 
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,
@@ -505,7 +506,7 @@ class PluginLifecycleServiceTest extends TestCase
             throw new \LogicException();
         });
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,
@@ -603,7 +604,7 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock->method('get')->willReturn($this->eventDispatcher);
         $kernelMock->method('getContainer')->willReturn($containerMock);
         $this->container->set('kernel', $kernelMock);
-        $this->container->set(Plugin\KernelPluginLoader\KernelPluginLoader::class, new FakeKernelPluginLoader(
+        $this->container->set(KernelPluginLoader::class, new FakeKernelPluginLoader(
             [
                 [
                     'baseClass' => Plugin::class,

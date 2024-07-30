@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,31 +75,34 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $this->getContainer()->get('customer.repository')->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => TestDefaults::HASHED_PASSWORD,
-                'firstName' => 'encryption',
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schoöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
-        ], Context::createDefaultContext());
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'encryption',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

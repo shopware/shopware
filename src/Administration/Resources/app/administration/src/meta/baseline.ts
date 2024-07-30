@@ -2,6 +2,9 @@
  * @package admin
  */
 
+import positionIdentifiers from './position-identifiers.json';
+import dataSetIds from './data-sets.json';
+
 /* eslint-disable max-len */
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
@@ -87,7 +90,6 @@ const missingTests = [
     'src/app/component/structure/sw-hidden-iframes/index.js',
     'src/app/component/structure/sw-inheritance-warning/index.js',
     'src/app/component/structure/sw-modals-renderer/index.ts',
-    'src/app/component/structure/sw-page/index.js',
     'src/app/component/structure/sw-sales-channel-config/index.js',
     'src/app/component/structure/sw-sales-channel-switch/index.js',
     'src/app/component/structure/sw-search-more-results/index.js',
@@ -445,7 +447,7 @@ const missingTests = [
     'src/module/sw-cms/elements/youtube-video/config/index.js',
     'src/module/sw-cms/elements/youtube-video/preview/index.js',
     'src/module/sw-cms/index.js',
-    'src/module/sw-cms/mixin/sw-cms-element.mixin.js',
+    'src/module/sw-cms/mixin/sw-cms-element.mixin.ts',
     'src/module/sw-cms/mixin/sw-cms-state.mixin.js',
     'src/module/sw-customer/component/sw-customer-address-form-options/index.js',
     'src/module/sw-customer/constant/sw-customer.constant.js',
@@ -596,7 +598,6 @@ const missingTests = [
     'src/module/sw-settings-country/index.js',
     'src/module/sw-settings-country/page/sw-settings-country-create/index.js',
     'src/module/sw-settings-currency/index.js',
-    'src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-base/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-checkbox/index.js',
     'src/module/sw-settings-custom-field/component/sw-custom-field-type-date/index.js',
@@ -670,4 +671,8 @@ const missingTests = [
 /**
  * @private
  */
-export default missingTests;
+export {
+    missingTests,
+    positionIdentifiers,
+    dataSetIds,
+};

@@ -80,7 +80,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         }
 
         if ($snippetSet === null) {
-            throw new \InvalidArgumentException(sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
+            throw new \InvalidArgumentException(\sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
         }
 
         return $snippetSet;

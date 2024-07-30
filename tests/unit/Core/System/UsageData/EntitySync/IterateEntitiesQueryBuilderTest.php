@@ -193,7 +193,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         );
 
         static::assertStringContainsString(
-            sprintf(
+            \sprintf(
                 'LOWER(HEX(%s.%s)) as %s',
                 EntityDefinitionQueryHelper::escape('category'),
                 EntityDefinitionQueryHelper::escape('id'),

@@ -13,7 +13,7 @@ class BillingAddressCountryRegionMissingError extends CountryRegionMissingError
 
     public function __construct(CustomerAddressEntity $address)
     {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'A country region needs to be defined for the billing address "%s %s, %s %s".',
             $address->getFirstName(),
             $address->getLastName(),

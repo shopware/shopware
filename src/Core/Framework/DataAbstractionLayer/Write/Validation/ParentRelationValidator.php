@@ -51,8 +51,8 @@ class ParentRelationValidator implements EventSubscriberInterface
 
         foreach ($selfReferences as $selfReference) {
             $violations->add(new ConstraintViolation(
-                sprintf($message, $selfReference['entity'], $selfReference['id']),
-                sprintf($message, '{{ entity }}', '{{ id }}'),
+                \sprintf($message, $selfReference['entity'], $selfReference['id']),
+                \sprintf($message, '{{ entity }}', '{{ id }}'),
                 ['{{ entity }}' => $selfReference['entity'], '{{ id }}' => $selfReference['id']],
                 null,
                 $selfReference['path'] . '/parentId',

@@ -58,7 +58,7 @@ class ProductExportGenerateCommandTest extends TestCase
         $commandTester = new CommandTester($this->productExportGenerateCommand);
         $commandTester->execute(['sales-channel-id' => $this->getSalesChannelDomain()->getSalesChannelId()]);
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
         $csvRows = explode(\PHP_EOL, $fileContent);

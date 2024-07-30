@@ -118,7 +118,7 @@ class IterateEntitiesQueryBuilder
 
         $query = $this->createQueryBuilder();
         $query->setTitle("UsageData EntitySync - iterate entity deletions for '$entityName'");
-        $query->select(sprintf(
+        $query->select(\sprintf(
             'LOWER(HEX(%s)) as %s',
             $escapedIdFieldStorageName,
             $escapedIdFieldStorageName,
@@ -156,7 +156,7 @@ class IterateEntitiesQueryBuilder
 
             $escapedFieldStorageName = EntityDefinitionQueryHelper::escape($primaryKey->getStorageName());
 
-            $selections[] = sprintf(
+            $selections[] = \sprintf(
                 'LOWER(HEX(%s.%s)) as %s',
                 $escapedEntityName,
                 $escapedFieldStorageName,
@@ -184,7 +184,7 @@ class IterateEntitiesQueryBuilder
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 $hasVersionFields = true;
                 $queryBuilder->andWhere(
-                    sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
+                    \sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
                 );
             }
         }

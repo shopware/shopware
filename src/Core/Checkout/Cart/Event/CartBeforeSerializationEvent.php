@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CartBeforeSerializationEvent extends Event
+class CartBeforeSerializationEvent extends Event implements CartEvent
 {
     /**
      * @param array<string> $customFieldAllowList

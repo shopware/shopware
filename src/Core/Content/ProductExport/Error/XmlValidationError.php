@@ -36,7 +36,7 @@ class XmlValidationError extends Error
             function (\LibXMLError $error) {
                 $errorMessage = new ErrorMessage();
                 $errorMessage->assign([
-                    'message' => sprintf('%s on line %d in column %d', trim($error->message), $error->line, $error->column),
+                    'message' => \sprintf('%s on line %d in column %d', trim($error->message), $error->line, $error->column),
                     'line' => $error->line,
                     'column' => $error->column,
                 ]);

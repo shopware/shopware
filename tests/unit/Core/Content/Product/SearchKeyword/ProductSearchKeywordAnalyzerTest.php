@@ -37,7 +37,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $product = new ProductEntity();
         $product->assign($productData);
 
-        $tokenizer = new Tokenizer(3);
+        $tokenizer = new Tokenizer(3, ['-', '_']);
         $tokenFilter = $this->createMock(TokenFilter::class);
         $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
 

@@ -54,51 +54,51 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                         'updatedAt' => null,
                         'moduleTypes' => null,
                     ],
-                    'links' => ['self' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c', $baseUrl)],
+                    'links' => ['self' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c', $baseUrl)],
                     'relationships' => [
                         'conditions' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/conditions', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/conditions', $baseUrl)],
                         ],
                         'productPrices' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/product-prices', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/product-prices', $baseUrl)],
                         ],
                         'shippingMethods' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-methods', $baseUrl)],
                         ],
                         'shippingMethodPrices' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-prices', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-prices', $baseUrl)],
                         ],
                         'paymentMethods' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/payment-methods', $baseUrl)],
                         ],
                         'personaPromotions' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/persona-promotions', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/persona-promotions', $baseUrl)],
                         ],
                         'shippingMethodPriceCalculations' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-calculations', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/shipping-method-price-calculations', $baseUrl)],
                         ],
                         'orderPromotions' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/order-promotions', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/order-promotions', $baseUrl)],
                         ],
                         'cartPromotions' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/cart-promotions', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/cart-promotions', $baseUrl)],
                         ],
                         'promotionDiscounts' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-discounts', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-discounts', $baseUrl)],
                         ],
                         'promotionSetGroups' => [
                             'data' => [],
-                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-set-groups', $baseUrl)],
+                            'links' => ['related' => \sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-set-groups', $baseUrl)],
                         ],
                     ],
                     'meta' => null,

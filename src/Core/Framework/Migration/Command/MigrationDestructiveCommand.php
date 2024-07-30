@@ -25,7 +25,7 @@ class MigrationDestructiveCommand extends MigrationCommand
             'version-selection-mode',
             null,
             InputOption::VALUE_REQUIRED,
-            sprintf(
+            \sprintf(
                 'Define upto which version destructive migrations are executed. Possible values: "%s".',
                 implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES)
             ),

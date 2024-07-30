@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class ExtensionStoreLicensesServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

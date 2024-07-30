@@ -16,6 +16,8 @@ const { Component } = Shopware;
 Component.register('sw-help-text', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         text: {
             type: String,

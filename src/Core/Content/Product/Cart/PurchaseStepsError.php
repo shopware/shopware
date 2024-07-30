@@ -13,7 +13,7 @@ class PurchaseStepsError extends Error
         private readonly string $name,
         private readonly int $quantity
     ) {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'Your input quantity does not match with the setup of the %s. The quantity was changed to %d',
             $name,
             $quantity

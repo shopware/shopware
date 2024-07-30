@@ -389,26 +389,26 @@ class CheapestPriceTest extends TestCase
 
                     $product = $products->get($id);
 
-                    $error = sprintf('Case "%s": Product with key %s not found', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
                     static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
                     static::assertInstanceOf(CalculatedPrice::class, $product->getCalculatedPrice(), $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
                     static::assertEquals($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
                     static::assertEquals(\count($assertion['prices']), \count($product->getCalculatedPrices()), $error);
                     foreach ($assertion['prices'] as $index => $expected) {
                         $price = $product->getCalculatedPrices()->get($index);
 
-                        $error = sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
+                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
                         static::assertInstanceOf(CalculatedPrice::class, $price, $error);
                         static::assertEquals($expected, $price->getUnitPrice(), $error);
                     }
 
-                    $error = sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
                     static::assertEquals($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
                 }
             }
@@ -431,7 +431,7 @@ class CheapestPriceTest extends TestCase
         /** @var string $prices */
         $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
         foreach ($ids->all() as $key => $id) {
-            $prices = str_replace(sprintf('__id_placeholder_%s__', $key), $id, $prices);
+            $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
         foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
             $cheapestPriceQuery->executeStatement([
@@ -474,26 +474,26 @@ class CheapestPriceTest extends TestCase
 
                     $product = $products->get($id);
 
-                    $error = sprintf('Case "%s": Product with key %s not found', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
                     static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
                     static::assertInstanceOf(CalculatedPrice::class, $product->getCalculatedPrice(), $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
                     static::assertEquals($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
 
-                    $error = sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
                     static::assertEquals(\count($assertion['prices']), \count($product->getCalculatedPrices()), $error);
                     foreach ($assertion['prices'] as $index => $expected) {
                         $price = $product->getCalculatedPrices()->get($index);
 
-                        $error = sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
+                        $error = \sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
                         static::assertInstanceOf(CalculatedPrice::class, $price, $error);
                         static::assertEquals($expected, $price->getUnitPrice(), $error);
                     }
 
-                    $error = sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
+                    $error = \sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
                     static::assertEquals($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
                 }
             }
@@ -535,7 +535,7 @@ class CheapestPriceTest extends TestCase
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
 
                 foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
+                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
                 }
             }
         } catch (\Exception $e) {
@@ -575,7 +575,7 @@ class CheapestPriceTest extends TestCase
                 static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
 
                 foreach ($case['expected'] as $key) {
-                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
+                    static::assertTrue($result->has($ids->get($key)), \sprintf('Missing id %s in case `%s`', $key, $message));
                 }
             }
         } catch (\Exception $e) {
@@ -627,8 +627,8 @@ class CheapestPriceTest extends TestCase
                 $aggregation = $result->get('price');
 
                 static::assertInstanceOf(StatsResult::class, $aggregation);
-                static::assertEquals($case['min'], $aggregation->getMin(), sprintf('Case `%s` failed', $message));
-                static::assertEquals($case['max'], $aggregation->getMax(), sprintf('Case `%s` failed', $message));
+                static::assertEquals($case['min'], $aggregation->getMin(), \sprintf('Case `%s` failed', $message));
+                static::assertEquals($case['max'], $aggregation->getMax(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             static::tearDown();

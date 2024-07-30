@@ -29,11 +29,16 @@ const dom = Shopware.Utils.dom;
 Component.register('sw-tabs-deprecated', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     provide() {
         return {
             onNewItemActive: this.registerOnNewItemActiveHandler,
+            registerNewTabItem: this.registerNewTabItem,
+            unregisterNewTabItem: this.unregisterNewTabItem,
+            swTabsSetActiveItem: this.setActiveItem,
         };
     },
 
@@ -86,6 +91,7 @@ Component.register('sw-tabs-deprecated', {
             scrollbarOffset: '',
             hasRoutes: false,
             onNewItemActiveHandlers: [],
+            registeredTabItems: [],
         };
     },
 
@@ -133,8 +139,7 @@ Component.register('sw-tabs-deprecated', {
                 return this.$children[this.activeItem]?.hasError ?? false;
             }
 
-            const children = Shopware.Utils.VueHelper.getCompatChildren();
-            return children[this.activeItem]?.hasError ?? false;
+            return this.registeredTabItems[this.activeItem]?.hasError ?? false;
         },
 
         activeTabHasWarnings() {
@@ -142,8 +147,7 @@ Component.register('sw-tabs-deprecated', {
                 return this.$children[this.activeItem]?.hasWarning ?? false;
             }
 
-            const children = Shopware.Utils.VueHelper.getCompatChildren();
-            return children[this.activeItem]?.hasWarning ?? false;
+            return this.registeredTabItems[this.activeItem]?.hasWarning ?? false;
         },
 
         sliderClasses() {
@@ -297,6 +301,16 @@ Component.register('sw-tabs-deprecated', {
             this.onNewItemActiveHandlers.push(callback);
         },
 
+        registerNewTabItem(item) {
+            this.registeredTabItems.push(item);
+        },
+
+        unregisterNewTabItem(item) {
+            this.registeredTabItems = this.registeredTabItems.filter((registeredItem) => {
+                return registeredItem !== item;
+            });
+        },
+
         onNewItemActiveHandler(callback) {
             this.onNewItemActiveHandlers.forEach((handler) => {
                 handler(callback);
@@ -321,23 +335,37 @@ Component.register('sw-tabs-deprecated', {
 
         updateActiveItem() {
             this.$nextTick().then(() => {
-                const children = this.isCompatEnabled('INSTANCE_CHILDREN')
-                    ? this.$children
-                    : Shopware.Utils.VueHelper.getCompatChildren();
+                if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+                    const children = this.$children;
 
-                const firstActiveTabItem = children.find((child) => {
-                    return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
-                });
+                    const firstActiveTabItem = children.find((child) => {
+                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
+                    });
 
-                if (!firstActiveTabItem) {
-                    return;
+                    if (!firstActiveTabItem) {
+                        return;
+                    }
+
+                    this.activeItem = children.indexOf(firstActiveTabItem);
+                    if (!this.firstScroll) {
+                        this.scrollToItem(firstActiveTabItem);
+                    }
+                    this.firstScroll = true;
+                } else {
+                    const firstActiveTabItem = this.registeredTabItems.find((child) => {
+                        return child.$el.nodeType === 1 && child.$el.classList.contains('sw-tabs-item--active');
+                    });
+
+                    if (!firstActiveTabItem) {
+                        return;
+                    }
+
+                    this.activeItem = this.registeredTabItems.indexOf(firstActiveTabItem);
+                    if (!this.firstScroll) {
+                        this.scrollToItem(firstActiveTabItem);
+                    }
+                    this.firstScroll = true;
                 }
-
-                this.activeItem = children.indexOf(firstActiveTabItem);
-                if (!this.firstScroll) {
-                    this.scrollToItem(firstActiveTabItem);
-                }
-                this.firstScroll = true;
             });
         },
 

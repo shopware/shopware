@@ -31,6 +31,8 @@ const IFRAME_KEY = 'app.action_button.iframe';
 Component.register('sw-app-actions', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     extensionApiDevtoolInformation: {
         property: 'ui.actionButton',
         entity: (currentComponent) => `${currentComponent.entity}`,

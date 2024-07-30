@@ -120,7 +120,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
+                    \sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );
             }
 

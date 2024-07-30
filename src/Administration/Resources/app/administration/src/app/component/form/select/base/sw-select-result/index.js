@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-select-result', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['setActiveItemIndex', 'feature'],
 
     props: {

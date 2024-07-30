@@ -4,9 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
@@ -27,7 +25,7 @@ class DebitPaymentTest extends TestCase
     {
         Feature::skipTestIfInActive('v6.7.0.0', $this);
         if (!\is_a(DebitPayment::class, AbstractPaymentHandler::class, true)) {
-            static::markTestSkipped(sprintf('Class %s must extend %s', DebitPayment::class, AbstractPaymentHandler::class));
+            static::markTestSkipped(\sprintf('Class %s must extend %s', DebitPayment::class, AbstractPaymentHandler::class));
         }
     }
 
@@ -36,13 +34,7 @@ class DebitPaymentTest extends TestCase
         $transactionId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
-        $stateHandler
-            ->expects(static::once())
-            ->method('process')
-            ->with($transactionId, $context);
-
-        $payment = new DebitPayment($stateHandler);
+        $payment = new DebitPayment();
         $reponse = $payment->pay(
             new Request(),
             new PaymentTransactionStruct($transactionId),
@@ -55,9 +47,7 @@ class DebitPaymentTest extends TestCase
 
     public function testSupports(): void
     {
-        $payment = new CashPayment(
-            $this->createMock(OrderTransactionStateHandler::class)
-        );
+        $payment = new DebitPayment();
 
         foreach (PaymentHandlerType::cases() as $case) {
             static::assertFalse($payment->supports(

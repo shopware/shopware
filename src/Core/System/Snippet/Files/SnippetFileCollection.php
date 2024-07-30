@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 /**
  * @extends Collection<AbstractSnippetFile>
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class SnippetFileCollection extends Collection
 {
     /**

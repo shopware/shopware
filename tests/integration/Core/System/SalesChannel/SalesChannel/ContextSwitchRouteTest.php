@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -52,7 +52,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -63,7 +63,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -159,7 +159,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -171,7 +171,7 @@ class ContextSwitchRouteTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
+            \sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -211,7 +211,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "language" entity with id "%s" does not exist.', $id),
+            \sprintf('The "language" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -290,7 +290,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "currency" entity with id "%s" does not exist.', $id),
+            \sprintf('The "currency" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -325,36 +325,34 @@ class ContextSwitchRouteTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $this->customerRepository->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'technicalName' => Uuid::randomHex(),
-                    'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                ],
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schoöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
-        ], Context::createDefaultContext());
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => $password,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

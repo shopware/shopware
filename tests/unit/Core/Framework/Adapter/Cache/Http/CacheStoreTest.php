@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -48,9 +49,8 @@ class CacheStoreTest extends TestCase
 
         static::assertTrue($item->get());
 
-        $reflectionClass = new \ReflectionClass($item);
-        $prop = $reflectionClass->getProperty('expiry');
+        $value = ReflectionHelper::getPropertyValue($item, 'expiry');
 
-        static::assertEqualsWithDelta(time() + 3, $prop->getValue($item), 1);
+        static::assertEqualsWithDelta(time() + 3, $value, 1);
     }
 }

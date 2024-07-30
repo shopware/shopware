@@ -14,7 +14,7 @@ class MinOrderQuantityError extends Error
         protected string $name,
         protected int $quantity
     ) {
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %d',
             $name,
             $quantity

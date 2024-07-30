@@ -7,8 +7,8 @@ test('Shop administrator should be able to create product variants.', { tag: '@P
     GenerateVariants,
 }) => {
     const product = await TestDataService.createBasicProduct();
-    const colorPropertyGroup = await TestDataService.createColorPropertyGroup();
-    const sizePropertyGroup = await TestDataService.createTextPropertyGroup();
+    await TestDataService.createColorPropertyGroup();
+    await TestDataService.createTextPropertyGroup();
 
     await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
     await ShopAdmin.page.waitForLoadState('domcontentloaded');

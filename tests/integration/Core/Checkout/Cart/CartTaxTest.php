@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -420,33 +421,36 @@ class CartTaxTest extends TestCase
 
     private function createCustomer(string $countryId, string $email): void
     {
-        $this->customerRepository->create([
-            [
-                'id' => $this->ids->create('customer'),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'defaultShippingAddress' => [
-                    'id' => $this->ids->create('address'),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $countryId,
-                ],
-                'defaultBillingAddressId' => $this->ids->get('address'),
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => TestDefaults::HASHED_PASSWORD,
+        $customer = [
+            'id' => $this->ids->create('customer'),
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'defaultShippingAddress' => [
+                'id' => $this->ids->create('address'),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-                'vatIds' => ['DE123456789'],
-                'company' => 'Test',
+                'countryId' => $countryId,
             ],
-        ], Context::createDefaultContext());
+            'defaultBillingAddressId' => $this->ids->get('address'),
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+            'vatIds' => ['DE123456789'],
+            'company' => 'Test',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
     }
 
     private function updateCountry(

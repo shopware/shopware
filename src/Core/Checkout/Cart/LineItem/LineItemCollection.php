@@ -52,7 +52,7 @@ class LineItemCollection extends Collection
 
     /**
      * @param int|string $key
-     * @param LineItem   $lineItem
+     * @param LineItem $lineItem
      */
     public function set($key, $lineItem): void
     {
@@ -213,7 +213,7 @@ class LineItemCollection extends Collection
 
     public function getTotalQuantity(): int
     {
-        return $this->reduce(fn ($result, $item) => $result + $item->getQuantity(), 0);
+        return $this->reduce(fn (int $result, LineItem $item) => $result + $item->getQuantity(), 0);
     }
 
     protected function getKey(LineItem $element): string
@@ -227,7 +227,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<mixed>
+     * @return list<LineItem>
      */
     private function buildFlat(LineItemCollection $lineItems): array
     {

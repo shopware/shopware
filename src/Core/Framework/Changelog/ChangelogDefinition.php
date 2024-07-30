@@ -88,7 +88,7 @@ class ChangelogDefinition
         }
 
         if ($this->flag && !Feature::has($this->flag)) {
-            $context->buildViolation(sprintf('Unknown flag %s is assigned ', $this->flag))
+            $context->buildViolation(\sprintf('Unknown flag %s is assigned ', $this->flag))
                 ->atPath('flag')
                 ->addViolation();
         }
@@ -291,7 +291,7 @@ EOD;
 
     private function buildViolationSectionSeparator(ExecutionContextInterface $context, ChangelogSection $currentSection, string $nextSection): void
     {
-        $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_SECTION_SEPARATOR, $currentSection->value, $nextSection))
+        $context->buildViolation(\sprintf(self::VIOLATION_MESSAGE_SECTION_SEPARATOR, $currentSection->value, $nextSection))
             ->atPath($currentSection->name)
             ->addViolation();
     }
@@ -318,7 +318,7 @@ EOD;
                     continue 2;
                 }
             }
-            $context->buildViolation(sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry, implode(', ', array_column(ChangelogKeyword::cases(), 'value'))))
+            $context->buildViolation(\sprintf(self::VIOLATION_MESSAGE_STARTING_KEYWORD, $changelogEntry, implode(', ', array_column(ChangelogKeyword::cases(), 'value'))))
                 ->atPath($currentSection->name)
                 ->addViolation();
         }

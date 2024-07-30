@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-notification-center-item', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         notification: {
             type: Object,

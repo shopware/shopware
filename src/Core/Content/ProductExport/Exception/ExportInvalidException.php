@@ -33,7 +33,7 @@ class ExportInvalidException extends ShopwareHttpException
         $this->errorMessages = $errorMessages;
 
         parent::__construct(
-            sprintf(
+            \sprintf(
                 'Export file generation for product export %s (%s) resulted in validation errors',
                 $productExportEntity->getId(),
                 $productExportEntity->getFileName()

@@ -2,6 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
+import ApiService from '../../../../core/service/api.service';
 
 /**
  * @package checkout
@@ -15,9 +16,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'acl',
+        'contextStoreService',
+        'repositoryFactory',
+    ],
 
     mixins: [
+        Mixin.getByName('notification'),
         Mixin.getByName('salutation'),
     ],
 
@@ -40,6 +46,12 @@ export default {
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            showImitateCustomerModal: false,
+        };
     },
 
     computed: {
@@ -97,6 +109,28 @@ export default {
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
+
+        canUseCustomerImitation() {
+            if (this.customer.boundSalesChannel) {
+                if (this.customer.boundSalesChannel.typeId !== Defaults.storefrontSalesChannelTypeId) {
+                    return false;
+                }
+
+                if (!this.customer.boundSalesChannel.domains?.length) {
+                    return false;
+                }
+            }
+
+            return this.acl.can('api_proxy_imitate-customer');
+        },
+
+        hasSingleBoundSalesChannelUrl() {
+            return this.customer.boundSalesChannel?.domains?.length === 1;
+        },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
     },
 
     watch: {
@@ -117,6 +151,35 @@ export default {
     methods: {
         getMailTo(mail) {
             return `mailto:${mail}`;
+        },
+
+        async onImitateCustomer() {
+            if (this.hasSingleBoundSalesChannelUrl) {
+                this.contextStoreService.generateImitateCustomerToken(
+                    this.customer.id,
+                    this.customer.boundSalesChannel.id,
+                ).then((response) => {
+                    const handledResponse = ApiService.handleResponse(response);
+
+                    this.contextStoreService.redirectToSalesChannelUrl(
+                        this.customer.boundSalesChannel.domains.first().url,
+                        handledResponse.token,
+                        this.customer.id,
+                        this.currentUser?.id,
+                    );
+                }).catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                    });
+                });
+                return;
+            }
+
+            this.showImitateCustomerModal = true;
+        },
+
+        onCloseImitateCustomerModal() {
+            this.showImitateCustomerModal = false;
         },
     },
 };

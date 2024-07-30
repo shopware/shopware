@@ -117,7 +117,7 @@ abstract class CustomFieldType extends XmlElement
     abstract protected function toEntityArray(): array;
 
     /**
-     * @param list<string>|null  $translatableFields
+     * @param list<string>|null $translatableFields
      *
      * @return array<string, mixed>
      */

@@ -11,7 +11,7 @@
         {% block sw_condition_base_field_condition %}
         <sw-condition-type-select
             v-bind="{ condition, availableTypes, hasError, availableGroups }"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
         />
         {% endblock %}
 
@@ -35,13 +35,13 @@
         {% block sw_condition_base_field_actions %}
         <sw-context-button
             class="sw-condition__context-button"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_base_field_create_before_action %}
             <sw-context-menu-item
                 class="sw-condition__create-before-action"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="onCreateBefore"
             >
                 {{ $tc('global.sw-condition.condition.createBefore') }}
@@ -52,7 +52,7 @@
             {% block sw_condition_base_field_create_after_action %}
             <sw-context-menu-item
                 class="sw-condition__create-after-action"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="onCreateAfter"
             >
                 {{ $tc('global.sw-condition.condition.createAfter') }}
@@ -62,7 +62,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_condition_base_field_delete_action %}
             <sw-context-menu-item
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 variant="danger"
                 @click="onDeleteCondition"
             >

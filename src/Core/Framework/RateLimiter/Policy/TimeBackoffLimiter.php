@@ -60,7 +60,7 @@ class TimeBackoffLimiter implements LimiterInterface
             $limit = $backoff->getCurrentLimit($now);
 
             if ($tokens > $limit) {
-                throw new \InvalidArgumentException(sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d).', $tokens, $limit));
+                throw new \InvalidArgumentException(\sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d).', $tokens, $limit));
             }
 
             $attempts = $backoff->getAttempts();

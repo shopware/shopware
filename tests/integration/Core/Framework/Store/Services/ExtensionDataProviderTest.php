@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -22,6 +23,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Group('skip-paratest')]
+#[Package('checkout')]
 class ExtensionDataProviderTest extends TestCase
 {
     use ExtensionBehaviour;
@@ -86,7 +88,7 @@ class ExtensionDataProviderTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(sprintf('Could not find extension with id "%s"', $id));
+        $this->expectExceptionMessage(\sprintf('Could not find extension with id "%s"', $id));
         $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 

@@ -94,6 +94,7 @@ return static function (ECSConfig $ecsConfig): void {
         StandaloneLineConstructorParamFixer::class,
     ]);
 
+    $ecsConfig->ruleWithConfiguration(PhpdocAlignFixer::class, ['align' => 'left']);
     $ecsConfig->ruleWithConfiguration(PhpdocOrderFixer::class, ['order' => ['param', 'throws', 'return']]);
     $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);
     $ecsConfig->ruleWithConfiguration(MethodArgumentSpaceFixer::class, ['on_multiline' => 'ensure_fully_multiline']);
@@ -125,6 +126,8 @@ return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->skip([
         // Fixture
         'src/WebInstaller/Tests/_fixtures/Options.php',
+        // skip php files in node modules (stylelint ships both js and php)
+        '**/node_modules',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,
@@ -137,24 +140,7 @@ return static function (ECSConfig $ecsConfig): void {
         StandaloneLineInMultilineArrayFixer::class => null,
         AssignmentInConditionSniff::class => null,
         PhpdocToCommentFixer::class => null,
-        PhpdocAlignFixer::class => null,
         PhpdocAnnotationWithoutDotFixer::class => null,
-        // would otherwise destroy the example in the annotation
-        NoUselessCommentFixer::class => ['src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'],
-        // Would otherwise fix the blocking whitespace in the currency formatter tests
-        NonPrintableCharacterFixer::class => ['src/Core/System/Test/Currency/CurrencyFormatterTest.php'],
-        // skip php files in node modules (stylelint ships both js and php)
-        '**/node_modules',
-        // would otherwise destroy markdown in the description of a route annotation, since markdown interpreted spaces/indents
-        PhpdocIndentFixer::class => [
-            'src/**/*Controller.php',
-            'src/**/*Route.php',
-        ],
-        // would otherwise remove lines in the description of route annotations
-        PhpdocTrimConsecutiveBlankLineSeparationFixer::class => [
-            'src/**/*Controller.php',
-            'src/**/*Route.php',
-        ],
         PhpdocNoPackageFixer::class => null,
         StandaloneLineConstructorParamFixer::class => null,
         LinebreakAfterOpeningTagFixer::class => null,

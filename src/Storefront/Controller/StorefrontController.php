@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Log\Package;
@@ -57,6 +58,7 @@ abstract class StorefrontController extends AbstractController
         $services[SystemConfigService::class] = SystemConfigService::class;
         $services[TemplateFinder::class] = TemplateFinder::class;
         $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
+        $services[MediaUrlPlaceholderHandlerInterface::class] = MediaUrlPlaceholderHandlerInterface::class;
         $services[ScriptExecutor::class] = ScriptExecutor::class;
         $services['translator'] = TranslatorInterface::class;
         $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
@@ -96,9 +98,12 @@ abstract class StorefrontController extends AbstractController
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
 
         $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
+        $mediaUrlReplacer = $this->container->get(MediaUrlPlaceholderHandlerInterface::class);
         $content = $response->getContent();
 
         if ($content !== false) {
+            $content = $mediaUrlReplacer->replace($content);
+
             $response->setContent(
                 $seoUrlReplacer->replace($content, $host, $salesChannelContext)
             );

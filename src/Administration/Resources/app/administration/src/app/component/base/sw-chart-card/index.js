@@ -19,6 +19,8 @@ const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
 Shopware.Component.register('sw-chart-card', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         availableRanges: {
             type: Array,

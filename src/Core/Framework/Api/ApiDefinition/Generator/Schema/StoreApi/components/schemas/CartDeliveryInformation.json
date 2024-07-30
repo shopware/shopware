@@ -1,0 +1,61 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartDeliveryInformation": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart_delivery_information"]
+                    },
+                    "freeDelivery": {
+                        "type": "boolean"
+                    },
+                    "deliveryTime": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "min": {
+                                "type": "integer"
+                            },
+                            "max": {
+                                "type": "integer"
+                            },
+                            "unit": {
+                                "type": "string"
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["cart_delivery_time"]
+                            }
+                        }
+                    },
+                    "height": {
+                        "type": "integer"
+                    },
+                    "length": {
+                        "type": "integer"
+                    },
+                    "restockTime": {
+                        "type": "integer"
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "weight": {
+                        "type": "integer"
+                    },
+                    "width": {
+                        "type": "integer"
+                    }
+                },
+                "required": ["apiAlias"]
+            }
+        }
+    }
+}

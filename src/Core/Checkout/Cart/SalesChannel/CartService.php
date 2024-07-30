@@ -155,6 +155,7 @@ class CartService implements ResetInterface
         }
 
         $cart = $this->createNew($context->getToken());
+
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
         return $orderId;

@@ -1,20 +1,19 @@
 ---
-title: {{ Add jest runner with disabled compat mode }}
-date: {{ 2024-06-12 }}
-area: {{ administration }}
-tags: [{{ administration, jest, pipeline, testing, unit }}]
+title: Add jest runner with disabled compat mode
+date: 2024-06-12
+area: administration
+tags: [administration, jest, pipeline, testing, unit]
 ---
 
 ## Context
 
 Currently, our component tests in Jest are running with enabled compat mode. To remove the compat mode for each
-component we need to add a new Jest runner with disabled compat mode to make sure that the tests are running without
-compat mode.
+component, we need to add a new Jest runner with disabled compat mode to make sure that the tests are running without compat mode.
 
 ## Decision
 
 I added a new runner command in the NPM scripts to run the Jest tests without compat mode. The new runner command is
-`unit:disabled-compat` and `unit-watch:disabled-compat`. Also the composer commands are added to run the tests. These commands are `admin:unit:disabled-compat` and `admin:unit-watch:disabled-compat`. These commands are using the environment variable `DISABLE_JEST_COMPAT_MODE` to disable the compat mode.
+`unit:disabled-compat` and `unit-watch:disabled-compat`. Also, the composer commands are added to run the tests. These commands are `admin:unit:disabled-compat` and `admin:unit-watch:disabled-compat`. These commands are using the environment variable `DISABLE_JEST_COMPAT_MODE` to disable the compat mode.
 
 For the pipeline, I added a new stage to run the Jest tests without compat mode. The stage is `Jest (Administration with disabled compat mode)`.
 

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
 import './sw-bulk-edit-order-documents-download-documents.scss';
@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

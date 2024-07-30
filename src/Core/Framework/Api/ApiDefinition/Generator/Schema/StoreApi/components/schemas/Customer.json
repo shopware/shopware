@@ -18,7 +18,7 @@
                         "$ref": "#/components/schemas/CustomerAddress"
                     }
                 },
-                "required": ["activeBillingAddress", "activeShippingAddress"]
+                "required": ["apiAlias", "activeBillingAddress", "activeShippingAddress"]
             }
         }
     }

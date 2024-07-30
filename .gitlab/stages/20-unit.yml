@@ -217,6 +217,7 @@ Open Api Schema validation:
         - "**/*.php"
         - "**/*.xml"
         - "composer.json"
+        - "src/Core/Framework/Api/ApiDefinition/Generator/Schema/**/*.json"
   before_script:
     - !reference [.scripts, init, composer]
     - composer run init:db
@@ -228,11 +229,19 @@ Open Api Schema validation:
     - mkdir api-types
     - touch api-types/storeApiSchema.json
     - touch api-types/adminApiSchema.json
-    - npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
-    - npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
+    - npx @shopware/api-gen loadSchema --apiType=store --filename=storeApiSchema.json
+    - npx @shopware/api-gen loadSchema --apiType=admin --filename=adminApiSchema.json
     - npm i -g @redocly/cli@latest
     - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
     - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
+    - "echo '{\"$schema\": \"https://raw.githubusercontent.com/shopware/frontends/main/packages/api-gen/api-gen.schema.json\", \"rules\": [\"COMPONENTS_API_ALIAS\"] }' > api-gen.config.json"
+    - npx @shopware/api-gen validateJson --apiType=store
+    - npx @shopware/api-gen validateJson --apiType=admin
+    - npx @shopware/api-gen generate --apiType=store
+    - npx @shopware/api-gen generate --apiType=admin
+    - npm i -g typescript
+    - npx tsc ./api-types/storeApiTypes.d.ts
+    - npx tsc ./api-types/adminApiTypes.d.ts
 
 PHP unit coverage:
   extends: .base-no-setup
@@ -461,7 +470,6 @@ PHP unit per area:
             "data-services",
             "services-settings",
             "storefront",
-            "system-settings",
           ]
   artifacts:
     when: always
@@ -525,7 +533,6 @@ Jest Coverage per Area (Administration):
             "data-services",
             "buyers-experience",
             "services-settings",
-            "system-settings",
             "unknown",
           ]
   artifacts:

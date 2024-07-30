@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 const mockProducts = [{
@@ -58,12 +62,20 @@ const createWrapper = async () => {
                 'sw-icon': true,
                 'sw-field-error': true,
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'mt-text-field': true,
+                'sw-field-copyable': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-button': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'mt-checkbox': true,
             },
             mocks: {
                 $route: { meta: { $module: { icon: 'default' } } },
-            },
-            propsData: {
-                filters: null,
             },
             provide: {
                 repositoryFactory: {
@@ -75,6 +87,9 @@ const createWrapper = async () => {
                 validationService: {},
             },
             attachTo: document.body,
+        },
+        props: {
+            filters: null,
         },
     });
 };

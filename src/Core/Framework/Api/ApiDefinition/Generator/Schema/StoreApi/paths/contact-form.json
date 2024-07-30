@@ -64,7 +64,7 @@
                                         "type": "string"
                                     },
                                     "navigationId": {
-                                        "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a concact form in the administration.",
+                                        "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a concat form in the administration.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
                                     },

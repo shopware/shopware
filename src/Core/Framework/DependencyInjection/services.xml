@@ -66,7 +66,6 @@ base-uri 'self';
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
             <factory class="Shopware\Core\Kernel" method="getConnection"/>
-
         </service>
 
         <service id="Shopware\Core\Framework\Routing\QueryDataBagResolver">
@@ -366,7 +365,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
             <tag name="twig.extension"/>
         </service>
-        
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
             <tag name="twig.extension" />
         </service>
@@ -470,6 +469,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

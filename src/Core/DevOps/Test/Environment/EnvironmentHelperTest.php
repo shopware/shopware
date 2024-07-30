@@ -159,7 +159,7 @@ class EnvironmentHelperTest extends TestCase
     {
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage(
-            sprintf(
+            \sprintf(
                 'Expected class to implement "%1$s" but got "%2$s".',
                 EnvironmentHelperTransformerInterface::class,
                 self::class

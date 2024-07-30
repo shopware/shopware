@@ -19,6 +19,8 @@ const { debug } = Shopware.Utils;
 Component.register('sw-sales-channel-switch', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         disabled: {
             type: Boolean,

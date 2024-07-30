@@ -1,12 +1,19 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
+import { MtBanner } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-alert', { sync: true }), {
-        global: {},
+        global: {
+            stubs: {
+                'mt-banner': MtBanner,
+                'sw-alert-deprecated': await wrapTestComponent('sw-alert-deprecated'),
+            },
+        },
         props: {},
         ...additionalOptions,
     });

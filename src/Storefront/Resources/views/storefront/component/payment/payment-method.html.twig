@@ -36,7 +36,11 @@
 
                             {% block component_payment_method_description %}
                                 <div class="payment-method-description">
-                                    <strong>{{ payment.translated.name }}</strong>
+                                    {% set paymentName = payment.translated.name %}
+                                    {% block component_payment_method_name %}
+                                        <strong>{{ paymentName }}</strong>
+                                    {% endblock %}
+
                                     {% if payment.translated.description %}
                                         {% set paymentDescription = payment.translated.description|raw %}
                                         {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
@@ -58,5 +62,6 @@
         </div>
     {% endblock %}
 
+    {# @deprecated tag:v6.7.0 - Block `component_payment_fieldset_template` will be removed without replacement #}
     {% block component_payment_fieldset_template %}{% endblock %}
 </div>

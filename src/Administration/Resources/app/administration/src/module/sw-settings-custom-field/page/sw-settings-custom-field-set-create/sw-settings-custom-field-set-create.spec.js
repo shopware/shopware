@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';

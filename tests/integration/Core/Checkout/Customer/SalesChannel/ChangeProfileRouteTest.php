@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -691,57 +691,36 @@ class ChangeProfileRouteTest extends TestCase
             $password = Uuid::randomHex();
         }
 
-        $this->getContainer()->get('customer.repository')->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId($this->ids->create('sales-channel')),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'technicalName' => 'payment_test_invoice',
-                    'active' => true,
-                    'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRule' => [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'cartCartAmount',
-                                'value' => [
-                                    'operator' => '>=',
-                                    'amount' => 0,
-                                ],
-                            ],
-                        ],
-                    ],
-                    'salesChannels' => [
-                        [
-                            'id' => TestDefaults::SALES_CHANNEL,
-                        ],
-                    ],
-                ],
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'guest' => $guest,
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId($this->ids->create('sales-channel')),
             ],
-        ], Context::createDefaultContext());
+            'defaultBillingAddressId' => $addressId,
+
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => $email,
+            'password' => $password,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'guest' => $guest,
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

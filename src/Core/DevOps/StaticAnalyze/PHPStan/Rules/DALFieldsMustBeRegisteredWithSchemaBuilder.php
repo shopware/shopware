@@ -71,7 +71,7 @@ class DALFieldsMustBeRegisteredWithSchemaBuilder implements Rule
 
         if (!$this->isRegisteredWithSchemaBuilder($ref->getName())) {
             return [RuleErrorBuilder::message(
-                sprintf('Field %s must be registered with %s', $ref->getName(), SchemaBuilder::class)
+                \sprintf('Field %s must be registered with %s', $ref->getName(), SchemaBuilder::class)
             )->build()];
         }
 

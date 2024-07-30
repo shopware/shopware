@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -18,6 +19,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - this page is removed as customer default payment method will be removed
+ *
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
@@ -37,6 +41,8 @@ class AccountPaymentController extends StorefrontController
     #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method will be removed and the last used payment method is prioritized.');
+
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
         $this->hook(new AccountPaymentMethodPageLoadedHook($page, $context));
@@ -47,6 +53,8 @@ class AccountPaymentController extends StorefrontController
     #[Route(path: '/account/payment', name: 'frontend.account.payment.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
     public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The default payment method will be removed and the last used payment method is prioritized.');
+
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
 

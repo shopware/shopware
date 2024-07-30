@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(CustomerSerializer::class)]
 class CustomerSerializerTest extends TestCase
 {
@@ -96,18 +96,11 @@ class CustomerSerializerTest extends TestCase
      */
     private static function createData(array $overrides = []): array
     {
-        return array_merge([
+        $data = array_merge([
             'group' => [
                 'translations' => [
                     'DEFAULT' => [
                         'name' => 'group_name',
-                    ],
-                ],
-            ],
-            'defaultPaymentMethod' => [
-                'translations' => [
-                    'DEFAULT' => [
-                        'name' => 'payment_name',
                     ],
                 ],
             ],
@@ -119,6 +112,8 @@ class CustomerSerializerTest extends TestCase
                 ],
             ],
         ], $overrides);
+
+        return $data;
     }
 
     /**
@@ -128,17 +123,16 @@ class CustomerSerializerTest extends TestCase
      */
     private static function createExpected(array $overrides = []): array
     {
-        return array_merge([
+        $data = array_merge([
             'group' => [
                 'id' => 'groupId',
-            ],
-            'defaultPaymentMethod' => [
-                'id' => 'paymentId',
             ],
             'salesChannel' => [
                 'id' => 'salesChannelId',
             ],
         ], $overrides);
+
+        return $data;
     }
 
     /**

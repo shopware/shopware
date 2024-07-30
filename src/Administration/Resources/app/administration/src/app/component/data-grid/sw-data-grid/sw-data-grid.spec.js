@@ -1,18 +1,11 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-/* const localVue = createLocalVue();
-localVue.directive('popover', {});
-localVue.directive('tooltip', {
-    bind(el, binding) {
-        el.setAttribute('data-tooltip-message', binding.value);
-    },
-}); */
 
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -82,6 +75,19 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-field-error': true,
             'sw-context-menu-divider': true,
             'sw-button-group': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
+            'mt-checkbox': true,
+            'mt-icon': true,
+            'sw-inheritance-switch': true,
+            'sw-ai-copilot-badge': true,
+            'sw-help-text': true,
+            'mt-button': true,
+            'sw-loader': true,
+            'mt-floating-ui': true,
+            'mt-switch': true,
         };
 
         return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
@@ -89,7 +95,7 @@ describe('components/data-grid/sw-data-grid', () => {
                 directives: {
                     popover: {},
                     tooltip: {
-                        bind(el, binding) {
+                        beforeMount(el, binding) {
                             el.setAttribute('data-tooltip-message', binding.value);
                         },
                     },
@@ -132,7 +138,24 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-field-error': true,
             'sw-context-menu-divider': true,
             'sw-button-group': true,
+            'sw-data-grid-column-boolean': true,
+            'sw-data-grid-inline-edit': true,
+            'router-link': true,
+            'sw-data-grid-skeleton': true,
+            'mt-checkbox': true,
+            'mt-icon': true,
+            'sw-inheritance-switch': true,
+            'sw-ai-copilot-badge': true,
+            'sw-help-text': true,
+            'mt-button': true,
+            'sw-loader': true,
+            'mt-floating-ui': true,
+            'mt-switch': true,
         };
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should be a Vue.js component', async () => {
@@ -509,78 +532,81 @@ describe('components/data-grid/sw-data-grid', () => {
     };
 
     // This test cases previously tested for console.warn calls. This was removed because vue compat emits too many warnings
-    Object.entries(cases).forEach(([key, testCase]) => {
-        it(`should render columns with ${key}`, async () => {
-            const wrapper = await createWrapper();
-            const grid = wrapper.vm;
+    Object.entries(cases)
+        .forEach(([key, testCase]) => {
+            it(`should render columns with ${key}`, async () => {
+                jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
 
-            const data = {
-                name: 'original',
-                translated: {
-                    name: 'translated',
-                },
-                manufacturer: new Entity('test', 'product_manufacturer', {
-                    description: 'manufacturer-description',
-                    name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' },
-                }),
-                plainObject: {
-                    name: 'object',
-                },
-                transactions: new EntityCollection('', 'order_transaction', {}, {}, [
-                    { name: 'first' },
-                    { name: 'second' },
-                    { name: 'last' },
-                ], 1, null),
-                arrayField: [1, 2, 3],
-                payload: null,
-                customer: { type: null },
-            };
+                const wrapper = await createWrapper();
+                const grid = wrapper.vm;
 
-            const entity = new Entity('123', 'test', data);
+                const data = {
+                    name: 'original',
+                    translated: {
+                        name: 'translated',
+                    },
+                    manufacturer: new Entity('test', 'product_manufacturer', {
+                        description: 'manufacturer-description',
+                        name: 'manufacturer',
+                        translated: { name: 'manufacturer-translated' },
+                    }),
+                    plainObject: {
+                        name: 'object',
+                    },
+                    transactions: new EntityCollection('', 'order_transaction', {}, {}, [
+                        { name: 'first' },
+                        { name: 'second' },
+                        { name: 'last' },
+                    ], 1, null),
+                    arrayField: [1, 2, 3],
+                    payload: null,
+                    customer: { type: null },
+                };
 
-            const column = { property: testCase.accessor };
-            const result = grid.renderColumn(entity, column);
+                const entity = new Entity('123', 'test', data);
 
-            expect(result).toBe(testCase.expected);
+                const column = { property: testCase.accessor };
+                const result = grid.renderColumn(entity, column);
+
+                expect(result).toBe(testCase.expected);
+            });
+
+            it(`should render different columns dynamically with ${key}`, async () => {
+                const wrapper = await createWrapper();
+                const grid = wrapper.vm;
+
+                const data = {
+                    name: 'original',
+                    translated: {
+                        name: 'translated',
+                    },
+                    manufacturer: new Entity('test', 'product_manufacturer', {
+                        description: 'manufacturer-description',
+                        name: 'manufacturer',
+                        translated: { name: 'manufacturer-translated' },
+                    }),
+                    plainObject: {
+                        name: 'object',
+                    },
+                    transactions: new EntityCollection('', 'order_transaction', { }, { }, [
+                        { name: 'first' },
+                        { name: 'second' },
+                        { name: 'last' },
+                    ], 1, null),
+                    arrayField: [1, 2, 3],
+                    payload: null,
+                    customer: { type: null },
+                };
+
+                const entity = new Entity('123', 'test', data);
+
+                const column = { property: testCase.accessor };
+
+                const result = grid.renderColumn(entity, column);
+
+                expect(result).toBe(testCase.expected);
+            });
         });
-
-        it(`should render different columns dynamically with ${key}`, async () => {
-            const wrapper = await createWrapper();
-            const grid = wrapper.vm;
-
-            const data = {
-                name: 'original',
-                translated: {
-                    name: 'translated',
-                },
-                manufacturer: new Entity('test', 'product_manufacturer', {
-                    description: 'manufacturer-description',
-                    name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' },
-                }),
-                plainObject: {
-                    name: 'object',
-                },
-                transactions: new EntityCollection('', 'order_transaction', { }, { }, [
-                    { name: 'first' },
-                    { name: 'second' },
-                    { name: 'last' },
-                ], 1, null),
-                arrayField: [1, 2, 3],
-                payload: null,
-                customer: { type: null },
-            };
-
-            const entity = new Entity('123', 'test', data);
-
-            const column = { property: testCase.accessor };
-
-            const result = grid.renderColumn(entity, column);
-
-            expect(result).toBe(testCase.expected);
-        });
-    });
 
     it('should pre select grid using preSelection prop', async () => {
         const preSelection = {
@@ -652,6 +678,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
     it('should add all records to grid selection when clicking select all', async () => {
         const wrapper = await createWrapper();
+
         await wrapper.setProps({
             identifier: 'sw-customer-list',
         });
@@ -894,5 +921,16 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
         expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe('tooltip message');
+    });
+
+    it('should render a row for each item in isRecordDisabled prop', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isRecordDisabled: (record) => record.id === 'uuid1',
+        });
+
+        const row = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+
+        expect(row.classes()).toContain('is--disabled');
     });
 });

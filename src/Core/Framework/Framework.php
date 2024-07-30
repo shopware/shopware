@@ -154,11 +154,6 @@ class Framework extends Bundle
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
 
-        $cacheDir = $this->container->getParameter('kernel.cache_dir');
-        if (!\is_string($cacheDir)) {
-            throw FrameworkException::invalidKernelCacheDir();
-        }
-
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
@@ -171,23 +166,8 @@ class Framework extends Bundle
         CacheValueCompressor::$compressMethod = $this->container->getParameter('shopware.cache.cache_compression_method');
     }
 
-    /**
-     * @return string[]
-     */
-    protected function getCoreMigrationPaths(): array
-    {
-        return [
-            __DIR__ . '/../Migration' => 'Shopware\Core\Migration',
-        ];
-    }
-
     private function buildConfig(ContainerBuilder $container, string $environment): void
     {
-        $cacheDir = $container->getParameter('kernel.cache_dir');
-        if (!\is_string($cacheDir)) {
-            throw FrameworkException::invalidKernelCacheDir();
-        }
-
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([

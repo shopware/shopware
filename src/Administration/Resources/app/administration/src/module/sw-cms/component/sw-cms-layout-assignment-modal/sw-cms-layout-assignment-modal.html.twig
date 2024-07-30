@@ -134,7 +134,10 @@
                     :categories-collection="page.categories"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                    :page-id="page.id"
+                    :is-categories-loading="isCategoriesLoading"
                     class="sw-cms-layout-assignment-modal__category-select"
+                    @categories-load-more="onExtraCategories"
                 />
                 {% endblock %}
             </template>

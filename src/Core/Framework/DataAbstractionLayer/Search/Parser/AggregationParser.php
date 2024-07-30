@@ -183,7 +183,7 @@ class AggregationParser
             return $data;
         }
 
-        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', $aggregation::class));
+        throw new InvalidAggregationQueryException(\sprintf('The aggregation of type "%s" is not supported.', $aggregation::class));
     }
 
     /**
@@ -337,7 +337,7 @@ class AggregationParser
                 return new TermsAggregation($name, $field, $limit, $sorting, $nested);
 
             default:
-                $exceptions->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exist.', $type)), '/aggregations/' . $index);
+                $exceptions->add(new InvalidAggregationQueryException(\sprintf('The aggregation type "%s" used as key does not exist.', $type)), '/aggregations/' . $index);
 
                 return null;
         }

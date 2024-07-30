@@ -16,7 +16,7 @@ class PluginHasActiveDependantsException extends ShopwareHttpException
         string $dependency,
         array $dependants
     ) {
-        $dependantNameList = array_map(static fn ($plugin) => sprintf('"%s"', $plugin->getName()), $dependants);
+        $dependantNameList = array_map(static fn ($plugin) => \sprintf('"%s"', $plugin->getName()), $dependants);
 
         parent::__construct(
             'The following plugins depend on "{{ dependency }}": {{ dependantNames }}. They need to be deactivated before "{{ dependency }}" can be deactivated or uninstalled itself.',

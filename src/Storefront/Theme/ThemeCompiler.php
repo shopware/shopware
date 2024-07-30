@@ -384,9 +384,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(fn ($value, $key) => sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
-        return sprintf('$sw-features: (%s);', $featuresScss);
+        return \sprintf('$sw-features: (%s);', $featuresScss);
     }
 
     /**
@@ -396,7 +396,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
+        return array_map(fn ($value, $key) => \sprintf('$%s: %s;', $key, !empty($value) ? $value : 0), $variables, array_keys($variables));
     }
 
     /**
@@ -423,7 +423,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($this->packages as $key => $package) {
-            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
+            $variables[\sprintf('sw-asset-%s-url', $key)] = \sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent(

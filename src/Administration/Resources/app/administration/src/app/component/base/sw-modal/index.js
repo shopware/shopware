@@ -19,6 +19,8 @@ const utils = Shopware.Utils;
 Component.register('sw-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inheritAttrs: false,
 
     inject: ['shortcutService'],
@@ -162,7 +164,7 @@ Component.register('sw-modal', {
         },
 
         setFocusToModal() {
-            this.$el.querySelector('.sw-modal__dialog').focus();
+            this.$el?.querySelector?.('.sw-modal__dialog').focus();
         },
 
         closeModalOnClickOutside(domEvent) {

@@ -234,8 +234,15 @@ export default {
             this.isLoading = true;
             this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, criteria).then((item) => {
                 this.mailTemplate = item;
-                this.onChangeType(this.mailTemplate.mailTemplateType.id);
-                this.getMailTemplateMedia();
+                if (!this.mailTemplate.mailTemplateType?.id) {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+                    });
+                } else {
+                    this.onChangeType(this.mailTemplate.mailTemplateType.id);
+                    this.getMailTemplateMedia();
+                }
             });
         },
 

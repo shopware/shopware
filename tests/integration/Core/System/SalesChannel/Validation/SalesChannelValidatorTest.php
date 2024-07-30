@@ -68,7 +68,7 @@ class SalesChannelValidatorTest extends TestCase
         $message = $exception->getMessage();
 
         foreach ($invalids as $invalid) {
-            $expectedError = sprintf(self::INSERT_VALIDATION_MESSAGE, $invalid);
+            $expectedError = \sprintf(self::INSERT_VALIDATION_MESSAGE, $invalid);
             static::assertStringContainsString($expectedError, $message);
         }
 
@@ -194,7 +194,7 @@ class SalesChannelValidatorTest extends TestCase
         $message = $exception->getMessage();
 
         foreach ($invalids as $invalid) {
-            $expectedError = sprintf(self::UPDATE_VALIDATION_MESSAGE, $invalid);
+            $expectedError = \sprintf(self::UPDATE_VALIDATION_MESSAGE, $invalid);
             static::assertStringContainsString($expectedError, $message);
         }
     }
@@ -282,7 +282,7 @@ class SalesChannelValidatorTest extends TestCase
     public function testPreventDeletionOfDefaultLanguageId(): void
     {
         static::expectException(WriteException::class);
-        static::expectExceptionMessage(sprintf(
+        static::expectExceptionMessage(\sprintf(
             self::DELETE_VALIDATION_MESSAGE,
             TestDefaults::SALES_CHANNEL
         ));

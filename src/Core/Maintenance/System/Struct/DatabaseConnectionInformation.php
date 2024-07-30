@@ -117,7 +117,7 @@ class DatabaseConnectionInformation extends Struct
 
     public function asDsn(bool $withoutDatabaseName = false): string
     {
-        $dsn = sprintf(
+        $dsn = \sprintf(
             'mysql://%s%s:%d',
             $this->username ? ($this->username . ($this->password ? ':' . rawurlencode($this->password) : '') . '@') : '',
             $this->hostname,

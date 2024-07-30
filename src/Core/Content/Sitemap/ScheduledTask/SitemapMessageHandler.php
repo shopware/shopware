@@ -50,7 +50,7 @@ final class SitemapMessageHandler
         try {
             $this->sitemapExporter->generate($context, true, $message->getLastProvider(), $message->getNextOffset());
         } catch (AlreadyLockedException $exception) {
-            $this->logger->error(sprintf('ERROR: %s', $exception->getMessage()));
+            $this->logger->error(\sprintf('ERROR: %s', $exception->getMessage()));
         }
     }
 }

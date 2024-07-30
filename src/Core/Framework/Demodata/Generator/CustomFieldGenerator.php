@@ -210,7 +210,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $repo = $this->definitionRegistry->getRepository($entityName);
 
         $ids = $this->connection->fetchFirstColumn(
-            sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %d', $entityName, $count)
+            \sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %d', $entityName, $count)
         );
 
         $chunkSize = 50;

@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * Gateway for the API end point "mail"
  * @class
  * @extends ApiService
- * @package system-settings
+ * @package services-settings
  */
 class MailApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'mail-template') {

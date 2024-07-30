@@ -38,7 +38,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
@@ -188,7 +188,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertCount(\count($expectedProducts), $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
 
         foreach ($expectedProducts as $key => $expectedProduct) {
-            static::assertEquals($ids->get($expectedProduct), $resultIds[$key], sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key])));
+            static::assertEquals($ids->get($expectedProduct), $resultIds[$key], \sprintf('Expected product %s at position %d to be there, but got %s', $expectedProduct, $key, $ids->getKey($resultIds[$key])));
         }
     }
 

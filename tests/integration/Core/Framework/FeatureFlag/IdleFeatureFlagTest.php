@@ -86,7 +86,7 @@ class IdleFeatureFlagTest extends TestCase
                     static::assertContains(
                         $flag,
                         $registeredFlags,
-                        sprintf('Found idle feature flag in: %s', $file->getPathname())
+                        \sprintf('Found idle feature flag in: %s', $file->getPathname())
                     );
                 }
             }

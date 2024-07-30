@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 final class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     /**

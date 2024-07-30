@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';

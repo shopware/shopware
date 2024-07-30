@@ -13,6 +13,8 @@ const { Component } = Shopware;
 Component.register('sw-card-filter', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         placeholder: {
             type: String,

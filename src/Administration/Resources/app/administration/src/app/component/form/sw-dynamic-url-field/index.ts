@@ -7,7 +7,7 @@ import './sw-dynamic-url-field.scss';
 const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
+type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 
 /**
  * @package admin
@@ -16,6 +16,8 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
  */
 Component.register('sw-dynamic-url-field', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',
@@ -128,9 +130,11 @@ Component.register('sw-dynamic-url-field', {
         async parseLink(link: string): Promise<{ type: LinkCategories, target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail'].includes(slicedLink[1])) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                } else if (slicedLink[1] === 'mediaId') {
+                    slicedLink[1] = 'media';
                 }
                 return { type: slicedLink[1] as LinkCategories, target: slicedLink[2] };
             }
@@ -173,6 +177,8 @@ Component.register('sw-dynamic-url-field', {
                     return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
                 case 'navigation':
                     return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
+                case 'media':
+                    return `${this.seoUrlReplacePrefix}/mediaId/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
                 case 'phone':

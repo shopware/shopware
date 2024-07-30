@@ -25,7 +25,7 @@
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
             {% block component_line_item_quantity_label %}
-                <div class="line-item-quantity-label">
+                <div class="line-item-quantity-label" aria-hidden="true">
                     {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
                 </div>
             {% endblock %}
@@ -61,6 +61,7 @@
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
                                         <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
+                                            <label class="form-label visually-hidden">{{ 'component.product.quantitySelect.label'|trans|striptags }}</label>
                                             <button
                                                 {% if isDigital %}disabled="disabled"{% endif %}
                                                 type="button"

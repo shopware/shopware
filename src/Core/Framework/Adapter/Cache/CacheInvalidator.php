@@ -57,7 +57,7 @@ class CacheInvalidator
             return;
         }
 
-        $this->logger->debug(sprintf('Purged %d tags', \count($tags)));
+        $this->logger->debug(\sprintf('Purged %d tags', \count($tags)));
 
         $this->purge($tags);
     }

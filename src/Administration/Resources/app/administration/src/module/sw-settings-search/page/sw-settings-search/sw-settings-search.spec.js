@@ -1,5 +1,6 @@
 /**
- * @package system-settings
+ * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -100,6 +101,8 @@ async function createWrapper() {
                 'router-link': true,
                 'router-view': true,
                 'sw-skeleton': true,
+                'mt-tabs': true,
+                'sw-extension-component-section': true,
             },
         },
     });

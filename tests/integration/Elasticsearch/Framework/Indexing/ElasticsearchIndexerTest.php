@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  *
- * @package system-settings
+ * @package services-settings
  */
 #[Group('skip-paratest')]
 class ElasticsearchIndexerTest extends TestCase

@@ -75,7 +75,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
 
         $newOriginalNextExecution = clone $originalNextExecution;
-        $newOriginalNextExecution->modify(sprintf('+%d seconds', $interval));
+        $newOriginalNextExecution->modify(\sprintf('+%d seconds', $interval));
         $newOriginalNextExecutionString = $newOriginalNextExecution->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTimeString = $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 

@@ -241,12 +241,16 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
+            <argument type="service" id="Shopware\Elasticsearch\TokenQueryBuilder"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\TokenQueryBuilder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
@@ -392,6 +396,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument type="service" id="shopware.elasticsearch.logger"/>
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>
 

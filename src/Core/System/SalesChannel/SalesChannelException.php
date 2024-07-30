@@ -112,7 +112,7 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION,
-            sprintf('Provided language "%s" is not in list of available languages: %s', $languageId, implode(', ', $availableLanguages)),
+            \sprintf('Provided language "%s" is not in list of available languages: %s', $languageId, implode(', ', $availableLanguages)),
         );
     }
 

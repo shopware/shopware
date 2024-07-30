@@ -23,7 +23,7 @@ class AggregationResultCollection extends Collection
     }
 
     /**
-     * @param string|int        $key
+     * @param string|int $key
      * @param AggregationResult $result
      */
     public function set($key, $result): void

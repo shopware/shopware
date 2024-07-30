@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -77,6 +78,15 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                 'sw-label': await wrapTestComponent('sw-label'),
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-button': true,
+                'mt-icon': true,
+                'sw-color-badge': true,
+                'mt-loader': true,
+                'sw-loader-deprecated': true,
+                'mt-floating-ui': true,
             },
             provide: {
                 repositoryFactory: {

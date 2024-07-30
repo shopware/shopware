@@ -32,6 +32,20 @@ const { dom } = Shopware.Utils;
 Component.register('sw-grid', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    provide() {
+        return {
+            swGridInlineEditStart: this.inlineEditingStart,
+            swGridInlineEditCancel: this.disableActiveInlineEditing,
+            swOnInlineEditStart: this.onInlineEditStart,
+            swRegisterGridDisableInlineEditListener: this.registerGridDisableInlineEditListener,
+            swUnregisterGridDisableInlineEditListener: this.unregisterGridDisableInlineEditListener,
+            swGridSetColumns: this.setColumns,
+            swGridColumns: this.columns,
+        };
+    },
+
     props: {
         items: {
             type: Array,
@@ -98,6 +112,7 @@ Component.register('sw-grid', {
             scrollbarOffset: 0,
             editing: null,
             allSelectedChecked: false,
+            swGridDisableInlineEditListener: [],
         };
     },
 
@@ -176,6 +191,14 @@ Component.register('sw-grid', {
             this.setScrollbarOffset();
         },
 
+        registerGridDisableInlineEditListener(listener) {
+            this.swGridDisableInlineEditListener.push(listener);
+        },
+
+        unregisterGridDisableInlineEditListener(listener) {
+            this.swGridDisableInlineEditListener = this.swGridDisableInlineEditListener.filter((l) => l !== listener);
+        },
+
         onInlineEditFinish(item) {
             this.editing = null;
             this.$emit('inline-edit-finish', item);
@@ -186,8 +209,11 @@ Component.register('sw-grid', {
         },
 
         registerInlineEditingEvents() {
-            this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
-            this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+            // New way is using the provide/inject
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
+                this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);
+            }
         },
 
         inlineEditingStart(id) {
@@ -198,8 +224,9 @@ Component.register('sw-grid', {
             this.editing = id;
         },
 
-        disableActiveInlineEditing() {
+        disableActiveInlineEditing(item, index) {
             this.editing = null;
+            this.$emit('inline-edit-cancel', item, index);
         },
 
         selectAll(selected) {
@@ -239,6 +266,10 @@ Component.register('sw-grid', {
             return typeof this.selection[itemId] !== 'undefined';
         },
 
+        isGridDisabled(itemId) {
+            return this.isSelected(itemId) && this.selection[itemId].gridDisabled;
+        },
+
         checkSelection() {
             this.allSelectedChecked = !this.items.some((item) => {
                 return this.selection[item.id] === undefined;
@@ -270,6 +301,10 @@ Component.register('sw-grid', {
 
         setScrollbarOffset() {
             this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
+        },
+
+        setColumns(columns) {
+            this.columns = columns;
         },
     },
 });

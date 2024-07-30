@@ -1,10 +1,16 @@
 /**
- * @package system-settings
+ * @package services-settings
+ * @group disabledCompat
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
+    {
+        name: 'index',
+        path: '/',
+        component: {},
+    },
     {
         name: 'sw.settings.country.detail',
         path: '/sw/settings/country/detail/the-id',
@@ -155,6 +161,9 @@ async function createWrapper(privileges = []) {
                 'sw-skeleton': true,
                 'sw-settings-country-sidebar': true,
                 'sw-error-summary': true,
+                'sw-custom-field-set-renderer': true,
+                'mt-tabs': true,
+                'sw-extension-component-section': true,
             },
         },
     });

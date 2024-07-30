@@ -11,6 +11,8 @@ import template from './sw-password-field.html.twig';
 Shopware.Component.register('sw-password-field', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         value: {
             type: String,
@@ -22,6 +24,12 @@ Shopware.Component.register('sw-password-field', {
             type: String,
             required: false,
             default: undefined,
+        },
+
+        placeholder: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 

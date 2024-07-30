@@ -121,7 +121,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        return sprintf('COALESCE(%s)', implode(',', $select));
+        return \sprintf('COALESCE(%s)', implode(',', $select));
     }
 
     private function useCashRounding(Context $context): bool

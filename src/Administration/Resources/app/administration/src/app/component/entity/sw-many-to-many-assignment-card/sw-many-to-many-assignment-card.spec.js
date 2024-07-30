@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -30,6 +31,11 @@ async function createWrapper(customPropsData = {}) {
                 },
                 'sw-context-menu': true,
                 'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-pagination': true,
             },
             provide: {
                 repositoryFactory: {},

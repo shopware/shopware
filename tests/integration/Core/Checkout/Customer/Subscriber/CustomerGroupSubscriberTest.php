@@ -177,7 +177,7 @@ class CustomerGroupSubscriberTest extends TestCase
                 }
             }
 
-            static::assertTrue($foundUrl, sprintf('Cannot find url for language "%s"', $languageId));
+            static::assertTrue($foundUrl, \sprintf('Cannot find url for language "%s"', $languageId));
         }
     }
 

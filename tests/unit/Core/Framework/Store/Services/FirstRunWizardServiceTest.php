@@ -431,7 +431,7 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $this->expectException(LicenseDomainVerificationException::class);
-        $this->expectExceptionMessage(sprintf('License host verification failed for domain "%s."', $domain));
+        $this->expectExceptionMessage(\sprintf('License host verification failed for domain "%s."', $domain));
 
         $frwService->verifyLicenseDomain($domain, $this->context);
     }

@@ -92,7 +92,7 @@ SQL;
             $association = $definition->getFields()->get($field->getAssociationName());
 
             if (!$association instanceof ManyToManyAssociationField) {
-                throw new \RuntimeException(sprintf('Can not find association by property name %s', $field->getAssociationName()));
+                throw new \RuntimeException(\sprintf('Can not find association by property name %s', $field->getAssociationName()));
             }
             $parameters = ['ids' => $bytes];
 

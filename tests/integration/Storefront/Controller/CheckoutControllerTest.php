@@ -686,35 +686,35 @@ class CheckoutControllerTest extends TestCase
 
         $this->customerId = Uuid::randomHex();
         $salutationId = $this->getValidSalutationId();
-        $paymentMethodId = $this->getValidPaymentMethodId();
 
         $customer = [
-            [
+            'id' => $this->customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
                 'id' => $this->customerId,
-                'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $this->customerId,
-                    'firstName' => 'Test',
-                    'lastName' => self::CUSTOMER_NAME,
-                    'city' => 'Schöppingen',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'salutationId' => $salutationId,
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $this->customerId,
-                'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not12345',
                 'firstName' => 'Test',
                 'lastName' => self::CUSTOMER_NAME,
+                'city' => 'Schöppingen',
+                'street' => 'Ebbinghoff 10',
+                'zipcode' => '48624',
                 'salutationId' => $salutationId,
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'defaultBillingAddressId' => $this->customerId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'not12345',
+            'firstName' => 'Test',
+            'lastName' => self::CUSTOMER_NAME,
+            'salutationId' => $salutationId,
+            'customerNumber' => '12345',
         ];
 
-        $this->getContainer()->get('customer.repository')->create($customer, Context::createDefaultContext());
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $this->customerId;
     }

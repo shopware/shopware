@@ -1,18 +1,20 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-import Vue from 'vue';
+import { MtCard, MtTabs } from '@shopware-ag/meteor-component-library';
 
 describe('src/app/component/extension-api/sw-extension-component-section', () => {
     let wrapper = null;
     let stubs;
 
-    async function createWrapper() {
+    async function createWrapper(props = {}) {
         return mount(await wrapTestComponent('sw-extension-component-section', { sync: true }), {
             props: {
                 positionIdentifier: 'test-position',
+                ...props,
             },
             global: {
                 stubs,
@@ -31,11 +33,19 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-iframe-renderer': {
                 template: '<div></div>',
             },
+            'mt-card': MtCard,
+            'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
+            'sw-ai-copilot-badge': await wrapTestComponent('sw-ai-copilot-badge'),
+            'sw-context-button': await wrapTestComponent('sw-context-button'),
+            'sw-loader': await wrapTestComponent('sw-loader'),
+            'mt-tabs': MtTabs,
+            'sw-icon': await wrapTestComponent('sw-icon'),
+            'router-link': true,
         };
     });
 
     beforeEach(async () => {
-        Vue.set(Shopware.State.get('extensionComponentSections'), 'identifier', {});
+        Shopware.State.get('extensionComponentSections').identifier = {};
     });
 
     it('should be a Vue.js component', async () => {
@@ -131,5 +141,43 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         // Check tab content
         const activeIframe = wrapper.findComponent(stubs['sw-iframe-renderer']);
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
+    });
+
+    it.each(['dev', 'prod'])('should be deprecated in %s env', async (env) => {
+        Shopware.State.commit('extensionComponentSections/addSection', {
+            component: 'card',
+            positionId: 'test-position',
+            props: {
+                title: 'test-card',
+                subtitle: 'test-card-description',
+            },
+            extensionName: 'TestExtension',
+        });
+
+        let restoreEnv;
+        const mock = jest.fn();
+        if (env === 'prod') {
+            // In prod the deprecation will be thrown via warn
+            Shopware.Utils.debug.warn = mock;
+
+            // Save previous env to restore later and set env to prod
+            restoreEnv = process.env;
+            process.env = 'prod';
+        } else {
+            // In dev the deprecation will be thrown via warn
+            Shopware.Utils.debug.error = mock;
+        }
+
+        wrapper = await createWrapper({
+            deprecated: true, // deprecate position
+            deprecationMessage: 'Use position identifier XYZ instead.', // test additional info as well
+        });
+        await flushPromises();
+
+        expect(mock).toHaveBeenCalledWith('CORE', 'The extension "TestExtension" uses a deprecated position identifier "test-position". Use position identifier XYZ instead.');
+
+        if (restoreEnv) {
+            process.env = restoreEnv;
+        }
     });
 });

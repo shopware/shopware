@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:config:set',
     description: 'Get a config value',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ConfigSet extends Command
 {
     /**

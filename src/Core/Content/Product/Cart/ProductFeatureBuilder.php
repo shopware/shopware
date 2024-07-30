@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,6 +23,8 @@ class ProductFeatureBuilder
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomFieldCollection> $customFieldRepository
      */
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
@@ -28,19 +32,29 @@ class ProductFeatureBuilder
     ) {
     }
 
+    /**
+     * @param iterable<LineItem> $lineItems
+     */
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
         $this->loadCustomFields($lineItems, $data, $context);
     }
 
+    /**
+     * @param iterable<LineItem> $lineItems
+     *
+     * @throws CartException
+     */
     public function add(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
         foreach ($lineItems as $lineItem) {
-            $product = $data->get(
-                $this->getDataKey($lineItem->getReferencedId())
-            );
+            $productId = $lineItem->getReferencedId();
+            if ($productId === null) {
+                continue;
+            }
 
-            if (!($product instanceof SalesChannelProductEntity)) {
+            $product = $data->get($this->getDataKey($productId));
+            if (!$product instanceof SalesChannelProductEntity) {
                 continue;
             }
 
@@ -50,24 +64,22 @@ class ProductFeatureBuilder
         }
     }
 
+    /**
+     * @throws CartException
+     *
+     * @return array<int, array{label: string, value: mixed, type: string}>
+     */
     private function buildFeatures(CartDataCollection $data, LineItem $lineItem, SalesChannelProductEntity $product): array
     {
+        $sortedFeatures = $product->getFeatureSet()?->getFeatures();
+        if ($sortedFeatures === null) {
+            return [];
+        }
+
+        usort($sortedFeatures, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
+
         $features = [];
-        $featureSet = $product->getFeatureSet();
-
-        if ($featureSet === null) {
-            return $features;
-        }
-
-        $sorted = $featureSet->getFeatures();
-
-        if (empty($sorted)) {
-            return $features;
-        }
-
-        usort($sorted, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
-
-        foreach ($sorted as $feature) {
+        foreach ($sortedFeatures as $feature) {
             if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {
                 $features[] = $this->getAttribute($feature['name'], $product);
 
@@ -94,23 +106,25 @@ class ProductFeatureBuilder
         return array_filter($features);
     }
 
+    /**
+     * @param iterable<LineItem> $lineItems
+     */
     private function loadCustomFields(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
         $required = [];
 
-        /** @var LineItem $lineItem */
         foreach ($lineItems as $lineItem) {
-            $product = $data->get(
-                $this->getDataKey((string) $lineItem->getReferencedId())
-            );
-
-            if ($product === null || $product->getCustomFields() === null) {
+            $productId = $lineItem->getReferencedId();
+            if ($productId === null) {
                 continue;
             }
 
-            $names = array_keys($product->getCustomFields());
+            $product = $data->get($this->getDataKey($productId));
+            if (!$product instanceof SalesChannelProductEntity || $product->getCustomFields() === null) {
+                continue;
+            }
 
-            foreach ($names as $name) {
+            foreach (array_keys($product->getCustomFields()) as $name) {
                 if (!$this->isRequiredCustomField($name, $product)) {
                     continue;
                 }
@@ -133,7 +147,6 @@ class ProductFeatureBuilder
         $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('name', $required));
 
         $customFields = $this->customFieldRepository->search($criteria, $context->getContext())->getEntities();
-
         foreach ($customFields as $field) {
             $key = 'custom-field-' . $field->getName();
             $data->set($key, $field);
@@ -145,7 +158,7 @@ class ProductFeatureBuilder
      */
     private function isRequiredCustomField(string $name, SalesChannelProductEntity $product): bool
     {
-        if ($product->getFeatureSet() === null || $product->getFeatureSet()->getFeatures() === null) {
+        if ($product->getFeatureSet()?->getFeatures() === null) {
             return false;
         }
 
@@ -162,6 +175,9 @@ class ProductFeatureBuilder
         return false;
     }
 
+    /**
+     * @return array{label: string, value: mixed, type: string}
+     */
     private function getAttribute(string $name, SalesChannelProductEntity $product): array
     {
         $translated = $product->getTranslated();
@@ -182,19 +198,22 @@ class ProductFeatureBuilder
         ];
     }
 
+    /**
+     * @return ?array{label: string, value: mixed, type: string}
+     */
     private function getProperty(string $id, SalesChannelProductEntity $product): ?array
     {
-        if ($product->getProperties() === null) {
+        $properties = $product->getProperties();
+        if ($properties === null) {
             return null;
         }
 
-        $group = $product->getProperties()->getGroups()->get($id);
-
+        $group = $properties->getGroups()->get($id);
         if ($group === null) {
             return null;
         }
 
-        $properties = $product->getProperties()->fmap(
+        $properties = $properties->fmap(
             static function (PropertyGroupOptionEntity $property) use ($id) {
                 if ($property->getGroupId() !== $id) {
                     return null;
@@ -214,8 +233,7 @@ class ProductFeatureBuilder
         }
 
         $label = $group->getTranslation('name');
-
-        if (empty($label)) {
+        if (!\is_string($label)) {
             return null;
         }
 
@@ -226,9 +244,14 @@ class ProductFeatureBuilder
         ];
     }
 
+    /**
+     * @throws CartException
+     *
+     * @return array{label: string, value: array{id: string, type: string, content: mixed}, type: string}
+     */
     private function getCustomField(string $name, CartDataCollection $data, SalesChannelProductEntity $product): ?array
     {
-        $fieldKey = sprintf('custom-field-%s', $name);
+        $fieldKey = \sprintf('custom-field-%s', $name);
         $translation = $product->getTranslation('customFields');
 
         if ($translation === null || !\array_key_exists($name, $translation)) {
@@ -240,9 +263,12 @@ class ProductFeatureBuilder
         }
 
         $customField = $data->get($fieldKey);
-        $label = $this->getCustomFieldLabel($customField);
+        if (!$customField instanceof CustomFieldEntity) {
+            throw CartException::wrongCartDataType($fieldKey, CustomFieldEntity::class);
+        }
 
-        if (empty($label)) {
+        $label = $this->getCustomFieldLabel($customField);
+        if (!\is_string($label)) {
             return null;
         }
 
@@ -257,16 +283,18 @@ class ProductFeatureBuilder
         ];
     }
 
+    /**
+     * @return array{label: string, value: array{price: float, purchaseUnit: float, referenceUnit: float, unitName: ?string}, type: string}
+     */
     private function getReferencePrice(LineItem $lineItem, SalesChannelProductEntity $product): ?array
     {
-        if ($lineItem->getPrice() === null) {
+        $referencePrice = $lineItem->getPrice()?->getReferencePrice();
+        if ($referencePrice === null) {
             return null;
         }
 
-        $referencePrice = $lineItem->getPrice()->getReferencePrice();
         $unit = $product->getUnit();
-
-        if ($referencePrice === null || $unit === null) {
+        if ($unit === null) {
             return null;
         }
 
@@ -290,14 +318,9 @@ class ProductFeatureBuilder
      */
     private function getCustomFieldLabel(CustomFieldEntity $customField): ?string
     {
-        if ($customField->getConfig() === null || !\array_key_exists('label', $customField->getConfig())) {
-            return null;
-        }
-
-        $labels = $customField->getConfig()['label'];
         $localeCode = $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
 
-        return $labels[$localeCode] ?? null;
+        return $customField->getConfig()['label'][$localeCode] ?? null;
     }
 
     private function getDataKey(string $id): string

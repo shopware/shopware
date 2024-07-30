@@ -7,7 +7,7 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
-module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri, socketPath }) {
+module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
     const proxyUrl = proxyPort !== 80 && proxyPort !== 443 ? `${proxyHost}:${proxyPort}`: proxyHost;
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
@@ -23,7 +23,7 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
             const requestHost = client_req.hostname || client_req.headers.host;
             if (requestHost.split(':')[0] !== proxyHost) {
                 //noinspection ExceptionCaughtLocallyJS
-                throw 'Rejecting request "' + client_req.method + ' ' + requestHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
+                throw 'Rejecting request "' + client_req.method + ' ' + proxyHost + client_req.url + '" on proxy server for "' + proxyUrl + '"';
             }
 
             const requestOptions = {
@@ -41,14 +41,15 @@ module.exports = function createProxyServer({ schema, appPort, originalHost, pro
 
             // Assets
             if (client_req.url.indexOf('/_webpack_hot_proxy_/') === 0) {
-                requestOptions.path = requestOptions.path.substring(20);
-                requestOptions.socketPath = socketPath;
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
+                requestOptions.path = requestOptions.path.substr(20);
             }
 
             // Hot reload updates
-            if (client_req.url.indexOf('/__webpack_ws/') === 0) {
-                requestOptions.path = '/ws/' + requestOptions.path.substring(14);
-                requestOptions.socketPath = socketPath;
+            if (client_req.url.indexOf('/sockjs-node/') === 0 || client_req.url.indexOf('hot-update.json') !== -1 || client_req.url.indexOf('hot-update.js') !== -1) {
+                requestOptions.host = '127.0.0.1';
+                requestOptions.port = process.env.STOREFRONT_ASSETS_PORT || 9999;
             }
 
             // pipe a new request to the client request

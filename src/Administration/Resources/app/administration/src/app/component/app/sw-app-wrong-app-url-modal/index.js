@@ -16,6 +16,8 @@ const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown'
 Component.register('sw-app-wrong-app-url-modal', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {

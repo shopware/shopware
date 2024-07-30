@@ -18,7 +18,7 @@ use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ScheduledTaskControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

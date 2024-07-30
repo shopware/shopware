@@ -92,7 +92,7 @@ class ImportEntityCommand extends Command
             $expireDate = new \DateTimeImmutable($expireDateString);
         } catch (\Exception) {
             throw ImportExportException::importCommandFailed(
-                sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
+                \sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
             );
         }
 
@@ -123,7 +123,7 @@ class ImportEntityCommand extends Command
         }
         $progressBar = $io->createProgressBar($total);
 
-        $io->title(sprintf('Starting import of size %d ', $total));
+        $io->title(\sprintf('Starting import of size %d ', $total));
 
         $records = 0;
 
@@ -144,7 +144,7 @@ class ImportEntityCommand extends Command
         $this->printResults($log, $io);
 
         if ($dryRun) {
-            $io->info(sprintf('Dry run completed in %d seconds', $elapsed));
+            $io->info(\sprintf('Dry run completed in %d seconds', $elapsed));
 
             return self::SUCCESS;
         }
@@ -153,14 +153,14 @@ class ImportEntityCommand extends Command
             if ($progress->getState() === Progress::STATE_FAILED) {
                 $io->warning('Not all records could be imported due to errors');
             }
-            $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
+            $io->success(\sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
 
             return self::SUCCESS;
         }
 
         $this->connection->rollBack();
 
-        $io->error(sprintf('Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds', $records, $elapsed));
+        $io->error(\sprintf('Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds', $records, $elapsed));
 
         return self::FAILURE;
     }

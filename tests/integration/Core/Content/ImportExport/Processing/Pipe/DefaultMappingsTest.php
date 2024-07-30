@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @package system-settings
+ * @package services-settings
  */
 class DefaultMappingsTest extends TestCase
 {

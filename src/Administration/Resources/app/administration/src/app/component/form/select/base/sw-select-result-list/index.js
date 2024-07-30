@@ -14,6 +14,8 @@ const { Component } = Shopware;
 Component.register('sw-select-result-list', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     provide() {
         return {
             setActiveItemIndex: this.setActiveItemIndex,

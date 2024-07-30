@@ -76,7 +76,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertIsInt($response['handledMessages']);
         static::assertSame(0, $response['handledMessages']);
 
-        $filePath = sprintf('%s/Testexport.csv', static::getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', static::getContainer()->getParameter('product_export.directory'));
         static::assertFalse($this->fileSystem->fileExists($filePath));
 
         $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->getEntities()->first();

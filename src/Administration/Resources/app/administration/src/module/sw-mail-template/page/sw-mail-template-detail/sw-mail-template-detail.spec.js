@@ -723,4 +723,25 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(sendTestMail.attributes().disabled).toBeDefined();
     });
+
+    it('should display an error notification when the mail template type is missing', async () => {
+        wrapper = await createWrapper();
+
+        wrapper.vm.createNotificationError = jest.fn();
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        wrapper.vm.mailTemplateRepository.get = jest.fn().mockResolvedValue({
+            ...mailTemplateMock,
+            mailTemplateType: null,
+        });
+
+        await wrapper.vm.loadEntityData();
+
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: wrapper.vm.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
 });

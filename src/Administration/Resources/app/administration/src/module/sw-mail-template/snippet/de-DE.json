@@ -8,7 +8,8 @@
       "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
       "notificationTestMailSuccessMessage": "Die Test-Mail ist erfolgreich versandt worden.",
       "notificationSyntaxValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax: {errorMsg}",
-      "notificationGeneralSyntaxValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax."
+      "notificationGeneralSyntaxValidationErrorMessage": "Ungültiges Template, überprüfe die Syntax.",
+      "missingMailTemplateTypeErrorMessage": "Ein erforderliche E-Mail-Template-Typ fehlt oder ist nicht verfügbar."
     },
     "list": {
       "textMailTemplateOverview": "E-Mail-Templates",

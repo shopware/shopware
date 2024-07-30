@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ permissions, modalTitle, selectedEntity }) {
@@ -17,6 +20,7 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                     props: ['name', 'color'],
                     template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
                 },
+                'sw-button': true,
             },
         },
         props: {

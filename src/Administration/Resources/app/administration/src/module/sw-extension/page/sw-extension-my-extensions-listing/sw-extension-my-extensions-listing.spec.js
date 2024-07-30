@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
@@ -6,10 +9,12 @@ const routes = [{
     name: 'sw.extension.my-extensions.listing.app',
     path: '/sw/extension/my-extensions/listing/app',
     query: {},
+    component: {},
 }, {
     name: 'sw.extension.my-extensions.listing.theme',
     path: '/sw/extension/my-extensions/listing/theme',
     query: {},
+    component: {},
 }];
 
 const shopwareService = new ShopwareService({}, {}, {}, {});
@@ -52,6 +57,13 @@ async function createWrapper() {
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                 'sw-alert': await wrapTestComponent('sw-alert', { sync: true }),
+                'sw-skeleton': true,
+                'sw-external-link': true,
+                'sw-alert-deprecated': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-loader': true,
             },
             provide: {
                 repositoryFactory: {

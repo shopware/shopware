@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}, provide = {}) {
@@ -10,6 +13,28 @@ async function createWrapper(propsData = {}, provide = {}) {
                 extensionStoreActionService: {},
                 cacheApiService: {},
                 ...provide,
+            },
+            stubs: {
+                'sw-loader': true,
+                'sw-switch-field': true,
+                'sw-extension-icon': true,
+                'sw-context-menu-item': {
+                    name: 'sw-context-menu-item',
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                },
+                'sw-icon': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-extension-uninstall-modal': true,
+                'sw-extension-removal-modal': true,
+                'sw-extension-permissions-modal': {
+                    template: '<div class="sw-extension-permissions-modal"><slot></slot></div>',
+                },
+                'sw-extension-privacy-policy-extensions-modal': true,
+                'sw-meteor-card': {
+                    template: '<div><slot></slot></div>',
+                },
             },
         },
         props: {
@@ -145,7 +170,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
         await wrapper.vm.$nextTick();
 
-        const state = wrapper.findAll('sw-context-menu-item');
+        const state = wrapper.findAll('.sw-context-menu-item');
         expect(state).toHaveLength(1);
     });
 
@@ -197,6 +222,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         await wrapper.vm.updateExtension(false);
-        expect(wrapper.get('sw-extension-permissions-modal').exists()).toBe(true);
+        expect(wrapper.get('.sw-extension-permissions-modal').exists()).toBe(true);
     });
 });

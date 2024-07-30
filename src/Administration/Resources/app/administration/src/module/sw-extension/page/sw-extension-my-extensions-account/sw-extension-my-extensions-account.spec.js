@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
@@ -22,6 +25,14 @@ async function createWrapper() {
                     template: `
 <input type="password" :value="value" @input="$emit('update:value', $event.target.value)" />
 `,
+                },
+                'sw-skeleton': true,
+                'sw-avatar': true,
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                },
+                'sw-meteor-card': {
+                    template: '<div><slot></slot></div>',
                 },
             },
             provide: {

@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
@@ -21,6 +24,10 @@ async function createWrapper(userConfig = {}) {
                     template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                 },
                 'sw-loader': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 extensionStoreActionService: {

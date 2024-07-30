@@ -104,7 +104,13 @@ export default {
         },
 
         setSliderRowLimit() {
-            if (this.currentDeviceView === 'mobile' || this.$refs.productHolder.offsetWidth < 500) {
+            const boxWidth = this.$refs.productHolder?.offsetWidth;
+
+            if (boxWidth === undefined) {
+                return;
+            }
+
+            if (this.currentDeviceView === 'mobile' || boxWidth < 500) {
                 this.sliderBoxLimit = 1;
                 return;
             }
@@ -122,7 +128,6 @@ export default {
 
             // Subtract to fake look in storefront which has more width
             const fakeLookWidth = 100;
-            const boxWidth = this.$refs.productHolder.offsetWidth;
             const elGap = 32;
             let elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 10);
 

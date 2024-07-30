@@ -45,14 +45,16 @@ async function createWrapper(options = {}) {
     return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
+                'sw-icon': {
+                    template: '<div class="sw-icon"></div>',
+                },
                 'sw-version': true,
                 'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
                 'sw-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'router-link': {
-                    template: '<div><slot /></div>',
+                    template: '<div class="router-link"><slot /></div>',
                 },
             },
             provide: {
@@ -408,5 +410,30 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+    });
+
+    it('should not show icons in flyout menu items', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: 100 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 20 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        const flyoutItem = wrapper.findComponent('.sw-admin-menu_flyout-holder .navigation-list-item__sw-second-level-first');
+        expect(flyoutItem.findAll('.sw-icon')).toHaveLength(0);
     });
 });

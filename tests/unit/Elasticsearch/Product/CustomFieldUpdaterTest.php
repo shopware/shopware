@@ -164,6 +164,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'test' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -181,6 +182,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'test' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -334,6 +336,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'field2' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -351,6 +354,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'field2' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -470,6 +474,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'field2' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -487,6 +492,7 @@ class CustomFieldUpdaterTest extends TestCase
                     'properties' => [
                         'field2' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -612,6 +618,7 @@ class CustomFieldUpdaterTest extends TestCase
             'unknown',
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [

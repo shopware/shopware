@@ -14,6 +14,7 @@ abstract class AbstractElasticsearchDefinition
 {
     final public const KEYWORD_FIELD = [
         'type' => 'keyword',
+        'ignore_above' => 10000,
         'normalizer' => 'sw_lowercase_normalizer',
     ];
 

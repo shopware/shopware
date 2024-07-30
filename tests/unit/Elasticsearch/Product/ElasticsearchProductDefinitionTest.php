@@ -39,6 +39,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         'properties' => [
             'lang_en' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -53,6 +54,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             'lang_de' => [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -70,6 +72,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
     private const SEARCHABLE_MAPPING = [
         'type' => 'keyword',
+        'ignore_above' => 10000,
         'normalizer' => 'sw_lowercase_normalizer',
         'fields' => [
             'search' => [
@@ -257,10 +260,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'shippingFree' => [
                     'type' => 'boolean',
                 ],
-                'taxId' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
+                'taxId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'tags' => [
                     'type' => 'nested',
                     'properties' => [
@@ -392,6 +392,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -406,6 +407,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -423,6 +425,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [
@@ -437,6 +440,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'ignore_above' => 10000,
                 'normalizer' => 'sw_lowercase_normalizer',
                 'fields' => [
                     'search' => [

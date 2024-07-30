@@ -24,39 +24,41 @@
             {% endif %}
 
             {% block element_manufacturer_logo_link %}
-                <a href="{{ manufacturer.link }}"
-                   class="cms-image-link product-detail-manufacturer-link"
-                   {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
-                   title="{{ manufacturer.name }}">
-                    {% if manufacturer.media %}
-                        <div class="cms-image-container is-{{ config.displayMode.value }}"
-                            {% if config.minHeight.value and config.displayMode.value == "cover" %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
+                {% if manufacturer.name %}
+                    <a href="{{ manufacturer.link }}"
+                       class="cms-image-link product-detail-manufacturer-link"
+                       {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
+                       title="{{ manufacturer.name }}">
+                        {% if manufacturer.media %}
+                            <div class="cms-image-container is-{{ config.displayMode.value }}"
+                                {% if config.minHeight.value and config.displayMode.value == "cover" %} style="min-height: {{ config.minHeight.value }};"{% endif %}>
 
-                            {% block element_manufacturer_logo_image %}
-                                {% set attributes = {
-                                    'class': 'cms-image product-detail-manufacturer-logo',
-                                    'alt': manufacturer.alt,
-                                    'title': manufacturer.name
-                                } %}
+                                {% block element_manufacturer_logo_image %}
+                                    {% set attributes = {
+                                        'class': 'cms-image product-detail-manufacturer-logo',
+                                        'alt': manufacturer.alt,
+                                        'title': manufacturer.name
+                                    } %}
 
-                                {% if config.displayMode.value == 'cover' or config.displayMode.value == 'contain' %}
-                                    {% set attributes = attributes|merge({ 'data-object-fit': config.displayMode.value }) %}
-                                {% endif %}
+                                    {% if config.displayMode.value == 'cover' or config.displayMode.value == 'contain' %}
+                                        {% set attributes = attributes|merge({ 'data-object-fit': config.displayMode.value }) %}
+                                    {% endif %}
 
-                                {% sw_thumbnails 'cms-image-thumbnails' with {
-                                    media: manufacturer.media,
-                                    sizes: {
-                                        'default': '200px'
-                                    }
-                                } %}
+                                    {% sw_thumbnails 'cms-image-thumbnails' with {
+                                        media: manufacturer.media,
+                                        sizes: {
+                                            'default': '200px'
+                                        }
+                                    } %}
+                                {% endblock %}
+                            </div>
+                        {% else %}
+                            {% block element_manufacturer_logo_text %}
+                                {{ manufacturer.name }}
                             {% endblock %}
-                        </div>
-                    {% else %}
-                        {% block element_manufacturer_logo_text %}
-                            {{ manufacturer.name }}
-                        {% endblock %}
-                    {% endif %}
-                </a>
+                        {% endif %}
+                    </a>
+                {% endif %}
             {% endblock %}
 
             {% if config.verticalAlign.value %}

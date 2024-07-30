@@ -506,7 +506,7 @@ PHP_EOL;
         FileCollection $styleFiles,
         string $salesChannelId
     ): string {
-        $styles = $styleFiles->map(fn (File $file) => sprintf('@import \'%s\';', $file->getFilepath()));
+        $styles = $styleFiles->map(fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
 
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
             implode("\n", $styles),

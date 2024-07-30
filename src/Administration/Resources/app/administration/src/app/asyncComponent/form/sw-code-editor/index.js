@@ -168,11 +168,19 @@ export default {
         classes() {
             return {
                 'has--error': !!this.error,
+                [this.$attrs.class]: !!this.$attrs.class,
             };
         },
 
         enableHtmlSanitizer() {
             return Shopware.Context.app.config.settings.enableHtmlSanitizer;
+        },
+
+        attrsWithoutClass() {
+            return {
+                ...this.$attrs,
+                class: undefined,
+            };
         },
     },
 

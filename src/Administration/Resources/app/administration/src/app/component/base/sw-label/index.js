@@ -92,7 +92,7 @@ Component.register('sw-label', {
                 return !!this.$listeners.dismiss && this.dismissable;
             }
 
-            return !!this.$attrs.dismiss && this.dismissable;
+            return !!this.$attrs.onDismiss && this.dismissable;
         },
     },
 });

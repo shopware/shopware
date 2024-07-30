@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-country-preview-template', {

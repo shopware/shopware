@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper(customPropsData = {}) {
     return mount(await wrapTestComponent('sw-multi-snippet-drag-and-drop', {
@@ -31,6 +32,11 @@ async function createWrapper(customPropsData = {}) {
                     </div>`,
                 },
                 'sw-icon': true,
+                'sw-inheritance-switch': true,
+                'sw-color-badge': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             mocks: {
                 $tc: key => key,
@@ -188,11 +194,6 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         const wrapper = await createWrapper({ totalLines: 1 });
         await flushPromises();
 
-        expect(wrapper.emitted()).toEqual({
-            'hook:beforeMount': [[]],
-            'hook:mounted': [[]],
-        });
-
         await wrapper.vm.onDragStart();
         await flushPromises();
 
@@ -202,16 +203,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
     it('should emit event `drag-enter` when ending drag', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
 
-        expect(wrapper.emitted()).toEqual({
-            'hook:beforeMount': [[]],
-            'hook:mounted': [[]],
-        });
-
         await wrapper.vm.onDragEnter(null, null);
-        expect(wrapper.emitted()).toEqual({
-            'hook:beforeMount': [[]],
-            'hook:mounted': [[]],
-        });
+        expect(wrapper.emitted()['drag-enter']).toBeFalsy();
 
         await wrapper.vm.onDragEnter({ data: {} }, { data: {} });
         expect(wrapper.emitted()['drag-enter']).toBeTruthy();
@@ -220,16 +213,8 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
     it('should emit event `drop-end` when drop', async () => {
         const wrapper = await createWrapper({ totalLines: 1 });
 
-        expect(wrapper.emitted()).toEqual({
-            'hook:beforeMount': [[]],
-            'hook:mounted': [[]],
-        });
-
         await wrapper.vm.onDragEnter(null, null);
-        expect(wrapper.emitted()).toEqual({
-            'hook:beforeMount': [[]],
-            'hook:mounted': [[]],
-        });
+        expect(wrapper.emitted()['drag-enter']).toBeFalsy();
 
         await wrapper.vm.onDrop({
             index: 0,

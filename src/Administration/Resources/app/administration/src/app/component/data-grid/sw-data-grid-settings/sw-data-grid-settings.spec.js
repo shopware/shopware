@@ -4,7 +4,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
 
 describe('components/data-grid/sw-data-grid-settings', () => {
     let wrapper;
@@ -34,7 +33,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                     'sw-icon': true,
                     'sw-context-menu-divider': true,
                     'sw-button-group': true,
-                    'mt-switch': MtSwitch,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,

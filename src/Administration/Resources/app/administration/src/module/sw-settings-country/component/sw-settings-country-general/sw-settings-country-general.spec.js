@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -76,6 +77,9 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                 'sw-settings-country-currency-dependent-modal': true,
                 'sw-entity-single-select': true,
                 'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
     });
@@ -100,7 +104,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
             enabled: true,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const countryNameField = wrapper.find(
             'sw-text-field-stub[label="sw-settings-country.detail.labelName"]',

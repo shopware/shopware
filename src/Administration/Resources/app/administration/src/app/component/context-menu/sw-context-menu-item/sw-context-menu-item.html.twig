@@ -10,6 +10,7 @@
     :disabled="disabled"
     :event="disabled ? null : 'click'"
     :target="disabled ? null : target"
+    v-bind="$attrs"
     v-on="contextListeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -47,6 +48,7 @@
     v-else
     class="sw-context-menu-item"
     :class="contextMenuItemStyles"
+    v-bind="$attrs"
     v-on="contextListeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

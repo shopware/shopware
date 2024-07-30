@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -41,6 +42,8 @@ async function createWrapper(privileges = []) {
                 'sw-checkbox-field': {
                     template: '<div class="checkbox"></div>',
                 },
+                'router-link': true,
+                'sw-loader': true,
             },
         },
     });

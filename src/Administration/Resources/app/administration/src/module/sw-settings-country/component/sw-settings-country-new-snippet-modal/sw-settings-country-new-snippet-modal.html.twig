@@ -97,7 +97,7 @@
         :is-loading="isLoading"
         :error="null"
         v-bind="$attrs"
-        v-on="$listeners"
+        v-on="listeners"
     >
         <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
             <ul
@@ -139,7 +139,7 @@
                         <input
                             class="sw-select-selection-list__input"
                             type="text"
-                            :disabled="disabled"
+                            :disabled="disabled || undefined"
                         >
                     </slot>
                 </li>

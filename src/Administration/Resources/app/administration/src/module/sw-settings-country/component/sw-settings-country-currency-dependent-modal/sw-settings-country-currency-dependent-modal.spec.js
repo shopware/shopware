@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -67,6 +68,7 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                 'sw-radio-field': true,
                 'sw-number-field': true,
                 'sw-button': true,
+                'sw-settings-country-currency-hamburger-menu': true,
             },
         },
 

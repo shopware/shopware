@@ -45,6 +45,7 @@ async function createWrapper() {
                 'sw-sales-channel-detail-hreflang': true,
                 'sw-sales-channel-detail-domains': true,
                 'sw-category-tree-field': true,
+                'mt-select': true,
             },
             provide: {
                 salesChannelService: {},

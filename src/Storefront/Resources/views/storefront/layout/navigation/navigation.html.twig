@@ -7,6 +7,7 @@
             <div class="container">
                 {% block layout_main_navigation_menu %}
                     <nav class="nav main-navigation-menu"
+                        aria-label="Main Navigation"
                         itemscope="itemscope"
                         itemtype="http://schema.org/SiteNavigationElement">
                         {% set homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans) %}

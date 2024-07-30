@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     async function createWrapper(noReviews = false) {
@@ -42,6 +43,15 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                             return Promise.resolve(reviewsAndSummary);
                         },
                     }),
+                },
+                stubs: {
+                    'sw-extension-ratings-summary': true,
+                    'sw-extension-review': true,
+                    'sw-extension-review-creation': true,
+                    'sw-button': true,
+                    'sw-meteor-card': {
+                        template: '<div><slot></slot></div>',
+                    },
                 },
             },
             props: {

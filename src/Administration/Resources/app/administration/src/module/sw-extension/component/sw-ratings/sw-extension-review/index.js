@@ -10,6 +10,8 @@ const { date } = Shopware.Utils.format;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         review: {
             type: Object,

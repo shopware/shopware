@@ -8,6 +8,9 @@ async function createWrapper(propsData = {}) {
                     return key + JSON.stringify(Object.values(values));
                 },
             },
+            stubs: {
+                'sw-button': true,
+            },
         },
         props: {
             extensionName: 'Awesome extension',
@@ -20,6 +23,7 @@ async function createWrapper(propsData = {}) {
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     it('should show the correct title', async () => {

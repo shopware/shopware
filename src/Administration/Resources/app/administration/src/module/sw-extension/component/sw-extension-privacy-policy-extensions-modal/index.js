@@ -8,6 +8,8 @@ import './sw-extension-privacy-policy-extensions-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         extensionName: {
             type: String,

@@ -372,6 +372,7 @@ PHP Full:
         MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-require-primary-key=ON"
       - MYSQL_IMAGE: mysql:8.0.36
       - MYSQL_IMAGE: mysql:8.4
+      - MYSQL_IMAGE: mysql:9.0
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11
         PREFER_LOWEST: "prefer lowest"

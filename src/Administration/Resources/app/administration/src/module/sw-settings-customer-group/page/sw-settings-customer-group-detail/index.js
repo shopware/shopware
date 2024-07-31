@@ -262,6 +262,7 @@ export default {
 
             try {
                 await this.customerGroupRepository.save(this.customerGroup);
+                await this.loadSeoUrls();
 
                 this.isSaveSuccessful = true;
             } catch (err) {

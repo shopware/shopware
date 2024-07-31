@@ -76,7 +76,8 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
  * Registry which holds all component overrides
  * @private
  */
-const overrideRegistry = new Map<string, AwaitedComponentConfig[]>();
+type IndexedAwaitedComponentConfig = {index: number, config: AwaitedComponentConfig};
+const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.ts
@@ -119,7 +120,7 @@ function getComponentRegistry(): Map<string, AwaitedComponentConfig> {
  * Returns the map with all registered component overrides.
  * @private
  */
-function getOverrideRegistry(): Map<string, AwaitedComponentConfig[]> {
+function getOverrideRegistry(): Map<string, IndexedAwaitedComponentConfig[]> {
     return overrideRegistry;
 }
 
@@ -677,7 +678,7 @@ function extend(
 function override(
     componentName: string,
     componentConfiguration: ComponentConfig|(() => Promise<ComponentConfig>),
-    overrideIndex = null,
+    overrideIndex: number|null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
     const configResolveMethod = async (): Promise<ComponentConfig> => {
@@ -719,13 +720,8 @@ function override(
     };
 
     const overrides = overrideRegistry.get(componentName) || [];
-
-    if (overrideIndex !== null && overrideIndex >= 0 && overrides.length > 0) {
-        overrides.splice(overrideIndex, 0, configResolveMethod);
-    } else {
-        overrides.push(configResolveMethod);
-    }
-
+    overrides.push({ index: overrideIndex !== null ? overrideIndex : 0, config: configResolveMethod });
+    overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
 
     return configResolveMethod;
@@ -750,7 +746,7 @@ async function initComponent(componentName: string): Promise<void> {
     }
 
     if (asyncOverrideComponent) {
-        await Promise.all(asyncOverrideComponent.map(c => c()));
+        await Promise.all(asyncOverrideComponent.map(c => c.config()));
     }
 }
 
@@ -808,7 +804,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(overrides, config);
+        const convertedOverrides = await convertOverrides(overrides!.map((c) => c.config), config);
 
         convertedOverrides.forEach((overrideComp) => {
             overrideComp.extends = config;

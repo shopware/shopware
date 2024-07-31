@@ -386,12 +386,12 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
                 expect(overrideRegistry.get('test-component')).toHaveLength(1);
-                expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
             });
         });
     });
 
-    describe('should register two overrides of an existing component in the override registry (with index)', () => {
+    describe('should register two overrides of an existing component in the override registry (with same index)', () => {
         createComponentMatrix({
             A: () => ({
                 created() {},
@@ -420,7 +420,7 @@ describe('core/factory/async-component.factory.ts', () => {
             it(`${testCase}`, async () => {
                 ComponentFactory.register('test-component', components.A());
                 const overrideOne = ComponentFactory.override('test-component', components.B());
-                const overrideTwo = ComponentFactory.override('test-component', components.C(), 0);
+                const overrideTwo = ComponentFactory.override('test-component', components.C());
 
                 const registry = ComponentFactory.getComponentRegistry();
                 const overrideRegistry = ComponentFactory.getOverrideRegistry();
@@ -434,12 +434,172 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(overrideRegistry.has('test-component')).toBe(true);
                 expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
                 expect(overrideRegistry.get('test-component')).toHaveLength(2);
-                expect(overrideRegistry.get('test-component')[0]).toBeInstanceOf(Object);
-                expect(overrideRegistry.get('test-component')[1]).toBeInstanceOf(Object);
-                expect(typeof (await overrideRegistry.get('test-component')[0]()).methods.testMethod).toBe('function');
-                expect(typeof (await overrideRegistry.get('test-component')[1]()).methods.testMethod).toBe('function');
-                expect((await overrideRegistry.get('test-component')[0]()).methods.testMethod()).toBe('This is the second override.');
-                expect((await overrideRegistry.get('test-component')[1]()).methods.testMethod()).toBe('This is the first override.');
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(0);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(0);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the first override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the second override.');
+            });
+        });
+    });
+
+    describe('should register two overrides of an existing component in the override registry (with higher index)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {},
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the first override.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the second override.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                const overrideOne = ComponentFactory.override('test-component', components.B(), 3);
+                const overrideTwo = ComponentFactory.override('test-component', components.C(), 5);
+
+                const registry = ComponentFactory.getComponentRegistry();
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect(typeof (await overrideOne()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideTwo()).methods.testMethod).toBe('function');
+                expect(overrideOne.template).toBeUndefined();
+                expect(overrideTwo.template).toBeUndefined();
+                expect(registry.has('test-component')).toBe(true);
+                expect(registry.get('test-component')).toBeInstanceOf(Object);
+                expect(overrideRegistry.has('test-component')).toBe(true);
+                expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
+                expect(overrideRegistry.get('test-component')).toHaveLength(2);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(3);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(5);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the first override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the second override.');
+            });
+        });
+    });
+
+    describe('should register two overrides of an existing component in the override registry (with lower index)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {},
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the first override.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is the second override.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                const overrideOne = ComponentFactory.override('test-component', components.B(), 5);
+                const overrideTwo = ComponentFactory.override('test-component', components.C(), 3);
+
+                const registry = ComponentFactory.getComponentRegistry();
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect(typeof (await overrideOne()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideTwo()).methods.testMethod).toBe('function');
+                expect(overrideOne.template).toBeUndefined();
+                expect(overrideTwo.template).toBeUndefined();
+                expect(registry.has('test-component')).toBe(true);
+                expect(registry.get('test-component')).toBeInstanceOf(Object);
+                expect(overrideRegistry.has('test-component')).toBe(true);
+                expect(overrideRegistry.get('test-component')).toBeInstanceOf(Array);
+                expect(overrideRegistry.get('test-component')).toHaveLength(2);
+                expect(overrideRegistry.get('test-component')[0].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[1].config).toBeInstanceOf(Object);
+                expect(overrideRegistry.get('test-component')[0].index).toBe(3);
+                expect(overrideRegistry.get('test-component')[1].index).toBe(5);
+                expect(typeof (await overrideRegistry.get('test-component')[0].config()).methods.testMethod).toBe('function');
+                expect(typeof (await overrideRegistry.get('test-component')[1].config()).methods.testMethod).toBe('function');
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is the second override.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is the first override.');
+            });
+        });
+    });
+
+    describe('should register three overrides of an existing component in the override registry (with different indices)', () => {
+        createComponentMatrix({
+            A: () => ({
+                created() {},
+                methods: {
+                    testMethod() {
+                        return 'This is a test method.';
+                    },
+                },
+                template: '<div>This is a test template.</div>',
+            }),
+            B: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override B.';
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override C.';
+                    },
+                },
+            }),
+            D: () => ({
+                methods: {
+                    testMethod() {
+                        return 'This is override D.';
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B(), 50);
+                ComponentFactory.override('test-component', components.C(), 100);
+                ComponentFactory.override('test-component', components.D(), 75);
+
+                const overrideRegistry = ComponentFactory.getOverrideRegistry();
+
+                expect((await overrideRegistry.get('test-component')[0].config()).methods.testMethod()).toBe('This is override B.');
+                expect((await overrideRegistry.get('test-component')[1].config()).methods.testMethod()).toBe('This is override D.');
+                expect((await overrideRegistry.get('test-component')[2].config()).methods.testMethod()).toBe('This is override C.');
             });
         });
     });

@@ -64,7 +64,8 @@
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden.",
-    "wishlist": "Merkzettel"
+    "wishlist": "Merkzettel",
+    "navigationAriaLabel": "Hauptnavigation"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",

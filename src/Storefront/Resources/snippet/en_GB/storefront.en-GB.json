@@ -64,7 +64,8 @@
     "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
     "indexLinkService": "Service/help",
     "searchNoResult": "No results found.",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "navigationAriaLabel": "Main navigation"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "Input should not be empty.",

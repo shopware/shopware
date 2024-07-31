@@ -60,6 +60,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
             <argument type="service" id="custom_field_set.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister">

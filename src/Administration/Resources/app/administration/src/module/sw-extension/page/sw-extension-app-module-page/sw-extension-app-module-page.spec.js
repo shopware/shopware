@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
 async function createWrapper(props) {
@@ -15,6 +20,10 @@ async function createWrapper(props) {
                 'sw-app-actions': true,
                 'sw-loader': true,
                 'sw-button': true,
+                'sw-app-topbar-button': true,
+                'sw-help-center-v2': true,
+                'sw-icon': true,
+                'router-link': true,
             },
             mocks: {
                 $route: {

@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-reply', () => {
     async function createWrapper() {

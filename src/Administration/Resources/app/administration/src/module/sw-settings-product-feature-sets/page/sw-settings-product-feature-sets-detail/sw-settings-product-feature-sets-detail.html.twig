@@ -27,7 +27,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-currency-detail__save-action"
             :is-loading="isLoading"
-            :disabled="isLoading || !acl.can('product_feature_sets.editor')"
+            :disabled="isLoading || !acl.can('product_feature_sets.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -96,8 +96,8 @@
                 {% block sw_settings_product_feature_set_detail_content_values_card %}
                 <sw-settings-product-feature-sets-values-card
                     v-if="productFeatureSet.id"
-                    :disabled="!productFeatureSetId"
-                    :allow-edit="acl.can('product_feature_sets.editor')"
+                    :disabled="!productFeatureSetId || undefined"
+                    :allow-edit="acl.can('product_feature_sets.editor') || undefined"
                     class="sw-settings-product-feature-sets-detail__tax-rule-grid"
                     :product-feature-set="productFeatureSet"
                     :is-loading="isLoading"

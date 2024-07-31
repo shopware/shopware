@@ -5,9 +5,12 @@ const { date } = Shopware.Utils.format;
 
 /**
  * @private
+ * @package checkout
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         reply: {

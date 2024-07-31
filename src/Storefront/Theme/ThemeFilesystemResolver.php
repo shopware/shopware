@@ -26,7 +26,7 @@ class ThemeFilesystemResolver
         private readonly Kernel $kernel,
     ) {
         // get all bundles + plugin names
-        // we need to do this because at boot at plugin might not be active (eg during plugin:activate command) and thus not in `getBundles()`
+        // we need to do this because at boot a plugin might not be active (eg during plugin:activate command) and thus not in `getBundles()`
         // but getPluginInstances does not include local bundles (eg Storefront)
         $this->bundleNames = array_values(array_unique(array_merge(
             array_keys($this->kernel->getBundles()),

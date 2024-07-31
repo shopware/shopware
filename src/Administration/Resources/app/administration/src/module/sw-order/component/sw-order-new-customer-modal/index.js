@@ -30,6 +30,7 @@ export default {
             customer: null,
             isLoading: false,
             customerNumberPreview: '',
+            defaultSalutationId: null,
         };
     },
 
@@ -102,6 +103,8 @@ export default {
                 }
 
                 const shippingAddress = this.addressRepository.create();
+                shippingAddress.salutationId = this.defaultSalutationId;
+
                 this.customer.addresses.add(shippingAddress);
                 this.customer.defaultShippingAddressId = shippingAddress.id;
             },
@@ -178,10 +181,10 @@ export default {
         async createdComponent() {
             this.customer = this.customerRepository.create();
 
-            const defaultSalutationId = await this.getDefaultSalutationId();
+            this.defaultSalutationId = await this.getDefaultSalutationId();
 
             const billingAddress = this.addressRepository.create();
-            billingAddress.salutationId = defaultSalutationId;
+            billingAddress.salutationId = this.defaultSalutationId;
 
             this.customer.addresses.add(billingAddress);
 
@@ -189,7 +192,7 @@ export default {
             this.customer.defaultBillingAddressId = billingAddress.id;
             this.customer.accountType = CUSTOMER.ACCOUNT_TYPE_PRIVATE;
             this.customer.vatIds = [];
-            this.customer.salutationId = defaultSalutationId;
+            this.customer.salutationId = this.defaultSalutationId;
         },
 
         async onSave() {

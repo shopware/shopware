@@ -175,6 +175,7 @@ acceptance:
 
 acceptance (changed):
   extends: acceptance
+  needs: [acceptance]
   parallel:
     matrix:
       - _DUMMY_VAR: ["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"]

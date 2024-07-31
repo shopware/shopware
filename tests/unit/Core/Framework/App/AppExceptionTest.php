@@ -111,4 +111,13 @@ class AppExceptionTest extends TestCase
         static::assertEquals('FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM', $e->getErrorCode());
         static::assertEquals('Cannot mount a filesystem for App "appName". Error: "' . $previous->getMessage() . '"', $e->getMessage());
     }
+
+    public function testSourceDoesNotExist(): void
+    {
+        $e = AppException::sourceDoesNotExist('/Unknown/Source');
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertEquals('FRAMEWORK__APP_NO_SOURCE_SUPPORTS', $e->getErrorCode());
+        static::assertEquals('The source "/Unknown/Source" does not exist', $e->getMessage());
+    }
 }

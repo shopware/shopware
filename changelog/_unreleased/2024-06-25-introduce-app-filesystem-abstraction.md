@@ -20,7 +20,7 @@ ___
 ___
 # Next Major Version Changes
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
-Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` will be removed without replacement. These classes are already not used as of v6.7.0 and therefore this extension point is removed with no planned replacement.
+Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
 
 `getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
 This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:

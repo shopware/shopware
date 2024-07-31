@@ -42,11 +42,20 @@ class CustomFieldSet extends XmlElement
     protected bool $global = false;
 
     /**
-     * @return array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
+     * @param array<string, string> $existingRelations
+     *
+     * @return array<string, mixed>
      */
-    public function toEntityArray(string $appId): array
+    public function toEntityArray(string $appId, array $existingRelations): array
     {
-        $relations = array_map(static fn (string $entity) => ['entityName' => $entity], $this->relatedEntities);
+        $relations = array_map(static function (string $entity) use ($existingRelations): array {
+            $relationData = ['entityName' => $entity];
+            if (\array_key_exists($entity, $existingRelations)) {
+                $relationData['id'] = $existingRelations[$entity];
+            }
+
+            return $relationData;
+        }, $this->relatedEntities);
 
         $customFields = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload(), $this->fields);
 

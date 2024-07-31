@@ -31,7 +31,7 @@
         <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
             v-bind="{
-                ...$attrs,
+                ...attrsWithoutClass,
                 ...inheritanceAttrs
             }"
             :is-inheritance-field="inheritanceAttrs.isInheritanceField"

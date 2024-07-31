@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -87,7 +88,7 @@ async function createWrapper(privileges = []) {
                             <sw-context-menu-item
                                 class="sw-one-to-many-grid__delete-action"
                                 variant="danger"
-                                :disabled="!allowDelete"
+                                :disabled="!allowDelete || undefined"
                                 @click="deleteItem(item.id)">
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
@@ -97,6 +98,10 @@ async function createWrapper(privileges = []) {
                 `,
                 },
                 'sw-empty-state': true,
+                'sw-country-state-detail': true,
+                'sw-context-button': true,
+                'sw-ai-copilot-badge': true,
+                'sw-loader': true,
             },
         },
 

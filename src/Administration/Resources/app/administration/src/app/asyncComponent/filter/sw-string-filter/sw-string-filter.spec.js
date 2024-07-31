@@ -2,7 +2,6 @@
  * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
-import { MtTextField } from '@shopware-ag/meteor-component-library';
 
 const { Criteria } = Shopware.Data;
 
@@ -11,7 +10,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
-                'mt-text-field': MtTextField,
             },
         },
         props: {

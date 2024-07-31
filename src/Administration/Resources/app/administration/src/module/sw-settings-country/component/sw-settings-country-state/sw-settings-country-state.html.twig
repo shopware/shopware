@@ -52,7 +52,7 @@
                 class="sw-settings-country-state__add-country-state-button"
                 size="x-small"
                 variant="primary"
-                :disabled="!acl.can('country.editor')"
+                :disabled="!acl.can('country.editor') || undefined"
                 @click="onAddCountryState"
             >
                 {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
@@ -71,7 +71,7 @@
             class="sw-settings-country-state-list__content"
             :is-loading="countryStateLoading"
             :collection="country.states"
-            :full-page="false"
+            :full-page="undefined"
             :local-mode="country.isNew()"
             :columns="stateColumns"
             :allow-delete="acl.can('country.editor')"
@@ -111,7 +111,7 @@
                         showOnDisabledElements: true
                     }"
                     class="sw-settings-country-state__edit-country-state-action"
-                    :disabled="!acl.can('country.editor')"
+                    :disabled="!acl.can('country.editor') || undefined"
                     @click="onClickCountryState(item)"
                 >
                     {{ $tc('sw-settings-country.detail.editAction') }}

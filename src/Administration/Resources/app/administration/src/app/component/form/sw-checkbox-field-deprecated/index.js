@@ -158,6 +158,13 @@ Component.register('sw-checkbox-field-deprecated', {
         iconName() {
             return this.isPartlyChecked ? 'regular-minus-xxs' : 'regular-checkmark-xxs';
         },
+
+        attrsWithoutClass() {
+            return {
+                ...this.$attrs,
+                class: undefined,
+            };
+        },
     },
 
     watch: {

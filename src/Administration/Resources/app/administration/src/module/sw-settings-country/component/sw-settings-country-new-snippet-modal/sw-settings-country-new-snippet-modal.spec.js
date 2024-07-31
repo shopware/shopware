@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper(customPropsData = {}) {
     return mount(await wrapTestComponent('sw-settings-country-new-snippet-modal', {
@@ -101,6 +102,13 @@ async function createWrapper(customPropsData = {}) {
                 'sw-vnode-renderer': await wrapTestComponent('sw-vnode-renderer'),
                 'sw-skeleton': true,
                 'sw-checkbox-field': true,
+                'sw-text-field': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-color-badge': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });

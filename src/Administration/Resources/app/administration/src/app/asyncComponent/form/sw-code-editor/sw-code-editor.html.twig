@@ -13,7 +13,7 @@
     {% block sw_code_editor_editor %}
     <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -->
     <sw-base-field
-        v-bind="$attrs"
+        v-bind="attrsWithoutClass"
         :label="label"
         :disabled="disabled"
         :required="required"

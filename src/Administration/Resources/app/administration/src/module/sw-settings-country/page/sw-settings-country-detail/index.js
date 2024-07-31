@@ -253,5 +253,13 @@ export default {
         onSaveModal() {
             return this.onSave();
         },
+
+        /**
+         * @param path - Lodash set path
+         * @param value
+         */
+        onUpdateCountry(path, value) {
+            Shopware.Utils.object.set(this.country, path, value);
+        },
     },
 };

@@ -6,7 +6,6 @@ import 'src/app/component/structure/sw-admin';
 import { mount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
 import { toast } from '@shopware-ag/meteor-admin-sdk';
-import { MtToast } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
     return mount(await wrapTestComponent('sw-admin', { sync: true }), {
@@ -20,7 +19,6 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'sw-modals-renderer': true,
                 'sw-app-wrong-app-url-modal': true,
                 'router-view': true,
-                'mt-toast': MtToast,
             },
             mocks: {
                 $router: {

@@ -1,8 +1,14 @@
+/**
+ * @package services-settings
+ */
+
 import template from './sw-settings-logging-entry-info.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         logEntry: {

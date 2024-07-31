@@ -1,3 +1,8 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 
@@ -6,6 +11,11 @@ const logEntryMock = {
     channel: 'business_events',
     message: 'mail.sent',
     level: 200,
+    context: {
+        additionalData: {
+            recipients: [],
+        },
+    },
 };
 
 async function createWrapper() {
@@ -19,6 +29,24 @@ async function createWrapper() {
                             <slot name="content"></slot>
                         </div>`,
                 },
+                'sw-search-bar': true,
+                'sw-pagination': true,
+                'sw-context-menu-item': true,
+                'sw-entity-listing': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
+                'sw-tabs-item': true,
+                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs-deprecated': {
+                    template: '<div><slot /></div>',
+                },
+                'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
+                'sw-textarea-field': true,
+                'sw-button': true,
+                'sw-icon': true,
+            },
+            provide: {
+                searchRankingService: {},
             },
         },
     });

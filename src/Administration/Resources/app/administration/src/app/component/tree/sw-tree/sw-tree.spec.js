@@ -4,7 +4,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { mtTextField, mtCheckbox } from '@shopware-ag/meteor-component-library';
 // eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
 import getTreeItems from './fixtures/treeItems';
 
@@ -21,9 +20,7 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                'mt-checkbox': mtCheckbox,
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'mt-text-field': mtTextField,
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
                 'sw-field-error': true,

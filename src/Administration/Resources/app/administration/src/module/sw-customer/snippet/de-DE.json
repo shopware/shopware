@@ -136,7 +136,9 @@
       "emptyTextBirthday": "keine Angabe",
       "labelBoundSalesChannel": "Verkaufskanal",
       "emptyBoundSalesChannel": "Alle",
-      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden"
+      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden",
+      "placeholderCustomerAffiliateCode": "Gib einen Affiliate-Code ein...",
+      "placeholderCustomerCampaignCode": "Gib einen Kampagnen-Code ein..."
     },
     "detailBase": {
       "labelAccountCard": "Konto",

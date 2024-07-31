@@ -25,7 +25,7 @@ class StaticFilesystem extends Filesystem
     {
         return isset($this->files[Path::join(...$path)]);
     }
-    
+
     public function read(string ...$path): string
     {
         if (!$this->has(...$path)) {

@@ -42,7 +42,7 @@ class ServiceLifecycle
         try {
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServicesException $e) {
-            $this->logger->error(sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -50,7 +50,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($appInfo);
         } catch (AppException $e) {
-            $this->logger->error(sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -59,11 +59,11 @@ class ServiceLifecycle
 
         try {
             $this->appLifecycle->install($manifest, true, Context::createDefaultContext());
-            $this->logger->debug(sprintf('Installed service "%s"', $serviceEntry->name));
+            $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -82,7 +82,7 @@ class ServiceLifecycle
         try {
             $latestAppInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServicesException $e) {
-            $this->logger->error(sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -95,7 +95,7 @@ class ServiceLifecycle
         try {
             $fs = $this->sourceResolver->filesystemForVersion($latestAppInfo);
         } catch (AppException $e) {
-            $this->logger->error(sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -111,11 +111,11 @@ class ServiceLifecycle
                 ],
                 $context
             );
-            $this->logger->debug(sprintf('Installed service "%s"', $serviceEntry->name));
+            $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->error(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }

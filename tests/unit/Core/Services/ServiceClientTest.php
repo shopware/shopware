@@ -300,7 +300,6 @@ class ServiceClientTest extends TestCase
         ]);
         $fs = static::createMock(Filesystem::class);
 
-
         $fs->method('appendToFile')->willThrowException(new IOException('blah'));
 
         $client = new ServiceClient(

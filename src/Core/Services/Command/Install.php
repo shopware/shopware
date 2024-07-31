@@ -37,7 +37,7 @@ class Install extends Command
         if (empty($installed)) {
             $io->info('No services were installed');
         } else {
-            $io->success(sprintf('Done. Installed %s', implode(', ', $installed)));
+            $io->success(\sprintf('Done. Installed %s', implode(', ', $installed)));
         }
 
         return Command::SUCCESS;

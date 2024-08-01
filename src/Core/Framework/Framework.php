@@ -103,6 +103,7 @@ class Framework extends Bundle
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
+        $loader->load('health.xml');
         $loader->load('telemetry.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {

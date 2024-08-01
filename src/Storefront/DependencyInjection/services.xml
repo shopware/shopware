@@ -537,5 +537,14 @@
             <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
         </service>
 
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
     </services>
 </container>

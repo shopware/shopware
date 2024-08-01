@@ -25,6 +25,7 @@ Component.register('sw-admin-menu-item', {
             required: false,
             default: () => [],
         },
+
         displayIcon: {
             type: Boolean,
             // eslint-disable-next-line vue/no-boolean-default

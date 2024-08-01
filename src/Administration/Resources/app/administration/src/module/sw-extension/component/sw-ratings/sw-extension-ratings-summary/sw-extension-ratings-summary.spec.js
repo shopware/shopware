@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {
@@ -9,6 +10,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
             global: {
                 stubs: {
                     'sw-progress-bar': await wrapTestComponent('sw-progress-bar', { sync: true }),
+                    'sw-extension-rating-stars': true,
                 },
                 provide: {
                     userActivityService: {

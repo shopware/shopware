@@ -15,6 +15,11 @@ async function createWrapper(propsData) {
                     // eslint-disable-next-line max-len
                     template: '<div><div class="sw-modal__title">{{ title }}</div><slot/><slot name="modal-footer"></slot></div>',
                 },
+                'sw-icon': true,
+                'sw-extension-permissions-details-modal': true,
+                'sw-extension-domains-modal': true,
+                'router-link': true,
+                'sw-loader': true,
             },
         },
         props: {
@@ -25,6 +30,7 @@ async function createWrapper(propsData) {
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-permissions-modal', () => {
     it('should have the correct title, discription and icon', async () => {

@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 let successfulActivation = true;
@@ -14,6 +17,14 @@ async function createWrapper() {
 
                         return Promise.reject();
                     },
+                },
+            },
+            stubs: {
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-label': true,
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
                 },
             },
         },

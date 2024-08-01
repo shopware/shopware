@@ -8,6 +8,8 @@ import './sw-extension-my-extensions-listing-controls.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     data() {
         return {
             filterByActiveState: false,

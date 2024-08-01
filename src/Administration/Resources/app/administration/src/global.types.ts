@@ -93,6 +93,7 @@ import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
 import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
+import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
 
 // trick to make it an "external module" to support global type extension
@@ -346,6 +347,7 @@ declare global {
         cmsPage: CmsPageStore;
         topBarButton: TopBarButtonStore;
         teaserPopover: TeaserPopoverStore;
+        inAppPurchaseCheckout: InAppPurchasesStore;
     }
 
     /**

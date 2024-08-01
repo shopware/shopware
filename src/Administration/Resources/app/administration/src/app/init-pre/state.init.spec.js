@@ -21,31 +21,37 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should initialized all state modules', () => {
-        expect(Shopware.State.list()).toHaveLength(23);
+        const stateModules = [
+            'notification',
+            'session',
+            'system',
+            'adminMenu',
+            'licenseViolation',
+            'context',
+            'error',
+            'settingsItems',
+            'shopwareApps',
+            'extensionEntryRoutes',
+            'marketing',
+            'extensionComponentSections',
+            'extensions',
+            'tabs',
+            'menuItem',
+            'extensionSdkModules',
+            'modals',
+            'extensionMainModules',
+            'actionButtons',
+            'ruleConditionsConfig',
+            'sdkLocation',
+            'usageData',
+            'adminHelpCenter',
+        ];
 
-        expect(Shopware.State.get('notification')).toBeDefined();
-        expect(Shopware.State.get('session')).toBeDefined();
-        expect(Shopware.State.get('system')).toBeDefined();
-        expect(Shopware.State.get('adminMenu')).toBeDefined();
-        expect(Shopware.State.get('licenseViolation')).toBeDefined();
-        expect(Shopware.State.get('context')).toBeDefined();
-        expect(Shopware.State.get('error')).toBeDefined();
-        expect(Shopware.State.get('settingsItems')).toBeDefined();
-        expect(Shopware.State.get('shopwareApps')).toBeDefined();
-        expect(Shopware.State.get('extensionEntryRoutes')).toBeDefined();
-        expect(Shopware.State.get('marketing')).toBeDefined();
-        expect(Shopware.State.get('extensionComponentSections')).toBeDefined();
-        expect(Shopware.State.get('extensions')).toBeDefined();
-        expect(Shopware.State.get('tabs')).toBeDefined();
-        expect(Shopware.State.get('menuItem')).toBeDefined();
-        expect(Shopware.State.get('extensionSdkModules')).toBeDefined();
-        expect(Shopware.State.get('modals')).toBeDefined();
-        expect(Shopware.State.get('extensionMainModules')).toBeDefined();
-        expect(Shopware.State.get('actionButtons')).toBeDefined();
-        expect(Shopware.State.get('ruleConditionsConfig')).toBeDefined();
-        expect(Shopware.State.get('sdkLocation')).toBeDefined();
-        expect(Shopware.State.get('usageData')).toBeDefined();
-        expect(Shopware.State.get('adminHelpCenter')).toBeDefined();
+        expect(Shopware.State.list()).toHaveLength(stateModules.length);
+
+        stateModules.forEach((moduleName) => {
+            expect(Shopware.State.get(moduleName)).toBeDefined();
+        });
     });
 
     it('should be able to get cmsPageState backwards compatible', () => {

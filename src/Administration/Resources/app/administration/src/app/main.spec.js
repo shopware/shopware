@@ -207,44 +207,52 @@ describe('src/app/main.ts', () => {
     });
 
     it('should add all initializer to Application', () => {
+        const expectedInitializers = [
+            'apiServices',
+            'state',
+            'coreMixin',
+            'coreDirectives',
+            'coreFilter',
+            'baseComponents',
+            'coreModuleRoutes',
+            'login',
+            'router',
+            'locale',
+            'repositoryFactory',
+            'shortcut',
+            'httpClient',
+            'componentHelper',
+            'filterFactory',
+            'notification',
+            'context',
+            'window',
+            'extensionComponentSections',
+            'tabs',
+            'cms',
+            'menu',
+            'settingItems',
+            'modals',
+            'mainModules',
+            'actionButton',
+            'actions',
+            'extensionDataHandling',
+            'language',
+            'userInformation',
+            'worker',
+            'usageData',
+            'inAppPurchaseCheckout',
+            'store',
+            'topbarButton',
+            'teaserPopover',
+        ];
+
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(35);
-        expect(initializers).toContain('apiServices');
-        expect(initializers).toContain('state');
-        expect(initializers).toContain('store');
-        expect(initializers).toContain('coreMixin');
-        expect(initializers).toContain('coreDirectives');
-        expect(initializers).toContain('coreFilter');
-        expect(initializers).toContain('baseComponents');
-        expect(initializers).toContain('coreModuleRoutes');
-        expect(initializers).toContain('login');
-        expect(initializers).toContain('router');
-        expect(initializers).toContain('locale');
-        expect(initializers).toContain('repositoryFactory');
-        expect(initializers).toContain('shortcut');
-        expect(initializers).toContain('httpClient');
-        expect(initializers).toContain('componentHelper');
-        expect(initializers).toContain('filterFactory');
-        expect(initializers).toContain('notification');
-        expect(initializers).toContain('context');
-        expect(initializers).toContain('window');
-        expect(initializers).toContain('extensionComponentSections');
-        expect(initializers).toContain('tabs');
-        expect(initializers).toContain('cms');
-        expect(initializers).toContain('menu');
-        expect(initializers).toContain('settingItems');
-        expect(initializers).toContain('modals');
-        expect(initializers).toContain('mainModules');
-        expect(initializers).toContain('actionButton');
-        expect(initializers).toContain('actions');
-        expect(initializers).toContain('extensionDataHandling');
-        expect(initializers).toContain('language');
-        expect(initializers).toContain('userInformation');
-        expect(initializers).toContain('worker');
-        expect(initializers).toContain('usageData');
-        expect(initializers).toContain('topbarButton');
-        expect(initializers).toContain('teaserPopover');
+        expect(initializers).toHaveLength(expectedInitializers.length);
+
+        expectedInitializers.forEach((initializer) => {
+            expect(initializers).toContain(initializer);
+        });
     });
 
     it('should add all services to Application', () => {

@@ -12,6 +12,14 @@ export default {
 
     inject: ['extensionHelperService'],
 
+    props: {
+        insideModal: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     data() {
         return {
             isLoading: false,

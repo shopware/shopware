@@ -50,6 +50,11 @@ describe('OffCanvasAccountMenuPlugin tests', () => {
 
         const el = document.querySelector('[data-offcanvas-account-menu]');
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         plugin = new OffCanvasAccountMenu(el);
 
         // Simulate mobile viewport

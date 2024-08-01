@@ -83,6 +83,11 @@ describe('CookieConfiguration plugin tests', () => {
             'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
         };
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         window.PluginManager.initializePlugins = () => jest.fn();
 
         const container = document.createElement('div');

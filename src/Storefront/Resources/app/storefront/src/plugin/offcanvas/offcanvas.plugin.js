@@ -118,6 +118,8 @@ class OffCanvasSingleton {
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
+        window.focusHandler.saveFocusState('offcanvas');
+
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
 
@@ -141,6 +143,8 @@ class OffCanvasSingleton {
             const onBsClose = () => {
                 setTimeout(() => {
                     offCanvas.remove();
+
+                    window.focusHandler.resumeFocusState('offcanvas');
 
                     this.$emitter.publish('onCloseOffcanvas', {
                         offCanvasContent: offCanvasElements,

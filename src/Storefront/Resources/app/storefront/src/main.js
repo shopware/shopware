@@ -19,6 +19,7 @@ import Feature from 'src/helper/feature.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 /*
 import utils
@@ -32,6 +33,7 @@ import plugins
 import SetBrowserClassPlugin from 'src/plugin/set-browser-class/set-browser-class.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
+window.focusHandler = new FocusHandler();
 window.bootstrap = bootstrap;
 
 /*

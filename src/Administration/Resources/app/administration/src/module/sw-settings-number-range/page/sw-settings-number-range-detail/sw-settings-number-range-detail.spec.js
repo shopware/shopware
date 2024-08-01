@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -85,6 +86,8 @@ async function createWrapper() {
                 },
                 'sw-alert': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

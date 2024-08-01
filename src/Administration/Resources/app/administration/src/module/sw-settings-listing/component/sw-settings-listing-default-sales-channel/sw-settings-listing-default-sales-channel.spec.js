@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @group disabledCompat
+ * @package inventory
+ */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel', () => {
     let defaultSalesChannelData = {};
 
@@ -61,6 +65,11 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                     'sw-settings-listing-visibility-detail': true,
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                    'sw-button': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-product-variant-info': true,
+                    'sw-inheritance-switch': true,
                 },
             },
         });

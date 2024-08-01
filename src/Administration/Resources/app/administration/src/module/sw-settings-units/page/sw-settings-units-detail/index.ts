@@ -15,6 +15,8 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('notification'),
     ],

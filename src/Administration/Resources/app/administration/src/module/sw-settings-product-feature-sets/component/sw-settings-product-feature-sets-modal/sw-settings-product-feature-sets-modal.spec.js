@@ -1,9 +1,14 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @group disabledCompat
+ * @package inventory
+ */
+
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
-global.allowedErrors = [unknownOptionError];
+global.allowedErrors = [...global.allowedErrors, unknownOptionError];
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {
@@ -69,6 +74,20 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-data-grid-skeleton': true,
                     i18n: true,
+                    'sw-pagination': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-field-error': true,
+                    'sw-checkbox-field': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-field-copyable': true,
+                    'sw-contextual-field': true,
                 },
                 data() {
                     return {

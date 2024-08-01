@@ -297,7 +297,12 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                     <template #column-assignments="{ item }">
-                                        {{ getPageCount(item) }}
+                                        <sw-icon
+                                            small
+                                            size="10px"
+                                            :name="layoutIsLinked(item.id) ? 'regular-checkmark-xs' : 'regular-times-xs'"
+                                            :class="layoutIsLinked(item.id) ? 'is--active' : 'is--inactive'"
+                                        />
                                     </template>
                                     {% endblock %}
 

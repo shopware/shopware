@@ -114,7 +114,6 @@ export default {
             }
 
             this.addLinkedLayoutsAggregation(criteria);
-            this.addPageAggregations(criteria);
 
             return criteria;
         },
@@ -247,6 +246,9 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         addPageAggregations(criteria) {
             return criteria.addAggregation(Criteria.terms(
                 'products',
@@ -564,18 +566,23 @@ export default {
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageCategoryCount(page) {
-            return Object.values(this.associatedCategoryBuckets).find((bucket) => {
-                return bucket.key === page.id;
-            })?.categoryCount?.count || 0;
+            return page.categories.length;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageProductCount(page) {
-            return Object.values(this.associatedProductBuckets).find((bucket) => {
-                return bucket.key === page.id;
-            })?.productCount?.count || 0;
+            return page.products.length;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';

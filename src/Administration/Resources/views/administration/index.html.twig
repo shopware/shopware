@@ -17,6 +17,8 @@
 
     <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
+    {% block administration_login_scripts %}{% endblock %}
+
     <script nonce="{{ cspNonce }}">
         {#
         root-level domain configuration

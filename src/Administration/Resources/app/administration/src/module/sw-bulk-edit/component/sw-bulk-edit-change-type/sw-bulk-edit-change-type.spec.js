@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -18,6 +19,10 @@ async function createWrapper(propsData = {}) {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-icon': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         props: {

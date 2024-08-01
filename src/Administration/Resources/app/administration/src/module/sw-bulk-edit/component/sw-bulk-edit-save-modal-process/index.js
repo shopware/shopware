@@ -10,6 +10,8 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['orderDocumentApiService'],
 
     data() {
@@ -151,7 +153,11 @@ export default {
         async createDocument(documentType, payload) {
             if (payload.length <= this.requestsPerPayload) {
                 await this.orderDocumentApiService.generate(documentType, payload);
-                this.$set(this.document[documentType], 'isReached', 100);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.document[documentType], 'isReached', 100);
+                } else {
+                    this.document[documentType].isReached = 100;
+                }
 
                 return Promise.resolve();
             }
@@ -162,10 +168,20 @@ export default {
             return Promise
                 .all(chunkedPayload.map(async (item) => {
                     await this.orderDocumentApiService.generate(documentType, item);
-                    this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        // eslint-disable-next-line max-len
+                        this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
+                    } else {
+                        // eslint-disable-next-line operator-assignment
+                        this.document[documentType].isReached = this.document[documentType].isReached + percentages;
+                    }
                 }))
                 .then(() => {
-                    this.$set(this.document[documentType], 'isReached', 100);
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(this.document[documentType], 'isReached', 100);
+                    } else {
+                        this.document[documentType].isReached = 100;
+                    }
                 });
         },
     },

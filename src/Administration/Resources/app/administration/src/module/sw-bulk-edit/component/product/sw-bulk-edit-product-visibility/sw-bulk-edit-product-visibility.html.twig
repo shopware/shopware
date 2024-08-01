@@ -18,7 +18,7 @@
                 class="sw-product-detail__select-visibility"
                 :entity-collection="currentValue"
                 :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @update:entity-collection="updateCurrentValue"
             />
         </template>

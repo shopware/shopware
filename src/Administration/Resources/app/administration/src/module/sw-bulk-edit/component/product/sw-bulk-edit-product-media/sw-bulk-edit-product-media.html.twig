@@ -4,7 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_product_media_form %}
     <sw-bulk-edit-product-media-form
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         @media-open="showMediaModal = true"
     />
     {% endblock %}

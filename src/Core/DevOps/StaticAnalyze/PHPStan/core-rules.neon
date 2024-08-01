@@ -4,7 +4,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAttributeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule # @deprecated tag:v6.7.0 - Configure \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule instead
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AbstractClassUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AddColumnRule

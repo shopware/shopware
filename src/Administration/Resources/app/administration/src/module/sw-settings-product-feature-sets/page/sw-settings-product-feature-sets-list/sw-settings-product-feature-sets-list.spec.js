@@ -2,6 +2,11 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
+
 const { Mixin } = Shopware;
 
 const text = {
@@ -42,6 +47,11 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                 'sw-data-grid-skeleton': true,
                 i18n: true,
                 'sw-app-actions': true,
+                'sw-app-topbar-button': true,
+                'sw-help-center-v2': true,
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             mocks: {
                 $route: {

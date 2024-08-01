@@ -27,7 +27,7 @@
                         v-model:value="term"
                         size="small"
                         variant="form"
-                        :disabled="!allowEdit"
+                        :disabled="!allowEdit || undefined"
                         @search-term-change="onSearch"
                     />
                     {% endblock %}
@@ -35,7 +35,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_feature_set_toolbar_delete %}
                     <sw-button
-                        :disabled="deleteButtonDisabled || !allowEdit"
+                        :disabled="deleteButtonDisabled || !allowEdit || undefined"
                         square
                         size="small"
                         class="sw-product-feature-set__delete-button"
@@ -52,7 +52,7 @@
                     {% block sw_product_feature_set_toolbar_add %}
                     <sw-container>
                         <sw-button
-                            :disabled="isLoading || !allowEdit"
+                            :disabled="isLoading || !allowEdit || undefined"
                             variant="ghost"
                             size="small"
                             class="sw-product-feature-set__add-button"
@@ -103,7 +103,7 @@
                         v-model:value="values"
                         :show-value="false"
                         :item="item"
-                        :disabled="!allowEdit"
+                        :disabled="!allowEdit || undefined"
                         @position-changed="onPositionChange"
                     />
                 </template>
@@ -145,7 +145,7 @@
             <sw-button
                 variant="ghost"
                 size="small"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}

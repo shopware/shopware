@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs', () => {
     async function createWrapper(headlineError, ratingError) {
@@ -23,6 +24,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     'sw-textarea-field': {
                         template: '<textarea></textarea>',
                     },
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
             props: {

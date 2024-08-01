@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const classes = {
@@ -75,6 +76,11 @@ async function createWrapper() {
                 'sw-notification-center': true,
                 'sw-loader': true,
                 'sw-skeleton': true,
+                'sw-sales-channel-switch': true,
+                'sw-alert': true,
+                'sw-inheritance-switch': true,
+                'sw-field-copyable': true,
+                'sw-ai-copilot-badge': true,
             },
         },
     });

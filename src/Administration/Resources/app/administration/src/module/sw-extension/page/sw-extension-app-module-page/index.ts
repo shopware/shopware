@@ -11,6 +11,8 @@ const { State, Context } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {
@@ -142,7 +144,7 @@ export default Shopware.Component.wrapComponentConfig({
         window.addEventListener('message', this.onContentLoaded);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         window.removeEventListener('message', this.onContentLoaded);
     },

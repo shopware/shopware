@@ -7,4 +7,6 @@ import './sw-extension-adding-success.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

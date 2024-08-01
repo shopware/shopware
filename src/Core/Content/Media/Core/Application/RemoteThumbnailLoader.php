@@ -68,6 +68,8 @@ class RemoteThumbnailLoader implements ResetInterface
             $thumbnailSizes = $mediaThumbnailSizes[$mediaEntity->get('mediaFolderId')] ?? [];
 
             if (empty($thumbnailSizes)) {
+                $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
+
                 continue;
             }
 

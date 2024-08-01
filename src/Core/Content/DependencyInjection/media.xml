@@ -150,6 +150,15 @@
             <tag name="console.command"/>
         </service>
 
+        <!-- Commands -->
+        <service id="Shopware\Core\Content\Media\Commands\DeleteThumbnailsCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="media_thumbnail.repository"/>
+            <argument>%shopware.media.remote_thumbnails.enable%</argument>
+
+            <tag name="console.command"/>
+        </service>
+
         <!-- Controller -->
         <service id="Shopware\Core\Content\Media\Api\MediaUploadController" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>

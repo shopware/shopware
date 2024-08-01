@@ -63,7 +63,13 @@ export default class AjaxModalPlugin extends Plugin {
 
         const pseudoModal = new PseudoModalUtil('', this.options.modalBackdrop);
 
+        window.focusHandler.saveFocusState('ajax-modal');
+
         this._openModal(pseudoModal);
+
+        pseudoModal.getModal().addEventListener('hidden.bs.modal', () => {
+            window.focusHandler.resumeFocusState('ajax-modal');
+        });
 
         const modalBodyEl = DomAccess.querySelector(pseudoModal._modal, `.${PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS}`);
         modalBodyEl.classList.add(this.options.centerLoadingIndicatorClass);

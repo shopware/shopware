@@ -64,6 +64,11 @@ describe('OffCanvasCartPlugin tests', () => {
             'frontend.cart.offcanvas': '/checkout/offcanvas',
         };
 
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
+
         document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';
 
         window.PluginManager = {

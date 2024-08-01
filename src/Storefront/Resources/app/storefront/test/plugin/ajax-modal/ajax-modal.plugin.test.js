@@ -11,8 +11,14 @@ describe('AjaxModalPlugin tests', () => {
 
     beforeEach(() => {
         window.PluginManager.initializePlugins = jest.fn();
+        window.focusHandler = {
+            saveFocusState: jest.fn(),
+            resumeFocusState: jest.fn(),
+        };
 
         const mockElement = document.createElement('div');
+
+        document.body.insertAdjacentElement = jest.fn();
 
         // init ajax modal plugins
         ajaxModalPlugin = new AjaxModalPlugin(mockElement);

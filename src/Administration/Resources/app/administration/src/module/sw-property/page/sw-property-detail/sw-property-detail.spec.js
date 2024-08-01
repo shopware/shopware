@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -48,6 +49,9 @@ async function createWrapper() {
                 'sw-field': true,
                 'sw-language-info': true,
                 'sw-skeleton': true,
+                'sw-property-detail-base': true,
+                'sw-property-option-list': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

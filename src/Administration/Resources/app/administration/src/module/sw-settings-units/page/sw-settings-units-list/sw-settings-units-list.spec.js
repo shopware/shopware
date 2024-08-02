@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-settings-units-list', {
         sync: true,
@@ -95,7 +99,7 @@ async function createWrapper(privileges = []) {
     });
 }
 
-describe('module/sw-settings-units/page/sw-settings-units', () => {
+describe('module/sw-settings-units/page/sw-settings-units-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

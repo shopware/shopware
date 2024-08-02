@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -66,6 +67,9 @@ async function createWrapper(privileges = []) {
                 'sw-loader': true,
                 'sw-empty-state': true,
                 'sw-extension-component-section': true,
+                'sw-label': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
             },
         },
     });

@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-general-info', () => {
     async function createWrapper() {
         return mount(await wrapTestComponent('sw-settings-listing-option-general-info', {
@@ -36,6 +40,11 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-icon': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });

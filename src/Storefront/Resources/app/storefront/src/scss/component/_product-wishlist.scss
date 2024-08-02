@@ -65,7 +65,8 @@ Styling for productbox component.
             top: calc(50% - 24px);
         }
 
-        &:focus {
+        &:focus-visible {
+            box-shadow: $input-btn-focus-box-shadow;
             outline: none;
         }
     }
@@ -75,10 +76,6 @@ Styling for productbox component.
         border-style: none;
         padding: 0;
         display: inline-flex;
-
-        &:focus {
-            outline: none;
-        }
     }
 
     &-btn {

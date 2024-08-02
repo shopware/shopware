@@ -35,18 +35,12 @@ parameters:
 
     excludePaths:
         - src/WebInstaller/Resources/
-        - src/WebInstaller/ecs.php
         - src/WebInstaller/vendor
         - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress
 
-        - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # vendor patches over autoload files
         - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
-
-        # Symfony interface typehints `Predis\ClientInterface` which is by default not available
-        - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
-        - src/Core/Framework/Adapter/Cache/ShopwareRedisTagAwareAdapter.php
 
         # node_modules
         - src/**/node_modules/*

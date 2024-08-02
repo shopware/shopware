@@ -1,6 +1,6 @@
 ---
 title: Fix cms product slider offsetWidth error
-issue: NEXT-00000
+issue: NEXT-37512
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

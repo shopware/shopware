@@ -31,7 +31,7 @@
                     :value="getVisibleValue(field.name)"
                     size="medium"
                     show-clearable-button
-                    :hide-hint="field.type === 'datetime'"
+                    :placeholder="getPlaceholder(field.type)"
                     @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
                 />
 

@@ -20,9 +20,10 @@
         v-model:value="fromDate"
         name="sw-field--fromDate"
         size="medium"
-        :date-type="isDateTime"
         required
+        :date-type="isDateTime"
         :disabled="disabled"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
@@ -32,9 +33,10 @@
         v-model:value="toDate"
         name="sw-field--toDate"
         size="medium"
-        :date-type="isDateTime"
         required
+        :date-type="isDateTime"
         :disabled="disabled"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </div>

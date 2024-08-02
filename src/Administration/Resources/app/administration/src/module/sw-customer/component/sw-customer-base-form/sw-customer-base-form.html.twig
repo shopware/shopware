@@ -116,7 +116,9 @@
             v-model:value="customer.birthday"
             type="date"
             name="birthday"
+            hide-hint
             :label="$tc('sw-customer.baseForm.labelBirthday')"
+            :placeholder="$tc('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
 

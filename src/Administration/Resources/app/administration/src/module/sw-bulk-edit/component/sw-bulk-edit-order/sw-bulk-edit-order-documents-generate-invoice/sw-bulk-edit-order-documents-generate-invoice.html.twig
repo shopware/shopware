@@ -6,7 +6,9 @@
     <sw-datepicker
         v-model:value="generateData.documentDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
+        hide-hint
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 

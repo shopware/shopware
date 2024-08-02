@@ -2,6 +2,7 @@ import template from './sw-condition-generic.html.twig';
 import './sw-condition-generic.scss';
 
 const { Component, Mixin } = Shopware;
+const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
 
 /**
  * @public
@@ -24,5 +25,11 @@ Component.extend('sw-condition-generic', 'sw-condition-base', {
         return {
             matchesAll: false,
         };
+    },
+
+    methods: {
+        getPlaceholder(fieldType) {
+            return this.$tc(getPlaceholderSnippet(fieldType));
+        },
     },
 });

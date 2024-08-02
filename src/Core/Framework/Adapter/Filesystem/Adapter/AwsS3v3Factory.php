@@ -29,7 +29,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
             'region' => $options['region'],
         ];
 
-        if (\array_key_exists('endpoint', $options)) {
+        if (\array_key_exists('endpoint', $options) && $options['endpoint']) {
             $s3Opts['endpoint'] = $options['endpoint'];
         }
 

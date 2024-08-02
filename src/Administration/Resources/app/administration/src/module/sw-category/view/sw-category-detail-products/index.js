@@ -12,6 +12,8 @@ const ShopwareError = Shopware.Classes.ShopwareError;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [

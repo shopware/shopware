@@ -1,5 +1,6 @@
 /**
  * @package inventory
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -53,6 +54,9 @@ async function createWrapper() {
                 'sw-category-detail-menu': {
                     template: '<div class="sw-category-detail-menu"></div>',
                 },
+                'sw-category-entry-point-card': true,
+                'sw-category-link-settings': true,
+                'sw-custom-field-set-renderer': true,
             },
             mocks: {
                 placeholder: () => {},

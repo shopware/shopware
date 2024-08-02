@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -69,6 +70,13 @@ describe('components/sw-import-export-exporter', () => {
                     'sw-alert': await wrapTestComponent('sw-alert'),
                     'sw-import-export-exporter': await wrapTestComponent('sw-import-export-exporter', { sync: true }),
                     'sw-button': true,
+                    'sw-product-variant-info': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-alert-deprecated': {
+                        template: '<div><slot></slot></div>',
+                    },
                 },
                 provide: {
                     shortcutService: {

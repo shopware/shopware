@@ -22,7 +22,7 @@
         <sw-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-property-detail__back-action"
-            :disabled="isLoading"
+            :disabled="isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('sw-property.detail.buttonCancel') }}
@@ -34,9 +34,9 @@
         <sw-button-process
             v-tooltip="tooltipSave"
             class="sw-property-detail__save-action"
-            :is-loading="isLoading"
+            :is-loading="isLoading || undefined"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('property.editor')"
+            :disabled="isLoading || !acl.can('property.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -92,7 +92,7 @@
                 <sw-property-option-list
                     v-if="propertyGroup"
                     ref="optionListing"
-                    :is-loading="isLoading"
+                    :is-loading="isLoading || undefined"
                     :option-repository="optionRepository"
                     :property-group="propertyGroup"
                 />
@@ -107,7 +107,7 @@
                 >
                     <sw-custom-field-set-renderer
                         :entity="propertyGroup"
-                        :disabled="!acl.can('property.editor')"
+                        :disabled="!acl.can('property.editor') || undefined"
                         :sets="customFieldSets"
                     />
                 </sw-card>

@@ -1,12 +1,18 @@
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 
+/**
+ * @package inventory
+ */
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: ['repositoryFactory'],
 

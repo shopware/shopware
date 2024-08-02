@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -77,6 +78,21 @@ async function createWrapper() {
                             </slot>
                         </div>
                     `,
+                    props: ['isLoading'],
+                },
+                'sw-file-input': true,
+                'sw-product-variant-info': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-button': true,
+                'sw-help-text': true,
+                'sw-switch-field': true,
+                'sw-import-export-progress': true,
+                'sw-inheritance-switch': true,
+                'sw-field-error': true,
+                'sw-alert-deprecated': {
+                    template: '<div><slot></slot></div>',
                 },
             },
             provide: {

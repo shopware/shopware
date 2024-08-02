@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -86,6 +87,7 @@ async function createWrapper() {
                     stopEventListener: () => {},
                     startEventListener: () => {},
                 },
+                searchRankingService: {},
             },
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card', { sync: true }),
@@ -93,7 +95,7 @@ async function createWrapper() {
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container', { sync: true }),
                 'sw-button': {
-                    template: '<button class="sw-button" @click="$emit(`click`)"></botton>',
+                    template: '<button class="sw-button" @click="$emit(`click`)"></button>',
                 },
                 'sw-simple-search-field': {
                     template: '<div></div>',
@@ -160,6 +162,14 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-extension-component-section': true,
+                'sw-context-menu-item': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-data-grid-skeleton': true,
             },
         },
     });

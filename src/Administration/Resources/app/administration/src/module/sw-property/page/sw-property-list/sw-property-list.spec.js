@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -73,6 +74,9 @@ async function createWrapper() {
                     props: ['disabled'],
                 },
                 'router-link': true,
+                'sw-checkbox-field': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
         },
     });

@@ -1,9 +1,14 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
+
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
-global.allowedErrors = [unknownOptionError];
+global.allowedErrors = [...global.allowedErrors, unknownOptionError];
 
 const defaultSalesChannel = {
     name: 'Headless',
@@ -62,6 +67,13 @@ async function createWrapper(props = defaultProps) {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-checkbox-field': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-select-field': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         },

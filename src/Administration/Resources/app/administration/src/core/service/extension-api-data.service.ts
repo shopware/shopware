@@ -5,6 +5,9 @@
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
 import { get, debounce, cloneDeepWith } from 'lodash';
 import type { App } from 'vue';
+import { onBeforeUnmount } from 'vue';
+// @ts-expect-error - no declaration file
+import { compatUtils } from '@vue/compat';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -255,12 +258,18 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                     return;
                 }
 
-                scope.$set(
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
-                    parsedPath.lastSegment,
-                    transferObject[property],
-                );
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+                    scope.$set(
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
+                        parsedPath.lastSegment,
+                        transferObject[property],
+                    );
+                } else {
+                    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] = transferObject[property];
+                }
             });
         }
 
@@ -294,13 +303,25 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                Shopware.Utils.object.get(scope, newPath)[lastPath] = value.data;
+            }
 
             return;
         }
 
-        scope.$set(scope, path, value.data);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+        if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+            scope.$set(scope, path, value.data);
+        } else {
+            // @ts-expect-error
+            scope[path] = value.data;
+        }
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
@@ -339,12 +360,22 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
     });
 
     // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
-    scope.$once('hook:beforeDestroy', () => {
-        publishedDataSets = publishedDataSets.filter(value => value.id !== id);
-        unregisterPublishDataIds.push(id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+        scope.$once('hook:beforeDestroy', () => {
+            publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+            unregisterPublishDataIds.push(id);
 
-        unwatch();
-    });
+            unwatch();
+        });
+    } else {
+        onBeforeUnmount(() => {
+            publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+            unregisterPublishDataIds.push(id);
+
+            unwatch();
+        });
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     register({ id: id, data: get(scope, path) }).catch(() => {});

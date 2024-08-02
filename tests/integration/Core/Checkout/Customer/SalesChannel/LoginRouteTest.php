@@ -95,7 +95,7 @@ class LoginRouteTest extends TestCase
 
     public function testValidLogin(): void
     {
-        $email = Uuid::randomHex() . '@example.com';
+        $email = Uuid::randomHex() . '@exämple.com';
         $this->createCustomer($email);
 
         $this->browser

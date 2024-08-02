@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -39,8 +40,11 @@ class EmailFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
+        $emailField = new EmailField('email', 'email');
+        $emailField->addFlags(new ApiAware(), new Required());
+
         $this->serializer = $this->getContainer()->get(EmailFieldSerializer::class);
-        $this->field = (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required());
+        $this->field = $emailField;
 
         $definition = $this->registerDefinition(EmailDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
@@ -70,5 +74,26 @@ class EmailFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
         static::assertEquals('/email', $exception->getViolations()->get(0)->getPropertyPath());
+    }
+
+    #[DataProvider('getEmailListProvider')]
+    public function testEncode(string $asciiMail, string $utf8Mail): void
+    {
+        $data = new KeyValuePair('email', $utf8Mail, true);
+
+        $encodedEmail = $this->serializer->encode(
+            $this->field,
+            $this->createMock(EntityExistence::class),
+            $data,
+            $this->createMock(WriteParameterBag::class)
+        );
+
+        static::assertSame($asciiMail, $encodedEmail->current());
+    }
+
+    public static function getEmailListProvider(): \Generator
+    {
+        yield 'email with umlauts' => ['test@xn--tst-qla.de', 'test@täst.de'];
+        yield 'idn email' => ['test@xn--tst-qla.de', 'test@xn--tst-qla.de'];
     }
 }

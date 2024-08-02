@@ -131,6 +131,10 @@ export default {
         currentUser() {
             return Shopware.State.get('session').currentUser;
         },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
+        },
     },
 
     watch: {

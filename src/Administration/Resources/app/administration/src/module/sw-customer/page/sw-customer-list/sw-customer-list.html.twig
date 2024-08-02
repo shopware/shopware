@@ -192,6 +192,12 @@
                 </template>
                 {% endblock %}
 
+                {% block sw_product_list_grid_columns_email_preview %}
+                <template #column-email="{ item }">
+                    {{ emailIdnFilter(item.email) }}
+                </template>
+                {% endblock %}
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_list_grid_columns_boundSalesChannel %}
                 <template #column-boundSalesChannelId="{ item }">

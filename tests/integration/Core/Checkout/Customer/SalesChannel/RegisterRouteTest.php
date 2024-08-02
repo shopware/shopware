@@ -1290,6 +1290,35 @@ class RegisterRouteTest extends TestCase
         static::assertNull($response['salutationId'], (string) $this->browser->getResponse()->getContent());
     }
 
+    public function testRegistrationWithIdnEmail(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $registrationData = $this->getRegistrationData();
+        $registrationData['email'] = 'teg-reg@exämple.com';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $fetchMail = $connection->fetchOne(
+            'SELECT email FROM customer WHERE id = UNHEX(:customerId)',
+            ['customerId' => $response['id']]
+        );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        static::assertSame('teg-reg@xn--exmple-cua.com', $fetchMail);
+    }
+
     /**
      * @return array<string, mixed>
      */

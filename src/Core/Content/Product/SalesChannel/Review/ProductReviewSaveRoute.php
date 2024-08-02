@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
@@ -53,6 +54,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
+        EmailIdnConverter::encodeDataBag($data);
+
         $this->checkReviewsActive($context);
 
         $customer = $context->getCustomer();

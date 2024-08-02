@@ -170,6 +170,7 @@
         "league/flysystem-google-cloud-storage": "^3.10.3",
         "nikic/php-parser": "^4.16.0",
         "opis/json-schema": "^2.3.0",
+        "phpat/phpat": "0.10.18",
         "phpbench/phpbench": "^1.2.15",
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpdocumentor/type-resolver": "^1.7.1",

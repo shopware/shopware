@@ -306,6 +306,14 @@ services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule
+        tags:
+            - phpat.test
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule
+        tags:
+            - phpat.test
 rules:
     # rules from https://github.com/symplify/phpstan-rules
     # domain

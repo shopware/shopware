@@ -58,10 +58,14 @@ class TaxProviderProcessor
             $exceptions
         );
 
-        if (!$result) {
+        if ($exceptions->hasExceptions()) {
             $this->logger->error($exceptions->getMessage(), ['error' => $exceptions]);
 
             throw $exceptions;
+        }
+
+        if (!$result) {
+            return;
         }
 
         $this->adjustment->adjust($cart, $result, $context);

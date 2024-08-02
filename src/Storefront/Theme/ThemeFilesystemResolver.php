@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
@@ -41,16 +42,6 @@ class ThemeFilesystemResolver
             return $this->sourceResolver->filesystemForAppName($configuration->getTechnicalName());
         }
 
-        // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
-        $path = str_replace('/Resources', '', $configuration->getBasePath());
-
-        return new Filesystem($this->projectDir . '/' . $path);
-    }
-
-    public function makePathRelativeToFilesystemRoot(string $path, StorefrontPluginConfiguration $configuration): string
-    {
-        $basePath = str_replace('/Resources', '', $configuration->getBasePath());
-
-        return str_replace($basePath, '', $path);
+        return new Filesystem(Path::join($this->projectDir, $configuration->getBasePath()));
     }
 }

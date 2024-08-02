@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -120,7 +121,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
         return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
             : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
-            : null);
+                : null);
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string
@@ -164,13 +165,8 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             return [];
         }
 
-        return array_map(function (string $path) {
-            if (mb_strpos($path, $this->projectDir) === 0) {
-                // make relative
-                $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
-            }
-
-            return $path;
+        return array_map(function (string $path) use ($config) {
+            return Path::join($config->getBasePath(), 'Resources', $path);
         }, $config->getStyleFiles()->getFilepaths());
     }
 

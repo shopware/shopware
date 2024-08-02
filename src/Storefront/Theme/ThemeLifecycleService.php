@@ -147,13 +147,12 @@ class ThemeLifecycleService
     private function createMediaStruct(StorefrontPluginConfiguration $pluginConfig, string $path, string $mediaId, ?string $themeFolderId): ?array
     {
         $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
-        $path = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($path, $pluginConfig);
 
-        if (!$fs->hasFile($path)) {
+        if (!$fs->hasFile('Resources', $path)) {
             return null;
         }
 
-        $path = $fs->path($path);
+        $path = $fs->path('Resources', $path);
         $pathinfo = pathinfo($path);
 
         return [
@@ -409,7 +408,7 @@ class ThemeLifecycleService
                     continue;
                 }
 
-                $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
+                $path = $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
                     if (

@@ -60,7 +60,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     {
         $fs = $this->sourceResolver->filesystemForAppName($appName);
 
-        if ($fs->has('/Resources/theme.json')) {
+        if ($fs->has('Resources/theme.json')) {
             return $this->createThemeConfig($appName, $fs->path());
         }
 
@@ -76,36 +76,31 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             if (!$isFullpath) {
                 $path = $this->projectDir . \DIRECTORY_SEPARATOR . str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $path);
             }
-            $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
-
-            $basePath = realpath(pathinfo($pathname, \PATHINFO_DIRNAME)) ?: $pathname;
-
-            $basePath = $this->stripProjectDir($basePath);
 
             $config = new StorefrontPluginConfiguration($name);
 
             $config->setThemeJson($data);
-            $config->setBasePath($this->stripProjectDir($basePath));
+            $config->setBasePath($this->stripProjectDir($path));
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
             $config->setIsTheme(true);
             $config->setName($data['name']);
             $config->setAuthor($data['author']);
 
             if (\array_key_exists('style', $data) && \is_array($data['style'])) {
-                $this->resolveStyleFiles($data['style'], $basePath, $config);
+                $this->resolveStyleFiles($data['style'], $config);
             }
 
             if (\array_key_exists('script', $data) && \is_array($data['script'])) {
                 $fileCollection = FileCollection::createFromArray($data['script']);
-                $config->setScriptFiles($this->addBasePathToCollection($fileCollection, $basePath));
+                $config->setScriptFiles($fileCollection);
             }
 
             if (\array_key_exists('asset', $data)) {
-                $config->setAssetPaths($this->addBasePathToArray($data['asset'], $basePath));
+                $config->setAssetPaths($data['asset']);
             }
 
             if (\array_key_exists('previewMedia', $data)) {
-                $config->setPreviewMedia($basePath . \DIRECTORY_SEPARATOR . $data['previewMedia']);
+                $config->setPreviewMedia($data['previewMedia']);
             }
 
             if (\array_key_exists('config', $data)) {
@@ -140,15 +135,15 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setStorefrontEntryFilepath($this->getEntryFile($path));
         $config->setBasePath($this->stripProjectDir($path));
 
-        $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
+        $stylesPath = $path . '/Resources/app/storefront/src/scss';
+        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath, $path . '/Resources')));
 
         $assetName = $config->getAssetName();
 
-        $scriptPath = $path . \DIRECTORY_SEPARATOR . \sprintf('Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
+        $scriptPath = $path . \sprintf('/Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
 
         if (file_exists($scriptPath)) {
-            $config->setScriptFiles(FileCollection::createFromArray([$this->stripProjectDir($scriptPath)]));
+            $config->setScriptFiles(FileCollection::createFromArray([$this->stripBasePath($scriptPath, $path . '/Resources')]));
 
             return $config;
         }
@@ -201,57 +196,23 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     private function getEntryFile(string $path): ?string
     {
-        $path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src';
+        $path = rtrim($path, '/') . '/Resources/app/storefront/src';
 
-        if (file_exists($path . \DIRECTORY_SEPARATOR . 'main.ts')) {
-            return $this->stripProjectDir($path . \DIRECTORY_SEPARATOR . 'main.ts');
+        if (file_exists($path . '/main.ts')) {
+            return 'app/storefront/src/main.ts';
         }
 
-        if (file_exists($path . \DIRECTORY_SEPARATOR . 'main.js')) {
-            return $this->stripProjectDir($path . \DIRECTORY_SEPARATOR . 'main.js');
+        if (file_exists($path . '/main.js')) {
+            return 'app/storefront/src/main.js';
         }
 
         return null;
     }
 
-    private function addBasePathToCollection(FileCollection $fileCollection, string $basePath): FileCollection
-    {
-        foreach ($fileCollection as $file) {
-            if (mb_strpos($file->getFilepath(), '@') === 0) {
-                continue;
-            }
-            $file->setFilepath($this->addBasePath($file->getFilepath(), $basePath));
-        }
-
-        return $fileCollection;
-    }
-
-    /**
-     * @param array<int, string> $files
-     *
-     * @return array<int, string>
-     */
-    private function addBasePathToArray(array $files, string $basePath): array
-    {
-        array_walk($files, function (&$path) use ($basePath): void {
-            if (mb_strpos($path, '@') === 0) {
-                return;
-            }
-            $path = $this->addBasePath($path, $basePath);
-        });
-
-        return $files;
-    }
-
-    private function addBasePath(string $path, string $basePath): string
-    {
-        return $basePath . \DIRECTORY_SEPARATOR . $path;
-    }
-
     /**
      * @return array<int, string>
      */
-    private function getScssEntryFileInDir(string $path): array
+    private function getScssEntryFileInDir(string $path, string $basePath): array
     {
         if (!is_dir($path)) {
             return [];
@@ -261,49 +222,49 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
         $files = [];
         foreach ($finder as $file) {
-            $files[] = $this->stripProjectDir($file->getPathname());
+            $files[] = $this->stripBasePath($file->getPathname(), $basePath);
         }
 
         return $files;
     }
 
-    private function stripProjectDir(string $path): string
+    private function stripBasePath(string $path, string $basePath): string
     {
-        if (str_starts_with($path, $this->projectDir)) {
-            return substr($path, \strlen($this->projectDir) + 1);
+        if (str_starts_with($path, $basePath)) {
+            return substr($path, \strlen($basePath) + 1);
         }
 
         return $path;
     }
 
+    private function stripProjectDir(string $path): string
+    {
+        return $this->stripBasePath($path, $this->projectDir);
+    }
+
     /**
      * @param array<string|array<array{resolve?: array<string, string>}>> $styles
      */
-    private function resolveStyleFiles(array $styles, string $basePath, StorefrontPluginConfiguration $config): void
+    private function resolveStyleFiles(array $styles, StorefrontPluginConfiguration $config): void
     {
         $fileCollection = new FileCollection();
         foreach ($styles as $style) {
             if (!\is_array($style)) {
-                $fileCollection->add(new File($this->stripProjectDir($style)));
+                $fileCollection->add(new File($style));
 
                 continue;
             }
 
             foreach ($style as $filename => $additional) {
                 if (!\array_key_exists('resolve', $additional)) {
-                    $fileCollection->add(new File($this->stripProjectDir($filename)));
+                    $fileCollection->add(new File($filename));
 
                     continue;
                 }
 
-                foreach ($additional['resolve'] as &$resolvePath) {
-                    $resolvePath = $this->addBasePath($resolvePath, $basePath);
-                }
-                unset($resolvePath);
-
-                $fileCollection->add(new File($this->stripProjectDir($filename), $additional['resolve'] ?? []));
+                $fileCollection->add(new File($filename, $additional['resolve'] ?? []));
             }
         }
-        $config->setStyleFiles($this->addBasePathToCollection($fileCollection, $basePath));
+        $config->setStyleFiles($fileCollection);
     }
 }

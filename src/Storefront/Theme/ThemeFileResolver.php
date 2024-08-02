@@ -23,6 +23,41 @@ class ThemeFileResolver
     {
     }
 
+    private function resolveScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
+    {
+        $fileCollection = new FileCollection();
+        $scriptFiles = $configuration->getScriptFiles();
+        $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
+
+        // add source file at the beginning if no other theme is included first
+        if ($addSourceFile
+            && $configuration->getStorefrontEntryFilepath()
+            && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
+        ) {
+            $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+        }
+        foreach ($scriptFiles as $scriptFile) {
+            if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
+                continue;
+            }
+            $fileCollection->add($scriptFile);
+        }
+        if ($addSourceFile
+            && $configuration->getStorefrontEntryFilepath()
+            && $scriptFiles->count() > 0
+            && $scriptFiles->first()
+            && $this->isInclude($scriptFiles->first()->getFilepath())
+        ) {
+            $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+        }
+
+        foreach ($fileCollection as $file) {
+            $file->assetName = $configuration->getAssetName();
+        }
+
+        return $fileCollection;
+    }
+
     /**
      * @return array<string, FileCollection>
      */
@@ -36,39 +71,7 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
-                    $fileCollection = new FileCollection();
-                    $scriptFiles = $configuration->getScriptFiles();
-                    $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
-
-                    // add source file at the beginning if no other theme is included first
-                    if ($addSourceFile
-                        && $configuration->getStorefrontEntryFilepath()
-                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
-                    ) {
-                        $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
-                    }
-                    foreach ($scriptFiles as $scriptFile) {
-                        if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
-                            continue;
-                        }
-                        $fileCollection->add($scriptFile);
-                    }
-                    if ($addSourceFile
-                        && $configuration->getStorefrontEntryFilepath()
-                        && $scriptFiles->count() > 0
-                        && $scriptFiles->first()
-                        && $this->isInclude($scriptFiles->first()->getFilepath())
-                    ) {
-                        $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
-                    }
-
-                    foreach ($fileCollection as $file) {
-                        $file->assetName = $configuration->getAssetName();
-                    }
-
-                    return $fileCollection;
-                }
+                $this->resolveScriptFiles(...)
             ),
             self::STYLE_FILES => $this->resolve(
                 $themeConfig,
@@ -124,7 +127,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    \sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
+                    \sprintf('Unable to load file "%s/Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $themeConfig->getBasePath(), $filepath)
                 );
             }
 
@@ -177,17 +180,15 @@ class ThemeFileResolver
             }
 
             $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
-            $relativePath = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($file->getFilepath(), $themeConfig);
-            if ($fs->has($relativePath)) {
-                $file->setFilepath($fs->realpath($relativePath));
+            if ($fs->has('Resources', $file->getFilepath())) {
+                $file->setFilepath($fs->realpath('Resources', $file->getFilepath()));
             }
 
             $mapping = $file->getResolveMapping();
 
             foreach ($mapping as $key => $val) {
-                $relativePath = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($val, $themeConfig);
-                if ($fs->has($relativePath)) {
-                    $mapping[$key] = $fs->realpath($relativePath);
+                if ($fs->has('Resources', $val)) {
+                    $mapping[$key] = $fs->realpath('Resources', $val);
                 }
             }
 

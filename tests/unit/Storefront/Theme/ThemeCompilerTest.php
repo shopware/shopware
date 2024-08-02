@@ -90,6 +90,8 @@ class ThemeCompilerTest extends TestCase
 
     private MessageBus $messageBus;
 
+    private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
+
     /**
      * @var CopyBatchInputFactory&MockObject
      */
@@ -105,6 +107,7 @@ class ThemeCompilerTest extends TestCase
         $this->pathBuilder = new MD5ThemePathBuilder();
         $this->messageBus = new MessageBus();
         $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
+        $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -672,7 +675,7 @@ PHP_EOL
                 ThemeFileResolver::STYLE_FILES => new FileCollection()]
         );
 
-        $distLocation = 'fixtures/ThemeAndPlugin/TestTheme/Resources/app/storefront/dist/storefront/js/test-theme';
+        $distLocation = __DIR__ . '/fixtures/ThemeAndPlugin/TestTheme/Resources/app/storefront/dist/storefront/js/test-theme';
         $this->filesystem->createDirectory($distLocation);
         $this->filesystem->write($distLocation . '/test-theme.js', '');
 
@@ -684,12 +687,20 @@ PHP_EOL
             'V6_6_0_0' => 1,
         ]);
 
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
+        $projectDir = __DIR__ . '/fixtures';
         $compiler = $this->getThemeCompiler($projectDir);
 
-        $sourceResolver = new StaticSourceResolver([
-            'ThemeApp' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeApp'),
-        ]);
+        $filesystems = [
+            'AsyncPlugin' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/AsyncPlugin'),
+            'TestTheme' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/TestTheme'),
+            'NotFoundPlugin' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/NotFoundPlugin'),
+        ];
+
+        $sourceResolver = new StaticSourceResolver($filesystems);
+
+        $this->themeFilesystemResolver->expects(static::exactly(\count($filesystems)))
+            ->method('getFilesystemForStorefrontConfig')
+            ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
             $projectDir,
@@ -705,16 +716,12 @@ PHP_EOL
         );
         $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
         $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
-        $app = $configurationFactory->createFromApp('ThemeApp', 'ThemeApp');
-
-        $appWrongPath = $projectDir . '/tmp/207973030/1_0_0/Resources'; // missing ThemeApp in path
-        $app->setBasePath($appWrongPath);
         $appWithoutJs = $configurationFactory->createFromApp('ThemeAppWithoutJs', 'ThemeAppWithoutJs');
 
         $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
         $scripts = new FileCollection();
         $scripts = $scripts::createFromArray([
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+            'Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
         ]);
         $notFoundPlugin->setScriptFiles($scripts);
 
@@ -722,7 +729,6 @@ PHP_EOL
         $configCollection->add($testTheme);
         $configCollection->add($asyncPlugin);
         $configCollection->add($notFoundPlugin);
-        $configCollection->add($app);
         $configCollection->add($appWithoutJs);
 
         $compiler->compileTheme(
@@ -738,14 +744,12 @@ PHP_EOL
         $asyncMainJsInTheme = $themeBasePath . '/js/async-plugin/async-plugin.js';
         $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-plugin/custom_plugins_AsyncPlugin_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
         $themeMainJsInTheme = $themeBasePath . '/js/test-theme/test-theme.js';
-        $appJsFile = $themeBasePath . '/js/theme-app/theme-app.js';
 
         static::assertTrue($this->filesystem->directoryExists($distLocation));
         static::assertTrue($this->filesystem->fileExists($distLocation . '/test-theme.js'));
         static::assertTrue($this->filesystem->fileExists($asyncMainJsInTheme));
         static::assertTrue($this->filesystem->fileExists($asyncAnotherJsFileInTheme));
         static::assertTrue($this->filesystem->fileExists($themeMainJsInTheme));
-        static::assertTrue($this->filesystem->fileExists($appJsFile));
     }
 
     /**
@@ -789,7 +793,7 @@ PHP_EOL
             $this->themeFileResolver,
             true,
             $this->eventDispatcher,
-            $this->createMock(ThemeFilesystemResolver::class),
+            $this->themeFilesystemResolver,
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->cacheInvalidator,
             $this->logger,

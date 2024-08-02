@@ -198,22 +198,20 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $copyFiles = [];
 
-        foreach ($scriptsDist as $folderName => [$pluginConfig, $basePath]) {
+        foreach ($scriptsDist as $folderName => $pluginConfig) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
-            $path = str_replace('/Resources', '', $basePath);
-            $pathToJsFiles = $path . '/' . $distRelativePath . '/js/' . $folderName;
-            if ($folderName === 'storefront') {
-                $pathToJsFiles = $path . '/' . $distRelativePath;
+            $pathToJsFiles = $distRelativePath;
+            if ($folderName !== 'storefront') {
+                $pathToJsFiles .= '/js/' . $folderName;
             }
 
-            if ($pathToJsFiles[0] === '/' || !file_exists($this->projectDir . '/' . $pathToJsFiles)) {
-                $files = $this->getScriptDistFiles($pathToJsFiles);
-            } else {
-                $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
-                $path = $this->themeFilesystemResolver->makePathRelativeToFilesystemRoot($pathToJsFiles, $pluginConfig);
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-                $files = $this->getScriptDistFiles($fs->realpath($path));
+            if ($fs->has($pathToJsFiles)) {
+                $pathToJsFiles = $fs->realpath($pathToJsFiles);
             }
+
+            $files = $this->getScriptDistFiles($pathToJsFiles);
 
             if ($files === null) {
                 continue;
@@ -231,7 +229,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @return array<string, array{0: StorefrontPluginConfiguration, 1: string}>
+     * @return array<string, StorefrontPluginConfiguration>
      */
     private function getScriptDistFolders(StorefrontPluginConfigurationCollection $configurationCollection): array
     {
@@ -246,15 +244,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             if ($scripts->count() === 0) {
                 continue;
             }
-            $distPath = $configuration->getBasePath();
-            $isVendor = str_contains($configuration->getBasePath(), 'vendor/');
-            $isTechnicalName = str_contains($configuration->getBasePath(), $configuration->getTechnicalName());
-            if (!$isVendor && !$isTechnicalName) {
-                $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
-                $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
-            }
 
-            $scriptsDistFolders[$configuration->getAssetName()] = [$configuration, $distPath];
+            $scriptsDistFolders[$configuration->getAssetName()] = $configuration;
         }
 
         return $scriptsDistFolders;

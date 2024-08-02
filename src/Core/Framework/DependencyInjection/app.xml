@@ -157,6 +157,7 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.reset" method="reset"/>
+            <tag name="kernel.event_listener" event="console.terminate" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">

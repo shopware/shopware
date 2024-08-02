@@ -31,7 +31,7 @@ class ThemeFilesystemResolverTest extends TestCase
         );
 
         $pluginConfig = new StorefrontPluginConfiguration('Storefront');
-        $pluginConfig->setBasePath('src/Storefront/Resources');
+        $pluginConfig->setBasePath('src/Storefront');
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 

@@ -144,6 +144,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
+        },
     },
 
     watch: {

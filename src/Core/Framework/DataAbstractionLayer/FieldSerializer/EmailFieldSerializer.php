@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -27,6 +28,10 @@ class EmailFieldSerializer extends AbstractFieldSerializer
     ): \Generator {
         if (!$field instanceof StorageAware) {
             throw DataAbstractionLayerException::invalidSerializerField(self::class, $field);
+        }
+
+        if ($data->getValue() !== null) {
+            $data->setValue(EmailIdnConverter::encode($data->getValue()));
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

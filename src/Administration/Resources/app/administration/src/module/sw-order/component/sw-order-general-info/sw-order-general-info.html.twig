@@ -16,7 +16,7 @@
                     :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }">
                     {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
                 </router-link>
-                ({{ order.orderCustomer.email }})
+                ({{ emailIdnFilter(order.orderCustomer.email) }})
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

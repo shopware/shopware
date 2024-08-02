@@ -3836,11 +3836,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/DateTimeFieldSerializerTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\EmailFieldSerializerTest\\:\\:\\$field \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\EmailField\\) does not accept Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/EmailFieldSerializerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializerTest\\:\\:decodeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/JsonFieldSerializerTest.php

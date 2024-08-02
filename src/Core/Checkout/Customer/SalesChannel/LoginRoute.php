@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -35,6 +36,7 @@ class LoginRoute extends AbstractLoginRoute
     #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
     public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
+        EmailIdnConverter::encodeDataBag($data);
         $email = (string) $data->get('email', $data->get('username'));
 
         if ($this->requestStack->getMainRequest() !== null) {

@@ -68,7 +68,7 @@
 
                                         {% block page_account_overview_profile_email %}
                                             <p>
-                                                {{ context.customer.email }}
+                                                {{ context.customer.email|decodeIdnEmail }}
                                             </p>
                                         {% endblock %}
 

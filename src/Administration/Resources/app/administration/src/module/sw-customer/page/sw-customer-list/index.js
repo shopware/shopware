@@ -196,6 +196,10 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        emailIdnFilter() {
+            return Shopware.Filter.getByName('decode-idn-email');
+        },
     },
 
     watch: {

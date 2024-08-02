@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,6 +63,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     #[Route(path: '/store-api/account/recovery-password', name: 'store-api.account.recovery.send.mail', methods: ['POST'])]
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
+        EmailIdnConverter::encodeDataBag($data);
+
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {

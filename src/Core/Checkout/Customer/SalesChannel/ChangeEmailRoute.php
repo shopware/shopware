@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -46,6 +47,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     #[Route(path: '/store-api/account/change-email', name: 'store-api.account.change-email', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
+        EmailIdnConverter::encodeDataBag($requestDataBag);
+        EmailIdnConverter::encodeDataBag($requestDataBag, 'emailConfirmation');
+
         $this->validateEmail($requestDataBag, $context);
 
         $customerData = [

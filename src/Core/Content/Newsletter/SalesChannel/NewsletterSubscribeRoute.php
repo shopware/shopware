@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
@@ -99,6 +100,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             $dataBag->set('storefrontUrl', $doubleOptInDomain);
             $validateStorefrontUrl = false;
         }
+
+        EmailIdnConverter::encodeDataBag($dataBag);
 
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
 

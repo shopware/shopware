@@ -77,7 +77,7 @@
                                         <div class="col-12 col-md-6">
                                             {% block page_account_profile_credentials_current_mail_label %}
                                                 <span class="account-profile-mail-label">{{ 'account.profileCurrentMail'|trans|sw_sanitize }}</span>
-                                                <span class="account-profile-mail">{{ context.customer.email }}</span>
+                                                <span class="account-profile-mail">{{ context.customer.email|decodeIdnEmail }}</span>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

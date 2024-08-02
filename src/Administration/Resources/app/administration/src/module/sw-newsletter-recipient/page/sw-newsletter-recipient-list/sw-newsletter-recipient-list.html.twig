@@ -70,6 +70,13 @@
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_newsletter_recipientlist_list_grid_email %}
+            <template #column-email="{ item }">
+                <p>{{ emailIdnFilter(item.email) }}</p>
+            </template>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipientlist_list_grid_name %}
             <template
                 #column-firstName="{ item, compact, isInlineEdit }"

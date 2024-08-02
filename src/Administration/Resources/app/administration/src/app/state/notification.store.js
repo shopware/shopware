@@ -213,16 +213,17 @@ export default {
                 return;
             }
 
-            Application.view.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
+
+            state.growlNotifications[notificationUpdate.uuid] = notificationUpdate;
 
             const growlKeys = Object.keys(state.growlNotifications);
             if (growlKeys.length > state.threshold) {
-                Application.view.deleteReactive(state.growlNotifications, growlKeys[0]);
+                delete state.growlNotifications[growlKeys[0]];
             }
         },
 
         removeGrowlNotification(state, notification) {
-            Application.view.deleteReactive(state.growlNotifications, notification.uuid);
+            delete state.growlNotifications[notification.uuid];
         },
     },
 

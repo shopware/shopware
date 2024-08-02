@@ -10,6 +10,8 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['importExport'],
 
     props: {

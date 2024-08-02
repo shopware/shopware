@@ -666,11 +666,11 @@ class ApplicationBootstrapper {
      * Load all plugins from the server and inject them into the Site.
      */
     private async loadPlugins():Promise<(unknown[] | null)[]> {
-        const isDevelopmentMode = process.env.NODE_ENV;
+        const isDevelopmentMode = process.env.NODE_ENV === 'development';
 
         let plugins: bundlesPluginResponse;
         // only in webpack dev mode
-        if (isDevelopmentMode === 'development') {
+        if (isDevelopmentMode) {
             const response = await fetch('./sw-plugin-dev.json');
             plugins = await response.json() as bundlesPluginResponse;
         } else {
@@ -700,7 +700,7 @@ class ApplicationBootstrapper {
                 return;
             }
 
-            if (isDevelopmentMode === 'development') {
+            if (isDevelopmentMode) {
                 // replace the baseUrl with the webpack url of the html file
                 Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
                     const stringUtils = Shopware.Utils.string;
@@ -727,7 +727,7 @@ class ApplicationBootstrapper {
             });
         });
 
-        if (isDevelopmentMode === 'development') {
+        if (isDevelopmentMode) {
             // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
             Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
                 const stringUtils = Shopware.Utils.string;

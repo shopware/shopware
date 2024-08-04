@@ -458,6 +458,10 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['password'] = $data->get('password');
         }
 
+        if ($customer['requestedGroupId'] === $customer['groupId']) {
+            $customer['requestedGroupId'] = null;
+        }
+
         $event = new DataMappingEvent($data, $customer, $context->getContext());
         $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_CUSTOMER);
 

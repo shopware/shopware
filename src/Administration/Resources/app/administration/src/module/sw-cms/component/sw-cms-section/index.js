@@ -11,10 +11,18 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cmsService',
         'repositoryFactory',
     ],
+
+    provide() {
+        return {
+            swCmsSectionEmitPageConfigOpen: this.emitPageConfigOpen,
+        };
+    },
 
     mixins: [
         Mixin.getByName('cms-state'),
@@ -189,6 +197,10 @@ export default {
             }
 
             this.$emit('page-config-open', 'blocks');
+        },
+
+        emitPageConfigOpen(arg) {
+            this.$emit('page-config-open', arg);
         },
 
         onAddSectionBlock() {

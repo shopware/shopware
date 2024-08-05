@@ -10,6 +10,8 @@ const { Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'feature',
         'cmsPageTypeService',

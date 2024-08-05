@@ -87,10 +87,16 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNull($urlResult->getNextOffset());
     }
 
-    public function testExcludeCategoryLink(): void
+    public function testExcludeCategoryLinkAndFolder(): void
     {
         $urlResult = $this->getCategoryUrlProvider()->getUrls($this->salesChannelContext, 10);
-        static::assertCount(4, $urlResult->getUrls());
+        $ids = array_map(fn ($url) => $url->getIdentifier(), $urlResult->getUrls());
+
+        // link
+        static::assertNotContains('0191233394c57345a56e1b4df4db81c3', $ids);
+
+        // folder
+        static::assertNotContains('0191233394c57345a56e1b4df521dca6', $ids);
     }
 
     private function getCategoryUrlProvider(): CategoryUrlProvider
@@ -142,9 +148,16 @@ class CategoryUrlProviderTest extends TestCase
                         'active' => true,
                     ],
                     [
+                        'id' => '0191233394c57345a56e1b4df4db81c3',
                         'name' => 'Sub 5',
                         'active' => true,
                         'type' => CategoryDefinition::TYPE_LINK,
+                    ],
+                    [
+                        'id' => '0191233394c57345a56e1b4df521dca6',
+                        'name' => 'Sub 6',
+                        'active' => true,
+                        'type' => CategoryDefinition::TYPE_FOLDER,
                     ],
                 ],
             ],

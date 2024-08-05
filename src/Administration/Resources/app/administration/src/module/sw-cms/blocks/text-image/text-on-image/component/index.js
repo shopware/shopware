@@ -7,4 +7,6 @@ import './sw-cms-block-text-on-image.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

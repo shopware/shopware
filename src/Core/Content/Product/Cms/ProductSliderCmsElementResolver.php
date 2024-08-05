@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';

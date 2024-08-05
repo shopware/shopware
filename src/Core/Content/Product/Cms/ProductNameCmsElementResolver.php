@@ -9,7 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class ProductNameCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string

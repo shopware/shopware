@@ -8,6 +8,8 @@ import './sw-category-entry-point-overwrite-modal.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         salesChannels: {
             type: Array,

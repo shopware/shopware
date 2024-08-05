@@ -8,6 +8,8 @@ import './sw-category-view.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     mixins: [

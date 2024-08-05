@@ -6,8 +6,6 @@ import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin
 import { get, debounce, cloneDeepWith } from 'lodash';
 import type { App } from 'vue';
 import { onBeforeUnmount } from 'vue';
-// @ts-expect-error - no declaration file
-import { compatUtils } from '@vue/compat';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -258,8 +256,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                     return;
                 }
 
+                // @ts-expect-error - This is added in the vue.adapter.ts
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+                if (scope.isCompatEnabled('INSTANCE_SET')) {
                     scope.$set(
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
@@ -303,8 +302,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                 return;
             }
 
+            // @ts-expect-error - This is added in the vue.adapter.ts
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+            if (scope.isCompatEnabled('INSTANCE_SET')) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
             } else {
@@ -315,8 +315,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
             return;
         }
 
+        // @ts-expect-error - This is added in the vue.adapter.ts
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (compatUtils.isCompatEnabled('INSTANCE_SET')) {
+        if (scope.isCompatEnabled('INSTANCE_SET')) {
             scope.$set(scope, path, value.data);
         } else {
             // @ts-expect-error
@@ -360,8 +361,9 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
     });
 
     // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
+    // @ts-expect-error - This is added in the vue.adapter.ts
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    if (compatUtils.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+    if (scope.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
         scope.$once('hook:beforeDestroy', () => {
             publishedDataSets = publishedDataSets.filter(value => value.id !== id);
             unregisterPublishDataIds.push(id);

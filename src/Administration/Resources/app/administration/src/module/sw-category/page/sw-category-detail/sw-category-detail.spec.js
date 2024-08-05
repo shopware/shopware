@@ -1,5 +1,6 @@
 /**
  * @package inventory
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -35,6 +36,14 @@ async function createWrapper() {
                 'sw-collapse': await wrapTestComponent('sw-collapse'),
                 'sw-landing-page-tree': true,
                 'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-skeleton': true,
+                'sw-category-view': true,
+                'sw-category-entry-point-overwrite-modal': true,
+                'sw-landing-page-view': true,
+                'sw-discard-changes-modal': true,
+                'sw-empty-state': true,
             },
             provide: {
                 cmsService: {

@@ -117,4 +117,51 @@ describe('FilterMultiSelect tests', () => {
 
         expect(filterMultiSelectPlugin.selection.sort()).toEqual(['blue', 'pink'].sort());
     });
+
+    test('should render correct counter depending on current selection', () => {
+        document.body.innerHTML = `
+            <div class="filter-multi-select filter-multi-select-manufacturer filter-panel-item dropdown" role="listitem" data-filter-multi-select="true">
+                <button class="filter-panel-item-toggle btn" aria-expanded="false" aria-label="Filter by manufacturer" data-bs-toggle="dropdown" data-boundary="viewport" data-bs-offset="0,8" aria-haspopup="true">
+                    Manufacturer <span class="filter-multi-select-count"></span>
+                </button>
+    
+                <div class="filter-multi-select-dropdown filter-panel-item-dropdown dropdown-menu" id="filter-manufacturer-1854714896">
+                    <ul class="filter-multi-select-list" aria-label="Manufacturer">
+                        <li class="filter-multi-select-list-item">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input filter-multi-select-checkbox" data-label="Balistreri-Johns" value="0190da2684cb710aac3d3291a340b3e3" id="0190da2684cb710aac3d3291a340b3e3">
+                                <label class="filter-multi-select-item-label form-check-label" for="0190da2684cb710aac3d3291a340b3e3">Balistreri-Johns</label>
+                            </div>
+                        </li>
+                        <li class="filter-multi-select-list-item">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input filter-multi-select-checkbox" data-label="Barrows, Dach and Bergnaum" value="0190da2684cb710aac3d32919db761bb" id="0190da2684cb710aac3d32919db761bb">
+                                <label class="filter-multi-select-item-label form-check-label" for="0190da2684cb710aac3d32919db761bb">Barrows, Dach and Bergnaum</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="cms-element-product-listing-wrapper"></div>
+        `;
+
+        filterMultiSelectPlugin = new FilterMultiSelectPlugin(document.querySelector('[data-filter-multi-select="true"]'), {
+            name: 'manufacturer',
+            displayName: 'Manufacturer',
+            snippets: {
+                ariaLabel: 'Filter by manufacturer',
+                ariaLabelCount: '%count% selected',
+            }
+        });
+
+        // Select one item from the multi select filter
+        document.getElementById('0190da2684cb710aac3d3291a340b3e3').setAttribute('checked', 'checked');
+        document.getElementById('0190da2684cb710aac3d3291a340b3e3').checked = true;
+
+        filterMultiSelectPlugin.getValues();
+
+        // Verify counter and aria-label
+        expect(document.querySelector('.filter-multi-select-count').textContent).toBe('(1)');
+        expect(document.querySelector('.filter-panel-item-toggle').getAttribute('aria-label')).toBe('Filter by manufacturer (1 selected)');
+    });
 });

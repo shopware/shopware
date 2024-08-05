@@ -10,6 +10,8 @@ const { Store } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         currentDeviceView() {
             return Store.get('cmsPageState').currentCmsDeviceView;

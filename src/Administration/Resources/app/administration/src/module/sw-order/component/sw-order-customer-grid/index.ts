@@ -80,7 +80,7 @@ export default Component.wrapComponentConfig({
                 .addAssociation('addresses')
                 .addAssociation('group')
                 .addAssociation('salutation')
-                .addAssociation('salesChannel')
+                .addAssociation('salesChannel.languages')
                 .addAssociation('defaultPaymentMethod')
                 .addAssociation('lastPaymentMethod')
                 .addAssociation('defaultBillingAddress.country')
@@ -150,7 +150,7 @@ export default Component.wrapComponentConfig({
 
             // @ts-expect-error
             this.$refs.customerFilter.term = this.customerData?.customerNumber;
-            this.onCheckCustomer(this.customerData);
+            void this.onCheckCustomer(this.customerData);
         },
 
         getList() {
@@ -173,9 +173,24 @@ export default Component.wrapComponentConfig({
             return item.id === this.customer?.id;
         },
 
-        onCheckCustomer(item: Entity<'customer'>): void {
-            this.customer = item;
-            void this.handleSelectCustomer(item.id);
+        async onCheckCustomer(item: Entity<'customer'>) {
+            this.customer = await this.customerRepository
+                .get(item.id, Context.api, this.customerCriterion);
+
+            const isExists = (this.customer?.salesChannel?.languages || []).some(
+                (language) => language.id === Context.api.systemLanguageId,
+            );
+
+            if (!isExists && this.customer?.salesChannel?.languageId) {
+                State.commit('context/setApiLanguageId', this.customer.salesChannel.languageId);
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (isExists && !State.getters['context/isSystemDefaultLanguage']) {
+                State.commit('context/resetLanguageToDefault');
+            }
+
+            void this.handleSelectCustomer();
         },
 
         createCart(salesChannelId: string): Promise<void> {
@@ -187,20 +202,16 @@ export default Component.wrapComponentConfig({
             void State.dispatch('swOrder/selectExistingCustomer', { customer });
         },
 
-        async handleSelectCustomer(customerId: string): Promise<void> {
+        async handleSelectCustomer(): Promise<void> {
             this.isSwitchingCustomer = true;
 
             try {
-                const customer = await this.customerRepository
-                    .get(customerId, Context.api, this.customerCriterion);
-
                 if (!this.cart.token) {
                     // It is compulsory to create cart and get cart token first
-                    await this.createCart(customer?.salesChannelId ?? '');
+                    await this.createCart(this.customer?.salesChannelId ?? '');
                 }
 
-                this.customer = customer;
-                this.setCustomer(customer);
+                this.setCustomer(this.customer);
 
                 await this.updateCustomerContext();
             } catch {

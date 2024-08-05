@@ -38,7 +38,8 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
         if (!this.el) {
             return;
         }
-        this.sliderIndex = Number(this.el.dataset.productSliderPosition);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        this.sliderIndex = Number(this.options.sliderPosition);
 
         this.spatialProductSliderRenderUtil = new SpatialProductSliderRenderUtil(this);
 
@@ -79,7 +80,8 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
         if (this.spatialLightCompositionUtil == undefined || force) {
             this.spatialLightCompositionUtil?.dispose();
             if (this.scene) {
-                this.spatialLightCompositionUtil = new SpatialLightCompositionUtil(this.scene);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+                this.spatialLightCompositionUtil = new SpatialLightCompositionUtil(this.scene, this.options.lightIntensity);
             }
         }
 
@@ -89,7 +91,8 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
         }
 
         if (this.model == undefined || force) {
-            const modelUrl = this.el?.dataset.spatialModelUrl;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const modelUrl: string = this.options.modelUrl;
             if (modelUrl == null) {
                 return;
             }
@@ -98,7 +101,7 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
                 {
                     center: true,
                     clampSize: true,
-                    clampMaxSize: {x: 4/3, y: 1, z: 4/3},
+                    clampMaxSize: { x: 4 / 3, y: 1, z: 4 / 3 },
                 }
             ).then((model) => {
                 this.model = model;
@@ -126,5 +129,5 @@ export default class SpatialGallerySliderViewerPlugin extends SpatialBaseViewerP
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-    protected postRender(delta: number) {}
+    protected postRender(delta: number) { }
 }

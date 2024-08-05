@@ -21,8 +21,7 @@ describe('SpatialArViewerPlugin', () => {
 
         document.body.innerHTML = `
             <div data-spatial-ar-viewer
-                 data-spatial-ar-viewer-options='{ "spatialArId": "1" }'
-                 data-spatial-model-url="testurl">
+                 data-spatial-ar-viewer-options='{ "spatialArId": "1", "modelUrl": "testurl" }'>
             </div>
             <div class="ar-qr-modal">
                 <canvas data-ar-model-id="1"></canvas>
@@ -56,7 +55,8 @@ describe('SpatialArViewerPlugin', () => {
         supportsAr.mockReturnValue(true);
 
         SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
-            spatialArId : "1"
+            spatialArId: "1",
+            modelUrl: "testurl"
         });
         SpatialArViewerPluginObject.model = "1";
         const modalShowSpy = jest.spyOn(window.bootstrap.Modal.prototype, 'show')
@@ -151,7 +151,7 @@ describe('SpatialArViewerPlugin', () => {
             expect(modalShowSpy).toHaveBeenCalled();
 
             SpatialArViewerPluginObject = await new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
-                spatialArId : "1"
+                spatialArId: "1"
             });
 
             modalShowSpy.mockClear()

@@ -168,10 +168,14 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                    {% set spatialGalleryViewerOptions = {
+                                                                                        modelUrl: image.url,
+                                                                                        lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                                        sliderPosition: loop.index0,
+                                                                                    } %}
                                                                                     <canvas
                                                                                         data-spatial-gallery-slider-viewer
-                                                                                        data-spatial-model-url="{{ image.url }}"
-                                                                                        data-product-slider-position="{{ loop.index0 }}"
+                                                                                        data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                     ></canvas>
                                                                                     <span
                                                                                         class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
@@ -183,8 +187,7 @@
                                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                         <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                                              data-spatial-ar-viewer
-                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
-                                                                                             data-spatial-model-url="{{ image.url }}">
+                                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
 
                                                                                                 {% sw_icon 'augmented' style {
                                                                                                     'size': 'fluid'
@@ -299,10 +302,14 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                    {% set spatialGalleryViewerOptions = {
+                                                                        modelUrl: image.url,
+                                                                        lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                        sliderPosition: loop.index0,
+                                                                    } %}
                                                                     <canvas
                                                                             data-spatial-gallery-slider-viewer
-                                                                            data-spatial-model-url="{{ image.url }}"
-                                                                            data-product-slider-position="{{ loop.index0 }}"
+                                                                            data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                     ></canvas>
                                                                     <span
                                                                             class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
@@ -314,8 +321,7 @@
                                                                     {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                         <div class="ar-button button position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                              data-spatial-ar-viewer
-                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
-                                                                             data-spatial-model-url="{{ image.url }}">
+                                                                             data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
 
                                                                                 {% sw_icon 'augmented' style {
                                                                                     'size': 'fluid'
@@ -629,10 +635,14 @@
                                                                                                         </div>
                                                                                                     </div>
                                                                                                     <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                                        {% set spatialGalleryViewerOptions = {
+                                                                                                            modelUrl: image.url,
+                                                                                                            lightIntensity: config('core.media.defaultLightIntensity'),
+                                                                                                            sliderPosition: loop.index0,
+                                                                                                        } %}
                                                                                                         <canvas
                                                                                                                 data-spatial-zoom-gallery-slider-viewer
-                                                                                                                data-spatial-model-url="{{ image.url }}"
-                                                                                                                data-zoom-product-slider-position="{{ loop.index0 }}"
+                                                                                                                data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                                         ></canvas>
                                                                                                         <span
                                                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
@@ -644,8 +654,7 @@
                                                                                                         {% if image.config.spatial.arReady ?? defaultEnableAugmentedReality %}
                                                                                                             <div class="ar-button button mb-2 position-absolute d-inline-flex justify-content-center align-items-center text-center py-0 px-2 w-auto"
                                                                                                                  data-spatial-ar-viewer
-                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}" }'
-                                                                                                                 data-spatial-model-url="{{ image.url }}">
+                                                                                                                 data-spatial-ar-viewer-options='{ "spatialArId": "{{ image.id }}", "modelUrl": "{{ image.url }}" }'>
 
                                                                                                                     {% sw_icon 'augmented' style {
                                                                                                                         'size': 'fluid'

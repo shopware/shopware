@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElementResolver
 {
     abstract public function getType(): string;

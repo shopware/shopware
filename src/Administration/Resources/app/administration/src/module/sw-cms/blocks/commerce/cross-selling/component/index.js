@@ -6,4 +6,6 @@ import template from './sw-cms-block-cross-selling.html.twig';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

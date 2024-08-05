@@ -226,7 +226,8 @@
                                                                                 {% set attributes = attributes|merge({
                                                                                     class: attributes.class ~ ' magnifier-image js-magnifier-image',
                                                                                     alt: (image.translated.alt ?: fallbackImageTitle),
-                                                                                    'data-full-image': image.url
+                                                                                    'data-full-image': image.url,
+                                                                                    'tabindex': '0'
                                                                                 }) %}
 
                                                                                 {% if displayMode == 'cover' or displayMode == 'contain' %}

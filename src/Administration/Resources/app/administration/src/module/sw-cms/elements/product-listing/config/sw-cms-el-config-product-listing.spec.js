@@ -1,7 +1,8 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
-import Vue from 'vue';
+import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -89,6 +90,18 @@ async function createWrapper(activeTab = 'sorting') {
                         </div>
                     `,
                 },
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-button': true,
+                'sw-data-grid-skeleton': true,
             },
             provide: {
                 cmsService: {
@@ -102,7 +115,7 @@ async function createWrapper(activeTab = 'sorting') {
 
             },
         },
-        props: Vue.observable({
+        props: reactive({
             defaultConfig: {},
             element: {
                 config: {

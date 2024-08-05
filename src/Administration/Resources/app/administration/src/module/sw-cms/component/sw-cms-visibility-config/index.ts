@@ -8,6 +8,8 @@ import './sw-cms-visibility-config.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         visibility: {
             type: Object,

@@ -8,6 +8,8 @@ import './sw-cms-visibility-toggle.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         text: {
             type: String,

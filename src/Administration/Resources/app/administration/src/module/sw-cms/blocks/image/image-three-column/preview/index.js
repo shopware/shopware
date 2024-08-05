@@ -8,6 +8,8 @@ import './sw-cms-preview-image-three-column.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         assetFilter() {
             return Shopware.Filter.getByName('asset');

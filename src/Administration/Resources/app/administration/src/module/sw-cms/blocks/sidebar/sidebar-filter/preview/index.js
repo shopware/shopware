@@ -7,4 +7,6 @@ import './sw-cms-block-preview-sidebar-filter.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

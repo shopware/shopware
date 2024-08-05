@@ -46,7 +46,18 @@
                 ref="systemConfig"
                 domain="core.media"
                 @loading-changed="onLoadingChanged"
-            />
+            >
+                <template #card-element-last>
+                    <mt-slider
+                        v-if="!isLoading"
+                        v-model="sliderValue"
+                        :min="0"
+                        :max="100"
+                        @input="onSliderChange"
+                    />
+                </template>
+            </sw-system-config>
+
         </sw-card-view>
     </template>
     {% endblock %}

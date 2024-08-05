@@ -10,6 +10,8 @@ import './sw-import-export-new-profile-wizard-mapping-page.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],

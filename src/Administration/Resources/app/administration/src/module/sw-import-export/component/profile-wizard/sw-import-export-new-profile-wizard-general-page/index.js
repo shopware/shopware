@@ -9,6 +9,8 @@ import './sw-import-export-new-profile-wizard-general-page.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         profile: {
             type: Object,

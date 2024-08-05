@@ -129,6 +129,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->andWhere('`category`.version_id = :versionId');
         $query->andWhere('`category`.active = 1');
         $query->andWhere('`category`.type != :linkType');
+        $query->andWhere('`category`.type != :folderType');
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
@@ -138,6 +139,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
+        $query->setParameter('folderType', CategoryDefinition::TYPE_FOLDER);
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
         $result = $query->executeQuery()->fetchAllAssociative();

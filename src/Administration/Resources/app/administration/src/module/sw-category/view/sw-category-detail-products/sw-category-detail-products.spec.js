@@ -1,5 +1,6 @@
 /**
  * @package inventory
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -47,13 +48,11 @@ async function createWrapper() {
                 'sw-alert': {
                     template: '<div class="sw-alert"><slot></slot></div>',
                 },
+                'sw-product-variant-info': true,
+                'sw-empty-state': true,
             },
             mocks: {
                 placeholder: () => {},
-            },
-            propsData: {
-                isLoading: false,
-                manualAssignedProductsCount: 0,
             },
             provide: {
                 repositoryFactory: {
@@ -64,6 +63,10 @@ async function createWrapper() {
                     },
                 },
             },
+        },
+        props: {
+            isLoading: false,
+            manualAssignedProductsCount: 0,
         },
     });
 }

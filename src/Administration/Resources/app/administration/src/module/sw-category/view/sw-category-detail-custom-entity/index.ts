@@ -15,6 +15,8 @@ const EXTENSION_POSTFIX = 'SwCategories';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',

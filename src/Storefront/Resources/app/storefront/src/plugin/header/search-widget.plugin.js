@@ -18,6 +18,7 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetUrlDataAttribute: 'data-url',
         searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
         searchWidgetCollapseClass: 'collapsed',
+        searchWidgetCloseButtonSelector: '.js-search-close-btn',
 
         searchWidgetDelay: 250,
         searchWidgetMinChars: 3,
@@ -27,6 +28,7 @@ export default class SearchWidgetPlugin extends Plugin {
         try {
             this._inputField = DomAccess.querySelector(this.el, this.options.searchWidgetInputFieldSelector);
             this._submitButton = DomAccess.querySelector(this.el, this.options.searchWidgetButtonFieldSelector);
+            this._closeButton = DomAccess.querySelector(this.el, this.options.searchWidgetCloseButtonSelector);
             this._url = DomAccess.getAttribute(this.el, this.options.searchWidgetUrlDataAttribute);
         } catch (e) {
             return;
@@ -68,6 +70,10 @@ export default class SearchWidgetPlugin extends Plugin {
 
         // add click event for mobile search
         this._registerInputFocus();
+
+        // add click event listener to close button
+        this._closeButton.addEventListener('click', this._onCloseButtonClick.bind(this));
+
     }
 
     _handleSearchEvent(event) {
@@ -163,6 +169,16 @@ export default class SearchWidgetPlugin extends Plugin {
         this._clearSuggestResults();
 
         this.$emitter.publish('onBodyClick');
+    }
+
+    /**
+     * Close the search results popover
+     * @private
+     */
+    _onCloseButtonClick() {
+        this._clearSuggestResults();
+
+        this._inputField.focus();
     }
 
     /**

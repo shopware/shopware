@@ -35,11 +35,24 @@ The header contains the shop logo, the search form and various actions like the 
 
 .header-search-form {
     position: relative;
+
+    &:has(.search-suggest) {
+        .header-search-btn {
+            display: none;
+        }
+
+        .header-close-btn {
+            display: block;
+        }
+    }
 }
 
 .header-search-btn {
-    .loader ~ .header-search-icon {
-        display: none;
+    .loader {
+        ~ .header-search-icon,
+        ~ .header-close-btn {
+            display: none;
+        }
     }
 }
 

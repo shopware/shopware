@@ -13,6 +13,8 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'feature',

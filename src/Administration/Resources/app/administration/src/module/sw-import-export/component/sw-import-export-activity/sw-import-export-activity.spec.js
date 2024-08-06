@@ -1,3 +1,8 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -797,9 +802,19 @@ const createWrapper = async (options = {}) => {
                 'sw-help-text': true,
                 'sw-loader': true,
                 'sw-extension-component-section': true,
+                'sw-label': true,
+                'sw-empty-state': true,
+                'sw-bulk-edit-modal': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-ai-copilot-badge': true,
             },
             mocks: {
                 $tc: (key, pluralization) => {
+                    if (!pluralization) return key;
+
                     switch (key) {
                         default: {
                             return { key, pluralization };
@@ -1065,8 +1080,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state').attributes('title')).toBe('sw-import-export.activity.emptyState.titleExport');
-        expect(wrapper.find('sw-empty-state').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineExport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe('sw-import-export.activity.emptyState.titleExport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineExport');
     });
 
     it('should show an export in progress', async () => {
@@ -1310,8 +1325,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-import-export-activity > sw-empty-state')).toBeDefined();
-        expect(wrapper.find('sw-empty-state').attributes('title')).toBe('sw-import-export.activity.emptyState.titleImport');
-        expect(wrapper.find('sw-empty-state').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineImport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('title')).toBe('sw-import-export.activity.emptyState.titleImport');
+        expect(wrapper.find('sw-empty-state-stub').attributes('subline')).toBe('sw-import-export.activity.emptyState.subLineImport');
     });
 
     it('should show an import in progress', async () => {

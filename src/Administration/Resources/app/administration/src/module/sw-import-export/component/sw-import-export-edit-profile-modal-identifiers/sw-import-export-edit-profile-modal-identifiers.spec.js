@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -84,6 +85,19 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         props: ['text'],
                         template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                     },
+                    'sw-checkbox-field': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-button': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -35,15 +36,6 @@ async function createWrapper() {
                 },
             },
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-            };
-        },
         global: {
             stubs: {
                 'sw-tabs': {
@@ -52,6 +44,9 @@ async function createWrapper() {
                 'sw-tabs-item': true,
                 'sw-entity-single-select': true,
                 'sw-alert': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
+                'sw-select-field': true,
             },
             provide: {
                 cmsService: {
@@ -79,6 +74,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state: () => ({}),
         });
     });
 
@@ -92,15 +88,14 @@ describe('module/sw-cms/elements/buy-box/config', () => {
     });
 
     it('should show alert information if page type is product detail', async () => {
-        const wrapper = await createWrapper();
+        const store = Shopware.Store.get('cmsPageState');
+        store.currentPage = {
+            type: 'product_detail',
+        };
+        expect(store.currentPage.type).toBe('product_detail');
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.isProductPage).toBe(true);
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');
         const alert = wrapper.find('sw-alert-stub');

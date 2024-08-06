@@ -39,10 +39,7 @@ class CustomFieldTranslationTest extends TestCase
     }
     use KernelTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {

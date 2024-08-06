@@ -35,8 +35,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
@@ -46,12 +48,11 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxPro
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExceptionTaxProvider;
 
 /**
- * @package checkout
- *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor
  */
+#[Package('checkout')]
 class TaxProviderProcessorTest extends TestCase
 {
     private IdsCollection $ids;
@@ -74,7 +75,7 @@ class TaxProviderProcessorTest extends TestCase
     public function testProcess(): void
     {
         $cart = $this->createCart();
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -100,15 +101,15 @@ class TaxProviderProcessorTest extends TestCase
             new TestConstantTaxRateProvider(),
         ]);
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
+            $this->createMock(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -139,25 +140,25 @@ class TaxProviderProcessorTest extends TestCase
         static::assertEquals(7, $deliveryTax->getTaxRate());
     }
 
-    public function testNoTaxResultsGivenThrowsException(): void
+    public function testNoTaxResultsGivenDoesNoAdjustment(): void
     {
         // empty data set should result in exception to prevent invalid taxes
         $taxProviderStruct = new TaxProviderResult();
 
         $cart = new Cart('foo');
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $testProvider = static::createMock(TestEmptyTaxProvider::class);
+        $testProvider = $this->createMock(TestEmptyTaxProvider::class);
         $testProvider
             ->expects(static::once())
             ->method('provide')
             ->with($cart, $salesChannelContext)
             ->willReturn($taxProviderStruct);
 
-        $taxProviderRegistry = static::createMock(TaxProviderRegistry::class);
+        $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
             ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
@@ -190,19 +191,21 @@ class TaxProviderProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
+
+        $adjustment = $this->createMock(TaxAdjustment::class);
+        $adjustment
+            ->expects(static::never())
+            ->method('adjust');
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
-            $this->adjustment,
+            $this->createMock(LoggerInterface::class),
+            $adjustment,
             $taxProviderRegistry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
-
-        static::expectException(TaxProviderExceptions::class);
-        static::expectExceptionMessage('There was an error while calculating taxes');
 
         $processor->process($cart, $salesChannelContext);
     }
@@ -211,7 +214,7 @@ class TaxProviderProcessorTest extends TestCase
     {
         $cart = $this->createCart();
 
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -246,15 +249,15 @@ class TaxProviderProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
+            $this->createMock(LoggerInterface::class),
             $this->adjustment,
             $registry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -264,7 +267,7 @@ class TaxProviderProcessorTest extends TestCase
 
     public function testProcessorThrowsExceptionOnUnknownProvider(): void
     {
-        $taxProviderRegistry = static::createMock(TaxProviderRegistry::class);
+        $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
             ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
@@ -297,28 +300,28 @@ class TaxProviderProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
+            $this->createMock(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
 
-        static::expectException(TaxProviderExceptions::class);
-        static::expectExceptionMessage('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'foo_bar\' threw an exception: No tax provider found for identifier foo_bar');
+        $this->expectException(TaxProviderExceptions::class);
+        $this->expectExceptionMessage('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'foo_bar\' threw an exception: No tax provider found for identifier foo_bar');
 
-        $processor->process(new Cart('foo'), static::createMock(SalesChannelContext::class));
+        $processor->process(new Cart('foo'), $this->createMock(SalesChannelContext::class));
     }
 
     public function testNoProvidersAvailableWillDoNothing(): void
     {
         $cart = new Cart('foo');
 
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $registry = new TaxProviderRegistry([]);
         $collection = new TaxProviderCollection([]);
@@ -332,20 +335,20 @@ class TaxProviderProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
-        $taxAdjuster = static::createMock(TaxAdjustment::class);
+        $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
             ->expects(static::never())
             ->method('adjust');
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
+            $this->createMock(LoggerInterface::class),
             $taxAdjuster,
             $registry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -355,9 +358,9 @@ class TaxProviderProcessorTest extends TestCase
     {
         $cart = new Cart('foo');
 
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $registry = static::createMock(TaxProviderRegistry::class);
+        $registry = $this->createMock(TaxProviderRegistry::class);
         $registry
             ->method('get')
             ->withAnyParameters()
@@ -386,13 +389,13 @@ class TaxProviderProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
         $e = new TaxProviderExceptions();
         $e->add(TestGenericExceptionTaxProvider::class, new \Exception('Test exception'));
 
-        $logger = static::createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects(static::once())
             ->method('error')
@@ -401,12 +404,12 @@ class TaxProviderProcessorTest extends TestCase
         $processor = new TaxProviderProcessor(
             $repo,
             $logger,
-            static::createMock(TaxAdjustment::class),
+            $this->createMock(TaxAdjustment::class),
             $registry,
-            static::createMock(TaxProviderPayloadService::class)
+            $this->createMock(TaxProviderPayloadService::class)
         );
 
-        static::expectException(TaxProviderExceptions::class);
+        $this->expectException(TaxProviderExceptions::class);
 
         $processor->process($cart, $salesChannelContext);
     }
@@ -414,7 +417,7 @@ class TaxProviderProcessorTest extends TestCase
     public function testAppProviderIsCalled(): void
     {
         $cart = $this->createCart();
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -442,14 +445,14 @@ class TaxProviderProcessorTest extends TestCase
             new TestConstantTaxRateProvider(),
         ]);
 
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo->method('search')->willReturn($result);
 
         $taxes = new CalculatedTaxCollection([
             new CalculatedTax(19, 19, 100),
         ]);
 
-        $taxProviderPayloadService = static::createMock(TaxProviderPayloadService::class);
+        $taxProviderPayloadService = $this->createMock(TaxProviderPayloadService::class);
         $taxProviderPayloadService
             ->expects(static::once())
             ->method('request')
@@ -463,7 +466,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $processor = new TaxProviderProcessor(
             $repo,
-            static::createMock(LoggerInterface::class),
+            $this->createMock(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
             $taxProviderPayloadService
@@ -474,27 +477,27 @@ class TaxProviderProcessorTest extends TestCase
 
     public function testTaxProcessorNotProcessingOnStateTaxFree(): void
     {
-        $repo = static::createMock(EntityRepository::class);
+        $repo = $this->createMock(EntityRepository::class);
         $repo
             ->expects(static::never())
             ->method('search');
 
-        $logger = static::createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects(static::never())
             ->method('error');
 
-        $taxAdjuster = static::createMock(TaxAdjustment::class);
+        $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
             ->expects(static::never())
             ->method('adjust');
 
-        $registry = static::createMock(TaxProviderRegistry::class);
+        $registry = $this->createMock(TaxProviderRegistry::class);
         $registry
             ->expects(static::never())
             ->method('get');
 
-        $payloadService = static::createMock(TaxProviderPayloadService::class);
+        $payloadService = $this->createMock(TaxProviderPayloadService::class);
         $payloadService
             ->expects(static::never())
             ->method('request');
@@ -508,7 +511,7 @@ class TaxProviderProcessorTest extends TestCase
         );
 
         $cart = new Cart('foo');
-        $context = static::createMock(SalesChannelContext::class);
+        $context = $this->createMock(SalesChannelContext::class);
         $context
             ->method('getTaxState')
             ->willReturn(CartPrice::TAX_STATE_FREE);
@@ -556,12 +559,12 @@ class TaxProviderProcessorTest extends TestCase
                         $lineItem,
                         1,
                         $price,
-                        static::createMock(DeliveryDate::class)
+                        new DeliveryDate(new \DateTime(), new \DateTime())
                     ),
                 ]),
-                static::createMock(DeliveryDate::class),
-                static::createMock(ShippingMethodEntity::class),
-                static::createMock(ShippingLocation::class),
+                new DeliveryDate(new \DateTime(), new \DateTime()),
+                new ShippingMethodEntity(),
+                new ShippingLocation(new CountryEntity(), null, null),
                 $price
             ),
         ]);

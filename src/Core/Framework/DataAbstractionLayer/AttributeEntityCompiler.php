@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -50,6 +51,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -206,6 +208,7 @@ class AttributeEntityCompiler
             ManyToOne::TYPE => ManyToOneAssociationField::class,
             ManyToMany::TYPE => ManyToManyAssociationField::class,
             ForeignKey::TYPE => FkField::class,
+            State::TYPE => StateMachineStateField::class,
             Version::TYPE => VersionField::class,
             ReferenceVersion::TYPE => ReferenceVersionField::class,
             Translations::TYPE => TranslationsAssociationField::class,
@@ -214,12 +217,10 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return list<string|false>
+     * @return list<mixed>
      */
     private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement $field, \ReflectionProperty $property): array
     {
-        $storage = $this->converter->normalize($property->getName());
-
         if ($field->column) {
             $column = $field->column;
         } else {
@@ -229,6 +230,7 @@ class AttributeEntityCompiler
         $fk = $column . '_id';
 
         return match (true) {
+            $field instanceof State => [$column, $property->getName(), $field->machine, $field->scopes],
             $field instanceof Translations => [$entity . '_translation', $entity . '_id'],
             $field instanceof ForeignKey => [$column, $property->getName(), $field->entity],
             $field instanceof OneToOne => [$property->getName(), $fk, $field->ref, $field->entity, false],

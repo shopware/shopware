@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Media;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
-use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +24,7 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly MediaUrlGenerator $mediaUrlGenerator
+        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
     ) {
     }
 

@@ -121,18 +121,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Draft release (Dry run)
-        if: github.ref_type != 'tag'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRY_RUN: 1
-        run: |
-          bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
       - name: Draft release
-        if: github.ref_type == 'tag'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # set dry run if it's not a tag
+          DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
         run: |
+          echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
 
   create-sbp-release:
@@ -145,16 +140,13 @@ jobs:
     env:
       SBP_API_URL: ${{ secrets[format('SBP_API_URL_{0}', matrix.sbp-environment)] }}
       SBP_TOKEN: ${{ secrets[format('SBP_API_TOKEN_{0}', matrix.sbp-environment)] }}
+      # set dry run if it's not a tag
+      DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Create sbp release (Dry run)
-        if: github.ref_type != 'tag'
-        env:
-          DRY_RUN: "1"
-        run: |
-          bash .github/bin/sbp_release.bash create "${{ github.ref_name }}"
       - name: Create sbp release
-        if: github.ref_type == 'tag'
         run: |
+          echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/sbp_release.bash create "${{ github.ref_name }}"

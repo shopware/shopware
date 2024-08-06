@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -21,7 +22,9 @@ async function createWrapper() {
             },
         },
         global: {
-            stubs: {},
+            stubs: {
+                'sw-iframe-renderer': true,
+            },
             provide: {
                 cmsService: {
                     getCmsElementRegistry: () => {
@@ -64,7 +67,7 @@ describe('module/sw-cms/elements/location-renderer/config', () => {
     it('should add the elementId to iFrame url', async () => {
         const wrapper = await createWrapper();
 
-        const iFrame = wrapper.find('sw-iframe-renderer');
+        const iFrame = wrapper.find('sw-iframe-renderer-stub');
 
         expect(iFrame.attributes().src).toBe('http://test.example-app.com/?elementId=123456789');
     });

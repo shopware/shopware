@@ -62,7 +62,7 @@ export default Mixin.register('cms-element', defineComponent({
             let defaultConfig = this.defaultConfig;
             if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
-                defaultConfig = elementConfig.defaultConfig || {};
+                defaultConfig = elementConfig?.defaultConfig || {};
             }
 
             let fallbackCategoryConfig = {};

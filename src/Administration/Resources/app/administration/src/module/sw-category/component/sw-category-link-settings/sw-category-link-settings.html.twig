@@ -10,7 +10,7 @@
     <sw-single-select
         v-model:value="mainType"
         class="sw-category-link-settings__type"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.mainTypeLabel')"
         :placeholder="$tc('sw-category.base.link.mainTypePlaceholder')"
         :options="linkTypeValues"
@@ -24,7 +24,7 @@
         v-if="isInternal"
         v-model:value="category.linkType"
         class="sw-category-link-settings__entity"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.internalTypeLabel')"
         :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
         :options="entityValues"
@@ -55,7 +55,7 @@
         v-if="category.linkType === 'product'"
         v-model:value="category.internalLink"
         class="sw-category-link-settings__selection-product"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('global.entities.product')"
         :placeholder="$tc('sw-category.base.link.productPlaceholder')"
         :criteria="productCriteria"
@@ -71,7 +71,7 @@
         v-if="category.linkType === 'landing_page'"
         v-model:value="category.internalLink"
         class="sw-category-link-settings__selection-landing-page"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('global.entities.landing_page')"
         :placeholder="$tc('sw-category.base.link.landingPagePlaceholder')"
         entity="landing_page"
@@ -85,7 +85,7 @@
         v-if="isExternal"
         v-model:value="category.externalLink"
         class="sw-category-link-settings__external-link"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.linkLabel')"
         :placeholder="$tc('sw-category.base.link.linkLabel')"
     />
@@ -96,7 +96,7 @@
     <sw-switch-field
         v-model:value="category.linkNewTab"
         class="sw-category-link-settings__link-new-tab"
-        :disabled="!acl.can('category.editor')"
+        :disabled="!acl.can('category.editor') || undefined"
         :label="$tc('sw-category.base.link.linkNewTabLabel')"
     />
     {% endblock %}

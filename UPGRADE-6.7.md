@@ -1,4 +1,68 @@
 # 6.7.0.0
+## Introduced in 6.6.5.0
+## Payment: Reworked payment handlers
+* The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.
+* The new `AbstractPaymentHandler` class should be used to implement payment handlers.
+* The following interfaces have been deprecated:
+  * `AsyncPaymentHandlerInterface`
+  * `PreparedPaymentHandlerInterface`
+  * `SyncPaymentHandlerInterface`
+  * `RefundPaymentHandlerInterface`
+  * `RecurringPaymentHandlerInterface`
+* Synchronous and asynchronous payments have been merged to return an optional redirect response.
+
+
+## Payment: Capture step of prepared payments removed
+* The method `capture` has been removed from the `PreparedPaymentHandler` interface. This method is no longer being called for apps.
+* Use the `pay` method instead for capturing previously validated payments.
+
+## App System: Payment: payment states
+* For asynchronous payments, the default payment state `unconfirmed` was used for the `pay` call and `paid` for `finalized`. This is no longer the case. Payment states are no longer set by default.
+
+## App system: Payment:  finalize step
+* The `finalize` step now transmits the `queryParameters` under the object key `requestData` as other payment calls
+## Customer: Default payment method removed
+* Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
+* Logic is now more consistent to always be the last used payment method
+
+## Rule builder: Condition `customerDefaultPaymentMethod` removed
+* Removed condition `customerDefaultPaymentMethod` from rule builder, since customers do not have default payment methods anymore
+* Existing rules with this condition will be automatically migrated to the new condition `paymentMethod`, so the currently selected payment method
+
+## Flow builder: Trigger `checkout.customer.changed-payment-method` removed
+* Removed trigger `checkout.customer.changed-payment-method` from flow builder, since customers do not have default payment methods anymore
+* Existing flows will be automatically disabled with Shopware 6.7 and removed in a future, destructive migration
+## Removal of sw-dashboard-statistics and associated component sections and data sets
+The component `sw-dashboard-statistics` (`src/module/sw-dashboard/component/sw-dashboard-statistics`) has been removed without replacement.
+
+The associated component sections `sw-chart-card__before` and `sw-chart-card__after` were removed, too.
+Use `sw-dashboard__before-content` and `sw-dashboard__after-content` instead.
+
+Before:
+```js
+import { ui } from '@shopware-ag/meteor-admin-sdk';
+
+ui.componentSection.add({
+    positionId: 'sw-chart-card__before',
+    ...
+})
+```
+
+After:
+```js
+import { ui } from '@shopware-ag/meteor-admin-sdk';
+
+ui.componentSection.add({
+    positionId: 'sw-dashboard__before-content',
+    ...
+})
+```
+
+Additionally, the associated data sets `sw-dashboard-detail__todayOrderData` and `sw-dashboard-detail__statisticDateRanges` were removed.
+In both cases, use the Admin API instead.
+## Direct debit default payment: State change removed
+* The default payment method "Direct debit" will no longer automatically change the order state to "in progress". Use the flow builder instead, if you want the same behavior.
+
 ## Introduced in 6.6.4.0
 ## Removal of Storefront `sw-skin-alert` SCSS mixin
 The mixin `sw-skin-alert` will be removed in v6.7.0. Instead of styling the alert manually with CSS selectors and the custom mixin `sw-skin-alert`,

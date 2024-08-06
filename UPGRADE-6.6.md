@@ -1,3 +1,30 @@
+# 6.6.5.0
+## Elasticsearch with special chars
+* To apply searching by Elasticsearch with special chars, you would need to update your ES index mapping by running: `es:index`
+
+## New parameter `shopware.search.preserved_chars` when tokenizing
+* By default, the parameter `shopware.search.preserved_chars` is set to `['-', '_', '+', '.', '@']`. You can add or remove special characters to this parameter by override it in `shopware.yaml` to allow them when tokenizing string.
+## Add skip to content link to improve a11y
+The `base.html.twig` template now has a new block `base_body_skip_to_content` directly after the opening `<body>` tag.
+The new block holds a link that allows to skip the focus directly to the `<main>` content element.
+This improves a11y because a keyboard or screen-reader user does not have to "skip" through all elements of the page (header, top-bar) and can jump straight to the main content if wanted.
+The "skip to main content" link will not be visible, unless it has focus.
+
+```html
+<body>
+    <div class="skip-to-content bg-primary-subtle text-primary-emphasis visually-hidden-focusable overflow-hidden">
+        <div class="container d-flex justify-content-center">
+            <a href="#content-main" class="skip-to-content-link d-inline-flex text-decoration-underline m-1 p-2 fw-bold gap-2">
+                Skip to main content
+            </a>
+        </div>
+    </div>
+
+    <main id="content-main">
+        <!-- Main content... -->
+    </main>
+```
+
 # 6.6.4.0
 Thumbnail handling performance can now be improved by using remote thumbnails.
 

@@ -7,6 +7,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
  */
 class DateHistogramCase
 {
+    /**
+     * @param array<string, int> $buckets
+     */
     public function __construct(
         private readonly string $interval,
         private readonly array $buckets,
@@ -20,6 +23,9 @@ class DateHistogramCase
         return $this->interval;
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function getBuckets(): array
     {
         return $this->buckets;

@@ -9,13 +9,13 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 #[CoversClass(CachedEntitySchemaGenerator::class)]
 class CachedEntitySchemaGeneratorTest extends TestCase
 {

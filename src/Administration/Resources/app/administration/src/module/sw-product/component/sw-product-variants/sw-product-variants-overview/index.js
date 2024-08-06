@@ -650,7 +650,7 @@ export default {
                 return;
             }
 
-            const productEntity = await this.productRepository.get(this.product.id, Shopware.Context.api);
+            const productEntity = await this.productRepository.get(this.product.id);
             const mainVariantId = productEntity.variantListingConfig?.mainVariantId;
 
             if (mainVariantId && variantIds.includes(mainVariantId)) {

@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -138,6 +139,89 @@ class CheckoutGatewayRouteTest extends TestCase
         static::assertSame($paymentMethods->getPaymentMethods(), $result->getPaymentMethods());
         static::assertSame($shippingMethods->getShippingMethods(), $result->getShippingMethods());
         static::assertSame($response->getCartErrors(), $result->getErrors());
+    }
+
+    #[DisabledFeatures(['v6.7.0.0'])]
+    public function testLoadWithOnlyAvailableFlag(): void
+    {
+        $request = new Request();
+        $cart = new Cart('hatoken');
+        $context = Generator::createSalesChannelContext();
+
+        $paymentMethod = new PaymentMethodEntity();
+        $paymentMethod->setId(Uuid::randomHex());
+
+        $paymentMethods = new PaymentMethodRouteResponse(
+            new EntitySearchResult(
+                PaymentMethodDefinition::ENTITY_NAME,
+                1,
+                new PaymentMethodCollection([$paymentMethod]),
+                null,
+                new Criteria(),
+                $context->getContext()
+            )
+        );
+
+        $ruleId = Uuid::randomHex();
+        $context->getContext()->setRuleIds([$ruleId]);
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setAvailabilityRuleId($ruleId);
+
+        $shippingMethods = new ShippingMethodRouteResponse(
+            new EntitySearchResult(
+                ShippingMethodDefinition::ENTITY_NAME,
+                1,
+                new ShippingMethodCollection([$shippingMethod]),
+                null,
+                new Criteria(),
+                $context->getContext()
+            )
+        );
+
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appPaymentMethod.app')))
+            ->willReturn($paymentMethods);
+
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects(static::once())
+            ->method('load')
+            ->with($request, $context, static::equalTo((new Criteria())->addAssociation('appShippingMethod.app')))
+            ->willReturn($shippingMethods);
+
+        $response = new CheckoutGatewayResponse(
+            $paymentMethods->getPaymentMethods(),
+            $shippingMethods->getShippingMethods(),
+            new ErrorCollection()
+        );
+
+        $payload = new CheckoutGatewayPayloadStruct($cart, $context, $paymentMethods->getPaymentMethods(), $shippingMethods->getShippingMethods());
+
+        $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
+        $checkoutGateway
+            ->expects(static::once())
+            ->method('process')
+            ->with(static::equalTo($payload))
+            ->willReturn($response);
+
+        $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
+        $ruleIdMatcher
+            ->expects(static::exactly(2))
+            ->method('filterCollection')
+            ->willReturnArgument(0);
+
+        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway, $ruleIdMatcher);
+        $result = $route->load($request, $cart, $context);
+
+        static::assertSame($paymentMethods->getPaymentMethods(), $result->getPaymentMethods());
+        static::assertSame($shippingMethods->getShippingMethods(), $result->getShippingMethods());
+        static::assertSame($response->getCartErrors(), $result->getErrors());
+        static::assertSame('1', $request->query->get('onlyAvailable'));
     }
 
     public function testUnavailableMethodsAddCartError(): void

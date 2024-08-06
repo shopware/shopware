@@ -24,7 +24,7 @@
             class="sw-settings-tax-tax-provider-detail__save-action"
             variant="primary"
             :is-loading="isLoading"
-            :disabled="isLoading || !allowSave"
+            :disabled="isLoading || !allowSave || undefined"
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -66,7 +66,7 @@
                         <sw-switch-field
                             v-model:value="taxProvider.active"
                             class="sw-settings-tax-tax-provider-detail__field-active"
-                            :disabled="!acl.can('tax.editor')"
+                            :disabled="!acl.can('tax.editor') || undefined"
                             :label="$tc('sw-settings-tax.taxProviderDetail.labelActive')"
                         />
                     </sw-container>
@@ -80,7 +80,7 @@
                     <sw-select-rule-create
                         v-if="!isLoading"
                         class="sw-settings-tax-tax-provider-detail__field-availability-rule"
-                        :disabled="!acl.can('tax.editor')"
+                        :disabled="!acl.can('tax.editor') || undefined"
                         :rule-id="taxProvider.availabilityRuleId"
                         :rule-filter="ruleFilter"
                         :placeholder="$tc('sw-settings-tax.taxProviderDetail.placeholderAvailabilityRule')"

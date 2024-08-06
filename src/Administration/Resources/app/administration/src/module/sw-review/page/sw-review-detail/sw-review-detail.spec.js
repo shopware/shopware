@@ -1,12 +1,10 @@
 /**
  * @package inventory
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
-import swReviewDetail from 'src/module/sw-review/page/sw-review-detail';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
-
-Shopware.Component.register('sw-review-detail', swReviewDetail);
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-review-detail', { sync: true }), {
@@ -84,6 +82,9 @@ async function createWrapper() {
                 'sw-textarea-field': true,
                 'sw-language-switch': true,
                 'sw-skeleton': true,
+                'sw-rating-stars': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-error-summary': true,
             },
         },
     });

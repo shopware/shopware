@@ -1,3 +1,8 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {

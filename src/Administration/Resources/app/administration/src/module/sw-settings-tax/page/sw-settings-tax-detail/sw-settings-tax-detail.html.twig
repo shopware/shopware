@@ -35,7 +35,7 @@
             class="sw-settings-tax-detail__save-action"
             variant="primary"
             :is-loading="isLoading"
-            :disabled="isLoading || !allowSave"
+            :disabled="isLoading || !allowSave || undefined"
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-tax.detail.buttonSave') }}
@@ -80,7 +80,7 @@
                             :value="label"
                             required
                             name="sw-field--tax-name"
-                            :disabled="!acl.can('tax.editor') || isShopwareDefaultTax"
+                            :disabled="!acl.can('tax.editor') || isShopwareDefaultTax || undefined"
                             :label="$tc('sw-settings-tax.detail.labelName')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                             :error="taxNameError"
@@ -95,7 +95,7 @@
                             name="sw-field--tax-taxRate"
                             required
                             :digits="3"
-                            :disabled="!acl.can('tax.editor')"
+                            :disabled="!acl.can('tax.editor') || undefined"
                             :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
                             :error="taxTaxRateError"

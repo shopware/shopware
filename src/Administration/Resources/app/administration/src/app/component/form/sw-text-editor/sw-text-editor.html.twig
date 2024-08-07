@@ -81,6 +81,7 @@
                 @paste="onPaste"
                 @input="onInput"
                 @copy="onCopy"
+                @mousedown.right.stop
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
             ></div>
             <div

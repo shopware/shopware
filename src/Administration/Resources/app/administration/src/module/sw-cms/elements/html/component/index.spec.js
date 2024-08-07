@@ -1,7 +1,10 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
+
 import 'src/module/sw-cms/service/cms.service';
-import '../index';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import './index';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -11,6 +14,9 @@ async function createWrapper() {
         global: {
             provide: {
                 cmsService: Shopware.Service('cmsService'),
+            },
+            stubs: {
+                'sw-code-editor': true,
             },
         },
         props: {
@@ -29,11 +35,6 @@ describe('src/module/sw-cms/elements/html/component/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        Shopware.Store.register({
-            id: 'cmsPageState',
-            state: () => {},
-        });
-
         wrapper = await createWrapper();
 
         await flushPromises();

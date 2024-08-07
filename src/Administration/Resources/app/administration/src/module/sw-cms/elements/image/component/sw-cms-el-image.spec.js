@@ -1,6 +1,8 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
+
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
@@ -67,15 +69,6 @@ async function createWrapper() {
                     value: null,
                 },
             },
-        },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-            };
         },
     });
 }

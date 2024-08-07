@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -37,6 +38,11 @@ async function createWrapper() {
                 'sw-media-upload-v2': true,
                 'sw-upload-listener': true,
                 'sw-dynamic-url-field': true,
+                'sw-alert': true,
+                'sw-media-modal-v2': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-icon': true,
             },
         },
         props: {
@@ -78,15 +84,6 @@ async function createWrapper() {
                 data: {},
             },
             defaultConfig: {},
-        },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-            };
         },
     });
 }

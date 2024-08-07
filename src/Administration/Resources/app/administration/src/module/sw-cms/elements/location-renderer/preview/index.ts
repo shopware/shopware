@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.register('sw-cms-el-preview-location-renderer', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         elementData: {
             type: Object as PropType<ElementDataProp>,

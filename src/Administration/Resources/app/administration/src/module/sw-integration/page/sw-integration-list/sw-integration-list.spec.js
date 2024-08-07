@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
@@ -123,6 +124,13 @@ async function createWrapper(privileges = []) {
                     `,
                     },
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-alert': true,
+                    'sw-label': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         },

@@ -12,6 +12,8 @@ const { Context, Utils } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'mediaService'],
 
     props: {
@@ -102,7 +104,7 @@ export default {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

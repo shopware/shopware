@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper(privileges = [], additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-settings-tax-list', {
@@ -131,6 +132,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"></div>',
                 },
+                'sw-checkbox-field': true,
             },
         },
     });

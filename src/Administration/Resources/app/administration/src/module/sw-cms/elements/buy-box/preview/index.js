@@ -8,4 +8,6 @@ import './sw-cms-el-preview-buy-box.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

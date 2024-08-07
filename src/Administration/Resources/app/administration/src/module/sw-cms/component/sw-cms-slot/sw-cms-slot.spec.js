@@ -1,9 +1,10 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import Vue from 'vue';
+import { reactive } from 'vue';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-cms-slot', {
@@ -21,10 +22,12 @@ async function createWrapper(props = {}) {
                 'sw-icon': true,
                 'sw-modal': true,
                 'sw-skeleton-bar': true,
+                'sw-button': true,
+                'sw-sidebar-collapse': true,
             },
             provide: {
                 cmsService: {
-                    getCmsServiceState: () => Vue.observable({
+                    getCmsServiceState: () => reactive({
                         elementRegistry: {
                             product_list_block: null,
                             landing_block: null,

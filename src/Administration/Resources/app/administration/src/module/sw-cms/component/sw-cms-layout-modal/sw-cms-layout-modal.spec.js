@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -90,6 +91,13 @@ async function createWrapper() {
                     template: '<div class="sw-cms-list-item"></div>',
                     props: ['isDefault'],
                 },
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-data-grid-skeleton': true,
             },
         },
     });

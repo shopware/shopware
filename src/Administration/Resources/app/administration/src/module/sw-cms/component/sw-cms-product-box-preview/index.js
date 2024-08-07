@@ -8,6 +8,8 @@ import './sw-cms-product-box-preview.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         hasText: {
             type: Boolean,

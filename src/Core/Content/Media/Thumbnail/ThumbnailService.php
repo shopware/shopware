@@ -173,7 +173,7 @@ class ThumbnailService
                 $this->indexer->handle(new MediaIndexingMessage([$media->getId()]));
 
                 return $updated;
-            }, EntityIndexerRegistry::DISABLE_INDEXING);
+            }, EntityIndexerRegistry::DISABLE_INDEXING, MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
         });
 
         return \count($update);

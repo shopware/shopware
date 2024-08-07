@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -599,6 +600,9 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
+        // ensure synchronous file deletion is not set to be able to test updating thumbnails correctly
+        $this->context->removeState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
 
@@ -624,6 +628,13 @@ class ThumbnailServiceTest extends TestCase
             static::assertTrue(
                 $this->getPublicFilesystem()->has($thumbnailPath),
                 'Thumbnail: ' . $thumbnailPath . ' does not exist, but it should be regenerated when in strict mode.'
+            );
+
+            $this->runWorker();
+
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($thumbnailPath),
+                'Thumbnail: ' . $thumbnailPath . ' should not be deleted asynchronous after regeneration when in strict mode.'
             );
         } else {
             static::assertFalse(

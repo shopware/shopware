@@ -15,7 +15,7 @@ class PhysicalFilenamePathStrategy extends AbstractMediaPathStrategy
 {
     public function name(): string
     {
-        return 'physical_file_name';
+        return 'physical_filename';
     }
 
     protected function value(MediaLocationStruct|ThumbnailLocationStruct $location): ?string

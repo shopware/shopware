@@ -238,6 +238,10 @@ const ContextStore: Module<ContextState, VuexRootState> = {
         resetLanguageToDefault(state) {
             state.api.languageId = state.api.systemLanguageId;
         },
+
+        setLanguageId(state, newLanguageId: string) {
+            state.api.languageId = newLanguageId;
+        },
     },
 
     getters: {

@@ -19,7 +19,11 @@
 {% block component_account_register_redirect %}
     {{ parent() }}
 
-    <input type="hidden" name="requestedGroupId" value="{{ page.group.id }}">
+    {% block component_account_register_requested_group_id %}
+        {% if page.group.id != context.salesChannel.customerGroupId %}
+            <input type="hidden" name="requestedGroupId" value="{{ page.group.id }}">
+        {% endif %}
+    {% endblock %}
 {% endblock %}
 
 {% block component_account_register_personal_address_fields %}

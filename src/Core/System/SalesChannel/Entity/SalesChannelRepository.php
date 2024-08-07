@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositorySearchDetector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -203,7 +204,7 @@ class SalesChannelRepository
         }
 
         $queue = [
-            ['definition' => $this->definition, 'criteria' => $topCriteria],
+            ['definition' => $this->definition, 'criteria' => $topCriteria, 'path' => ''],
         ];
 
         $maxCount = 100;
@@ -216,8 +217,10 @@ class SalesChannelRepository
 
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
+            $path = $cur['path'];
+            $processedKey = $path . $definition::class;
 
-            if (isset($processed[$definition::class])) {
+            if (isset($processed[$processedKey])) {
                 continue;
             }
 
@@ -230,7 +233,7 @@ class SalesChannelRepository
                 $this->eventDispatcher->dispatch($event, $eventName);
             }
 
-            $processed[$definition::class] = true;
+            $processed[$processedKey] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition
@@ -240,7 +243,14 @@ class SalesChannelRepository
                 }
 
                 $referenceDefinition = $field->getReferenceDefinition();
-                $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria];
+                $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
+
+                if (!$field instanceof ManyToManyAssociationField) {
+                    continue;
+                }
+
+                $referenceDefinition = $field->getToManyReferenceDefinition();
+                $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
             }
         }
     }

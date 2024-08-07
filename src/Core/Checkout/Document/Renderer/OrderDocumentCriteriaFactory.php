@@ -44,7 +44,7 @@ final class OrderDocumentCriteriaFactory
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
-        if ($deepLinkCode !== '') {
+        if ($deepLinkCode !== null && $deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 

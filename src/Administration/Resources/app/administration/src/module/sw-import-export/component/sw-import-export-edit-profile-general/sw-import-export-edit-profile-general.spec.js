@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -43,6 +44,11 @@ async function createWrapper(profile) {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-icon': true,
+                'sw-field-copyable': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},

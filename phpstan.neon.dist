@@ -46,9 +46,6 @@ parameters:
         - src/**/node_modules/*
         - tests/**/node_modules/*
 
-        # twig override
-        - src/Core/Framework/Adapter/Twig/functions.php
-
         # class behind feature flags
         - src/Core/Checkout/Cart/Exception/InvalidCartException.php
 

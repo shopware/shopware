@@ -15,6 +15,8 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         listItemSelector: '.filter-multi-select-list-item',
         snippets: {
             disabledFilterText: 'Filter not active',
+            ariaLabel: '',
+            ariaLabelCount: '',
         },
         mainFilterButtonSelector: '.filter-panel-item-toggle',
     });
@@ -22,6 +24,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
     init() {
         this.selection = [];
         this.counter = DomAccess.querySelector(this.el, this.options.countSelector);
+        this.mainFilterButton = DomAccess.querySelector(this.el, this.options.mainFilterButtonSelector, false);
 
         this._registerEvents();
     }
@@ -246,6 +249,28 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      * @private
      */
     _updateCount() {
-        this.counter.innerText = this.selection.length ? `(${this.selection.length})` : '';
+        this.counter.textContent = this.selection.length ? `(${this.selection.length})` : '';
+
+        this._updateAriaLabel();
+    }
+
+    /**
+     * Update the aria-label for the filter toggle button to reflect the number of already selected items.
+     * @private
+     */
+    _updateAriaLabel() {
+        if (!this.options.snippets.ariaLabel) {
+            return;
+        }
+
+        if (this.selection.length === 0) {
+            this.mainFilterButton.setAttribute('aria-label', this.options.snippets.ariaLabel);
+            return;
+        }
+
+        this.mainFilterButton.setAttribute(
+            'aria-label',
+            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%count%', this.selection.length.toString())})`
+        );
     }
 }

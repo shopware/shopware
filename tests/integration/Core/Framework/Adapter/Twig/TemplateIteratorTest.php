@@ -14,10 +14,7 @@ class TemplateIteratorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var TemplateIterator
-     */
-    private $iterator;
+    private TemplateIterator $iterator;
 
     protected function setUp(): void
     {

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -123,7 +124,8 @@ async function createWrapper(layoutType = 'product_list') {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-button': {
-                    template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
+                    inheritAttrs: false,
+                    template: '<div class="sw-button" :class="$attrs.class" @click="$emit(\'click\')"></div>',
                 },
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-category-tree-field': {
@@ -151,6 +153,10 @@ async function createWrapper(layoutType = 'product_list') {
                 'sw-inheritance-switch': true,
                 'sw-label': true,
                 transition: false,
+                'router-link': true,
+                'sw-extension-component-section': true,
+                'sw-product-variant-info': true,
+                'sw-help-text': true,
             },
             provide: {
                 systemConfigApiService: {
@@ -268,7 +274,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         });
 
         // Confirm changes
-        await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+        await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm')
+            .trigger('click');
 
         await wrapper.vm.$nextTick(); // Wait for validation
         await wrapper.vm.$nextTick(); // Wait for main modal
@@ -518,10 +525,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             },
         });
 
-        await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm').trigger('click');
+        await wrapper.find('.sw-cms-layout-assignment-modal__action-confirm')
+            .trigger('click');
 
         // Wait for warning modal
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Change warning should appear because of deleted shop page
         expect(wrapper.find('.sw-cms-layout-assignment-modal__confirm-changes-modal').exists()).toBeTruthy();

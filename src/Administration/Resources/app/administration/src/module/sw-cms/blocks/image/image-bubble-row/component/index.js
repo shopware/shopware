@@ -7,4 +7,6 @@ import './sw-cms-block-image-bubble-row.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

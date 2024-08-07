@@ -16,8 +16,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -52,7 +54,15 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
     protected DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     protected EntityRepository $orderRepository;
+
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
+    protected EntityRepository $productRepository;
 
     protected EntityRepository $documentRepository;
 
@@ -68,6 +78,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $this->queryBuilder = new QueryBuilder($this->getContainer()->get(Connection::class));
         $this->definitionInstanceRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
         $this->documentRepository = $this->getContainer()->get('document.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
@@ -215,8 +226,9 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         // 1. Create a new order and extract order number
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
+
         $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         // 2. Generate a document attached to the order
         $this->createDocument('invoice', $orderId, [], $this->context);
@@ -244,8 +256,9 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         static::assertCount(1, $documents);
         static::assertEquals(1, $documents->getTotal());
-        /** @var DocumentEntity $document */
-        $document = $documents->first();
+
+        $document = $documents->getEntities()->first();
+        static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertNotNull($document->getOrder());
         static::assertEquals('00000000000000000000000000000000', $document->getOrder()->getVersionId());
     }
@@ -263,10 +276,9 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
             );
 
         $connection = $this->getContainer()->get(Connection::class);
-        $productRepo = $this->getContainer()->get('product.repository');
 
         $context = Context::createDefaultContext();
-        $productRepo->create([$p->build()], $context);
+        $this->productRepository->create([$p->build()], $context);
 
         // Old database records don't have a product_media_version_id set
         $connection->executeStatement('UPDATE product SET product_media_version_id = NULL WHERE product_media_id IS NULL');
@@ -274,13 +286,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $criteria = new Criteria([$ids->get('p1'), $ids->get('p2')]);
         $criteria->addAssociation('cover');
 
-        /** @var ProductEntity[] $products */
-        $products = array_values($productRepo->search($criteria, $context)->getElements());
+        $products = array_values($this->productRepository->search($criteria, $context)->getElements());
 
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-
+        static::assertInstanceOf(ProductEntity::class, $product1);
+        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNull($product2->getCover());
 
@@ -288,13 +300,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $context->setConsiderInheritance(true);
 
-        /** @var ProductEntity[] $products */
-        $products = array_values($productRepo->search($criteria, $context)->getElements());
+        $products = array_values($this->productRepository->search($criteria, $context)->getElements());
 
         static::assertCount(2, $products);
 
         [$product1, $product2] = $products;
-
+        static::assertInstanceOf(ProductEntity::class, $product1);
+        static::assertInstanceOf(ProductEntity::class, $product2);
         static::assertNotNull($product1->getCover());
         static::assertNotNull($product2->getCover());
     }

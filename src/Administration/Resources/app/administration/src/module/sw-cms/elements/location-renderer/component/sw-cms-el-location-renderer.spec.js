@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -21,7 +22,9 @@ async function createWrapper() {
             },
         },
         global: {
-            stubs: {},
+            stubs: {
+                'sw-iframe-renderer': true,
+            },
             provide: {
                 cmsService: {
                     getCmsElementRegistry: () => {

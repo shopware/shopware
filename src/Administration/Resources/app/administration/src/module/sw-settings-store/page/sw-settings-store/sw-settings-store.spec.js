@@ -1,3 +1,8 @@
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(customString = '') {
@@ -24,14 +29,14 @@ async function createWrapper(customString = '') {
                     },
                 },
                 'sw-skeleton': true,
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-button-process': true,
             },
         },
     });
 }
 
-/**
- * @package checkout
- */
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
     it('should be a vue.js component', async () => {
         const wrapper = await createWrapper();

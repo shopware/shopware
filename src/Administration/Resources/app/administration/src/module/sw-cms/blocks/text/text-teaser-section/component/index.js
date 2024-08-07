@@ -7,4 +7,6 @@ import './sw-cms-block-text-teaser-section.scss';
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 };

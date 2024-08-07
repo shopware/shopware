@@ -7,6 +7,8 @@ import template from './sw-category-seo-form.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {

@@ -1,3 +1,8 @@
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';

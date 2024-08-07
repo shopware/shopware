@@ -12,6 +12,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'systemConfigApiService',
@@ -239,9 +241,15 @@ export default {
                     });
 
                     if (pages.length > 0) {
-                        this.$set(this.selectedShopPages, this.shopPageSalesChannelId, pages);
-                    } else {
+                        if (this.isCompatEnabled('INSTANCE_SET')) {
+                            this.$set(this.selectedShopPages, this.shopPageSalesChannelId, pages);
+                        } else {
+                            this.selectedShopPages[this.shopPageSalesChannelId] = pages;
+                        }
+                    } else if (this.isCompatEnabled('INSTANCE_SET')) {
                         this.$set(this.selectedShopPages, this.shopPageSalesChannelId, null);
+                    } else {
+                        this.selectedShopPages[this.shopPageSalesChannelId] = null;
                     }
 
                     this.previousShopPages = cloneDeep(this.selectedShopPages);

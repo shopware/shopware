@@ -990,4 +990,19 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeNull();
     });
+
+    it('should allow to right click and copy selected text', async () => {
+        wrapper = await createWrapper();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        // Add selection
+        const paragraph = wrapper.find('#paragraph');
+        await addAndCheckSelection(wrapper, paragraph.element, 0, 11, 'Hello World');
+
+        await paragraph.trigger('mousedown', { button: 2 });
+
+        const selection = document.getSelection();
+        expect(selection.toString()).toBe('Hello World');
+    });
 });

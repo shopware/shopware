@@ -161,7 +161,7 @@ export default {
         additionalEventListeners() {
             const listeners = {};
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 /**
                  * Do not pass "change" or "input" event listeners to the form elements
                  * because the component implements its own listeners for this event types.

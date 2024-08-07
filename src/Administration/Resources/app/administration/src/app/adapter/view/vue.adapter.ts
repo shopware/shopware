@@ -24,7 +24,7 @@ const { Component, State, Store, Mixin } = Shopware;
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
-    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig|boolean>>;
+    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,7 +103,7 @@ export default class VueAdapter extends ViewAdapter {
                 enumerable: true,
                 configurable: true,
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
-                set() {},
+                set() { },
             });
         });
 
@@ -251,6 +251,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtNumberField',
             'MtPasswordField',
             'MtSelect',
+            'MtSlider',
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
@@ -265,14 +266,12 @@ export default class VueAdapter extends ViewAdapter {
 
         // Disable compat for meteor components
         meteorComponents.forEach((componentName) => {
-            // @ts-expect-error - compatConfig is not typed
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
             MeteorImport[componentName].compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
         });
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            // @ts-expect-error - compatConfig is not typed
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
         });
@@ -562,7 +561,7 @@ export default class VueAdapter extends ViewAdapter {
     initTitle(app: App<Element>) {
         app.config.globalProperties.$createTitle = function createTitle(
             this: ComponentPublicInstance,
-            identifier: string|null = null,
+            identifier: string | null = null,
             ...additionalParams
         ): string {
             if (!this.$root) {

@@ -8,6 +8,8 @@ import './sw-category-layout-card.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'cmsPageTypeService',

@@ -1,9 +1,20 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-preview-html', {
         sync: true,
-    }));
+    }), {
+        global: {
+            stubs: {
+                'sw-code-editor': true,
+            },
+        },
+    });
 }
 
 describe('src/module/sw-cms/elements/html/preview/index.ts', () => {

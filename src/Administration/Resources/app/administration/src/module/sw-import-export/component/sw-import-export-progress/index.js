@@ -10,6 +10,8 @@ import './sw-import-export-progress.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

@@ -13,6 +13,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'importExport', 'feature'],
 
     mixins: [
@@ -135,7 +137,11 @@ export default {
             const profile = await this.profileRepository.get(id);
 
             if (Array.isArray(profile.config) && profile.config.length <= 0) {
-                this.$set(profile, 'config', {});
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(profile, 'config', {});
+                } else {
+                    this.profile.config = {};
+                }
             }
 
             if (profile.config?.createEntities === undefined) {

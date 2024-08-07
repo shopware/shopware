@@ -11,6 +11,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     mixins: [
@@ -49,8 +51,13 @@ export default {
         onProductChange(productId) {
             if (!productId) {
                 this.element.config.product.value = null;
-                this.$set(this.element.data, 'productId', null);
-                this.$set(this.element.data, 'product', null);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.element.data, 'productId', null);
+                    this.$set(this.element.data, 'product', null);
+                } else {
+                    this.element.data.productId = null;
+                    this.element.data.product = null;
+                }
             } else {
                 const criteria = new Criteria(1, 25);
                 criteria.addAssociation('cover');
@@ -58,8 +65,14 @@ export default {
 
                 this.productRepository.get(productId, this.productSelectContext, criteria).then((product) => {
                     this.element.config.product.value = productId;
-                    this.$set(this.element.data, 'productId', productId);
-                    this.$set(this.element.data, 'product', product);
+
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(this.element.data, 'productId', productId);
+                        this.$set(this.element.data, 'product', product);
+                    } else {
+                        this.element.data.productId = productId;
+                        this.element.data.product = product;
+                    }
                 });
             }
 

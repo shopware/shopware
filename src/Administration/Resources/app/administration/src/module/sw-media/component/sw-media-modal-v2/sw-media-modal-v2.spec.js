@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -23,6 +24,11 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-media-grid': true,
+                    'sw-tabs-item': true,
+                    'sw-media-breadcrumbs': true,
+                    'sw-simple-search-field': true,
+                    'sw-media-library': true,
+                    'sw-media-media-item': true,
                 },
                 provide: {
                     repositoryFactory: {},

@@ -67,19 +67,31 @@ export default {
                 return;
             }
 
-            const { orderAddressId, customerAddressId, type } = value;
+            const { orderAddressId, customerAddressId, type, edited } = value;
 
-            if (!state.orderAddressIds.some(ids => ids.orderAddressId === orderAddressId && ids.type === type)) {
-                state.orderAddressIds.push(value);
+            // Handle deletion scenario where orderAddressId matches customerAddressId
+            if (orderAddressId === customerAddressId && !edited) {
+                state.orderAddressIds = state.orderAddressIds.filter(
+                    ids => !(ids.orderAddressId === orderAddressId && ids.type === type),
+                );
 
                 return;
             }
 
-            state.orderAddressIds.forEach(ids => {
-                if (ids.orderAddressId === orderAddressId && ids.type === type) {
-                    ids.customerAddressId = customerAddressId;
-                }
-            });
+            // Find index of the existing item
+            const index = state.orderAddressIds.findIndex(
+                ids => ids.orderAddressId === orderAddressId && ids.type === type,
+            );
+
+            // If found, update the existing item
+            if (index !== -1) {
+                state.orderAddressIds[index].customerAddressId = customerAddressId;
+
+                return;
+            }
+
+            // Add a new item if no existing item was found
+            state.orderAddressIds.push(value);
         },
     },
 };

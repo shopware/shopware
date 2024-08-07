@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
     return mount(await wrapTestComponent('sw-settings-tax-detail', {
@@ -77,6 +78,8 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                 'sw-text-field': true,
                 'sw-number-field': true,
                 'sw-skeleton': true,
+                'sw-tax-rule-card': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

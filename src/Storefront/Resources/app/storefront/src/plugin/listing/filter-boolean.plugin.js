@@ -10,14 +10,18 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-boolean-input',
+        altTextSelector: '.filter-boolean-alt-text',
         activeClass: 'is-active',
         snippets: {
             disabledFilterText: 'Filter not active',
+            altText: '',
+            altTextActive: '',
         },
     });
 
     init() {
         this.checkbox = DomAccess.querySelector(this.el, this.options.checkboxSelector);
+        this._altText = DomAccess.querySelector(this.el, this.options.altTextSelector, false);
 
         this._registerEvents();
     }
@@ -56,7 +60,25 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         const values = {};
         values[this.options.name] = this.checkbox.checked ? '1' : '';
 
+        this._updateAltText();
+
         return values;
+    }
+
+    /**
+     * Update the checkbox label text for the screen reader, depending on if the checkbox is already active/checked.
+     *
+     * @example "[ ] Add filter: Free shipping" / "[x] Remove filter: Free shipping"
+     * @private
+     */
+    _updateAltText() {
+        if (!this._altText) {
+            return;
+        }
+
+        this._altText.textContent = this.checkbox.checked
+            ? this.options.snippets.altTextActive
+            : this.options.snippets.altText;
     }
 
     /**
@@ -88,7 +110,7 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
                 }
             }
         });
-
+        this._updateAltText();
         return stateChanged;
     }
 

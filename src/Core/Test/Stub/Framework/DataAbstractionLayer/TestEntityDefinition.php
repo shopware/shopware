@@ -20,6 +20,11 @@ class TestEntityDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): string
+    {
+        return 'test';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

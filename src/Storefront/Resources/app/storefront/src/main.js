@@ -103,11 +103,11 @@ PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-mod
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
+PluginManager.register('SpatialGallerySliderViewer', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
-PluginManager.register('SpatialZoomGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
+PluginManager.register('SpatialZoomGallerySliderViewer', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
 /**
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */

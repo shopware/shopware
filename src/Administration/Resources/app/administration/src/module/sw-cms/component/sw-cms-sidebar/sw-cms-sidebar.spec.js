@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -144,7 +145,7 @@ async function createWrapper(
                 },
                 'sw-sidebar': true,
                 'sw-sidebar-item': {
-                    template: '<div class="sw-sidebar-item"><slot #default /></div>',
+                    template: '<div class="sw-sidebar-item"><slot /></div>',
                     props: ['disabled'],
                     methods: {
                         openContent() {
@@ -171,6 +172,9 @@ async function createWrapper(
                     template: '<div class="sw-cms-visibility-config"></div>',
                     props: ['visibility'],
                 },
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
+                'sw-empty-state': true,
             },
             provide: {
                 acl: {

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
@@ -69,6 +70,11 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                     template: '<div class="sw-media-item">{{item.id}}</div>',
                     props: ['item'],
                 },
+                'sw-media-modal-v2': true,
+                'sw-url-field': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
         props: {
@@ -121,11 +127,6 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
         },
         data() {
             return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
                 mediaItems: [
                     {
                         id: '0',

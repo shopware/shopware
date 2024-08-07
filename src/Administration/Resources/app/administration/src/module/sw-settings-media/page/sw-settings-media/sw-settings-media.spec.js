@@ -4,6 +4,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-media', {
         sync: true,
     }), {
+        created() {
+            this.createdComponent();
+        },
 
         global: {
             mocks: {
@@ -32,35 +35,36 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'sw-error-summary': true,
             },
-        },
-        provide: {
-            systemConfigApiService: {
-                getConfig: () => {
-                    return Promise.resolve([{
-                        title: {
-                            'en-GB': '3D Files',
-                        },
-                        name: null,
-                        elements: [
-                            {
-                                name: 'core.media.defaultEnableAugmentedReality',
-                                type: 'bool',
-                                config: {
-                                    label: {
-                                        'en-GB': 'enableAugmentedRealityDefault',
-                                    },
-                                    helpText: {
-                                        'en-GB': 'enableAugmentedRealityDefault.helptext',
+            provide: {
+                systemConfigApiService: {
+                    getConfig: () => {
+                        return Promise.resolve([{
+                            title: {
+                                'en-GB': '3D Files',
+                            },
+                            name: null,
+                            elements: [
+                                {
+                                    name: 'core.media.defaultEnableAugmentedReality',
+                                    type: 'bool',
+                                    config: {
+                                        label: {
+                                            'en-GB': 'enableAugmentedRealityDefault',
+                                        },
+                                        helpText: {
+                                            'en-GB': 'enableAugmentedRealityDefault.helptext',
+                                        },
                                     },
                                 },
-                            },
-                        ],
-                    }]);
-                },
-                getValues: () => {
-                    return Promise.resolve({
-                        'core.media.defaultEnableAugmentedReality': false,
-                    });
+                            ],
+                        }]);
+                    },
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.media.defaultEnableAugmentedReality': false,
+                            'core.media.defaultLightIntensity': 100,
+                        });
+                    },
                 },
             },
         },
@@ -71,6 +75,32 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should handle error on creation', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.createErrorNotification = jest.fn();
+        wrapper.vm.systemConfigApiService.getValues = jest.fn(() => {
+            // eslint-disable-next-line prefer-promise-reject-errors
+            return Promise.reject({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                code: '0',
+                                detail: 'Oops!',
+                            },
+                        ],
+                    },
+                },
+            });
+        });
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.createErrorNotification).toHaveBeenCalled();
     });
 
     it('should save system config failed', async () => {
@@ -128,5 +158,15 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
                 .find('.sw-card')
                 .exists(),
         ).toBeTruthy();
+    });
+
+    it('should change the slider value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.onSliderChange(50);
+
+        expect(wrapper.vm.sliderValue).toBe(50);
     });
 });

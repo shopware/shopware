@@ -4,7 +4,7 @@ import SpatialCanvasSizeUpdateUtil from './utils/spatial-canvas-size-update-util
 import SpatialObjectLoaderUtil from './utils/spatial-object-loader-util';
 import SpatialOrbitControlsUtil from './utils/spatial-orbit-controls-util';
 import SpatialMovementNoteUtil from './utils/spatial-movement-note-util';
-import { type Object3D} from 'three';
+import { type Object3D } from 'three';
 import SpatialLightCompositionUtil from './utils/composition/spatial-light-composition-util';
 import { loadThreeJs } from './utils/spatial-threejs-load-util';
 
@@ -38,7 +38,8 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
         if (!this.el) {
             return;
         }
-        this.sliderIndex = Number(this.el.dataset.zoomProductSliderPosition);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        this.sliderIndex = Number(this.options.sliderPosition);
 
         this.SpatialZoomGallerySliderRenderUtil = new SpatialZoomGallerySliderRenderUtil(this);
 
@@ -81,7 +82,8 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
         if (this.spatialLightCompositionUtil == undefined || force) {
             this.spatialLightCompositionUtil?.dispose();
             if (this.scene) {
-                this.spatialLightCompositionUtil = new SpatialLightCompositionUtil(this.scene);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+                this.spatialLightCompositionUtil = new SpatialLightCompositionUtil(this.scene, this.options.lightIntensity);
             }
         }
 
@@ -91,7 +93,8 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
         }
 
         if (this.model == null || force) {
-            const modelUrl = this.el?.dataset.spatialModelUrl;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const modelUrl: string = this.options.modelUrl;
             if (modelUrl == null) {
                 return;
             }
@@ -101,7 +104,7 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
                     center: true,
                     clampSize: true,
                     clampMaxSize: {
-                        x: window.innerWidth / window.innerHeight ,
+                        x: window.innerWidth / window.innerHeight,
                         y: 1,
                         z: window.innerWidth / window.innerHeight,
                     },
@@ -129,5 +132,5 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-    protected postRender(delta:number) {}
+    protected postRender(delta: number) { }
 }

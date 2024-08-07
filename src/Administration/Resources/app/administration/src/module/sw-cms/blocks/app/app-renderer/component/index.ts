@@ -8,6 +8,8 @@ import template from './sw-cms-block-app-renderer.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         block: {
             type: Object as PropType<{

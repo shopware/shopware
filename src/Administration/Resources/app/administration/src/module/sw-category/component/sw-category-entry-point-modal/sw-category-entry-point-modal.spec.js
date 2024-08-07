@@ -1,5 +1,6 @@
 /**
  * @package inventory
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -42,6 +43,9 @@ async function createWrapper() {
                 'sw-cms-list-item': true,
                 'sw-switch-field': true,
                 'sw-button': true,
+                'sw-cms-layout-modal': true,
+                'sw-icon': true,
+                'sw-discard-changes-modal': true,
             },
             provide: {
                 cmsPageTypeService: {

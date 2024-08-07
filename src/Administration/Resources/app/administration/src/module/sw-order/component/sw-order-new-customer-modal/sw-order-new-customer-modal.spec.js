@@ -34,7 +34,6 @@ async function createWrapper() {
                                 create: () => {
                                     return {
                                         id: '1',
-
                                         addresses: new EntityCollection(
                                             '/customer_address',
                                             'customer_address',
@@ -62,6 +61,16 @@ async function createWrapper() {
                                     total: 1,
                                     data: ['salutationId'],
                                 }),
+                            };
+                        }
+
+                        if (entity === 'customer_address') {
+                            return {
+                                create: () => {
+                                    return {
+                                        id: 'new-shipping-address-id',
+                                    };
+                                },
                             };
                         }
 
@@ -202,5 +211,72 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
     it('should get default salutation is value not specified', async () => {
         expect(wrapper.vm.customer.salutationId).toBe('salutationId');
+    });
+
+    it('should set defaultShippingAddressId to defaultBillingAddressId when newValue is true', async () => {
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                defaultBillingAddressId: 'billing-address-id',
+                isNew: jest.fn(() => false),
+            },
+        });
+
+        wrapper.vm.isSameBilling = true;
+        expect(wrapper.vm.customer.defaultShippingAddressId).toBe('billing-address-id');
+    });
+
+    it('should remove all addresses but default billing when customer is new and newValue is true', async () => {
+        await wrapper.setData({
+            customer: {
+                ...wrapper.props().customer,
+                defaultBillingAddressId: 'billing-address-id',
+                shippingAddressId: 'shipping-address-id',
+                addresses: new EntityCollection(
+                    '/customer_address',
+                    'customer_address',
+                    Context.api,
+                    null,
+                    [
+                        { id: 'billing-address-id' },
+                        { id: 'shipping-address-id' },
+                    ],
+                ),
+                isNew: jest.fn(() => true),
+            },
+        });
+
+        wrapper.vm.isSameBilling = true;
+
+        expect(wrapper.vm.customer.addresses.has('shipping-address-id')).toBe(false);
+        expect(wrapper.vm.customer.addresses.has('billing-address-id')).toBe(true);
+    });
+
+    it('should create a new shipping address when newValue is false', async () => {
+        await wrapper.setData({
+            customer: {
+                ...wrapper.props().customer,
+                defaultBillingAddressId: 'billing-address-id',
+                shippingAddressId: 'shipping-address-id',
+                addresses: new EntityCollection(
+                    '/customer_address',
+                    'customer_address',
+                    Context.api,
+                    null,
+                    [
+                        { id: 'billing-address-id' },
+                        { id: 'shipping-address-id' },
+                    ],
+                ),
+                isNew: jest.fn(() => true),
+            },
+        });
+
+        wrapper.vm.isSameBilling = false;
+
+        expect(wrapper.vm.customer.defaultShippingAddressId).toBe('new-shipping-address-id');
+        expect(wrapper.vm.customer.addresses.has('new-shipping-address-id')).toBe(true);
+        expect(wrapper.vm.defaultSalutationId).toBe('salutationId');
+        expect(wrapper.vm.customer.addresses.get('new-shipping-address-id').salutationId).toBe('salutationId');
     });
 });

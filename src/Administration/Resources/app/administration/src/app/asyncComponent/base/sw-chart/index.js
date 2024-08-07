@@ -336,7 +336,7 @@ export default {
         listeners() {
             let listeners = {};
 
-            if (this.isCompatEnabled('INSTANCE_EVENT_LISTENERS')) {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 listeners = this.$listeners;
             }
 

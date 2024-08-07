@@ -10,6 +10,8 @@ const { deepCopyObject } = Shopware.Utils.object;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'cmsService',
         'cmsElementFavorites',

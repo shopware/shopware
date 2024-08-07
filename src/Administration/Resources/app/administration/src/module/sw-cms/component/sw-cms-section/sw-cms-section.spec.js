@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -56,6 +57,7 @@ async function createWrapper() {
                     props: ['block'],
                     template: '<div class="sw-cms-block-foo-bar"></div>',
                 },
+                'sw-cms-slot': true,
             },
             provide: {
                 repositoryFactory: {},

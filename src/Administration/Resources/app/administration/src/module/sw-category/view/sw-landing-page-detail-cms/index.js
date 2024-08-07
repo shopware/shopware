@@ -8,6 +8,8 @@ import './sw-landing-page-detail-cms.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         isLoading: {
             type: Boolean,

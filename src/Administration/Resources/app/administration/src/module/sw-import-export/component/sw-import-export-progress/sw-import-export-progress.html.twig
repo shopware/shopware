@@ -5,7 +5,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_progress_start_process %}
         <sw-button
-            :disabled="disableButton"
+            :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-action"
             size="small"
             variant="primary"
@@ -24,7 +24,7 @@
         {% block sw_import_export_progress_start_process_dryrun %}
         <sw-button
             v-if="activityType === 'import'"
-            :disabled="disableButton"
+            :disabled="disableButton || undefined"
             class="sw-import-export-progress__start-process-dryrun-action"
             size="small"
             @click="$emit('process-start-dryrun')"

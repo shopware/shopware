@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class DataAbstractionLayerValidateCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testNoValidationErrors(): void
     {

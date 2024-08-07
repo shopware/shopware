@@ -44,6 +44,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
+    public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -400,6 +401,16 @@ class DataAbstractionLayerException extends HttpException
             self::ATTRIBUTE_NOT_FOUND,
             'Can not find attribute "{{ attribute }}" for property {{ property }}',
             ['attribute' => $attribute, 'property' => $property]
+        );
+    }
+
+    public static function invalidAggregationName(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_AGGREGATION_NAME,
+            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            ['name' => $name]
         );
     }
 }

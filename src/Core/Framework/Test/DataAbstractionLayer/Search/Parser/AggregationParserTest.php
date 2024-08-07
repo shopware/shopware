@@ -318,4 +318,33 @@ class AggregationParserTest extends TestCase
         static::assertEquals($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
         static::assertEquals($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
     }
+
+    public function testQuestionMarkNotAllowedInAggregationName(): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+        $this->parser->buildAggregations(
+            self::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'max?agg',
+                        'type' => 'max',
+                        'field' => 'tax.taxRate',
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+
+        static::assertSame('The aggregation name should not contain a question mark or colon.', $error['detail']);
+    }
 }

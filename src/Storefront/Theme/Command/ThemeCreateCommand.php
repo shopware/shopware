@@ -209,7 +209,7 @@ Override variable defaults
 This file is used to override default SCSS variables from the Shopware Storefront or Bootstrap.
 
 Because of the !default flags, theme variable overrides have to be declared beforehand.
-https://getbootstrap.com/docs/4.0/getting-started/theming/#variable-defaults
+https://getbootstrap.com/docs/5.3/customize/sass/#variable-defaults
 */
 EOL;
     }

@@ -9,6 +9,8 @@ import CMS from '../../constant/sw-cms.constant';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
 
     props: {

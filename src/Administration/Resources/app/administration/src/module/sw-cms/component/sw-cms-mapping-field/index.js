@@ -8,6 +8,8 @@ import './sw-cms-mapping-field.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
 
     props: {

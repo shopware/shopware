@@ -147,6 +147,8 @@ export default {
 
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
+
+                    this.address.country = this.country;
                     this.getCountryStates();
                 });
             },

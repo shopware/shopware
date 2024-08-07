@@ -147,9 +147,6 @@ export default {
         },
 
         onEditAddress(id) {
-            // set address selected
-            this.orderAddressId = id;
-
             if (id === this.address.id) {
                 this.currentAddress = this.address;
                 return;
@@ -180,6 +177,8 @@ export default {
             if (this.currentAddress.id === this.address.id) {
                 return this.orderRepository.save(this.order, this.versionContext).then(() => {
                     this.currentAddress = null;
+
+                    this.onAddressChange(this.address.id, true);
                 }).catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-order.detail.messageSaveError'),
@@ -243,11 +242,12 @@ export default {
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
         },
 
-        onAddressChange(customerAddressId) {
+        onAddressChange(customerAddressId, edited = false) {
             this.$emit('change-address', {
                 orderAddressId: this.orderAddressId,
                 customerAddressId: customerAddressId,
                 type: this.type,
+                edited,
             });
         },
 

@@ -159,6 +159,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         ],
                         'cf_foo' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -182,6 +183,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
                         ],
                         'cf_foo' => [
                             'type' => 'keyword',
+                            'ignore_above' => 10000,
                             'normalizer' => 'sw_lowercase_normalizer',
                             'fields' => [
                                 'search' => [
@@ -231,6 +233,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
                 '_count' => AbstractElasticsearchDefinition::INT_FIELD,
                 'name' => [
                     'type' => 'keyword',
+                    'ignore_above' => 10000,
                     'normalizer' => 'sw_lowercase_normalizer',
                     'fields' => [
                         'search' => [

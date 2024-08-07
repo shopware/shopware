@@ -243,9 +243,10 @@ const coreConfig = {
         })(),
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: './storefront/[name].js',
-        chunkFilename: './storefront/[name].js',
+        path: path.resolve(__dirname, 'dist/storefront'),
+        filename: './[name].js',
+        chunkFilename: './[name].js?h=[contenthash:6]',
+        clean: true,
     },
     performance: {
         hints: false,

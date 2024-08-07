@@ -9,7 +9,7 @@
     {% block sw_cms_section_actions %}
     <sw-cms-section-actions
         :section="section"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -74,7 +74,7 @@
                     <sw-cms-block
                         class="sw-cms-stage-block"
                         :block="block"
-                        :disabled="disabled"
+                        :disabled="disabled || undefined"
                         :active="selectedBlock !== null && selectedBlock.id === block.id"
                         :has-errors="hasBlockErrors(block)"
                         @block-overlay-click="onBlockSelection(block)"
@@ -92,7 +92,7 @@
                             >
                                 <sw-cms-slot
                                     :element="el"
-                                    :disabled="disabled"
+                                    :disabled="disabled || undefined"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"
                                 />
                             </template>
@@ -165,7 +165,7 @@
                     <sw-cms-block
                         class="sw-cms-stage-block"
                         :block="block"
-                        :disabled="disabled"
+                        :disabled="disabled || undefined"
                         :active="selectedBlock !== null && selectedBlock.id === block.id"
                         :has-errors="hasBlockErrors(block)"
                         @block-overlay-click="onBlockSelection(block)"
@@ -185,7 +185,7 @@
                             >
                                 <sw-cms-slot
                                     :element="el"
-                                    :disabled="disabled"
+                                    :disabled="disabled || undefined"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"
                                 />
                             </template>

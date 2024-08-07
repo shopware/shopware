@@ -8,6 +8,8 @@ import './sw-cms-sidebar-nav-element.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         block: {
             type: Object,

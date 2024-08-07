@@ -35,7 +35,6 @@ parameters:
 
     excludePaths:
         - src/WebInstaller/Resources/
-        - src/WebInstaller/vendor
         - src/WebInstaller/Tests/_fixtures
         - tests/e2e/cypress
 
@@ -45,12 +44,6 @@ parameters:
         # node_modules
         - src/**/node_modules/*
         - tests/**/node_modules/*
-
-        # class behind feature flags
-        - src/Core/Checkout/Cart/Exception/InvalidCartException.php
-
-        # extends final class, which is ok for mocks
-        - src/Core/Content/Test/ImportExport/MockRepository.php
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
@@ -157,11 +150,6 @@ parameters:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
 
-        - # MockRepo extends final EntityRepository class, with is ok for tests
-            message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
-            count: 1
-            path: src/Core/Content/Test/ImportExport/MockRepository.php
-
         - # @deprecated tag:v6.7.0 Using autoload === true on associations is deprecated and must be refactored. See NEXT-25334 and child tasks
             message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
             paths:
@@ -205,12 +193,6 @@ parameters:
 
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
-
-        - # Google Cloud Storage filesystem closes the stream even though it should not
-            message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
-            paths:
-                - src/Core/Content/Media/File/FileSaver.php
-                - src/Core/Content/ImportExport/ImportExport.php
 
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'

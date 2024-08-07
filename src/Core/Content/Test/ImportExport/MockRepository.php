@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\ImportExport;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -20,11 +22,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('services-settings')]
 class MockRepository extends EntityRepository
 {
-    public $createCalls = 0;
+    public int $createCalls = 0;
 
-    public $updateCalls = 0;
+    public int $updateCalls = 0;
 
-    public $upsertCalls = 0;
+    public int $upsertCalls = 0;
 
     public function __construct(private readonly EntityDefinition $definition)
     {
@@ -50,6 +52,9 @@ class MockRepository extends EntityRepository
         throw new \Error('MockRepository->clone: Not implemented');
     }
 
+    /**
+     * @return EntitySearchResult<EntityCollection<Entity>>
+     */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         throw new \Error('MockRepository->search: Not implemented');

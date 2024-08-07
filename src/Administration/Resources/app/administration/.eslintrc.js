@@ -108,6 +108,7 @@ module.exports = {
             excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
             rules: {
                 ...baseRules,
+                'sw-core-rules/require-explicit-emits': 'error',
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': 'error',
@@ -122,6 +123,7 @@ module.exports = {
                         ['template', 'render'],
                         'inheritAttrs',
                         ['provide', 'inject'],
+                        'emits',
                         'extends',
                         'mixins',
                         'model',

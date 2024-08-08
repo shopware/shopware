@@ -111,16 +111,26 @@
                 }) %}
             {% endif %}
 
+            {% set galleryZoomSliderOptions = {
+                baseSliderWrapperClass: 'modal-body'
+            } %}
+
             {% if page.product.media.hasSpatialObjects() %}
-                {% set galleryZoomSliderOptions = {
+                {% set galleryZoomSliderOptions = galleryZoomSliderOptions|replace_recursive({
                     slider: {
                         loop: false,
                         rewind: true,
                         swipeAngle: 5
                     },
-                } %}
+                }) %}
 
-                {% set gallerySliderOptions = gallerySliderOptions|replace_recursive(galleryZoomSliderOptions) %}
+                {% set gallerySliderOptions = gallerySliderOptions|replace_recursive({
+                    slider: {
+                        loop: false,
+                        rewind: true,
+                        swipeAngle: 5
+                    },
+                }) %}
             {% endif %}
 
             {% block element_image_gallery_inner %}
@@ -360,7 +370,8 @@
                                                                 {% set attributes = attributes|merge({
                                                                     class: attributes.class ~ ' magnifier-image js-magnifier-image',
                                                                     alt: (mediaItems|first.translated.alt ?: fallbackImageTitle),
-                                                                    'data-full-image': mediaItems|first.url
+                                                                    'data-full-image': mediaItems|first.url,
+                                                                    'tabindex': "0"
                                                                 }) %}
 
                                                                 {% if displayMode == 'cover' or displayMode == 'contain' %}
@@ -613,7 +624,8 @@
                                                                                                         {% else %}
                                                                                                             {% set attributes = attributes|merge({
                                                                                                                 class: attributes.class ~ ' js-image-zoom-element js-load-img',
-                                                                                                                alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                alt: (image.translated.alt ?: fallbackImageTitle),
+                                                                                                                tabindex: "0"
                                                                                                             }) %}
 
                                                                                                             {% sw_thumbnails 'gallery-slider-image-thumbnails' with {

@@ -53,6 +53,10 @@ export default class FocusHandler {
      * @param {HTMLElement} el
      */
     setFocus(el) {
+        if (!el) {
+            return;
+        }
+
         try {
             el.focus();
         } catch (error) {

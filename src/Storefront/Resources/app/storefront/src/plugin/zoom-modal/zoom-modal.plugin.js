@@ -53,6 +53,11 @@ export default class ZoomModalPlugin extends Plugin {
         imgToLoadSelector: '.js-load-img',
 
         /**
+         * selector for the main images inside the gallery.
+         */
+        imgGallerySelector: '.gallery-slider-image',
+
+        /**
          * data attribute which contains the src of the image to load
          */
         imgDataSrcAttr: 'data-src',
@@ -85,34 +90,28 @@ export default class ZoomModalPlugin extends Plugin {
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         // Events for normal elements (images)
-
         Iterator.iterate(this._triggers, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
-        });
-        Iterator.iterate(this._triggers, element => {
+
+            element.removeEventListener('keydown', this._onKeyDown.bind(this));
+            element.addEventListener('keydown', this._onKeyDown.bind(this));
+
             element.removeEventListener('touchmove', this._onTouchMove.bind(this));
             element.addEventListener('touchmove', this._onTouchMove.bind(this));
         });
 
         // Events for canvas elements (product box)
-
         Iterator.iterate(this._triggersCanvas, element => {
             element.removeEventListener('mousedown', this._onMouseDown.bind(this));
             element.addEventListener('mousedown', this._onMouseDown.bind(this));
-        });
 
-        Iterator.iterate(this._triggersCanvas, element => {
             element.removeEventListener('mouseup', this._onMouseUp.bind(this));
             element.addEventListener('mouseup', this._onMouseUp.bind(this));
-        });
 
-        Iterator.iterate(this._triggersCanvas, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
-        });
 
-        Iterator.iterate(this._triggersCanvas, element => {
             element.removeEventListener('pointermove', this._onPointerMove.bind(this));
             element.addEventListener('pointermove', this._onPointerMove.bind(this));
         });
@@ -129,12 +128,29 @@ export default class ZoomModalPlugin extends Plugin {
             return;
         }
 
+        window.focusHandler.saveFocusState('zoom-modal');
+
         this._pixelsMoved = 0;
 
         ZoomModalPlugin._stopEvent(event);
         this._openModal();
 
         this.$emitter.publish('onClick');
+    }
+
+    _onKeyDown(event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        window.focusHandler.saveFocusState('zoom-modal');
+
+        this._pixelsMoved = 0;
+
+        ZoomModalPlugin._stopEvent(event);
+        this._openModal();
+
+        this.$emitter.publish('onEnter');
     }
 
     /**
@@ -177,6 +193,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _openModal() {
+
         const galleryZoomModalContainer = this.el.closest(this.options.galleryZoomModalContainerSelector);
         const modal = galleryZoomModalContainer.querySelector(this.options.modalSelector);
 
@@ -257,8 +274,15 @@ export default class ZoomModalPlugin extends Plugin {
             };
         }
 
+        const hideModalListener = () => {
+            window.focusHandler.resumeFocusState('zoom-modal');
+        }
+
         modal.removeEventListener('shown.bs.modal', this._showModalListener);
         modal.addEventListener('shown.bs.modal', this._showModalListener);
+
+        modal.removeEventListener('hidden.bs.modal', hideModalListener);
+        modal.addEventListener('hidden.bs.modal', hideModalListener);
 
         bootstrapModal.show();
     }
@@ -276,9 +300,13 @@ export default class ZoomModalPlugin extends Plugin {
         }
 
         const parentSliderIndex = this._getParentSliderIndex();
+        const galleryImages =  modal.querySelectorAll(this.options.imgGallerySelector);
 
         if (this.gallerySliderPlugin && this.gallerySliderPlugin._slider) {
-            this.gallerySliderPlugin._slider.goTo(parentSliderIndex - 1);
+
+            this.gallerySliderPlugin._slider.goTo(parentSliderIndex + 1);
+            window.focusHandler.setFocus(galleryImages.item(parentSliderIndex + 1));
+
             return;
         }
 
@@ -305,6 +333,8 @@ export default class ZoomModalPlugin extends Plugin {
             },
         }).then(() => {
             this.gallerySliderPlugin = window.PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
+            window.focusHandler.setFocus(galleryImages.item(parentSliderIndex));
+
             this.$emitter.publish('initSlider');
         });
     }
@@ -364,7 +394,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _getParentSliderIndex() {
-        let sliderIndex = 1;
+        let sliderIndex = 0;
 
         this._parentSliderElement = this.el.closest(this.options.parentGallerySliderSelector);
 
@@ -376,7 +406,7 @@ export default class ZoomModalPlugin extends Plugin {
             }
         }
 
-        return sliderIndex + 1;
+        return sliderIndex;
     }
 
     /**

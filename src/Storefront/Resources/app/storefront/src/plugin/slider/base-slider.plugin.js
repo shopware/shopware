@@ -208,7 +208,11 @@ export default class BaseSliderPlugin extends Plugin {
                     const currentSliderInfo = this._slider.getInfo();
 
                     // Prevent native browser function to scroll items into view.
-                    wrapperEl.scrollLeft = 0;
+                    if (wrapperEl) {
+                        wrapperEl.scrollLeft = 0;
+                    } else {
+                        this.el.scrollLeft = 0;
+                    }
 
                     // Keep the element which has focus on first slide position.
                     if (index !== currentSliderInfo.index) {

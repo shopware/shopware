@@ -10,6 +10,7 @@ const fs = require('fs');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const FilenameToChunkNamePlugin = require('./build/webpack/FilenameToChunkNamePlugin');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -223,7 +224,7 @@ const coreConfig = {
     name: 'shopware-6-storefront',
     optimization: {
         moduleIds: 'deterministic',
-        chunkIds: 'named',
+        chunkIds: 'named', // named is only used in development mode
         ...(() => {
             if (isProdMode) {
                 return {
@@ -245,7 +246,7 @@ const coreConfig = {
     output: {
         path: path.resolve(__dirname, 'dist/storefront'),
         filename: './[name].js',
-        chunkFilename: './[name].js?[contenthash:6]',
+        chunkFilename: isDevMode ? './[name].js' : './[name].[chunkhash:6].js',
         clean: true,
     },
     performance: {
@@ -256,6 +257,7 @@ const coreConfig = {
         new webpack.ProvidePlugin({
             Popper: ['popper.js', 'default'],
         }),
+        new FilenameToChunkNamePlugin({isDevMode}),
         new MiniCssExtractPlugin({
             filename: './css/[name].css',
             chunkFilename: './css/[name].css',
@@ -321,7 +323,10 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
                 path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
                 filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
-                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js?[contenthash:6]`,
+                chunkFilename:
+                    isHotMode ? `./${plugin.technicalName}/[name].js` :
+                        isDevMode ? `./js/${plugin.technicalName}/[name].js` :
+                            `./js/${plugin.technicalName}/[name].[chunkhash:6].js`,
                 clean: !isHotMode,
             },
             resolve: {

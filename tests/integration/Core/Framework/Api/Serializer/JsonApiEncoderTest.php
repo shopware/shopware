@@ -316,7 +316,7 @@ class JsonApiEncoderTest extends TestCase
 
         $definition = new CustomFieldPlainTestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $struct = new class() extends Entity {
+        $struct = new class extends Entity {
             use EntityCustomFieldsTrait;
         };
         $struct->setUniqueIdentifier(Uuid::randomHex());

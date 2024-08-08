@@ -95,7 +95,7 @@ class EntityWriteEventTest extends TestCase
 
         $event = EntityWriteEvent::create($writeContext, []);
 
-        $callbackFactory = fn () => new class() {
+        $callbackFactory = fn () => new class {
             public int $counter = 0;
 
             public function __invoke(): void

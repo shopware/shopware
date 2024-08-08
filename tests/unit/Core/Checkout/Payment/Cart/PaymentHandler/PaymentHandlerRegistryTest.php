@@ -199,7 +199,7 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([
-                AbstractPaymentHandler::class => fn () => new class() {
+                AbstractPaymentHandler::class => fn () => new class {
                 },
             ]),
             new ServiceLocator([]),
@@ -321,7 +321,7 @@ class PaymentHandlerRegistryTest extends TestCase
      */
     private function registerHandler(string $handler): ServiceLocator
     {
-        $class = new class() extends AbstractPaymentHandler {
+        $class = new class extends AbstractPaymentHandler {
             public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
             {
                 return false;
@@ -348,12 +348,12 @@ class PaymentHandlerRegistryTest extends TestCase
     private function registerHandlerInterface(string $handler): ServiceLocator
     {
         $class = match ($handler) {
-            SynchronousPaymentHandlerInterface::class => new class() implements SynchronousPaymentHandlerInterface {
+            SynchronousPaymentHandlerInterface::class => new class implements SynchronousPaymentHandlerInterface {
                 public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
                 {
                 }
             },
-            AsynchronousPaymentHandlerInterface::class => new class() implements AsynchronousPaymentHandlerInterface {
+            AsynchronousPaymentHandlerInterface::class => new class implements AsynchronousPaymentHandlerInterface {
                 public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
                 {
                     return new RedirectResponse('https://example.com');
@@ -363,7 +363,7 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            PreparedPaymentHandlerInterface::class => new class() implements PreparedPaymentHandlerInterface {
+            PreparedPaymentHandlerInterface::class => new class implements PreparedPaymentHandlerInterface {
                 public function validate(Cart $cart, RequestDataBag $requestDataBag, SalesChannelContext $context): Struct
                 {
                     return new ArrayStruct();
@@ -373,17 +373,17 @@ class PaymentHandlerRegistryTest extends TestCase
                 {
                 }
             },
-            RefundPaymentHandlerInterface::class => new class() implements RefundPaymentHandlerInterface {
+            RefundPaymentHandlerInterface::class => new class implements RefundPaymentHandlerInterface {
                 public function refund(string $refundId, Context $context): void
                 {
                 }
             },
-            RecurringPaymentHandlerInterface::class => new class() implements RecurringPaymentHandlerInterface {
+            RecurringPaymentHandlerInterface::class => new class implements RecurringPaymentHandlerInterface {
                 public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
                 {
                 }
             },
-            default => new class() implements PaymentHandlerInterface {
+            default => new class implements PaymentHandlerInterface {
             },
         };
 

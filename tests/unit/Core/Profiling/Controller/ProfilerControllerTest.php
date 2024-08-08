@@ -71,7 +71,7 @@ class ProfilerControllerTest extends TestCase
             ->with('some-token')
             ->willReturn($profile);
 
-        $profile->addCollector(new class() implements DataCollectorInterface {
+        $profile->addCollector(new class implements DataCollectorInterface {
             public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
             {
                 // noop
@@ -153,7 +153,7 @@ class ProfilerControllerTest extends TestCase
         $query = new Query('select * from table where key = ?');
         $query->setValue(
             1,
-            new class() {
+            new class {
                 public function __toString(): string
                 {
                     return 'value';

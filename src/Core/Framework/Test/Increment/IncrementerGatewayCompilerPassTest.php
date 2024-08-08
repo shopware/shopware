@@ -71,7 +71,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'custom_type']]);
 
-        $customGateway = new class() extends AbstractIncrementer {
+        $customGateway = new class extends AbstractIncrementer {
             public function decrement(string $cluster, string $key): void
             {
             }
@@ -117,7 +117,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container->setParameter('shopware.increment', ['custom_pool' => []]);
         $container->setParameter('shopware.increment.custom_pool.type', 'custom_type');
 
-        $customGateway = new class() {
+        $customGateway = new class {
             public function getPool(): string
             {
                 return 'custom-pool';

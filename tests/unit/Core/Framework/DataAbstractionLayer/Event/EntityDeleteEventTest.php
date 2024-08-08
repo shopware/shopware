@@ -121,7 +121,7 @@ class EntityDeleteEventTest extends TestCase
 
         $event = EntityDeleteEvent::create($writeContext, []);
 
-        $callbackFactory = fn () => new class() {
+        $callbackFactory = fn () => new class {
             public int $counter = 0;
 
             public function __invoke(): void

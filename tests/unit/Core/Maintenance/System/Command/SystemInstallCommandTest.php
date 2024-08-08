@@ -171,7 +171,7 @@ class SystemInstallCommandTest extends TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener = new class() {
+        $dispatcher->addListener(ConsoleEvents::TERMINATE, $listener = new class {
             public bool $terminateCalledForSubCommand = false;
 
             public function __invoke(ConsoleTerminateEvent $event): void

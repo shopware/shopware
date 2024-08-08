@@ -398,6 +398,32 @@ return (new Config())
         $missingUnitTests = [];
         $unitTestsName = [];
 
+        // prepare phpunit code coverage exclude lists
+        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
+        $excludedDirs = [];
+        $excludedFiles = [];
+        $dom = new \DOMDocument();
+        $loaded = $dom->load($phpUnitConfig);
+        if ($loaded) {
+            $xpath = new \DOMXPath($dom);
+            $dirsDomElements = $xpath->query('//source/exclude/directory');
+
+            foreach ($dirsDomElements as $dirDomElement) {
+                $excludedDirs[] = [
+                    'path'=> rtrim($dirDomElement->nodeValue, '/') . '/',
+                    'suffix' => $dirDomElement->getAttribute('suffix') ?: '',
+                ];
+            }
+
+            $filesDomElements = $xpath->query('//source/exclude/file');
+
+            foreach ($filesDomElements as $fileDomElements) {
+                $excludedFiles[] = $fileDomElements->nodeValue;
+            }
+        } else {
+            $context->warning(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+        }
+
         foreach ($addedUnitTests as $file) {
             $content = $file->getContent();
 
@@ -437,6 +463,20 @@ return (new Config())
 
             if (\str_starts_with($class, 'Migration1')) {
                 continue;
+            }
+
+            // process phpunit code coverage exclude lists
+            if (in_array($file->name, $excludedFiles, true)) {
+                continue;
+            }
+
+            $dir = dirname($file->name);
+            $fileName = basename($file->name);
+
+            foreach ($excludedDirs as $excludedDir) {
+                if (str_starts_with($dir, $excludedDir['path']) && str_ends_with($fileName, $excludedDir['suffix'])) {
+                    continue 2;
+                }
             }
 
             $ignoreSuffixes = [

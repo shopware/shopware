@@ -44,7 +44,7 @@ class EntityRepository
         private readonly EntitySearcherInterface $searcher,
         private readonly EntityAggregatorInterface $aggregator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly EntityLoadedEventFactory $eventFactory
+        private readonly EntityLoadedEventFactory $eventFactory,
     ) {
     }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Meter" public="true" lazy="true">
+            <argument type="tagged_iterator" tag="shopware.metric_transport"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Extractor\MetricExtractor">
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!--  should be the closest dispatcher to the main Symfony one, since it should catch the final state of ALL dispatched events       -->
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\MetricEventDispatcher" decorates="event_dispatcher" decoration-priority="9999">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\MetricEventDispatcher.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Extractor\MetricExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+        </service>
+    </services>
+</container>

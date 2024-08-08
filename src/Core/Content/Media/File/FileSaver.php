@@ -151,6 +151,10 @@ class FileSaver
             try {
                 $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
 
+                if (!\is_string($thumbnailDestination)) {
+                    throw MediaException::couldNotRenameFile($media->getId(), (string) $media->getFileName());
+                }
+
                 $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $media, $thumbnailDestination)];
             } catch (\Exception) {
                 $this->rollbackRenameAction($media, $renamedFiles);

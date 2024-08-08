@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -25,7 +26,7 @@ class ProductApiTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
     private $repository;
 
@@ -65,7 +66,9 @@ class ProductApiTest extends TestCase
         ];
 
         $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $context = Context::createDefaultContext();
 
@@ -75,13 +78,14 @@ class ProductApiTest extends TestCase
         $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductEntity $product */
         $product = $products->get($id);
 
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getPrices());
         static::assertCount(1, $product->getPrices());
 
-        /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->first();
+        static::assertInstanceOf(ProductPriceEntity::class, $price);
         static::assertEquals($ruleA, $price->getRuleId());
 
         $data = [
@@ -104,7 +108,9 @@ class ProductApiTest extends TestCase
         ];
 
         $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
@@ -112,13 +118,14 @@ class ProductApiTest extends TestCase
         $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductEntity $product */
         $product = $products->get($id);
 
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getPrices());
         static::assertCount(2, $product->getPrices());
 
-        /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id);
+        static::assertInstanceOf(ProductPriceEntity::class, $price);
         static::assertEquals($ruleA, $price->getRuleId());
         static::assertEquals(new Price(Defaults::CURRENCY, 4000, 5000, false), $price->getPrice()->get(Defaults::CURRENCY));
 
@@ -140,7 +147,9 @@ class ProductApiTest extends TestCase
         ];
 
         $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('prices');
@@ -148,13 +157,15 @@ class ProductApiTest extends TestCase
         $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
-        /** @var ProductEntity $product */
+
         $product = $products->get($id);
 
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getPrices());
         static::assertCount(3, $product->getPrices());
 
-        /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id3);
+        static::assertInstanceOf(ProductPriceEntity::class, $price);
         static::assertEquals($ruleB, $price->getRuleId());
         static::assertEquals(new Price(Defaults::CURRENCY, 50, 50, false), $price->getPrice()->get(Defaults::CURRENCY));
 
@@ -180,7 +191,9 @@ class ProductApiTest extends TestCase
         ];
 
         $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id, [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -188,7 +201,7 @@ class ProductApiTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-
+        static::assertIsString($response->getContent());
         $product = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($product);
@@ -200,8 +213,9 @@ class ProductApiTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $productId = $ids->create('product');
         $data = [
-            'id' => $ids->create('product'),
+            'id' => $productId,
             'name' => 'test',
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
@@ -219,14 +233,15 @@ class ProductApiTest extends TestCase
             'includes' => [
                 'product' => ['id', 'name'],
             ],
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertIsString($response->getContent());
 
         $products = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $product = $products['data'][0];
+        $product = $this->getProduct($products['data'], $productId);
 
         static::assertArrayHasKey('attributes', $product);
         static::assertArrayHasKey('name', $product['attributes']);
@@ -241,9 +256,10 @@ class ProductApiTest extends TestCase
     public function testIncludesWithRelationships(): void
     {
         $ids = new TestDataCollection();
+        $productId = $ids->create('product');
 
         $data = [
-            'id' => $ids->create('product'),
+            'id' => $productId,
             'name' => 'test',
             'productNumber' => Uuid::randomHex(),
             'stock' => 10,
@@ -262,14 +278,15 @@ class ProductApiTest extends TestCase
                 'product' => ['id', 'name', 'tax'],
                 'tax' => ['id', 'name'],
             ],
-        ]));
+        ], \JSON_THROW_ON_ERROR));
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertIsString($response->getContent());
 
         $products = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $product = $products['data'][0];
+        $product = $this->getProduct($products['data'], $productId);
 
         static::assertArrayHasKey('attributes', $product);
         static::assertArrayHasKey('name', $product['attributes']);
@@ -298,7 +315,9 @@ class ProductApiTest extends TestCase
         ];
 
         $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $crossSellingPatch = [
             'crossSellings' => [
@@ -308,8 +327,23 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($crossSellingPatch));
+        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($crossSellingPatch, \JSON_THROW_ON_ERROR));
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @param array<int, array<int, string>> $products
+     *
+     * @return array<int, string>
+     */
+    protected function getProduct(array $products, string $id): array
+    {
+        $ids = array_flip(array_column($products, 'id'));
+        static::assertArrayHasKey($id, $ids);
+        $key = $ids[$id];
+        static::assertArrayHasKey($key, $products);
+
+        return $products[$key];
     }
 }

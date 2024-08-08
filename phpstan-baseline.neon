@@ -1701,36 +1701,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php
 
 		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductPrice\\\\ProductPriceCollection\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 5
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Product/Api/ProductApiTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with arguments 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Cart\\\\\\\\Price\\\\\\\\Struct\\\\\\\\CalculatedPrice', Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice and string will always evaluate to true\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceTest.php

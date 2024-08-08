@@ -163,7 +163,7 @@ class EntitySearcher implements EntitySearcherInterface
             return \count($data);
         }
 
-        $query->resetQueryPart('orderBy');
+        $query->resetOrderBy();
         $query->setMaxResults(null);
         $query->setFirstResult(0);
 

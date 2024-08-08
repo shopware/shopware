@@ -147,7 +147,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $paths = array_filter([$this->findToManyPath($aggregation, $definition)]);
 
         $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context, $paths);
-        $query->resetQueryPart('orderBy');
+        $query->resetOrderBy();
 
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::aggregation::' . $aggregation->getName());
@@ -193,7 +193,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context, $aggregation);
         }
 
-        $query->resetQueryPart('groupBy');
+        $query->resetGroupBy();
 
         $this->extendQuery($aggregation, $query, $definition, $context);
 

@@ -21,7 +21,7 @@ class ReferenceVersionField extends FkField
     protected $versionReferenceDefinition;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $storageName;
 

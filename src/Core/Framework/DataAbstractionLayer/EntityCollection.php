@@ -65,6 +65,9 @@ class EntityCollection extends Collection
         );
     }
 
+    /**
+     * @param mixed $value
+     */
     public function filterAndReduceByProperty(string $property, $value): static
     {
         $filtered = [];

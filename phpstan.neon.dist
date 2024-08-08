@@ -56,11 +56,8 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
-        # tag:v6.7.0 - does not fully understand overwrite multiple definitions of DefaultPayment
+        # @deprecated tag:v6.7.0 - Can be removed. PHPStan does not fully understand overwrite multiple definitions of DefaultPayment
         - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
-        - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
-        - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
-        - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
 
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
@@ -98,9 +95,19 @@ parameters:
                 - src/Core/Framework/Rule/RuleCollection.php
                 - src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
 
-        # @final annotation of internal classes
-        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
-        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
+        # allowed extension of internal classes with @final annotation only for specific classes
+        -
+            message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+            paths:
+                - src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
+                - src/Core/Content/Product/SalesChannel/Review/ProductReviewResult.php
+                - src/Storefront/Framework/Page/StorefrontSearchResult.php
+                - src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+        -
+            message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
+            paths:
+                - src/Core/Content/Test/ImportExport/MockRepository.php
+                - src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php
         - '#Class Shopware\\Tests\\Integration\\Elasticsearch\\Product\\EsAwareCriteria extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria\.#'
 
         # Route scopes for controllers
@@ -111,13 +118,6 @@ parameters:
             - src/WebInstaller
             - src/Core/Installer
             - src/Core/Checkout/Payment/Controller/PaymentController.php
-
-        # Namespace rules
-
-        -
-           message: '#Namespace must start with Shopware#'
-           paths:
-            - tests/
 
         -
            message: '#No global Command directories allowed, put your commands in the right domain directory#'
@@ -130,14 +130,6 @@ parameters:
         -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
-            path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-        - # Is in the new super class nullable as the extended class
-            message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"
-            count: 1
-            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
 
         - # PhpStan cannot follow the referenced cursor
             message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
@@ -149,16 +141,6 @@ parameters:
             paths:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
-
-        - # @deprecated tag:v6.7.0 Using autoload === true on associations is deprecated and must be refactored. See NEXT-25334 and child tasks
-            message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
-            paths:
-                - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
-                - src/Core/Content/Product/ProductDefinition.php
-                - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php
-                - src/Core/Checkout/Shipping/ShippingMethodDefinition.php
-                - src/Core/Checkout/Payment/PaymentMethodDefinition.php
-                - src/Core/System/NumberRange/NumberRangeDefinition.php
 
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*(class|interface) Shopware\\#'
@@ -190,9 +172,6 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
                 - src/Core/Framework/DataAbstractionLayer/Entity.php
                 - src/Core/Framework/DataAbstractionLayer/Util/AfterSort.php
-
-        # Breaking changes which are not worth it
-        - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
         - # Can not be fixed currently. See https://github.com/phpstan/phpstan/discussions/9159
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field::getFlag\(\) should return \(TFlag of Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\)\|null but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Flag\|null#'
@@ -266,21 +245,6 @@ parameters:
             The query parts are implementation details and should not be relied upon\\.$#
         """
 
-        # NEXT-33380 - Add support for dbal/doctrine 3.8.0
-        - """
-            #^Call to deprecated method resetQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
-            Use the dedicated reset\\*\\(\\) methods instead\\.$#
-        """
-
-        - # Added optional parameter and added it as annotation that consumers get annoyed by the IDE to provide it
-            message: '#PHPDoc tag @param references unknown parameter\: \$recursive#'
-            paths:
-                - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
-
-        - # Added optional request parameter @deprecated tag:v6.7.0 - remove this exclusion
-            message: '#Method .* invoked with 4 parameters, 3 required#'
-            paths:
-                - src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

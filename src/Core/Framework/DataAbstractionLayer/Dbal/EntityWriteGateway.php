@@ -299,7 +299,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $chunks = array_chunk($pks, 500, true);
 
         foreach ($chunks as $pks) {
-            $query->resetQueryPart('where');
+            $query->resetWhere();
 
             $params = [];
             $tupleCount = 0;

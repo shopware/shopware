@@ -43,6 +43,11 @@ class Entity extends Struct
 
     private ?FieldVisibility $_fieldVisibility = null;
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
     public function __get($name)
     {
         if (FieldVisibility::$isInTwigRenderingContext) {
@@ -52,11 +57,18 @@ class Entity extends Struct
         return $this->$name;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
     public function __set($name, $value): void
     {
         $this->$name = $value;
     }
 
+    /**
+     * @param string $name
+     */
     public function __isset($name)
     {
         if (FieldVisibility::$isInTwigRenderingContext) {

@@ -786,7 +786,7 @@ class EntityReader implements EntityReaderInterface
         $parts = $query->getQueryPart('orderBy');
         if (!empty($parts)) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
-            $query->resetQueryPart('orderBy');
+            $query->resetOrderBy();
         }
         // order by is handled in group_concat
         $fieldCriteria->resetSorting();

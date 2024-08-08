@@ -173,7 +173,11 @@ Component.register('sw-search-preferences-modal', {
                 .then(() => {
                     this.isLoading = false;
                     this.$emit('modal-close');
-                    this.$root.$emit('sw-search-preferences-modal-close');
+                    if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                        this.$root.$emit('sw-search-preferences-modal-close');
+                    } else {
+                        Shopware.Utils.EventBus.emit('sw-search-preferences-modal-close');
+                    }
                 })
                 .catch((error) => {
                     this.isLoading = false;

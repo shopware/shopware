@@ -1,5 +1,6 @@
 /**
  * @package checkout
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -26,9 +27,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
-                'sw-icon': {
-                    template: '<div />',
-                },
+                'sw-icon': true,
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {
@@ -39,6 +38,13 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                         };
                     },
                 },
+                'sw-password-field': true,
+                'sw-step-display': true,
+                'sw-step-item': true,
+                'sw-plugin-card': true,
+                'sw-select-field': true,
+                'router-link': true,
+                'sw-help-text': true,
             },
             mocks: {
                 $route: { name: 'sw.first.run.wizard.index.welcome' },
@@ -55,6 +61,8 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 userService: {
                     getUser: () => Promise.resolve({ data: {} }),
                 },
+                loginService: {},
+                systemConfigApiService: {},
             },
         },
         props: {},

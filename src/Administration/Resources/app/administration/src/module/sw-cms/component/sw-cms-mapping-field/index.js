@@ -58,7 +58,10 @@ export default {
         },
 
         hasPreview() {
-            return typeof this.$scopedSlots.preview !== 'undefined';
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return typeof this.$scopedSlots.preview !== 'undefined';
+            }
+            return this.$slots.preview !== undefined;
         },
     },
 

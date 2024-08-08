@@ -8,6 +8,8 @@ import './sw-first-run-wizard-shopware-domain.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['firstRunWizardService'],
 
     data() {

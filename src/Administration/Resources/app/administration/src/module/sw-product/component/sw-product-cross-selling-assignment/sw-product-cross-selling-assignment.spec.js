@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -63,6 +64,15 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-data-grid-column-position': true,
                 'sw-empty-state': true,
+                'sw-select-result': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-button': true,
+                'sw-data-grid-skeleton': true,
+                'sw-highlight-text': true,
             },
             provide: {
                 repositoryFactory: {

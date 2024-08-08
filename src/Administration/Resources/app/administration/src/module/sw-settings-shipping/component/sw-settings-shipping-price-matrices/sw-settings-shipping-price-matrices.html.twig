@@ -7,7 +7,7 @@
         v-for="priceGroup in shippingPriceGroups"
         :key="priceGroup.ruleId"
         :price-group="priceGroup"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         @duplicate-price-matrix="onDuplicatePriceMatrix"
         @delete-price-matrix="onDeletePriceMatrix"
     />
@@ -25,7 +25,7 @@
                 message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
                 disabled: !newPriceMatrixExists
             }"
-            :disabled="newPriceMatrixExists || disabled"
+            :disabled="newPriceMatrixExists || disabled || undefined"
             class="sw-settings-shipping-price-matrices__actions-add-matrix"
             @click="onAddNewPriceGroup"
         >

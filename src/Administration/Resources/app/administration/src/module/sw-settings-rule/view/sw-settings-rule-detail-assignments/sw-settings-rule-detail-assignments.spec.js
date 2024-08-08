@@ -4,6 +4,7 @@ import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/serv
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;
@@ -141,6 +142,30 @@ async function createWrapper(props = defaultProps, entitiesWithResults = ['produ
                     template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
                     props: ['to'],
                 },
+                'sw-product-variant-info': true,
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-pagination': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'sw-context-menu': {
+                    template: '<div class="sw-context-menu"><slot></slot></div>',
+                },
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-skeleton': true,
+                'sw-settings-rule-add-assignment-listing': true,
+                'sw-settings-rule-category-tree': true,
             },
             provide: {
                 ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
@@ -390,8 +415,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
-        expect(wrapper.find('sw-context-menu-item[variant=danger]').exists()).toBe(expected);
+        await wrapper.find('.sw-data-grid__row--0 .sw-context-button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(expected);
     });
 
     it('should open/close delete modal', async () => {
@@ -413,8 +440,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(false);
 
         await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
-        expect(wrapper.find('sw-context-menu-item[variant=danger]').exists()).toBe(true);
-        await wrapper.find('sw-context-menu-item[variant=danger]').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
+        await wrapper.find('.sw-context-menu-item--danger').trigger('click');
 
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(true);
         await wrapper.find('.sw-settings-rule-detail-assignments__delete-modal-cancel-button').trigger('click');
@@ -542,8 +571,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__row--0 .sw-context-button button').trigger('click');
-        expect(wrapper.find('sw-context-menu-item[variant=danger]').exists()).toBe(true);
-        await wrapper.find('sw-context-menu-item[variant=danger]').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-context-menu-item--danger').exists()).toBe(true);
+        await wrapper.find('.sw-context-menu-item--danger').trigger('click');
 
         expect(wrapper.find('.sw-settings-rule-detail-assignments__delete-modal').exists()).toBe(true);
         await wrapper.find('.sw-settings-rule-detail-assignments__delete-modal-delete-button').trigger('click');

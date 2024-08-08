@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 const { ShopwareError } = Shopware.Classes;
@@ -24,6 +25,7 @@ async function createWrapper() {
                 },
                 'sw-field': true,
                 'sw-button': {
+                    emits: ['click'],
                     template: '<div class="sw-button" @click="$emit(`click`)"></div>',
                 },
                 'sw-modal': true,
@@ -42,10 +44,13 @@ async function createWrapper() {
                 `,
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                 },
                 'sw-customer-address-form': true,
                 'sw-customer-address-form-options': true,
+                'sw-radio-field': true,
+                'sw-address': true,
             },
 
             provide: {

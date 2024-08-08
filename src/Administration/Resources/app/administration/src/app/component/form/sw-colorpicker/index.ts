@@ -19,7 +19,7 @@ Component.register('sw-colorpicker', {
          * For providing backwards compatibility with the old sw-colorpicker component
          */
         value: {
-            type: Number,
+            type: [Number, String],
             required: false,
             default: null,
         },

@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/*
+ * @package inventory
+ * @group disabledCompat
+ */
+
 const salesChannelFixture = {
     id: '12345',
     translated: {
@@ -73,6 +78,13 @@ async function createWrapper() {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-checkbox-field': true,
+                    'router-link': true,
+                    'sw-loader': true,
+                    'sw-select-field': true,
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         },
@@ -80,6 +92,19 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-listing/component/sw-product-visibility-detail', () => {
+    beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('does not exists in given options');
+            },
+        });
+    });
+
     it('should change visibility value', async () => {
         createStateMapper();
         const wrapper = await createWrapper();

@@ -63,7 +63,7 @@
             }"
             class="sw-settings-language-list__button-create"
             variant="primary"
-            :disabled="!allowCreate"
+            :disabled="!allowCreate || undefined"
             :router-link="{ name: 'sw.settings.language.create' }"
         >
             {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
@@ -87,10 +87,10 @@
             :sort-by="sortBy"
             :sort-direction="sortDirection"
             :disable-data-fetching="true"
-            :allow-view="allowView"
-            :allow-edit="allowEdit"
-            :allow-inline-edit="allowInlineEdit"
-            :allow-delete="allowDelete"
+            :allow-view="allowView || undefined"
+            :allow-edit="allowEdit || undefined"
+            :allow-inline-edit="allowInlineEdit || undefined"
+            :allow-delete="allowDelete || undefined"
             @column-sort="onSortColumn"
             @page-change="onPageChange"
         >
@@ -154,7 +154,7 @@
                     v-tooltip.bottom="tooltipDelete(item.id)"
                     class="sw-settings-language-list__delete-action"
                     variant="danger"
-                    :disabled="isDefault(item.id) || !allowDelete"
+                    :disabled="isDefault(item.id) || !allowDelete || undefined"
                     @click="showDelete(item.id)"
                 >
                     {{ $tc('global.default.delete') }}

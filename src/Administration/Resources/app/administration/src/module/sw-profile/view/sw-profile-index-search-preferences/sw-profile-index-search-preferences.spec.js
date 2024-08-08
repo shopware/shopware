@@ -1,11 +1,10 @@
 import { mount } from '@vue/test-utils';
-import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
-Shopware.Component.register('sw-profile-index-search-preferences', swProfileIndexSearchPreferences);
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return {
         isDiscountCampaignActive: jest.fn(() => true),
@@ -46,6 +45,9 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-extension-component-section': true,
                 'sw-alert': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'router-link': true,
             },
 
             provide: {

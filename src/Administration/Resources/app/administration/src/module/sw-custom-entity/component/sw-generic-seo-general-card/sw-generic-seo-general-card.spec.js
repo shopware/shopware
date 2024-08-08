@@ -1,9 +1,5 @@
 import { mount } from '@vue/test-utils';
 
-import swGenericSeoGeneralCard from 'src/module/sw-custom-entity/component/sw-generic-seo-general-card';
-
-Shopware.Component.register('sw-generic-seo-general-card', swGenericSeoGeneralCard);
-
 const TEST_SEO_META_TITLE = 'TEST_SEO_META_TITLE';
 const TEST_SEO_META_DESCRIPTION = 'TEST_SEO_META_DESCRIPTION';
 const TEST_SEO_META_URL = 'TEST_SEO_META_URL';
@@ -23,6 +19,7 @@ async function createWrapper() {
                     template: '<textarea class="sw-text-field" />',
                     props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
                 },
+                'router-link': true,
             },
         },
     });
@@ -30,6 +27,7 @@ async function createWrapper() {
 
 /**
  * @package content
+ * @group disabledCompat
  */
 describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', () => {
     it('should display the seoMetaTitle and allow changing it', async () => {

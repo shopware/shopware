@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 const { Context } = Shopware;
@@ -28,6 +29,7 @@ async function createWrapper() {
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-icon': true,
                 'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 numberRangeService: {},

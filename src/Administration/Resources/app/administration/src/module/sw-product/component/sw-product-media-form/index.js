@@ -12,6 +12,8 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
     mixins: [
@@ -44,6 +46,7 @@ export default {
             isMediaLoading: false,
             columnCount: 5,
             columnWidth: 90,
+            globalIsArReady: false,
         };
     },
 
@@ -118,7 +121,19 @@ export default {
         },
     },
 
+    created() {
+        this.onCreated();
+    },
+
     methods: {
+        onCreated() {
+            this.systemConfigApiService.getValues('core.media').then((response) => {
+                this.globalIsArReady = response['core.media.defaultEnableAugmentedReality'];
+            }).catch((error) => {
+                throw error;
+            });
+        },
+
         onOpenMedia() {
             this.$emit('media-open');
         },
@@ -268,10 +283,8 @@ export default {
         /**
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
-        async isArReady(productMedia) {
-            const values = await this.systemConfigApiService.getValues('core.media');
-
-            return productMedia.media?.config?.spatial?.arReady ?? values['core.media.defaultEnableAugmentedReality'];
+        isArReady(productMedia) {
+            return productMedia.media?.config?.spatial?.arReady ?? this.globalIsArReady;
         },
 
         removeFile(productMedia) {

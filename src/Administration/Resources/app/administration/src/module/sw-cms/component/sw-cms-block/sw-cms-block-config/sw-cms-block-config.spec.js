@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -43,6 +44,7 @@ async function createWrapper() {
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
+                'sw-colorpicker-deprecated': await wrapTestComponent('sw-colorpicker-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,

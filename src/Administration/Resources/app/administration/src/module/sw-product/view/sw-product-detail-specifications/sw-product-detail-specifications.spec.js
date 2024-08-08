@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -44,6 +45,8 @@ async function createWrapper(privileges = []) {
                 'sw-text-editor': true,
                 'sw-entity-single-select': true,
                 'sw-skeleton': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
             },
         },
     });

@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -51,6 +52,19 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve())) {
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section'),
+                'sw-skeleton': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'sw-tabs-item': true,
+                'sw-tabs': true,
+                'sw-iframe-renderer': true,
+                'router-link': true,
+                'sw-icon-deprecated': true,
+                'sw-alert': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
+                'sw-color-badge': true,
             },
         },
     });

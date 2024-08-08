@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -10,6 +11,7 @@ async function createWrapper() {
             stubs: {
                 'sw-cms-list-item': true,
                 'sw-button': true,
+                'sw-icon': true,
             },
         },
     });

@@ -23,7 +23,7 @@
             variant="primary"
             :is-loading="isLoading || isUserLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || isUserLoading || !acl.can('user.update_profile')"
+            :disabled="isLoading || isUserLoading || !acl.can('user.update_profile') || undefined"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >

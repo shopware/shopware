@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -23,6 +24,9 @@ async function createWrapper() {
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: 1337 }),
                 },
+            },
+            stubs: {
+                'sw-progress-bar': true,
             },
         },
     });

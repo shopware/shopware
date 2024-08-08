@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -128,6 +129,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     'router-link': true,
                     'sw-popover': true,
                     'sw-button': true,
+                    'sw-search-bar': true,
+                    'sw-text-field': true,
+                    'sw-grid-column': true,
+                    'sw-grid': true,
+                    'sw-settings-snippet-sidebar': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
                 },
             },
         });

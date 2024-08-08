@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -27,15 +28,6 @@ async function createWrapper(customCmsElementConfig) {
             },
             defaultConfig: {},
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'landingpage',
-                    },
-                },
-            };
-        },
         global: {
             renderStubDefaultSlot: true,
             stubs: {
@@ -49,6 +41,10 @@ async function createWrapper(customCmsElementConfig) {
                 'sw-entity-single-select': true,
                 'sw-alert': true,
                 'sw-icon': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
+                'sw-select-field': true,
+                'sw-text-field': true,
             },
             provide: {
                 cmsService: {
@@ -76,7 +72,19 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                };
+            },
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
     });
 
     it('should display a message if it is product page layout type', async () => {
@@ -89,13 +97,10 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
 
     it('should display product select if it is not product page layout type', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+
+        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+
+        await flushPromises();
 
         const alertMessage = wrapper.find('sw-alert-stub');
 

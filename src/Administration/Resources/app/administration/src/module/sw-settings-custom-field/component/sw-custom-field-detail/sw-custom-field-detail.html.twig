@@ -20,7 +20,7 @@
             class="sw-custom-field-detail__modal-type"
             type="select"
             :help-text="$tc('sw-settings-custom-field.general.tooltipType')"
-            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')"
+            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
         >
             <option
                 v-for="(option, key) in fieldTypes"
@@ -39,7 +39,7 @@
             class="sw-custom-field-detail__technical-name"
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
             :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor')"
+            :disabled="!currentCustomField._isNew || !acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
@@ -51,7 +51,7 @@
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
             number-type="int"
             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
-            :disabled="!acl.can('custom_field.editor')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
@@ -67,7 +67,7 @@
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCustomerWrite')"
             class="sw-custom-field-detail__allow-customer-write"
             :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCustomerWrite')"
-            :disabled="!acl.can('custom_field.editor')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
         />
         {% endblock %}
 
@@ -79,7 +79,7 @@
             :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowCartExpose')"
             class="sw-custom-field-detail__allow-cart-expose"
             :label="$tc('sw-settings-custom-field.customField.detail.labelAllowCartExpose')"
-            :disabled="!acl.can('custom_field.editor') || disableCartExpose"
+            :disabled="!acl.can('custom_field.editor') || disableCartExpose || undefined"
         />
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -120,7 +120,7 @@
             class="sw-custom-field-detail__footer-save"
             variant="primary"
             size="small"
-            :disabled="!canSave || !acl.can('custom_field.editor')"
+            :disabled="!canSave || !acl.can('custom_field.editor') || undefined"
             @click="onSave"
         >
             {{ labelSaveButton }}

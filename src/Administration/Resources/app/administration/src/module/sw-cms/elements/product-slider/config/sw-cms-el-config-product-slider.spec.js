@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -75,6 +76,9 @@ async function createWrapper(customCmsElementConfig) {
                 'sw-icon': true,
                 'sw-loader': true,
                 'sw-popover': true,
+                'sw-select-field': true,
+                'sw-switch-field': true,
+                'sw-highlight-text': true,
             },
             provide: {
                 cmsService: {

@@ -7,6 +7,10 @@ const classes = {
     settingsCard: 'sw-card',
 };
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-login-registration', {
         sync: true,
@@ -46,6 +50,10 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-skeleton': true,
+                'sw-sales-channel-switch': true,
+                'sw-alert': true,
+                'sw-form-field-renderer': true,
+                'sw-inherit-wrapper': true,
             },
         },
     });

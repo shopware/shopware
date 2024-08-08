@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
     async function createWrapper(taxRule) {

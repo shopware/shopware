@@ -12,6 +12,8 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'feature'],
 
     mixins: [
@@ -257,9 +259,15 @@ export default {
                 });
 
                 if (!this.element.data) {
-                    this.$set(this.element, 'data', { sliderItems });
-                } else {
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(this.element, 'data', { sliderItems });
+                    } else {
+                        this.element.data = { sliderItems };
+                    }
+                } else if (this.isCompatEnabled('INSTANCE_SET')) {
                     this.$set(this.element.data, 'sliderItems', sliderItems);
+                } else {
+                    this.element.data.sliderItems = sliderItems;
                 }
             }
         },

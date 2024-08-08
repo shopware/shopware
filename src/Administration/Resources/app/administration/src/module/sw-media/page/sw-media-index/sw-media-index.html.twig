@@ -70,7 +70,7 @@
                 disabled: acl.can('media.creator'),
                 showOnDisabledElements: true
             }"
-            :disabled="!acl.can('media.creator')"
+            :disabled="!acl.can('media.creator') || undefined"
             variant="compact"
             :file-accept="fileAccept"
             :target-folder-id="routeFolderId"

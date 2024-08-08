@@ -18,7 +18,7 @@
         <sw-button
             v-tooltip.bottom="tooltipCancel"
             class="sw-promotion-v2-detail__cancel-action"
-            :disabled="promotion !== null && promotion.isLoading"
+            :disabled="promotion !== null && promotion.isLoading || undefined"
             @click="onCancel"
         >
             {{ $tc('global.default.cancel') }}
@@ -33,7 +33,7 @@
             class="sw-promotion-v2-detail__save-action"
             variant="primary"
             :is-loading="isLoading"
-            :disabled="isLoading || !acl.can('promotion.editor')"
+            :disabled="isLoading || !acl.can('promotion.editor') || undefined"
             :process-success="isSaveSuccessful"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -49,7 +49,7 @@
     {% block sw_promotion_v2_detail_language_switch %}
     <template #language-switch>
         <sw-language-switch
-            :disabled="!promotionId"
+            :disabled="!promotionId || undefined"
             @on-change="onChangeLanguage"
         />
     </template>
@@ -82,7 +82,7 @@
                     :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
                     :title="$tc('sw-promotion-v2.detail.tabs.tabGeneral')"
                     :has-error="swPromotionV2DetailBaseError"
-                    :disabled="!promotionId"
+                    :disabled="!promotionId || undefined"
                 >
                     {{ $tc('sw-promotion-v2.detail.tabs.tabGeneral') }}
                 </sw-tabs-item>
@@ -93,7 +93,7 @@
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
                     :title="$tc('sw-promotion-v2.detail.tabs.tabConditions')"
-                    :disabled="!promotionId"
+                    :disabled="!promotionId || undefined"
                 >
                     {{ $tc('sw-promotion-v2.detail.tabs.tabConditions') }}
                 </sw-tabs-item>
@@ -104,7 +104,7 @@
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
                     :title="$tc('sw-promotion-v2.detail.tabs.tabDiscounts')"
-                    :disabled="!promotionId"
+                    :disabled="!promotionId || undefined"
                 >
                     {{ $tc('sw-promotion-v2.detail.tabs.tabDiscounts') }}
                 </sw-tabs-item>

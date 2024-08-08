@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -179,6 +180,10 @@ async function createWrapper() {
                 'sw-data-grid': true,
                 'sw-card-filter': true,
                 'sw-pagination': true,
+                'sw-product-variants-configurator-prices': true,
+                'sw-product-variants-configurator-restrictions': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {

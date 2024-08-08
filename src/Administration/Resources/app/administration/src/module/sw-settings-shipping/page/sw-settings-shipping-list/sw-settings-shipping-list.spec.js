@@ -4,6 +4,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 async function createWrapper(privileges = []) {
@@ -55,6 +56,14 @@ async function createWrapper(privileges = []) {
                 'sw-entity-listing': true,
                 'sw-empty-state': true,
                 'router-link': true,
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-checkbox-field': true,
+                'sw-single-select': true,
+                'sw-context-menu-item': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar': true,
             },
         },
     });

@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -38,6 +39,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                     'router-link': true,
                     'sw-icon': true,
                     'sw-alert': true,
+                    'sw-loader': true,
                 },
                 provide: {
                     repositoryFactory: {

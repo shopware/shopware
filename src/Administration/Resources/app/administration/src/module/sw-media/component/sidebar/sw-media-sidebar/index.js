@@ -9,8 +9,13 @@ const { Filter, Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
     mixins: [Shopware.Mixin.getByName('notification')],
+
     props: {
         items: {
             required: true,
@@ -98,6 +103,30 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
+
+        filteredAttributes() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return {};
+            }
+
+            const filteredAttributes = {};
+
+            Object.entries(this.$attrs).forEach(([key, value]) => {
+                if (key.startsWith('on') && typeof value === 'function') {
+                    filteredAttributes[key] = value;
+                }
+            });
+
+            return filteredAttributes;
         },
     },
 

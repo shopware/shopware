@@ -54,7 +54,7 @@
             class="sw-promotion-v2-list__smart-bar-button-add"
             variant="primary"
             :router-link="{ name: 'sw.promotion.v2.create' }"
-            :disabled="!acl.can('promotion.creator')"
+            :disabled="!acl.can('promotion.creator') || undefined"
         >
             {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
         </sw-button>
@@ -84,10 +84,10 @@
                 :items="promotions"
                 detail-route="sw.promotion.v2.detail"
                 :is-loading="isLoading"
-                :allow-inline-edit="acl.can('promotion.editor')"
-                :show-selection="acl.can('promotion.deleter')"
-                :allow-edit="acl.can('promotion.editor')"
-                :allow-view="acl.can('promotion.viewer')"
+                :allow-inline-edit="acl.can('promotion.editor') || undefined"
+                :show-selection="acl.can('promotion.deleter') || undefined"
+                :allow-edit="acl.can('promotion.editor') || undefined"
+                :allow-view="acl.can('promotion.viewer') || undefined"
                 allow-column-edit
                 full-page
                 @update-records="updateTotal"
@@ -133,7 +133,7 @@
                 <template #delete-action="{ item, showDelete }">
                     <sw-context-menu-item
                         variant="danger"
-                        :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter')"
+                        :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter') || undefined"
                         @click="showDelete(item.id)"
                     >
                         {{ $tc('global.default.delete') }}
@@ -167,7 +167,7 @@
                             class="sw-promotion-v2-list__empty-state-button-add"
                             variant="primary"
                             :router-link="{ name: 'sw.promotion.v2.create' }"
-                            :disabled="!acl.can('promotion.creator')"
+                            :disabled="!acl.can('promotion.creator') || undefined"
                         >
                             {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
                         </sw-button>

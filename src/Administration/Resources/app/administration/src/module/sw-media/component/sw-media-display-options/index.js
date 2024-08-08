@@ -8,6 +8,8 @@ import './sw-media-display-options.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         presentation: {
             type: String,

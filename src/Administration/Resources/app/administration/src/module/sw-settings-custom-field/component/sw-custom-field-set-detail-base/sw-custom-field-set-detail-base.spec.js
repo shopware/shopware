@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -54,6 +55,8 @@ async function createWrapper(privileges = []) {
                 'sw-button': true,
                 'sw-multi-select': true,
                 'sw-loader': true,
+                'sw-switch-field': true,
+                'sw-custom-field-translated-labels': true,
             },
         },
     });

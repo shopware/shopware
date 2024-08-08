@@ -19,6 +19,8 @@ const documentTypesForDisplayNoteDelivery = [
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'feature', 'customFieldDataProviderService'],
 
     mixins: [
@@ -400,13 +402,21 @@ export default {
                 this.documentConfig = {};
             }
             if (!this.documentConfig.config) {
-                this.$set(this.documentConfig, 'config', {});
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.documentConfig, 'config', {});
+                } else {
+                    this.documentConfig.config = {};
+                }
             }
 
             await this.onChangeType(this.documentConfig.documentType);
 
             if (this.documentConfig.salesChannels === undefined) {
-                this.$set(this.documentConfig, 'salesChannels', []);
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.documentConfig, 'salesChannels', []);
+                } else {
+                    this.documentConfig.salesChannels = [];
+                }
             }
 
             this.documentConfig.salesChannels.forEach(salesChannelAssoc => {

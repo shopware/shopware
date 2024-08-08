@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -24,6 +25,9 @@ async function createWrapper() {
                 'sw-tabs-item': true,
                 'sw-entity-single-select': true,
                 'sw-alert': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
+                'sw-select-field': true,
             },
             provide: {
                 cmsService: {
@@ -58,15 +62,6 @@ async function createWrapper() {
                 },
             },
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'landingpage',
-                    },
-                },
-            };
-        },
     });
 }
 
@@ -74,7 +69,20 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                    currentMappingEntity: null,
+                    currentDemoEntity: productMock,
+                };
+            },
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
     });
 
     it('should show product selector if page type is not product detail', async () => {
@@ -90,13 +98,8 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     it('should show alert information if page type is product detail', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        await flushPromises();
 
         const productSelector = wrapper.find('sw-entity-single-select-stub');
         const alert = wrapper.find('sw-alert-stub');

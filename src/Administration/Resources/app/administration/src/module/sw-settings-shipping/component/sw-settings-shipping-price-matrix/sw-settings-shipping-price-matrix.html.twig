@@ -32,7 +32,7 @@
             :rule-id="priceGroup.ruleId"
             :rule-filter="ruleFilterCriteria"
             size="small"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :placeholder="mainRulePlaceholder"
             rule-aware-group-key="shippingMethodPrices"
             :restricted-rule-ids="usedRules"

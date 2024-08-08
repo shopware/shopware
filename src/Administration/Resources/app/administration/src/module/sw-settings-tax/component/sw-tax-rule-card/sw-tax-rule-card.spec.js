@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-tax-rule-card', {
@@ -88,6 +89,8 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-context-menu-item': true,
                 'sw-button': true,
+                'sw-pagination': true,
+                'sw-settings-tax-rule-modal': true,
             },
         },
     });

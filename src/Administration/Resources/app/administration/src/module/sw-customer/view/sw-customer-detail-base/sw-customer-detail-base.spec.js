@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 const customFields = [
@@ -79,6 +80,16 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-customer-base-info': true,
+                'sw-customer-default-addresses': true,
+                'sw-skeleton': true,
+                'sw-button-process': true,
+                'sw-media-collapse': true,
+                'sw-icon': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
             },
         },
 

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
@@ -46,6 +47,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     startEventListener: () => {},
                     stopEventListener: () => {},
                 },
+                fileValidationService: {},
             },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container', { sync: true }),
@@ -75,6 +77,22 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-loader': true,
+                'sw-tree-input-field': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-error': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-button-group': true,
+                'sw-media-url-form': true,
+                'sw-media-preview-v2': true,
+                'sw-context-menu-divider': true,
+                'sw-media-modal-v2': true,
             },
         },
     });
@@ -180,6 +198,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         global.activeAclRoles = ['product.deleter'];
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
         await deleteContextButton.trigger('click');

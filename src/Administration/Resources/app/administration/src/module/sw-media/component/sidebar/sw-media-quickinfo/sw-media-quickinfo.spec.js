@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
@@ -89,6 +90,15 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-confirm-field': true,
+                'sw-media-modal-replace': true,
+                'sw-help-text': true,
+                'sw-media-modal-delete': true,
+                'sw-external-link': true,
+                'sw-media-quickinfo-usage': true,
+                'sw-media-modal-move': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
 

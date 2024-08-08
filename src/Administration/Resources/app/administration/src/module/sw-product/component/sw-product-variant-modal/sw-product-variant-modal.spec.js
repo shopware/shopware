@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -281,6 +282,7 @@ async function createWrapper() {
                 'sw-simple-search-field': true,
                 'sw-empty-state': true,
                 'sw-button': {
+                    emits: ['click'],
                     template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                 },
                 'sw-container': {
@@ -336,6 +338,20 @@ async function createWrapper() {
                     `,
                 },
                 'sw-bulk-edit-modal': true,
+                'sw-checkbox-field': true,
+                'sw-context-menu-item': true,
+                'sw-media-preview-v2': true,
+                'router-link': true,
+                'sw-product-variant-info': true,
+                'sw-number-field': true,
+                'sw-inheritance-switch': true,
+                'sw-price-preview': true,
+                'sw-color-badge': true,
+                'sw-product-variants-media-upload': true,
+                'sw-text-field': true,
+                'sw-price-field': true,
+                'sw-pagination': true,
+                'sw-button-process': true,
             },
         },
     });
@@ -443,6 +459,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         expect(filterContextMenu.attributes().style).toBe('display: none;');
 
         await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
+        await flushPromises();
 
         expect(filterContextMenu.attributes().style).toBeFalsy();
         expect(wrapper.findAll('.sw-tree-item')).toHaveLength(6);

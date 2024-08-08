@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -154,6 +155,8 @@ async function createWrapper() {
                 'sw-simple-search-field': true,
                 'sw-button': true,
                 'sw-icon': true,
+                'sw-label': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {

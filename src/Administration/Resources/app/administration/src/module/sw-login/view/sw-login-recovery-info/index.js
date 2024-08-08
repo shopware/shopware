@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-login-recovery-info', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         rateLimitTime() {
             const waitTime = this.$route.params?.waitTime;

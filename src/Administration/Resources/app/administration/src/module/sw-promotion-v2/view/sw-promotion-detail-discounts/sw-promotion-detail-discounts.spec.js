@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import promotionState from 'src/module/sw-promotion-v2/page/sw-promotion-v2-detail/state';
 
@@ -10,6 +14,7 @@ async function createWrapper() {
                     template: '<button class="sw-button"><slot></slot></button>',
                     props: ['disabled'],
                 },
+                'sw-promotion-discount-component': true,
             },
             provide: {
                 repositoryFactory: {

@@ -78,7 +78,7 @@
                                 class="sw-settings-snippet-set-list__edit-set-action"
                                 size="small"
                                 variant="primary"
-                                :disabled="!acl.can('snippet.editor') || !snippetsEditable"
+                                :disabled="!acl.can('snippet.editor') || !snippetsEditable || undefined"
                                 @click="onEditSnippetSets"
                             >
                                 {{ $tc('sw-settings-snippet.setList.buttonEditSet') }}
@@ -98,7 +98,7 @@
                                     class="sw-settings-snippet-set-list__action-add"
                                     size="small"
                                     variant="ghost"
-                                    :disabled="!acl.can('snippet.creator')"
+                                    :disabled="!acl.can('snippet.creator') || undefined"
                                     @click="onAddSnippetSet"
                                 >
                                     {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
@@ -109,7 +109,7 @@
                                 {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
                                 <sw-context-button
                                     headline="hi"
-                                    :disabled="!acl.can('snippet.creator')"
+                                    :disabled="!acl.can('snippet.creator') || undefined"
                                 >
 
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -119,7 +119,7 @@
                                             class="sw-settings-snippet-set-list__action-context-menu"
                                             size="small"
                                             variant="ghost"
-                                            :disabled="!acl.can('snippet.creator')"
+                                            :disabled="!acl.can('snippet.creator') || undefined"
                                             square
                                         >
                                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -295,7 +295,7 @@
                                     {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
                                     <sw-context-menu-item
                                         v-tooltip.left="getNoPermissionsTooltip('snippet.editor')"
-                                        :disabled="!acl.can('snippet.creator')"
+                                        :disabled="!acl.can('snippet.creator') || undefined"
                                         @click="onClone(item.id)"
                                     >
                                         {{ $tc('sw-settings-snippet.setList.contextMenuClone') }}
@@ -307,7 +307,7 @@
                                     <sw-context-menu-item
                                         v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')"
                                         variant="danger"
-                                        :disabled="!acl.can('snippet.deleter')"
+                                        :disabled="!acl.can('snippet.deleter') || undefined"
                                         @click="onDeleteSet(item.id)"
                                     >
                                         {{ $tc('sw-settings-snippet.setList.contextMenuDelete') }}

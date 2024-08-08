@@ -56,7 +56,7 @@
                 showOnDisabledElements: true
             }"
             :router-link="{ name: 'sw.settings.document.create' }"
-            :disabled="!acl.can('document.creator')"
+            :disabled="!acl.can('document.creator') || undefined"
             class="sw-settings-document-list__add-document"
             variant="primary"
         >

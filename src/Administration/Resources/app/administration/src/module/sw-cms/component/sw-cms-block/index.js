@@ -11,6 +11,8 @@ const { Filter, Store } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['cmsService'],
 
     props: {

@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () => {
     async function createWrapper() {

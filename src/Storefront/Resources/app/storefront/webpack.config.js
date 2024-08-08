@@ -245,7 +245,7 @@ const coreConfig = {
     output: {
         path: path.resolve(__dirname, 'dist/storefront'),
         filename: './[name].js',
-        chunkFilename: './[name].js?h=[contenthash:6]',
+        chunkFilename: './[name].js?[contenthash:6]',
         clean: true,
     },
     performance: {
@@ -321,7 +321,8 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
                 path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
                 filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
-                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js?[contenthash:6]`,
+                clean: !isHotMode,
             },
             resolve: {
                 modules: ['node_modules'],

@@ -72,7 +72,7 @@ class CustomFieldPersister
 
         foreach ($customFields->getCustomFieldSets() as $customFieldSet) {
             if (!\array_key_exists($customFieldSet->getName(), $existingCustomFieldSets)) {
-                $payload[] = $customFieldSet->toEntityArray($appId, []);
+                $payload[] = $customFieldSet->toEntityArray($appId, [], []);
 
                 continue;
             }
@@ -83,7 +83,13 @@ class CustomFieldPersister
                     ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
                 )
             );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations);
+            $existingFields = Uuid::fromBytesToHexList(
+                $this->connection->fetchAllKeyValue(
+                    'SELECT name, id FROM custom_field WHERE set_id = :setId',
+                    ['setId' => Uuid::fromHexToBytes($existingCustomFieldSets[$customFieldSet->getName()])]
+                )
+            );
+            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
             $entityData['id'] = $existingCustomFieldSets[$customFieldSet->getName()];
 
             $payload[] = $entityData;

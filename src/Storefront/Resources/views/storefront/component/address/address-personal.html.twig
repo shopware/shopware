@@ -1,7 +1,7 @@
 {# Provides customer type, salutation, title, firstname, lastname and birthday fields for address forms (e.g. registering a user, creating or updating an address) #}
 {% block component_address_personal_fields %}
     {% block component_address_personal_account_type %}
-        {% if onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect) %}
+        {% if (onlyCompanyRegistration or (config('core.loginRegistration.showAccountTypeSelection') and not hideCustomerTypeSelect)) and not hasSelectedBusiness %}
             <div class="row g-2">
                 <div class="form-group col-md-3 col-sm-6 contact-type">
                     {% block component_address_personal_account_type_label %}

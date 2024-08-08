@@ -2,52 +2,106 @@
 
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 
-use PHPUnit\Framework\Attributes\AfterClass;
-use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension;
 
 /**
  * @internal
- *
- * @phpstan-import-type FeatureFlagConfig from Feature
  */
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {
+    public function testValidNamespacesWillBeAddedToTestNamespaces(): void
+    {
+        $defaultNamespace = 'Shopware\\Tests\\Unit\\';
+        $namespaceOne = 'New\\Namespace\\One\\';
+        $namespaceTwo = 'New\\Namespace\\Two\\';
+
+        FeatureFlagExtension::addTestNamespace($namespaceOne);
+        FeatureFlagExtension::addTestNamespace($namespaceTwo);
+
+        static::assertCount(3, FeatureFlagExtension::getTestNamespaces());
+        static::assertCount(1, array_filter(FeatureFlagExtension::getTestNamespaces(), static fn (string $n) => $n === $defaultNamespace));
+        static::assertCount(1, array_filter(FeatureFlagExtension::getTestNamespaces(), static fn (string $n) => $n === $namespaceOne));
+        static::assertCount(1, array_filter(FeatureFlagExtension::getTestNamespaces(), static fn (string $n) => $n === $namespaceTwo));
+    }
+
     /**
-     * @var array<string, mixed>
+     * @psalm-param class-string<\Throwable> $exceptionClass
      */
-    private static array $serverVars = [];
+    #[DataProvider('invalidNamespaceDataProvider')]
+    public function testAddingInvalidNamespaceWillThrowException(
+        string $namespace,
+        string $exceptionClass,
+        string $exceptionMessage
+    ): void {
+        $this->expectException($exceptionClass);
+        $this->expectExceptionMessage($exceptionMessage);
 
-    #[BeforeClass]
-    public static function registerTestFeature(): void
-    {
-        self::$serverVars = $_SERVER;
+        FeatureFlagExtension::addTestNamespace($namespace);
 
-        Feature::registerFeature('foobar');
-        $_SERVER['FOOBAR'] = true;
-
-        static::assertTrue(Feature::isActive('foobar'));
+        static::assertNotContains($namespace, FeatureFlagExtension::getTestNamespaces());
     }
 
-    #[AfterClass]
-    public static function restoreServerVars(): void
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public static function invalidNamespaceDataProvider(): iterable
     {
-        $_SERVER = self::$serverVars;
-    }
+        yield 'empty string namespace' => [
+            '',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "" given.',
+        ];
 
-    public function testFeatureIsSet(): void
-    {
-        static::assertTrue(Feature::isActive('foobar'));
-    }
+        yield 'white space string namespace' => [
+            ' ',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", " " given.',
+        ];
 
-    #[DisabledFeatures(['foobar'])]
-    public function testFeatureIsDisabled(): void
-    {
-        static::assertFalse(Feature::isActive('foobar'));
+        yield 'white spaces string namespace' => [
+            '  ',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "  " given.',
+        ];
+
+        yield 'white spaces string namespace with characters' => [
+            ' a ',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", " a " given.',
+        ];
+
+        yield 'white spaces string namespace and backslashes' => [
+            '  a\\b  ',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "  a\b  " given.',
+        ];
+
+        yield 'namespace with only backslashes' => [
+            '\\',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "\" given.',
+        ];
+
+        yield 'namespace with backslashes at the beginning' => [
+            '\\a\\b\\',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "\a\b\" given.',
+        ];
+
+        yield 'namespace without backslashes at the end' => [
+            'valid\namespace\without\backslash\at\the\end',
+            \InvalidArgumentException::class,
+            'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "valid\namespace\without\backslash\at\the\end" given.',
+        ];
+
+        yield 'namespace already present' => [
+            'Shopware\\Tests\\Unit\\',
+            \InvalidArgumentException::class,
+            'Namespace "Shopware\Tests\Unit\" was already added to test namespaces.',
+        ];
     }
 }

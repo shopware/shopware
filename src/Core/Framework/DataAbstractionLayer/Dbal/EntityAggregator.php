@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -116,6 +117,10 @@ class EntityAggregator implements EntityAggregatorInterface
         Criteria $criteria,
         Context $context
     ): AggregationResult {
+        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
+        }
+
         $clone = clone $criteria;
         $clone->resetAggregations();
         $clone->resetSorting();

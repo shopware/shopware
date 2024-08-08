@@ -149,11 +149,11 @@ class Context extends Struct
     /**
      * @template TReturn of mixed
      *
-     * @param callable(Context): TReturn $callback
+     * @param \Closure(Context): TReturn $callback
      *
      * @return TReturn the return value of the provided callback function
      */
-    public function scope(string $scope, callable $callback)
+    public function scope(string $scope, \Closure $callback)
     {
         $currentScope = $this->getScope();
         $this->scope = $scope;
@@ -216,11 +216,11 @@ class Context extends Struct
     /**
      * @template TReturn of mixed
      *
-     * @param callable(Context): TReturn $function
+     * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function enableInheritance(callable $function)
+    public function enableInheritance(\Closure $function)
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = true;
@@ -233,11 +233,11 @@ class Context extends Struct
     /**
      * @template TReturn of mixed
      *
-     * @param callable(Context): TReturn $function
+     * @param \Closure(Context): TReturn $function
      *
      * @return TReturn
      */
-    public function disableInheritance(callable $function)
+    public function disableInheritance(\Closure $function)
     {
         $previous = $this->considerInheritance;
         $this->considerInheritance = false;

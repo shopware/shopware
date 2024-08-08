@@ -51,10 +51,14 @@ class PropertyGroupOptionCollection extends EntityCollection
         $groups = new PropertyGroupCollection();
 
         foreach ($this->getIterator() as $element) {
+            if ($element->getGroup() === null) {
+                continue;
+            }
+
             if ($groups->has($element->getGroupId())) {
                 $group = $groups->get($element->getGroupId());
             } else {
-                $group = PropertyGroupEntity::createFrom($element->getGroup() ?? new PropertyGroupEntity());
+                $group = PropertyGroupEntity::createFrom($element->getGroup());
                 $groups->add($group);
 
                 $group->setOptions(new self());

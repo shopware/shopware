@@ -37,8 +37,9 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
     }
 
     const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
+
     for (let match of unique) {
-        const json = await (await fetchGithub(`https://api.github.com/advisories/${match}`)).json();
+        const json = await (await fetchGithub(`https://api.github.com/repos/shopware/shopware/security-advisories/${match}`)).json();
 
         if (json.severity === undefined) {
             continue;

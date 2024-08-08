@@ -10,6 +10,7 @@ import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
+import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import {
     MtBanner,
     MtButton,
@@ -254,6 +255,7 @@ config.global.plugins = [
         },
     },
     VirtualCallStackPlugin,
+    MeteorSdkDataPlugin,
 ];
 
 global.allowedErrors = [

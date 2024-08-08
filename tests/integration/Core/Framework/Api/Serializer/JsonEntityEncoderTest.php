@@ -146,7 +146,7 @@ class JsonEntityEncoderTest extends TestCase
 
         $definition = new CustomFieldTestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $struct = new class() extends Entity {
+        $struct = new class extends Entity {
             use EntityCustomFieldsTrait;
         };
         $struct->assign($input);

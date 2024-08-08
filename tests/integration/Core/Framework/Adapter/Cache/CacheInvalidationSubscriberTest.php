@@ -271,7 +271,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = new class() {
+        $listener = new class {
             /**
              * @param array<string> $tags
              */

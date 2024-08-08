@@ -638,7 +638,7 @@ class EntityWriteGatewayTest extends TestCase
      */
     private function callbackSpy(): callable
     {
-        return new class() {
+        return new class {
             public bool $called = false;
 
             public function __invoke(): void

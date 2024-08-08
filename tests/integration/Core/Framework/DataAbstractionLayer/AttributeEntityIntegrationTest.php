@@ -5,6 +5,10 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
@@ -19,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 
 /**
@@ -265,6 +270,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'currencies' => null,
             'translations' => null,
             'customFields' => null,
+            'orders' => null,
         ], $json);
     }
 
@@ -631,6 +637,65 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertEquals('baz', $record->getCustomFieldsValue('bar'));
     }
 
+    public function testManyToManyVersioned(): void
+    {
+        $ids = new IdsCollection();
+
+        $data = [
+            'id' => $ids->get('first-key'),
+            'string' => 'string',
+            'transString' => 'transString',
+            'orders' => [
+                self::order($ids->get('order-1'), $this->getStateMachineState(), $this->getValidCountryId()),
+                self::order($ids->get('order-2'), $this->getStateMachineState(), $this->getValidCountryId()),
+            ],
+        ];
+
+        $result = $this->repository('attribute_entity')
+            ->create([$data], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
+        static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
+
+        static::assertNotEmpty($result->getPrimaryKeys('order'));
+        static::assertContains($ids->get('order-1'), $result->getPrimaryKeys('order'));
+        static::assertContains($ids->get('order-2'), $result->getPrimaryKeys('order'));
+
+        $search = $this->repository('attribute_entity')
+            ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
+
+        /** @var AttributeEntity $record */
+        $record = $search->get($ids->get('first-key'));
+        static::assertNull($record->orders);
+
+        $criteria = new Criteria([$ids->get('first-key')]);
+        $criteria->addAssociation('orders');
+        $search = $this->repository('attribute_entity')
+            ->search($criteria, Context::createDefaultContext());
+
+        /** @var AttributeEntity $record */
+        $record = $search->get($ids->get('first-key'));
+        static::assertNotNull($record->orders);
+        static::assertCount(2, $record->orders);
+        static::assertArrayHasKey($ids->get('order-1'), $record->orders);
+        static::assertArrayHasKey($ids->get('order-2'), $record->orders);
+
+        $this->repository('attribute_entity_order')->delete([
+            ['attributeEntityId' => $ids->get('first-key'), 'orderId' => $ids->get('order-1')],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('first-key')]);
+        $criteria->addAssociation('orders');
+        $search = $this->repository('attribute_entity')
+            ->search($criteria, Context::createDefaultContext());
+
+        /** @var AttributeEntity $record */
+        $record = $search->get($ids->get('first-key'));
+        static::assertNotNull($record->orders);
+        static::assertCount(1, $record->orders);
+        static::assertArrayHasKey($ids->get('order-2'), $record->orders);
+    }
+
     private function repository(string $entity): EntityRepository
     {
         $repository = $this->getContainer()->get($entity . '.repository');
@@ -653,6 +718,40 @@ class AttributeEntityIntegrationTest extends TestCase
             'shortName' => 'Euro',
             'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function order(string $id, string $stateId, string $countryId): array
+    {
+        $ids = new IdsCollection();
+        $addressId = $ids->get('address-1');
+
+        return [
+            'id' => $id,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'orderDateTime' => '2024-05-06 12:34:56',
+            'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'stateId' => $stateId,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyFactor' => 1,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'billingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                    'street' => 'Main Street',
+                    'zipcode' => '59438-0403',
+                    'city' => 'City',
+                    'countryId' => $countryId,
+                    'id' => $addressId,
+                ],
+            ],
         ];
     }
 }

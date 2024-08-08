@@ -5,7 +5,6 @@
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
 import { get, debounce, cloneDeepWith } from 'lodash';
 import type { App } from 'vue';
-import { onBeforeUnmount } from 'vue';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -360,24 +359,14 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
         immediate: true,
     });
 
-    // Before the registering component gets destroyed, destroy the watcher and deregister the dataset
-    // @ts-expect-error - This is added in the vue.adapter.ts
+    // @ts-expect-error - Defined in meteor-sdk-data.plugin.ts
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    if (scope.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
-        scope.$once('hook:beforeDestroy', () => {
-            publishedDataSets = publishedDataSets.filter(value => value.id !== id);
-            unregisterPublishDataIds.push(id);
+    scope.dataSetUnwatchers.push(() => {
+        publishedDataSets = publishedDataSets.filter(value => value.id !== id);
+        unregisterPublishDataIds.push(id);
 
-            unwatch();
-        });
-    } else {
-        onBeforeUnmount(() => {
-            publishedDataSets = publishedDataSets.filter(value => value.id !== id);
-            unregisterPublishDataIds.push(id);
-
-            unwatch();
-        });
-    }
+        unwatch();
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     register({ id: id, data: get(scope, path) }).catch(() => {});

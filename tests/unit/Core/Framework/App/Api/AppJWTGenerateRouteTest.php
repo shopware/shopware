@@ -95,5 +95,6 @@ class AppJWTGenerateRouteTest extends TestCase
         static::assertSame($context->getCurrency()->getId(), $payload['currencyId']);
         static::assertSame($context->getLanguageId(), $payload['languageId']);
         static::assertSame(['active-license-1', 'active-license-2'], $payload['inAppPurchases']);
+        InAppPurchase::reset();
     }
 }

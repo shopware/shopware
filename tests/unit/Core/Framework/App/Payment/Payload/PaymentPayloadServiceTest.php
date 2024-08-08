@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,17 +14,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
-use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayload;
-use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
-use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -35,6 +31,8 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type RequestOptions from AppPayloadServiceHelper
  */
 #[Package('checkout')]
 #[CoversClass(PaymentPayloadService::class)]
@@ -121,15 +119,9 @@ class PaymentPayloadServiceTest extends TestCase
 
         $this->helper
             ->expects(static::once())
-            ->method('encode')
-            ->with($payload)
-            ->willReturn([]);
-
-        $this->helper
-            ->expects(static::once())
-            ->method('buildSource')
-            ->with($app)
-            ->willReturn(new Source('shopurl', 'shopid', '0.0.0'));
+            ->method('createRequestOptions')
+            ->with($payload, $app)
+            ->willReturn($this->buildTestPayload($context));
 
         $this->client
             ->expects(static::once())
@@ -160,24 +152,22 @@ class PaymentPayloadServiceTest extends TestCase
         static::assertSame('foo', $response->getErrorMessage());
     }
 
-    public function testRequestThrowsExceptionWhenAppSecretIsMissing(): void
+    /**
+     * @return RequestOptions
+     */
+    private function buildTestPayload(Context $context): array
     {
-        $app = new AppEntity();
-        $app->setName('InsecureApp');
-        $app->setAppSecret(null);
-
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App registration for "InsecureApp" failed: App secret is missing');
-        $this->service->request(
-            'http://example.com',
-            $this->createMock(PaymentPayloadInterface::class),
-            $app,
-            AbstractResponse::class,
-            Context::createDefaultContext()
-        );
-
-        static::assertInstanceOf(SyncPayResponse::class, $gatewayResponse);
-        static::assertSame('paid', $gatewayResponse->getStatus());
-        static::assertSame('test-message', $gatewayResponse->getMessage());
+        return [
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
+            AuthMiddleware::APP_REQUEST_TYPE => [
+                AuthMiddleware::APP_SECRET => 'secret',
+                AuthMiddleware::VALIDATED_RESPONSE => true,
+            ],
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'timeout' => 20,
+            'body' => '[]',
+        ];
     }
 }

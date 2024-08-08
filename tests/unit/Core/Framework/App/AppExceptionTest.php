@@ -93,6 +93,14 @@ class AppExceptionTest extends TestCase
         static::assertEquals('App "MyApp" could not be installed/updated because it uses features Modules, Payments and Webhooks but has no secret', $e->getMessage());
     }
 
+    public function testInAppPurchaseGatewayUrlEmpty(): void
+    {
+        $e = AppException::inAppPurchaseGatewayUrlEmpty();
+
+        static::assertEquals(AppException::INVALID_CONFIGURATION, $e->getErrorCode());
+        static::assertEquals('No In-App Purchases gateway url set. Please update your manifest file.', $e->getMessage());
+    }
+
     public function testNoSourceSupports(): void
     {
         $e = AppException::noSourceSupports();

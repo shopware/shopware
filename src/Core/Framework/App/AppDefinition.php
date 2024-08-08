@@ -110,6 +110,7 @@ class AppDefinition extends EntityDefinition
             new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
             new StringField('checkout_gateway_url', 'checkoutGatewayUrl'),
+            new StringField('in_app_purchases_gateway_url', 'inAppPurchasesGatewayUrl'),
             new StringField('source_type', 'sourceType'),
             new JsonField('source_config', 'sourceConfig'),
             new BoolField('self_managed', 'selfManaged'),

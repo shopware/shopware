@@ -66,6 +66,8 @@ class QuerySignerTest extends TestCase
         static::assertSame('purchase-1,purchase-2', $url['in-app-purchases']);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $url['sw-context-language']);
         static::assertSame('en-GB', $url['sw-user-language']);
+
+        InAppPurchase::reset();
     }
 
     public function testThrowsWithoutAppSecret(): void

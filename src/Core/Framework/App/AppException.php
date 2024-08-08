@@ -274,6 +274,15 @@ class AppException extends HttpException
         );
     }
 
+    public static function inAppPurchaseGatewayUrlEmpty(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_CONFIGURATION,
+            'No In-App Purchases gateway url set. Please update your manifest file.',
+        );
+    }
+
     public static function noSourceSupports(): self
     {
         return new self(

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('checkout')]
-class CheckoutGateway extends XmlElement
+class InAppPurchasesGateway extends XmlElement
 {
     use UrlXmlElement;
 }

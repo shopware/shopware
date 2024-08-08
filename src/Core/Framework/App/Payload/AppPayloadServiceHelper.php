@@ -4,8 +4,11 @@ namespace Shopware\Core\Framework\App\Payload;
 
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,6 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type RequestOptions array{'app_request_context': Context, 'request_type': array{'app_secret': non-falsy-string, 'validated_response': true}, 'headers': array{Content-Type: string}, 'body': string, 'timeout'?: int}
  */
 #[Package('core')]
 class AppPayloadServiceHelper
@@ -73,6 +78,38 @@ class AppPayloadServiceHelper
         }
 
         return $array;
+    }
+
+    /**
+     * @param array{timeout?: int} $additionalOptions
+     *
+     * @return RequestOptions
+     */
+    public function createRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context, array $additionalOptions = []): array
+    {
+        if (!$app->getAppSecret()) {
+            throw AppException::registrationFailed($app->getName(), 'App secret is missing');
+        }
+
+        $defaultOptions = [
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
+            AuthMiddleware::APP_REQUEST_TYPE => [
+                AuthMiddleware::APP_SECRET => $app->getAppSecret(),
+                AuthMiddleware::VALIDATED_RESPONSE => true,
+            ],
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => $this->buildSourcedPayload($payload, $app),
+        ];
+
+        return \array_merge($defaultOptions, $additionalOptions);
+    }
+
+    private function buildSourcedPayload(SourcedPayloadInterface $payload, AppEntity $app): string
+    {
+        $payload->setSource($this->buildSource($app));
+        $encoded = $this->encode($payload);
+
+        return \json_encode($encoded, \JSON_THROW_ON_ERROR);
     }
 
     /**

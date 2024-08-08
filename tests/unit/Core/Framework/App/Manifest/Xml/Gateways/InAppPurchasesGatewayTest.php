@@ -5,15 +5,15 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Gateways;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\InAppPurchasesGateway;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversClass(Gateways::class)]
-#[Package('core')]
-class GatewaysTest extends TestCase
+#[CoversClass(InAppPurchasesGateway::class)]
+#[Package('checkout')]
+class InAppPurchasesGatewayTest extends TestCase
 {
     public function testParse(): void
     {
@@ -23,7 +23,9 @@ class GatewaysTest extends TestCase
 
         $gateways = $manifest->getGateways();
 
-        static::assertNotNull($gateways->getCheckout());
         static::assertNotNull($gateways->getInAppPurchasesGateway());
+
+        $inAppPurchasesFilter = $gateways->getInAppPurchasesGateway();
+        static::assertSame('https://foo.bar/example/iap-filter', $inAppPurchasesFilter->getUrl());
     }
 }

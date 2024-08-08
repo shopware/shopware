@@ -206,6 +206,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['checkoutGatewayUrl'] = $manifest->getGateways()?->getCheckout()?->getUrl();
         $metadata['sourceType'] = $manifest->getSourceType() ?? $this->sourceResolver->resolveSourceType($manifest);
         $metadata['sourceConfig'] = $manifest->getSourceConfig();
+        $metadata['inAppPurchasesGatewayUrl'] = $manifest->getGateways()?->getInAppPurchasesGateway()?->getUrl();
 
         $this->updateMetadata($metadata, $context);
 

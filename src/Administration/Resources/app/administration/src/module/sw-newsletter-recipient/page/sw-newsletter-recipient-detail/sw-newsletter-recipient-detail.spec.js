@@ -84,7 +84,7 @@ async function createWrapper() {
     });
 }
 
-describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
+describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/sw-newsletter-recipient-detail', () => {
     it('should disable all inputs and disallow saving', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

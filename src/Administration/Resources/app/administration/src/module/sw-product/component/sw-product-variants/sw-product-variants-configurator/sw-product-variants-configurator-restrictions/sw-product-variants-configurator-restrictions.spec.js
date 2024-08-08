@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -112,6 +113,22 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-highlight-text': true,
+                    'router-link': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-label': true,
+                    'sw-checkbox-field': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'sw-select-field': true,
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-field-error': true,
                 },
             },
         });

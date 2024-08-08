@@ -58,6 +58,7 @@
                 >
                     <component
                         :is="Component"
+                        v-if="Component"
                         class="sw-first-run-wizard-modal__component"
                         @buttons-update="updateButtons"
                         @frw-redirect="redirect"

@@ -1,11 +1,9 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-import swManufacturerDetail from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
-
-Shopware.Component.register('sw-manufacturer-detail', swManufacturerDetail);
 
 const mockProductId = 'MOCK_PRODUCT_ID';
 let productGetShouldFail = false;
@@ -80,6 +78,10 @@ async function createWrapper(privileges = []) {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-context-menu-item': true,
+                'sw-sidebar-media-item': true,
+                'sw-sidebar': true,
             },
             provide: {
                 acl: {

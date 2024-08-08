@@ -10,6 +10,8 @@ const { Module, State, Mixin } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['searchPreferencesService'],
 
     mixins: [
@@ -91,7 +93,7 @@ export default {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 
@@ -124,11 +126,19 @@ export default {
         },
 
         addEventListeners() {
-            this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
+            } else {
+                Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
+            }
         },
 
         removeEventListeners() {
-            this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
+            } else {
+                Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
+            }
         },
 
         updateDataSource() {

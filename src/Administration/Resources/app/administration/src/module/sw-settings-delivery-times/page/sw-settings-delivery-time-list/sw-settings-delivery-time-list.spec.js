@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 async function createWrapper(privileges = []) {
@@ -71,13 +72,13 @@ async function createWrapper(privileges = []) {
                                 <slot name="detail-action" v-bind="{ item }">
                                     <sw-context-menu-item-stub class="sw-entity-listing__context-menu-edit-action"
                                                           v-if="detailRoute"
-                                                          :disabled="!allowEdit"
+                                                          :disabled="!allowEdit || undefined"
                                                           :routerLink="{ name: detailRoute, params: { id: item.id } }">
                                     </sw-context-menu-item-stub>
                                 </slot>
 
                                 <slot name="delete-action" v-bind="{ item }">
-                                    <sw-context-menu-item-stub :disabled="!allowDelete"
+                                    <sw-context-menu-item-stub :disabled="!allowDelete || undefined"
                                                           class="sw-entity-listing__context-menu-edit-delete">
                                     </sw-context-menu-item-stub>
                                 </slot>
@@ -85,6 +86,10 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>`,
                 },
+                'sw-context-menu-item-stub': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
             },
         },
     });

@@ -8,6 +8,8 @@ import template from './sw-custom-entity-input-field.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

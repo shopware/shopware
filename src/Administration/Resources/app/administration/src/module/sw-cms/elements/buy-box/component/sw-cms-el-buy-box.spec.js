@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -32,15 +33,6 @@ async function createWrapper() {
                 },
             },
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-            };
-        },
         global: {
             stubs: {
                 'sw-block-field': true,
@@ -64,19 +56,28 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                    currentMappingEntity: null,
+                    currentDemoEntity: null,
+                };
+            },
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
     });
 
     it('should show skeleton if page type is product page', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-buy-box__skeleton').exists()).toBeTruthy();
     });
@@ -107,15 +108,12 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     it('should show current demo data if mapping entity is product', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-                currentMappingEntity: 'product',
-                currentDemoEntity: productMock,
-            },
-        });
+        const cmsPageState = Shopware.Store.get('cmsPageState');
+        cmsPageState.currentPage.type = 'product_detail';
+        cmsPageState.currentMappingEntity = 'product';
+        cmsPageState.currentDemoEntity = productMock;
+
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€100.00');
@@ -124,15 +122,12 @@ describe('module/sw-cms/elements/buy-box/component', () => {
     it('should show dummy data initially if mapping entity is not product', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'landingpage',
-                },
-                currentMappingEntity: null,
-                currentDemoEntity: productMock,
-            },
-        });
+        const cmsPageState = Shopware.Store.get('cmsPageState');
+        cmsPageState.currentPage.type = 'landingpage';
+        cmsPageState.currentMappingEntity = null;
+        cmsPageState.currentDemoEntity = productMock;
+
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-buy-box__content').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-el-buy-box__price').text()).toBe('€0.00');

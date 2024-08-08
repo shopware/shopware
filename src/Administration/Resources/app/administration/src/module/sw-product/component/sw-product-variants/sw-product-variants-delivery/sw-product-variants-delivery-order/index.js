@@ -9,6 +9,8 @@ import './sw-product-variants-delivery-order.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         product: {
             type: Object,

@@ -8,6 +8,8 @@ import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['systemConfigApiService'],
 
     data() {

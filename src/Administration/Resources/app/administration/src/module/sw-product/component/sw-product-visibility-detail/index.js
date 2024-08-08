@@ -12,6 +12,8 @@ const { Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         disabled: {
             type: Boolean,

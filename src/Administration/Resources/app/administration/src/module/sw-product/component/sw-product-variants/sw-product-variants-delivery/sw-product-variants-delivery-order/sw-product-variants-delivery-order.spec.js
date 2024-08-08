@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -49,6 +50,7 @@ async function createWrapper() {
             stubs: {
                 'sw-loader': true,
                 'sw-tree': true,
+                'sw-tree-item': true,
             },
         },
     });

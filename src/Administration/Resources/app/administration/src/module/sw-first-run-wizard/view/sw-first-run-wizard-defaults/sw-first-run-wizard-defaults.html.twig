@@ -7,7 +7,7 @@
     <sw-settings-listing-default-sales-channel
         ref="defaultSalesChannelCard"
         :is-loading="isLoading"
-        @hook:mounted="() => defaultSalesChannelCardLoaded = true"
+        @vue:mounted="() => defaultSalesChannelCardLoaded = true"
     />
     {% endblock %}
 

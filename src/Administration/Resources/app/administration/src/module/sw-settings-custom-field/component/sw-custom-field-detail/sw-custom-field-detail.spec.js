@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -86,6 +87,9 @@ async function createWrapper(privileges = []) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-alert': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
     });

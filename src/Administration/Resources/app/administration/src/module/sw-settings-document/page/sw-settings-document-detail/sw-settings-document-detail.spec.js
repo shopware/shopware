@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const documentBaseConfigRepositoryMock = {
@@ -134,6 +135,9 @@ const createWrapper = async (customOptions, privileges = []) => {
                 'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
                 'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] },
                 'sw-skeleton': true,
+                'sw-select-result': true,
+                'sw-highlight-text': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 repositoryFactory: {

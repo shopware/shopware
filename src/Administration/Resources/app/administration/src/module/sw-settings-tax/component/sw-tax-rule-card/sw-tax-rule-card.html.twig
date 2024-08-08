@@ -33,7 +33,7 @@
                             }"
                             class="sw-tax-rule-grid-button"
                             size="small"
-                            :disabled="!acl.can('tax.editor')"
+                            :disabled="!acl.can('tax.editor') || undefined"
                             @click="showModal = true"
                         >
 
@@ -123,7 +123,7 @@
                     {% block sw_settings_tax_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
                         class="sw-tax-list__edit-action"
-                        :disabled="!acl.can('tax.editor')"
+                        :disabled="!acl.can('tax.editor') || undefined"
                         @click="showRuleModal(item)"
                     >
                         {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
@@ -135,7 +135,7 @@
                     <sw-context-menu-item
                         class="sw-tax-list__delete-action"
                         variant="danger"
-                        :disabled="!acl.can('tax.editor')"
+                        :disabled="!acl.can('tax.editor') || undefined"
                         @click="onDelete(item.id)"
                     >
                         {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
@@ -253,7 +253,7 @@
                 class="sw-settings-tax-rule-card__empty-state--button"
                 variant="ghost"
                 size="small"
-                :disabled="disabled || !acl.can('tax.editor')"
+                :disabled="disabled || !acl.can('tax.editor') || undefined"
                 @click="showModal = true"
             >
                 {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}

@@ -30,7 +30,7 @@
                     disabled: acl.can('custom_field.editor'),
                     showOnDisabledElements: true
                 }"
-                :disabled="deleteButtonDisabled || !acl.can('custom_field.editor')"
+                :disabled="deleteButtonDisabled || !acl.can('custom_field.editor') || undefined"
                 square
                 size="small"
                 class="sw-custom-field-list__delete-button"
@@ -51,7 +51,7 @@
                     disabled: acl.can('custom_field.editor'),
                     showOnDisabledElements: true
                 }"
-                :disabled="set.isLoading || !acl.can('custom_field.editor')"
+                :disabled="set.isLoading || !acl.can('custom_field.editor') || undefined"
                 size="small"
                 class="sw-custom-field-list__add-button"
                 @click="onAddCustomField(set)"
@@ -161,7 +161,7 @@
                     {% block sw_custom_field_list_grid_column_actions_edit %}
                     <sw-context-menu-item
                         class="sw-custom-field-list__edit-action"
-                        :disabled="item.isDeleted || !acl.can('custom_field.editor')"
+                        :disabled="item.isDeleted || !acl.can('custom_field.editor') || undefined"
                         @click="onCustomFieldEdit(item)"
                     >
                         {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldView') }}
@@ -173,7 +173,7 @@
                     <sw-context-menu-item
                         v-if="item.isDeleted"
                         variant="success"
-                        :disabled="!acl.can('custom_field.editor')"
+                        :disabled="!acl.can('custom_field.editor') || undefined"
                     >
                         {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldResetDelete') }}
                     </sw-context-menu-item>

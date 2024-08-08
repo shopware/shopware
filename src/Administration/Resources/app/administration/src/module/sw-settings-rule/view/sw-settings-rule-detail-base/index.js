@@ -7,6 +7,8 @@ import template from './sw-settings-rule-detail-base.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'ruleConditionDataProviderService',
         'acl',

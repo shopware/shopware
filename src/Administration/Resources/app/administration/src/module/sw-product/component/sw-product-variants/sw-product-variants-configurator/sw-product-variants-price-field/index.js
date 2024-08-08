@@ -12,6 +12,8 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         price: {
             type: Object,

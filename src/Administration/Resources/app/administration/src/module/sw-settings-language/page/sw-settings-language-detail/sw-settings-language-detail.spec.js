@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -119,6 +120,16 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-skeleton': true,
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-inheritance-switch': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-alert': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-product-variant-info': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
             },
         },
     };

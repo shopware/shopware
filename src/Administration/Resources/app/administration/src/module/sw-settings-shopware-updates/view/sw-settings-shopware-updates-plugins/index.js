@@ -9,6 +9,8 @@ const { Component } = Shopware;
 Component.register('sw-settings-shopware-updates-plugins', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     props: {

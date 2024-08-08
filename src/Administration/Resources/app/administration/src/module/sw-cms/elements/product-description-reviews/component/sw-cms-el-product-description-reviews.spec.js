@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -36,15 +37,6 @@ async function createWrapper() {
                 },
             },
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-            };
-        },
     });
 }
 
@@ -52,7 +44,20 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                    currentMappingEntity: null,
+                    currentDemoEntity: productMock,
+                };
+            },
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
     });
 
     it('should display placeholder when page type is not product page and no product is selected', async () => {
@@ -62,13 +67,9 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
 
     it('should display skeleton when page type is product page and no product is selected', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+
+        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__placeholder').exists()).toBeTruthy();
     });
@@ -93,15 +94,12 @@ describe('src/module/sw-cms/elements/product-description-reviews/component', () 
     it('should show current demo data if mapping entity is product', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-                currentMappingEntity: 'product',
-                currentDemoEntity: productMock,
-            },
-        });
+        const cmsPageState = Shopware.Store.get('cmsPageState');
+        cmsPageState.currentPage.type = 'product_detail';
+        cmsPageState.currentMappingEntity = 'product';
+        cmsPageState.currentDemoEntity = productMock;
+
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-product-description-reviews__detail-title').text()).toBe('Awesome Product');
     });

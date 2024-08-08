@@ -5,11 +5,12 @@ const { Component } = Shopware;
 
 /**
  * @package admin
- *
  * @private
  */
 Component.register('sw-inactivity-login', {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'loginService',
@@ -99,7 +100,7 @@ Component.register('sw-inactivity-login', {
         (document.querySelector('.sw-inactivity-login') as HTMLElement).style.backgroundImage = `url('${dataUrl}')`;
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.sessionChannel?.close();
 
         localStorage.removeItem(`inactivityBackground_${this.hash}`);

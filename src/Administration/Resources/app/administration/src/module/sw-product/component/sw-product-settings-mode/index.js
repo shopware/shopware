@@ -9,6 +9,8 @@ import './sw-product-settings-mode.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         modeSettings: {
             type: Object,

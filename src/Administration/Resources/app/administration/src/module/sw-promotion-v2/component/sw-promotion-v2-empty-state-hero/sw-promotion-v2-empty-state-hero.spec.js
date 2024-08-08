@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero', () => {

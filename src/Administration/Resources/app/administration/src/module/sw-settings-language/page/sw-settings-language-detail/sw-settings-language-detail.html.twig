@@ -38,7 +38,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-language-detail__save-action"
             :is-loading="isLoading"
-            :disabled="isLoading || !allowSave"
+            :disabled="isLoading || !allowSave || undefined"
             variant="primary"
             @click.prevent="onSave"
         >
@@ -79,7 +79,7 @@
                         <sw-text-field
                             v-model:value="language.name"
                             name="sw-field--language-name"
-                            :disabled="!acl.can('language.editor')"
+                            :disabled="!acl.can('language.editor') || undefined"
                             :label="$tc('sw-settings-language.detail.labelName')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderName')"
                             :error="languageNameError"
@@ -97,7 +97,7 @@
                             required
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
-                            :disabled="!acl.can('language.editor')"
+                            :disabled="!acl.can('language.editor') || undefined"
                             :label="$tc('sw-settings-language.detail.labelLocale')"
                             entity="locale"
                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
@@ -126,7 +126,7 @@
                             id="iso-codes"
                             v-model:value="language.translationCodeId"
                             class="sw-settings-language-detail__select-iso-code"
-                            :disabled="isInherited || !acl.can('language.editor')"
+                            :disabled="!acl.can('language.editor') || undefined"
                             label-property="code"
                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                             :required="isIsoCodeRequired"
@@ -174,7 +174,7 @@
                             name="sw-field--language-parentId"
                             class="sw-settings-language-detail__select-parent"
                             :criteria="parentLanguageCriteria"
-                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
+                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId || undefined"
                             :label="$tc('sw-settings-language.detail.labelParent')"
                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                             :help-text="inheritanceTooltipText"
@@ -189,7 +189,7 @@
                                         message: $tc('sw-settings-language.detail.textLanguageHasParent'),
                                         disabled: !item.parentId
                                     }"
-                                    :disabled="!!item.parentId"
+                                    :disabled="!!item.parentId || undefined"
                                     :selected="isSelected(item)"
                                     v-bind="{ item, index }"
                                     @item-select="setValue"
@@ -231,7 +231,7 @@
                 >
                     <sw-custom-field-set-renderer
                         :entity="language"
-                        :disabled="!acl.can('language.editor')"
+                        :disabled="!acl.can('language.editor') || undefined"
                         :sets="customFieldSets"
                     />
                 </sw-card>

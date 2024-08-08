@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 const de = 'de-DE';
@@ -49,6 +50,13 @@ async function createWrapper(props = defaultProps) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-ai-copilot-badge': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
+                'sw-icon': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
             },
         },
     });

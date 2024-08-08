@@ -3,11 +3,12 @@ import './sw-promotion-v2-empty-state-hero.scss';
 
 /**
  * @package buyers-experience
- *
  * @private
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     props: {
         title: {
@@ -46,6 +47,14 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        actionSlotsAvailable() {
+            if (this.isCompatEnabled('INSTANCE_SCOPED_SLOTS')) {
+                return !!this.$slots.actions || !!this.$scopedSlots.actions;
+            }
+
+            return !!this.$slots.actions;
         },
     },
 };

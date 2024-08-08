@@ -7,6 +7,8 @@ import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         buttonConfig() {
             return [

@@ -10,6 +10,8 @@ const { Mixin, Utils } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'cmsService',

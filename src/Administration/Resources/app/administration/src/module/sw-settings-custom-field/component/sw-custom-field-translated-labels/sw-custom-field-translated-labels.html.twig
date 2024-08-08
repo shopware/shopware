@@ -32,7 +32,7 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_tabs %}
-        <template #default>
+        <template #default="{ active }">
             <sw-tabs-item
                 v-for="locale in locales"
                 :key="locale"

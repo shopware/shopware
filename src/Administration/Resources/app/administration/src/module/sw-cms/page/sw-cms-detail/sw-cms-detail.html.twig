@@ -16,7 +16,7 @@
                 {% block sw_cms_detail_toolbar_language_switch %}
                 <template #language-switch>
                     <sw-language-switch
-                        :disabled="isLoading || page.locked"
+                        :disabled="isLoading || page.locked || undefined"
                         :allow-edit="acl.can('cms.editor')"
                         :save-changes-function="saveOnLanguageChange"
                         :abort-change-function="abortOnLanguageChange"
@@ -128,7 +128,7 @@
                             class="sw-cms-detail__save-action"
                             :is-loading="isLoading"
                             :process-success="isSaveSuccessful"
-                            :disabled="isLoading || page.locked || !acl.can('cms.editor')"
+                            :disabled="isLoading || page.locked || !acl.can('cms.editor') || undefined"
                             variant="primary"
                             @update:process-success="saveFinish"
                             @click="onSave"
@@ -265,7 +265,7 @@
                             </p>
                             <sw-cms-stage-add-section
                                 :key="0"
-                                :disabled="!acl.can('cms.editor')"
+                                :disabled="!acl.can('cms.editor') || undefined"
                                 :force-choose="true"
                                 @stage-section-add="addAdditionalSection($event, 0)"
                             />
@@ -287,7 +287,7 @@
                         {% block sw_cms_detail_stage_add_first_section %}
                         <sw-cms-stage-add-section
                             :key="0"
-                            :disabled="!acl.can('cms.editor')"
+                            :disabled="!acl.can('cms.editor') || undefined"
                             @stage-section-add="addAdditionalSection($event, 0)"
                         />
                         {% endblock %}
@@ -307,7 +307,7 @@
                                     :page="page"
                                     :section="section"
                                     :active="selectedSection !== null && selectedSection.id === section.id"
-                                    :disabled="!acl.can('cms.editor')"
+                                    :disabled="!acl.can('cms.editor') || undefined"
                                     @page-config-open="pageConfigOpen"
                                     @block-duplicate="onBlockDuplicate"
                                 />
@@ -320,7 +320,7 @@
                         {% block sw_cms_detail_stage_add_last_section %}
                         <sw-cms-stage-add-section
                             :key="page.sections.length + 1"
-                            :disabled="!acl.can('cms.editor')"
+                            :disabled="!acl.can('cms.editor') || undefined"
                             @stage-section-add="addAdditionalSection($event, page.sections.length)"
                         />
                         {% endblock %}
@@ -336,7 +336,7 @@
                     :page="page"
                     :demo-entity="currentMappingEntity"
                     :demo-entity-id-prop="demoEntityId"
-                    :disabled="!acl.can('cms.editor')"
+                    :disabled="!acl.can('cms.editor') || undefined"
                     :is-default-layout="isDefaultLayout"
                     @demo-entity-change="onDemoEntityChange"
                     @block-duplicate="onBlockDuplicate"

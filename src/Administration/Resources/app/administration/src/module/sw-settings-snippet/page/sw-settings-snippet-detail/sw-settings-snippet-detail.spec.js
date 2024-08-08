@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -164,6 +165,21 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-skeleton': true,
+                    'sw-search-bar': true,
+                    'sw-icon': true,
+                    'router-link': true,
+                    'sw-app-actions': true,
+                    'sw-loader': true,
+                    'sw-error-summary': true,
+                    'sw-app-topbar-button': true,
+                    'sw-notification-center': true,
+                    'sw-help-center-v2': true,
+                    'sw-context-button': true,
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
                 },
             },
         });

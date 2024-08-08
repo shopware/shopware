@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -69,6 +70,10 @@ async function createWrapper(activeTab = 'content') {
                     template: '<div class="sw-media-item">{{item.id}}</div>',
                     props: ['item'],
                 },
+                'sw-icon': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
         props: {
@@ -125,11 +130,6 @@ async function createWrapper(activeTab = 'content') {
         },
         data() {
             return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
                 mediaItems: [
                     {
                         id: '0',
@@ -157,16 +157,28 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
-            state: () => ({
-                currentMappingTypes: {},
-                currentDemoEntity: null,
-            }),
+
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                    currentMappingEntity: null,
+                    currentDemoEntity: null,
+                    currentMappingTypes: {},
+                };
+            },
+
             actions: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
                 },
             },
         });
+    });
+
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
     });
 
     it('should media selection if sliderItems config source is static', async () => {

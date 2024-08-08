@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -72,7 +73,7 @@ async function createWrapper(
                     template: `
                         <div class="sw-modal-stub">
                             <slot></slot>
-    
+
                             <div class="modal-footer">
                                 <slot name="modal-footer"></slot>
                             </div>
@@ -87,6 +88,12 @@ async function createWrapper(
                     props: ['value', 'label', 'placeholder'],
                     template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
                 },
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-tabs-item': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             mocks: {
                 $route: { query: '' },
@@ -176,6 +183,19 @@ async function createWrapper(
 }
 
 describe('module/sw-cms/page/sw-cms-list', () => {
+    beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('Did not persist user config, as permissions are missing');
+            },
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

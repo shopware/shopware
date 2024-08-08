@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -30,7 +31,7 @@ const sliderItemsDataMock = [
     },
 ];
 
-async function createWrapper(propsOverride, dataOverride) {
+async function createWrapper(propsOverride) {
     return mount(await wrapTestComponent('sw-cms-el-image-gallery', {
         sync: true,
     }), {
@@ -100,16 +101,6 @@ async function createWrapper(propsOverride, dataOverride) {
             },
             ...propsOverride,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'ladingpage',
-                    },
-                },
-                ...dataOverride,
-            };
-        },
     });
 }
 
@@ -117,17 +108,27 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+
+            state() {
+                return {
+                    currentPage: {
+                        type: 'landingpage',
+                    },
+                    currentMappingEntity: null,
+                    currentDemoEntity: null,
+                    currentMappingTypes: {},
+                };
+            },
         });
     });
 
+    beforeEach(() => {
+        Shopware.Store.get('cmsPageState').$reset();
+    });
+
     it('should map to product media if the component is in a product page', async () => {
-        const wrapper = await createWrapper(null, {
-            cmsPageState: {
-                currentPage: {
-                    type: 'product_detail',
-                },
-            },
-        });
+        Shopware.Store.get('cmsPageState').currentPage.type = 'product_detail';
+        const wrapper = await createWrapper(null);
 
         expect(wrapper.vm.element.config.sliderItems.source).toBe('mapped');
         expect(wrapper.vm.element.config.sliderItems.value).toBe('product.media');

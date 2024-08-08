@@ -20,6 +20,8 @@ interface CmsSlotOverrides {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'cmsPageTypeService',
@@ -170,7 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+            Shopware.Store.get('cmsPageState').setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;

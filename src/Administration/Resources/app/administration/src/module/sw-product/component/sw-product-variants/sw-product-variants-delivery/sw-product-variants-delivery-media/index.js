@@ -9,6 +9,8 @@ import './sw-product-variants-delivery-media.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'mediaService'],
 
     props: {

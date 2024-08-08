@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 Shopware.Service().register('syncService', () => {
@@ -34,6 +38,10 @@ async function createWrapper() {
                     template: '<div class="sw-promotion-v2-rule-select"></div>',
                     props: ['disabled'],
                 },
+                'sw-context-menu-item': true,
+                'sw-select-field': true,
+                'sw-number-field': true,
+                'sw-button': true,
             },
             provide: {
                 promotionSyncService: {

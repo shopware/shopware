@@ -1,10 +1,11 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Vue from 'vue';
+import { reactive } from 'vue';
 
 describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     let wrapper;
@@ -49,7 +50,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     };
 
     const productMock = (additionalProperties) => {
-        return Vue.observable({
+        return reactive({
             featureSet: featureSetMock,
             ...additionalProperties,
         });
@@ -62,7 +63,11 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
 
         const router = createRouter({
             routes: [
-                { name: 'sw.settings.product.feature.sets.index', params: {} },
+                {
+                    name: 'sw.settings.product.feature.sets.index',
+                    params: {},
+                    component: {},
+                },
             ],
             history: createWebHashHistory(),
         });
@@ -88,6 +93,12 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                     i18n: {
                         template: '<div class="i18n-stub"><slot></slot></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-product-variant-info': true,
+                    'sw-highlight-text': true,
+                    'sw-select-result': true,
+                    'sw-select-result-list': true,
+                    'sw-ai-copilot-badge': true,
                 },
                 provide: {
                     repositoryFactory: {

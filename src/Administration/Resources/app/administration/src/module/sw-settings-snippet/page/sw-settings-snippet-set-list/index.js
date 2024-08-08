@@ -10,6 +10,8 @@ const { Mixin, Data: { Criteria } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'snippetSetService',
         'repositoryFactory',

@@ -4,6 +4,7 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 const swConditionTree = {
@@ -45,6 +46,22 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-textarea-field': true,
+                'sw-entity-tag-select': true,
+                'sw-loader': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-highlight-text': true,
+                'sw-icon': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-label': true,
+                'sw-button': true,
             },
             provide: {
                 ruleConditionDataProviderService: new RuleConditionService(),
@@ -81,17 +98,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper(defaultProps, []);
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field[name=sw-field--rule-description]');
+            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
 
-            [
-                ruleNameField,
-                rulePriorityField,
-                ruleDescriptionField,
-            ].forEach((element) => {
-                expect(element.attributes().disabled).toBe('true');
-            });
+            expect(ruleNameField.attributes().disabled).toBe('true');
+            expect(rulePriorityField.attributes().disabled).toBe('true');
+            expect(ruleDescriptionField.attributes().disabled).toBe('true');
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).toContain('is--disabled');
         });
@@ -100,17 +113,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper();
             await flushPromises();
 
-            const ruleNameField = wrapper.find('sw-text-field[name=sw-field--rule-name]');
-            const rulePriorityField = wrapper.find('sw-number-field[name=sw-field--rule-priority]');
-            const ruleDescriptionField = wrapper.find('sw-textarea-field[name=sw-field--rule-description]');
+            const ruleNameField = wrapper.find('sw-text-field-stub[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('sw-number-field-stub[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('sw-textarea-field-stub[name=sw-field--rule-description]');
 
-            [
-                ruleNameField,
-                rulePriorityField,
-                ruleDescriptionField,
-            ].forEach((element) => {
-                expect(element.attributes().disabled).toBeUndefined();
-            });
+            expect(ruleNameField.attributes().disabled).toBeUndefined();
+            expect(rulePriorityField.attributes().disabled).toBeUndefined();
+            expect(ruleDescriptionField.attributes().disabled).toBeUndefined();
 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).not.toContain('is--disabled');
         });
@@ -198,7 +207,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             const wrapper = await createWrapper();
             await flushPromises();
 
-            const customFieldSetRenderer = wrapper.get('sw-custom-field-set-renderer');
+            const customFieldSetRenderer = wrapper.get('sw-custom-field-set-renderer-stub');
 
             expect(customFieldSetRenderer.exists()).toBe(true);
         });

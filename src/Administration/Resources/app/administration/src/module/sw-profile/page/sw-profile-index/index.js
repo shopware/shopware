@@ -14,6 +14,8 @@ const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'userService',
         'loginService',
@@ -137,7 +139,7 @@ export default {
         this.beforeMountComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         State.unregisterModule('swProfile');
     },
 

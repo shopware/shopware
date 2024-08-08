@@ -10,6 +10,8 @@ const { Context, Filter } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'mediaService',
@@ -78,7 +80,7 @@ export default {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 
@@ -109,9 +111,7 @@ export default {
             }
         },
 
-        destroyedComponent() {
-            this.$root.$off('search', this.onSearch);
-        },
+        destroyedComponent() {},
 
         async onUploadsAdded() {
             await this.mediaService.runUploads(this.uploadTag);

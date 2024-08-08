@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-tax-rule-modal', {
@@ -18,6 +19,8 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-number-field': true,
                 'sw-datepicker': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {

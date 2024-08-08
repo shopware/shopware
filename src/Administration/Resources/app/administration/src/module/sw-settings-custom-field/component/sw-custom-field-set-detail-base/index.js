@@ -7,6 +7,8 @@ import template from './sw-custom-field-set-detail-base.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['customFieldDataProviderService', 'acl'],
 
     props: {
@@ -70,18 +72,27 @@ export default {
             return entityNames.map(entityName => {
                 const relation = this.customFieldSetRelationRepository.create();
                 relation.entityName = entityName;
-                this.$set(relation, 'searchField', {});
+
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(relation, 'searchField', {});
+                } else {
+                    relation.searchField = {};
+                }
 
                 Object.keys(this.$root.$i18n.messages).forEach(locale => {
                     if (!this.$te(`global.entities.${entityName}`)) {
                         return;
                     }
 
-                    this.$set(
-                        relation.searchField,
-                        locale,
-                        this.$tc(`global.entities.${entityName}`, 2, locale),
-                    );
+                    if (this.isCompatEnabled('INSTANCE_SET')) {
+                        this.$set(
+                            relation.searchField,
+                            locale,
+                            this.$tc(`global.entities.${entityName}`, 2, locale),
+                        );
+                    } else {
+                        relation.searchField[locale] = this.$tc(`global.entities.${entityName}`, 2, locale);
+                    }
                 });
 
                 return relation;

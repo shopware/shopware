@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -78,6 +79,11 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-inheritance-switch': true,
+                    'sw-field-copyable': true,
+                    'sw-textarea-field-deprecated': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-highlight-text': true,
+                    'sw-loader': true,
                 },
             },
         });

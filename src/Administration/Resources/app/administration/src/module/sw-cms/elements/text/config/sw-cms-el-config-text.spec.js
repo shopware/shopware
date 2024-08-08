@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -27,8 +28,16 @@ async function createWrapper() {
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                 'sw-text-editor': {
                     props: ['value'],
+                    emits: ['blur', 'update:value', 'change'],
                     template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
+                'sw-select-field': true,
+                'sw-icon': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-alert': true,
             },
         },
         props: {

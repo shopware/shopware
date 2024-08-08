@@ -10,6 +10,8 @@ const debounce = Shopware.Utils.debounce;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'promotionCodeApiService',
     ],

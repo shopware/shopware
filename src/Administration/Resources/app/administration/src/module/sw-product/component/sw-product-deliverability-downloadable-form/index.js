@@ -4,11 +4,14 @@ import './sw-product-deliverability-downloadable-form.scss';
 const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getComponentHelper();
 
-/**
+/*
+ * @package inventory
  * @private
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     mixins: [
         Mixin.getByName('placeholder'),

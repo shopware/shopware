@@ -12,6 +12,8 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',
@@ -170,7 +172,11 @@ export default {
                 }
 
                 if ((types.isEmpty(config[property]) || config[property] === undefined) && config[property !== null]) {
-                    this.$delete(config, property);
+                    if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                        this.$delete(config, property);
+                    } else {
+                        delete config[property];
+                    }
                 }
             });
         },

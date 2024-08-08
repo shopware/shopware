@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.5.1
+*  [NEXT-37399 - Context object improvements](./changelog/release-6-6-5-1/2024-07-24-context-object-improvements.md)
+*  [NEXT-37397 - Improve aggregation name validation](./changelog/release-6-6-5-1/2024-07-24-improve-aggregation-name-validation.md)
+*  [NEXT-37398 - Improve feature silent token validation](./changelog/release-6-6-5-1/2024-07-24-improve-feature-silent-token-validation.md)
+*  [NEXT-37545 - Fix filtering via decoration for payment and shipping method route](./changelog/release-6-6-5-1/2024-08-06-fix-filtering-payment-shipping-method-route.md)
+*  [NEXT-37555 - Change typehint in MediaUrlPlaceholderHandler](./changelog/release-6-6-5-1/2024-08-07-change-typehint-in-mediaurlplaceholderhandler.md) ([tinect](https://github.com/tinect))
+
 ## 6.6.5.0
 *  [NEXT-37141 - Add toggle to choose generate variants or only add variants](./changelog/release-6-6-5-0/2024-01-29-add-single-variants.md) ([Alexander Menk](https://github.com/amenk))
 *  [NEXT-0000 - Remove category criteria for editor links](./changelog/release-6-6-5-0/2024-04-21-remove-category-criteria-for-editor-links.md) ([Max](https://github.com/aragon999))

@@ -580,6 +580,12 @@ class AppLifecycleTest extends TestCase
                 [
                     'id' => $customFieldSetId,
                     'name' => 'custom_field_test',
+                    'customFields' => [
+                        [
+                            'name' => 'bla_test',
+                            'type' => 'text',
+                        ],
+                    ],
                 ],
             ],
             'aclRole' => [

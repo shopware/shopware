@@ -1,6 +1,5 @@
 includes:
     - phpstan-baseline.neon
-    - phpstan-v66-baseline.neon
     - phpstan-v67-baseline.neon
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon

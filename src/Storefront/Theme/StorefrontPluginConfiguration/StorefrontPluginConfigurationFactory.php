@@ -21,7 +21,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      * @internal
      */
     public function __construct(
-        private readonly string $projectDir,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly SourceResolver $sourceResolver
     ) {
@@ -70,17 +69,12 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     /**
      * @param array<string, mixed> $data
      */
-    public function createFromThemeJson(string $name, array $data, string $path, bool $isFullpath = true): StorefrontPluginConfiguration
+    public function createFromThemeJson(string $name, array $data, string $path): StorefrontPluginConfiguration
     {
         try {
-            if (!$isFullpath) {
-                $path = $this->projectDir . \DIRECTORY_SEPARATOR . str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $path);
-            }
-
             $config = new StorefrontPluginConfiguration($name);
 
             $config->setThemeJson($data);
-            $config->setBasePath($this->stripProjectDir($path));
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
             $config->setIsTheme(true);
             $config->setName($data['name']);
@@ -133,7 +127,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config = new StorefrontPluginConfiguration($name);
         $config->setIsTheme(false);
         $config->setStorefrontEntryFilepath($this->getEntryFile($path));
-        $config->setBasePath($this->stripProjectDir($path));
 
         $stylesPath = $path . '/Resources/app/storefront/src/scss';
         $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath, $path . '/Resources')));
@@ -235,11 +228,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         }
 
         return $path;
-    }
-
-    private function stripProjectDir(string $path): string
-    {
-        return $this->stripBasePath($path, $this->projectDir);
     }
 
     /**

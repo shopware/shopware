@@ -127,7 +127,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    \sprintf('Unable to load file "%s/Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $themeConfig->getBasePath(), $filepath)
+                    \sprintf('Unable to load file "Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );
             }
 

@@ -703,7 +703,6 @@ PHP_EOL
             ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );

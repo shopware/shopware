@@ -344,11 +344,12 @@ class ThemeLifecycleService
 
         $installedConfiguration = null;
         if ($theme && \is_array($theme->getThemeJson())) {
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($pluginConfiguration);
+
             $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
                 $theme->getTechnicalName() ?? 'childTheme',
                 $theme->getThemeJson(),
-                $pluginConfiguration->getBasePath(),
-                false
+                $fs->location,
             );
         }
 

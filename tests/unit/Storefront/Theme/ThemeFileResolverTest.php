@@ -18,7 +18,6 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeNotIncludingPluginJsAndCs
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
@@ -28,14 +27,12 @@ class ThemeFileResolverTest extends TestCase
 {
     public function testResolvedFilesIncludeSkinScssPath(): void
     {
-        $projectDir = __DIR__;
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
         $sourceResolver = new StaticSourceResolver([]);
 
         $factory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );
@@ -48,14 +45,19 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeWithStorefrontSkinScss' => $this->createMock(BundleInterface::class),
-            'MockStorefront' => $this->createMock(BundleInterface::class),
+
+        $kernel->expects(static::any())->method('getBundles')->willReturn([
+            'ThemeWithStorefrontSkinScss' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeWithStorefrontSkinScss', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
         ]);
 
         $themeFilesystemResolver = new ThemeFilesystemResolver(
             $sourceResolver,
-            $projectDir,
             $kernel
         );
 
@@ -76,11 +78,8 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontBootstrapScss();
         $storefrontBundle = new MockStorefront();
 
-        $projectDir = __DIR__;
-
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );
@@ -93,14 +92,18 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
 
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeWithStorefrontBootstrapScss' => $this->createMock(BundleInterface::class),
-            'MockStorefront' => $this->createMock(BundleInterface::class),
+        $kernel->expects(static::any())->method('getBundles')->willReturn([
+            'ThemeWithStorefrontBootstrapScss' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeWithStorefrontBootstrapScss', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
         ]);
 
         $themeFilesystemResolver = new ThemeFilesystemResolver(
             $sourceResolver,
-            $projectDir,
             $kernel
         );
 
@@ -122,11 +125,8 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
-        $projectDir = __DIR__;
-
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );
@@ -142,14 +142,19 @@ class ThemeFileResolverTest extends TestCase
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeWithMultiInheritance' => $this->createMock(BundleInterface::class),
-            'MockStorefront' => $this->createMock(BundleInterface::class),
-            'SimplePlugin' => $this->createMock(BundleInterface::class),
+            'ThemeWithMultiInheritance' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeWithMultiInheritance', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
         ]);
 
         $themeFilesystemResolver = new ThemeFilesystemResolver(
             $sourceResolver,
-            $projectDir,
             $kernel
         );
 
@@ -167,15 +172,12 @@ class ThemeFileResolverTest extends TestCase
 
     public function testParentThemeIncludesPlugins(): void
     {
-        $projectDir = __DIR__;
-
         $themePluginBundle = new ThemeNotIncludingPluginJsAndCss();
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );
@@ -191,14 +193,19 @@ class ThemeFileResolverTest extends TestCase
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeNotIncludingPluginJsAndCss' => $this->createMock(BundleInterface::class),
-            'MockStorefront' => $this->createMock(BundleInterface::class),
-            'SimplePlugin' => $this->createMock(BundleInterface::class),
+            'ThemeNotIncludingPluginJsAndCss' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+            'SimplePlugin' => $pluginBundle,
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeNotIncludingPluginJsAndCss', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
+            ['SimplePlugin', $pluginBundle],
         ]);
 
         $themeFilesystemResolver = new ThemeFilesystemResolver(
             $sourceResolver,
-            $projectDir,
             $kernel
         );
 
@@ -242,10 +249,8 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $projectDir = __DIR__;
         $sourceResolver = new StaticSourceResolver([]);
         $factory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             $sourceResolver
         );
@@ -262,13 +267,17 @@ class ThemeFileResolverTest extends TestCase
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeWithStorefrontSkinScss' => $this->createMock(BundleInterface::class),
-            'MockStorefront' => $this->createMock(BundleInterface::class),
+            'ThemeWithStorefrontSkinScss' => $themePluginBundle,
+            'MockStorefront' => $storefrontBundle,
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeWithStorefrontSkinScss', $themePluginBundle],
+            ['MockStorefront', $storefrontBundle],
         ]);
 
         $themeFilesystemResolver = new ThemeFilesystemResolver(
             $sourceResolver,
-            $projectDir,
             $kernel
         );
 

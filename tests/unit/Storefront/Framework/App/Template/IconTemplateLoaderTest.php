@@ -33,7 +33,6 @@ class IconTemplateLoaderTest extends TestCase
         $this->templateLoader = new IconTemplateLoader(
             new TemplateLoader($sourceResolver),
             new StorefrontPluginConfigurationFactory(
-                __DIR__,
                 $this->createMock(KernelPluginLoader::class),
                 $sourceResolver
             ),

@@ -7,7 +7,6 @@
     <services>
         <!-- Theme -->
         <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
@@ -247,6 +246,7 @@
             <argument type="service" id="theme.repository"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
 
             <tag name="console.command"/>
         </service>
@@ -345,9 +345,8 @@
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeFilesystemResolver">
+        <service id="Shopware\Storefront\Theme\ThemeFilesystemResolver" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="kernel"></argument>
         </service>
     </services>

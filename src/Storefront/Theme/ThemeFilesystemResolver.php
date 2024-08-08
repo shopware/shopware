@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Symfony\Component\Filesystem\Path;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
@@ -23,7 +23,6 @@ class ThemeFilesystemResolver
 
     public function __construct(
         private readonly SourceResolver $sourceResolver,
-        private readonly string $projectDir,
         private readonly Kernel $kernel,
     ) {
         // get all bundles + plugin names
@@ -42,6 +41,19 @@ class ThemeFilesystemResolver
             return $this->sourceResolver->filesystemForAppName($configuration->getTechnicalName());
         }
 
-        return new Filesystem(Path::join($this->projectDir, $configuration->getBasePath()));
+        try {
+            $bundle = $this->kernel->getBundle($configuration->getTechnicalName());
+        } catch (\InvalidArgumentException $e) {
+            $bundles = $this->kernel->getPluginLoader()
+                ->getPluginInstances()
+                ->filter(fn (Plugin $plugin) => $plugin->getName() === $configuration->getTechnicalName())
+                ->all();
+
+            $bundle = array_values($bundles)[0];
+        }
+
+        \assert($bundle instanceof BundleInterface);
+
+        return new Filesystem($bundle->getPath());
     }
 }

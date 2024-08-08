@@ -21,7 +21,6 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     public function testGetDecoratedThrows(): void
     {
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            '',
             $this->createMock(KernelPluginLoader::class),
             new StaticSourceResolver([])
         );
@@ -32,10 +31,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testFactorySetsConfiguration(): void
     {
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             new StaticSourceResolver([])
         );
@@ -76,10 +72,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testFactorySetsConfigurationWithAdditionalBundles(): void
     {
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             new StaticSourceResolver([])
         );
@@ -93,10 +86,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testFactorySetsConfigurationWithAppSource(): void
     {
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             new StaticSourceResolver(['test' => new Filesystem(__DIR__ . '/fixtures/Apps/test')])
         );
@@ -108,10 +98,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 
     public function testFactorySetsConfigurationWithAppSourceAsTheme(): void
     {
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-
         $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $projectDir,
             $this->createMock(KernelPluginLoader::class),
             new StaticSourceResolver(['SwagTheme' => new Filesystem(__DIR__ . '/fixtures/Apps/theme')])
         );

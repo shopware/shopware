@@ -5,15 +5,18 @@ namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Storefront\Theme\Command\ThemeDumpCommand;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -25,17 +28,27 @@ class ThemeDumpCommandTest extends TestCase
 
     private string $themeId;
 
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
+    }
+
     public function testExecuteShouldResolveThemeInheritanceChainAndConsiderThemeIdArgument(): void
     {
         $this->setUpExampleThemes();
 
         $themeFileResolverMock = new ThemeFileResolverMock();
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver->expects(static::once())->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->createMock(StaticFileConfigDumper::class)
+            $this->createMock(StaticFileConfigDumper::class),
+            $themeFilesystemResolver
         );
 
         $commandTester = new CommandTester($themeDumpCommand);
@@ -53,13 +66,11 @@ class ThemeDumpCommandTest extends TestCase
         $storePluginConfiguration1->setThemeConfig([
             'any' => 'expectedConfig',
         ]);
-        $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
             'any' => 'unexpectedConfig',
         ]);
-        $storePluginConfiguration2->setBasePath('');
 
         $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
             ->disableOriginalConstructor()

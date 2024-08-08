@@ -32,10 +32,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $theme = $this->getBundle('TestTheme', $basePath, true);
         $config = $this->configFactory->createFromBundle($theme);
 
-        $basePath = $this->stripProjectDir($basePath);
-
         static::assertEquals('TestTheme', $config->getTechnicalName());
-        static::assertEquals($basePath, $config->getBasePath());
         static::assertTrue($config->getIsTheme());
         static::assertEquals(
             'app/storefront/src/main.js',
@@ -143,16 +140,5 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         static::assertEquals($expected, $flatFiles);
-    }
-
-    private function stripProjectDir(string $path): string
-    {
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-
-        if (str_starts_with($path, $projectDir)) {
-            return substr($path, \strlen($projectDir) + 1);
-        }
-
-        return $path;
     }
 }

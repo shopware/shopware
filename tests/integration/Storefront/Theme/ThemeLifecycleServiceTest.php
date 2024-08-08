@@ -32,7 +32,6 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
@@ -58,14 +57,18 @@ class ThemeLifecycleServiceTest extends TestCase
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects(static::once())->method('getBundles')->willReturn([
-            'ThemeWithFileAssociations' => $this->createMock(BundleInterface::class),
-            'ThemeWithLabels' => $this->createMock(BundleInterface::class),
+        $kernel->expects(static::any())->method('getBundles')->willReturn([
+            'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
+            'ThemeWithLabels' => new ThemeWithLabels(),
+        ]);
+
+        $kernel->expects(static::any())->method('getBundle')->willReturnMap([
+            ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
+            ['ThemeWithLabels', new ThemeWithLabels()],
         ]);
 
         $this->themeFilesystemResolver = new ThemeFilesystemResolver(
             $this->getContainer()->get(SourceResolver::class),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $kernel
         );
         $this->themeRepository = $this->getContainer()->get('theme.repository');

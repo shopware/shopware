@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,6 +26,11 @@ class BundleConfigGeneratorTest extends TestCase
     {
         $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
         $this->configGenerator = $this->getContainer()->get(BundleConfigGenerator::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getContainer()->get(SourceResolver::class)->reset();
     }
 
     public function testGenerateAppConfigWithThemeAndScriptAndStylePaths(): void

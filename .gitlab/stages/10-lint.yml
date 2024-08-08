@@ -5,7 +5,7 @@ Danger:
     extends: .base-no-setup
     stage: lint
     image:
-        name: ghcr.io/shyim/danger-php:0.3.0
+        name: ghcr.io/shyim/danger-php:0.3.4
         entrypoint: [""]
     rules:
         - !reference [.rules, skip]

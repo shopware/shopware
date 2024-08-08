@@ -2321,16 +2321,6 @@ parameters:
 			path: src/Core/DevOps/Locust/setup.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\InvalidateCacheEvent\\:\\:__construct\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/InvalidateCacheEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\InvalidateCacheEvent\\:\\:getKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Cache/InvalidateCacheEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php

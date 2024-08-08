@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
+use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
@@ -102,6 +103,7 @@ class Framework extends Bundle
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
         $loader->load('flag.xml');
+        $loader->load('telemetry.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -153,6 +155,8 @@ class Framework extends Bundle
         /** @var FeatureFlagRegistry $featureFlagRegistry */
         $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
         $featureFlagRegistry->register();
+        // Inject the meter early in the application lifecycle. This is needed to use the meter in special case (static contexts).
+        MeterProvider::bindMeter($this->container);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),

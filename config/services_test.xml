@@ -51,5 +51,10 @@
         <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg">
             <tag name="shopware.entity"/>
         </service>
+
+
+        <service id="Shopware\Core\Framework\Test\Telemetry\Transport\TraceableTransport">
+            <tag name="shopware.metric_transport"/>
+        </service>
     </services>
 </container>

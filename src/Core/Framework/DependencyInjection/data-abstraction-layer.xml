@@ -720,5 +720,11 @@
             <argument>%shopware.dal.versioning.expire_days%</argument>
             <tag name="messenger.message_handler"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Subscriber\EntityStatsSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

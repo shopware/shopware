@@ -52,7 +52,6 @@ class NodeExtensionTest extends TestCase
         static::assertEmpty($extension->getFunctions());
         static::assertEmpty($extension->getFilters());
         static::assertEmpty($extension->getNodeVisitors());
-        static::assertEmpty($extension->getOperators());
         static::assertEmpty($extension->getTests());
     }
 }

@@ -3,6 +3,12 @@
     <entity name="ce_product_with_defaults">
         <fields>
             <string name="title" store-api-aware="true" default="default product title" />
+            <int name="stock" store-api-aware="true" default="10" />
+            <float name="price" store-api-aware="true" default="10.99" />
+            <bool name="active" store-api-aware="true" default="true" />
+            <date name="releaseDate" store-api-aware="true" default="2021-01-01T00:00:00" />
+            <email name="email" store-api-aware="true" default="example@shopware.com" />
+            <text name="description" store-api-aware="true" default="default product description" />
         </fields>
     </entity>
 </entities>

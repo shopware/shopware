@@ -144,9 +144,6 @@ class SchemaUpdater
             $required = $field['required'] ?? false;
 
             $nullable = $required ? [] : ['notnull' => false, 'default' => null];
-            if (isset($field['default'])) {
-                $nullable['default'] = $field['default'];
-            }
 
             switch ($field['type']) {
                 case 'int':

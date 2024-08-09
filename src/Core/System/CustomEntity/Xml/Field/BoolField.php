@@ -16,4 +16,11 @@ class BoolField extends Field
     use TranslatableTrait;
 
     protected string $type = 'bool';
+
+    protected ?bool $default = null;
+
+    public function getDefault(): ?bool
+    {
+        return $this->default;
+    }
 }

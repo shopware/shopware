@@ -235,14 +235,33 @@ class CustomEntityTest extends TestCase
 
         $schema = $this->getSchema();
         static::assertTrue($schema->hasTable('ce_product_with_defaults'));
-        static::assertSame(
-            'default product title',
-            $schema->getTable('ce_product_with_defaults')->getColumn('title')->getDefault()
-        );
+        $expectedDefaults = [
+            'title' => 'default product title',
+            'stock' => 10,
+            'price' => 10.99,
+            'active' => true,
+            'releaseDate' => '2021-01-01 00:00:00',
+            'email' => 'example@shopware.com',
+            'description' => 'default product description',
+        ];
 
+        $context = Context::createDefaultContext();
         $repo = $container->get('ce_product_with_defaults.repository');
         static::assertInstanceOf(EntityRepository::class, $repo);
-        static::assertSame(['title' => 'default product title'], $repo->getDefinition()->getDefaults());
+        $repo->create([['id' => Uuid::randomHex()]], $context);
+        $entity = $repo->search(new Criteria(), $context)->first();
+        static::assertInstanceOf(DALEntity::class, $entity);
+
+        foreach ($expectedDefaults as $field => $defaultValue) {
+            $entityValue = $entity->get($field);
+            if ($field === 'releaseDate') {
+                static::assertInstanceOf(\DateTimeImmutable::class, $entityValue);
+                $entityValue = $entityValue->format('Y-m-d H:i:s');
+            }
+
+
+            static::assertSame($defaultValue, $entityValue);
+        }
 
         self::cleanUp($this->getContainer());
     }
@@ -669,15 +688,15 @@ class CustomEntityTest extends TestCase
         static::assertCount(2, $storage);
 
         $fields = [
-            ['name' => 'position', 'type' => 'int', 'storeApiAware' => true, 'required' => false],
-            ['name' => 'rating', 'type' => 'float', 'storeApiAware' => true, 'required' => false],
-            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'content', 'type' => 'text', 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'required' => false],
-            ['name' => 'display', 'type' => 'bool', 'translatable' => true, 'storeApiAware' => true, 'required' => false],
+            ['name' => 'position', 'type' => 'int', 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'rating', 'type' => 'float', 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'content', 'type' => 'text', 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'required' => false, 'default' => null],
+            ['name' => 'display', 'type' => 'bool', 'translatable' => true, 'storeApiAware' => true, 'required' => false, 'default' => null],
             ['name' => 'payload', 'type' => 'json', 'storeApiAware' => false, 'required' => false],
-            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false, 'default' => null],
             ['name' => 'price', 'type' => 'price', 'storeApiAware' => false, 'required' => false],
-            ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false, 'default' => null],
             ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade', 'required' => false],
             ['name' => 'top_seller_restrict', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict'],
             ['name' => 'top_seller_cascade', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
@@ -697,9 +716,9 @@ class CustomEntityTest extends TestCase
         static::assertEquals($fields, json_decode((string) $storage[0]['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
         $fields = [
-            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'content', 'type' => 'text', 'required' => false, 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false],
+            ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'content', 'type' => 'text', 'required' => false, 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true, 'default' => null],
+            ['name' => 'email', 'type' => 'email', 'required' => false, 'storeApiAware' => false, 'default' => null],
             ['name' => 'recommendation', 'type' => 'many-to-one', 'reference' => 'product', 'storeApiAware' => true, 'required' => false, 'inherited' => false, 'onDelete' => 'set-null'],
         ];
         static::assertSame('ce_blog_comment', $storage[1]['name']);

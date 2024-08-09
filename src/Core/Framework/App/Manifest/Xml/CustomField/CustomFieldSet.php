@@ -45,7 +45,7 @@ class CustomFieldSet extends XmlElement
      * @param array<string, string> $existingRelations passed by reference, as still configured relations are removed, thus this array consist only obsolete relations after the call
      * @param array<string, string> $existingFields passed by reference, as still configured fields are removed, thus this array consist only obsolete fields after the call
      *
-     * @return CustomFieldSetArray
+     * @return array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
      */
     public function toEntityArray(string $appId, array &$existingRelations, array &$existingFields): array
     {

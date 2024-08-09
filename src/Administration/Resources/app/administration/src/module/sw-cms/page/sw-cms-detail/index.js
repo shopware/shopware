@@ -189,6 +189,11 @@ export default {
                 marginLeft: null,
                 marginRight: null,
                 sizingMode: 'boxed',
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true,
+                },
             };
         },
 

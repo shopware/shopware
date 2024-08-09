@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('core')]
+#[AllowDynamicProperties]
 class Entity extends Struct
 {
     /**

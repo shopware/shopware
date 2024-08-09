@@ -19,10 +19,8 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -110,43 +108,4 @@ class AuthControllerTest extends TestCase
 class AuthControllerTestClass extends AuthController implements ResetInterface
 {
     use StorefrontControllerMockTrait;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $flashBag = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $redirected = [];
-
-    public function reset(): void
-    {
-        $this->flashBag = [];
-        $this->redirected = [];
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    protected function trans(string $snippet, array $parameters = []): string
-    {
-        return $snippet;
-    }
-
-    protected function addFlash(string $type, mixed $message): void
-    {
-        $this->flashBag[$type][] = $message;
-    }
-
-    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
-    {
-        $this->redirected[$route][] = [
-            'parameters' => $parameters,
-            'status' => $status,
-        ];
-
-        return new RedirectResponse('/');
-    }
 }

@@ -30,6 +30,7 @@ use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -170,6 +171,10 @@ class RegisterControllerTest extends TestCase
 
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
         $response = $this->controller->register($request, $dataBag, $context);
 
@@ -201,6 +206,54 @@ class RegisterControllerTest extends TestCase
         $response = $this->controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithDoubleOptIn(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+        $dataBag->set('createCustomerAccount', true);
+
+        $this->systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true, $context->getSalesChannelId());
+
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(['success' => ['account.optInRegistrationAlert']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.register.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testRegisterWithDoubleOptInGuest(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+        $dataBag->set('createCustomerAccount', false);
+
+        $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true, $context->getSalesChannelId());
+
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(['success' => ['account.optInGuestAlert']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.register.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 
     public function testRegisterWithNoErrorRouteParam(): void

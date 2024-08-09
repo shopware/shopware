@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CmsController;
@@ -206,26 +205,5 @@ class CmsControllerTest extends TestCase
  */
 class CmsControllerTestClass extends CmsController
 {
-    public string $renderStorefrontView;
-
-    /**
-     * @var array<array-key, mixed>
-     */
-    public array $renderStorefrontParameters;
-
-    /**
-     * @param array<array-key, mixed> $parameters
-     */
-    protected function renderStorefront(string $view, array $parameters = []): Response
-    {
-        $this->renderStorefrontView = $view;
-        $this->renderStorefrontParameters = $parameters;
-
-        return new Response();
-    }
-
-    protected function hook(Hook $hook): void
-    {
-        // nothing
-    }
+    use StorefrontControllerMockTrait;
 }

@@ -26,12 +26,7 @@ class CmsSlotsDataResolver
     /**
      * @var array<string, CmsElementResolverInterface>
      */
-    private ?array $resolvers = null;
-
-    /**
-     * @var array<string, SalesChannelRepository>
-     */
-    private ?array $repositories = null;
+    private array $resolvers = [];
 
     /**
      * @internal
@@ -41,13 +36,9 @@ class CmsSlotsDataResolver
      */
     public function __construct(
         iterable $resolvers,
-        array $repositories,
+        private readonly array $repositories,
         private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
-        foreach ($repositories as $entityName => $repository) {
-            $this->repositories[$entityName] = $repository;
-        }
-
         foreach ($resolvers as $resolver) {
             $this->resolvers[$resolver->getType()] = $resolver;
         }

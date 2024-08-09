@@ -66,8 +66,9 @@ class ProductBoxCmsElementResolverTest extends TestCase
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
-        $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, []));
+        $fieldConfig = new FieldConfigCollection([
+            new FieldConfig('products', FieldConfig::SOURCE_STATIC, []),
+        ]);
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -84,8 +85,9 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
         $productId = Uuid::randomHex();
-        $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId));
+        $fieldConfig = new FieldConfigCollection([
+            new FieldConfig('product', FieldConfig::SOURCE_STATIC, $productId),
+        ]);
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -103,8 +105,9 @@ class ProductBoxCmsElementResolverTest extends TestCase
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
 
-        $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'category.products'));
+        $fieldConfig = new FieldConfigCollection([
+            new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'category.products'),
+        ]);
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -149,8 +152,9 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         $resolverContext = new EntityResolverContext($salesChannelContext, new Request(), $this->createMock(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
-        $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, $productId));
+        $fieldConfig = new FieldConfigCollection([
+            new FieldConfig('product', FieldConfig::SOURCE_MAPPED, $productId),
+        ]);
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -223,7 +227,6 @@ class ProductBoxCmsElementResolverTest extends TestCase
         } else {
             static::assertNotNull($product);
             static::assertSame($productId, $product->getId());
-            static::assertSame($product, $product);
         }
     }
 

@@ -168,7 +168,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     protected function resolveEntityValues(EntityResolverContext $resolverContext, string $content): ?string
     {
         // https://regex101.com/r/idIfbk/1
-        $content = preg_replace_callback(
+        return preg_replace_callback(
             '/{{\s*(?<property>[\w.\d]+)\s*}}/',
             function ($matches) use ($resolverContext) {
                 try {
@@ -179,8 +179,6 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             },
             $content
         );
-
-        return $content;
     }
 
     private function getKeyByManyToMany(ManyToManyAssociationField $field): ?string
@@ -208,8 +206,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
             ->filter(static fn (ManyToOneAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
-            ->first()
-        ;
+            ->first();
 
         if (!$manyToOne) {
             return null;

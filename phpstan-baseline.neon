@@ -5017,11 +5017,6 @@ parameters:
 			path: tests/unit/Core/Content/Media/Event/MediaUploadedEventTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FoundCombination' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteResponseTest.php

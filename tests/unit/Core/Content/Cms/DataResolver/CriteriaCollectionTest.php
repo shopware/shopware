@@ -10,10 +10,12 @@ use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('buyers-experience')]
 #[CoversClass(CriteriaCollection::class)]
 class CriteriaCollectionTest extends TestCase
 {

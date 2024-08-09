@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageCollection;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
@@ -54,18 +54,20 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $pages = $result->getEntities();
 
         foreach ($pages as $page) {
-            if ($page->getSections() === null) {
+            $sections = $page->getSections();
+
+            if ($sections === null) {
                 continue;
             }
 
-            $page->getSections()->sort(fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
+            $sections->sort(fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
 
             if (!$resolverContext) {
                 $resolverContext = new ResolverContext($context, $request);
             }
 
             // step 2, sort blocks into sectionPositions
-            foreach ($page->getSections() as $section) {
+            foreach ($sections as $section) {
                 $blocks = $section->getBlocks();
                 if ($blocks === null) {
                     continue;
@@ -85,10 +87,10 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             $overwrite = $config[$page->getId()] ?? $config;
 
             // step 4, overwrite slot config
-            $this->overwriteSlotConfig($page, $overwrite);
+            $this->overwriteSlotConfig($sections, $overwrite);
 
             // step 5, resolve slot data
-            $this->loadSlotData($page, $resolverContext);
+            $this->loadSlotData($sections, $resolverContext);
         }
 
         $this->eventDispatcher->dispatch(new CmsPageLoadedEvent($request, $pages, $context));
@@ -96,13 +98,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         return $result;
     }
 
-    private function loadSlotData(CmsPageEntity $page, ResolverContext $resolverContext): void
+    private function loadSlotData(CmsSectionCollection $sections, ResolverContext $resolverContext): void
     {
-        $sections = $page->getSections();
-        if ($sections === null) {
-            return;
-        }
-
         $blocks = $sections->getBlocks();
         $slots = $this->slotDataResolver->resolve($blocks->getSlots(), $resolverContext);
 
@@ -112,13 +109,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     /**
      * @param array<string, mixed> $config
      */
-    private function overwriteSlotConfig(CmsPageEntity $page, array $config): void
+    private function overwriteSlotConfig(CmsSectionCollection $sections, array $config): void
     {
-        $sections = $page->getSections();
-        if ($sections === null) {
-            return;
-        }
-
         foreach ($sections->getBlocks()->getSlots() as $slot) {
             if ($slot->getConfig() === null && $slot->getTranslation('config') !== null) {
                 $slot->setConfig($slot->getTranslation('config'));

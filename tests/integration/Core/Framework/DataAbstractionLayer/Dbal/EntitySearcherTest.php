@@ -340,6 +340,9 @@ class EntitySearcherTest extends TestCase
         static::assertEquals([$productId1], $productIds->getIds());
     }
 
+    /**
+     * @param list<string> $categories
+     */
     private function createProduct(
         string $productNumber,
         ?string $deDeTranslation,
@@ -411,7 +414,7 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * @param string[] $languageIdChain
+     * @param list<string> $languageIdChain
      */
     private static function createLocalizedContext(array $languageIdChain): Context
     {

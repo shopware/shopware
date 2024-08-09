@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -73,17 +74,18 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociations(['translations']);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
             Context::createDefaultContext(),
         );
 
-        $translations = $products->get($productId)->get('translations');
+        static::assertInstanceOf(ProductCollection::class, $products);
+        $translations = $products->get($productId)?->getTranslations();
+        static::assertNotNull($translations);
         static::assertCount(2, $translations);
         $deDeTranslation = $translations->filterByLanguageId($this->getDeDeLanguageId())->first();
-        static::assertEquals('Deutscher Name', $deDeTranslation->get('name'));
+        static::assertEquals('Deutscher Name', $deDeTranslation?->get('name'));
     }
 
     public function testReadLoadsTranslationsAssociationsWithCriteriaFields(): void
@@ -97,19 +99,19 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociations(['translations']);
         $criteria->addFields(['translations.name']);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
             Context::createDefaultContext(),
         );
 
-        $translations = $products->get($productId)->get('translations');
+        $translations = $products->get($productId)?->get('translations');
+        static::assertInstanceOf(EntityCollection::class, $translations);
         static::assertCount(2, $translations);
         $deDeTranslation = $translations
             ->filter(fn (Entity $entity) => $entity->get('languageId') === $this->getDeDeLanguageId())
             ->first();
-        static::assertEquals('Deutscher Name', $deDeTranslation->get('name'));
+        static::assertEquals('Deutscher Name', $deDeTranslation?->get('name'));
     }
 
     public function testReadLoadsTranslatedFieldsInCorrectLanguage(): void
@@ -119,7 +121,6 @@ class EntityReaderTest extends TestCase
             defaultTranslation: 'Default Name',
         );
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             new Criteria(),
@@ -129,7 +130,8 @@ class EntityReaderTest extends TestCase
             ]),
         );
 
-        $translatedFields = $products->get($productId)->get('translated');
+        static::assertInstanceOf(ProductCollection::class, $products);
+        $translatedFields = $products->get($productId)?->get('translated');
         static::assertEquals('Deutscher Name', $translatedFields['name']);
     }
 
@@ -144,7 +146,6 @@ class EntityReaderTest extends TestCase
         // Selecting the name field is necessary to include the the translated value in the result
         $criteria->addFields(['name']);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
@@ -154,7 +155,8 @@ class EntityReaderTest extends TestCase
             ]),
         );
 
-        $translatedFields = $products->get($productId)->get('translated');
+        $translatedFields = $products->get($productId)?->get('translated');
+        static::assertNotNull($translatedFields);
         static::assertCount(1, $translatedFields);
         static::assertEquals('Deutscher Name', $translatedFields['name']);
     }
@@ -170,7 +172,6 @@ class EntityReaderTest extends TestCase
         // Selecting the name field is necessary to include the the translated value in the result
         $criteria->addFields(['name']);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
@@ -180,7 +181,8 @@ class EntityReaderTest extends TestCase
             ]),
         );
 
-        $translatedFields = $products->get($productId)->get('translated');
+        $translatedFields = $products->get($productId)?->get('translated');
+        static::assertNotNull($translatedFields);
         static::assertCount(1, $translatedFields);
         static::assertEquals('Fallback name', $translatedFields['name']);
     }
@@ -211,14 +213,14 @@ class EntityReaderTest extends TestCase
         ]);
         $context->setConsiderInheritance(true);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
             $context,
         );
 
-        $translatedFields = $products->get($productId)->get('translated');
+        $translatedFields = $products->get($productId)?->get('translated');
+        static::assertNotNull($translatedFields);
         static::assertCount(1, $translatedFields);
         static::assertEquals('Deutscher Name', $translatedFields['name']);
     }
@@ -249,14 +251,14 @@ class EntityReaderTest extends TestCase
         ]);
         $context->setConsiderInheritance(true);
 
-        /** @var ProductCollection $products */
         $products = $this->entityReader->read(
             $this->getContainer()->get(ProductDefinition::class),
             $criteria,
             $context,
         );
 
-        $translatedFields = $products->get($productId)->get('translated');
+        $translatedFields = $products->get($productId)?->get('translated');
+        static::assertNotNull($translatedFields);
         static::assertCount(1, $translatedFields);
         static::assertEquals('Parent: Deutscher Name', $translatedFields['name']);
     }
@@ -290,7 +292,7 @@ class EntityReaderTest extends TestCase
     }
 
     /**
-     * @param string[] $languageIdChain
+     * @param list<string> $languageIdChain
      */
     private static function createLocalizedContext(array $languageIdChain): Context
     {

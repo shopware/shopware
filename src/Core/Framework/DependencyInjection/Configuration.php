@@ -925,6 +925,8 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->scalarPrototype()->end()
                 ->end()
+                // @deprecated tag:v6.7.0 - Set `enforce_message_size` to default true. Also change the `config-schema.json` accordingly
+                ->booleanNode('enforce_message_size')->defaultFalse()->end()
             ->end();
 
         return $rootNode;

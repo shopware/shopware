@@ -274,6 +274,11 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "enforce_message_size": {
+                    "type": "boolean",
+                    "title": "Enforce the message size to 256KB, bigger messages will be rejected with an exception",
+                    "default": false
                 }
             }
         },

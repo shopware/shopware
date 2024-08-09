@@ -100,6 +100,7 @@ class OrderStorer extends FlowStorer
             'deliveries.stateMachineState',
             'currency',
             'addresses.country',
+            'addresses.countryState',
             'tags',
             'documents',
         ]);

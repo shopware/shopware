@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolverInterface;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -77,7 +77,7 @@ class SalesChannelProxyController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         protected DataValidator $validator,
         protected SalesChannelContextPersister $contextPersister,
-        private readonly SalesChannelRequestContextResolver $requestContextResolver,
+        private readonly SalesChannelRequestContextResolverInterface $requestContextResolver,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ApiOrderCartService $adminOrderCartService,

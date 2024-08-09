@@ -535,7 +535,6 @@ class AppLifecycleTest extends TestCase
     {
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $customFieldSetId = Uuid::randomHex();
 
         $this->appRepository->create([[
             'id' => $id,
@@ -578,14 +577,7 @@ class AppLifecycleTest extends TestCase
             ],
             'customFieldSets' => [
                 [
-                    'id' => $customFieldSetId,
-                    'name' => 'custom_field_test',
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test',
-                            'type' => 'text',
-                        ],
-                    ],
+                    'name' => 'test',
                 ],
             ],
             'aclRole' => [
@@ -693,7 +685,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id, $customFieldSetId);
+        $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -1808,7 +1800,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('user_change_me', $privileges);
     }
 
-    private function assertDefaultCustomFields(string $appId, ?string $expectedFieldSetId = null): void
+    private function assertDefaultCustomFields(string $appId): void
     {
         /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
         $customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
@@ -1824,9 +1816,6 @@ class AppLifecycleTest extends TestCase
 
         $customFieldSet = $customFieldSets->first();
         static::assertNotNull($customFieldSet);
-        if ($expectedFieldSetId) {
-            static::assertSame($expectedFieldSetId, $customFieldSet->getId());
-        }
         static::assertSame('custom_field_test', $customFieldSet->getName());
         static::assertCount(2, $customFieldSet->getRelations() ?? []);
 

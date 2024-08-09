@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::cannotFindParentStorageField instead
+ */
 #[Package('core')]
 class CanNotFindParentStorageFieldException extends ShopwareHttpException
 {
@@ -19,6 +24,11 @@ class CanNotFindParentStorageFieldException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.7.0.0', 'DataAbstractionLayerException::cannotFindParentStorageField'),
+        );
+
+        return DataAbstractionLayerException::CANNOT_FIND_PARENT_STORAGE_FIELD;
     }
 }

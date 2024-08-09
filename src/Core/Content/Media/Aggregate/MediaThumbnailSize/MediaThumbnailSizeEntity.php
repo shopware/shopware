@@ -67,7 +67,7 @@ class MediaThumbnailSizeEntity extends Entity
         $this->height = $height;
     }
 
-    public function getMediaFolderConfigurations(): MediaFolderConfigurationCollection
+    public function getMediaFolderConfigurations(): ?MediaFolderConfigurationCollection
     {
         return $this->mediaFolderConfigurations;
     }

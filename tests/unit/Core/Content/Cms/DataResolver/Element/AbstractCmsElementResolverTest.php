@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -49,8 +50,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
     public function testResolveEmptyValue(): void
     {
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValue(null, 'parent.manufacturer.description');
+        $actual = (new TestCmsElementResolver())->runResolveEntityValue(null, 'parent.manufacturer.description');
 
         static::assertNull($actual);
     }
@@ -60,8 +60,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier('product');
 
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValue($product, 'parent.manufacturer.description');
+        $actual = (new TestCmsElementResolver())->runResolveEntityValue($product, 'parent.manufacturer.description');
 
         static::assertNull($actual);
     }
@@ -80,8 +79,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $childProduct->setUniqueIdentifier('childProduct');
         $childProduct->setParent($product);
 
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValue($childProduct, 'parent.manufacturer.description');
+        $actual = (new TestCmsElementResolver())->runResolveEntityValue($childProduct, 'parent.manufacturer.description');
 
         static::assertSame($expected, $actual);
     }
@@ -96,8 +94,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $product->setUniqueIdentifier('product');
         $product->setManufacturer($manufacturer);
 
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValue($product, 'manufacturer.description');
+        $actual = (new TestCmsElementResolver())->runResolveEntityValue($product, 'manufacturer.description');
 
         static::assertSame($expected, $actual);
     }
@@ -139,8 +136,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $entity = new Entity();
         $entity->addExtension('imageSlider', $imageSliderStruct);
 
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValue($entity, 'imageSlider.sliderItems.0.url');
+        $actual = (new TestCmsElementResolver())->runResolveEntityValue($entity, 'imageSlider.sliderItems.0.url');
 
         static::assertSame($expected, $actual);
     }
@@ -150,10 +146,9 @@ class AbstractCmsElementResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier('product');
 
-        $cmsElementResolver = new TestCmsElementResolver();
-
-        $this->expectException(\InvalidArgumentException::class);
-        $cmsElementResolver->runResolveEntityValue($product, 'that.doesntActuallyExist');
+        $this->expectException(PropertyNotFoundException::class);
+        $this->expectExceptionMessage('Property "doesntActuallyExist" does not exist in entity "Shopware\Core\Content\Product\ProductEntity".');
+        (new TestCmsElementResolver())->runResolveEntityValue($product, 'that.doesntActuallyExist');
     }
 
     public function testResolveEntityValueToString(): void
@@ -171,8 +166,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
         $context = $this->getEntityResolverContext($product);
 
-        $cmsElementResolver = new TestCmsElementResolver();
-        $actual = $cmsElementResolver->runResolveEntityValueToString(
+        $actual = (new TestCmsElementResolver())->runResolveEntityValueToString(
             $childProduct,
             'parent.manufacturer.updatedAt',
             $context
@@ -188,8 +182,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
     public function testResolveDefinitionField(): void
     {
-        $resolver = new TestCmsElementResolver();
-        $actual = $resolver->runResolveDefinitionField($this->definition, 'id');
+        $actual = (new TestCmsElementResolver())->runResolveDefinitionField($this->definition, 'id');
         static::assertInstanceOf(IdField::class, $actual);
     }
 
@@ -198,8 +191,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $context = $this->getEntityResolverContext();
         $config = new FieldConfig('config', FieldConfig::SOURCE_DEFAULT, 'id');
 
-        $resolver = new TestCmsElementResolver();
-        $actual = $resolver->runResolveCriteriaForLazyLoadedRelations($context, $config);
+        $actual = (new TestCmsElementResolver())->runResolveCriteriaForLazyLoadedRelations($context, $config);
         static::assertNull($actual);
     }
 
@@ -226,8 +218,7 @@ class AbstractCmsElementResolverTest extends TestCase
 
         $config = new FieldConfig('config', FieldConfig::SOURCE_DEFAULT, 'product.downloads');
 
-        $resolver = new TestCmsElementResolver();
-        $actual = $resolver->runResolveCriteriaForLazyLoadedRelations($context, $config);
+        $actual = (new TestCmsElementResolver())->runResolveCriteriaForLazyLoadedRelations($context, $config);
         static::assertInstanceOf(Criteria::class, $actual);
 
         $filters = $actual->getFilters();
@@ -260,8 +251,10 @@ class AbstractCmsElementResolverTest extends TestCase
         return $definition;
     }
 
-    private function getEntityResolverContext(?ProductEntity $product = null, ?EntityDefinition $definition = null): EntityResolverContext
-    {
+    private function getEntityResolverContext(
+        ?ProductEntity $product = null,
+        ?EntityDefinition $definition = null
+    ): EntityResolverContext {
         if (!$product) {
             $product = new ProductEntity();
             $product->setUniqueIdentifier('product');

@@ -171,13 +171,11 @@ class EntityCollection extends Collection
         $values = [];
         foreach ($this->elements as $element) {
             if (empty($fields)) {
-                // @phpstan-ignore-next-line not possible to typehint or docblock the trait
                 $values[$element->getUniqueIdentifier()] = $element->getCustomFields();
 
                 continue;
             }
 
-            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
             $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValues(...$fields);
         }
 
@@ -208,7 +206,6 @@ class EntityCollection extends Collection
 
         $values = [];
         foreach ($this->elements as $element) {
-            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
             $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValue($field);
         }
 
@@ -248,7 +245,6 @@ class EntityCollection extends Collection
                 continue;
             }
 
-            // @phpstan-ignore-next-line not possible to typehint or docblock the trait
             $element->changeCustomFields($value);
         }
     }
@@ -266,9 +262,7 @@ class EntityCollection extends Collection
         }
         $uses = \class_uses($first);
         if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
-            throw new \RuntimeException(
-                \sprintf('%s() is only supported for entities that use the EntityCustomFieldsTrait', $methodName)
-            );
+            throw DataAbstractionLayerException::notCustomFieldsSupport($methodName);
         }
 
         return true;

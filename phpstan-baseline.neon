@@ -721,11 +721,6 @@ parameters:
 			path: src/Core/Content/Cms/CmsPageEntity.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/CriteriaCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\FieldConfig\\:\\:__construct\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/FieldConfig.php
@@ -1371,11 +1366,6 @@ parameters:
 			path: src/Core/Content/MailTemplate/Exception/MailTransportFailedException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnailSize\\\\MediaThumbnailSizeEntity\\:\\:getMediaFolderConfigurations\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationCollection but returns Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Aggregate/MediaThumbnailSize/MediaThumbnailSizeEntity.php
-
-		-
 			message: "#^Mixed variable in a `\\$sliderItems\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 2
 			path: src/Core/Content/Media/Cms/Type/ImageSliderTypeDataResolver.php
@@ -1744,11 +1734,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Event\\\\RuleIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/Event/RuleIndexerEvent.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\Event\\\\SeoUrlUpdateEvent\\:\\:__construct\\(\\) has parameter \\$seoUrls with no value type specified in iterable type array\\.$#"
@@ -3181,16 +3166,6 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
 
 		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
-
-		-
 			message: "#^Cannot call method jsonSerialize\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/Record.php
@@ -3452,11 +3427,6 @@ parameters:
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 3
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 12
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php
 
@@ -3464,16 +3434,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 6
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityHydrator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 5
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 6
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3514,16 +3474,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Entity.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
@@ -3997,11 +3947,6 @@ parameters:
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/Aggregation/Bucket/DateHistogramAggregation.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 3
 			path: src/Core/Framework/DataAbstractionLayer/Search/ApiCriteriaValidator.php
 
@@ -4014,11 +3959,6 @@ parameters:
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/AggregationParser.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:addParameter\\(\\) has parameter \\$type with no type specified\\.$#"
@@ -4204,11 +4144,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\WriteCommandExceptionEvent\\:\\:getCommands\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/Validation/WriteCommandExceptionEvent.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 4
-			path: src/Core/Framework/DataAbstractionLayer/Write/WriteCommandExtractor.php
 
 		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"

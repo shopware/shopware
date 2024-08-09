@@ -238,6 +238,11 @@ parameters:
             count: 2
             path: src/Core/Framework/Validation/HappyPathValidator.php
 
+        - # It is checked before if the entity supports custom fields, but it is not possible for PHPStan to recognize this
+            message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
+            count: 4
+            path: src/Core/Framework/DataAbstractionLayer/EntityCollection.php
+
         # NEXT-33380 - Add support for dbal/doctrine 3.8.0, add profiling to get sql query parts from query builder without using deprecated methods getQueryPart or getQueryParts https://github.com/doctrine/dbal/pull/6179
         - """
             #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:

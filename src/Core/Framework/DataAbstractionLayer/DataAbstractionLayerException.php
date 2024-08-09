@@ -2,13 +2,24 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -46,6 +57,22 @@ class DataAbstractionLayerException extends HttpException
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
+    public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
+    public const INTERNAL_FIELD_ACCESS_NOT_ALLOWED = 'FRAMEWORK__INTERNAL_FIELD_ACCESS_NOT_ALLOWED';
+    public const PROPERTY_NOT_FOUND = 'FRAMEWORK__PROPERTY_NOT_FOUND';
+    public const NOT_AN_INSTANCE_OF_ENTITY_COLLECTION = 'FRAMEWORK__NOT_AN_INSTANCE_OF_ENTITY_COLLECTION';
+    public const REFERENCE_FIELD_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_NOT_FOUND';
+    public const NO_ID_FOR_ASSOCIATION = 'FRAMEWORK__NO_ID_FOR_ASSOCIATION';
+    public const NO_INVERSE_ASSOCIATION_FOUND = 'FRAMEWORK__NO_INVERSE_ASSOCIATION_FOUND';
+    public const NOT_SUPPORTED_FIELD_FOR_AGGREGATION = 'FRAMEWORK__NOT_SUPPORTED_FIELD_FOR_AGGREGATION';
+    public const INVALID_DATE_FORMAT = 'FRAMEWORK__INVALID_DATE_FORMAT';
+    public const INVALID_DATE_HISTOGRAM_INTERVAL = 'FRAMEWORK__INVALID_DATE_HISTOGRAM_INTERVAL';
+    public const INVALID_TIMEZONE = 'FRAMEWORK__INVALID_TIMEZONE';
+    public const CANNOT_FIND_PARENT_STORAGE_FIELD = 'FRAMEWORK__CAN_NOT_FIND_PARENT_STORAGE_FIELD';
+    public const INVALID_PARENT_ASSOCIATION_EXCEPTION = 'FRAMEWORK__INVALID_PARENT_ASSOCIATION_EXCEPTION';
+    public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
+    public const PARENT_FIELD_NOT_FOUND_EXCEPTION = 'FRAMEWORK__PARENT_FIELD_NOT_FOUND_EXCEPTION';
+    public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -77,6 +104,19 @@ class DataAbstractionLayerException extends HttpException
             'Unknown or bad DateInterval format "{{ dateIntervalString }}".',
             ['dateIntervalString' => $dateIntervalString],
             $previous,
+        );
+    }
+
+    /**
+     * @param list<string> $allowedFormats
+     */
+    public static function invalidDateFormat(string $dateFormat, array $allowedFormats): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_DATE_FORMAT,
+            'Provided date format "{{ dateFormat }}" is not supported. Supported formats: {{ allowedFormats }}.',
+            ['dateFormat' => $dateFormat, 'allowedFormats' => implode(', ', $allowedFormats)]
         );
     }
 
@@ -247,7 +287,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MISSING_PARENT_FOREIGN_KEY,
-            \sprintf('Can not detect foreign key for parent definition %s', $entity)
+            'Can not detect foreign key for parent definition {{ entity }}',
+            ['entity' => $entity]
         );
     }
 
@@ -256,7 +297,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            \sprintf('Field by storage name %s not found in entity %s', $storageName, $entity)
+            'Field by storage name {{ storageName }} not found in entity {{ entity }}',
+            ['storageName' => $storageName, 'entity' => $entity]
         );
     }
 
@@ -265,7 +307,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INCONSISTENT_PRIMARY_KEY,
-            \sprintf('Inconsistent primary key %s for entity %s', $primaryKey, $entity)
+            'Inconsistent primary key {{ primaryKey }} for entity {{ entity }}',
+            ['primaryKey' => $primaryKey, 'entity' => $entity]
         );
     }
 
@@ -274,7 +317,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            \sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
+            'Can not detect reference field with storage name {{ storageName }} in definition {{ entity }}',
+            ['storageName' => $storageName, 'entity' => $entity]
         );
     }
 
@@ -298,7 +342,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            \sprintf('Can not detect FK field with storage name %s in definition %s', $storageName, $definitionClass)
+            'Can not detect FK field with storage name {{ storageName }} in definition {{ definitionClass }}',
+            ['storageName' => $storageName, 'definitionClass' => $definitionClass]
         );
     }
 
@@ -322,7 +367,8 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
-            \sprintf('Can not detect language field with storage name %s in definition %s', $storageName, $definitionClass)
+            'Can not detect language field with storage name {{ storageName }} in definition {{ definitionClass }}',
+            ['storageName' => $storageName, 'definitionClass' => $definitionClass]
         );
     }
 
@@ -368,7 +414,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.7.0 - reason:remove-exception - Use self::referenceFieldByStorageNameNotFound instead
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      *
      * @param class-string $definitionClass
      */
@@ -448,6 +494,211 @@ class DataAbstractionLayerException extends HttpException
                 $field->getPropertyName(),
                 print_r($value, true)
             )
+        );
+    }
+
+    public static function notCustomFieldsSupport(string $methodName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NOT_CUSTOM_FIELDS_SUPPORT,
+            '{{ methodName }}() is only supported for entities that use the EntityCustomFieldsTrait',
+            ['methodName' => $methodName]
+        );
+    }
+
+    public static function internalFieldAccessNotAllowed(string $property, string $entityClassName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INTERNAL_FIELD_ACCESS_NOT_ALLOWED,
+            'Access to property "{{ property }}" not allowed on entity "{{ entityClassName }}".',
+            ['property' => $property, 'entityClassName' => $entityClassName]
+        );
+    }
+
+    public static function propertyNotFound(string $property, string $entityClassName): self
+    {
+        return new PropertyNotFoundException($property, $entityClassName);
+    }
+
+    public static function unsupportedCommandType(WriteCommand $command): HttpException
+    {
+        return new UnsupportedCommandTypeException($command);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function parentFieldNotFound(EntityDefinition $definition): self|ParentFieldNotFoundException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new ParentFieldNotFoundException($definition);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PARENT_FIELD_NOT_FOUND_EXCEPTION,
+            'Can not find parent property \'parent\' field for definition {{ definition }',
+            ['definition' => $definition->getEntityName()]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function invalidParentAssociation(EntityDefinition $definition, Field $parentField): self|InvalidParentAssociationException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new InvalidParentAssociationException($definition, $parentField);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_PARENT_ASSOCIATION_EXCEPTION,
+            'Parent property for {{ definition }} expected to be an ManyToOneAssociationField got {{ fieldDefinition }}',
+            ['definition' => $definition->getEntityName(), 'fieldDefinition' => $parentField::class]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function cannotFindParentStorageField(EntityDefinition $definition): self|CanNotFindParentStorageFieldException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new CanNotFindParentStorageFieldException($definition);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_FIND_PARENT_STORAGE_FIELD,
+            'Can not find FkField for parent property definition {{ definition }}',
+            ['definition' => $definition->getEntityName()]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function parentFieldForeignKeyConstraintMissing(EntityDefinition $definition, Field $parentField): self|ParentFieldForeignKeyConstraintMissingException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new ParentFieldForeignKeyConstraintMissingException($definition, $parentField);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PARENT_FIELD_KEY_CONSTRAINT_MISSING,
+            'Foreign key property {{ propertyName }} of parent association in definition {{ definition }} expected to be an FkField got %s',
+            [
+                'definition' => $definition->getEntityName(),
+                'propertyName' => $parentField->getPropertyName(),
+                'propertyClass' => $parentField::class,
+            ]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function primaryKeyNotProvided(EntityDefinition $definition, Field $field): self|PrimaryKeyNotProvidedException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new PrimaryKeyNotProvidedException($definition, $field);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PRIMARY_KEY_NOT_PROVIDED,
+            'Expected primary key field {{ propertyName }} for definition {{ definition }} not provided',
+            ['definition' => $definition->getEntityName(), 'propertyName' => $field->getPropertyName()]
+        );
+    }
+
+    public static function notAnInstanceOfEntityCollection(string $collectionClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NOT_AN_INSTANCE_OF_ENTITY_COLLECTION,
+            'Collection class "{{ collectionClass }}" has to be an instance of EntityCollection',
+            ['collectionClass' => $collectionClass]
+        );
+    }
+
+    public static function referenceFieldNotFound(string $referenceField, string $referenceEntity, string $entity): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_NOT_FOUND,
+            'Reference field "{{ referenceField }}" not found in entity definition "{{ referenceEntity }}" for entity "{{ entity }}"',
+            ['referenceField' => $referenceField, 'referenceEntity' => $referenceEntity, 'entity' => $entity]
+        );
+    }
+
+    public static function noIdForAssociation(string $entityName, string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_ID_FOR_ASSOCIATION,
+            'Paginated to-many associations must have an ID field. No ID field found for association {{ entityName }}.{{ propertyName }}',
+            ['entityName' => $entityName, 'propertyName' => $propertyName]
+        );
+    }
+
+    public static function noInverseAssociationFound(string $propertyName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_INVERSE_ASSOCIATION_FOUND,
+            'No inverse many-to-many association found for association {{ propertyName }}',
+            ['propertyName' => $propertyName]
+        );
+    }
+
+    public static function parentAssociationCannotBeFetched(): self
+    {
+        return new ParentAssociationCanNotBeFetched();
+    }
+
+    public static function invalidAggregationQuery(string $message): self
+    {
+        return new InvalidAggregationQueryException($message);
+    }
+
+    /**
+     * @param list<class-string<Field>> $supportedFields
+     */
+    public static function notSupportedFieldForAggregation(string $aggregationType, string $field, string $fieldClass, array $supportedFields): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NOT_SUPPORTED_FIELD_FOR_AGGREGATION,
+            'Provided field "{{ field }}" of type "{{ fieldClass }}" is not supported in "{{ aggregationType }}" (supported fields: {{ supportedFields }})',
+            ['aggregationType' => $aggregationType, 'field' => $field, 'fieldClass' => $fieldClass, 'supportedFields' => implode(', ', $supportedFields)]
+        );
+    }
+
+    /**
+     * @param list<DateHistogramAggregation::PER_*> $allowedIntervals
+     */
+    public static function invalidDateHistogramInterval(string $interval, array $allowedIntervals): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_DATE_HISTOGRAM_INTERVAL,
+            'Provided date histogram interval "{{ interval }}" is not supported. Supported intervals: {{ allowedIntervals }}.',
+            ['interval' => $interval, 'allowedIntervals' => implode(', ', $allowedIntervals)]
+        );
+    }
+
+    public static function invalidTimeZone(string $timeZone): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_TIMEZONE,
+            'Given "{{ timeZone }}" is not a valid timezone',
+            ['timeZone' => $timeZone]
         );
     }
 }

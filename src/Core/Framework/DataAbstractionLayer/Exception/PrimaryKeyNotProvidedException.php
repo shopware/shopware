@@ -2,11 +2,16 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::primaryKeyNotProvided instead
+ */
 #[Package('core')]
 class PrimaryKeyNotProvidedException extends ShopwareHttpException
 {
@@ -22,6 +27,11 @@ class PrimaryKeyNotProvidedException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.7.0.0', 'DataAbstractionLayerException::primaryKeyNotProvided'),
+        );
+
+        return DataAbstractionLayerException::PRIMARY_KEY_NOT_PROVIDED;
     }
 }

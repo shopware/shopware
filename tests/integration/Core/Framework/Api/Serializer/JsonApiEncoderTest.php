@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
@@ -59,7 +60,7 @@ class JsonApiEncoderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->connection = static::getContainer()->get(Connection::class);
 
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(
@@ -67,7 +68,7 @@ class JsonApiEncoderTest extends TestCase
             ProductExtension::class
         );
 
-        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->productRepository = static::getContainer()->get('product.repository');
 
         $this->connection->rollBack();
 
@@ -102,7 +103,7 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<list<mixed>>
      */
     public static function emptyInputProvider(): array
     {
@@ -116,20 +117,22 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @param mixed $input
-     */
     #[DataProvider('emptyInputProvider')]
-    public function testEncodeWithEmptyInput($input): void
+    public function testEncodeWithEmptyInput(mixed $input): void
     {
-        $this->expectException(UnsupportedEncoderInputException::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(ApiException::class);
+        } else {
+            $this->expectException(UnsupportedEncoderInputException::class);
+        }
+        $this->expectExceptionMessage('Unsupported encoder data provided. Only entities and entity collections are supported');
 
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
-        $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
+        $encoder->encode(new Criteria(), static::getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
     /**
-     * @return array<array{string, SerializationFixture}>
+     * @return list<array{class-string<EntityDefinition>, SerializationFixture}>
      */
     public static function complexStructsProvider(): array
     {
@@ -144,12 +147,15 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     */
     #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
-        /** @var EntityDefinition $definition */
-        $definition = $this->getContainer()->get($definitionClass);
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $definition = static::getContainer()->get($definitionClass);
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -161,8 +167,7 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * Not possible with dataprovider
-     * as we have to manipulate the container, but the dataprovider run before all tests
+     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
      */
     public function testEncodeStructWithExtension(): void
     {
@@ -171,10 +176,10 @@ class JsonApiEncoderTest extends TestCase
         $extendableDefinition->addExtension(new AssociationExtension());
         $extendableDefinition->addExtension(new ScalarRuntimeExtension());
 
-        $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $fixture = new TestBasicWithExtension();
 
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
@@ -185,8 +190,7 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * Not possible with dataprovider
-     * as we have to manipulate the container, but the dataprovider run before all tests
+     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
      */
     public function testEncodeStructWithToManyExtension(): void
     {
@@ -194,10 +198,10 @@ class JsonApiEncoderTest extends TestCase
         $extendableDefinition = new ExtendableDefinition();
         $extendableDefinition->addExtension(new AssociationExtension());
 
-        $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $fixture = new TestBasicWithToManyExtension();
 
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
@@ -237,11 +241,10 @@ class JsonApiEncoderTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('toOne');
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -286,11 +289,10 @@ class JsonApiEncoderTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('oneToMany');
 
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
-        /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
         $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -310,12 +312,12 @@ class JsonApiEncoderTest extends TestCase
      * @param array<mixed>|null $output
      */
     #[DataProvider('customFieldsProvider')]
-    public function testCustomFields(array $input, $output): void
+    public function testCustomFields(array $input, ?array $output): void
     {
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+        $encoder = static::getContainer()->get(JsonApiEncoder::class);
 
         $definition = new CustomFieldPlainTestDefinition();
-        $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $struct = new class extends Entity {
             use EntityCustomFieldsTrait;
         };
@@ -360,7 +362,7 @@ class JsonApiEncoderTest extends TestCase
     {
         foreach ($haystack as $key => $value) {
             if (\is_array($value)) {
-                $haystack[$key] = $this->arrayRemove($haystack[$key], $keyToRemove);
+                $haystack[$key] = $this->arrayRemove($value, $keyToRemove);
             }
 
             if ($key === $keyToRemove) {

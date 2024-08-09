@@ -16,4 +16,11 @@ class FloatField extends Field
     use TranslatableTrait;
 
     protected string $type = 'float';
+
+    protected ?float $default = null;
+
+    public function getDefault(): ?float
+    {
+        return $this->default;
+    }
 }

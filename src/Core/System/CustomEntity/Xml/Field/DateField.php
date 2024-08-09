@@ -16,4 +16,11 @@ class DateField extends Field
     use TranslatableTrait;
 
     protected string $type = 'date';
+
+    protected ?string $default = null;
+
+    public function getDefault(): ?string
+    {
+        return $this->default;
+    }
 }

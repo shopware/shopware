@@ -19,8 +19,15 @@ class TextField extends Field
 
     protected string $type = 'text';
 
+    protected ?string $default = null;
+
     public function allowHtml(): bool
     {
         return $this->allowHtml;
+    }
+
+    public function getDefault(): ?string
+    {
+        return $this->default;
     }
 }

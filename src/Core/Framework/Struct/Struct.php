@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
+#[AllowDynamicProperties]
 abstract class Struct implements \JsonSerializable, ExtendableInterface
 {
     // allows to assign array data to this object

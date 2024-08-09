@@ -9,7 +9,7 @@
                    name="createCustomerAccount"
                    value="true"
                    id="personalGuest"
-                   {% if config('core.loginRegistration.createCustomerAccountDefault') == 1 %}checked="checked"{% endif %}
+                   {% if config('core.loginRegistration.createCustomerAccountDefault') == 1 or data.getBoolean('createCustomerAccount') %}checked="checked"{% endif %}
                    data-form-field-toggle="true"
                    data-form-field-toggle-target=".js-form-field-toggle-guest-mode"
                    data-form-field-toggle-value="true">

@@ -44,30 +44,13 @@ class CustomFieldSet extends XmlElement
     protected bool $global = false;
 
     /**
-     * @param array<string, string> $existingRelations
-     * @param array<string, string> $existingFields
-     *
      * @return CustomFieldSetArray
      */
-    public function toEntityArray(string $appId, array $existingRelations, array $existingFields): array
+    public function toEntityArray(string $appId): array
     {
-        $relations = array_map(static function (string $entity) use ($existingRelations): array {
-            $relationData = ['entityName' => $entity];
-            if (\array_key_exists($entity, $existingRelations)) {
-                $relationData['id'] = $existingRelations[$entity];
-            }
+        $relations = array_map(static fn (string $entity) => ['entityName' => $entity], $this->relatedEntities);
 
-            return $relationData;
-        }, $this->relatedEntities);
-
-        $customFields = array_map(static function (CustomFieldType $field) use ($existingFields): array {
-            $fieldData = $field->toEntityPayload();
-            if (\array_key_exists($field->getName(), $existingFields)) {
-                $fieldData['id'] = $existingFields[$field->getName()];
-            }
-
-            return $fieldData;
-        }, $this->fields);
+        $customFields = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload(), $this->fields);
 
         return [
             'name' => $this->name,

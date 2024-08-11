@@ -5,5 +5,5 @@ author_email: 25648755+M-arcus@users.noreply.github.com
 author_github: @M-arcus
 issue: NEXT-00000
 ---
-# Elasticsearch
+# Core
 * Added `ElasticsearchDefinition::MAX_TEXT_LENGTH` constant to define the maximum length of a text in Elasticsearch indexing.

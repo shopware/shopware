@@ -253,7 +253,7 @@
         "init:e2e": " ",
         "init:js": " ",
         "init:testdb": "Initializes the test database",
-        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs', 'lint:changlog' and 'lint:snippets'",
+        "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs', 'lint:changelog' and 'lint:snippets'",
         "lint:changelog": "Validates changelogs",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "locust:init": " ",

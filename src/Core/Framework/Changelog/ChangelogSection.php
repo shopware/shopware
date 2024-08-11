@@ -11,6 +11,7 @@ enum ChangelogSection: string
     case api = 'API';
     case administration = 'Administration';
     case storefront = 'Storefront';
+    case elasticsearch = 'Elasticsearch';
     case upgrade = 'Upgrade Information';
     case major = 'Next Major Version Changes';
 }

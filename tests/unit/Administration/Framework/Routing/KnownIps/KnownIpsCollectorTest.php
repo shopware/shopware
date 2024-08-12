@@ -28,8 +28,8 @@ class KnownIpsCollectorTest extends TestCase
 
         static::assertEqualsCanonicalizing([
             '2001:0db8:0123:4567:89ab:cdef:1234:5678' => 'global.sw-multi-tag-ip-select.knownIps.you',
-            '2001:0db8:0123:4567::/64' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block64',
-            '2001:0db8:0123:4500::/56' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56',
+            '2001:db8:123:4567::/64' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block64',
+            '2001:db8:123:4500::/56' => 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56',
         ], $suggestions);
     }
 

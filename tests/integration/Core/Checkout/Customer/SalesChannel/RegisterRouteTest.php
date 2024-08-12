@@ -1225,6 +1225,25 @@ class RegisterRouteTest extends TestCase
                 json_encode($registrationData, \JSON_THROW_ON_ERROR)
             );
 
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testRegistrationWithoutAnyAddress(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['billingAddress']);
+        unset($registrationData['shippingAddress']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response['errors']);

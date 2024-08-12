@@ -36,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -133,6 +134,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
@@ -204,6 +206,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
@@ -276,6 +279,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -422,6 +426,7 @@ class RegisterRouteTest extends TestCase
         $result->method('first')->willReturn($customerEntity);
 
         $salutationId = Uuid::randomHex();
+        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
         $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
@@ -485,6 +490,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -558,6 +564,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -630,6 +637,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -743,6 +751,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository(
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
@@ -772,7 +781,6 @@ class RegisterRouteTest extends TestCase
         $data = [
             'email' => 'test@test.de',
             'billingAddress' => [
-                'countryId' => $countryId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $salutationId,

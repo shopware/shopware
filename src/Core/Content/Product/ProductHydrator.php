@@ -17,7 +17,7 @@ class ProductHydrator extends EntityHydrator
      *
      * @throws \Exception
      */
-    protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
+    protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, array $partial = []): Entity
     {
         if (isset($row[$root . '.id'])) {
             $entity->id = Uuid::fromBytesToHex($row[$root . '.id']);

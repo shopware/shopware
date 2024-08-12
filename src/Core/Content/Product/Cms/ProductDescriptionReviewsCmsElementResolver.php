@@ -118,6 +118,8 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getContext()->getLanguageId())
             );
+        } else {
+            $criteria->addAssociation('language.translationCode.code');
         }
 
         $this->handlePointsAggregation($request, $criteria);

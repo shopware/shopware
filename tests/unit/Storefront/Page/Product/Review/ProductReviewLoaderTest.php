@@ -329,6 +329,8 @@ class ProductReviewLoaderTest extends TestCase
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getContext()->getLanguageId())
             );
+        } else {
+            $criteria->addAssociation('language.translationCode.code');
         }
 
         $reviewFilters[] = new EqualsFilter('status', true);

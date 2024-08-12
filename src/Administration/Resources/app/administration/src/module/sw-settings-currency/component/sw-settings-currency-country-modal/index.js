@@ -13,6 +13,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['edit-cancel', 'save'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

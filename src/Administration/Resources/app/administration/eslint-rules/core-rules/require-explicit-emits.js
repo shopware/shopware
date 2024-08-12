@@ -6,6 +6,31 @@ const path = require('node:path');
 
 const EVENT_NAME_REGEXP = /\$emit\('([^']+)'[^)]*\)/gm;
 
+
+/**
+ * Overview
+ * This custom ESLint rule enforces that all events emitted using the $emit method in Vue.js components are explicitly
+ * declared in the component's emits option.
+ *
+ * How It Works
+ *
+ * 1. Component Identification:
+ * The rule first identifies the Vue component by looking for specific patterns such as default exports, component
+ * registrations (Component.register), or mixins (Mixin.register). It also looks for the existing emits option.
+ *
+ * 2. Script Event Collection:
+ * It then scans the component's script files to collect all events emitted via $emit.
+ *
+ * 3. Template Event Collection:
+ *  * It then scans the component's template by reading the imported file and using a regular expression to capture all
+ *  * events emitted via $emit.
+ *
+ * 4. Fixing:
+ * The rule checks whether all emitted events are declared in the component's emits option.
+ * If any emitted events are missing from the emits option, the rule reports them as issues and fixes that adding the
+ * missing events to the emits option in the appropriate format. If the emits option is not present, it inserts the
+ * entire option.
+ */
 module.exports = {
     meta: {
         type: 'problem',
@@ -110,21 +135,21 @@ module.exports = {
                 context.report({
                     node: programNode,
                     message: `Event(s) ${stringEmitEvents} not defined in the emits option.`,
-                    * fix(fixer) {
+                    fix(fixer) {
                         // no emits field in the component
                         if (!emitsNode) {
-                            return yield insertNewEmitsNode(fixer, stringEmitEvents);
+                            return  insertNewEmitsNode(fixer, stringEmitEvents);
                         }
 
                         // emits with already some event in the component
                         const lastElement = emitsNode.elements.at(-1);
                         if (lastElement) {
-                            return yield fixer.insertTextAfter(lastElement, `, ${stringEmitEvents}`);
+                            return fixer.insertTextAfter(lastElement, `, ${stringEmitEvents}`);
                         }
 
                         // emits without any event in
                         const emitsNodeEnd = emitsNode.range[1]; // accessing to emitsNode.end causes an error in tests
-                        return yield fixer.insertTextAfterRange(
+                        return fixer.insertTextAfterRange(
                             [emitsNodeEnd - 1, emitsNodeEnd - 1],
                             `${stringEmitEvents}`,
                         );

@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
+
+    emits: ['change', 'paginate'],
     data() {
         return {
             steps: [5],

@@ -25,6 +25,11 @@ Component.register('sw-entity-advanced-selection-modal', {
         'filterService',
     ],
 
+    emits: [
+        'modal-close',
+        'selection-submit',
+    ],
+
     mixins: [
         Mixin.getByName('listing'),
     ],

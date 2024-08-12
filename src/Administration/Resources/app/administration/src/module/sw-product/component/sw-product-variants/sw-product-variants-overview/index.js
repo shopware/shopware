@@ -22,6 +22,8 @@ export default {
         'mediaService',
     ],
 
+    emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),

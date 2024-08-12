@@ -14,6 +14,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['active-image-change'],
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],

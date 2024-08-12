@@ -17,6 +17,8 @@ Component.register('sw-app-app-url-changed-modal', {
 
     inject: ['appUrlChangeService'],
 
+    emits: ['modal-close'],
+
     mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {

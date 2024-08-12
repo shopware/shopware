@@ -12,6 +12,8 @@ const { format } = Utils;
 export default {
     template,
 
+    emits: ['update:value', 'on-remove-code'],
+
     props: {
         currency: {
             type: Object,

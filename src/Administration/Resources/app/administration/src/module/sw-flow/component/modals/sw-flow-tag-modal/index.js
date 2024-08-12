@@ -18,6 +18,8 @@ export default {
         'flowBuilderService',
     ],
 
+    emits: ['process-finish', 'modal-close'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),

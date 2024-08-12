@@ -15,6 +15,8 @@ export default {
     template,
 
     inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
+
+    emits: ['item-edit', 'existing-item-edit', 'item-cancel', 'item-delete'],
     props: {
         order: {
             type: Object,

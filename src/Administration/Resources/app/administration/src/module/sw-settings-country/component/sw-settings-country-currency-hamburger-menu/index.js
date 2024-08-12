@@ -12,6 +12,8 @@ export default {
 
     inject: ['acl'],
 
+    emits: ['currency-change'],
+
     props: {
         isLoading: {
             type: Boolean,

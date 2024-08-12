@@ -15,6 +15,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['modal-close', 'process-finish'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

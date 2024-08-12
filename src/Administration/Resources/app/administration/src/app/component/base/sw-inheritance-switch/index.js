@@ -25,6 +25,11 @@ Component.register('sw-inheritance-switch', {
         },
     },
 
+    emits: [
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
+
     props: {
         isInherited: {
             type: Boolean,

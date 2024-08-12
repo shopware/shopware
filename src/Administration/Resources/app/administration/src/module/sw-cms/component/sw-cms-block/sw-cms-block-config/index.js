@@ -17,6 +17,8 @@ export default {
         'cmsService',
     ],
 
+    emits: ['block-delete', 'block-duplicate'],
+
     mixins: [
         Mixin.getByName('cms-state'),
     ],

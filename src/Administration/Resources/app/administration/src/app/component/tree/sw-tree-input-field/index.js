@@ -18,6 +18,8 @@ Component.register('sw-tree-input-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['new-item-create'],
+
     props: {
         // eslint-disable-next-line vue/require-default-prop
         currentValue: {

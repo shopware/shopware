@@ -19,6 +19,8 @@ Component.register('sw-property-search', {
 
     inject: ['repositoryFactory'],
 
+    emits: ['option-select'],
+
     props: {
         collapsible: {
             type: Boolean,

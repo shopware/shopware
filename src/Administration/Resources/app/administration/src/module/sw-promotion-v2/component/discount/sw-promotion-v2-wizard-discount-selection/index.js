@@ -7,6 +7,8 @@ import template from './sw-promotion-v2-wizard-discount-selection.html.twig';
 export default {
     template,
 
+    emits: ['change-selection'],
+
     data() {
         return {
             value: 'basic',

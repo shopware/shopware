@@ -18,6 +18,8 @@ Component.register('sw-base-field', {
 
     inject: ['feature'],
 
+    emits: ['base-field-mounted'],
+
     props: {
         name: {
             type: String,

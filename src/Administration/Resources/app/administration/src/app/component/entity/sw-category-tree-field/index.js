@@ -19,6 +19,12 @@ Component.register('sw-category-tree-field', {
 
     inject: ['repositoryFactory'],
 
+    emits: [
+        'selection-add',
+        'selection-remove',
+        'categories-load-more',
+    ],
+
     props: {
         categoriesCollection: {
             type: Array,

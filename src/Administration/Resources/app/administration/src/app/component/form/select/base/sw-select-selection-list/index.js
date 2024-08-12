@@ -18,6 +18,14 @@ Component.register('sw-select-selection-list', {
 
     inject: ['feature'],
 
+    emits: [
+        'total-count-click',
+        'search-term-change',
+        'last-item-delete',
+        'key-down-enter',
+        'item-remove',
+    ],
+
     props: {
         selections: {
             type: Array,

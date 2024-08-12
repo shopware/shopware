@@ -13,9 +13,9 @@ Component.register('sw-entity-multi-id-select', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),

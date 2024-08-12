@@ -18,9 +18,9 @@ Component.register('sw-tagged-field', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     props: {
         value: {

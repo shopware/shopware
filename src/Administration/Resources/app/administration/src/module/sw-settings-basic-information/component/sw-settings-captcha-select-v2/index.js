@@ -11,6 +11,8 @@ export default {
 
     inject: ['feature', 'captchaService'],
 
+    emits: ['update:value'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
     ],

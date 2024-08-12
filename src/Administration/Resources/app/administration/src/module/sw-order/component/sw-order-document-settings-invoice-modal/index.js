@@ -10,6 +10,8 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    emits: ['loading-preview'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

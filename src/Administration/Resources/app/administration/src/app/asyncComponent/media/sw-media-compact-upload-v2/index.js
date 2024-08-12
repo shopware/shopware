@@ -8,6 +8,8 @@ import './sw-media-compact-upload-v2.scss';
 export default {
     template,
 
+    emits: ['delete-item', 'selection-change'],
+
     props: {
         allowMultiSelect: {
             type: Boolean,

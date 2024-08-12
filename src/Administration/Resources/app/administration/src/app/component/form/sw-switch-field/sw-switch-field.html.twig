@@ -17,6 +17,7 @@
     v-bind="$attrs"
     :value="value"
     v-on="listeners"
+    @update:value="onChangeHandler"
 >
     <slot></slot>
 </sw-switch-field-deprecated>

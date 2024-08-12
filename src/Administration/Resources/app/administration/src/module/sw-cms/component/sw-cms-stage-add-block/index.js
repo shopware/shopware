@@ -9,4 +9,6 @@ export default {
     template,
 
     compatConfig: Shopware.compatConfig,
+
+    emits: ['stage-block-add'],
 };

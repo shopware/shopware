@@ -16,6 +16,8 @@ export default {
 
     inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
 
+    emits: ['update-list'],
+
     mixins: ['sw-extension-error'],
 
     props: {

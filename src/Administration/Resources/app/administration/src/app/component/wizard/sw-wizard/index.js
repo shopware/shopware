@@ -41,6 +41,13 @@ Component.register('sw-wizard', {
         };
     },
 
+    emits: [
+        'finish',
+        'pages-updated',
+        'current-page-change',
+        'close',
+    ],
+
     props: {
         showNavigationDots: {
             type: Boolean,

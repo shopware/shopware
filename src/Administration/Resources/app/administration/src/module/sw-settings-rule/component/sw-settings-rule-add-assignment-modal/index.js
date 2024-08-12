@@ -16,6 +16,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['close-add-modal', 'entities-saved'],
+
     props: {
         rule: {
             type: Object,

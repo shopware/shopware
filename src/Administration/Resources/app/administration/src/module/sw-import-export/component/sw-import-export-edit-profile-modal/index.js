@@ -23,6 +23,8 @@ export default {
         'importExportUpdateByMapping',
     ],
 
+    emits: ['profile-close', 'profile-save'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {

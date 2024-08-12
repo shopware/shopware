@@ -15,6 +15,8 @@ Component.register('sw-sorting-select', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['sorting-changed'],
+
     props: {
         sortBy: {
             type: String,

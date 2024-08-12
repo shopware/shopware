@@ -12,6 +12,8 @@ Component.register('sw-range-filter', {
 
     inject: ['feature'],
 
+    emits: ['filter-update'],
+
     props: {
         value: {
             type: Object,

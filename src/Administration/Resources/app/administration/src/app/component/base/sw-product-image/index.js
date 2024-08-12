@@ -18,6 +18,11 @@ Component.register('sw-product-image', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'sw-product-image-cover',
+        'sw-product-image-delete',
+    ],
+
     props: {
         mediaId: {
             type: String,

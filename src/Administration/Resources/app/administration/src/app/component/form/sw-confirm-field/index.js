@@ -18,6 +18,13 @@ Component.register('sw-confirm-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'remove-error',
+        'blur',
+        'submit-cancel',
+        'input',
+    ],
+
     props: {
         value: {
             type: String,

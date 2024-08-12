@@ -12,6 +12,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['modal-close', 'process-finish'],
+
     props: {
         sequence: {
             type: Object,

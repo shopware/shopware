@@ -18,6 +18,8 @@ Component.register('sw-pagination', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['page-change'],
+
     props: {
         total: {
             type: Number,

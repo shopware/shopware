@@ -25,6 +25,8 @@ export default {
         };
     },
 
+    emits: ['media-move-modal-close', 'media-move-modal-items-move'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

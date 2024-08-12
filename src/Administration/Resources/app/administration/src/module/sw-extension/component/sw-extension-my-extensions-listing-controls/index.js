@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:active-state', 'update:sorting-option'],
+
     data() {
         return {
             filterByActiveState: false,

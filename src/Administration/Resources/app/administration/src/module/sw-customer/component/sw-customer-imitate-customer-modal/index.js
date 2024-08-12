@@ -14,6 +14,8 @@ export default {
         'contextStoreService',
     ],
 
+    emits: ['modal-close'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

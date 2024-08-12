@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
 
+    emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

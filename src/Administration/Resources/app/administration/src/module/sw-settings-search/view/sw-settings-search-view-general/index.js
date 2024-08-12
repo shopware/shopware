@@ -9,6 +9,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['excluded-search-terms-load'],
+
     props: {
         productSearchConfigs: {
             type: Object,

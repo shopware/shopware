@@ -14,6 +14,8 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
     inject: ['repositoryFactory'],
 
+    emits: ['selection-change', 'product-loading'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

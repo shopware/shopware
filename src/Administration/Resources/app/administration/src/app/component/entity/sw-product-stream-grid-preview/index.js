@@ -14,6 +14,8 @@ Component.register('sw-product-stream-grid-preview', {
 
     inject: ['repositoryFactory'],
 
+    emits: ['selection-change'],
+
     props: {
         /**
          * The apiFilter of a loaded product stream

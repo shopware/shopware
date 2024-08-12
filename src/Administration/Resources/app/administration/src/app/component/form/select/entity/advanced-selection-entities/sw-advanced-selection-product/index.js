@@ -19,6 +19,11 @@ Component.register('sw-advanced-selection-product', {
         'repositoryFactory',
     ],
 
+    emits: [
+        'selection-submit',
+        'modal-close',
+    ],
+
     data() {
         return {
             currencies: [],

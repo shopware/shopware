@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['media-settings-modal-save', 'media-settings-modal-close'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

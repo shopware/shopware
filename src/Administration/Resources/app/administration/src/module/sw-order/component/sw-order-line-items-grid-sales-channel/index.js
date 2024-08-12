@@ -15,6 +15,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['on-save-item', 'on-remove-items'],
+
     props: {
         salesChannelId: {
             type: String,

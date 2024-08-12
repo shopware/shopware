@@ -15,6 +15,8 @@ export default {
 
     inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService'],
 
+    emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('media-sidebar-modal-mixin'),

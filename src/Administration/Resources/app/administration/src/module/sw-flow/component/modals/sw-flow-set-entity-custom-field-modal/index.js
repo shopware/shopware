@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['modal-close', 'process-finish'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('notification'),

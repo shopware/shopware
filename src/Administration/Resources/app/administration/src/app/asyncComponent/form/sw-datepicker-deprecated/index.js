@@ -49,7 +49,7 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['update:value'],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     inject: ['feature'],
 

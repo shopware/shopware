@@ -15,6 +15,8 @@ export default {
 
     inject: ['cmsService'],
 
+    emits: ['block-overlay-click'],
+
     props: {
         block: {
             type: Object,

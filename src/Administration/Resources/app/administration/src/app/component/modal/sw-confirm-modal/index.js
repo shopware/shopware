@@ -23,6 +23,12 @@ const { Component } = Shopware;
 Component.register('sw-confirm-modal', {
     template,
 
+    emits: [
+        'close',
+        'cancel',
+        'confirm',
+    ],
+
     props: {
         title: {
             type: String,

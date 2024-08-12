@@ -15,6 +15,8 @@ export default {
 
     inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
 
+    emits: ['modal-close', 'process-finish'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),

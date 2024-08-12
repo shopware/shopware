@@ -17,6 +17,8 @@ Component.register('sw-login-login', {
 
     inject: ['loginService', 'userService', 'licenseViolationService'],
 
+    emits: ['is-loading', 'is-not-loading', 'login-success', 'login-error'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

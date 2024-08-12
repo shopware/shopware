@@ -8,6 +8,8 @@ import './sw-extension-rating-modal.scss';
 export default {
     template,
 
+    emits: ['modal-close'],
+
     methods: {
         emitClose() {
             this.$emit('modal-close');

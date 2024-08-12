@@ -17,6 +17,8 @@ export default {
         'acl',
     ],
 
+    emits: ['config-add', 'data-load', 'config-save', 'config-delete'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('sw-inline-snippet'),

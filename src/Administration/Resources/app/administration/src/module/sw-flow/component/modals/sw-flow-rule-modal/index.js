@@ -20,6 +20,8 @@ export default {
         'feature',
     ],
 
+    emits: ['process-finish', 'modal-close'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),

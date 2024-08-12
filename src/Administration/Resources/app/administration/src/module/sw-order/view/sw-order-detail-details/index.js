@@ -18,6 +18,8 @@ export default {
         'acl',
     ],
 
+    emits: ['update-loading', 'save-and-recalculate', 'save-and-reload', 'save-edits', 'reload-entity-data', 'error'],
+
     props: {
         orderId: {
             type: String,

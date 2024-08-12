@@ -17,6 +17,8 @@ Component.register('sw-data-grid-inline-edit', {
         'feature',
     ],
 
+    emits: ['update:value'],
+
     props: {
         column: {
             type: Object,

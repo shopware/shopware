@@ -15,6 +15,8 @@ export default {
         'cmsPageTypeService',
     ],
 
+    emits: ['modal-close'],
+
     props: {
         salesChannelCollection: {
             type: Array,

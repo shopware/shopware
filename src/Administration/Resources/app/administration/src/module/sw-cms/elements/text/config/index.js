@@ -11,6 +11,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['element-update'],
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],

@@ -70,6 +70,18 @@ Component.register('sw-tree', {
         };
     },
 
+    emits: [
+        'checked-elements-count',
+        'get-tree-items',
+        'search-tree-items',
+        'drag-start',
+        'drag-end',
+        'delete-element',
+        'editing-end',
+        'batch-delete',
+        'save-tree-items',
+    ],
+
     props: {
         items: {
             type: Array,

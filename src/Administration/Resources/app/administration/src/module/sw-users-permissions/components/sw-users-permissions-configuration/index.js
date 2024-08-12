@@ -10,6 +10,8 @@ export default {
 
     inject: ['acl'],
 
+    emits: ['loading-change'],
+
     methods: {
         onChangeLoading(loading) {
             this.$emit('loading-change', loading);

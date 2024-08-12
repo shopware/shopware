@@ -14,6 +14,8 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
     inject: ['repositoryFactory'],
 
+    emits: ['selection-change', 'product-loading'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

@@ -10,7 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 class CmsException extends HttpException
 {
     final public const DELETION_OF_DEFAULT_CODE = 'CONTENT__DELETION_DEFAULT_CMS_PAGE';
+
     final public const OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE = 'CONTENT__DELETION_OVERALL_DEFAULT_CMS_PAGE';
+
+    final public const INVALID_FIELD_CONFIG_SOURCE_CODE = 'CONTENT__INVALID_FIELD_CONFIG_SOURCE';
 
     /**
      * @param array<string> $cmsPages
@@ -34,6 +37,16 @@ class CmsException extends HttpException
             self::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE,
             'The cms page with id "{{ cmsPageId }}" is assigned as a default to all sales channels and therefore can not be deleted.',
             ['cmsPageId' => $cmsPageId]
+        );
+    }
+
+    public static function invalidFieldConfigSource(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_FIELD_CONFIG_SOURCE_CODE,
+            'The source of the provided field config "{{ name }}" is invalid. It should be from type string.',
+            ['name' => $name]
         );
     }
 }

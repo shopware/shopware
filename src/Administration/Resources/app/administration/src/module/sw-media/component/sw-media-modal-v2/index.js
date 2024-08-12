@@ -60,6 +60,7 @@ export default {
             folderId: this.initialFolderId,
             currentFolder: null,
             compact: false,
+            searchTerm: '',
             term: '',
             id: Utils.createId(),
             selectedMediaItem: {},

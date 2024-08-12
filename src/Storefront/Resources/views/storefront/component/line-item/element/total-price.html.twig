@@ -9,7 +9,11 @@
         <div class="line-item-total-price-value">
             {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
             {% if lineItem.payload.discountScope != 'delivery' %}
-                {{ lineItem.price.totalPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                {% if displayMode === 'order' %}
+                    {{ lineItem.price.totalPrice|currency(order.currency.isoCode) }}{{ 'general.star'|trans|sw_sanitize }}
+                {% else %}
+                    {{ lineItem.price.totalPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
+                {% endif %}
             {% endif %}
 
             {% set referencePrice = lineItem.price.referencePrice %}

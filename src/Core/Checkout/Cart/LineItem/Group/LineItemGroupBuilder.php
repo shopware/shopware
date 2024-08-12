@@ -118,6 +118,7 @@ class LineItemGroupBuilder
         }
 
         foreach ($restOfCart as $item) {
+            $originPrice = $item->getPrice();
             // if its a totally different item
             // just add it to the rest of our cart
             if (!\in_array($item->getId(), $lineItemsToRemoveIDs, true)) {
@@ -146,6 +147,7 @@ class LineItemGroupBuilder
                     // add the keep count to our item
                     // and the item to the rest of our cart
                     $item->setQuantity($keepCount);
+                    $item->setPrice($originPrice);
                     $newRestOfCart->add($item);
                 }
             }

@@ -11,6 +11,8 @@ const { State } = Shopware;
 export default {
     template,
 
+    emits: ['close', 'confirm'],
+
     computed: {
         invalidPromotionCodes() {
             return State.getters['swOrder/invalidPromotionCodes'];

@@ -13,6 +13,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['option-select'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

@@ -24,6 +24,8 @@ export default {
         'acl',
     ],
 
+    emits: ['update-loading', 'document-save'],
+
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('placeholder'),

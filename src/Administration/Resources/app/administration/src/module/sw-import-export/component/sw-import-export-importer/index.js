@@ -17,6 +17,8 @@ export default {
 
     inject: ['importExport', 'repositoryFactory', 'feature'],
 
+    emits: ['import-started'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

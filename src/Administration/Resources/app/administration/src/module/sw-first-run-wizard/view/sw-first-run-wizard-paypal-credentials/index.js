@@ -9,6 +9,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['frw-set-title', 'buttons-update'],
+
     computed: {
         buttonConfig() {
             return [

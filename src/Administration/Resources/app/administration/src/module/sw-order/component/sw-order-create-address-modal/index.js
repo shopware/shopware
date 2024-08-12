@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    emits: ['set-customer-address', 'close-modal'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),

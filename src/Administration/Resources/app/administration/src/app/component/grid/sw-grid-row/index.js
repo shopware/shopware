@@ -41,6 +41,8 @@ Component.register('sw-grid-row', {
         },
     },
 
+    emits: ['inline-edit-finish'],
+
     props: {
         item: {
             type: Object,

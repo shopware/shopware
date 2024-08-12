@@ -210,7 +210,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        wrapper.vm.$emit('load-more-categories');
-        expect(wrapper.emitted('load-more-categories')).toBeTruthy();
+        wrapper.vm.$emit('categories-load-more');
+        expect(wrapper.emitted('categories-load-more')).toBeTruthy();
     });
 });

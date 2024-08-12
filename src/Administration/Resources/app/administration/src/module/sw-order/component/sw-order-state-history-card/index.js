@@ -20,6 +20,8 @@ export default {
         'feature',
     ],
 
+    emits: ['options-change', 'order-state-change'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

@@ -25,6 +25,11 @@ export default {
         'acl',
     ],
 
+    emits: [
+        'template-selected', 'template-modal-close', 'template-modal-confirm',
+        'invalid-file-name', 'valid-file-name', 'access-key-changed', 'domain-changed',
+    ],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),

@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
+    emits: ['modal-close'],
+
     props: {
         tax: {
             type: Object,

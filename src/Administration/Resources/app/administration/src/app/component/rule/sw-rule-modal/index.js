@@ -27,14 +27,14 @@ Component.register('sw-rule-modal', {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
-
     emits: [
         'save',
         'modal-close',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
     ],
 
     props: {

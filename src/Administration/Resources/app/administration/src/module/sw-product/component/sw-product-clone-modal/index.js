@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'numberRangeService'],
 
+    emits: ['clone-finish'],
+
     props: {
         product: {
             type: Object,

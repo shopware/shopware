@@ -20,6 +20,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['modal-close', 'document-sent'],
+
     mixins: [
         'notification',
     ],

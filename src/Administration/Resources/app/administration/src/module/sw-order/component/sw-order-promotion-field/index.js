@@ -19,6 +19,8 @@ export default {
         'acl',
     ],
 
+    emits: ['loading-change', 'error', 'reload-entity-data'],
+
     mixins: [
         'notification',
     ],

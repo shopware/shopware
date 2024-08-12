@@ -16,6 +16,8 @@ export default {
         'feature',
     ],
 
+    emits: ['modal-close', 'update:value'],
+
     props: {
         order: {
             type: Object,

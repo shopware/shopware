@@ -28,6 +28,8 @@ Component.register('sw-select-field-deprecated', {
 
     inject: ['feature'],
 
+    emits: ['update:value'],
+
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),

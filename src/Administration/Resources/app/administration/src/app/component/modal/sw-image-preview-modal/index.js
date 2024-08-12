@@ -21,6 +21,8 @@ Component.register('sw-image-preview-modal', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['modal-close'],
+
     props: {
         mediaItems: {
             type: Array,

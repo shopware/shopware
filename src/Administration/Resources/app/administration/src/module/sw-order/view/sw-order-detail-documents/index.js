@@ -10,6 +10,8 @@ const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    emits: ['save-and-reload', 'update-loading'],
+
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',

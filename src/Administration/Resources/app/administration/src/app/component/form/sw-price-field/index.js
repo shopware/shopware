@@ -23,6 +23,8 @@ Component.register('sw-price-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['feature'],
+
     emits: [
         'change',
         'price-lock-change',
@@ -31,8 +33,6 @@ Component.register('sw-price-field', {
         'price-net-change',
         'calculating',
     ],
-
-    inject: ['feature'],
 
     props: {
         value: {

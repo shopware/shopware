@@ -12,6 +12,8 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
+    emits: ['select-item'],
+
     props: {
         ruleId: {
             type: String,

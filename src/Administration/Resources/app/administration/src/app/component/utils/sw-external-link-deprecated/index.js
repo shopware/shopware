@@ -24,6 +24,8 @@ Component.register('sw-external-link-deprecated', {
 
     inheritAttrs: false,
 
+    emits: ['click'],
+
     props: {
         small: {
             type: Boolean,

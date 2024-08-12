@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['cancel', 'delete'],
+
     props: {
         title: {
             type: String,

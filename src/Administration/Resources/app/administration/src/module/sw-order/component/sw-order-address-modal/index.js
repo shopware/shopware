@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['reset', 'address-select', 'save'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),

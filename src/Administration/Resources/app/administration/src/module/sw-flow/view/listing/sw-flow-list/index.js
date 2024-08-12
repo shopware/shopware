@@ -13,6 +13,8 @@ export default {
 
     inject: ['acl', 'repositoryFactory'],
 
+    emits: ['on-update-total'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),

@@ -22,6 +22,8 @@ export default {
         'stateStyleDataProviderService',
     ],
 
+    emits: ['save-edits'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

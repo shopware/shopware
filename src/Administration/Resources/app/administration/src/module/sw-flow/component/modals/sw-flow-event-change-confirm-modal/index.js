@@ -12,6 +12,8 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    emits: ['modal-confirm', 'modal-close'],
+
     computed: {
         ...mapGetters('swFlowState', ['sequences']),
     },

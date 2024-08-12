@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update-extension'],
+
     mixins: ['sw-extension-error'],
 
     props: {

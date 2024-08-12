@@ -11,6 +11,8 @@ Component.register('sw-base-filter', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['filter-reset'],
+
     props: {
         title: {
             type: String,

@@ -15,6 +15,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['error'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

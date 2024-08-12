@@ -14,6 +14,8 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
     inject: ['updateService'],
 
+    emits: ['update-started', 'update-stopped'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

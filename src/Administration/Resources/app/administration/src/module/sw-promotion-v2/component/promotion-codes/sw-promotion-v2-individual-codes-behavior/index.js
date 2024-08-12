@@ -19,6 +19,8 @@ export default {
         'feature',
     ],
 
+    emits: ['delete-finish', 'generate-finish'],
+
     mixins: [
         'notification',
     ],

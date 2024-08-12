@@ -14,6 +14,8 @@ Component.register('sw-login-recovery-info', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['is-not-loading'],
+
     computed: {
         rateLimitTime() {
             const waitTime = this.$route.params?.waitTime;

@@ -15,6 +15,13 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
     inject: ['repositoryFactory'],
 
+    emits: [
+        'load-finish',
+        'delete-item-failed',
+        'items-delete-finish',
+        'column-sort',
+    ],
+
     props: {
         collection: {
             required: true,

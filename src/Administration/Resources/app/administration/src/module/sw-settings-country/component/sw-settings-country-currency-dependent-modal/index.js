@@ -17,6 +17,8 @@ export default {
         'acl',
     ],
 
+    emits: ['modal-close', 'modal-save', 'base-item-change'],
+
     props: {
         currencyDependsValue: {
             type: Array,

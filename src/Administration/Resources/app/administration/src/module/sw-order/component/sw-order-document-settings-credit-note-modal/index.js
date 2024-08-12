@@ -9,6 +9,8 @@ import './sw-order-document-settings-credit-note-modal.scss';
 export default {
     template,
 
+    emits: ['loading-document'],
+
     data() {
         return {
             documentConfig: {

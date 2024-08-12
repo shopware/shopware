@@ -27,6 +27,8 @@ Component.register('sw-file-input', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:value'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

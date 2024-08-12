@@ -16,6 +16,8 @@ export default {
         'productCustomFields',
     ],
 
+    emits: ['field-changed'],
+
     props: {
         definition: {
             type: Object,

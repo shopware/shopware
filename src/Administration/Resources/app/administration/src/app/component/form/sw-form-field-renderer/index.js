@@ -76,6 +76,8 @@ Component.register('sw-form-field-renderer', {
 
     inject: ['repositoryFactory', 'feature'],
 
+    emits: ['update:value'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
     ],

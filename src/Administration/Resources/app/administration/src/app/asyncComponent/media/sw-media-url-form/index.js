@@ -15,6 +15,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['media-url-form-submit', 'modal-close'],
+
     props: {
         variant: {
             type: String,

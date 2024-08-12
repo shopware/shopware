@@ -25,6 +25,8 @@ Component.register('sw-button-process', {
 
     inject: ['feature'],
 
+    emits: ['update:processSuccess'],
+
     props: {
         processSuccess: {
             type: Boolean,

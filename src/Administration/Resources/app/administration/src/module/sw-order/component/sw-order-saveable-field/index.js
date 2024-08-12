@@ -9,6 +9,8 @@ import './sw-order-saveable-field.scss';
 export default {
     template,
 
+    emits: ['value-change'],
+
     props: {
         // eslint-disable-next-line vue/require-prop-types
         value: {

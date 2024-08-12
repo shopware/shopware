@@ -17,6 +17,8 @@ Component.register('sw-login-recovery', {
 
     inject: ['userRecoveryService'],
 
+    emits: ['is-loading'],
+
     data() {
         return {
             email: '',

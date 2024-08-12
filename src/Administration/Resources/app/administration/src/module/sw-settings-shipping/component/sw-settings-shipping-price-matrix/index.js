@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
+    emits: ['duplicate-price-matrix', 'delete-price-matrix'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),

@@ -20,6 +20,8 @@ export default {
         'feature',
     ],
 
+    emits: ['update-mapping'],
+
     mixins: [
         Shopware.Mixin.getByName('notification'),
     ],

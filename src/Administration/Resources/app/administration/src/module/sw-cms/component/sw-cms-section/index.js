@@ -24,6 +24,8 @@ export default {
         };
     },
 
+    emits: ['page-config-open', 'block-duplicate'],
+
     mixins: [
         Mixin.getByName('cms-state'),
     ],

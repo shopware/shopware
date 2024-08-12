@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['block-duplicate', 'block-delete'],
+
     props: {
         block: {
             type: Object,

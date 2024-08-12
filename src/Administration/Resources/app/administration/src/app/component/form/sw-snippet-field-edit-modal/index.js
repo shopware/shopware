@@ -30,6 +30,11 @@ Component.register('sw-snippet-field-edit-modal', {
         'repositoryFactory',
     ],
 
+    emits: [
+        'modal-close',
+        'save',
+    ],
+
     props: {
         snippets: {
             type: Array,

@@ -16,6 +16,8 @@ export default {
         'feature',
     ],
 
+    emits: ['modal-close', 'modal-save'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {

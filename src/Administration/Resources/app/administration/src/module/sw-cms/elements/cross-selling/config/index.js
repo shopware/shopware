@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['element-update'],
+
     mixins: [
         Mixin.getByName('cms-element'),
     ],

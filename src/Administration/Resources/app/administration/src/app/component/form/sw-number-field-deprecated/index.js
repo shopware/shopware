@@ -19,12 +19,14 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'input-change',
+        'inheritance-restore',
+        'inheritance-remove',
     ],
-
-    inject: ['feature'],
 
     props: {
         numberType: {

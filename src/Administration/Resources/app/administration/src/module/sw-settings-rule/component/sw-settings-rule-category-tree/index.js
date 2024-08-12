@@ -12,6 +12,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['on-selection'],
+
     props: {
         rule: {
             type: Object,

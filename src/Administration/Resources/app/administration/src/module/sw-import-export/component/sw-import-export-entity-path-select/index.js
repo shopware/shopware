@@ -17,6 +17,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['paginate', 'update:value', 'before-selection-clear', 'search'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],

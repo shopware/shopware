@@ -17,6 +17,8 @@ export default {
 
     inject: ['repositoryFactory', 'productStreamPreviewService'],
 
+    emits: ['modal-close'],
+
     props: {
         filters: {
             type: Array,

@@ -15,6 +15,8 @@ Component.register('sw-admin-menu-item', {
 
     inject: ['acl', 'feature'],
 
+    emits: ['menu-item-click', 'menu-item-enter', 'sub-menu-item-enter'],
+
     props: {
         entry: {
             type: Object,

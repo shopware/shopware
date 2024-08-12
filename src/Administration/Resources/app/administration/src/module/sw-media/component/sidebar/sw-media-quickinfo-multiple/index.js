@@ -12,6 +12,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['media-item-selection-remove'],
+
     mixins: [
         Mixin.getByName('media-sidebar-modal-mixin'),
     ],

@@ -17,6 +17,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['remove-assignment', 'add-assignment'],
+
     mixins: [
         Mixin.getByName('listing'),
     ],

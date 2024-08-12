@@ -16,6 +16,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['modal-close'],
+
     props: {
         lineItem: {
             type: Object,

@@ -11,6 +11,8 @@ Component.register('sw-notification-center-item', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['center-close'],
+
     props: {
         notification: {
             type: Object,

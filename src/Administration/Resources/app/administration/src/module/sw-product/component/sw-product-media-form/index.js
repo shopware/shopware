@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
+    emits: ['media-open'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

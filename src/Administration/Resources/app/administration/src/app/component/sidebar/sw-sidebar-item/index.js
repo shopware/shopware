@@ -31,6 +31,12 @@ Component.register('sw-sidebar-item', {
         },
     },
 
+    emits: [
+        'toggle-active',
+        'close-content',
+        'click',
+    ],
+
     props: {
         title: {
             type: String,

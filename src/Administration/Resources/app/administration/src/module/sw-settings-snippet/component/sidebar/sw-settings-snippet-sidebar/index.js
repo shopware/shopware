@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['sw-sidebar-close', 'sw-sidebar-open', 'change', 'sw-sidebar-collaps-refresh-grid', 'sidebar-reset-all'],
+
     props: {
         filterItems: {
             type: Array,

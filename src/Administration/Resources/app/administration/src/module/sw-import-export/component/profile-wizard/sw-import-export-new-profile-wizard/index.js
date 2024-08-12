@@ -18,6 +18,8 @@ export default {
         'importExportProfileMapping',
     ],
 
+    emits: ['close', 'profile-save'],
+
     props: {
         profile: {
             type: Object,

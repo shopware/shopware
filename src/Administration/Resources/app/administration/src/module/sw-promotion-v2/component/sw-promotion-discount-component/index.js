@@ -24,6 +24,8 @@ export default {
         'ruleConditionDataProviderService',
     ],
 
+    emits: ['discount-delete'],
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],

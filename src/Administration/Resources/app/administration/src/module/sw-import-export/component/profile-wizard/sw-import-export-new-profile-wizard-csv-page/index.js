@@ -17,6 +17,8 @@ export default {
         'importExport',
     ],
 
+    emits: ['next-disable', 'next-allow'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {

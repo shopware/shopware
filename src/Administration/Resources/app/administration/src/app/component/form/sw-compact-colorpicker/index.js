@@ -11,9 +11,9 @@ const { Component } = Shopware;
 Component.extend('sw-compact-colorpicker', 'sw-colorpicker-deprecated', {
     template,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     computed: {
         colorValue: {

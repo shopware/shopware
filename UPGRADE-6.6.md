@@ -847,7 +847,7 @@ Also use the `Resources/flow.xml` file path instead of `Resources/flow-action.xm
 
 ## Old Elasticsearch data mapping structure is deprecated, introduce new data mapping structure:
 
-* For the full reference, please read the [adr](../../adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md)
+* For the full reference, please read the [adr](/adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md)
 * If you've defined your own Elasticsearch definitions, please prepare for the new structure by update your definition's `getMapping` and `fetch` methods:
 
 ```php
@@ -1772,7 +1772,7 @@ The selector to initialize the `AjaxModal` plugin will be changed to not interfe
 
 The `generateNewPath()` and `saveSeed()` methods  in `\Shopware\Storefront\Theme\AbstractThemePathBuilder` are now abstract, this means you should implement those methods to allow atomic theme compilations.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](/adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Removal of `blacklistIds` and `whitelistIds` in  `\Shopware\Core\Content\Product\ProductEntity`
 Two properties `blacklistIds` and `whitelistIds` were removed without replacement

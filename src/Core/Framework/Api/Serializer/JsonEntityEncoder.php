@@ -104,7 +104,7 @@ class JsonEntityEncoder
                 continue;
             }
 
-            $object = $struct->getVars()[$property];
+            $object = $struct->getVars()[$property] ?? null;
 
             if ($object instanceof Collection) {
                 $objects = array_values($object->getElements());

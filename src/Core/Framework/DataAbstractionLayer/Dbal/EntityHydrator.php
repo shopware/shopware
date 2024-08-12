@@ -43,11 +43,6 @@ class EntityHydrator
     protected static array $partial = [];
 
     /**
-     * @var array<bool>
-     */
-    protected static array $partialFullPaths = [];
-
-    /**
      * @var array<mixed>
      */
     private static array $hydrated = [];
@@ -84,13 +79,9 @@ class EntityHydrator
 
         self::$partial = $partial;
 
-        self::$partialFullPaths = [];
-
         if (!empty(self::$partial)) {
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
-
-            $this->mapPartialFieldsToHydrate(self::$partial, $root);
         }
 
         foreach ($rows as $row) {
@@ -173,9 +164,9 @@ class EntityHydrator
      *
      * @param array<mixed> $row
      */
-    protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
+    protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, array $partial = []): Entity
     {
-        $entity = $this->hydrateFields($definition, $entity, $root, $row, $context, $definition->getFields());
+        $entity = $this->hydrateFields($definition, $entity, $root, $row, $context, $definition->getFields(), $partial);
 
         return $entity;
     }
@@ -184,19 +175,20 @@ class EntityHydrator
      * @param array<mixed> $row
      * @param iterable<Field> $fields
      */
-    protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields): Entity
+    protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields, array $partial = []): Entity
     {
         /** @var ArrayStruct<string, mixed> $foreignKeys */
         $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
-        $isPartial = self::$partial !== [];
+        $isPartial = $partial !== [];
 
         foreach ($fields as $field) {
             $property = $field->getPropertyName();
 
-            $key = $root . '.' . $property;
-            if ($isPartial && !isset(self::$partialFullPaths[$key])) {
+            if ($isPartial && !isset($partial[$property])) {
                 continue;
             }
+
+            $key = $root . '.' . $property;
 
             // initialize not loaded associations with null
             if ($field instanceof AssociationField && $entity instanceof ArrayEntity) {
@@ -214,7 +206,7 @@ class EntityHydrator
             }
 
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
-                $association = $this->manyToOne($row, $root, $field, $context);
+                $association = $this->manyToOne($row, $root, $field, $context, $partial);
 
                 if ($association === null && $entity instanceof PartialEntity) {
                     continue;
@@ -355,7 +347,7 @@ class EntityHydrator
     /**
      * @param array<mixed> $row
      */
-    protected function manyToOne(array $row, string $root, ?Field $field, Context $context): ?Entity
+    protected function manyToOne(array $row, string $root, ?Field $field, Context $context, array $partial = []): ?Entity
     {
         if ($field === null) {
             throw new \RuntimeException('No field provided');
@@ -374,11 +366,7 @@ class EntityHydrator
             return null;
         }
 
-        if (self::$partial !== [] && !isset(self::$partialFullPaths[$pk])) {
-            self::$partialFullPaths[$key] = true;
-        }
-
-        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
+        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, $partial[$field->getPropertyName()] ?? []);
     }
 
     /**
@@ -535,18 +523,6 @@ class EntityHydrator
     }
 
     /**
-     * @param array<string, mixed> $fields
-     */
-    private function mapPartialFieldsToHydrate(array $fields, string $currentPath): void
-    {
-        foreach ($fields as $field => $values) {
-            self::$partialFullPaths[$currentPath . '.' . $field] = true;
-
-            $this->mapPartialFieldsToHydrate($values, $currentPath . '.' . $field);
-        }
-    }
-
-    /**
      * @param array<mixed> $row
      * @param array<string|array<string>> $partial
      */
@@ -559,6 +535,8 @@ class EntityHydrator
         if ($isPartial) {
             $hydratorClass = EntityHydrator::class;
         }
+
+//        dd($partial);
 
         $hydrator = $this->container->get($hydratorClass);
 
@@ -586,7 +564,7 @@ class EntityHydrator
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityData($definition->getEntityName(), $definition->getFieldVisibility());
 
-        $entity = $hydrator->assign($definition, $entity, $root, $row, $context);
+        $entity = $hydrator->assign($definition, $entity, $root, $row, $context, $partial);
 
         return self::$hydrated[$cacheKey] = $entity;
     }

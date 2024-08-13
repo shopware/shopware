@@ -1,6 +1,6 @@
 ---
 title: Add integration tests covering searching and reading translated entities
-issue: NEXT-00000
+issue: NEXT-37667
 author: Sven Münnich
 author_email: sven.muennich@pickware.de
 author_github: svenmuennich

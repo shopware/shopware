@@ -56,13 +56,13 @@
 .product-detail-list-price-wrapper {
     color: $headings-color;
     font-weight: $font-weight-normal;
-    font-size: 12px;
+    font-size: 0.75rem;
     display: inline-block;
-    height: 26px;
+    height: 1.625rem;
     vertical-align: bottom;
 
     @include media-breakpoint-down(lg) {
-        height: 22px;
+        height: 1.375rem;
     }
 
     .list-price-price {

@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -116,13 +117,17 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('dispatch')
             ->with(static::equalTo(new CheckoutGatewayCommandsCollectedEvent($payload, $expectedCollection)));
 
+        $loader = $this->createMock(ActiveAppsLoader::class);
+        $loader->method('getActiveApps')->willReturn([$app]);
+
         $gateway = new AppCheckoutGateway(
             $payloadService,
             $executor,
             $registry,
             $appRepo,
             $eventDispatcher,
-            $this->createMock(ExceptionLogger::class)
+            $this->createMock(ExceptionLogger::class),
+            $loader
         );
 
         $gateway->process($payload);

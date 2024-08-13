@@ -13,6 +13,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
     /**
+     * @var int
+     */
+    protected $newQuantity;
+
+    /**
      * @var LineItem
      */
     protected $lineItem;
@@ -28,6 +33,7 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
     protected $salesChannelContext;
 
     public function __construct(
+        int $newQuantity,
         LineItem $lineItem,
         Cart $cart,
         SalesChannelContext $salesChannelContext
@@ -35,6 +41,7 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;
+        $this->newQuantity = $newQuantity;
     }
 
     public function getLineItem(): LineItem
@@ -55,5 +62,10 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function getNewQuantity(): int
+    {
+        return $this->newQuantity;
     }
 }

@@ -90,10 +90,10 @@ $box-image-height-img: 332px;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-    height: 44px;
+    height: 2.75rem;
     margin-bottom: 10px;
-    font-size: 18px;
-    line-height: 22px;
+    font-size: 1.125rem;
+    line-height: 1.375rem;
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
@@ -105,10 +105,10 @@ $box-image-height-img: 332px;
 }
 
 .product-description {
-    height: 54px;
+    height: 3.375rem;
     margin-top: 10px;
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 0.875rem;
+    line-height: 1.125rem;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -127,8 +127,8 @@ $box-image-height-img: 332px;
 
 .product-price-unit {
     height: 36px;
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 0.875rem;
+    line-height: 1.125rem;
     overflow: hidden;
 }
 
@@ -139,7 +139,7 @@ $box-image-height-img: 332px;
 .product-cheapest-price {
     min-height: 20px;
     font-size: $font-size-sm;
-    line-height: 20px;
+    line-height: 1.25rem;
     margin-bottom: 32px;
 
     .product-cheapest-price-price {
@@ -161,9 +161,9 @@ $box-image-height-img: 332px;
     min-height: 20px;
     margin-top: 10px;
     margin-bottom: 0;
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: $font-weight-bold;
-    line-height: 20px;
+    line-height: 1.25rem;
     overflow: hidden;
 
     &.with-list-price {
@@ -174,7 +174,7 @@ $box-image-height-img: 332px;
         color: $headings-color;
         font-weight: $font-weight-normal;
         padding-left: 5px;
-        font-size: 12px;
+        font-size: 0.75rem;
 
         .list-price-price {
             text-decoration: line-through;
@@ -185,7 +185,7 @@ $box-image-height-img: 332px;
         color: $headings-color;
         font-weight: $font-weight-normal;
         padding-left: 5px;
-        font-size: 12px;
+        font-size: 0.75rem;
         padding-left: 0;
     }
 
@@ -197,7 +197,7 @@ $box-image-height-img: 332px;
         color: $headings-color;
         font-weight: $font-weight-normal;
         padding-left: 5px;
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 }
 
@@ -213,14 +213,14 @@ $box-image-height-img: 332px;
 
     .badge {
         padding: 0 8px;
-        height: 32px;
+        height: 2rem;
         margin: 0 0 8px;
-        line-height: 32px;
+        line-height: 2rem;
         font-weight: $font-weight-bold;
         color: $white;
         border-radius: 0 3px 3px 0;
         border-color: transparent;
-        font-size: 18px;
+        font-size: 1.125rem;
         letter-spacing: 0;
     }
 }
@@ -244,5 +244,5 @@ $box-image-height-img: 332px;
 }
 
 .product-price-wrapper {
-    font-size: 18px;
+    font-size: 1.125rem;
 }

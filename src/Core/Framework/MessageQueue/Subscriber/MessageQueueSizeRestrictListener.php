@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
-use Symfony\Component\Messenger\Transport\Serialization\Serializer;
+use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 
 #[Package('core')]
@@ -20,7 +20,7 @@ readonly class MessageQueueSizeRestrictListener
     /**
      * @internal
      */
-    public function __construct(private Serializer $serializer, private LoggerInterface $logger, private bool $enforceLimit)
+    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private bool $enforceLimit)
     {
     }
 

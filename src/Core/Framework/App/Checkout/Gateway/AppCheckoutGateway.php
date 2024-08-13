@@ -14,11 +14,10 @@ use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayload;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,6 +34,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppCheckoutGateway implements CheckoutGatewayInterface
 {
     /**
+     * @param EntityRepository<AppCollection> $appRepository
+     *
      * @internal
      */
     public function __construct(
@@ -83,14 +84,11 @@ class AppCheckoutGateway implements CheckoutGatewayInterface
         return $this->executor->execute($collected, $response, $context);
     }
 
-    /**
-     * @return EntityCollection<AppEntity>
-     */
-    private function getActiveAppsWithCheckoutGateway(Context $context): EntityCollection
+    private function getActiveAppsWithCheckoutGateway(Context $context): AppCollection
     {
         // If no active apps are available, we can return early
         if ($this->activeAppsLoader->getActiveApps() === []) {
-            return new EntityCollection();
+            return new AppCollection();
         }
 
         $criteria = new Criteria();

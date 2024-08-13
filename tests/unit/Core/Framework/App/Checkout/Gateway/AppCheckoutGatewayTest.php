@@ -43,6 +43,26 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class AppCheckoutGatewayTest extends TestCase
 {
+    public function testProcessWithoutAppsDoesNothing(): void
+    {
+        $appRepository = $this->createMock(EntityRepository::class);
+        $appRepository
+            ->expects(static::never())
+            ->method('search');
+
+        $gateway = new AppCheckoutGateway(
+            $this->createMock(AppCheckoutGatewayPayloadService::class),
+            new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
+            $this->createMock(CheckoutGatewayCommandRegistry::class),
+            $appRepository,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(ExceptionLogger::class),
+            $this->createMock(ActiveAppsLoader::class)
+        );
+
+        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::createSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
+    }
+
     public function testProcess(): void
     {
         $context = Generator::createSalesChannelContext();

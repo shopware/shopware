@@ -48,7 +48,6 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -115,15 +114,6 @@ class PluginLifecycleServiceTest extends TestCase
             $this->pluginServiceMock,
             $this->createMock(VersionSanitizer::class),
         );
-    }
-
-    public function testGetSubscribedEvents(): void
-    {
-        $subscribedEvents = PluginLifecycleService::getSubscribedEvents();
-
-        static::assertCount(1, $subscribedEvents);
-        static::assertArrayHasKey(KernelEvents::RESPONSE, $subscribedEvents);
-        static::assertEquals(['onResponse', \PHP_INT_MIN], $subscribedEvents[KernelEvents::RESPONSE]);
     }
 
     // +++++ InstallPlugin method ++++

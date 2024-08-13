@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('core')]
-class CoreSubscriber implements EventSubscriberInterface
+readonly class CoreSubscriber implements EventSubscriberInterface
 {
     /**
      * @param array<string> $cspTemplates

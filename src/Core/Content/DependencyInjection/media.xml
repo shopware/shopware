@@ -314,13 +314,18 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\Content\Media\Message\DeleteFileHandler"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber">

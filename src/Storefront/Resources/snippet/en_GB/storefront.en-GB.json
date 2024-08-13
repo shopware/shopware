@@ -79,6 +79,7 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
     "VIOLATION::ZIP_CODE_INVALID": "The postal code you have entered does not have the correct format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "The input does not have the correct format.",
+    "VIOLATION::NOT_EQUAL_ERROR": "The input is not identical.",
     "message-default": "Unfortunately, something went wrong.",
     "message-404": "The requested page cannot be found.",
     "addToCartError": "An error occurred while trying to add items to the shopping cart.",

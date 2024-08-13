@@ -14,9 +14,10 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -29,10 +30,13 @@ use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -53,6 +57,8 @@ class RegisterControllerTest extends TestCase
 
     private MockObject&RegisterRoute $registerRoute;
 
+    private StaticSystemConfigService $systemConfigService;
+
     protected function setUp(): void
     {
         $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
@@ -60,7 +66,7 @@ class RegisterControllerTest extends TestCase
         $registerConfirmRoute = $this->createMock(RegisterConfirmRoute::class);
         $this->cartService = $this->createMock(CartService::class);
         $this->checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $this->systemConfigService = new StaticSystemConfigService();
         $customerRepository = $this->createMock(EntityRepository::class);
         $this->customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
         $domainRepository = $this->createMock(EntityRepository::class);
@@ -71,7 +77,7 @@ class RegisterControllerTest extends TestCase
             $registerConfirmRoute,
             $this->cartService,
             $this->checkoutRegisterPageLoader,
-            $systemConfigServiceMock,
+            $this->systemConfigService,
             $customerRepository,
             $this->customerGroupRegistrationPageLoader,
             $domainRepository,
@@ -165,10 +171,89 @@ class RegisterControllerTest extends TestCase
 
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
 
         $response = $this->controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithValueConfirmation(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+        $dataBag->set('email', 'foo@bar.de');
+        $dataBag->set('password', 'password');
+        $dataBag->set('createCustomerAccount', true);
+
+        $this->systemConfigService->set('core.loginRegistration.requireEmailConfirmation', true, $context->getSalesChannelId());
+        $this->systemConfigService->set('core.loginRegistration.requirePasswordConfirmation', true, $context->getSalesChannelId());
+
+        $expectedDefinition = new DataValidationDefinition('storefront.confirmation');
+        $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(['value' => 'foo@bar.de']));
+        $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(['value' => 'password']));
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, $expectedDefinition);
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithDoubleOptIn(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+        $dataBag->set('createCustomerAccount', true);
+
+        $this->systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true, $context->getSalesChannelId());
+
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(['success' => ['account.optInRegistrationAlert']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.register.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testRegisterWithDoubleOptInGuest(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = $this->createRegisterRequest();
+        $dataBag = new RequestDataBag();
+        $dataBag->set('createCustomerAccount', false);
+
+        $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true, $context->getSalesChannelId());
+
+        $this->registerRoute
+            ->expects(static::once())
+            ->method('register')
+            ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+
+        $response = $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame(['success' => ['account.optInGuestAlert']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('frontend.account.register.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 
     public function testRegisterWithNoErrorRouteParam(): void

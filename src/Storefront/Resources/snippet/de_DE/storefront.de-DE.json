@@ -79,6 +79,7 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur.",
     "VIOLATION::ZIP_CODE_INVALID": "Die eingegebene Postleitzahl hat nicht das richtige Format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "Die Eingabe entspricht nicht der erwarteten Struktur.",
+    "VIOLATION::NOT_EQUAL_ERROR": "Die Eingabe ist nicht identisch.",
     "message-default": "Leider ist etwas schief gelaufen",
     "message-404": "Die angeforderte Seite kann nicht gefunden werden.",
     "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",

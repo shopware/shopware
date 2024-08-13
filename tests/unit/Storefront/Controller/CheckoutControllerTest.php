@@ -20,7 +20,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
-use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -41,7 +40,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -147,8 +145,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->cartPage($request, $this->createMock(SalesChannelContext::class));
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.cart.page', $response->getTargetUrl());
     }
 
     public function testGetCartRedirectOnShippingErrorsPreventLoop(): void
@@ -194,8 +193,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->confirmPage(new Request(), $context);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
     }
 
     public function testConfirmPageEmptyCart(): void
@@ -205,8 +205,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->confirmPage(new Request(), $context);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.cart.page', $response->getTargetUrl());
     }
 
     public function testConfirmPageWithCart(): void
@@ -263,8 +264,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->confirmPage($request, $context);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.confirm.page', $response->getTargetUrl());
     }
 
     public function testConfirmPageRedirectOnShippingErrorsPreventLoop(): void
@@ -297,8 +299,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
     }
 
     public function testFinishPageOrderNotFound(): void
@@ -310,9 +313,10 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
-        static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
+        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.cart.page', $response->getTargetUrl());
     }
 
     public function testFinishPagePaymentFailed(): void
@@ -327,8 +331,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.account.edit-order.page', $response->headers->get('Location'));
     }
 
     public function testFinishPageGuestLogout(): void
@@ -384,8 +389,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->order(new RequestDataBag(), $context, new Request());
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.checkout.register.page', $response->getTargetUrl());
     }
 
     public function testOrder(): void
@@ -400,8 +406,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->order(new RequestDataBag(), $context, $request);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('url:frontend.checkout.finish.page', $response->getTargetUrl());
     }
 
     public function testOrderConstraintViolation(): void
@@ -470,7 +477,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         static::assertEquals('forward to frontend.checkout.confirm.page', $response->getContent());
-        static::assertEquals('danger error.CHECKOUT__UNKNOWN_PAYMENT_METHOD', $this->controller->flash);
+        static::assertEquals(['danger' => ['error.CHECKOUT__UNKNOWN_PAYMENT_METHOD']], $this->controller->flashBag);
     }
 
     public function testOrderCartInvalidOrderException(): void
@@ -613,8 +620,9 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->offcanvas($request, $context);
 
+        static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('url', $response->headers->get('Location'));
+        static::assertEquals('frontend.cart.offcanvas', $response->getTargetUrl());
     }
 
     public function testOffCanvasRedirectOnShippingErrorsPreventLoop(): void
@@ -644,71 +652,5 @@ class CheckoutControllerTest extends TestCase
  */
 class CheckoutControllerTestClass extends CheckoutController
 {
-    public string $renderStorefrontView;
-
-    public string $flash;
-
-    /**
-     * @var array<array-key, mixed>
-     */
-    public array $renderStorefrontParameters;
-
-    /**
-     * @param array<array-key, mixed> $parameters
-     */
-    protected function renderStorefront(string $view, array $parameters = []): Response
-    {
-        $this->renderStorefrontView = $view;
-        $this->renderStorefrontParameters = $parameters;
-
-        return new Response();
-    }
-
-    /**
-     * @param array<string|int, mixed> $parameters
-     */
-    protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
-    {
-        return 'url';
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     * @param array<string, mixed> $routeParameters
-     */
-    protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
-    {
-        return new Response('forward to ' . $routeName);
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    protected function trans(string $snippet, array $parameters = []): string
-    {
-        return $snippet;
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
-    {
-        return new RedirectResponse('url');
-    }
-
-    protected function hook(Hook $hook): void
-    {
-        // nothing
-    }
-
-    protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
-    {
-        // nothing
-    }
-
-    protected function addFlash(string $type, mixed $message): void
-    {
-        $this->flash = $type . ' ' . $message;
-    }
+    use StorefrontControllerMockTrait;
 }

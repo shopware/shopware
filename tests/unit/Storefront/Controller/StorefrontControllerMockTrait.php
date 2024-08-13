@@ -2,15 +2,18 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 trait StorefrontControllerMockTrait
 {
     public string $renderStorefrontView;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     public array $renderStorefrontParameters;
 
@@ -27,6 +30,16 @@ trait StorefrontControllerMockTrait
      * @var array<string, mixed>
      */
     public array $forwardToRouteParameters;
+
+    /**
+     * @var array<string, array<int, array{parameters: array<string, mixed>, status: int}>>
+     */
+    public array $redirected = [];
+
+    /**
+     * @var array<string, array<int, mixed>>
+     */
+    public array $flashBag = [];
 
     /**
      * @param array<string, mixed> $parameters
@@ -49,11 +62,56 @@ trait StorefrontControllerMockTrait
         $this->forwardToRouteAttributes = $attributes;
         $this->forwardToRouteParameters = $routeParameters;
 
-        return new Response();
+        return new Response('forward to ' . $routeName);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
+    {
+        $this->redirected[$route][] = [
+            'parameters' => $parameters,
+            'status' => $status,
+        ];
+
+        return new RedirectResponse($route, $status);
     }
 
     protected function hook(Hook $hook): void
     {
         $this->calledHook = $hook;
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function trans(string $snippet, array $parameters = []): string
+    {
+        return $snippet;
+    }
+
+    protected function addFlash(string $type, mixed $message): void
+    {
+        $this->flashBag[$type][] = $message;
+    }
+
+    protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
+    {
+        // nothing
+    }
+
+    /**
+     * @param array<string|int, mixed> $parameters
+     */
+    protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
+    {
+        return 'url:' . $route;
+    }
+
+    public function reset(): void
+    {
+        $this->flashBag = [];
+        $this->redirected = [];
     }
 }

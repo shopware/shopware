@@ -287,8 +287,13 @@ class StateMachineRegistry implements ResetInterface
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('technicalName', $transitionName));
             $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachine->getId()));
-            if ($toPlace = $this->stateMachineStateRepository->search($criteria, $context)->first()) {
-                /** @var StateMachineStateEntity $toPlace */
+            /** @var StateMachineStateEntity|null $toPlace */
+            $toPlace = $this->stateMachineStateRepository->search($criteria, $context)->first();
+            if ($toPlace?->getId() === $fromStateId) {
+                throw StateMachineException::unnecessaryTransition($transitionName);
+            }
+
+            if ($toPlace) {
                 return $toPlace;
             }
         }

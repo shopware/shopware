@@ -18,6 +18,30 @@ body:
           label: Shopware Version
       validations:
           required: true
+    - type: dropdown
+      id: extension
+      attributes:
+          label: Affected area / extension
+          description: In which area or extension of the product does the behavior occur?
+          options:
+            - Platform(Default)
+            - Extension:B2B-Suite
+            - Extension:CINEMA-Theme
+            - Extension:CMS-Professional
+            - Extension:Custom-Products
+            - Extension:DHL-App
+            - Extension:Dynamic-Access
+            - Extension:Elle-Theme
+            - Extension:Emporium-Theme
+            - Extension:Language-Extensions
+            - Extension:Migration-Tool
+            - Extension:PayPal-Integration
+            - Extenstion:Publisher
+            - Extension:Shape-Theme
+            - Extension:Showroom-Theme
+            - Extension:Social-Shopping
+      validations:
+          required: true
     - type: textarea
       id: expected-behaviour
       attributes:

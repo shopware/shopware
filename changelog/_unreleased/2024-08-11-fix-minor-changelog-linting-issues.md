@@ -1,6 +1,6 @@
 ---
 title: Fix minor changelog linting and creation issues
-issue: NEXT-00000
+issue: NEXT-37666
 author: Marcus Müller
 author_email: 25648755+M-arcus@users.noreply.github.com
 author_github: @M-arcus

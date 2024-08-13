@@ -127,6 +127,12 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['includes'])) {
+            if (!\is_array($payload['includes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'includes',
+                    \gettype($payload['includes'])
+                );
+            }
             $criteria->setIncludes($payload['includes']);
         }
 

@@ -44,6 +44,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
+    public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
@@ -401,6 +402,16 @@ class DataAbstractionLayerException extends HttpException
             self::ATTRIBUTE_NOT_FOUND,
             'Can not find attribute "{{ attribute }}" for property {{ property }}',
             ['attribute' => $attribute, 'property' => $property]
+        );
+    }
+
+    public static function expectedArrayWithType(string $path, string $type): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::EXPECTED_ARRAY_WITH_TYPE,
+            \sprintf('Expected data at %s to be of the type array, %s given', $path, $type),
+            ['path' => $path, 'type' => $type]
         );
     }
 

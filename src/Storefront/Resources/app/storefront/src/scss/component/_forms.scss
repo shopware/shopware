@@ -36,6 +36,10 @@ https://getbootstrap.com/docs/5.2/forms/overview
     margin-bottom: $spacer;
 }
 
+.form-text {
+    font-size: 0.875rem;
+}
+
 .forms-boolean {
     display: block;
     border: 1px solid $border-color;

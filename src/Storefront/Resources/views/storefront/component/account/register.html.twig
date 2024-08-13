@@ -42,7 +42,14 @@
                     {% endblock %}
 
                     {% block component_account_register_personal %}
-                        <div class="register-personal mb-3">
+                        <fieldset class="register-personal mb-3">
+
+                            {% block component_account_register_personal_legend %}
+                                <legend class="register-personal-title visually-hidden">
+                                    {{ 'account.registerPersonalLegend'|trans|sw_sanitize }}
+                                </legend>
+                            {% endblock %}
+
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% if feature('v6.7.0.0') %}
@@ -251,18 +258,18 @@
                                     </div>
                                 {% endblock %}
                             {% endblock %}
-                        </div>
+                        </fieldset>
                     {% endblock %}
 
                     {% block component_account_register_address %}
                         <div class="register-address mb-5">
                             {% block component_account_register_address_fields %}
                                 {% block component_account_register_address_billing %}
-                                    <div class="register-billing">
+                                    <fieldset class="register-billing">
                                         {% block component_account_register_address_billing_header %}
-                                            <div class="card-title">
+                                            <legend class="card-title">
                                                 {{ 'account.registerAddressBillingHeader'|trans|sw_sanitize }}
-                                            </div>
+                                            </legend>
                                         {% endblock %}
 
                                         {% block component_account_register_address_billing_fields %}
@@ -272,7 +279,7 @@
                                                 showNoShippingPostfix: true,
                                             } %}
                                         {% endblock %}
-                                    </div>
+                                    </fieldset>
                                 {% endblock %}
 
                                 {% block component_account_register_address_different_shipping %}
@@ -302,11 +309,11 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
+                                            <fieldset class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
                                                 {% block component_account_register_address_shipping_header %}
-                                                    <div class="card-title">
+                                                    <legend class="card-title">
                                                         {{ 'account.registerAddressShippingHeader'|trans|sw_sanitize }}
-                                                    </div>
+                                                    </legend>
                                                 {% endblock %}
 
                                                 {% block component_account_register_address_shipping_fields %}
@@ -337,7 +344,7 @@
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}
-                                            </div>
+                                            </fieldset>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}

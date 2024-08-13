@@ -75,7 +75,11 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_media_modal_v2_search_field %}
-                            <sw-simple-search-field v-model:value="term" />
+                            <!-- Bound and updated manually to use debounced search term -->
+                            <sw-simple-search-field
+                                :value="term"
+                                @search-term-change="onSearchTermChange"
+                            />
                             {% endblock %}
                         </div>
                         {% endblock %}

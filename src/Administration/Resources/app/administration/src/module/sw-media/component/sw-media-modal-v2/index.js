@@ -276,5 +276,9 @@ export default {
 
             return upload.id === this.selectedMediaItem.id;
         },
+
+        onSearchTermChange(searchTerm) {
+            this.term = searchTerm;
+        },
     },
 };

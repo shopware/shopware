@@ -19,8 +19,6 @@ export type action = {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionSdkService extends ApiService {
-    private signedSourcesCache: Map<string, Promise<unknown>> = new Map();
-
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, 'extension-sdk', 'application/json');
 
@@ -44,14 +42,7 @@ export default class ExtensionSdkService extends ApiService {
     }
 
     signIframeSrc(appName: string, src: string): Promise<unknown> {
-        const cacheKey = `${appName}-${src}`;
-
-        if (this.signedSourcesCache.has(cacheKey)) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.signedSourcesCache.get(cacheKey)!;
-        }
-
-        this.signedSourcesCache.set(cacheKey, this.httpClient.post(
+        return this.httpClient.post(
             `/_action/${this.getApiBasePath()}/sign-uri`,
             {
                 appName,
@@ -63,9 +54,6 @@ export default class ExtensionSdkService extends ApiService {
             },
         ).then((response: AxiosResponse<unknown>) => {
             return ApiService.handleResponse(response);
-        }));
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.signedSourcesCache.get(cacheKey)!;
+        });
     }
 }

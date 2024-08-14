@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
@@ -1074,6 +1075,27 @@ class CustomFieldTest extends TestCase
         $fields = $first->get('custom');
 
         static::assertEquals(new PriceCollection([new Price(Defaults::CURRENCY, 30, 32, true)]), $fields['price']);
+    }
+
+    public function testCustomFieldPriceIsValidated(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => [
+                        'foo' => 'bar',
+                    ],
+                ],
+            ],
+        ];
+
+        $repo = $this->getTestRepository();
+        static::expectException(WriteException::class);
+        $repo->create($entities, Context::createDefaultContext());
     }
 
     public function testCustomFieldArray(): void

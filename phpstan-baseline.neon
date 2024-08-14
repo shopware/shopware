@@ -4242,16 +4242,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelType/SalesChannelTypeEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:__construct\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/ResponseFields.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:\\$includes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/ResponseFields.php
-
-		-
 			message: "#^Mixed variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/CachedSalesChannelContextFactory.php

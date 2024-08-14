@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Stock;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
+use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -65,6 +66,8 @@ class StockStorage extends AbstractStockStorage
         }
 
         $this->updateAvailableFlag(array_column($changes, 'productId'), $context);
+
+        $this->dispatcher->dispatch(new ProductStockAlteredEvent(array_column($changes, 'productId'), $context));
     }
 
     /**

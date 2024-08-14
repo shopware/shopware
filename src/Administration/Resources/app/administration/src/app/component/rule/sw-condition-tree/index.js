@@ -17,11 +17,6 @@ Component.register('sw-condition-tree', {
         'feature',
     ],
 
-    emits: [
-        'conditions-changed',
-        'initial-loading-done',
-    ],
-
     provide() {
         return {
             availableTypes: this.availableTypes,
@@ -35,6 +30,11 @@ Component.register('sw-condition-tree', {
             restrictedConditions: this.restrictedConditions,
         };
     },
+
+    emits: [
+        'conditions-changed',
+        'initial-loading-done',
+    ],
 
     props: {
         conditionDataProviderService: {

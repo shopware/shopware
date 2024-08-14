@@ -11,6 +11,8 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    emits: ['item-add'],
+
     data() {
         return {
             defaultVisibility: 30,

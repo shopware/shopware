@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:value'],
+
     props: {
         label: {
             type: String,

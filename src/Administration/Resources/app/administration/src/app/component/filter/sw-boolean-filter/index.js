@@ -11,6 +11,11 @@ Component.register('sw-boolean-filter', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'filter-update',
+        'filter-reset',
+    ],
+
     props: {
         filter: {
             type: Object,

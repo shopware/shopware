@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['on-change-sales-channel'],
+
     mixins: [],
 
     props: {

@@ -13,6 +13,15 @@ Component.register('sw-text-editor-toolbar', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'created-el',
+        'destroyed-el',
+        'remove-link',
+        'text-style-change',
+        'table-edit',
+        'on-set-link',
+    ],
+
     props: {
         parentIsActive: {
             type: Boolean,

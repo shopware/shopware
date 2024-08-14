@@ -12,6 +12,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['frw-set-title', 'frw-redirect', 'buttons-update'],
+
     data() {
         return {
             isLoading: false,

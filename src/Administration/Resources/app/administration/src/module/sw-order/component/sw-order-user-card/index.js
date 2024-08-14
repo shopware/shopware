@@ -21,6 +21,8 @@ export default {
         'feature',
     ],
 
+    emits: ['error', 'order-change', 'onEditDeliveryAddress', 'order-reset'],
+
     mixins: [
         Mixin.getByName('salutation'),
     ],

@@ -11,6 +11,11 @@ Component.register('sw-bulk-edit-modal', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'modal-close',
+        'edit-items',
+    ],
+
     props: {
         selection: {
             type: Object,

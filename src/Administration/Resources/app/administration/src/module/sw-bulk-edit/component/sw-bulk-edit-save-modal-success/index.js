@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory', 'orderDocumentApiService'],
 
+    emits: ['title-set', 'buttons-update'],
+
     mixins: [
         Shopware.Mixin.getByName('notification'),
     ],

@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['media-grid-selection-clear'],
+
     props: {
         presentation: {
             required: false,

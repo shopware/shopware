@@ -9,6 +9,8 @@ import './sw-sales-channel-detail-product-comparison-preview.scss';
 export default {
     template,
 
+    emits: ['close'],
+
     props: {
         content: {
             type: String,

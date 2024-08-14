@@ -26,6 +26,11 @@ export default {
         'cmsPageTypeService',
     ],
 
+    emits: [
+        'page-type-change', 'demo-entity-change', 'page-save', 'block-stage-drop', 'current-block-change',
+        'section-duplicate', 'block-duplicate', 'page-update', 'open-layout-assignment', 'open-layout-set-as-default',
+    ],
+
     mixins: [
         Mixin.getByName('cms-state'),
         Mixin.getByName('placeholder'),

@@ -29,6 +29,8 @@ export default {
         'userInputSanitizeService',
     ],
 
+    emits: ['mounted', 'update:value', 'blur'],
+
     props: {
         value: {
             type: String,

@@ -26,6 +26,8 @@ export default {
 
     inject: ['systemConfigApiService'],
 
+    emits: ['loading-changed', 'config-changed'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('sw-inline-snippet'),

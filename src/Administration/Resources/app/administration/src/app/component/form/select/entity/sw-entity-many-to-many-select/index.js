@@ -20,6 +20,14 @@ Component.register('sw-entity-many-to-many-select', {
         'feature',
     ],
 
+    emits: [
+        'search',
+        'update:entityCollection',
+        'item-add',
+        'item-remove',
+        'search-term-change',
+    ],
+
     props: {
         labelProperty: {
             type: String,

@@ -13,6 +13,11 @@ Component.register('sw-multi-select-filter', {
 
     inject: ['repositoryFactory'],
 
+    emits: [
+        'filter-update',
+        'filter-reset',
+    ],
+
     props: {
         filter: {
             type: Object,

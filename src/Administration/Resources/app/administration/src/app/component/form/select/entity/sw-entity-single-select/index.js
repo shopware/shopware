@@ -13,17 +13,17 @@ Component.register('sw-entity-single-select', {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
+
     emits: [
         'update:value',
         'search',
         'option-select',
         'before-selection-clear',
         'search-term-change',
-    ],
-
-    inject: [
-        'repositoryFactory',
-        'feature',
     ],
 
     mixins: [

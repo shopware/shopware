@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'mediaService'],
 
+    emits: ['open-sidebar', 'upload-finish', 'item-sort', 'item-remove'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

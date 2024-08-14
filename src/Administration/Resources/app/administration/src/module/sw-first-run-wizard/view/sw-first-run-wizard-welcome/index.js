@@ -19,6 +19,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['extension-activated', 'frw-set-title', 'buttons-update'],
+
     mixins: [
         'notification',
     ],

@@ -31,6 +31,11 @@ Component.register('sw-many-to-many-assignment-card', {
         'feature',
     ],
 
+    emits: [
+        'update:entityCollection',
+        'paginate',
+    ],
+
     props: {
         columns: {
             type: Array,

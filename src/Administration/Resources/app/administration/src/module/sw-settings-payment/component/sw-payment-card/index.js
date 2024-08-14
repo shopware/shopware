@@ -10,6 +10,8 @@ export default {
 
     inject: ['acl'],
 
+    emits: ['set-payment-active'],
+
     props: {
         paymentMethod: {
             type: Object,

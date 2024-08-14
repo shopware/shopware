@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['modal-close'],
+
     data() {
         return {
             detailType: null,

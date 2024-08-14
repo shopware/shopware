@@ -16,6 +16,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['next-allow'],
+
     props: {
         profile: {
             type: Object,

@@ -17,6 +17,8 @@ Component.register('sw-app-action-button', {
 
     inject: ['acl'],
 
+    emits: ['run-app-action'],
+
     props: {
         action: {
             type: Object,

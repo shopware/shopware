@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['section-select'],
+
     methods: {
         selectSection(type) {
             this.$emit('section-select', type);

@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'syncService', 'acl'],
 
+    emits: ['landing-page-checked-elements-count', 'unsaved-changes'],
+
     mixins: [
         'notification',
     ],

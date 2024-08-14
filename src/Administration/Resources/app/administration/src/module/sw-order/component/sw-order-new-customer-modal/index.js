@@ -21,6 +21,8 @@ export default {
         'customerValidationService',
     ],
 
+    emits: ['on-select-existing-customer', 'close'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

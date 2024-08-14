@@ -3,6 +3,8 @@
  * @package services-settings
  */
 export default {
+    emits: ['check-item'],
+
     data() {
         return {
             selection: {},

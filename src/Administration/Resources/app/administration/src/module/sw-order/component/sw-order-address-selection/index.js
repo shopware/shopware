@@ -17,6 +17,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['change-address'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

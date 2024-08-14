@@ -20,6 +20,8 @@ Component.register('sw-sales-channel-config', {
         'feature',
     ],
 
+    emits: ['update:value', 'salesChannelChanged'],
+
     props: {
         domain: {
             type: String,

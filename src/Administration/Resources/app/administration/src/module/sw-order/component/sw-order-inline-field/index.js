@@ -9,6 +9,8 @@ import template from './sw-order-inline-field.html.twig';
 export default {
     template,
 
+    emits: ['update:value'],
+
     props: {
         value: {
             type: String,

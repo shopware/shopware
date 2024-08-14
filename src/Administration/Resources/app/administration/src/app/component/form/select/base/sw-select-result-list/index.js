@@ -24,6 +24,14 @@ Component.register('sw-select-result-list', {
 
     inject: ['feature'],
 
+    emits: [
+        'item-select',
+        'active-item-change',
+        'outside-click',
+        'paginate',
+        'item-select-by-keyboard',
+    ],
+
     props: {
         options: {
             type: Array,

@@ -17,6 +17,8 @@ export default {
         'acl',
     ],
 
+    emits: ['save-and-recalculate', 'save-edits', 'recalculate-and-reload'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

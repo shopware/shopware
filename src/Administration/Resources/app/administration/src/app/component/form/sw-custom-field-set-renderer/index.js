@@ -35,6 +35,12 @@ Component.register('sw-custom-field-set-renderer', {
         };
     },
 
+    emits: [
+        'process-finish',
+        'save',
+        'change-active-selection',
+    ],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('placeholder'),

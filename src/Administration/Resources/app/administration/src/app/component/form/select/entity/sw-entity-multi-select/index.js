@@ -20,6 +20,15 @@ Component.register('sw-entity-multi-select', {
         'feature',
     ],
 
+    emits: [
+        'search',
+        'update:entityCollection',
+        'item-add',
+        'item-remove',
+        'display-values-expand',
+        'search-term-change',
+    ],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],

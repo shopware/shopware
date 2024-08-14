@@ -22,6 +22,8 @@ Component.register('sw-language-switch', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['on-change'],
+
     props: {
         disabled: {
             type: Boolean,

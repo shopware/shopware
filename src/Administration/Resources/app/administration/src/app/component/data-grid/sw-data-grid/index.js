@@ -39,6 +39,11 @@ Component.register('sw-data-grid', {
         'feature',
     ],
 
+    emits: [
+        'selection-change', 'select-all-items', 'select-item', 'inline-edit-assign',
+        'inline-edit-save', 'inline-edit-cancel', 'column-sort',
+    ],
+
     props: {
         dataSource: {
             type: Array,

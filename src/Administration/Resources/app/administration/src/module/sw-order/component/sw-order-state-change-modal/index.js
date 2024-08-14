@@ -9,6 +9,8 @@ import './sw-order-state-change-modal.scss';
 export default {
     template,
 
+    emits: ['page-leave', 'page-leave-confirm'],
+
     props: {
         order: {
             type: Object,

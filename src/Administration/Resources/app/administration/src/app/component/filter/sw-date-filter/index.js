@@ -14,6 +14,11 @@ Component.register('sw-date-filter', {
 
     inject: ['feature'],
 
+    emits: [
+        'filter-reset',
+        'filter-update',
+    ],
+
     props: {
         filter: {
             type: Object,

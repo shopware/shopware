@@ -19,6 +19,8 @@ export default {
         'stateStyleDataProviderService',
     ],
 
+    emits: ['show-status-history', 'save-edits'],
+
     mixins: [
         'notification',
     ],

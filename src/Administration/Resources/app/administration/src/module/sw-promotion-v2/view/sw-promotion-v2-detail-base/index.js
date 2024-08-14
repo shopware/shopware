@@ -18,6 +18,8 @@ export default {
         'customFieldDataProviderService',
     ],
 
+    emits: ['generate-individual-codes-finish', 'delete-individual-codes-finish', 'clean-up-codes'],
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],

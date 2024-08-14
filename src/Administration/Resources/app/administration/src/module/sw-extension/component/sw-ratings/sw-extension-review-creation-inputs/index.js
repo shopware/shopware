@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['changed'],
+
     props: {
         errors: {
             type: Object,

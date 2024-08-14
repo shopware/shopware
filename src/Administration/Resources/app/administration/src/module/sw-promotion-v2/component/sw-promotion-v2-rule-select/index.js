@@ -16,6 +16,8 @@ export default {
         'feature',
     ],
 
+    emits: ['update:collection'],
+
     props: {
         collection: {
             type: Array,

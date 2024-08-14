@@ -31,15 +31,16 @@ Component.register('sw-multi-select', {
 
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'item-add',
         'item-remove',
         'search-term-change',
         'display-values-expand',
+        'paginate',
     ],
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),

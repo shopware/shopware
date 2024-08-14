@@ -21,6 +21,8 @@ export default {
         'mediaService',
     ],
 
+    emits: ['modal-close', 'variations-finish-generate'],
+
     mixins: [
         Mixin.getByName('listing'),
     ],

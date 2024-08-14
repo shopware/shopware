@@ -26,6 +26,8 @@ Component.register('sw-data-grid-column-position', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['lower-position-value', 'position-changed', 'raise-position-value'],
+
     mixins: [
         Mixin.getByName('position'),
     ],

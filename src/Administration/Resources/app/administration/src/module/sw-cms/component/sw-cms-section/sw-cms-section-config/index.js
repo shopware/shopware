@@ -18,6 +18,8 @@ export default {
         'cmsService',
     ],
 
+    emits: ['section-delete', 'section-duplicate'],
+
     mixins: [
         Mixin.getByName('cms-state'),
     ],

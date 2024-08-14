@@ -25,6 +25,8 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
+    emits: ['click', 'media-preview-play'],
+
     playableVideoFormats: [
         'video/mp4',
         'video/ogg',

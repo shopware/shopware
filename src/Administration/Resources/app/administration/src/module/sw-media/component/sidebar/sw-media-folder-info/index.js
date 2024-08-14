@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
+    emits: ['media-folder-renamed'],
+
     mixins: [
         Mixin.getByName('media-sidebar-modal-mixin'),
     ],

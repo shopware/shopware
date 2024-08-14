@@ -15,6 +15,20 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
     inject: ['feature'],
 
+    emits: [
+        'update-records',
+        'delete-item-finish',
+        'delete-item-failed',
+        'delete-items-failed',
+        'items-delete-finish',
+        'inline-edit-save',
+        'inline-edit-cancel',
+        'column-sort',
+        'page-change',
+        'bulk-edit-modal-open',
+        'bulk-edit-modal-close',
+    ],
+
     props: {
         detailRoute: {
             type: String,

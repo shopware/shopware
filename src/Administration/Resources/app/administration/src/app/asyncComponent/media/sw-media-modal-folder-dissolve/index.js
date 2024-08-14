@@ -19,6 +19,8 @@ export default {
 
     inject: ['mediaFolderService'],
 
+    emits: ['media-folder-dissolve-modal-close', 'media-folder-dissolve-modal-dissolve'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

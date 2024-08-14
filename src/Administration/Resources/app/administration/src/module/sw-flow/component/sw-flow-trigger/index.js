@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory', 'businessEventService'],
 
+    emits: ['option-select'],
+
     props: {
         overlay: {
             type: Boolean,

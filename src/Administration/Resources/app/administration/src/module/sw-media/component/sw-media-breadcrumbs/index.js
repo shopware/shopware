@@ -17,6 +17,8 @@ export default {
         'feature',
     ],
 
+    emits: ['update:currentFolderId'],
+
     props: {
         currentFolderId: {
             type: String,

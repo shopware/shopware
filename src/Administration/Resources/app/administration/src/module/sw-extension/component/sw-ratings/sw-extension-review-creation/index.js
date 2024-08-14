@@ -14,6 +14,8 @@ export default {
 
     inject: ['extensionStoreActionService'],
 
+    emits: ['created'],
+
     mixins: ['sw-extension-error'],
 
     props: {

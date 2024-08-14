@@ -9,6 +9,8 @@ import './sw-order-state-change-modal-attach-documents.scss';
 export default {
     template,
 
+    emits: ['on-confirm'],
+
     props: {
         order: {
             type: Object,

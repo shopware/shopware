@@ -17,6 +17,8 @@ export default {
         'acl',
     ],
 
+    emits: ['close', 'finish'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

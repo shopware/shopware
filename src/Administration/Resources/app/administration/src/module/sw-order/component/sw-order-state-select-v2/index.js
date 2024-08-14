@@ -8,6 +8,8 @@ import template from './sw-order-state-select-v2.html.twig';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    emits: ['state-select'],
     props: {
         transitionOptions: {
             type: Array,

@@ -17,6 +17,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
+
     data() {
         return {
             plugins: {

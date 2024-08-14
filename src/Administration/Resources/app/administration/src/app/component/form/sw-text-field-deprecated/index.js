@@ -19,9 +19,13 @@ Component.register('sw-text-field-deprecated', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: [
+        'update:value',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     mixins: [
         Mixin.getByName('sw-form-field'),

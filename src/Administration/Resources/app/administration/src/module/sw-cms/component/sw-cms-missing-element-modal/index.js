@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['modal-close', 'modal-save', 'modal-dont-remind-change'],
+
     props: {
         missingElements: {
             type: Array,

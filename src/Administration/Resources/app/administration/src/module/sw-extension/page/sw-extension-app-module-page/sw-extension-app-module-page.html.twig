@@ -7,13 +7,13 @@
     </template>
 
     <template #content>
-        <template v-if="!suspend">
+        <template v-if="!suspend && signedIframeSrc">
             <iframe
                 v-show="appLoaded"
                 id="app-content"
                 class="sw-extension-app-module-page__app-content"
                 referrerpolicy="origin-when-cross-origin"
-                :src="entryPoint"
+                :src="signedIframeSrc"
                 :title="heading"
             ></iframe>
 

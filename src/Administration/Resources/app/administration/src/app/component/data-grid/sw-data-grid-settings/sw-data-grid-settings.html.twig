@@ -113,7 +113,7 @@
                     size="x-small"
                     square
                     :disabled="index === 0"
-                    @click="onClickChangeColumnOrderUp(index)"
+                    @click="onClickChangeColumnOrderUp(column)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_settings_column_control_up_icon %}
@@ -132,7 +132,7 @@
                     square
                     :disabled="index === (currentColumns.length - 1)"
                     class="down"
-                    @click="onClickChangeColumnOrderDown(index)"
+                    @click="onClickChangeColumnOrderDown(column)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_settings_column_control_down_icon %}

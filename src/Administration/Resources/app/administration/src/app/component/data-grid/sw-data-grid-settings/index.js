@@ -88,11 +88,15 @@ Component.register('sw-data-grid-settings', {
             this.$emit('change-column-visibility', value, index);
         },
 
-        onClickChangeColumnOrderUp(columnIndex) {
+        onClickChangeColumnOrderUp(column) {
+            const columnIndex = this.currentColumns.findIndex((col) => col.property === column.property);
+
             this.$emit('change-column-order', columnIndex, columnIndex - 1);
         },
 
-        onClickChangeColumnOrderDown(columnIndex) {
+        onClickChangeColumnOrderDown(column) {
+            const columnIndex = this.currentColumns.findIndex((col) => col.property === column.property);
+
             this.$emit('change-column-order', columnIndex, columnIndex + 1);
         },
     },

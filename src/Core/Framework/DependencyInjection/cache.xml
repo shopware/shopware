@@ -168,6 +168,8 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="esi" class="Shopware\Core\Framework\Adapter\Kernel\EsiDecoration" />
+
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheControlListener" autoconfigure="true" autowire="true">
             <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
 

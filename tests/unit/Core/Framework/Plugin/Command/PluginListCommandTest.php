@@ -80,7 +80,7 @@ class PluginListCommandTest extends TestCase
             'upgradeVersion' => '1.0.0',
             'composerName' => 'shopware/test-plugin',
             'name' => 'Shopware Test',
-            'label' => 'SMP',
+            'label' => 'I\'ve had issues in the past with ridiculously long labels from store plugins, so we just cap the label at max 40 characters.',
             'version' => '0.7.12',
             'author' => 'Shopware AG',
         ]);

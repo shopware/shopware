@@ -192,7 +192,7 @@ class ElasticsearchFieldMapper
 
             /**
              * Do not convert/cast fields defined as text.
-             * See https://issues.shopware.com/issues/NEXT-33271
+             * See https://github.com/shopware/shopware/issues/4459
              */
             if ($type === CustomFieldTypes::TEXT) {
                 continue;

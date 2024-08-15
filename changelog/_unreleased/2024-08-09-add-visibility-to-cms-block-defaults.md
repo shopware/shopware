@@ -1,6 +1,6 @@
 ---
 title: Add visibility to cms block defaults
-issue: NEXT-0000
+issue: NEXT-37699
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

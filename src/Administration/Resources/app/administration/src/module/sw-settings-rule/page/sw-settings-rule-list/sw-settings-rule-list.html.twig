@@ -56,7 +56,7 @@
                 showOnDisabledElements: true
             }"
             :router-link="{ name: 'sw.settings.rule.create' }"
-            :disabled="!acl.can('rule.creator')"
+            :disabled="!acl.can('rule.creator') || undefined"
             variant="primary"
         >
             {{ $tc('sw-settings-rule.list.buttonAddRule') }}
@@ -89,9 +89,9 @@
                 :repository="ruleRepository"
                 :is-loading="isLoading"
                 :full-page="true"
-                :show-selection="acl.can('rule.deleter')"
-                :allow-edit="acl.can('rule.editor')"
-                :allow-delete="acl.can('rule.deleter')"
+                :show-selection="acl.can('rule.deleter') || undefined"
+                :allow-edit="acl.can('rule.editor') || undefined"
+                :allow-delete="acl.can('rule.deleter') || undefined"
                 detail-route="sw.settings.rule.detail"
                 :disable-data-fetching="true"
                 :sort-by="sortBy"

@@ -14,6 +14,8 @@ export default {
 
     emits: ['select-item'],
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         ruleId: {
             type: String,

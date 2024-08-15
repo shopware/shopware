@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -11,7 +12,8 @@ class OrderStateChangeCriteriaEvent extends Event
 {
     public function __construct(
         private readonly string $orderId,
-        private readonly Criteria $criteria
+        private readonly Criteria $criteria,
+        private readonly Context $context,
     ) {
     }
 
@@ -23,5 +25,10 @@ class OrderStateChangeCriteriaEvent extends Event
     public function getCriteria(): Criteria
     {
         return $this->criteria;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }

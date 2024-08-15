@@ -208,7 +208,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
      */
     private function getOrder(string $orderId, Context $context): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($orderId);
+        $orderCriteria = $this->getOrderCriteria($orderId, $context);
 
         $order = $this->orderRepository
             ->search($orderCriteria, $context)
@@ -221,7 +221,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         return $order;
     }
 
-    private function getOrderCriteria(string $orderId): Criteria
+    private function getOrderCriteria(string $orderId, Context $context): Criteria
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer.salutation');
@@ -240,7 +240,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('addresses.countryState');
         $criteria->addAssociation('tags');
 
-        $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+        $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
         $this->eventDispatcher->dispatch($event);
 
         return $criteria;

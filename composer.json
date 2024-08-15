@@ -209,7 +209,7 @@
         }
     ],
     "scripts-descriptions": {
-        "admin:code-mods": "Run admin code mods",
+        "admin:code-mods": "Run admin code mods test",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",

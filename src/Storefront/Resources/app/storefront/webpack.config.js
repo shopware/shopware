@@ -1,5 +1,5 @@
 /**
- * @package storefront
+ * @package storefront test
  */
 const chalk = require('chalk');
 
@@ -270,7 +270,7 @@ const coreConfig = {
         })(),
     ],
     resolve: {
-        extensions: [ '.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
+        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules'),

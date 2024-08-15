@@ -58,6 +58,14 @@ Component.register('sw-url-field', {
                 this.$emit('update:modelValue', value);
             },
         },
+
+        listeners() {
+            if (!this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return {};
+            }
+
+            return this.$listeners;
+        },
     },
 
     methods: {

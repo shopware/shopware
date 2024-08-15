@@ -1,3 +1,8 @@
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -84,6 +89,15 @@ async function createWrapper(privileges = []) {
                 'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
+                'sw-avatar': true,
+                'sw-text-field': true,
+                'sw-label': true,
+                'sw-checkbox-field': true,
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-sidebar': true,
             },
         },
     });

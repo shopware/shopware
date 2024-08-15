@@ -18,6 +18,8 @@ const type = Shopware.Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'mediaService',
         'repositoryFactory',
@@ -27,6 +29,12 @@ export default {
         'systemConfigApiService',
         'entityValidationService',
     ],
+
+    provide() {
+        return {
+            swProductDetailLoadAll: this.loadAll,
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -373,7 +381,7 @@ export default {
         Shopware.State.unregisterModule('swProductDetail');
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 
@@ -404,19 +412,25 @@ export default {
             // initialize default state
             this.initState();
 
-            this.$root.$on('media-remove', (mediaId) => {
-                this.removeMediaItem(mediaId);
-            });
-            this.$root.$on('product-reload', () => {
-                this.loadAll();
-            });
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                /**
+                 * @deprecated tag:v6.7.0 - Unused event will be removed.
+                 */
+                this.$root.$on('media-remove', (mediaId) => {
+                    this.removeMediaItem(mediaId);
+                });
+            }
 
             this.initAdvancedModeSettings();
         },
 
         destroyedComponent() {
-            this.$root.$off('media-remove');
-            this.$root.$off('product-reload');
+            if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                /**
+                 * @deprecated tag:v6.7.0 - Unused event will be removed.
+                 */
+                this.$root.$off('media-remove');
+            }
         },
 
         initState() {
@@ -903,7 +917,11 @@ export default {
             }
 
             Promise.all(updatePromises).then(() => {
-                this.$root.$emit('seo-url-save-finish');
+                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                    this.$root.$emit('seo-url-save-finish');
+                } else {
+                    Shopware.Utils.EventBus.emit('sw-product-detail-save-finish');
+                }
             }).then(() => {
                 switch (response) {
                     case 'empty': {

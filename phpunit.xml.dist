@@ -164,6 +164,7 @@
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\InAppPurchase\InAppPurchaseExtension"/>
         <!-- Enable to see the db side effects of the tests. -->
 <!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
     </extensions>

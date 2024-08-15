@@ -86,6 +86,7 @@ interface Extension {
     installedAt: string;
     updatedAt: string;
     notices: string[];
+    inAppFeaturesAvailable?: boolean;
 }
 
 /**

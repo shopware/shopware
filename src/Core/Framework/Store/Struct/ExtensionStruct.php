@@ -154,6 +154,8 @@ class ExtensionStruct extends Struct
 
     protected bool $managedByComposer = false;
 
+    protected bool $inAppFeaturesAvailable = false;
+
     /**
      * @param array<string, mixed> $data
      *
@@ -602,5 +604,15 @@ class ExtensionStruct extends Struct
     public function setStoreUrl(string $storeUrl): void
     {
         $this->storeUrl = $storeUrl;
+    }
+
+    public function isInAppFeaturesAvailable(): bool
+    {
+        return $this->inAppFeaturesAvailable;
+    }
+
+    public function setInAppFeaturesAvailable(bool $inAppFeaturesAvailable): void
+    {
+        $this->inAppFeaturesAvailable = $inAppFeaturesAvailable;
     }
 }

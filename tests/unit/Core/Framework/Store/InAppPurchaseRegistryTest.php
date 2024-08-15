@@ -17,11 +17,6 @@ use Shopware\Core\Framework\Store\InAppPurchaseRegistry;
 #[Package('checkout')]
 class InAppPurchaseRegistryTest extends TestCase
 {
-    protected function tearDown(): void
-    {
-        InAppPurchase::reset();
-    }
-
     public function testCompilerPass(): void
     {
         $connection = $this->createMock(Connection::class);

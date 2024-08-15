@@ -26,8 +26,6 @@ class InAppPurchaseRegistryTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        InAppPurchase::reset();
-
         $this->setUpExtensions();
     }
 

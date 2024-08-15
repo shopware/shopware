@@ -2266,16 +2266,6 @@ parameters:
 			path: src/Core/Content/Test/Sitemap/SalesChannel/SitemapRouteTest.php
 
 		-
-			message: "#^Mixed variable in a `\\$connection\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: src/Core/DevOps/Locust/setup.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$salesChannel has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/DevOps/Locust/setup.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php

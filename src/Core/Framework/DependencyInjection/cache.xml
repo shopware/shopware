@@ -107,6 +107,7 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateListings" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateProductIds" priority="2002" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateDetailRoute" priority="2004" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductStockAlteredEvent" method="invalidateDetailRoute" priority="2004" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateStreamsAfterIndexing" priority="2005" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateReviewRoute" priority="2006" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateSearch" priority="2000" />

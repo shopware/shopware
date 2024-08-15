@@ -63,7 +63,7 @@
       "headline": "First impressions count.",
       "text": "Share your first impressions and help us improve the overall Shopware experience.",
       "feedback": "Give feedback",
-      "feedbackLink": "https://issues.shopware.com"
+      "feedbackLink": "https://github.com/shopware/shopware/issues"
     },
     "todayStats": {
       "headline": "Today's statistics",

@@ -107,7 +107,7 @@ class ElasticsearchFieldMapperTest extends TestCase
 
         /**
          * Specifically check, that this case does not happen anymore:
-         * https://issues.shopware.com/issues/NEXT-33271 (comments)
+         * https://github.com/shopware/shopware/issues/4459 (comments)
          **/
         static::assertNotEquals($formatted[$deLanguageId]['cf_bar'], \INF);
         static::assertNotEquals($formatted[$enLanguageId]['cf_bar'], \INF);

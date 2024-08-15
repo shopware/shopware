@@ -31,7 +31,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github!
 * 🧩 &nbsp;Browse more than [2.000 apps](https://store.shopware.com) in our community store
 * 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/) and everything else about the tech behind shopware
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
-* 🛠 &nbsp;[Report bugs](https://issues.shopware.com) in our issue tracker
+* 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker
 * 💡 &nbsp;Give us [feedback](https://feedback.shopware.com/) or vote existing ideas
 * 👪 &nbsp;Exchange with more than 7.000 shopware developers in our [Slack community workspace](https://slack.shopware.com)
 
@@ -127,7 +127,7 @@ Shopware 6 is completely free and released under the [MIT License](LICENSE).
 
 ## Bugs & Feedback
 
-No software is perfect, Shopware is no exception. Should you spot a bug, please report it in our [issue tracker](https://issues.shopware.com/).
+No software is perfect, Shopware is no exception. Should you spot a bug, please report it in our [issue tracker](https://github.com/shopware/shopware/issues).
 
 If you want to suggest features or how certain parts of Shopware 6 work, we'd be happy to [hear from you](https://feedback.shopware.com/).
 

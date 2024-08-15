@@ -1,6 +1,7 @@
 import template from './../sw-condition-generic/sw-condition-generic.html.twig';
 
 const { Component, Mixin } = Shopware;
+const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
 
 /**
  * @public
@@ -18,4 +19,10 @@ Component.extend('sw-condition-generic-line-item', 'sw-condition-base-line-item'
     mixins: [
         Mixin.getByName('generic-condition'),
     ],
+
+    methods: {
+        getPlaceholder(fieldType) {
+            return this.$tc(getPlaceholderSnippet(fieldType));
+        },
+    },
 });

@@ -81,7 +81,7 @@ export default {
             },
         },
 
-        placeholderText: {
+        placeholder: {
             type: String,
             default: '',
             required: false,
@@ -127,9 +127,9 @@ export default {
             return this.flatpickrInstance.config;
         },
 
-        placeholder() {
-            if (this.placeholderText.length > 0) {
-                return this.placeholderText;
+        placeholderText() {
+            if (this.placeholder.length > 0) {
+                return this.placeholder;
             }
 
             if (this.flatpickrInstance === null) {
@@ -234,12 +234,15 @@ export default {
         },
 
         showTimeZoneHint() {
-            const validMode = [
-                'datetime',
-                'datetime-local',
-            ].includes(this.dateType);
+            return !this.hideHint;
+        },
 
-            return validMode && !this.hideHint;
+        timeZoneHint() {
+            if (this.dateType === 'datetime') {
+                return this.userTimeZone;
+            }
+
+            return 'UTC';
         },
     },
 

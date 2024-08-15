@@ -1615,5 +1615,16 @@
         }
       }
     }
+  },
+  "sw-datepicker": {
+    "date": {
+      "placeholder": "Datum auswählen ..."
+    },
+    "time": {
+      "placeholder": "Zeit auswählen ..."
+    },
+    "datetime": {
+      "placeholder": "Datum und Zeit auswählen ..."
+    }
   }
 }

@@ -1,0 +1,19 @@
+---
+title: Add Context to OrderStateChangeCriteriaEvent
+issue: NEXT-37757
+flag: V6_7_0_0
+author: wexoag
+---
+# Core
+* Added `Context` to `OrderStateChangeCriteriaEvent` which now also implements `ShopwareEvent`
+___
+# Next Major Version Changes
+## Breaking Change 1:
+change
+```
+$event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+```
+to
+```
+$event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
+```

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
@@ -208,7 +209,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
      */
     private function getOrder(string $orderId, Context $context): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($orderId);
+        $orderCriteria = $this->getOrderCriteria($orderId, $context);
 
         $order = $this->orderRepository
             ->search($orderCriteria, $context)
@@ -221,7 +222,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         return $order;
     }
 
-    private function getOrderCriteria(string $orderId): Criteria
+    private function getOrderCriteria(string $orderId, Context $context): Criteria
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer.salutation');
@@ -240,7 +241,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('addresses.countryState');
         $criteria->addAssociation('tags');
 
-        $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+        if (Feature::isActive('v6.7.0.0')) {
+            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
+        } else {
+            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+        }
         $this->eventDispatcher->dispatch($event);
 
         return $criteria;

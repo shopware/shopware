@@ -20,6 +20,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
 class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
@@ -79,7 +82,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 
     public static function buildName(string $salesChannelId): string
     {
-        return 'payment-method-route-' . $salesChannelId;
+        return PaymentMethodRoute::buildName($salesChannelId);
     }
 
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string

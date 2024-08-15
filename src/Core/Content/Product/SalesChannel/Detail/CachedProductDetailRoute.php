@@ -19,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedProductDetailRoute extends AbstractProductDetailRoute
@@ -76,7 +79,7 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     public static function buildName(string $parentId): string
     {
-        return 'product-detail-route-' . $parentId;
+        return ProductDetailRoute::buildName($parentId);
     }
 
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string

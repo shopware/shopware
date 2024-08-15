@@ -56,6 +56,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-getter-setter',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
         'reason:blue-green-deployment',
+        // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators
+        'reason:decoration-will-be-removed',
         // The constraint can still be used, just not via an annotation
         'reason:remove-constraint-annotation',
         // Container factory for deprecated service

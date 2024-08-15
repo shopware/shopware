@@ -23,6 +23,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedNavigationRoute extends AbstractNavigationRoute
@@ -85,7 +88,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     public static function buildName(string $id): string
     {
-        return 'navigation-route-' . $id;
+        return NavigationRoute::buildName($id);
     }
 
     /**
@@ -167,7 +170,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         $tags = array_merge(
             $tags,
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId())],
         );
 
         $event = new NavigationRouteCacheTagsEvent($tags, $active, $rootId, $depth, $request, $response, $context, $criteria);

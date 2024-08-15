@@ -15,6 +15,8 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,7 +44,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -51,9 +54,16 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         throw new DecorationPatternException(self::class);
     }
 
+    public static function buildName(string $id): string
+    {
+        return EntityCacheKeyGenerator::buildProductTag($id);
+    }
+
     #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($productId)));
+
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
         $elements = new CrossSellingElementCollection();

@@ -12,10 +12,12 @@ use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -167,14 +169,25 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->connection->method('fetchAllAssociative')
             ->willReturn([['product_id' => $productId, 'version_id' => null]]);
 
-        $this->cacheInvalidator->expects(static::once())
-            ->method('invalidate')
-            ->with(
-                [
-                    'product-detail-route-' . $productId,
-                ],
-                false
-            );
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->expects(static::once())
+                ->method('invalidate')
+                ->with(
+                    [
+                        EntityCacheKeyGenerator::buildProductTag($productId),
+                    ],
+                    false
+                );
+        } else {
+            $this->cacheInvalidator->expects(static::once())
+                ->method('invalidate')
+                ->with(
+                    [
+                        'product-detail-route-' . $productId,
+                    ],
+                    false
+                );
+        }
 
         $subscriber->invalidateMedia($event);
     }
@@ -197,16 +210,32 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ['product_id' => $productId, 'variant_id' => $variants[1]],
             ]);
 
-        $this->cacheInvalidator->expects(static::once())
-            ->method('invalidate')
-            ->with(
-                [
-                    'product-detail-route-' . $productId,
-                    'product-detail-route-' . $variants[0],
-                    'product-detail-route-' . $variants[1],
-                ],
-                false
-            );
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->expects(static::once())
+                ->method('invalidate')
+                ->with(
+                    [
+                        EntityCacheKeyGenerator::buildProductTag($productId),
+                        EntityCacheKeyGenerator::buildProductTag($variants[0]),
+                        EntityCacheKeyGenerator::buildProductTag($variants[1]),
+                    ],
+                    false
+                );
+        } else {
+            $this->cacheInvalidator->expects(static::once())
+                ->method('invalidate')
+                ->with(
+                    [
+                        'product-detail-route-' . $productId,
+                        'product-detail-route-' . $variants[0],
+                        'product-detail-route-' . $variants[1],
+                    ],
+                    false
+                );
+        }
+
+
+
 
         $subscriber->invalidateMedia($event);
     }

@@ -19,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
 class CachedLanguageRoute extends AbstractLanguageRoute
@@ -43,7 +46,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
 
     public static function buildName(string $id): string
     {
-        return 'language-route-' . $id;
+        return LanguageRoute::buildName($id);
     }
 
     public function getDecorated(): AbstractLanguageRoute

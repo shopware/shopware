@@ -20,6 +20,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
 class CachedShippingMethodRoute extends AbstractShippingMethodRoute
@@ -78,7 +81,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     public static function buildName(string $salesChannelId): string
     {
-        return 'shipping-method-route-' . $salesChannelId;
+        return ShippingMethodRoute::buildName($salesChannelId);
     }
 
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string

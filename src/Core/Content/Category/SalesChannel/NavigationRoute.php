@@ -38,7 +38,8 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly SalesChannelRepository $categoryRepository, private readonly EventDispatcherInterface $dispatcher
+        private readonly SalesChannelRepository $categoryRepository,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -64,12 +65,14 @@ class NavigationRoute extends AbstractNavigationRoute
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
-        $tags = array_map(static fn($id) => self::buildName($id), array_keys($metaInfo));
-        $tags[] = self::ALL_TAG;
+        $active = $this->getMetaInfoById($activeId, $metaInfo);
+
+        $tags = [
+            self::buildName($context->getSalesChannelId()),
+            self::buildName($activeId),
+        ];
 
         $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
-
-        $active = $this->getMetaInfoById($activeId, $metaInfo);
 
         $root = $this->getMetaInfoById($rootId, $metaInfo);
 

@@ -116,6 +116,9 @@ class ReverseProxyCache implements StoreInterface
     {
     }
 
+    /**
+     * @return array<string>
+     */
     private function getTags(Request $request): array
     {
         if (Feature::isActive('cache_rework')) {

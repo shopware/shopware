@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +25,8 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     final public const ALL_TAG = 'shipping-method-route';
 
     /**
+     * @param SalesChannelRepository<ShippingMethodCollection> $shippingMethodRepository
+     *
      * @internal
      */
     public function __construct(

@@ -48,6 +48,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     ];
 
     /**
+     * @param array<string> $cookies
+     *
      * @internal
      */
     public function __construct(
@@ -239,11 +241,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         if (Feature::isActive('cache_rework')) {
             $parts = [
                 'rule-ids' => $context->getRuleIds(),
-                'customer-group-id' => $context->getCustomerGroupId(),
                 'version-id' => $context->getVersionId(),
                 'currency-id' => $context->getCurrencyId(),
                 'tax-state' => $context->getTaxState(),
-                'country-id' => $context->getCountryId(),
+                'logged-in' => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
             ];
 
             foreach ($this->cookies as $cookie) {
@@ -275,14 +276,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      *
      * @return list<string>
      */
-    private function updateSystemState(SalesChannelContext $context, Request $request, Response $response): array
+    private function updateSystemState(Cart $cart, SalesChannelContext $context, Request $request, Response $response): array
     {
-        if (Feature::isActive('cache_rework')) {
-            return [];
-        }
-
-        $cart = $this->cartService->getCart($context->getToken(), $context);
-
         $states = $this->getSystemStates($request, $context, $cart);
 
         if (empty($states)) {

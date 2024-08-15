@@ -876,16 +876,6 @@ parameters:
 			path: src/Core/Content/LandingPage/LandingPageEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\SalesChannel\\\\LandingPageRoute\\:\\:loadLandingPage\\(\\) should return Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/LandingPageRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$cmsPage of method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\LandingPageEntity\\:\\:setCmsPage\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\CmsPageEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity given\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/SalesChannel/LandingPageRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\AbstractMailService\\:\\:send\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Mail/Service/AbstractMailService.php
@@ -4235,6 +4225,16 @@ parameters:
 			message: "#^Mixed variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/CachedSalesChannelContextFactory.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:__construct\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Api/ResponseFields.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:\\$includes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Api/ResponseFields.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Event\\\\SalesChannelContextPermissionsChangedEvent\\:\\:__construct\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"

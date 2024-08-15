@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -193,11 +194,13 @@ class PluginManagementServiceTest extends TestCase
         return new CacheClearer(
             [],
             $this->getContainer()->get('cache_clearer'),
+            $this->getContainer()->get(CacheInvalidator::class),
             $this->filesystem,
             $this->cacheDir,
             'test',
             false,
-            $this->getContainer()->get('messenger.bus.shopware')
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get('logger')
         );
     }
 

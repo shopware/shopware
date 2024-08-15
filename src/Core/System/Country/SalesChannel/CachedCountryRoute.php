@@ -19,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('buyers-experience')]
 class CachedCountryRoute extends AbstractCountryRoute
@@ -43,7 +46,7 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     public static function buildName(string $id): string
     {
-        return 'country-route-' . $id;
+        return CountryRoute::buildName($id);
     }
 
     #[Route(path: '/store-api/country', name: 'store-api.country', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]

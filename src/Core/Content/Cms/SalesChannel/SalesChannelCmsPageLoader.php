@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
@@ -143,6 +144,8 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     }
 
     /**
+     * @param EntityCollection<CmsPageEntity> $pages
+     *
      * @return array<string>
      */
     private function extractProductIds(EntityCollection $pages): array
@@ -150,6 +153,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $ids = [];
         $streamIds = [];
 
+        /** @var CmsPageEntity $page */
         foreach ($pages as $page) {
             $slots = $page->getElementsOfType('product-slider');
 

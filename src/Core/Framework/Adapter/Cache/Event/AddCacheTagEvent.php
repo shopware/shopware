@@ -2,8 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AddCacheTagEvent
 {
+    /**
+     * @var string[]
+     */
     public array $tags;
 
     public function __construct(string ...$tags)

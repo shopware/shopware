@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.7.0 - Will be removed
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
  */
 #[Package('core')]
 class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface, ResetInterface

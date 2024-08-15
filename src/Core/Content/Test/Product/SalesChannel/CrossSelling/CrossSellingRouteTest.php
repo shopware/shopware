@@ -469,7 +469,8 @@ class CrossSellingRouteTest extends TestCase
             $this->getContainer()->get('sales_channel.product.repository'),
             $this->createMock(SystemConfigService::class),
             $this->createMock(ProductListingLoader::class),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class)
+            $this->createMock(AbstractProductCloseoutFilterFactory::class),
+            new EventDispatcher()
         );
 
         $productId = Uuid::randomHex();

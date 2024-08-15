@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -26,7 +28,7 @@ class ShippingMethodRouteTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $route = new ShippingMethodRoute($this->createMock(SalesChannelRepository::class));
+        $route = new ShippingMethodRoute($this->createMock(SalesChannelRepository::class), new EventDispatcher(), $this->createMock(ScriptExecutor::class));
 
         $this->expectException(DecorationPatternException::class);
 
@@ -63,7 +65,7 @@ class ShippingMethodRouteTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($result);
 
-        $route = new ShippingMethodRoute($repo);
+        $route = new ShippingMethodRoute($repo, new EventDispatcher(), $this->createMock(ScriptExecutor::class));
 
         $response = $route->load($request, $context, $criteria);
 

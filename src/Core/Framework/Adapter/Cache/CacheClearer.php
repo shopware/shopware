@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Log\Package;
@@ -31,7 +32,8 @@ class CacheClearer
         private readonly string $cacheDir,
         private readonly string $environment,
         private readonly bool $clusterMode,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -41,7 +43,12 @@ class CacheClearer
             $adapter->clear();
         }
 
-        $this->invalidator->invalidateExpired();
+        try {
+            $this->invalidator->invalidateExpired();
+        } catch (\Throwable $e) {
+            // redis not available atm (in pipeline or build process)
+            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
+        }
 
         if (!is_writable($this->cacheDir)) {
             throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));

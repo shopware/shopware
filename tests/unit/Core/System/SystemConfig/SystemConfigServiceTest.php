@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
@@ -87,6 +88,8 @@ class SystemConfigServiceTest extends TestCase
     #[DataProvider('provideTracingExamples')]
     public function testTracing(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $config = new SystemConfigService(
             $this->connection,
             $this->configReader,

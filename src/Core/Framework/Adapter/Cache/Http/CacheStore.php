@@ -211,6 +211,9 @@ class CacheStore implements StoreInterface
         return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
     }
 
+    /**
+     * @return array<string>
+     */
     private function getTags(Request $request): array
     {
         if (Feature::isActive('cache_rework')) {

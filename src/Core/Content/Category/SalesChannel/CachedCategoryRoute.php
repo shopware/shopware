@@ -22,6 +22,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedCategoryRoute extends AbstractCategoryRoute
@@ -44,7 +47,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
 
     public static function buildName(string $id): string
     {
-        return 'category-route-' . $id;
+        return CategoryRoute::buildName($id);
     }
 
     public function getDecorated(): AbstractCategoryRoute

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
@@ -25,7 +26,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefin
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
@@ -237,11 +238,15 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $event->getIds()));
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, use invalidateProduct instead
+     */
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         if (Feature::isActive('cache_rework')) {
             return;
         }
+
         Feature::triggerDeprecationOrThrow(
             'v6.7.0.0',
             Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
@@ -618,7 +623,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(CachedProductCrossSellingRoute::buildName(...), $ids)
+            array_map(ProductCrossSellingRoute::buildName(...), $ids)
         );
     }
 
@@ -801,7 +806,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return list<string>
+     * @return string[]
      */
     private function getChangedCategories(EntityWrittenContainerEvent $event): array
     {
@@ -813,6 +818,10 @@ class CacheInvalidationSubscriber
 
         /** @var string[] $ids */
         $ids = array_map(NavigationRoute::buildName(...), $ids);
+
+        if (!Feature::isActive('cache_rework')) {
+            $ids[] = CachedNavigationRoute::BASE_NAVIGATION_TAG;
+        }
 
         return $ids;
     }

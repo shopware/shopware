@@ -42,7 +42,7 @@
             <argument>%shopware.cache.invalidation.delay_options.storage%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator">
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator" public="true">
             <argument>%shopware.cache.invalidation.delay%</argument>
             <argument type="collection">
                 <argument type="service" id="cache.object"/>
@@ -72,11 +72,13 @@
                 <argument type="service" id="cache.http"/>
             </argument>
             <argument type="service" id="cache_clearer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument>%shopware.deployment.cluster_setup%</argument>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler">
@@ -103,19 +105,35 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateCategoryRouteByCategoryIds" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateListingRouteByCategoryIds" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateSearch" priority="2000" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateListings" priority="2001" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateProductIds" priority="2002" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateDetailRoute" priority="2004" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductStockAlteredEvent" method="invalidateDetailRoute" priority="2004" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateStreamsAfterIndexing" priority="2005" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductIndexerEvent" method="invalidateReviewRoute" priority="2006" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateSearch" priority="2000" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateListings" priority="2001" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateProductIds" priority="2002" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateDetailRoute" priority="2004" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateStreamsAfterIndexing" priority="2005" />
+            <!--     @deprecated tag:v6.7.0 - Remove listener  -->
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent" method="invalidateReviewRoute" priority="2006" />
+
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\InvalidateProductCache" method="invalidateProduct" priority="2001" />
+
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCmsPageIds" priority="2001" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCurrencyRoute" priority="2002" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateLanguageRoute" priority="2003" />
@@ -151,6 +169,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector">
             <argument type="service" id="request_stack"/>
+            <tag name="kernel.event_listener" />
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
@@ -161,7 +180,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber">
-            <argument>%shopware.http_cache.stale_while_revalidate%</argument>
+            <argument>%shopware.http_cache.cookies%</argument>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument>%shopware.http.cache.default_ttl%</argument>
             <argument>%shopware.http.cache.enabled%</argument>

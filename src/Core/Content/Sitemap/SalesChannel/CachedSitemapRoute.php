@@ -19,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('services-settings')]
 class CachedSitemapRoute extends AbstractSitemapRoute
@@ -44,7 +47,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     public static function buildName(string $id): string
     {
-        return 'sitemap-route-' . $id;
+        return SitemapRoute::buildName($id);
     }
 
     public function getDecorated(): AbstractSitemapRoute

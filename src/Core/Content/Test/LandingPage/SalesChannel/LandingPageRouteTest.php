@@ -4,9 +4,10 @@ namespace Shopware\Core\Content\Test\LandingPage\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
+use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -27,6 +28,7 @@ class LandingPageRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         $this->ids = new TestDataCollection();
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -141,7 +143,7 @@ class LandingPageRouteTest extends TestCase
     private function assertError(string $landingPageId): void
     {
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        $error = new LandingPageNotFoundException($landingPageId);
+        $error = LandingPageException::notFound($landingPageId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),
             'message' => $error->getMessage(),

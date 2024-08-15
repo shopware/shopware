@@ -6596,41 +6596,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializerTest.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\PriceCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method getGross\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method getListPrice\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method getNet\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method getPercentage\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Cannot call method getRegulationPrice\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\Price\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceFieldSerializerTest\\:\\:encode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/PriceFieldSerializerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\FieldSerializer\\\\StateMachineSateFieldSerializerTest\\:\\:createOrderPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/FieldSerializer/StateMachineSateFieldSerializerTest.php

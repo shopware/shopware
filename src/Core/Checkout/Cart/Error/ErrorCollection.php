@@ -98,4 +98,19 @@ class ErrorCollection extends Collection
     {
         return Error::class;
     }
+
+    public function getUniqueHash(): string
+    {
+        if ($this->elements === []) {
+            return '';
+        }
+
+        $hash = '';
+
+        foreach ($this->elements as $element) {
+            $hash .= $element->getId() . json_encode($element->getParameters());
+        }
+
+        return hash('xxh64', $hash);
+    }
 }

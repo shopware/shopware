@@ -151,7 +151,8 @@ class CartRuleLoader implements ResetInterface
             $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
-            if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
+            if ($this->updated($cart, $timestamps) || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()) {
+                $cart->setErrorHash($cart->getErrors()->getUniqueHash());
                 $this->cartPersister->save($cart, $context);
             }
 
@@ -176,8 +177,7 @@ class CartRuleLoader implements ResetInterface
         return $previousLineItems->count() !== $currentLineItems->count()
             || $previous->getPrice()->getTotalPrice() !== $current->getPrice()->getTotalPrice()
             || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
-            || $previousLineItems->getTypes() !== $currentLineItems->getTypes()
-        ;
+            || $previousLineItems->getTypes() !== $currentLineItems->getTypes();
     }
 
     private function detectTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string

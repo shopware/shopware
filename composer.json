@@ -256,8 +256,6 @@
         "lint": "Shorthand for the composer commands 'stylelint', 'eslint', 'ecs', 'lint:changelog' and 'lint:snippets'",
         "lint:changelog": "Validates changelogs",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
-        "locust:init": " ",
-        "locust:run": " ",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
         "make:coverage": "Generate test coverage files for current branch",
@@ -476,8 +474,6 @@
         ],
         "lint:changelog": "@php bin/shopware changelog:check",
         "lint:snippets": "@php bin/shopware snippets:validate",
-        "locust:init": "php src/Core/DevOps/Locust/setup.php",
-        "locust:run": "cd src/Core/DevOps/Locust && locust",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "make:coverage": [

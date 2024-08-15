@@ -56,6 +56,7 @@ class PluginListCommandTest extends TestCase
             'upgradeVersion' => '3.0.1',
             'name' => 'Plugin List Plugin',
             'label' => 'plp',
+            'composerName' => 'plugin/list',
             'version' => '2.5.3',
             'author' => 'Fabian Blechschmidt',
         ]);
@@ -67,6 +68,7 @@ class PluginListCommandTest extends TestCase
             'upgradeVersion' => '6.0.0',
             'name' => 'Shopware Next',
             'label' => 'swn',
+            'composerName' => null,
             'version' => '5.5.3',
             'author' => 'Shopware AG',
         ]);

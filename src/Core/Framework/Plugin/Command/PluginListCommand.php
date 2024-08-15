@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -82,6 +83,7 @@ class PluginListCommand extends Command
             $io->comment(\sprintf('Filtering for: %s', $filter));
         }
 
+        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();
@@ -90,6 +92,7 @@ class PluginListCommand extends Command
             $pluginTable[] = [
                 $plugin->getName(),
                 $plugin->getLabel(),
+                $plugin->getComposerName() ?? '',
                 $plugin->getVersion(),
                 $pluginUpgradeable,
                 $plugin->getAuthor(),
@@ -120,8 +123,10 @@ class PluginListCommand extends Command
             if (isset($composerInstalledAndRegistered[$composerName])) {
                 continue;
             }
+
             $pluginTable[] = [
                 $plugin['name'],
+                '',
                 '',
                 $plugin['version'],
                 '',
@@ -134,7 +139,7 @@ class PluginListCommand extends Command
         }
 
         $io->table(
-            ['Plugin', 'Label', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable', 'Required by composer'],
+            ['Plugin', 'Label', 'Composer name', 'Version', 'Upgrade version', 'Author', 'Installed', 'Active', 'Upgradeable', 'Required by composer'],
             $pluginTable
         );
         $io->text(

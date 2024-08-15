@@ -3,6 +3,7 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 Shopware.State.registerModule('swShippingDetail', state);

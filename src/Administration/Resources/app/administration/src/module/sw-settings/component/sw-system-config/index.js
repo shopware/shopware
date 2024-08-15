@@ -24,6 +24,8 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['systemConfigApiService'],
 
     emits: ['loading-changed', 'config-changed'],

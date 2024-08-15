@@ -203,6 +203,7 @@ async function createWrapper() {
                         return Promise.resolve('defaultFolderId');
                     },
                 },
+                swProductDetailLoadAll: () => {},
             },
         },
     });

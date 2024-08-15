@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,12 +24,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
     /**
+     * @param EntityRepository<CustomerCollection> $customerRepository
+     *
      * @internal
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly JsonEntityEncoder $jsonEntityEncoder
     ) {
     }
 
@@ -59,10 +63,18 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
             $salesChannelId = $source->getSalesChannelId();
         }
 
-        /** @var CustomerCollection $customers */
-        $customers = $this->customerRepository->search(new Criteria($ids), $context)->getEntities();
+        $criteria = new Criteria($ids);
+        $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultBillingAddress.countryState');
+        $criteria->addAssociation('defaultBillingAddress.salutation');
+        $criteria->addAssociation('defaultShippingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.countryState');
+        $criteria->addAssociation('defaultShippingAddress.salutation');
 
-        $event->addSuccess(function () use ($customers, $context, $salesChannelId): void {
+        $customers = $this->customerRepository->search($criteria, $context)->getEntities();
+
+        $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria): void {
             foreach ($customers as $customer) {
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
@@ -75,7 +87,16 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
                     )
                 );
 
-                $this->eventDispatcher->dispatch(new CustomerDeletedEvent($salesChannelContext, $customer));
+                $this->eventDispatcher->dispatch(new CustomerDeletedEvent(
+                    $salesChannelContext,
+                    $customer,
+                    $this->jsonEntityEncoder->encode(
+                        $criteria,
+                        $this->customerRepository->getDefinition(),
+                        $customer,
+                        '/api/customer'
+                    )
+                ));
             }
         });
     }

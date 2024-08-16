@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -159,6 +160,15 @@ async function createWrapper(privileges = [], options = {
                 'sw-empty-state': true,
                 'sw-skeleton': true,
                 'sw-loader': true,
+                'sw-button': true,
+                'sw-verify-user-modal': true,
+                'sw-media-modal-v2': true,
+                'sw-alert': true,
+                'sw-text-field-deprecated': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
+                'sw-field-copyable': true,
+                'sw-ai-copilot-badge': true,
                 ...options.global.stubs,
             },
         },

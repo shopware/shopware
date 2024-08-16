@@ -3,6 +3,7 @@ import Criteria from 'src/core/data/criteria.data';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 async function createWrapper() {

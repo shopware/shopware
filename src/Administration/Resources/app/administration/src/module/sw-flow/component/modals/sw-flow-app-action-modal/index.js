@@ -10,6 +10,8 @@ const { Mixin, Classes: { ShopwareError } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     emits: ['process-finish', 'modal-close'],
@@ -97,14 +99,29 @@ export default {
             }
 
             if (field.required && !value && typeof value !== 'boolean') {
-                this.$delete(this.config, [field.name]);
-                this.$set(this.errors, field.name, new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                }));
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.config, [field.name]);
+                } else {
+                    delete this.config[field.name];
+                }
+
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.errors, field.name, new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }));
+                } else {
+                    this.errors[field.name] = new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    });
+                }
                 return;
             }
 
-            this.$delete(this.errors, [field.name]);
+            if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                this.$delete(this.errors, [field.name]);
+            } else {
+                delete this.errors[field.name];
+            }
         },
 
         onSave() {
@@ -138,7 +155,11 @@ export default {
             this.sequence.propsAppFlowAction?.config.forEach((config) => {
                 this.config[config.name] = this.convertDefaultValue(config.type, config.defaultValue);
                 this.fields.push(config);
-                this.$delete(this.errors, config.name);
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.errors, config.name);
+                } else {
+                    delete this.errors[config.name];
+                }
             });
         },
 

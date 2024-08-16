@@ -8,6 +8,9 @@ export default {
     template,
 
     emits: ['page-leave-confirm', 'page-leave-cancel'],
+
+    compatConfig: Shopware.compatConfig,
+
     methods: {
         onConfirm() {
             this.$emit('page-leave-confirm');

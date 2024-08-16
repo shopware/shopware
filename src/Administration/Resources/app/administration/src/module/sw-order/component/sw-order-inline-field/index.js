@@ -9,6 +9,8 @@ import template from './sw-order-inline-field.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['update:value'],
 
     props: {

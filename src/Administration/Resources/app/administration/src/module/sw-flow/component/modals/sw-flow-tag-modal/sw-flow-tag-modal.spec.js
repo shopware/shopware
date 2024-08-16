@@ -3,6 +3,11 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const fieldClasses = [
     '.sw-flow-tag-modal__to-field',
     '.sw-flow-tag-modal__tags-field',
@@ -96,6 +101,10 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-field-error': true,
                 'sw-highlight-text': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });

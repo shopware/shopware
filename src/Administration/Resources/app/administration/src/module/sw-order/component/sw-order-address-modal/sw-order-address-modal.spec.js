@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 async function createWrapper() {
@@ -11,6 +12,9 @@ async function createWrapper() {
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'sw-customer-address-form': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-button': true,
             },
             provide: {
                 repositoryFactory: {

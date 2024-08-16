@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const createWrapper = async () => {
@@ -32,6 +33,8 @@ const createWrapper = async () => {
             stubs: {
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
             },
         },
 

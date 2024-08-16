@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 async function createWrapper(privileges = []) {
@@ -87,6 +88,7 @@ async function createWrapper(privileges = []) {
                 'sw-language-info': true,
                 'sw-single-select': true,
                 'sw-skeleton': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

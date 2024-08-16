@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
 import orderState from 'src/module/sw-order/state/order.store';
 
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 let customerData = [];
 
 function setCustomerData(customers) {
@@ -116,6 +121,20 @@ async function createWrapper() {
                             this.$parent.$parent.$emit('item-select', this.item);
                         },
                     },
+                },
+                'sw-bulk-edit-modal': true,
+                'sw-alert': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-select-field': true,
+                'sw-highlight-text': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
                 },
             },
             provide: {

@@ -14,6 +14,8 @@ const { get, format } = Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
 
     emits: ['item-edit', 'existing-item-edit', 'item-cancel', 'item-delete'],

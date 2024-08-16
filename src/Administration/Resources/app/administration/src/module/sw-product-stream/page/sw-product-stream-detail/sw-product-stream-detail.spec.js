@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -98,6 +99,9 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-textarea-field': true,
                 'sw-condition-tree': true,
+                'sw-language-switch': true,
+                'sw-product-stream-modal-preview': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 customFieldDataProviderService: {

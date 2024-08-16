@@ -38,7 +38,7 @@
                     class="sw-order-line-items-grid-sales-channel__add-product"
                     variant="ghost"
                     size="small"
-                    :disabled="isAddNewItemButtonDisabled"
+                    :disabled="isAddNewItemButtonDisabled || undefined"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.createBase.buttonAddProduct') }}
@@ -53,7 +53,7 @@
                             variant="ghost"
                             size="small"
                             square
-                            :disabled="isAddNewItemButtonDisabled"
+                            :disabled="isAddNewItemButtonDisabled || undefined"
                         >
                             <sw-icon
                                 name="regular-chevron-down-xxs"
@@ -299,7 +299,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
             <sw-context-menu-item
-                :disabled="!isProductItem(item)"
+                :disabled="!isProductItem(item) || undefined"
                 icon="regular-eye"
                 :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
                 target="_blank"

@@ -8,6 +8,8 @@ import template from './sw-order-customer-comment.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         customerComment: {
             type: String,

@@ -5,6 +5,7 @@ import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 async function createWrapper() {
@@ -33,6 +34,16 @@ async function createWrapper() {
                 },
                 'sw-order-line-items-grid-sales-channel': true,
                 'sw-extension-component-section': true,
+                'sw-order-create-general-info': true,
+                'sw-icon': true,
+                'sw-button': {
+                    emits: ['click'],
+                    template: `
+                        <button class="sw-button" @click="$emit('click')">
+                            <slot />
+                        </button>
+                    `,
+                },
             },
         },
     });
@@ -188,9 +199,11 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         const saveableField = wrapper.find('.sw-order-saveable-field input');
         await saveableField.setValue(20);
         await saveableField.trigger('input');
+        await flushPromises();
 
-        button = wrapper.find('.sw-order-saveable-field sw-button[variant="primary"]');
+        button = wrapper.find('.sw-order-saveable-field .sw-button[variant="primary"]');
         await button.trigger('click');
+        await flushPromises();
 
         expect(wrapper.vm.cartDelivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.vm.cartDelivery.shippingCosts.unitPrice).toBe(20);

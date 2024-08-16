@@ -14,6 +14,8 @@ export default {
 
     emits: ['modal-confirm', 'modal-close'],
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         ...mapGetters('swFlowState', ['sequences']),
     },

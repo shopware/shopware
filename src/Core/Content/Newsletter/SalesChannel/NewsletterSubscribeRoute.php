@@ -83,7 +83,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly RateLimiter $rateLimiter,
         private readonly RequestStack $requestStack,
-        protected readonly StoreApiCustomFieldMapper $customFieldMapper
+        private readonly StoreApiCustomFieldMapper $customFieldMapper
     ) {
     }
 

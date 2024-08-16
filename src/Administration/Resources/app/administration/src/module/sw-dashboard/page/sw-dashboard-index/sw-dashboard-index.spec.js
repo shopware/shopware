@@ -14,6 +14,14 @@ async function createWrapper(privileges = []) {
                 'sw-dashboard-statistics': true,
                 'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,
+                'sw-extension-component-section': true,
+                'sw-search-bar': true,
+                'sw-app-topbar-button': true,
+                'sw-notification-center': true,
+                'sw-help-center-v2': true,
+                'router-link': true,
+                'sw-app-actions': true,
+                'sw-error-summary': true,
             },
             mocks: {
                 $tc: jest.fn().mockImplementation((snippetPath, number, placeholders) => {
@@ -46,6 +54,7 @@ async function createWrapper(privileges = []) {
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;

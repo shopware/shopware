@@ -31,6 +31,13 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-extension-component-section': true,
                 'sw-icon': true,
                 'sw-field-error': true,
+                'router-link': true,
+                'sw-label': true,
+                'sw-context-menu-item': true,
+                'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-inheritance-switch': true,
             },
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),
@@ -62,6 +69,7 @@ async function createWrapper(privileges = [], repository = {}) {
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper;

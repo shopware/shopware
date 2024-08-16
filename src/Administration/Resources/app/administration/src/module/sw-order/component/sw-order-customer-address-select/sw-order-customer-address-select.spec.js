@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const addresses = [
@@ -90,6 +91,9 @@ async function createWrapper() {
                         },
                     },
                 },
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {

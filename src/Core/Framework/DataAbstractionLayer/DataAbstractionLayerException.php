@@ -424,4 +424,17 @@ class DataAbstractionLayerException extends HttpException
             ['name' => $name]
         );
     }
+
+    public static function invalidIdFieldType(Field $field, mixed $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_FIELD_SERIALIZER_CODE,
+            \sprintf(
+                'Expected ID field value to be of type "string", but got "%s" in field "%s".',
+                \gettype($value),
+                $field->getPropertyName()
+            )
+        );
+    }
 }

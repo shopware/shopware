@@ -58,10 +58,11 @@ class CachedCategoryRoute extends AbstractCategoryRoute
     #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($navigationId, $request, $context);
+        }
+
         return Profiler::trace('category-route', function () use ($navigationId, $request, $context) {
-            if (Feature::isActive('cache_rework')) {
-                return $this->getDecorated()->load($navigationId, $request, $context);
-            }
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($navigationId, $request, $context);
             }

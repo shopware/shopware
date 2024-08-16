@@ -120,11 +120,19 @@ class CacheStore implements StoreInterface
         $item->expiresAt($cacheResponse->getExpires());
         $item->tag($tags);
 
-        $this->eventDispatcher->dispatch(
-            new HttpCacheStoreEvent($item, $tags, $request, $response)
-        );
+        if (Feature::isActive('cache_rework')) {
+            $this->eventDispatcher->dispatch(
+                new HttpCacheStoreEvent($item, $tags, $request, $response)
+            );
 
-        $this->cache->save($item);
+            $this->cache->save($item);
+        } else {
+            $this->cache->save($item);
+
+            $this->eventDispatcher->dispatch(
+                new HttpCacheStoreEvent($item, $tags, $request, $response)
+            );
+        }
 
         return $key;
     }

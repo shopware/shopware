@@ -240,11 +240,11 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     {
         if (Feature::isActive('cache_rework')) {
             $parts = [
-                'rule-ids' => $context->getRuleIds(),
-                'version-id' => $context->getVersionId(),
-                'currency-id' => $context->getCurrencyId(),
-                'tax-state' => $context->getTaxState(),
-                'logged-in' => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+                HttpCacheCookieEvent::RULE_IDS => $context->getRuleIds(),
+                HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
+                HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
+                HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
+                HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
             ];
 
             foreach ($this->cookies as $cookie) {

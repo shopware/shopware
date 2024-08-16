@@ -65,7 +65,10 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $shippingMethods = $result->getEntities();
 
-        $shippingMethods->sortShippingMethodsByPreference($context);
+        if (Feature::isActive('cache_rework')) {
+            $shippingMethods->sortShippingMethodsByPreference($context);
+        }
+
         /**
          * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
          */

@@ -15,7 +15,8 @@ class LandingPageException extends HttpException
         return new self(
             404,
             self::EXCEPTION_CODE_LANDING_PAGE_NOT_FOUND,
-            \sprintf('Landing page with id "%s" not found.', $id)
+            'Landing page "{{ landingPageId }}" not found.',
+            ['landingPageId' => $id]
         );
     }
 }

@@ -25,3 +25,4 @@ author_email: goblin.coders@gmail.com
   * `CacheInvalidationSubscriber::invalidateProduct`
   * `CacheInvalidationSubscriber::invalidateProduct`
 * Added new `shopware.http_cache.cookies` config, which allows configuring the cookies for the http cache cookie
+* Changed `HttpCacheStoreEvent`, in 6.7, the event will be triggered before the cache item will be saved 

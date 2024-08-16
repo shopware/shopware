@@ -200,26 +200,13 @@ class CacheInvalidationSubscriber
             return;
         }
 
-        $tags = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
+        $listing = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));
 
-        $mains = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) as id FROM product WHERE id IN (:ids) AND version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        $parents = array_map(ProductDetailRoute::buildName(...), $this->getParentIds($event->getIds()));
 
-        $tags = array_merge($tags, array_map(ProductDetailRoute::buildName(...), $mains));
+        $streams = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $this->getStreamIds($event->getIds()));
 
-        $streams = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(product_stream_id))
-             FROM product_stream_mapping
-             WHERE product_stream_mapping.product_id IN (:ids)
-             AND product_stream_mapping.product_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-
-        $tags = array_merge($tags, array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streams));
+        $tags = array_merge($listing, $parents, $streams);
 
         $this->cacheInvalidator->invalidate($tags, force: $event->force);
     }
@@ -258,7 +245,7 @@ class CacheInvalidationSubscriber
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
-        /** @var string[] $ids */
+        /** @var list<string> $ids */
         $ids = array_map(LandingPageRoute::buildName(...), $event->getIds());
         $this->cacheInvalidator->invalidate($ids);
     }
@@ -580,14 +567,7 @@ class CacheInvalidationSubscriber
         );
 
         // invalidates all stream based pages and routes after the product indexer changes product_stream_mapping
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(product_stream_id))
-             FROM product_stream_mapping
-             WHERE product_stream_mapping.product_id IN (:ids)
-             AND product_stream_mapping.product_version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        $ids = $this->getStreamIds($event->getIds());
 
         $this->cacheInvalidator->invalidate(
             array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids)
@@ -969,5 +949,36 @@ class CacheInvalidationSubscriber
         $ids = array_column($ids, 'salesChannelId');
 
         return array_map(CurrencyRoute::buildName(...), $ids);
+    }
+
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
+    private function getParentIds(array $ids): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) as id FROM product WHERE id IN (:ids) AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
+    private function getStreamIds(array $ids): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(product_stream_id))
+             FROM product_stream_mapping
+             WHERE product_stream_mapping.product_id IN (:ids)
+             AND product_stream_mapping.product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 }

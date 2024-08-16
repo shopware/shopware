@@ -23,8 +23,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ProductListingRoute extends AbstractProductListingRoute
 {
-    public const CACHE_KEY = 'product-listing';
-
     /**
      * @internal
      */

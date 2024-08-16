@@ -11,6 +11,8 @@ const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
 
     props: {

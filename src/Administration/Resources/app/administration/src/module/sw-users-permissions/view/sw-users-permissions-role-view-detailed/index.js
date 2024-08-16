@@ -8,6 +8,8 @@ import './sw-users-permissions-role-view-detailed.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
     ],

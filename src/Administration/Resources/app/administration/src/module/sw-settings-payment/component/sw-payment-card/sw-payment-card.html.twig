@@ -28,7 +28,7 @@
         {% block sw_payment_card_link %}
         <sw-internal-link
             :router-link="{ name: 'sw.settings.payment.detail', params: { id: paymentMethod.id }}"
-            :disabled="!acl.can('payment.editor')"
+            :disabled="!acl.can('payment.editor') || undefined"
             hide-icon
         >
             {{ $tc('sw-settings-payment.overview.editDetails') }}
@@ -40,7 +40,7 @@
         <sw-switch-field
             v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
             :value="paymentMethod.active"
-            :disabled="!acl.can('payment.editor')"
+            :disabled="!acl.can('payment.editor') || undefined"
             :label="$tc('sw-settings-payment.overview.activeToggle')"
             @update:value="setPaymentMethodActive(!paymentMethod.active)"
         />

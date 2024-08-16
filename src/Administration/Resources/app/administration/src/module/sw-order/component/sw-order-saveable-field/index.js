@@ -9,7 +9,9 @@ import './sw-order-saveable-field.scss';
 export default {
     template,
 
-    emits: ['value-change'],
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['value-change', 'update:value'],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
@@ -72,6 +74,14 @@ export default {
                 default:
                     return 'sw-text-field';
             }
+        },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
         },
     },
 

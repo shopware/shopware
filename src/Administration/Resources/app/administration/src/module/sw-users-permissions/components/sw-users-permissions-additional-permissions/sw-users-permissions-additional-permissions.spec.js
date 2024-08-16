@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -29,6 +30,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', {
                         sync: true,
                     }),
+                    'sw-base-field': true,
+                    'sw-field-error': true,
                 },
                 provide: {
                     privileges: {

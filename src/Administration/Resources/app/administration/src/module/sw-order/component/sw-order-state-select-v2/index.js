@@ -9,7 +9,10 @@ import template from './sw-order-state-select-v2.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['state-select'],
+
     props: {
         transitionOptions: {
             type: Array,

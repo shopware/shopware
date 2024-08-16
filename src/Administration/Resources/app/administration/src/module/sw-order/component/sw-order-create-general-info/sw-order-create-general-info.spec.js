@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const cart = {

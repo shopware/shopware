@@ -30,7 +30,7 @@
             v-model:value="flow.name"
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
-            :disabled="!acl.can('flow.editor')"
+            :disabled="!acl.can('flow.editor') || undefined"
             :label="$tc('sw-flow.detail.labelGeneralInformationName')"
             :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"
             :error="flowNameError"
@@ -44,7 +44,7 @@
             v-model:value="flow.description"
             name="sw-field--flow-description"
             class="sw-flow-detail-general__general-description"
-            :disabled="!acl.can('flow.editor')"
+            :disabled="!acl.can('flow.editor') || undefined"
             :label="$tc('sw-flow.detail.labelGeneralInformationDescription')"
             :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationDescription')"
         />
@@ -60,7 +60,7 @@
                 v-if="!isFlowTemplate"
                 v-model:value="flow.priority"
                 class="sw-flow-detail-general__general-priority"
-                :disabled="!acl.can('flow.editor')"
+                :disabled="!acl.can('flow.editor') || undefined"
                 :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
                 name="sw-field--flow-priority"
             />
@@ -73,7 +73,7 @@
                 v-model:value="flow.active"
                 name="sw-field--flow-active"
                 class="sw-flow-detail-general__general-active"
-                :disabled="!acl.can('flow.editor') || isUnknownTrigger"
+                :disabled="!acl.can('flow.editor') || isUnknownTrigger || undefined"
                 :label="$tc('sw-flow.detail.labelGeneralInformationActive')"
             />
             {% endblock %}

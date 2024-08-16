@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 async function createWrapper(privileges = [], query = {}) {
@@ -29,15 +34,18 @@ async function createWrapper(privileges = [], query = {}) {
                     $route: { params: {}, query: query },
                 },
             },
-            props: {
-                stubs: {
-                    'sw-number-field': true,
-                    'sw-card': true,
-                    'sw-text-field': true,
-                    'sw-textarea-field': true,
-                    'sw-container': true,
-                    'sw-switch-field': true,
+            stubs: {
+                'sw-number-field': true,
+                'sw-card': {
+                    template: '<div><slot></slot></div>',
                 },
+                'sw-text-field': true,
+                'sw-textarea-field': true,
+                'sw-container': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-switch-field': true,
+                'sw-alert': true,
             },
         },
     });

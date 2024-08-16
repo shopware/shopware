@@ -3,6 +3,11 @@ import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-flow-sequence-action-error', {
         sync: true,
@@ -22,6 +27,13 @@ async function createWrapper() {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-icon': true,
+                'sw-context-menu': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-popover': {
+                    template: '<div><slot></slot></div>',
+                },
+                'router-link': true,
             },
         },
     });

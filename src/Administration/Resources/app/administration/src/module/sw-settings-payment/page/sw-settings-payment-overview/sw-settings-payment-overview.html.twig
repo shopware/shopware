@@ -15,7 +15,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-settings-payment-overview__button-create"
-            :disabled="!acl.can('payment.creator')"
+            :disabled="!acl.can('payment.creator') || undefined"
             :router-link="{ name: 'sw.settings.payment.create' }"
             variant="primary"
         >
@@ -62,7 +62,7 @@
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >
                 <sw-button-process
-                    :disabled="isLoading"
+                    :disabled="isLoading || undefined"
                     :is-loading="isLoading"
                     :process-success="false"
                     variant="ghost"

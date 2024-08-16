@@ -11,6 +11,8 @@ import './sw-product-stream-field-select.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'conditionDataProviderService',
         'productCustomFields',

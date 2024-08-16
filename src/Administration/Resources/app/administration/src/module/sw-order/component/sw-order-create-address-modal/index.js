@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['set-customer-address', 'close-modal'],
 
     mixins: [

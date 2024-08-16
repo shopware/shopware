@@ -7,6 +7,9 @@ import template from './sw-settings-usage-data-general.html.twig';
  */
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-usage-data-general',
+
+    compatConfig: Shopware.compatConfig,
+
     template,
 
     inject: [

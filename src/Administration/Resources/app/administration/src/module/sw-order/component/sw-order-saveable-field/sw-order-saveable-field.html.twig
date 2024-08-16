@@ -15,7 +15,8 @@
         ref="edit-field"
         :value="value"
         :placeholder="placeholder"
-        v-on="$listeners"
+        v-on="listeners"
+        @update:value="$emit('update:value', $event)"
     />
     {% endblock %}
     {% endblock %}

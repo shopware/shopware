@@ -122,6 +122,7 @@ export default function createCustomFieldService() {
         'shipping_method',
         'tax',
         'unit',
+        'newsletter_recipient'
     ];
 
     return {

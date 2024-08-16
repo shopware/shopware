@@ -12,7 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,6 +26,7 @@ export default {
             languages: [],
             salesChannels: [],
             isLoading: false,
+            customFieldSets: null,
         };
     },
 
@@ -67,6 +68,8 @@ export default {
                     this.isLoading = false;
                 });
             });
+
+            this.loadCustomFieldSets();
         },
 
         onClickSave() {
@@ -80,5 +83,11 @@ export default {
                 });
             });
         },
+
+        loadCustomFieldSets() {
+            this.customFieldDataProviderService.getCustomFieldSets('newsletter_recipient').then((sets) => {
+                this.customFieldSets = sets;
+            });
+        }
     },
 };

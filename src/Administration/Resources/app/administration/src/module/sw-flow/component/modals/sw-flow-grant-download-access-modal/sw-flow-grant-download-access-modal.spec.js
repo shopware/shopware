@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const { ShopwareError } = Shopware.Classes;
 
 Shopware.State.registerModule('swFlowState', {
@@ -32,6 +37,12 @@ async function createWrapper(config = null) {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-single-select': true,
+                'sw-button': {
+                    emits: ['click'],
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                },
+                'sw-icon': true,
+                'sw-loader': true,
             },
             provide: {
                 shortcutService: {
@@ -96,7 +107,9 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
         const valueField = wrapper.find('.sw-flow-grant-download-access-modal__value-field');
         expect(valueField.attributes('error')).toBeUndefined();
 
-        await wrapper.find('.sw-flow-grant-download-access-modal__save-button').trigger('click');
+        await wrapper.find('.sw-flow-grant-download-access-modal__save-button')
+            .trigger('click');
+        await flushPromises();
 
         expect(valueField.attributes('error')).toBeUndefined();
         expect(wrapper.emitted('process-finish')).toBeTruthy();

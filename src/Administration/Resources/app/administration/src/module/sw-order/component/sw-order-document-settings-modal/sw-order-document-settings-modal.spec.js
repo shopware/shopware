@@ -4,6 +4,7 @@ import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const orderFixture = {
@@ -50,6 +51,14 @@ async function createWrapper() {
                 'sw-textarea-field': true,
                 'sw-field-error': true,
                 'sw-icon': true,
+                'sw-media-modal-v2': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-media-url-form': true,
+                'sw-media-preview-v2': true,
             },
             provide: {
                 fileValidationService: new FileValidationService(),

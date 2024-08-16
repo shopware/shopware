@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 const { Classes: { ShopwareError } } = Shopware;
 
@@ -27,6 +28,15 @@ async function createWrapper() {
                 'sw-address': await wrapTestComponent('sw-address'),
                 'sw-icon': true,
                 'sw-loader': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-tabs-item': true,
+                'sw-tabs': true,
+                'sw-iframe-renderer': true,
+                'router-link': true,
+                'sw-simple-search-field': true,
+                'sw-text-field': true,
+                'sw-entity-single-select': true,
             },
             provide: {
                 repositoryFactory: {

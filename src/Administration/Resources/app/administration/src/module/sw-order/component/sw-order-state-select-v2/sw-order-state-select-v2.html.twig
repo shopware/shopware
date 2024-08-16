@@ -10,7 +10,7 @@
         id="state"
         v-model:value="selectedActionName"
         :class="`${selectStyle} ${backgroundStyle}`"
-        :disabled="!selectable"
+        :disabled="!selectable || undefined"
         label-property="name"
         value-property="id"
         :placeholder="selectPlaceholder"

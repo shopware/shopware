@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils';
-import swSettingsUsageData from 'src/module/sw-settings-usage-data/page/sw-settings-usage-data';
-import swSettingsUsageDataGeneral from 'src/module/sw-settings-usage-data/component/sw-settings-usage-data-general';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-usage-data', {
         sync: true,
@@ -23,6 +25,11 @@ async function createWrapper() {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'router-view': true,
+                'sw-search-bar': true,
+                'sw-tabs-item': true,
+                'sw-error-summary': true,
+                'sw-extension-component-section': true,
+                'sw-icon-deprecated': true,
             },
         },
     });
@@ -30,11 +37,6 @@ async function createWrapper() {
 
 describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => {
     let wrapper;
-
-    beforeEach(async () => {
-        Shopware.State.registerModule('usageData', swSettingsUsageData);
-        Shopware.State.registerModule('usageData', swSettingsUsageDataGeneral);
-    });
 
     it('should show tabs', async () => {
         wrapper = await createWrapper();

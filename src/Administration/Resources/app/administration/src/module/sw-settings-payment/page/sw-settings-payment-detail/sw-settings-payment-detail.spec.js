@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 async function createWrapper(privileges = [], paymentMethod = {}) {
@@ -95,6 +96,7 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
                 'sw-sidebar-media-item': true,
                 'sw-skeleton': true,
                 'sw-context-menu-item': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

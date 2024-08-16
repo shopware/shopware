@@ -22,6 +22,8 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     props: {
         promotionCodes: {
             type: Array as PropType<string[]>,

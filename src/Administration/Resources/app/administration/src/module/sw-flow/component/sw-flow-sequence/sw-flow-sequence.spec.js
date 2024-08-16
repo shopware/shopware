@@ -1,5 +1,9 @@
 import { mount } from '@vue/test-utils';
-import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
+
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 
 const sequenceFixture = {
     id: '1',
@@ -15,6 +19,7 @@ async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-flow-sequence', { sync: true }), {
         global: {
             stubs: {
+                'sw-flow-sequence': await wrapTestComponent('sw-flow-sequence', { sync: true }),
                 'sw-flow-sequence-selector': true,
                 'sw-flow-sequence-action': true,
                 'sw-flow-sequence-condition': true,
@@ -26,8 +31,6 @@ async function createWrapper(propsData = {}) {
         },
     });
 }
-
-Shopware.Component.register('sw-flow-sequence', swFlowSequence);
 
 describe('src/module/sw-flow/component/sw-flow-sequence', () => {
     it('should show sequence selector type correctly', async () => {

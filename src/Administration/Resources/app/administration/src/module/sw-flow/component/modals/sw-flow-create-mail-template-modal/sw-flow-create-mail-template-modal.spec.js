@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const fieldsClasses = [
     '.sw-flow-create-mail-template-modal__type',
     '.sw-flow-create-mail-template-modal__subject', // n
@@ -88,6 +93,13 @@ async function createWrapper(privileges = []) {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-loader': true,
+                'sw-product-variant-info': true,
+                'sw-field-copyable': true,
+                'sw-textarea-field-deprecated': true,
+                'sw-circle-icon': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {

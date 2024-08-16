@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 const mockItems = [
     {
@@ -212,6 +213,7 @@ async function createWrapper() {
                 },
                 'sw-context-menu-divider': true,
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                 },
                 'sw-card-filter': true,
@@ -230,6 +232,7 @@ async function createWrapper() {
                     template: '<input class="sw-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
+                        size: 'default',
                     },
                 },
                 'sw-order-product-select': {
@@ -246,6 +249,18 @@ async function createWrapper() {
                         </div>
                     `,
                 },
+                'sw-order-nested-line-items-modal': true,
+                'sw-button-deprecated': {
+                    emits: ['click'],
+                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                },
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-base-field': true,
+                'sw-field-error': true,
+                'sw-icon-deprecated': true,
+                'sw-highlight-text': true,
             },
             mocks: {
                 $tc: (t, count, value) => {
@@ -258,13 +273,13 @@ async function createWrapper() {
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
                 },
@@ -544,6 +559,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
+        await flushPromises();
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);

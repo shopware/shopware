@@ -12,6 +12,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [

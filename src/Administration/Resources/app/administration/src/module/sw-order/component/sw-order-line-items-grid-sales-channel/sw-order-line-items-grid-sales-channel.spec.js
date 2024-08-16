@@ -5,6 +5,7 @@ import 'src/app/component/base/sw-button';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const mockItems = [
@@ -146,13 +147,13 @@ async function createWrapper() {
         global: {
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
                 },
@@ -168,6 +169,7 @@ async function createWrapper() {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                 },
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
@@ -177,6 +179,7 @@ async function createWrapper() {
                     template: '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                     props: {
                         value: 0,
+                        size: 'default',
                     },
                 },
                 'sw-card-filter': true,
@@ -199,6 +202,14 @@ async function createWrapper() {
                 },
                 'sw-empty-state': true,
                 'sw-icon': true,
+                'sw-loader': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-field-error': true,
+                'sw-base-field': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-skeleton': true,
+                'sw-highlight-text': true,
             },
             mocks: {
                 $tc: (t, count, value) => {

@@ -3,6 +3,11 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 const addresses = [
     {
         id: '1',
@@ -185,10 +190,13 @@ async function createWrapper() {
                             </li>`,
                     methods: {
                         onClickResult() {
-                            this.$parent.$parent.$emit('item-select', this.item);
+                            Shopware.Utils.EventBus.emit('item-select', this.item);
                         },
                     },
                 },
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });
@@ -410,6 +418,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             context: {
+                ...wrapper.vm.context,
                 languageId: null,
             },
         });
@@ -418,6 +427,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         await wrapper.setProps({
             context: {
+                ...wrapper.vm.context,
                 languageId: '1234',
             },
         });

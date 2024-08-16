@@ -40,7 +40,7 @@
             class="sw-users-permissions-role-detail__button-save"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading || !acl.can('users_and_permissions.editor')"
+            :disabled="isLoading || !acl.can('users_and_permissions.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
@@ -100,6 +100,7 @@
         </sw-card-view>
         {% endblock %}
 
+        confirmPasswordModal: {{ confirmPasswordModal }}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_role_detail_content_verify_modal %}
         <sw-verify-user-modal

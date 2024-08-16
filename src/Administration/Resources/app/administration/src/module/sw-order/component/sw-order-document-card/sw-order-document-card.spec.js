@@ -4,6 +4,7 @@ import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 function getCollection(entity, collection) {
@@ -114,8 +115,12 @@ async function createWrapper() {
                 'sw-order-document-settings-credit-note-modal': true,
                 'sw-order-document-settings-storno-modal': true,
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
-                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-column-boolean': {
+                    props: ['value'],
+                    template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',
+                },
                 'sw-context-menu-item': {
+                    emits: ['click'],
                     template: `
                         <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                             <slot></slot>
@@ -128,6 +133,16 @@ async function createWrapper() {
                 'sw-switch-field': true,
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'router-link': true,
+                'sw-checkbox-field': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 documentService: {
@@ -175,13 +190,13 @@ async function createWrapper() {
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
                 },
@@ -198,6 +213,17 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     let wrapper;
 
     beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('[sw-data-grid] Can not resolve accessor');
+            },
+        });
+
         Shopware.State.registerModule('swOrderDetail', {
             ...orderDetailStore,
         });
@@ -226,6 +252,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show the error of invoice number is existing', async () => {
         global.activeAclRoles = [];
+
+        wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -250,6 +278,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show the error of credit note number is existing', async () => {
         global.activeAclRoles = [];
+
+        wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -274,6 +304,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show the error of delivery note number is existing', async () => {
         global.activeAclRoles = [];
+
+        wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -298,6 +330,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show the error of cancellation invoice number is existing', async () => {
         global.activeAclRoles = [];
+
+        wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -323,6 +357,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should save document when the event return finished', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
+
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -355,6 +390,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should show modal regarding to current document type', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
+
         await wrapper.setData({
             currentDocumentType: {
                 id: '0',
@@ -485,7 +521,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const contextMenu = wrapper.findAll('.sw-context-menu-item');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeTruthy();
+        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeTruthy();
 
         // Mark as sent option is disabled
         expect(contextMenu[3].attributes('disabled')).toBe('true');
@@ -493,7 +529,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         // Mark as unsent
         await contextMenu[4].trigger('click');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeFalsy();
+        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
         expect(contextMenu[4].attributes('disabled')).toBe('true');
     });
 
@@ -513,7 +549,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
         const contextMenu = wrapper.findAll('.sw-context-menu-item');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeFalsy();
+        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
 
         // Mark as unsent option is disabled
         expect(contextMenu.at(4).attributes('disabled')).toBe('true');

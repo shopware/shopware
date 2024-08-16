@@ -1,7 +1,8 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
-import Vue from 'vue';
+import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
@@ -32,7 +33,7 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = 
                 privileges: privilegesService,
             },
         },
-        props: Vue.observable({
+        props: reactive({
             role: { privileges: rolePrivileges },
         }),
     });

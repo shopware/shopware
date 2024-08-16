@@ -4,6 +4,11 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const fieldClasses = [
     '.sw-flow-event-change-confirm-modal__title',
     '.sw-flow-event-change-confirm-modal__text-confirmation',

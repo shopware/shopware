@@ -6,7 +6,7 @@
     <sw-users-permissions-detailed-permissions-grid
         :role="role"
         :detailed-privileges="detailedPrivileges"
-        :disabled="!acl.can('users_and_permissions.editor')"
+        :disabled="!acl.can('users_and_permissions.editor') || undefined"
     />
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -14,7 +14,7 @@
     <sw-users-permissions-detailed-additional-permissions
         :role="role"
         :detailed-privileges="detailedPrivileges"
-        :disabled="!acl.can('users_and_permissions.editor')"
+        :disabled="!acl.can('users_and_permissions.editor') || undefined"
     />
     {% endblock %}
 </div>

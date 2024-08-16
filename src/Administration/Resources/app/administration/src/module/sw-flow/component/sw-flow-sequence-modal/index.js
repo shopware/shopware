@@ -7,6 +7,8 @@ import template from './sw-flow-sequence-modal.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['process-finish', 'modal-close'],
 
     props: {

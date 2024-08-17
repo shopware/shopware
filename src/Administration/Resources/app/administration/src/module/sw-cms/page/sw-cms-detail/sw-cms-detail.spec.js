@@ -107,16 +107,15 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                                                 source: 'source',
                                             },
                                             mediaId: mediaID,
+                                            media: {
+                                                id: mediaID,
+                                            },
                                         },
                                     ]),
                                 };
                             case 'product':
                                 return {
                                     search: () => Promise.resolve([{ id: productID }]),
-                                };
-                            case 'media':
-                                return {
-                                    get: () => Promise.resolve({ id: mediaID }),
                                 };
                             default:
                                 return {
@@ -298,7 +297,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.setData({
             page: {
                 type: 'product_list',
-
             },
         });
 

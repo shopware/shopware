@@ -86,17 +86,28 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
         const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
 
-        expect(productBoxes).toHaveLength(8);
+        expect(productBoxes).toHaveLength(currentDemoProducts.length);
 
         productBoxes.forEach((productBox, index) => {
-            const expectedDefaultConfig = { ...defaultConfig };
-
             const product = currentDemoProducts[index];
-            if (product) {
-                expectedDefaultConfig.data = { product };
-            }
 
-            expect(productBox.props('element')).toMatchObject(expectedDefaultConfig);
+            expect(productBox.props('element')).toMatchObject({ ...defaultConfig, data: { product } });
+        });
+    });
+
+    it('should use fallback to empty products', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('cmsPageState').setCurrentDemoProducts([]);
+
+        await wrapper.vm.$nextTick();
+
+        const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
+
+        expect(productBoxes).toHaveLength(8);
+
+        productBoxes.forEach((productBox) => {
+            expect(productBox.props('element')).toMatchObject({ ...defaultConfig, data: null });
         });
     });
 });

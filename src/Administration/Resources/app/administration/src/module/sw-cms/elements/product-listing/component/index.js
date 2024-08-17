@@ -16,15 +16,13 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
-    data() {
-        return {
-            demoProductCount: 8,
-        };
-    },
-
     computed: {
         currentDemoProducts() {
             return Shopware.Store.get('cmsPageState').currentDemoProducts;
+        },
+
+        demoProductCount() {
+            return this.currentDemoProducts?.length || 8;
         },
 
         demoProductElement() {

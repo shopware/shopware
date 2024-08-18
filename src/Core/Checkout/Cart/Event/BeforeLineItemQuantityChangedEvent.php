@@ -15,7 +15,7 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
     /**
      * @var int
      */
-    protected $beforeUpdateQuantity;
+    protected int $beforeUpdateQuantity;
 
     /**
      * @var LineItem
@@ -33,12 +33,10 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
     protected $salesChannelContext;
 
     public function __construct(
-        int $beforeUpdateQuantity,
         LineItem $lineItem,
         Cart $cart,
         SalesChannelContext $salesChannelContext
     ) {
-        $this->beforeUpdateQuantity = $beforeUpdateQuantity;
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;
@@ -67,5 +65,10 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, C
     public function getBeforeUpdateQuantity(): int
     {
         return $this->beforeUpdateQuantity;
+    }
+
+    public function setBeforeUpdateQuantity(int $beforeUpdateQuantity): void
+    {
+        $this->beforeUpdateQuantity = $beforeUpdateQuantity;
     }
 }

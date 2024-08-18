@@ -46,6 +46,16 @@ Component.register('sw-grid', {
         };
     },
 
+    emits: [
+        'inline-edit-finish',
+        'inline-edit-start',
+        'sw-grid-disable-inline-editing',
+        'inline-edit-cancel',
+        'sw-grid-select-all',
+        'sw-grid-select-item',
+        'sort-column',
+    ],
+
     props: {
         items: {
             type: Array,

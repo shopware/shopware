@@ -11,6 +11,11 @@ Component.register('sw-number-filter', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'filter-reset',
+        'filter-update',
+    ],
+
     props: {
         filter: {
             type: Object,

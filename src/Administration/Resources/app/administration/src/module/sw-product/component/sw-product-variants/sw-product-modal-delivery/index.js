@@ -13,6 +13,8 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
+    emits: ['modal-close', 'configuration-close'],
+
     props: {
         product: {
             type: Object,

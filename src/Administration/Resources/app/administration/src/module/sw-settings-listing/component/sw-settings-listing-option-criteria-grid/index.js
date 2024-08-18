@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['criteria-add', 'criteria-delete', 'inline-edit-save', 'inline-edit-cancel'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('sw-inline-snippet'),

@@ -29,6 +29,8 @@ Component.register('sw-radio-panel', {
 
     inject: ['feature'],
 
+    emits: ['update:modelValue'],
+
     props: {
         // eslint-disable-next-line vue/require-default-prop
         value: {

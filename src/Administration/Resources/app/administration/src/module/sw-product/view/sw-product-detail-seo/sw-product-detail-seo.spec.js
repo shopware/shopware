@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -140,6 +141,12 @@ async function createWrapper(privileges = []) {
                 'sw-loader': true,
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-skeleton': true,
+                'sw-textarea-field': true,
+                'sw-switch-field': true,
+                'sw-product-variant-info': true,
+                'sw-text-field-deprecated': true,
+                'sw-button': true,
+                'sw-ai-copilot-badge': true,
             },
         },
     });

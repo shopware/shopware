@@ -16,6 +16,8 @@ export default {
         'promotionCodeApiService',
     ],
 
+    emits: ['generate-finish', 'close'],
+
     mixins: [
         'notification',
     ],

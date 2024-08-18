@@ -4,6 +4,7 @@ import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const contextState = {
@@ -26,6 +27,16 @@ async function createWrapper() {
                         </div>
                     `,
                 },
+                'sw-loader': true,
+                'sw-order-create-promotion-modal': true,
+                'sw-order-customer-address-select': true,
+                'sw-entity-single-select': true,
+                'sw-container': true,
+                'sw-number-field': true,
+                'sw-datepicker': true,
+                'sw-text-field': true,
+                'sw-order-promotion-tag-field': true,
+                'sw-switch-field': true,
             },
             provide: {
                 cartStoreService: {},

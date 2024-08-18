@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['title-set', 'buttons-update'],
+
     props: {
         itemTotal: {
             required: true,

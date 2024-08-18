@@ -11,6 +11,10 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['process-finish', 'modal-close'],
+
     mixins: [
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),

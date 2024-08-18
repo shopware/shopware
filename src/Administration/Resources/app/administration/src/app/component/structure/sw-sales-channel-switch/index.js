@@ -21,6 +21,8 @@ Component.register('sw-sales-channel-switch', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['change-sales-channel-id'],
+
     props: {
         disabled: {
             type: Boolean,

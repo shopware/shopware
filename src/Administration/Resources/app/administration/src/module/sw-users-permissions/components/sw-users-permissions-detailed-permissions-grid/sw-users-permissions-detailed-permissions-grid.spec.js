@@ -1,11 +1,12 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 // eslint-disable-next-line
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
-import Vue from 'vue';
+import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
@@ -33,7 +34,7 @@ async function createWrapper(
                 privileges: privilegesService,
             },
         },
-        props: Vue.observable({
+        props: reactive({
             role: { privileges: rolePrivileges },
             detailedPrivileges: detailedPrivileges,
         }),

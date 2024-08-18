@@ -19,7 +19,10 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'swProductDetailLoadAll',
     ],
+
+    emits: ['modal-close', 'variations-finish-generate'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -304,7 +307,7 @@ export default {
                 this.actualProgress = 0;
                 this.maxProgress = 0;
 
-                this.$root.$emit('product-reload');
+                this.swProductDetailLoadAll();
             });
         },
 

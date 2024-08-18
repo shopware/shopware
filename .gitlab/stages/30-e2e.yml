@@ -185,8 +185,13 @@ acceptance (changed):
       changes:
         - "tests/acceptance/tests/**/*.spec.ts"
   script:
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/acceptance/tests/")'
+    - 'export CHANGED_FILES="$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E \"^tests/acceptance/tests/\")"'
     - 'echo "Changed files: $CHANGED_FILES"'
+    - >
+      if [[ -z "${CHANGED_FILES}" ]]; then
+        printf "No changed test files found.\n"
+        exit 0
+      fi
     # remove prefix tests/acceptance/
     - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/acceptance/||g")'
     - 'echo "Test spec: $TEST_SPEC"'

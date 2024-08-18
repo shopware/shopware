@@ -4,6 +4,7 @@ import Entity from 'src/core/data/entity.data';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;
@@ -91,6 +92,26 @@ async function createWrapper(props = defaultProps) {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-settings-rule-category-tree': true,
+                'router-link': true,
+                'sw-loader': true,
+                'sw-card-filter': true,
+                'sw-product-variant-info': true,
+                'sw-icon': true,
+                'sw-pagination': true,
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-field-error': true,
+                'sw-inheritance-switch': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {
@@ -141,8 +162,9 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-modal
             },
         });
         await flushPromises();
+        expect(wrapper.vm.entityContext.entityName).toBe('category');
 
-        expect(wrapper.find('sw-settings-rule-category-tree').exists()).toBe(true);
+        expect(wrapper.find('sw-settings-rule-category-tree-stub').exists()).toBe(true);
     });
 
     it('should change selection', async () => {

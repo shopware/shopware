@@ -8,6 +8,8 @@ import './sw-bulk-edit-custom-fields.scss';
 export default {
     template,
 
+    emits: ['change'],
+
     props: {
         entity: {
             type: Object,

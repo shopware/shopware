@@ -15,6 +15,8 @@ export default {
         'acl',
     ],
 
+    emits: ['data-load', 'config-save'],
+
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('notification'),

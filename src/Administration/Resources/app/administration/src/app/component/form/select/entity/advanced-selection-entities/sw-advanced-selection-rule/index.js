@@ -22,6 +22,11 @@ Component.register('sw-advanced-selection-rule', {
         'feature',
     ],
 
+    emits: [
+        'selection-submit',
+        'modal-close',
+    ],
+
     props: {
         ruleAwareGroupKey: {
             type: String,

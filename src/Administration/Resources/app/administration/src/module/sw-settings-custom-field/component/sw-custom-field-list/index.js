@@ -25,6 +25,8 @@ export default {
         };
     },
 
+    emits: ['loading-changed'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('notification'),

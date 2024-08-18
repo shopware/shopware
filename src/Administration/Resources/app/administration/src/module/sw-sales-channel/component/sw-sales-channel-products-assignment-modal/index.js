@@ -21,6 +21,8 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
+    emits: ['modal-close', 'products-add'],
+
     directives: {
         hide: {
             bind: updateElementVisibility,

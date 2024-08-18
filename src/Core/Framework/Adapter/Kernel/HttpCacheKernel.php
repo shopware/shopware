@@ -63,6 +63,8 @@ class HttpCacheKernel extends HttpCache
         // https://github.com/symfony/symfony/issues/51648#issuecomment-1717846894
         if ($type === HttpKernelInterface::MAIN_REQUEST) {
             $response = parent::handle($request, $type, $catch);
+        } elseif ($request->attributes->has('_sw_esi')) {
+            $response = parent::handle($request, $type, $catch);
         } else {
             $response = $this->getKernel()->handle($request, $type, $catch);
         }

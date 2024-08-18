@@ -30,6 +30,11 @@ Component.register('sw-select-rule-create', {
         'ruleConditionDataProviderService',
     ],
 
+    emits: [
+        'save-rule',
+        'dismiss-rule',
+    ],
+
     props: {
         ruleId: {
             type: String,

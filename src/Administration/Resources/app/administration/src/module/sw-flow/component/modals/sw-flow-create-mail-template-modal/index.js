@@ -13,7 +13,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
+
+    emits: ['modal-close', 'process-finish'],
 
     mixins: [
         Mixin.getByName('placeholder'),

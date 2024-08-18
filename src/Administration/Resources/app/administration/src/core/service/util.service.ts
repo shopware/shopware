@@ -36,6 +36,7 @@ import fileReaderUtils from './utils/file-reader.utils';
 import sortUtils from './utils/sort.utils';
 import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
+import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
@@ -129,6 +130,13 @@ export const array = {
     intersectionBy: intersectionBy,
 };
 
+/**
+ * @private
+ */
+export const genericRuleCondition = {
+    getPlaceholderSnippet: genericRuleConditionUtils.getPlaceholderSnippet,
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
@@ -148,6 +156,7 @@ export default {
     moveItem,
     VueHelper,
     EventBus,
+    genericRuleCondition,
 };
 
 /**

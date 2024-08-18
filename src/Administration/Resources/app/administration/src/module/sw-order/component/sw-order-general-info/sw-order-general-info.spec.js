@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const deleteFn = jest.fn(() => Promise.resolve());
@@ -143,6 +144,10 @@ async function createWrapper() {
             stubs: {
                 'sw-order-state-select-v2': true,
                 'sw-entity-tag-select': true,
+                'router-link': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-order-state-change-modal': true,
             },
         },
 

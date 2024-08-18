@@ -16,6 +16,8 @@ const { mapGetters } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'documentService',
         'numberRangeService',
@@ -23,6 +25,8 @@ export default {
         'feature',
         'acl',
     ],
+
+    emits: ['update-loading', 'document-save'],
 
     mixins: [
         Mixin.getByName('listing'),

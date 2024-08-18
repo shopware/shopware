@@ -2,6 +2,11 @@ import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const sequenceFixture = {
     id: '1',
     actionName: null,
@@ -104,7 +109,7 @@ async function createWrapper(privileges = []) {
         global: {
             stubs: {
                 'sw-icon': {
-                    template: '<div class="sw-icon" v-on="$listeners"></div>',
+                    template: '<div class="sw-icon"></div>',
                 },
                 'sw-flow-sequence': await wrapTestComponent('sw-flow-sequence'),
                 'sw-flow-sequence-selector': true,

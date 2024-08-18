@@ -13,6 +13,8 @@ Component.register('sw-data-grid-column-boolean', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:value'],
+
     props: {
         isInlineEdit: {
             type: Boolean,

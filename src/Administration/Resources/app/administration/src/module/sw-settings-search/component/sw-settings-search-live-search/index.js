@@ -19,6 +19,8 @@ export default {
         'liveSearchService',
     ],
 
+    emits: ['live-search-results-change', 'sales-channel-change'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

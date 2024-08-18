@@ -15,6 +15,8 @@ Component.register('sw-card-filter', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['sw-card-filter-term-change'],
+
     props: {
         placeholder: {
             type: String,

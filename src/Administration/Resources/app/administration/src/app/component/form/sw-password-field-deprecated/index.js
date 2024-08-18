@@ -14,6 +14,11 @@ import './sw-password-field.scss';
 Shopware.Component.extend('sw-password-field-deprecated', 'sw-text-field-deprecated', {
     template,
 
+    emits: [
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
+
     props: {
         passwordToggleAble: {
             type: Boolean,

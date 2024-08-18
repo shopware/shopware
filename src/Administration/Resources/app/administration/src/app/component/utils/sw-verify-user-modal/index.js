@@ -14,6 +14,11 @@ Component.register('sw-verify-user-modal', {
         'loginService',
     ],
 
+    emits: [
+        'verified',
+        'close',
+    ],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

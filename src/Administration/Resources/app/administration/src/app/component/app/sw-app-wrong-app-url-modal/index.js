@@ -18,6 +18,8 @@ Component.register('sw-app-wrong-app-url-modal', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['modal-close'],
+
     mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {

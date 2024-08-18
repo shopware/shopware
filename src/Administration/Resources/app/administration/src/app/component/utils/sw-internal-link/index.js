@@ -22,6 +22,8 @@ Component.register('sw-internal-link', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['click'],
+
     props: {
         routerLink: {
             type: Object,

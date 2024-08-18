@@ -59,6 +59,8 @@ class Cart extends Struct
 
     private ?CartBehavior $behavior = null;
 
+    protected string $errorHash = '';
+
     /**
      * @internal
      */
@@ -318,5 +320,15 @@ class Cart extends Struct
     public function setHash(?string $hash): void
     {
         $this->hash = $hash;
+    }
+
+    public function getErrorHash(): string
+    {
+        return $this->errorHash;
+    }
+
+    public function setErrorHash(string $errorHash): void
+    {
+        $this->errorHash = $errorHash;
     }
 }

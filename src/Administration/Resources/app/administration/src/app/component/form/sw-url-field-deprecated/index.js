@@ -29,11 +29,11 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: [
-        'update:value',
-    ],
-
     inject: ['feature'],
+
+    emits: [
+        'update:value', 'inheritance-restore', 'inheritance-remove',
+    ],
 
     props: {
         error: {

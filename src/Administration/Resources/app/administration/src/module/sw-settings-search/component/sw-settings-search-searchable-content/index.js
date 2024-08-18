@@ -18,6 +18,8 @@ export default {
         'acl',
     ],
 
+    emits: ['edit-change'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

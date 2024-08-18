@@ -68,6 +68,9 @@ PluginManager.register('FormAutoSubmit', () => import('src/plugin/forms/form-aut
 PluginManager.register('FormAjaxSubmit', () => import('src/plugin/forms/form-ajax-submit.plugin'), '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', () => import('src/plugin/forms/form-add-history.plugin'), '[data-form-add-history]');
 PluginManager.register('FormPreserver', () => import('src/plugin/forms/form-preserver.plugin'), '[data-form-preserver]');
+if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+    PluginManager.register('FormAjaxPagination', () => import('src/plugin/forms/form-ajax-pagination.plugin'), '[data-form-ajax-pagination]');
+}
 PluginManager.register('AccountMenu', () => import('src/plugin/header/account-menu.plugin'), '[data-account-menu]');
 PluginManager.register('OffCanvasTabs', () => import('src/plugin/offcanvas-tabs/offcanvas-tabs.plugin'), '[data-off-canvas-tabs]');
 PluginManager.register('BaseSlider', () => import('src/plugin/slider/base-slider.plugin'), '[data-base-slider]');

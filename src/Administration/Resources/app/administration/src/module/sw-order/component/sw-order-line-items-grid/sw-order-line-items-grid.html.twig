@@ -30,7 +30,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_create_actions_button_group %}
-            <sw-button-group :disabled="isLoading">
+            <sw-button-group :disabled="isLoading || undefined">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_add_existing_product %}
@@ -38,7 +38,7 @@
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
                     variant="ghost"
                     size="small"
-                    :disabled="!editable"
+                    :disabled="!editable || undefined"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
@@ -70,7 +70,7 @@
                             showOnDisabledElements: true
                         }"
                         class="sw-order-line-items-grid__create-custom-item"
-                        :disabled="!editable"
+                        :disabled="!editable || undefined"
                         @click="onInsertBlankItem"
                     >
                         {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
@@ -82,7 +82,7 @@
                             showOnDisabledElements: true
                         }"
                         class="sw-order-line-items-grid__can-create-discounts-button"
-                        :disabled="!canCreateDiscounts"
+                        :disabled="!canCreateDiscounts || undefined"
                         @click="onInsertCreditItem"
                     >
                         {{ $tc('sw-order.detailBase.buttonAddCredit') }}
@@ -323,7 +323,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_show %}
             <sw-context-menu-item
-                :disabled="!isProductItem(item)"
+                :disabled="!isProductItem(item) || undefined"
                 :router-link="{ name: 'sw.product.detail', params: { id: item.productId } }"
             >
 
@@ -348,7 +348,7 @@
                 }"
                 variant="danger"
                 class="sw_order_line_items_grid-item__delete-action"
-                :disabled="!editable"
+                :disabled="!editable || undefined"
                 @click="onDeleteItem(item, itemIndex)"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -12,6 +12,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['update:rating'],
+
     props: {
         editable: {
             type: Boolean,

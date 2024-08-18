@@ -15,6 +15,8 @@ export default {
 
     inject: ['repositoryFactory', 'syncService'],
 
+    emits: ['category-checked-elements-count', 'unsaved-changes'],
+
     mixins: ['notification'],
 
     props: {

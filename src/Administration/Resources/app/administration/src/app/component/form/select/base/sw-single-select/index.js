@@ -16,15 +16,16 @@ Component.register('sw-single-select', {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'item-selected',
         'on-open-change',
         'before-selection-clear',
         'search',
+        'paginate',
     ],
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),

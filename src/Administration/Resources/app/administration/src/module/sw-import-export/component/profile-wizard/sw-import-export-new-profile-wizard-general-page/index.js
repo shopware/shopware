@@ -11,6 +11,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['next-allow', 'next-disable'],
+
     props: {
         profile: {
             type: Object,

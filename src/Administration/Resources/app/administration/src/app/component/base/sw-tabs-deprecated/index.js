@@ -42,6 +42,8 @@ Component.register('sw-tabs-deprecated', {
         };
     },
 
+    emits: ['new-item-active'],
+
     extensionApiDevtoolInformation: {
         property: 'ui.tabs',
         positionId: (currentComponent) => currentComponent.positionIdentifier,

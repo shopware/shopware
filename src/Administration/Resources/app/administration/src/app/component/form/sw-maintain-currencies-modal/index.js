@@ -17,6 +17,11 @@ Component.register('sw-maintain-currencies-modal', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'update-prices',
+        'modal-close',
+    ],
+
     props: {
         currencies: {
             type: Array,

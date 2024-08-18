@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 const mockBusinessEvents = [
     {
         name: 'checkout.customer.before.login',
@@ -64,6 +69,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 'sw-empty-state': true,
                 'sw-search-bar': true,
                 'sw-alert': true,
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {
@@ -112,7 +122,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
     });
 }
 
-describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
+describe('module/sw-flow/view/listing/sw-flow-list', () => {
     Shopware.Service().register('businessEventService', () => {
         return {
             getBusinessEvents: () => Promise.resolve(mockBusinessEvents),

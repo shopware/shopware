@@ -34,6 +34,8 @@ interface CombinedStates {
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'stateStyleDataProviderService',

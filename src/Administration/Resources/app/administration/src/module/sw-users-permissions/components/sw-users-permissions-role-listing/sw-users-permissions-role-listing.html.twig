@@ -29,7 +29,7 @@
                 :router-link="{ name: 'sw.users.permissions.role.detail' }"
                 variant="ghost"
                 size="small"
-                :disabled="!acl.can('users_and_permissions.creator')"
+                :disabled="!acl.can('users_and_permissions.creator') || undefined"
                 class="sw-users-permissions-role-listing__add-role-button"
             >
                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
@@ -69,7 +69,7 @@
             <sw-context-menu-item
                 :router-link="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
                 class="sw-users-permissions-role-listing__context-menu-edit"
-                :disabled="!acl.can('users_and_permissions.editor')"
+                :disabled="!acl.can('users_and_permissions.editor') || undefined"
             >
                 {{ $tc('sw-users-permissions.roles.role-grid.contextMenuEdit') }}
             </sw-context-menu-item>
@@ -80,7 +80,7 @@
             <sw-context-menu-item
                 variant="danger"
                 class="sw-users-permissions-role-listing__context-menu-delete"
-                :disabled="!acl.can('users_and_permissions.deleter')"
+                :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
                 {{ $tc('sw-users-permissions.roles.role-grid.contextMenuDelete') }}

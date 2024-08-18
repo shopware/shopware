@@ -33,6 +33,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['image-change'],
+
     props: {
         images: {
             type: Array,

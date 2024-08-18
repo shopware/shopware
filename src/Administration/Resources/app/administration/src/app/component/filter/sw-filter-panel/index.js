@@ -13,6 +13,8 @@ Component.register('sw-filter-panel', {
 
     inject: ['repositoryFactory'],
 
+    emits: ['criteria-changed'],
+
     props: {
         filters: {
             type: Array,

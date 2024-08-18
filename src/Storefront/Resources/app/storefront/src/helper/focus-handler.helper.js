@@ -18,9 +18,11 @@ export default class FocusHandler {
     /**
      * Saves the current focus state under the given key.
      * If not explicitly set, the element that is currently in focus will be saved.
+     * It is also possible to pass a selector (string) to search for a specific element during `resumeFocusState`.
+     * This can be used when the original element reference is no longer available. E.g. due to DOM modifications.
      *
      * @param {string} focusHistoryKey
-     * @param {HTMLElement} focusEl
+     * @param {HTMLElement|string} focusEl
      */
     saveFocusState(focusHistoryKey = this._defaultHistoryKey, focusEl = document.activeElement) {
         this._focusMap.set(focusHistoryKey, focusEl);
@@ -34,12 +36,18 @@ export default class FocusHandler {
     /**
      * Resumes the focus to the element that was saved for the given key.
      *
-     * @param focusHistoryKey
+     * @param {string} focusHistoryKey
+     * @param {{preventScroll: boolean, focusVisible: boolean}} focusOptions
      */
-    resumeFocusState(focusHistoryKey = this._defaultHistoryKey) {
-        const focusEl = this._focusMap.get(focusHistoryKey);
+    resumeFocusState(focusHistoryKey = this._defaultHistoryKey, focusOptions = {}) {
+        let focusEl = this._focusMap.get(focusHistoryKey);
 
-        this.setFocus(focusEl);
+        // If the `focusEl` is a string, we assume it is a selector and query the element first.
+        if (typeof focusEl === 'string') {
+            focusEl = document.querySelector(focusEl);
+        }
+
+        this.setFocus(focusEl, focusOptions);
 
         document.$emitter.publish('Focus/StateResumed', {
             focusHistoryKey,
@@ -51,16 +59,16 @@ export default class FocusHandler {
      * Tries to set the focus to the given element.
      *
      * @param {HTMLElement} el
+     * @param {{preventScroll: boolean, focusVisible: boolean}} focusOptions
      */
-    setFocus(el) {
+    setFocus(el, focusOptions) {
         if (!el) {
             return;
         }
-
         try {
-            el.focus();
+            el.focus(focusOptions);
         } catch (error) {
-            console.error(`[FocusHandler]: Unable to focus element ${el.tagName}.`, error);
+            console.error('[FocusHandler]: Unable to focus element.', error);
         }
     }
 }

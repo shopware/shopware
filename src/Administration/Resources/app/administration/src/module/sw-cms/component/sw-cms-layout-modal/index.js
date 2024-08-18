@@ -20,6 +20,8 @@ export default {
         'cmsPageTypeService',
     ],
 
+    emits: ['modal-layout-select', 'modal-close'],
+
     mixins: [
         Mixin.getByName('listing'),
     ],

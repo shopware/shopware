@@ -1,5 +1,6 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -149,6 +150,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-inheritance-warning': true,
                     'router-link': true,
                     'sw-product-detail': await wrapTestComponent('sw-product-detail'),
+                    'sw-extension-component-section': true,
+                    'sw-product-clone-modal': true,
                 },
                 propsData: {
                     productId,

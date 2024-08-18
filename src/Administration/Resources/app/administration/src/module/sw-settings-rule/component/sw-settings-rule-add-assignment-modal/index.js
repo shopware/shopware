@@ -12,9 +12,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
+
+    emits: ['close-add-modal', 'entities-saved'],
 
     props: {
         rule: {

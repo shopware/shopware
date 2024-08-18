@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -44,6 +45,9 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-context-menu-item': true,
+                'sw-verify-user-modal': true,
+                'router-link': true,
+                'sw-pagination': true,
             },
         },
     });

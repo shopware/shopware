@@ -20,12 +20,14 @@ Component.register('sw-textarea-field-deprecated', {
 
     compatConfig: Shopware.compatConfig,
 
+    inject: ['feature'],
+
     emits: [
         'update:value',
         'change',
+        'inheritance-restore',
+        'inheritance-remove',
     ],
-
-    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),

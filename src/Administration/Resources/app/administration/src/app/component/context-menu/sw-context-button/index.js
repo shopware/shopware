@@ -23,6 +23,8 @@ Component.register('sw-context-button', {
 
     inject: ['feature'],
 
+    emits: ['on-open-change'],
+
     props: {
         showMenuOnStartup: {
             type: Boolean,

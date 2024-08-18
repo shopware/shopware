@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));
@@ -123,6 +124,10 @@ async function createWrapper() {
                     props: ['date'],
                 },
                 i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
+                'sw-loader': true,
             },
         },
 

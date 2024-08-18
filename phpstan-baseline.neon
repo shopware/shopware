@@ -2266,16 +2266,6 @@ parameters:
 			path: src/Core/Content/Test/Sitemap/SalesChannel/SitemapRouteTest.php
 
 		-
-			message: "#^Mixed variable in a `\\$connection\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 1
-			path: src/Core/DevOps/Locust/setup.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$salesChannel has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/DevOps/Locust/setup.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\StoreApiRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/StoreApiRouteCacheTagsEvent.php
@@ -4240,16 +4230,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\:\\:\\$screenshotUrls type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelType/SalesChannelTypeEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:__construct\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/ResponseFields.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\ResponseFields\\:\\:\\$includes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/ResponseFields.php
 
 		-
 			message: "#^Mixed variable in a `\\$context\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"

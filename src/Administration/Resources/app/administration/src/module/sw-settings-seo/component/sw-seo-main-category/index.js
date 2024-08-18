@@ -10,6 +10,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['main-category-add'],
+
     props: {
         currentSalesChannelId: {
             type: String,

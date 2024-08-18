@@ -41,6 +41,9 @@
                                 {% set isLoginPage = true %}
                             {% endif %}
 
+                            {% set privateType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
+                            {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
                             {% if isLoginPage %}
                                 <option disabled="disabled"
                                         selected="selected"
@@ -50,14 +53,14 @@
                             {% endif %}
 
                             {% if not onlyCompanyRegistration %}
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
-                                    {% if isCompany == false and isLoginPage == false %} selected="selected"{% endif %}>
+                                <option value="{{ privateType }}"
+                                    {% if accountType === privateType || (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
                                     {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
 
-                            <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
-                                {% if isCompany == true and isLoginPage == false %} selected="selected"{% endif %}>
+                            <option value="{{ businessType }}"
+                                {% if accountType === businessType || (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
                                 {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                             </option>
                         </select>

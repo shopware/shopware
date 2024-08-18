@@ -8,6 +8,8 @@ import template from './sw-newsletter-recipient-filter-switch.html.twig';
 export default {
     template,
 
+    emits: ['update:value'],
+
     props: {
         id: {
             type: String,

@@ -49,15 +49,12 @@ describe('app/mixin/generic-condition', () => {
                         value: null,
                     },
                     ensureValueExist: () => {},
+                    $tc: (snippetKey) => snippetKey,
                 },
             },
         });
 
         Shopware.State.commit('ruleConditionsConfig/setConfig', config);
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should update and convert the field value', () => {

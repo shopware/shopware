@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
+
 const connections = {
     products: 412,
     media: 112,
@@ -128,6 +133,15 @@ async function createWrapper(privileges = []) {
                 'sw-button': true,
                 'sw-modal': true,
                 'sw-empty-state': true,
+                'sw-card-filter': true,
+                'sw-context-menu-divider': true,
+                'sw-switch-field': true,
+                'sw-multi-select': true,
+                'sw-context-button': true,
+                'sw-alert': true,
+                'sw-label': true,
+                'sw-text-field': true,
+                'sw-settings-tag-detail-modal': true,
             },
         },
     });

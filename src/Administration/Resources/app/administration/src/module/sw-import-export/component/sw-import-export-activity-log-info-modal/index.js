@@ -17,6 +17,8 @@ export default {
 
     inject: ['importExport'],
 
+    emits: ['log-close'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

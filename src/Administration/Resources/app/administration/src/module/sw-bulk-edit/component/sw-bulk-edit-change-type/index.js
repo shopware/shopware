@@ -12,6 +12,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['update:value'],
+
     props: {
         value: {
             type: String,

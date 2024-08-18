@@ -16,6 +16,8 @@ export default {
 
     inject: ['repositoryFactory', 'mediaService'],
 
+    emits: ['modal-close', 'media-modal-selection-change'],
+
     props: {
         initialFolderId: {
             type: String,

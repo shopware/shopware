@@ -18,6 +18,8 @@ export default {
         'repositoryFactory',
     ],
 
+    emits: ['selected'],
+
     props: {
         startFolderId: {
             type: String,

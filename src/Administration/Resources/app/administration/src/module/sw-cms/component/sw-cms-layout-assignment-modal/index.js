@@ -20,6 +20,8 @@ export default {
         'acl',
     ],
 
+    emits: ['modal-close'],
+
     mixins: [
         Shopware.Mixin.getByName('notification'),
     ],

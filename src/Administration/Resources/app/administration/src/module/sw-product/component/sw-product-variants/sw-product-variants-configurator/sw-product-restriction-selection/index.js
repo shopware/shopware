@@ -11,6 +11,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['restriction-delete'],
+
     props: {
         groupsWithOptions: {
             type: Array,

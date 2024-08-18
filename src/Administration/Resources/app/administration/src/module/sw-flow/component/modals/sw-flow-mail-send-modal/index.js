@@ -13,9 +13,13 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
+
+    emits: ['modal-close', 'process-finish'],
 
     props: {
         sequence: {
@@ -404,8 +408,13 @@ export default {
 
             // Recheck error in current item
             if (!item.name && !item.email) {
-                this.$set(this.recipients, index, { ...item, errorName: null });
-                this.$set(this.recipients, index, { ...item, errorMail: null });
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.recipients, index, { ...item, errorName: null });
+                    this.$set(this.recipients, index, { ...item, errorMail: null });
+                } else {
+                    this.recipients[index] = { ...item, errorName: null };
+                    this.recipients[index] = { ...item, errorMail: null };
+                }
             } else {
                 this.validateRecipient(item, index);
             }
@@ -460,11 +469,19 @@ export default {
             const errorName = this.setNameError(item.name);
             const errorMail = this.setMailError(item.email);
 
-            this.$set(this.recipients, itemIndex, {
-                ...item,
-                errorName,
-                errorMail,
-            });
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.recipients, itemIndex, {
+                    ...item,
+                    errorName,
+                    errorMail,
+                });
+            } else {
+                this.recipients[itemIndex] = {
+                    ...item,
+                    errorName,
+                    errorMail,
+                };
+            }
 
             return errorName || errorMail;
         },

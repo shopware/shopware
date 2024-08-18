@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['modal-close', 'close-with-action'],
+
     props: {
         permissions: {
             type: Object,

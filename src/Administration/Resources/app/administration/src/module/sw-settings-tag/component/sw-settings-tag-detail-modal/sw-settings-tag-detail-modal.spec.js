@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-tag-detail-modal', {
         sync: true,
@@ -33,6 +38,10 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-tabs-item': true,
+                'sw-text-field': true,
+                'sw-settings-tag-detail-assignments': true,
+                'sw-button': true,
+                'sw-tabs-deprecated': true,
             },
         },
     });

@@ -46,20 +46,5 @@
 
             <tag name="console.command"/>
         </service>
-
-        <service id="Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetClassesPerAreaCommand">
-            <argument type="service" id="Composer\Autoload\ClassLoader"/>
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetJSFilesPerAreaCommand">
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\SummarizeCoverageReports">
-            <argument>%kernel.project_dir%</argument>
-            <argument type="service" id="twig"/>
-            <tag name="console.command"/>
-        </service>
     </services>
 </container>

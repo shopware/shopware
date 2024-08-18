@@ -224,7 +224,9 @@
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
-            <dd v-if="!customerEditMode">{{ customer.affiliateCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">
+                {{ customer.affiliateCode || '-' }}
+            </dd>
             <dd v-else>
                 <sw-text-field
                     v-model:value="customer.affiliateCode"
@@ -240,7 +242,9 @@
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
             <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
-            <dd v-if="!customerEditMode">{{ customer.campaignCode || '-' }}</dd>
+            <dd v-if="!customerEditMode">
+                {{ customer.campaignCode || '-' }}
+            </dd>
             <dd v-else>
                 <sw-text-field
                     v-model:value="customer.campaignCode"
@@ -366,6 +370,8 @@
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"
+                    hide-hint
+                    :placeholder="$tc('sw-datepicker.date.placeholder')"
                 />
             </dd>
             {% endblock %}

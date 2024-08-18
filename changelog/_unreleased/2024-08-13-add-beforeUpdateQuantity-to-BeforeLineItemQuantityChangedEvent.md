@@ -6,4 +6,4 @@ author_email: 6672778+luminalpark@users.noreply.github.com
 author_github: @luminalpark
 ---
 # Core
-* Added '$beforeUpdateQuantity' parameter to the constructor of `BeforeLineItemQuantityChangedEvent` to allow plugins to understand if quantity is being increased or decreased.
+* Added '$beforeUpdateQuantity' property to `BeforeLineItemQuantityChangedEvent` to allow plugins to understand if quantity is being increased or decreased.

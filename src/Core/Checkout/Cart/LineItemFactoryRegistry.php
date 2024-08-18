@@ -89,7 +89,10 @@ class LineItemFactoryRegistry
 
             $lineItem->setQuantity($data['quantity']);
 
-            $this->eventDispatcher->dispatch(new BeforeLineItemQuantityChangedEvent($beforeUpdateQuantity, $lineItem, $cart, $context));
+            $event = new BeforeLineItemQuantityChangedEvent($lineItem, $cart, $context);
+            $event->setBeforeUpdateQuantity($beforeUpdateQuantity);
+
+            $this->eventDispatcher->dispatch($event);
         }
 
         $lineItem->markModified();

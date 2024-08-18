@@ -21,6 +21,8 @@ Shopware.Component.register('sw-chart-card', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['sw-chart-card-range-update'],
+
     props: {
         availableRanges: {
             type: Array,

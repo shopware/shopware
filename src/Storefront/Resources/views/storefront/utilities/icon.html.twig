@@ -10,12 +10,12 @@
     {%- endif -%}
 
     {%- if themeIconConfig[pack] is defined -%}
-        <span class="icon icon-{{ pack }} icon-{{ pack }}-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+        <span class="icon icon-{{ pack }} icon-{{ pack }}-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}"{% if ariaHidden %} aria-hidden="true"{% endif %}>
             {% set icon = source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
             {{ icon|sw_icon_cache|raw }}
         </span>
     {%- else -%}
-        <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+        <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}"{% if ariaHidden %} aria-hidden="true"{% endif %}>
             {% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
             {{ icon|sw_icon_cache|raw }}
         </span>

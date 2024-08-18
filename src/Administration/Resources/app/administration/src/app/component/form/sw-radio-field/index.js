@@ -29,9 +29,9 @@ Component.register('sw-radio-field', {
 
     inheritAttrs: false,
 
-    emits: ['update:value'],
-
     inject: ['feature'],
+
+    emits: ['update:value'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),

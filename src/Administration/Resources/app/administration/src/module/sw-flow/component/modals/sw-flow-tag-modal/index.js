@@ -12,11 +12,15 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
         'flowBuilderService',
     ],
+
+    emits: ['process-finish', 'modal-close'],
 
     mixins: [
         Mixin.getByName('placeholder'),

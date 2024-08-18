@@ -13,6 +13,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['modal-cancel', 'modal-save'],
+
     props: {
         newProperties: {
             type: Array,

@@ -5,7 +5,9 @@
     :title="$tc('sw-error-summary.title', errorCount)"
     :show-icon="true"
 >
-    <li v-for="(entry, index) in errorEntries" :key="index">
+    <li
+        v-for="(entry, index) in errorEntries"
+        :key="index">
         <span class="sw-error-summary__quantity">{{ entry.count }}x</span> "{{ entry.message }}"
     </li>
 </sw-alert>

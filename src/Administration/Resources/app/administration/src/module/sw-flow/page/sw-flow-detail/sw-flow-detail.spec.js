@@ -3,6 +3,11 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 class MockFlowBuilderService extends FlowBuilderService {
     rearrangeArrayObjects = jest.fn((sequence) => {
         return sequence;
@@ -201,6 +206,24 @@ async function createWrapper(
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-skeleton': true,
                 'sw-alert': true,
+                'sw-flow-leave-page-modal': true,
+                'sw-tabs': {
+                    template: `
+                        <div class="sw-tabs">
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-card-view': {
+                    template: `
+                        <div class="sw-card-view">
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-icon': true,
+                'router-link': true,
+                'sw-loader': true,
             },
         },
     });

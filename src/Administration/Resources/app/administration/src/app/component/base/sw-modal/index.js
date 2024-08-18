@@ -25,6 +25,8 @@ Component.register('sw-modal', {
 
     inject: ['shortcutService'],
 
+    emits: ['modal-close'],
+
     props: {
         title: {
             type: String,

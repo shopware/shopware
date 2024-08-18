@@ -49,11 +49,16 @@
                                 {% block element_product_listing_pagination_nav_top %}
                                     {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
                                     {% if feature('v6.7.0.0') %}
-                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: searchResult} %}
+                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                            entities: searchResult,
+                                            fallbackUrl: paginationFallbackUrl,
+                                            paginationLocation: 'top',
+                                        } %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                             entities: searchResult,
-                                            criteria: searchResult.criteria
+                                            criteria: searchResult.criteria,
+                                            paginationLocation: feature('ACCESSIBILITY_TWEAKS') ? 'top' : null,
                                         } %}
                                     {% endif %}
                                 {% endblock %}

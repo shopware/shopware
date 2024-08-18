@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const { Context } = Shopware;
@@ -21,7 +22,7 @@ async function createWrapper(propsData) {
                         <slot></slot></li>`,
                     methods: {
                         onClickResult() {
-                            this.$parent.$parent.$parent.$parent.$emit('item-select', this.item);
+                            Shopware.Utils.EventBus.emit('item-select', this.item);
                         },
                     },
                     computed: {
@@ -48,6 +49,19 @@ async function createWrapper(propsData) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),
+                'sw-button': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-icon-deprecated': true,
+                'router-link': true,
+                'sw-product-variant-info': true,
+                'sw-field-copyable': true,
+                'sw-contextual-field': true,
+                'sw-checkbox-field': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 repositoryFactory: {

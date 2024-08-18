@@ -351,6 +351,7 @@ class OrderConverterTest extends TestCase
         unset(
             $result['extensions']['originalId'],
             $result['token'],
+            $result['errorHash']
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset(
@@ -389,6 +390,7 @@ class OrderConverterTest extends TestCase
         unset(
             $result['extensions']['originalId'],
             $result['token'],
+            $result['errorHash']
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset(

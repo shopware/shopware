@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'orderService',
         'stateMachineService',
@@ -19,6 +21,8 @@ export default {
         'acl',
         'feature',
     ],
+
+    emits: ['options-change', 'order-state-change'],
 
     mixins: [
         Mixin.getByName('notification'),

@@ -12,6 +12,8 @@ export default {
 
     inject: ['recommendationsService'],
 
+    emits: ['extension-activated', 'frw-set-title', 'buttons-update', 'loading-finished'],
+
     data() {
         return {
             plugins: [],

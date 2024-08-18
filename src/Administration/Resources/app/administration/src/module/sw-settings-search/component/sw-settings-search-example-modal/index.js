@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['modal-close'],
+
     data() {
         return {
             exampleResults: [

@@ -18,6 +18,11 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
 
     inheritAttrs: false,
 
+    emits: [
+        'inheritance-remove',
+        'inheritance-restore',
+    ],
+
     props: {
         noMarginTop: {
             type: Boolean,

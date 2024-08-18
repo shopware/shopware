@@ -83,15 +83,15 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_nested_line_items_row_nesting %}
-    <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-    <sw-order-nested-line-items-row
-        v-for="child in lineItem.children"
-        v-if="lineItem.children.length > 0"
-        :key="child.id"
-        :line-item="child"
-        :currency="currency"
-        :render-parent="true"
-    />
+    <template v-if="lineItem.children.length > 0">
+        <sw-order-nested-line-items-row
+            v-for="child in lineItem.children"
+            :key="child.id"
+            :line-item="child"
+            :currency="currency"
+            :render-parent="true"
+        />
+    </template>
     {% endblock %}
 
 </div>

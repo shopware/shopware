@@ -8,7 +8,11 @@ import './sw-users-permissions-configuration.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['acl'],
+
+    emits: ['loading-change'],
 
     methods: {
         onChangeLoading(loading) {

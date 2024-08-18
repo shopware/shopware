@@ -42,6 +42,8 @@ Component.register('sw-text-editor', {
 
     inject: ['feature'],
 
+    emits: ['update:value'],
+
     props: {
         value: {
             type: String,

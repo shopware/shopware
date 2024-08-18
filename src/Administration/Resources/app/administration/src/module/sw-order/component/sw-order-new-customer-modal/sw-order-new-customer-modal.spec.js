@@ -3,6 +3,7 @@ import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const { Context } = Shopware;
@@ -25,6 +26,9 @@ async function createWrapper() {
                 'sw-customer-base-form': true,
                 'sw-icon': true,
                 'sw-switch-field': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-loader': true,
             },
             provide: {
                 repositoryFactory: {

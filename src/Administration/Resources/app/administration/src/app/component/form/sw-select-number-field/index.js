@@ -23,6 +23,8 @@ Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
 
     inject: ['feature'],
 
+    emits: ['update:value'],
+
     props: {
         value: {
             type: Number,

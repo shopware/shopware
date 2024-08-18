@@ -35,6 +35,8 @@ export default {
         'fileValidationService',
     ],
 
+    emits: ['media-drop', 'media-upload-sidebar-open', 'media-upload-remove-image', 'media-upload-add-file'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -155,6 +157,12 @@ export default {
             required: false,
             default: false,
         },
+
+        onMediaUploadSidebarOpen: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -188,7 +196,7 @@ export default {
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
             }
-            return Object.keys(this.$attrs).includes('onMediaUploadSidebarOpen');
+            return !!this.onMediaUploadSidebarOpen;
         },
 
         isDragActiveClass() {

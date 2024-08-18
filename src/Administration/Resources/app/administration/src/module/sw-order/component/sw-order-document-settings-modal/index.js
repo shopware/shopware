@@ -12,7 +12,11 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['numberRangeService', 'feature', 'repositoryFactory'],
+
+    emits: ['loading-document', 'document-create', 'preview-show', 'page-leave-confirm', 'page-leave'],
 
     mixins: [
         Mixin.getByName('notification'),

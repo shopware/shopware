@@ -12,6 +12,8 @@ export default {
 
     inject: ['extensionStoreActionService'],
 
+    emits: ['frw-set-title', 'buttons-update'],
+
     data() {
         return {
             isInstallingPlugin: false,

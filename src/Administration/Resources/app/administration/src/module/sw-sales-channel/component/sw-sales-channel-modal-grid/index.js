@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['grid-channel-add', 'grid-detail-open'],
 
     props: {
         productStreamsExist: {

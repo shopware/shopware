@@ -1,5 +1,10 @@
 import { mount } from '@vue/test-utils';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-flow-change-customer-status-modal', { sync: true }), {
         global: {

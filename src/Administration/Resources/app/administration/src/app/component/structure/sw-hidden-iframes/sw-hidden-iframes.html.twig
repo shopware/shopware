@@ -4,7 +4,7 @@
 >
     <sw-iframe-renderer
         v-for="extension in extensions"
-        :key="extension.baseUrl"
+        :key="`${extension.type}-${extension.name}`"
         :src="extension.baseUrl"
         :location-id="MAIN_HIDDEN"
     />

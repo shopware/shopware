@@ -10,6 +10,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['thumbnail-form-size-add', 'on-input'],
+
     props: {
         disabled: {
             type: Boolean,

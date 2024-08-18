@@ -14,6 +14,8 @@ Component.register('sw-purchase-price-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:value'],
+
     props: {
         price: {
             type: Array,

@@ -54,6 +54,10 @@ class IdFieldSerializer extends AbstractFieldSerializer
             return yield $field->getStorageName() => null;
         }
 
+        if (!\is_string($value)) {
+            throw DataAbstractionLayerException::invalidIdFieldType($field, $value);
+        }
+
         $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $data->getKey(), $value);
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }

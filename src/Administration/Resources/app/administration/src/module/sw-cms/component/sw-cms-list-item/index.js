@@ -14,6 +14,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['preview-image-change', 'on-item-click', 'item-click', 'cms-page-delete'],
+
     props: {
         page: {
             type: Object,

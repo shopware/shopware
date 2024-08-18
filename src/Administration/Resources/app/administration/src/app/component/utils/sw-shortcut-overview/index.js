@@ -12,6 +12,11 @@ Component.register('sw-shortcut-overview', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'shortcut-open',
+        'shortcut-close',
+    ],
+
     shortcuts: {
         '?': 'onOpenShortcutOverviewModal',
     },

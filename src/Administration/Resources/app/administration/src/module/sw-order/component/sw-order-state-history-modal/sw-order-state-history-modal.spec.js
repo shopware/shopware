@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 function getCollection(entity, collection) {
@@ -126,6 +127,15 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-label': {
                         template: '<div class="sw-label"><slot></slot></div>',
                     },
+                    'sw-checkbox-field': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-column-boolean': true,
+                    'sw-data-grid-inline-edit': true,
+                    'router-link': true,
+                    'sw-select-field': true,
+                    'sw-loader': true,
                 },
                 provide: {
                     stateStyleDataProviderService: {

@@ -14,12 +14,16 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
     ],
+
+    emits: ['on-select-existing-customer', 'close'],
 
     mixins: [
         Mixin.getByName('notification'),

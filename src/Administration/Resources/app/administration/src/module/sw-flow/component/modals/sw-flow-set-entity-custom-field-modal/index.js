@@ -13,7 +13,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['modal-close', 'process-finish'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),

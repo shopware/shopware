@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 async function createWrapper(methods = [], cards = [], privileges = []) {
@@ -57,6 +58,8 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                 'sw-empty-state': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
+                'sw-language-switch': true,
+                'sw-settings-payment-sorting-modal': true,
             },
         },
     });

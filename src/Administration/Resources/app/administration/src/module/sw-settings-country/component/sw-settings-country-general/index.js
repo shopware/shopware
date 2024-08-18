@@ -20,6 +20,8 @@ export default {
         'acl',
     ],
 
+    emits: ['modal-save'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),

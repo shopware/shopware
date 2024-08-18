@@ -14,6 +14,8 @@ export default {
 
     inject: ['importExport'],
 
+    emits: ['result-close'],
+
     props: {
         logEntity: {
             type: Object,

@@ -14,6 +14,8 @@ Component.register('sw-switch-field', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['update:value'],
+
     props: {
         value: {
             type: Boolean,

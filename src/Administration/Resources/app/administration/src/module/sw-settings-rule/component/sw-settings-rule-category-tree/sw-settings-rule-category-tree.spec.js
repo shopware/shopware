@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;
@@ -59,6 +60,19 @@ async function createWrapper(props = defaultProps) {
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-card': await wrapTestComponent('sw-card'),
                     'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
+                    'sw-settings-rule-tree-item': true,
+                    'sw-extension-component-section': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-context-button': true,
+                    'sw-loader': true,
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-tree-input-field': true,
+                    'sw-tree-item': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-help-text': true,
+                    'sw-field-error': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -77,12 +91,12 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
     });
 
     it('should not re-get tree items category entity is empty', async () => {
+        const collection = createEntityCollectionMock('category', [categoryMock]);
+        collection.entity = null;
+
         await createWrapper({
             ...defaultProps,
-            categoriesCollection: {
-                ...createEntityCollectionMock('category', [categoryMock]),
-                entity: null,
-            },
+            categoriesCollection: collection,
         });
         await flushPromises();
 
@@ -176,7 +190,8 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('sw-settings-rule-tree-item').trigger('check-item', {});
+        // Triggering via template differs for compat enabled/ disabled therefore triggering real emit
+        await wrapper.findComponent('sw-settings-rule-tree-item-stub').vm.$emit('check-item', {});
         expect(wrapper.emitted()).toHaveProperty('on-selection');
     });
 

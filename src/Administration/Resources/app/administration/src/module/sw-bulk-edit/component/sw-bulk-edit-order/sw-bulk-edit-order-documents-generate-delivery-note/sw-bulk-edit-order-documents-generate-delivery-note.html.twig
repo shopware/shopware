@@ -4,12 +4,16 @@
     <sw-datepicker
         v-model:value="generateData.custom.deliveryDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
+        hide-hint
         :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     <sw-datepicker
         v-model:value="generateData.custom.deliveryNoteDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
+        hide-hint
         :label="$tc('sw-bulk-edit.order.documents.generateDeliveryNote.labelDeliveryDatePicker')"
+        :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
 </template>
 {% endblock %}

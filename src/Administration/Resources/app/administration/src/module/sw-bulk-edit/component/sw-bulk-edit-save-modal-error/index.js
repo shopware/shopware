@@ -9,6 +9,8 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['title-set', 'buttons-update'],
+
     created() {
         this.createdComponent();
     },

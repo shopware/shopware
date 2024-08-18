@@ -12,6 +12,8 @@ export default {
 
     inject: ['extensionHelperService'],
 
+    emits: ['frw-set-title', 'frw-redirect', 'extension-activated', 'buttons-update'],
+
     data() {
         return {
             loadStatus: false,

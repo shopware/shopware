@@ -1,6 +1,11 @@
 import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
+
 Shopware.Service().register('flowBuilderService', () => {
     return {
         mapActionType: () => {},
@@ -113,6 +118,10 @@ async function createWrapper() {
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-container': await wrapTestComponent('sw-container'),
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         props: {

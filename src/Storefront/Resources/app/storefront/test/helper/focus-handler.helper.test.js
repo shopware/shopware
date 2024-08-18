@@ -75,6 +75,35 @@ describe('focus-handler.helper', () => {
         });
     });
 
+    test('should save and resume the focus state with a selector', () => {
+        document.body.innerHTML = `
+            <button id="modal-open">Open Modal</button>
+
+            <div class="modal">
+                <button id="modal-close">X</button>
+            </div>`
+
+        const modalButton = document.getElementById('modal-open');
+        const modalCloseButton = document.getElementById('modal-close');
+
+        modalButton.focus();
+
+        focusHandler.saveFocusState('modal', '#modal-open');
+
+        modalCloseButton.focus();
+        expect(document.activeElement).toBe(modalCloseButton);
+
+        focusHandler.resumeFocusState('modal');
+
+        expect(document.activeElement).toBe(modalButton);
+
+        expect(focusHandler._focusMap.get('modal')).toBe('#modal-open');
+        expect(emitterMock.publish).toHaveBeenCalledWith('Focus/StateSaved', {
+            focusHistoryKey: 'modal',
+            focusEl: '#modal-open',
+        });
+    });
+
     test('should handle error when trying to set focus', () => {
         const errorMockElement = {
             focus: jest.fn(() => { throw new Error('focus error'); }),
@@ -86,7 +115,7 @@ describe('focus-handler.helper', () => {
         focusHandler.setFocus(errorMockElement);
 
         expect(consoleSpy).toHaveBeenCalledWith(
-            '[FocusHandler]: Unable to focus element DIV.',
+            '[FocusHandler]: Unable to focus element.',
             expect.any(Error)
         );
 

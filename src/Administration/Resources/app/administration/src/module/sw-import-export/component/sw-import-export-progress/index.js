@@ -14,6 +14,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['process-start', 'process-start-dryrun'],
+
     props: {
         activityType: {
             type: String,

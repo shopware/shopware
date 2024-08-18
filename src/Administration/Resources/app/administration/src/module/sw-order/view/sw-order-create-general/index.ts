@@ -20,6 +20,8 @@ const { get, format, array } = Utils;
 export default Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('cart-notification'),

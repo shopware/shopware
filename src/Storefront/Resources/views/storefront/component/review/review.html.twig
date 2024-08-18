@@ -220,7 +220,13 @@
                                                               action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                               method="post"
                                                               data-form-ajax-submit="true"
-                                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
+                                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
+                                                              {% if feature('ACCESSIBILITY_TWEAKS') %}data-form-ajax-pagination="true"{% endif %}>
+
+                                                            {# @deprecated tag:v6.7.0 - Form input for page information will be a single input instead of multiple radio inputs within `pagination.html.twig`. #}
+                                                            {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                                <input type="hidden" name="p" value="1">
+                                                            {% endif %}
 
                                                             {% if app.request.get('limit') %}
                                                                 <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">

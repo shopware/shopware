@@ -42,6 +42,8 @@ Component.register('sw-search-bar', {
         };
     },
 
+    emits: ['search', 'active-item-index-select', 'keyup-enter'],
+
     shortcuts: {
         f: 'setFocus',
     },

@@ -20,6 +20,8 @@ export default {
         'feature',
     ],
 
+    emits: ['update:selection', 'media-folder-change'],
+
     mixins: [
         Mixin.getByName('media-grid-listener'),
     ],

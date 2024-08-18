@@ -35,6 +35,8 @@ Component.register('sw-sidebar', {
         'removeSwPageSidebarOffset',
     ],
 
+    emits: ['item-click'],
+
     props: {
         propagateWidth: {
             type: Boolean,

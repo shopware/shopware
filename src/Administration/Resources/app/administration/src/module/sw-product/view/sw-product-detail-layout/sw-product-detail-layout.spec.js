@@ -1,11 +1,9 @@
 /*
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-import swProductDetailLayout from 'src/module/sw-product/view/sw-product-detail-layout';
-
-Shopware.Component.register('sw-product-detail-layout', swProductDetailLayout);
 
 const { State } = Shopware;
 

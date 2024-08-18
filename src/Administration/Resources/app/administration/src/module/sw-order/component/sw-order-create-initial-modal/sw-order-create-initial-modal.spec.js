@@ -1,7 +1,11 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import swOrderCreateInitialModal from 'src/module/sw-order/component/sw-order-create-initial-modal';
 import orderStore from 'src/module/sw-order/state/order.store';
+
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
 
 const lineItem = {
     label: 'Product',
@@ -17,8 +21,6 @@ const cartResponse = {
 };
 
 const cartToken = 'is-exactly-32-chars-as-required-';
-
-Shopware.Component.register('sw-order-create-initial-modal', swOrderCreateInitialModal);
 
 let stubs = {};
 
@@ -48,6 +50,7 @@ async function createWrapper() {
         'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
         'sw-icon': true,
         'sw-loader': true,
+        'router-link': true,
     };
     return mount(await wrapTestComponent('sw-order-create-initial-modal', { sync: true }), {
         global: {

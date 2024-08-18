@@ -30,13 +30,13 @@
             v-else
             class="arrow-action sw-flow-sequence-condition__true-action"
             icon="regular-plus-xs"
-            :disabled="disabledAddSequence(true)"
+            :disabled="disabledAddSequence(true) || undefined"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_condition_true_arrow_add_condition %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-true-condition"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="addIfCondition(true)"
             >
                 {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
@@ -47,7 +47,7 @@
             {% block sw_flow_sequence_condition_true_arrow_add_action %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-true-action"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="addThenAction(true)"
             >
                 {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
@@ -116,13 +116,13 @@
             v-else
             class="arrow-action sw-flow-sequence-condition__false-action"
             icon="regular-plus-xs"
-            :disabled="disabledAddSequence(false)"
+            :disabled="disabledAddSequence(false) || undefined"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_condition_false_arrow_add_condition %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-false-condition"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="addIfCondition(false)"
             >
                 {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
@@ -133,7 +133,7 @@
             {% block sw_flow_sequence_condition_false_arrow_add_action %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-false-action"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="addThenAction(false)"
             >
                 {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
@@ -173,7 +173,7 @@
                 {% block sw_flow_sequence_condition_context_button %}
                 <sw-context-button
                     class="sw-flow-sequence-condition__context-button"
-                    :disabled="disabled"
+                    :disabled="disabled || undefined"
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -241,7 +241,7 @@
                             {% block sw_flow_sequence_condition_rule_context_button %}
                             <sw-context-button
                                 class="sw-flow-sequence-condition__rule-context-button"
-                                :disabled="disabled"
+                                :disabled="disabled || undefined"
                             >
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -310,7 +310,7 @@
                         entity="rule"
                         :criteria="ruleCriteria"
                         :placeholder="$tc('sw-flow.rule.placeholderSelectRule')"
-                        :disabled="disabled"
+                        :disabled="disabled || undefined"
                         :error="fieldError"
                         advanced-selection-component="sw-advanced-selection-rule"
                         :advanced-selection-parameters="advanceSelectionParameters"

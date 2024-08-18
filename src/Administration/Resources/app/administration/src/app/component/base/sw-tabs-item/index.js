@@ -55,6 +55,8 @@ Component.register('sw-tabs-item', {
         },
     },
 
+    emits: ['click'],
+
     props: {
         route: {
             type: [String, Object],

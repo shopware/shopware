@@ -11,6 +11,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'acl',
         'repositoryFactory',
@@ -18,6 +20,8 @@ export default {
         'stateMachineService',
         'stateStyleDataProviderService',
     ],
+
+    emits: ['show-status-history', 'save-edits'],
 
     mixins: [
         'notification',

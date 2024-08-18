@@ -26,6 +26,12 @@ Component.register('sw-multi-tag-select', {
 
     inject: ['feature'],
 
+    emits: [
+        'add-item-is-valid',
+        'update:value',
+        'display-values-expand',
+    ],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],

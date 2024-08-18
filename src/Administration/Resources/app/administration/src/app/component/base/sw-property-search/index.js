@@ -19,6 +19,8 @@ Component.register('sw-property-search', {
 
     inject: ['repositoryFactory'],
 
+    emits: ['option-select'],
+
     props: {
         collapsible: {
             type: Boolean,
@@ -88,8 +90,16 @@ Component.register('sw-property-search', {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addFilter(Criteria.contains('name', this.searchTerm.trim()));
-            criteria.addSorting(Criteria.sort('name', 'ASC', true));
+
+            this.searchTerm.trim().split(' ').forEach((option) => {
+                if (option.trim().length === 0) {
+                    return;
+                }
+
+                criteria.addQuery(Criteria.contains('name', option.trim()), 1000);
+                criteria.addQuery(Criteria.contains('group.name', option.trim()), 800);
+            });
+
             criteria.setTotalCountMode(1);
             criteria.addAssociation('group');
 

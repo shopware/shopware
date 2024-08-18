@@ -12,6 +12,8 @@ export default {
 
     inject: ['feature'],
 
+    emits: ['change-value', 'inheritance-restore', 'inheritance-remove'],
+
     props: {
         bulkEditData: {
             type: Object,

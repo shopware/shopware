@@ -11,6 +11,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
+    emits: ['loading-change'],
+
     props: {
         cart: {
             type: Object,

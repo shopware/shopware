@@ -14,6 +14,8 @@ export default {
 
     inject: ['repositoryFactory'],
 
+    emits: ['media-sidebar-folder-renamed'],
+
     mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {

@@ -13,6 +13,11 @@ Component.register('sw-text-editor-toolbar-table-button', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'mounted',
+        'table-create',
+    ],
+
     props: {
         buttonConfig: {
             type: Object,

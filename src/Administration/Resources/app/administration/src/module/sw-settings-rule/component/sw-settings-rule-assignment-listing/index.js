@@ -7,6 +7,8 @@ import template from './sw-settings-rule-assignment-listing.html.twig';
 export default {
     template,
 
+    emits: ['delete-items'],
+
     methods: {
         deleteItems() {
             this.$emit('delete-items', this.selection);

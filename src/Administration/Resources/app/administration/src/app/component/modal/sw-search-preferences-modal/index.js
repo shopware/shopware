@@ -22,6 +22,8 @@ Component.register('sw-search-preferences-modal', {
         'userConfigService',
     ],
 
+    emits: ['modal-close'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],

@@ -60,6 +60,8 @@ Component.register('sw-tree-item', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: ['check-item'],
+
     props: {
         item: {
             type: Object,

@@ -18,16 +18,16 @@ Component.register('sw-condition-all-line-items-container', {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: [
-        'create-before',
-        'create-after',
-    ],
-
     provide() {
         return {
             unwrapAllLineItemsCondition: this.unwrapCondition,
         };
     },
+
+    emits: [
+        'create-before',
+        'create-after',
+    ],
 
     mixins: [
         Mixin.getByName('ruleContainer'),

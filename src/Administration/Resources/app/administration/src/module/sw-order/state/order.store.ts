@@ -268,8 +268,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
             { salesChannelId, contextToken, shippingCosts }:
                 { salesChannelId: string, contextToken: string, shippingCosts: CalculatedPrice },
         ) {
-            return Service('cartStoreService')
-                .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
+            return Service('cartStoreService')?.modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 .then((response: AxiosResponse) => commit('setCart', response.data.data));
         },

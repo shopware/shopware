@@ -11,6 +11,8 @@ export default {
 
     inject: ['customFieldDataProviderService', 'acl'],
 
+    emits: ['reset-errors'],
+
     props: {
         set: {
             type: Object,

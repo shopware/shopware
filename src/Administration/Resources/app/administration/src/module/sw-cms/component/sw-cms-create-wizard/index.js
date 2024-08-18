@@ -18,6 +18,8 @@ export default {
         'customEntityDefinitionService',
     ],
 
+    emits: ['on-section-select', 'wizard-complete'],
+
     props: {
         page: {
             type: Object,

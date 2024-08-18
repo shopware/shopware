@@ -18,6 +18,12 @@ Component.register('sw-select-base', {
 
     inheritAttrs: false,
 
+    emits: [
+        'select-expanded',
+        'select-collapsed',
+        'clear',
+    ],
+
     props: {
         isLoading: {
             type: Boolean,

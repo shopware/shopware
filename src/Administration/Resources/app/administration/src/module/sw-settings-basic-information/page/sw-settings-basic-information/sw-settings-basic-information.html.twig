@@ -59,14 +59,6 @@
     </template>
     {% endblock %}
 
-    <template #language-switch>
-        <sw-language-switch
-            :save-changes-function="saveOnLanguageChange"
-            :abort-change-function="abortOnLanguageChange"
-            @on-change="onChangeLanguage"
-        />
-    </template>
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_basic_information_content %}
     <template #content>

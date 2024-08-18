@@ -12,7 +12,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
+
+    emits: ['modal-close', 'process-finish'],
 
     props: {
         sequence: {

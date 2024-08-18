@@ -19,6 +19,11 @@ Component.register('sw-label', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'selected',
+        'dismiss',
+    ],
+
     props: {
         variant: {
             type: String,
@@ -71,6 +76,11 @@ Component.register('sw-label', {
             required: false,
             default: false,
         },
+        onDismiss: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {
@@ -92,7 +102,7 @@ Component.register('sw-label', {
                 return !!this.$listeners.dismiss && this.dismissable;
             }
 
-            return !!this.$attrs.onDismiss && this.dismissable;
+            return !!this.$props.onDismiss && this.dismissable;
         },
     },
 });

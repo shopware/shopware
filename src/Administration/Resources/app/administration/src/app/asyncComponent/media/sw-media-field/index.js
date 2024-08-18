@@ -20,6 +20,8 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
+    emits: ['update:value'],
+
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
         value: {

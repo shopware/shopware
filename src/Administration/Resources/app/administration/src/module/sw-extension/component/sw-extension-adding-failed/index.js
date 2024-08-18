@@ -17,6 +17,8 @@ export default {
         'shopwareExtensionService',
     ],
 
+    emits: ['close'],
+
     props: {
         extensionName: {
             type: String,

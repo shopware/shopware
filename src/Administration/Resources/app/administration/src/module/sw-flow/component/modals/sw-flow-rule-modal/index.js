@@ -13,12 +13,16 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'ruleConditionDataProviderService',
         'ruleConditionsConfigApiService',
         'feature',
     ],
+
+    emits: ['process-finish', 'modal-close'],
 
     mixins: [
         Mixin.getByName('placeholder'),

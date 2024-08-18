@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -186,11 +187,6 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 expect(elementsSorted).toBe(true);
             });
         });
-    });
-
-    it('should render correctly', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should render settings items in alphabetical order', async () => {

@@ -13,6 +13,11 @@ Component.register('sw-text-editor-toolbar-button', {
 
     compatConfig: Shopware.compatConfig,
 
+    emits: [
+        'button-click',
+        'menu-toggle',
+    ],
+
     props: {
         buttonConfig: {
             type: Object,

@@ -81,13 +81,16 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
-                    if (!\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
-                        $lineItem->setDataTimestamp(null);
+                    $product = $products->get((string) $lineItem->getReferencedId());
 
-                        continue;
+                    // product was fetched, update timestamp to not fetch it again
+                    if ($product) {
+                        $lineItem->setDataTimestamp($product->getUpdatedAt() ?? $product->getCreatedAt());
+                        $lineItem->setDataContextHash($hash);
+                    // we have asked for this product, but we didn't get it back, so we need to remove it
+                    } elseif (\in_array($lineItem->getReferencedId(), $ids, true)) {
+                        $lineItem->setDataTimestamp(null);
                     }
-                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                    $lineItem->setDataContextHash($hash);
                 }
             }
 

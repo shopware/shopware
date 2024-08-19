@@ -41,6 +41,8 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
+                    'sw-loader': true,
+                    'router-link': true,
                 },
             },
         });

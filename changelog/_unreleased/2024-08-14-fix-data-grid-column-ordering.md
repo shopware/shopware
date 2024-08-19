@@ -1,6 +1,6 @@
 ---
 title: Fix data-grid column ordering
-issue: NEXT-00000
+issue: NEXT-37720
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

@@ -9,8 +9,6 @@ author: wexoag
 ___
 # Next Major Version Changes
 ## Breaking Change 1:
-* Do this
-## Breaking Change 2:
 change
 ```
 $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);

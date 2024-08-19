@@ -43,6 +43,62 @@
                     }
                 ]
             }
+        },
+        "/sitemap/{filePath}": {
+            "get": {
+                "tags": [
+                    "Sitemap & Routes"
+                ],
+                "summary": "Download sitemap file",
+                "description": "Downloads the sitemap file from the configured sitemap storage.",
+                "operationId": "getSitemapFile",
+                "parameters": [
+                    {
+                        "name": "filePath",
+                        "in": "path",
+                        "description": "The path to the sitemap file",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": ".*\\.(xml|gz)$"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the blob to download.",
+                        "content": {
+                            "application/xml": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/gzip": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

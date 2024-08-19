@@ -316,6 +316,7 @@
 
         <service id="Shopware\Storefront\Controller\SitemapController">
             <argument type="service" id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

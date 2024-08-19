@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
@@ -240,7 +241,11 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('addresses.countryState');
         $criteria->addAssociation('tags');
 
-        $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
+        if (Feature::isActive('v6.7.0.0')) {
+            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
+        } else {
+            $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+        }
         $this->eventDispatcher->dispatch($event);
 
         return $criteria;

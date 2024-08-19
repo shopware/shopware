@@ -23,7 +23,7 @@
         "symfony/polyfill-php82": "*"
     },
     "support": {
-        "issues": "https://issues.shopware.com",
+        "issues": "https://github.com/shopware/shopware/issues",
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",

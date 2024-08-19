@@ -170,17 +170,17 @@
             </sw-card>
 
             {% block sw_newsletter_recipient_detail_custom_fields %}
-                <sw-card
-                    v-if="newsletterRecipient && customFieldSets && customFieldSets.length > 0"
-                    position-identifier="newsletter-customFields"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                >
-                    <sw-custom-field-set-renderer
-                        :entity="newsletterRecipient"
-                        :disabled="!acl.can('newsletter_recipient.editor')"
-                        :sets="customFieldSets"
-                    />
-                </sw-card>
+            <sw-card
+                v-if="newsletterRecipient && customFieldSets && customFieldSets.length > 0"
+                position-identifier="newsletter-customFields"
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+            >
+                <sw-custom-field-set-renderer
+                    :entity="newsletterRecipient"
+                    :disabled="!acl.can('newsletter_recipient.editor')"
+                    :sets="customFieldSets"
+                />
+            </sw-card>
             {% endblock %}
         </sw-card-view>
     </template>

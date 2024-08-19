@@ -88,6 +88,6 @@ export default {
             this.customFieldDataProviderService.getCustomFieldSets('newsletter_recipient').then((sets) => {
                 this.customFieldSets = sets;
             });
-        }
+        },
     },
 };

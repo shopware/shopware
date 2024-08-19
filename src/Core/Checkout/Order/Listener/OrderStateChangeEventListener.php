@@ -245,6 +245,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             $event = new OrderStateChangeCriteriaEvent($orderId, $criteria, $context);
         } else {
             $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
+            Feature::callSilentIfInactive('v6.7.0.0', fn () => $event->setContext($context));
         }
         $this->eventDispatcher->dispatch($event);
 

@@ -8,8 +8,8 @@ author: wexoag
 * Added `Context` to `OrderStateChangeCriteriaEvent` which now also implements `ShopwareEvent`
 ___
 # Next Major Version Changes
-## Breaking Change 1:
-change
+## OrderStateChangeCriteriaEvent constructor changes
+The constructor for `OrderStateChangeCriteriaEvent` has changed to include `Context $context`. Change
 ```
 $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
 ```

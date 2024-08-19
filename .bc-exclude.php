@@ -71,6 +71,9 @@ return [
 
         'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
 
-        'League\\\\OAuth2\\\\Server\\\\Entities\\\\Traits\\\\AccessTokenTrait#initJwtConfiguration\(\) changed from no type to void'
+        'League\\\\OAuth2\\\\Server\\\\Entities\\\\Traits\\\\AccessTokenTrait#initJwtConfiguration\(\) changed from no type to void',
+
+        // v6.7.0.0 Changes
+        'The number of required arguments for Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent#__construct\(\) increased from 2 to 3',
     ],
 ];

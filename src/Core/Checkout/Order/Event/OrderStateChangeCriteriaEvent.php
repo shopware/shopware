@@ -39,6 +39,11 @@ if (Feature::isActive('v6.7.0.0')) {
     #[Package('checkout')]
     class OrderStateChangeCriteriaEvent extends Event
     {
+        private Context $context;
+
+        /**
+         * @deprecated tag:v6.7.0 - $context property will be added
+         */
         public function __construct(
             private readonly string $orderId,
             private readonly Criteria $criteria
@@ -53,6 +58,20 @@ if (Feature::isActive('v6.7.0.0')) {
         public function getCriteria(): Criteria
         {
             return $this->criteria;
+        }
+
+        /**
+         * @deprecated tag:v6.7.0 - $context property will be set in constructor
+         */
+        public function setContext(Context $context): void
+        {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', '$context property will be set in constructor');
+            $this->context = $context;
+        }
+
+        public function getContext(): Context
+        {
+            return $this->context;
         }
     }
 }

@@ -46,7 +46,6 @@ class TestBootstrapper
 
     public function bootstrap(): TestBootstrapper
     {
-        $_SERVER['TESTS_RUNNING'] = true;
         $_SERVER['PROJECT_ROOT'] = $_ENV['PROJECT_ROOT'] = $this->getProjectDir();
         if (!\defined('TEST_PROJECT_DIR')) {
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);

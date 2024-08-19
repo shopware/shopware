@@ -154,7 +154,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     public function getResolveImportPathsCallback(array $resolveMappings): \Closure
     {
-        return function ($originalPath) use ($resolveMappings) {
+        return function (string $originalPath) use ($resolveMappings): ?string {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
                 if (mb_strpos($originalPath, $resolve) === 0) {

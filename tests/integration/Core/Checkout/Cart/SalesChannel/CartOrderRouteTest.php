@@ -23,8 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
-use Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
@@ -104,9 +102,6 @@ class CartOrderRouteTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
-
-        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
-        PreparedTestPaymentHandler::$fail = false;
 
         $this->createTestData();
     }
@@ -534,7 +529,7 @@ class CartOrderRouteTest extends TestCase
 
     public function testPreparedPaymentStructForwarded(): void
     {
-        $this->createCustomerAndLogin(null, null, TestPaymentHandler::class);
+        $this->createCustomerAndLogin();
 
         $this->browser
             ->request(
@@ -642,7 +637,7 @@ class CartOrderRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
 
-        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+        $this->createCustomerAndLogin($email, $password, true);
 
         // Fill product
         $this->browser
@@ -694,7 +689,7 @@ class CartOrderRouteTest extends TestCase
         $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
         static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
 
-        $this->createCustomerAndLogin($email, $password, PreparedTestPaymentHandler::class, true);
+        $this->createCustomerAndLogin($email, $password, true);
 
         // Fill product
         $this->browser
@@ -756,13 +751,9 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    /**
-     * @param class-string $paymentHandler
-     */
     private function createCustomerAndLogin(
         ?string $email = null,
         ?string $password = null,
-        string $paymentHandler = SyncTestPaymentHandler::class,
         bool $invalidSalutationId = false
     ): void {
         $email ??= Uuid::randomHex() . '@example.com';
@@ -770,7 +761,6 @@ class CartOrderRouteTest extends TestCase
         $this->createCustomer(
             $password,
             $email,
-            $paymentHandler,
             $invalidSalutationId,
             $this->validSalutationId,
             $this->validCountryId
@@ -800,13 +790,9 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    /**
-     * @param class-string $paymentHandler
-     */
     private function createCustomer(
         string $password,
         ?string $email = null,
-        string $paymentHandler = SyncTestPaymentHandler::class,
         bool $invalidSalutaionId = false,
         ?string $validSalutationId = null,
         ?string $validCountryId = null
@@ -834,7 +820,7 @@ class CartOrderRouteTest extends TestCase
                     'technicalName' => Uuid::randomHex(),
                     'active' => true,
                     'description' => 'Default payment method',
-                    'handlerIdentifier' => $paymentHandler,
+                    'handlerIdentifier' => TestPaymentHandler::class,
                     'salesChannels' => [
                         [
                             'id' => $this->ids->get('sales-channel'),

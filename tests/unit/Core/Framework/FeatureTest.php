@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
@@ -18,6 +19,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     /**
      * @var array<mixed>
      */
@@ -209,6 +212,9 @@ class FeatureTest extends TestCase
     #[DataProvider('callSilentIfInactiveProvider')]
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
     {
+        // deprecation warning wouldn't be rendered otherwise
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
         $errorMessage = null;
         set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
             $errorMessage = $error;

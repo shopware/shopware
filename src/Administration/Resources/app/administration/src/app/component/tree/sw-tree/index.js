@@ -680,7 +680,7 @@ Component.register('sw-tree', {
                 return;
             }
 
-            const batchDeleteIsFunction = this.checkCompatEnabled('INSTANCE_LISTENERS')
+            const batchDeleteIsFunction = this.isCompatEnabled('INSTANCE_LISTENERS')
                 ? typeof this.$listeners['batch-delete'] === 'function'
                 : typeof this.$attrs.onBatchDelete === 'function';
 

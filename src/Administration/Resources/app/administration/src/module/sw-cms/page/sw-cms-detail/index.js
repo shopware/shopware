@@ -259,6 +259,7 @@ export default {
             criteria.addAssociation('media');
             criteria.addAssociation('deliveryTime');
             criteria.addAssociation('manufacturer.media');
+            criteria.addAssociation('cover');
 
             return criteria;
         },

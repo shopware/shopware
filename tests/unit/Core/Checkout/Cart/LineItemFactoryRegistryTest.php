@@ -138,11 +138,11 @@ class LineItemFactoryRegistryTest extends TestCase
         $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
         $this->eventDispatcher->expects(static::once())->method('dispatch')->with(static::callback(function ($event) use ($lineItem, $cart, $beforeUpdateQuantity) {
-            return $event instanceof BeforeLineItemQuantityChangedEvent &&
-                $event->getLineItem() === $lineItem &&
-                $event->getCart() === $cart &&
-                $event->getContext() === $this->context &&
-                $event->getBeforeUpdateQuantity() === $beforeUpdateQuantity;
+            return $event instanceof BeforeLineItemQuantityChangedEvent
+                && $event->getLineItem() === $lineItem
+                && $event->getCart() === $cart
+                && $event->getContext() === $this->context
+                && $event->getBeforeUpdateQuantity() === $beforeUpdateQuantity;
         }));
 
         $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => $newQuantity], $lineItem, $this->context);

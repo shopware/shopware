@@ -103,7 +103,11 @@ Component.register('sw-login-login', {
 
             const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
-            if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
+            if (
+                firstRunWizard &&
+                !this.$router.history.current.name.startsWith('sw.first.run.wizard.') &&
+                this.$router.options.routes.some(route => route.name === 'sw.first.run.wizard.index')
+            ) {
                 this.$router.push({ name: 'sw.first.run.wizard.index' });
                 return;
             }

@@ -31,6 +31,18 @@ export default class FormAutoSubmitPlugin extends Plugin {
          * @type null|number
          */
         delayChangeEvent: null,
+
+        /**
+         * When true, the `FormAutoSubmitPlugin` will try to re-focus the previously focused element after page or ajax reload.
+         * @type {boolean}
+         */
+        autoFocus: true,
+
+        /**
+         * The key under which the focus state is saved in `window.focusHandler`.
+         * @type {string}
+         */
+        focusHandlerKey: 'form-auto-submit',
     };
 
     init() {
@@ -53,6 +65,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
         }
 
         this._registerEvents();
+        this._resumeFocusState();
     }
 
     /**
@@ -117,8 +130,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
             return;
         }
 
+        this._saveFocusState(event.target);
         this._submitNativeForm();
-
     }
 
     /**
@@ -146,6 +159,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
 
         this.$emitter.publish('beforeSubmit');
 
+        this._saveFocusState(event.target);
         this.sendAjaxFormSubmit();
     }
 
@@ -193,5 +207,40 @@ export default class FormAutoSubmitPlugin extends Plugin {
         input.setAttribute('value', value);
 
         return input;
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @private
+     */
+    _saveFocusState(element) {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        // If the form is submitted via AJAX, use the focusHandler in memory, otherwise use the persistent focusHandler.
+        if (this.options.useAjax) {
+            window.focusHandler.saveFocusState(this.options.focusHandlerKey, `[data-focus-id="${element.dataset.focusId}"]`);
+            return;
+        }
+
+        window.focusHandler.saveFocusStatePersistent(this.options.focusHandlerKey, `[data-focus-id="${element.dataset.focusId}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        // If the form is submitted via AJAX, use the focusHandler in memory, otherwise use the persistent focusHandler.
+        if (this.options.useAjax) {
+            window.focusHandler.resumeFocusState(this.options.focusHandlerKey);
+            return;
+        }
+
+        window.focusHandler.resumeFocusStatePersistent(this.options.focusHandlerKey);
     }
 }

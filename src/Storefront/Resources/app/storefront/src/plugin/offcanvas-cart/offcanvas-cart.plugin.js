@@ -26,6 +26,18 @@ export default class OffCanvasCartPlugin extends Plugin {
         shippingContainerSelector: '.offcanvas-shipping-preference',
         shippingToggleSelector: '.js-toggle-shipping-selection',
         additionalOffcanvasClass: 'cart-offcanvas',
+
+        /**
+         * When true, the OffCanvas will try to re-focus the previously focused element after content reload.
+         * @type {boolean}
+         */
+        autoFocus: true,
+
+        /**
+         * The key under which the focus state is saved in `window.focusHandler`.
+         * @type {string}
+         */
+        focusHandlerKey: 'offcanvas-cart',
     };
 
     init() {
@@ -226,12 +238,14 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _onChangeProductQuantity(event) {
+        /** @type {HTMLInputElement} select */
         const select = event.target;
         const form = select.closest('form');
         const selector = this.options.cartItemSelector;
 
         this.$emitter.publish('onChangeProductQuantity');
 
+        this._saveFocusState(select);
         this._fireRequest(form, selector);
     }
 
@@ -250,6 +264,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onAddPromotionToCart');
 
+        this._saveFocusState('#addPromotionOffcanvasCartInput');
         this._fireRequest(form, selector);
     }
 
@@ -273,6 +288,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     _updateOffCanvasContent(response) {
         OffCanvas.setContent(response, true, this._registerEvents.bind(this));
         window.PluginManager.initializePlugins();
+        this._resumeFocusState();
     }
 
     _isShippingAvailable() {
@@ -294,5 +310,33 @@ export default class OffCanvasCartPlugin extends Plugin {
         };
 
         this._fireRequest(event.target.form, '.offcanvas-summary', _callback);
+    }
+
+    /**
+     * @private
+     * @param {HTMLElement|string} element
+     */
+    _saveFocusState(element) {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        if (typeof element === 'string') {
+            window.focusHandler.saveFocusState(this.options.focusHandlerKey, element);
+            return;
+        }
+
+        window.focusHandler.saveFocusState(this.options.focusHandlerKey, `[data-focus-id="${element.dataset.focusId}"]`);
+    }
+
+    /**
+     * @private
+     */
+    _resumeFocusState() {
+        if (!this.options.autoFocus) {
+            return;
+        }
+
+        window.focusHandler.resumeFocusState(this.options.focusHandlerKey);
     }
 }

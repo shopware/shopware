@@ -341,6 +341,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         if ($this->autoPrefix === true) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+
             $autoPreFixer = new Autoprefixer($cssOutput);
             /** @var string|false $cssOutput */
             $cssOutput = $autoPreFixer->compile($this->debug);

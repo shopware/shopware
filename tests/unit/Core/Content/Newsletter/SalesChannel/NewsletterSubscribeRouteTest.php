@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -88,6 +89,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $systemConfig,
             $this->createMock(RateLimiter::class),
             $this->createMock(RequestStack::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
         );
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
@@ -135,6 +137,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $systemConfig,
             $this->createMock(RateLimiter::class),
             $this->createMock(RequestStack::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
         );
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
@@ -255,6 +258,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
+            $this->createMock(StoreApiCustomFieldMapper::class),
         );
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
@@ -290,6 +294,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $rateLimiterMock,
             $requestStack,
+            $this->createMock(StoreApiCustomFieldMapper::class),
         );
 
         static::expectException(NewsletterException::class);

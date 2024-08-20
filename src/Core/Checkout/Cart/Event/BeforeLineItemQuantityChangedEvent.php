@@ -12,7 +12,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent, CartEvent
 {
-
     protected int $beforeUpdateQuantity;
 
     /**

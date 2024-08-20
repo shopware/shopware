@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -34,6 +35,7 @@ class CachedNavigationRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         parent::setUp();
 
         $this->context = $this->getContainer()
@@ -49,19 +51,24 @@ class CachedNavigationRouteTest extends TestCase
 
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
-        $this->getContainer()->get('event_dispatcher')
-            ->addListener(NavigationRouteCacheTagsEvent::class, static function (NavigationRouteCacheTagsEvent $event): void {
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            NavigationRouteCacheTagsEvent::class,
+            static function (NavigationRouteCacheTagsEvent $event): void {
                 $event->addTags([self::ALL_TAG]);
-            });
+            }
+        );
 
         $route = $this->getContainer()->get(NavigationRoute::class);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 
-        $this->getContainer()
-            ->get('event_dispatcher')
-            ->addListener(NavigationRouteCacheTagsEvent::class, $listener);
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            NavigationRouteCacheTagsEvent::class,
+            $listener
+        );
 
         $context = $this->context;
         $root = $context->getSalesChannel()->getNavigationCategoryId();
@@ -159,15 +166,7 @@ class CachedNavigationRouteTest extends TestCase
 
     private function initData(IdsCollection $ids): void
     {
-        $context = $this->getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
-
-        $this->context = $this->getContainer()
-            ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $ids->set('navigation', $this->context->getSalesChannel()->getNavigationCategoryId());
 
         $categories = [
             ['id' => $ids->get('cat-1.0.0'), 'parentId' => $ids->get('navigation'), 'name' => 'cat 1.0.0', 'active' => true, 'children' => [

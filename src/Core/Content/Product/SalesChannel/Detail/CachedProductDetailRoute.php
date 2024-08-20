@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,6 +19,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed
+ */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
 class CachedProductDetailRoute extends AbstractProductDetailRoute
@@ -46,6 +50,10 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     #[Route(path: '/store-api/product/{productId}', name: 'store-api.product.detail', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($productId, $request, $context, $criteria);
+        }
+
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
         }
@@ -71,7 +79,7 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
 
     public static function buildName(string $parentId): string
     {
-        return 'product-detail-route-' . $parentId;
+        return ProductDetailRoute::buildName($parentId);
     }
 
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string

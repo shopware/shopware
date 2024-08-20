@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -44,6 +45,14 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $key = implode('-', [$name, md5(json_encode($options, \JSON_THROW_ON_ERROR))]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
+            if (Feature::isActive('cache_rework')) {
+                $item->tag([$name, self::ALL_TAG]);
+
+                return CacheValueCompressor::compress(
+                    $this->decorated->create($token, $salesChannelId, $options)
+                );
+            }
+
             $context = $this->tracer->trace($name, fn () => $this->getDecorated()->create($token, $salesChannelId, $options));
 
             $keys = array_unique(array_merge(
@@ -57,6 +66,10 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         });
 
         $context = CacheValueCompressor::uncompress($value);
+
+        if (!$context instanceof SalesChannelContext) {
+            return $this->getDecorated()->create($token, $salesChannelId, $options);
+        }
 
         $context->assign(['token' => $token]);
 

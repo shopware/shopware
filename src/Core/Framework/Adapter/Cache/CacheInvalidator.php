@@ -68,13 +68,11 @@ class CacheInvalidator
     private function purge(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
+            $adapter->deleteItems($keys);
+
             if ($adapter instanceof TagAwareAdapterInterface) {
                 $adapter->invalidateTags($keys);
             }
-        }
-
-        foreach ($this->adapters as $adapter) {
-            $adapter->deleteItems($keys);
         }
 
         $this->dispatcher->dispatch(new InvalidateCacheEvent($keys));

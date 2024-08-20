@@ -62,13 +62,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoHeadersAreSetIfCacheIsDisabled(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $customer = new CustomerEntity();
@@ -96,13 +98,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoAutoCacheControlHeader(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -125,13 +129,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoAutoCacheControlHeaderCacheDisabled(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             false,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -154,13 +160,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNoAutoCacheControlHeaderNoHttpCacheRoute(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -187,13 +195,15 @@ class CacheResponseSubscriberTest extends TestCase
         $service->method('getCart')->willReturn($cart);
 
         $subscriber = new CacheResponseSubscriber(
+            [],
             $service,
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -268,13 +278,15 @@ class CacheResponseSubscriberTest extends TestCase
         $requestStack = new RequestStack();
 
         $subscriber = new CacheResponseSubscriber(
+            [],
             $cartService,
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $customer = new CustomerEntity();
@@ -315,13 +327,15 @@ class CacheResponseSubscriberTest extends TestCase
         $requestStack = new RequestStack();
 
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -367,13 +381,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testAddHttpCacheToCoreRoutes(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             1,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -387,13 +403,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testCurrencyChange(?string $currencyId): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -430,13 +448,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testStatesGetDeletedOnEmptyState(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -462,13 +482,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testNotCacheablePages(Request $request): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $response = new Response();
@@ -502,13 +524,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testCookiesAreUntouched(Request $request, ?Response $response = null): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         if (!$response) {
@@ -556,13 +580,15 @@ class CacheResponseSubscriberTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $subscriber = new CacheResponseSubscriber(
+            [],
             $cartService,
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -592,13 +618,15 @@ class CacheResponseSubscriberTest extends TestCase
     public function testMakeGetsCached(): void
     {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createMock(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             '5',
-            '6'
+            '6',
+            new EventDispatcher()
         );
 
         $request = new Request();
@@ -676,13 +704,15 @@ class CacheResponseSubscriberTest extends TestCase
         string $assertEqualsErrorMessage
     ): void {
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             new RequestStack(),
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $salesChannelContext = $this->createStub(SalesChannelContext::class);
@@ -732,13 +762,15 @@ class CacheResponseSubscriberTest extends TestCase
         $requestStack->push($request);
 
         $subscriber = new CacheResponseSubscriber(
+            [],
             $this->createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver(new EventDispatcher()),
             $requestStack,
             null,
-            null
+            null,
+            new EventDispatcher()
         );
 
         $subscriber->onCustomerLogout($event);

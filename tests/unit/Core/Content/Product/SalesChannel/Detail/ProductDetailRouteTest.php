@@ -92,6 +92,7 @@ class ProductDetailRouteTest extends TestCase
     public function testLoadMainVariant(): void
     {
         $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
         $this->productRepository->expects(static::exactly(1))
@@ -161,6 +162,7 @@ class ProductDetailRouteTest extends TestCase
 
         $productId = Uuid::randomHex();
         $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($productId);
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
         $productEntity->setAvailable(true);
@@ -236,6 +238,7 @@ class ProductDetailRouteTest extends TestCase
     public function testConfigHideCloseoutProductsWhenOutOfStockFiltersResults(): void
     {
         $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId(Uuid::randomHex());
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('BestVariant');
 

@@ -238,8 +238,7 @@ base-uri 'self';
         </service>
 
         <!-- Translation -->
-        <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
-                 decorates="translator">
+        <service id="Shopware\Core\Framework\Adapter\Translation\Translator" decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
@@ -249,6 +248,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument>%shopware.cache.tagging.each_snippet%</argument>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="monolog.logger"/>
         </service>
@@ -696,6 +696,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
             <argument>%session.storage.options%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">

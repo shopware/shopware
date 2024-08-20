@@ -5,6 +5,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
  * @package customer-order
+ * @group disabledCompat
  */
 
 const mockItem = {
@@ -78,6 +79,14 @@ async function createWrapper() {
                 'sw-data-grid-skeleton': true,
                 'sw-time-ago': true,
                 'sw-color-badge': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-bulk-edit-modal': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-sidebar': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
             },
             provide: {
                 stateStyleDataProviderService: {

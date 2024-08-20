@@ -8,7 +8,10 @@
     <template v-if="!fieldDefinition">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_no_definition_placeholder %}
-        <sw-container class="sw-product-stream-value__placeholder" />
+        <sw-container
+            ref="product-stream-value-placeholder"
+            class="sw-product-stream-value__placeholder"
+        />
         {% endblock %}
     </template>
 
@@ -16,6 +19,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_boolean_value %}
         <sw-single-select
+            ref="product-stream-value-select-boolean"
             class="sw-product-stream-value__select"
             size="medium"
             :options="booleanOptions"
@@ -31,6 +35,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_empty_value %}
         <sw-single-select
+            ref="product-stream-value-select-empty"
             v-model:value="emptyValue"
             name="sw-field--emptyValue"
             class="sw-product-stream-value__select"
@@ -46,6 +51,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_operator_select %}
         <sw-arrow-field
+            ref="product-stream-value-operator-select"
             class="sw-product-stream-value__operator-select"
             :disabled="!acl.can('product_stream.editor')"
         >
@@ -63,6 +69,7 @@
 
         <template v-if="fieldType === 'product_state_list'">
             <sw-single-select
+                ref="product-stream-state-options"
                 v-model:value="actualCondition.value"
                 :options="productStateOptions"
                 :disabled="disabled"
@@ -73,6 +80,7 @@
             {% block sw_product_stream_value_entity_single_value_custom_field %}
             <sw-entity-single-select
                 v-if="!isMultiSelectValue"
+                ref="product-stream-value-select-custom-field"
                 v-model:value="actualCondition.value"
                 size="medium"
                 :entity="getCustomFieldEntityName(fieldName)"
@@ -134,6 +142,7 @@
             {% block sw_product_stream_value_entity_single_value %}
             <sw-entity-single-select
                 v-if="definition.entity === 'product' && actualCondition.type === 'equals'"
+                ref="product-stream-value-select-single-value"
                 v-model:value="actualCondition.value"
                 size="medium"
                 show-clearable-button
@@ -184,6 +193,7 @@
 
             <sw-entity-single-select
                 v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equals'"
+                ref="product-stream-value-select-group-option"
                 v-model:value="actualCondition.value"
                 size="medium"
                 :entity="definition.entity"
@@ -218,6 +228,7 @@
             {% block sw_product_stream_value_entity_single_value_visibilities %}
             <sw-entity-single-select
                 v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equals'"
+                ref="product-stream-value-select-value-visibilities"
                 v-model:value="actualCondition.value"
                 size="medium"
                 :entity="definition.entity"
@@ -232,6 +243,7 @@
 
             <sw-entity-single-select
                 v-else-if="actualCondition.type === 'equals'"
+                ref="product-stream-value-select-equals-uuid"
                 v-model:value="actualCondition.value"
                 size="medium"
                 :entity="definition.entity"
@@ -262,6 +274,7 @@
             {% block sw_product_stream_value_entity_multi_value %}
             <sw-entity-multi-id-select
                 v-else-if="definition.entity === 'property_group_option' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
+                ref="product-stream-value-select-multi-value"
                 v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
@@ -302,6 +315,7 @@
 
             <sw-entity-multi-id-select
                 v-else-if="definition.entity === 'product' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
+                ref="product-stream-value-select-multi-value-equals"
                 v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
@@ -345,6 +359,7 @@
             {% block sw_product_stream_value_entity_multi_value_visibilities %}
             <sw-entity-multi-id-select
                 v-else-if="definition.entity === 'product_visibility' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
+                ref="product-stream-value-select-multi-value-visibilities"
                 v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
@@ -375,6 +390,7 @@
 
             <sw-entity-multi-id-select
                 v-else-if="isMultiSelectValue"
+                ref="product-stream-value-select-multi-id-select-value"
                 v-model:value="multiValue"
                 size="medium"
                 description-position="bottom"
@@ -405,6 +421,7 @@
             {% block sw_product_stream_value_entity_no_operator_selected_placeholder %}
             <sw-container
                 v-else
+                ref="product-stream-value-selected-placeholder"
                 class="sw-product-stream-value__placeholder"
             />
             {% endblock %}
@@ -416,7 +433,10 @@
             <template v-if="filterType === 'range'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_stream_value_range_from_value %}
-                <sw-arrow-field :disabled="disabled">
+                <sw-arrow-field
+                    ref="product-stream-value-range-from-arrow-field"
+                    :disabled="disabled"
+                >
                     <component
                         :is="inputComponent"
                         v-model:value="gte"
@@ -430,6 +450,7 @@
                 {% block sw_product_stream_value_range_to_value %}
                 <component
                     :is="inputComponent"
+                    ref="product-stream-value-range-to-value-component"
                     v-model:value="lte"
                     size="medium"
                     :disabled="disabled"
@@ -442,6 +463,7 @@
                 {% block sw_product_stream_value_range_one_limit %}
                 <component
                     :is="inputComponent"
+                    ref="product-stream-value-range-one-limit-component"
                     v-model:value="currentParameter"
                     size="medium"
                     :disabled="disabled"
@@ -456,6 +478,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_multi_value %}
             <sw-tagged-field
+                ref="product-stream-value-multi-value-tagged-field"
                 v-model:value="multiValue"
                 size="medium"
             />
@@ -465,7 +488,10 @@
         <template v-else-if="filterType === 'since' || filterType === 'until'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_relative_time_operator %}
-            <sw-arrow-field :disabled="disabled">
+            <sw-arrow-field
+                ref="product-stream-value-relative-time-arrow-field"
+                :disabled="disabled"
+            >
                 <sw-single-select
                     v-model:value="operator"
                     size="medium"
@@ -479,6 +505,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_relative_time_value %}
             <sw-number-field
+                ref="product-stream-value-relative-time-number-field"
                 v-model:value="stringValue"
                 class="sw-product-stream-value__time-input"
                 size="medium"
@@ -499,6 +526,7 @@
             {% block sw_product_stream_value_single_value %}
             <component
                 :is="inputComponent"
+                ref="product-stream-value-single-value-component"
                 v-model:value="stringValue"
                 size="medium"
                 :disabled="disabled"

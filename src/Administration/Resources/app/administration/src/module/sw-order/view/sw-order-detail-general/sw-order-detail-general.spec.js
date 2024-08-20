@@ -1,3 +1,8 @@
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
@@ -84,19 +89,22 @@ async function createWrapper() {
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-number-field': {
-                    template: `
-                        <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
-                    `,
-                    props: {
-                        value: 0,
-                    },
-                },
-                // 'sw-order-saveable-field': {
-                //     props: ['value'],
-                //     template: '<input class="sw-order-saveable-field" :value="value" @input="$emit(\'value-change\', $event.target.value)" />',
-                // },
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
                 'sw-extension-component-section': true,
+                'sw-icon': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                'router-link': true,
+                'sw-loader': true,
             },
             mocks: {
                 $tc: (key, number, value) => {
@@ -108,13 +116,13 @@ async function createWrapper() {
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('tooltip-message', binding.value.message);
                     },
                 },
@@ -175,12 +183,13 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
 
         let button = wrapper.find('.sw-order-detail__summary div[role="button"]');
         await button.trigger('click');
+        await flushPromises();
 
         const saveableField = wrapper.find('.sw-order-saveable-field input');
         await saveableField.setValue(20);
         await saveableField.trigger('input');
 
-        button = wrapper.find('.sw-order-saveable-field sw-button[variant="primary"]');
+        button = wrapper.find('.sw-order-saveable-field .sw-button--primary');
         await button.trigger('click');
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);

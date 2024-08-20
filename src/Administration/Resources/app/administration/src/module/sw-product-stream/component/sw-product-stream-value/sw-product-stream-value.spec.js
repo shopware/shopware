@@ -1,5 +1,6 @@
 /*
- * @package inventory
+ * @package services-settings
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -22,6 +23,14 @@ async function createWrapper(
         },
         'sw-entity-single-select': true,
         'sw-entity-multi-id-select': true,
+        'sw-product-variant-info': true,
+        'sw-select-result': true,
+        'sw-tagged-field': true,
+        'sw-number-field': true,
+        'sw-inheritance-switch': true,
+        'sw-loader': true,
+        'sw-ai-copilot-badge': true,
+        'sw-help-text': true,
     };
 
     if (render) {

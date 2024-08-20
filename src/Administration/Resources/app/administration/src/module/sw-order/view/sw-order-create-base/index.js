@@ -13,6 +13,8 @@ const { mapGetters } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['feature'],
 
     emits: ['error'],

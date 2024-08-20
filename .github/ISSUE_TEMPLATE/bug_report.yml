@@ -36,7 +36,7 @@ body:
             - Extension:Language-Extensions
             - Extension:Migration-Tool
             - Extension:PayPal-Integration
-            - Extenstion:Publisher
+            - Extension:Publisher
             - Extension:Shape-Theme
             - Extension:Showroom-Theme
             - Extension:Social-Shopping

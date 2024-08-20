@@ -69,6 +69,7 @@ class Generator extends TestCase
             $salesChannel->setNavigationCategoryId(Uuid::randomHex());
             $salesChannel->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
             $salesChannel->setPaymentMethodId($paymentMethod?->getId() ?? '19d144ffe15f4772860d59fca7f207c1');
+            $salesChannel->setShippingMethodId($shippingMethod?->getId() ?? '8beeb66e9dda46b18891a059257a590e');
         }
 
         $currency = $currency ?: (new CurrencyEntity())->assign([

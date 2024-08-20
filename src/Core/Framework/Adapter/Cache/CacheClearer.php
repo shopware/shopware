@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Log\Package;
@@ -26,11 +27,13 @@ class CacheClearer
     public function __construct(
         private readonly array $adapters,
         private readonly CacheClearerInterface $cacheClearer,
+        private readonly CacheInvalidator $invalidator,
         private readonly Filesystem $filesystem,
         private readonly string $cacheDir,
         private readonly string $environment,
         private readonly bool $clusterMode,
-        private readonly MessageBusInterface $messageBus
+        private readonly MessageBusInterface $messageBus,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -38,6 +41,13 @@ class CacheClearer
     {
         foreach ($this->adapters as $adapter) {
             $adapter->clear();
+        }
+
+        try {
+            $this->invalidator->invalidateExpired();
+        } catch (\Throwable $e) {
+            // redis not available atm (in pipeline or build process)
+            $this->logger->critical('Could not clear cache: ' . $e->getMessage());
         }
 
         if (!is_writable($this->cacheDir)) {

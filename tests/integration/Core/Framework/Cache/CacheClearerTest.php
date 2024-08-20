@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -108,11 +109,13 @@ class CacheClearerTest extends TestCase
         $cacheClearer = new CacheClearer(
             [],
             $this->getContainer()->get('cache_clearer'),
+            $this->getContainer()->get(CacheInvalidator::class),
             $filesystem,
             $cacheDir,
             'test',
             false,
-            $this->getContainer()->get('messenger.bus.shopware')
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get('logger')
         );
 
         $cacheClearer->clearContainerCache();
@@ -147,11 +150,13 @@ class CacheClearerTest extends TestCase
         $cacheClearer = new CacheClearer(
             [],
             $this->getContainer()->get('cache_clearer'),
+            $this->getContainer()->get(CacheInvalidator::class),
             $this->getContainer()->get('filesystem'),
             $this->getKernel()->getCacheDir(),
             'test',
             true,
-            $this->getContainer()->get('messenger.bus.shopware')
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get('logger')
         );
 
         touch(\sprintf('%s%sUrlGenerator.php', $this->getKernel()->getCacheDir(), \DIRECTORY_SEPARATOR));

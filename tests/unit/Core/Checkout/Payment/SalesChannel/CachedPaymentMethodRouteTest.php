@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -34,6 +35,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
+ * @deprecated tag:v6.7.0 - Remove full class
+ *
  * @internal
  */
 #[CoversClass(CachedPaymentMethodRoute::class)]
@@ -53,6 +56,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         $this->decorated = $this->createMock(AbstractPaymentMethodRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);
         $this->eventDispatcher = new EventDispatcher();

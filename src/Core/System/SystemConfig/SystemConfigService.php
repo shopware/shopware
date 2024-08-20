@@ -52,7 +52,7 @@ class SystemConfigService implements ResetInterface
         private readonly Connection $connection,
         private readonly ConfigReader $configReader,
         private readonly AbstractSystemConfigLoader $loader,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
         private readonly bool $fineGrainedCache
     ) {
@@ -216,7 +216,7 @@ class SystemConfigService implements ResetInterface
         $merged = $this->symfonySystemConfigService->override($merged, $salesChannelId, $inherit, false);
 
         $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
-        $this->eventDispatcher->dispatch($event);
+        $this->dispatcher->dispatch($event);
 
         return $event->getConfig();
     }
@@ -252,7 +252,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $event = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
-        $this->eventDispatcher->dispatch($event);
+        $this->dispatcher->dispatch($event);
 
         $values = $event->getConfig();
 
@@ -279,7 +279,7 @@ class SystemConfigService implements ResetInterface
             $this->validate($key, $salesChannelId);
 
             $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
-            $this->eventDispatcher->dispatch($event);
+            $this->dispatcher->dispatch($event);
 
             // Use modified value provided by potential event subscribers.
             $value = $event->getValue();
@@ -345,14 +345,14 @@ class SystemConfigService implements ResetInterface
         $insertQueue->execute();
 
         // Dispatch the hook before the events to invalid the cache
-        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
+        $this->dispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
 
         // Dispatch events that the given values have been changed
         foreach ($events as $event) {
-            $this->eventDispatcher->dispatch($event);
+            $this->dispatcher->dispatch($event);
         }
 
-        $this->eventDispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
+        $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void

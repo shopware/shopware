@@ -158,6 +158,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                 (new CmsSlotEntity())->assign([
                                     'id' => 'slot-1',
                                     'slot' => 'left',
+                                    'type' => 'foo',
                                     'config' => ['translated' => '1'],
                                     'translated' => [
                                         'config' => ['Config'],
@@ -166,6 +167,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                 (new CmsSlotEntity())->assign([
                                     'id' => 'slot-2',
                                     'slot' => 'right',
+                                    'type' => 'foo',
                                     'translated' => [
                                         'config' => ['Config'],
                                     ],
@@ -173,6 +175,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                 (new CmsSlotEntity())->assign([
                                     'id' => 'slot-3',
                                     'slot' => 'content',
+                                    'type' => 'foo',
                                 ]),
                             ]),
                         ]),
@@ -183,6 +186,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                                 (new CmsSlotEntity())->assign([
                                     'id' => 'slot-1',
                                     'slot' => 'content',
+                                    'type' => 'foo',
                                     'config' => ['translated' => '0'],
                                 ]),
                             ]),

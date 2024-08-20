@@ -39,6 +39,7 @@
 
         <service id="Shopware\Core\System\Language\SalesChannel\LanguageRoute" public="true">
             <argument type="service" id="sales_channel.language.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute" decorates="Shopware\Core\System\Language\SalesChannel\LanguageRoute" decoration-priority="-1000" public="true">

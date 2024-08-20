@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -119,6 +120,34 @@ class LineItemFactoryRegistryTest extends TestCase
         $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => 2, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
         $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => 2], $lineItem, $this->context);
+    }
+
+    public function testUpdateLineItemWithQuantityEventAndSetBeforeUpdateQuantity(): void
+    {
+        $id = Uuid::randomHex();
+        $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
+        $lineItem->setStackable(true);
+
+        $cart = new Cart('test');
+        $cart->add($lineItem);
+
+        $beforeUpdateQuantity = $lineItem->getQuantity();
+        $newQuantity = 2;
+
+        $this->factory->expects(static::once())->method('supports')->with('product')->willReturn(true);
+        $this->factory->expects(static::once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+
+        $this->eventDispatcher->expects(static::once())
+            ->method('dispatch')
+            ->with(static::callback(function ($event) use ($lineItem, $cart, $beforeUpdateQuantity) {
+                return $event instanceof BeforeLineItemQuantityChangedEvent
+                    && $event->getLineItem() === $lineItem
+                    && $event->getCart() === $cart
+                    && $event->getContext() === $this->context
+                    && $event->getBeforeUpdateQuantity() === $beforeUpdateQuantity;
+            }));
+
+        $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => $newQuantity], $lineItem, $this->context);
     }
 
     public function testUpdateLineItemWithUnsupportedType(): void

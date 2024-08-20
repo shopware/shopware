@@ -108,7 +108,7 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
-     * @param array<string, string> $addresses
+     * @param array<string, string|null> $addresses
      *
      * @return list<Address>
      */
@@ -116,7 +116,7 @@ class MailFactory extends AbstractMailFactory
     {
         $formattedAddresses = [];
         foreach ($addresses as $mail => $name) {
-            $formattedAddresses[] = new Address($mail, $name);
+            $formattedAddresses[] = new Address($mail, $name ?? '');
         }
 
         return $formattedAddresses;

@@ -219,6 +219,7 @@
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel.product.repository"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
 

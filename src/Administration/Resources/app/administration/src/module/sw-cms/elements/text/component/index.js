@@ -26,13 +26,11 @@ export default {
     },
 
     watch: {
-        cmsPageState: {
-            deep: true,
+        'cmsPageState.currentDemoEntity': {
             handler() {
                 this.updateDemoValue();
             },
         },
-
         'element.config.content.source': {
             handler() {
                 this.updateDemoValue();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
@@ -42,16 +44,24 @@ class PromotionCollectorTest extends TestCase
 
     private readonly SalesChannelContext&MockObject $context;
 
+    private readonly Connection&MockObject $connection;
+
     protected function setUp(): void
     {
         $this->gateway = $this->createMock(PromotionGatewayInterface::class);
+        $this->connection = $this->createMock(Connection::class);
         $this->promotionCollector = new PromotionCollector(
             $this->gateway,
             new PromotionItemBuilder(),
             $this->createMock(HtmlSanitizer::class),
+            $this->connection
         );
 
         $this->context = $this->createMock(SalesChannelContext::class);
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $this->context->method('getCustomer')->willReturn($customer);
     }
 
     public function testCollectWithExistingPromotionAndDifferentDiscount(): void
@@ -83,11 +93,135 @@ class PromotionCollectorTest extends TestCase
         static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
     }
 
+    public function testPromotionWithInvalidOrderCount(): void
+    {
+        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 2, 1);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+    }
+
+    public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
+    {
+        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$this->context->getCustomer()?->getId() => 1]);
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+    }
+
+    public function testPromotionWithoutDiscount(): void
+    {
+        $code = 'promotions-code';
+
+        $lineItem1 = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$lineItem1]));
+
+        $promotion = $this->createPromotion(Uuid::randomHex(), $code, []);
+
+        $this->gateway->method('get')->willReturn(
+            new PromotionCollection([$promotion]),
+            new PromotionCollection(),
+        );
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+    }
+
+    public function testPromotionWithMaxTotalUseIsReachedInEditingOrder(): void
+    {
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('1');
+        $discountId1 = Uuid::randomHex();
+        $discountId2 = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart([$discountId1, $discountId2], $promotionId, 1);
+        $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        $promotionFirst = $promotions->first();
+        $promotionLast = $promotions->last();
+
+        static::assertNotNull($promotionFirst);
+        static::assertNotNull($promotionLast);
+
+        static::assertCount(2, $promotions);
+        static::assertSame($promotionId, $promotionFirst->getPayloadValue('promotionId'));
+        static::assertSame($discountId1, $promotionFirst->getPayloadValue('discountId'));
+        static::assertNotNull($promotionFirst->getExtension(OrderConverter::ORIGINAL_ID));
+
+        static::assertSame($promotionId, $promotionLast->getPayloadValue('promotionId'));
+        static::assertSame($discountId2, $promotionLast->getPayloadValue('discountId'));
+        static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
+    }
+
+    public function testPromotionWithMaxUsePerCustomerIsReachedInEditingOrder(): void
+    {
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('1');
+        $discountId1 = Uuid::randomHex();
+        $discountId2 = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart(
+            [$discountId1, $discountId2],
+            $promotionId,
+            1,
+            1,
+            1,
+            [$this->context->getCustomer()?->getId() => 1]
+        );
+        $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        $promotionFirst = $promotions->first();
+        $promotionLast = $promotions->last();
+
+        static::assertNotNull($promotionFirst);
+        static::assertNotNull($promotionLast);
+
+        static::assertCount(2, $promotions);
+        static::assertSame($promotionId, $promotionFirst->getPayloadValue('promotionId'));
+        static::assertSame($discountId1, $promotionFirst->getPayloadValue('discountId'));
+        static::assertNotNull($promotionFirst->getExtension(OrderConverter::ORIGINAL_ID));
+
+        static::assertSame($promotionId, $promotionLast->getPayloadValue('promotionId'));
+        static::assertSame($discountId2, $promotionLast->getPayloadValue('discountId'));
+        static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
+    }
+
     /**
      * @param string[] $discountIds
+     * @param array<string, int>|null $orderPerCustomerCount
      */
-    private function prepareCart(array $discountIds, string $promotionId): Cart
-    {
+    private function prepareCart(
+        array $discountIds,
+        string $promotionId,
+        int $orderCount = 1,
+        ?int $maxTotalUse = null,
+        ?int $maxUsePerCustomer = null,
+        ?array $orderPerCustomerCount = null
+    ): Cart {
         $code = 'promotions-code';
 
         $lineItem1 = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
@@ -100,7 +234,7 @@ class PromotionCollectorTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem1, $lineItem2]));
 
-        $promotion = $this->createPromotion($promotionId, $code, $discountIds);
+        $promotion = $this->createPromotion($promotionId, $code, $discountIds, $orderCount, $maxTotalUse, $maxUsePerCustomer, $orderPerCustomerCount);
 
         $promotionData = new CartExtension();
         $promotionData->addCode($code);
@@ -140,16 +274,37 @@ class PromotionCollectorTest extends TestCase
 
     /**
      * @param string[] $discountIds
+     * @param array<string, int>|null $orderPerCustomerCount
      */
-    private function createPromotion(string $promotionId, string $code, array $discountIds): PromotionEntity
-    {
+    private function createPromotion(
+        string $promotionId,
+        string $code,
+        array $discountIds,
+        int $orderCount = 1,
+        ?int $maxTotalUse = null,
+        ?int $maxUsePerCustomer = null,
+        ?array $orderPerCustomerCount = null
+    ): PromotionEntity {
         $promotion = new PromotionEntity();
         $promotion->setId($promotionId);
         $promotion->setCode($code);
         $promotion->setUseIndividualCodes(true);
         $promotion->setPriority(1);
+        $promotion->setOrderCount($orderCount);
 
         $promotion->setDiscounts($this->createPromotionDiscountCollection($discountIds, $promotion));
+
+        if ($maxTotalUse !== null) {
+            $promotion->setMaxRedemptionsGlobal($maxTotalUse);
+        }
+
+        if ($maxUsePerCustomer !== null) {
+            $promotion->setMaxRedemptionsPerCustomer($maxUsePerCustomer);
+        }
+
+        if ($orderPerCustomerCount !== null) {
+            $promotion->setOrdersPerCustomerCount($orderPerCustomerCount);
+        }
 
         return $promotion;
     }

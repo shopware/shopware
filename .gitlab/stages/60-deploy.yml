@@ -180,13 +180,3 @@ Post Slack Release message:
     - >
       SLACK_PAYLOAD=$(jq --null-input --arg version "${CI_COMMIT_TAG}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
       curl --silent --request POST --url ${SLACK_RELEASE_WORKFLOW_URL} --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
-
-Update Release schedule:
-  stage: deploy
-  needs: []
-  rules:
-    - !reference [.rules, scheduled]
-  variables:
-    CI_UPDATE_RELEASE_SCHEDULE: "true"
-  trigger:
-    project: product-operations/maintenance

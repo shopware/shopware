@@ -186,6 +186,7 @@ commercial tag:
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rules, scheduled ]
+  allow_failure: true
   trigger:
     project: $PLUGIN_PROJECT
     strategy: depend
@@ -209,7 +210,6 @@ extensions-saas:
 
 extensions:
   extends: .extensions
-  allow_failure: true
   parallel:
     matrix:
       - PLUGIN_BRANCH: trunk

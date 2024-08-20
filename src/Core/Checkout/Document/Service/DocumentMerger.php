@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Service;
 
 use setasign\Fpdi\PdfParser\StreamReader;
-use setasign\Fpdi\Tcpdf\Fpdi;
+use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -42,9 +42,6 @@ final class DocumentMerger
         if (empty($documentIds)) {
             return null;
         }
-
-        $this->fpdi->setPrintHeader(false);
-        $this->fpdi->setPrintFooter(false);
 
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');

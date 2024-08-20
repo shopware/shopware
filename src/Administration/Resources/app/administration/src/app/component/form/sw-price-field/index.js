@@ -287,13 +287,15 @@ Component.register('sw-price-field', {
 
         onPriceGrossInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.onPriceGrossChangeDebounce(value);
+                this.priceForCurrency.gross = value;
+                this.onPriceGrossChangeDebounce();
             }
         },
 
         onPriceNetInputChange(value) {
             if (this.priceForCurrency.linked) {
-                this.onPriceNetChangeDebounce(value);
+                this.priceForCurrency.net = value;
+                this.onPriceNetChangeDebounce();
             }
         },
 

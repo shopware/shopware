@@ -260,4 +260,30 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.emitted('update:value')).toBeFalsy();
     });
+
+    it('should have the typed gross value after input change and after debounce time', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(wrapper.vm.priceForCurrency.gross).toBe(euroPrice.gross);
+    });
+
+    it('should have the typed net value after input change and after debounce time', async () => {
+        const wrapper = await setup({ allowEmpty: true });
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(wrapper.vm.priceForCurrency.net).toBe(euroPrice.net);
+    });
 });

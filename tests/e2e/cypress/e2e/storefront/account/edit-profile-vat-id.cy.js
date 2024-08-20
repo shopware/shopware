@@ -107,7 +107,7 @@ describe('Account: Edit profile\'s Vat Id', () => {
         cy.get('#profilePersonalForm button[type="submit"]').click();
         cy.get('.invalid-feedback').contains('The VAT Reg.No. you have entered does not have the correct format.').should('be.visible');
 
-        cy.get(vatIdsSelector).clearTypeAndCheck('123456789');
+        cy.get(vatIdsSelector).clearTypeAndCheck('DE123456789');
         cy.get('#profilePersonalForm button[type="submit"]').click();
         cy.get('.alert-success .alert-content').contains('Profile has been updated.');
     });

@@ -140,7 +140,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $this->eventDispatcher->expects(static::once())->method('dispatch');
 
         $this->eventDispatcher->expects(static::once())->method('dispatch')->with(
-            static::callback(function (BeforeLineItemQuantityChangedEvent $event) use ($lineItem, $beforeUpdateQuantity, $newQuantity) {
+            static::callback(function (BeforeLineItemQuantityChangedEvent $event) use ($beforeUpdateQuantity) {
                 static::assertSame($beforeUpdateQuantity, $event->getBeforeUpdateQuantity());
 
                 return true;

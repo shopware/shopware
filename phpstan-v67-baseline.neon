@@ -29,3 +29,18 @@ parameters:
 			message: "#^Multiple class/interface/trait is not allowed in single file$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Event/CartChangedEvent.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Core/Checkout/Order/Event/OrderStateChangeCriteriaEvent.php
+
+		-
+			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent constructor invoked with 2 parameters, 3 required\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
+
+		-
+			message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent\\:\\:setContext\\(\\)\\.$#"
+			count: 1
+			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php

@@ -1,6 +1,6 @@
 ---
 title: Adding beforeUpdateQuantity property to BeforeLineItemQuantityChangedEvent after line item quantity modification
-issue: NEXT-00000
+issue: NEXT-37783
 author: Carlo Cecco
 author_email: 6672778+luminalpark@users.noreply.github.com
 author_github: @luminalpark

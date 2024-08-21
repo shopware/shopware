@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
+import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * @package storefront
@@ -80,7 +81,21 @@ export default class ScrollUpPlugin extends Plugin {
             behavior: 'smooth',
         });
 
+        this._focusFirstElement();
+
         this.$emitter.publish('scrollToTop');
+    }
+
+    /**
+     * Set the focus to the first focus-able element
+     *
+     * @private
+     * @returns {void}
+     */
+    _focusFirstElement() {
+        const element = DomAccess.getFirstFocusableElement();
+
+        window.focusHandler.setFocus(element, { preventScroll: true });
     }
 
     /**

@@ -54,6 +54,7 @@
     "formSubmit": "Absenden",
     "listPricePreviously": "vorher %price%",
     "skipToContentLink": "Zum Hauptinhalt springen",
+    "scrollUpBtn": "Zurück zum Anfang der Seite springen",
     "pagination": {
       "first": "Erste Seite",
       "prev": "Vorherige Seite",

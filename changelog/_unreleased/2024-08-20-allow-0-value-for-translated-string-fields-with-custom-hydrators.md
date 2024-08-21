@@ -1,6 +1,6 @@
 ---
 title: Allow "0" value for translated string fields with custom hydrators
-issue: NEXT-0000
+issue: NEXT-37993
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

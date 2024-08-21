@@ -23,5 +23,6 @@ class Migration1724225177ProductMainCategoryInheritance extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->updateInheritance($connection, 'product', 'mainCategories');
+        $this->registerIndexer($connection, 'product.indexer', ['product.inheritance']);
     }
 }

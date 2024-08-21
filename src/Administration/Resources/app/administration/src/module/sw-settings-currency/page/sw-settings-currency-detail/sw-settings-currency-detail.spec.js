@@ -1,3 +1,8 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
@@ -54,6 +59,12 @@ async function createWrapper(privileges = []) {
                 'sw-settings-price-rounding': true,
                 'sw-empty-state': true,
                 'sw-skeleton': true,
+                'sw-card-filter': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-context-menu-item': true,
+                'sw-entity-listing': true,
+                'sw-settings-currency-country-modal': true,
+                'sw-custom-field-set-renderer': true,
             },
         },
     });

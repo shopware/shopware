@@ -40,13 +40,13 @@
                 disabled: acl.can('mail_templates.creator'),
                 showOnDisabledElements: true
             }"
-            :disabled="!acl.can('mail_templates.creator')"
+            :disabled="!acl.can('mail_templates.creator') || undefined"
         >
             <template #button>
                 <sw-button
                     class="sw-mail-template__button-create"
                     variant="primary"
-                    :disabled="!acl.can('mail_templates.creator')"
+                    :disabled="!acl.can('mail_templates.creator') || undefined"
                 >
                     {{ $tc('sw-mail-template.list.buttonAdd') }}
                     <sw-icon

@@ -59,7 +59,7 @@
         <sw-button
             :router-link="{ name: 'sw.settings.currency.create' }"
             class="sw-settings-currency-list__button-create"
-            :disabled="!acl.can('currencies.creator')"
+            :disabled="!acl.can('currencies.creator') || undefined"
             variant="primary"
         >
             {{ $tc('sw-settings-currency.list.buttonAddCurrency') }}
@@ -82,7 +82,7 @@
                 :full-page="false"
                 :allow-edit="acl.can('currencies.editor')"
                 :allow-delete="acl.can('currencies.deleter')"
-                :allow-inline-edit="acl.can('currencies.editor')"
+                :allow-inline-edit="acl.can('currencies.editor') || undefined"
                 detail-route="sw.settings.currency.detail"
                 :show-selection="false"
                 :is-loading="isLoading"
@@ -101,7 +101,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_currency_list_grid_columns_actions_edit %}
                     <sw-context-menu-item
-                        :disabled="!acl.can('currencies.editor')"
+                        :disabled="!acl.can('currencies.editor') || undefined"
                         :router-link="{ name: 'sw.settings.currency.detail', params: { id: item.id, edit: 'edit' }}"
                         class="sw-currency-list__edit-action"
                     >
@@ -112,7 +112,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_currency_list_grid_columns_actions_delete %}
                     <sw-context-menu-item
-                        :disabled="item.isSystemDefault || !acl.can('currencies.deleter')"
+                        :disabled="item.isSystemDefault || !acl.can('currencies.deleter') || undefined"
                         variant="danger"
                         class="sw-currency-list__delete-action"
                         @click="onDelete(item.id)"

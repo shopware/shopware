@@ -1,3 +1,8 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
+
 /* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 

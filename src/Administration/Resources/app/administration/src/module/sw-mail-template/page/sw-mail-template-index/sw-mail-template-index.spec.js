@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -44,6 +45,10 @@ const createWrapper = async () => {
                 'sw-context-menu-item': true,
                 'sw-icon': true,
                 'sw-button': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-mail-template-list': true,
+                'sw-mail-header-footer-list': true,
             },
         },
     });

@@ -42,7 +42,7 @@
             :allow-view="acl.can('mail_templates.viewer')"
             :allow-edit="acl.can('mail_templates.editor')"
             :allow-delete="acl.can('mail_templates.deleter')"
-            :show-selection="acl.can('mail_templates.deleter')"
+            :show-selection="acl.can('mail_templates.deleter') || undefined"
             :skeleton-item-amount="skeletonItemAmount"
             @update-records="updateRecords"
         >
@@ -57,7 +57,7 @@
                 {% block sw_mail_template_list_grid_columns_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-mail-template-list-grid__duplicate-action"
-                    :disabled="!acl.can('mail_templates.creator')"
+                    :disabled="!acl.can('mail_templates.creator') || undefined"
                     @click="onDuplicate(item.id)"
                 >
                     {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}

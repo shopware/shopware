@@ -8,6 +8,8 @@ import './sw-settings-mailer.scss';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['systemConfigApiService'],
 
     mixins: ['notification'],

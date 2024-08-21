@@ -1,3 +1,8 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
+
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -24,6 +29,8 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-settings-price-rounding': true,
                 'sw-button': true,
+                'sw-highlight-text': true,
+                'sw-select-result': true,
             },
         },
     });

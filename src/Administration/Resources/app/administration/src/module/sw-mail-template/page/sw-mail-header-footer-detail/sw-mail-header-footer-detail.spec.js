@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -77,6 +78,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-button': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
             },
         },
     });

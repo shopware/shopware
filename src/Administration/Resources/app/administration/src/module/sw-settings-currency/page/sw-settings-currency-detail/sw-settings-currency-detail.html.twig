@@ -30,7 +30,7 @@
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-currency-detail__save-action"
             :is-loading="isLoading"
-            :disabled="isLoading || !acl.can('currencies.editor')"
+            :disabled="isLoading || !acl.can('currencies.editor') || undefined"
             variant="primary"
             @update:process-success="saveFinish"
             @click.prevent="onSave"

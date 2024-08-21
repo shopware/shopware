@@ -45,6 +45,7 @@
                                                            name="languageId"
                                                            type="radio"
                                                         {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
+                                                    <input type="hidden" name="languageCode_{{ language.id }}" value="{{ language.translationCode.code }}">
                                                     <div class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
                                                     {{ language.name }}
                                                 </label>

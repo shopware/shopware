@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     emits: ['selection-change', 'product-loading'],

@@ -136,7 +136,14 @@ Component.register('sw-language-switch', {
 
             if (this.changeGlobalLanguage) {
                 Shopware.State.commit('context/setApiLanguageId', this.languageId);
-                this.$root.$emit('on-change-application-language', { languageId: this.languageId });
+                if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                    this.$root.$emit('on-change-application-language', { languageId: this.languageId });
+                } else {
+                    Shopware.Utils.EventBus.emit(
+                        'sw-language-switch-change-application-language',
+                        { languageId: this.languageId },
+                    );
+                }
             }
 
             this.$emit('on-change', this.languageId);

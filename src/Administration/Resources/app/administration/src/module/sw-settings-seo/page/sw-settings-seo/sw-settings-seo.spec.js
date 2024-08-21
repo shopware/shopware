@@ -1,5 +1,6 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -35,6 +36,15 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'sw-skeleton': true,
                 'sw-error-summary': true,
+                'sw-app-topbar-button': true,
+                'sw-help-center-v2': true,
+                'router-link': true,
+                'sw-sales-channel-switch': true,
+                'sw-alert': true,
+                'sw-form-field-renderer': true,
+                'sw-inherit-wrapper': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
             },
             mocks: {
                 $route: {

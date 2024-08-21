@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -152,6 +153,9 @@ async function createWrapper() {
                 'sw-field-error': true,
                 'sw-highlight-text': true,
                 'sw-empty-state': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 repositoryFactory: {
@@ -218,6 +222,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
 
         // Check 1st item
         await treeItemSelections.at(0).setChecked();
+        await flushPromises();
         expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['1']);
         expect(wrapper.emitted('selection-change')[1]).toEqual([products, 'categoryProducts']);
 

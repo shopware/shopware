@@ -1,12 +1,10 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-import swSalesChannelProductsAssignmentModal from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal';
 import 'src/app/component/base/sw-button';
-
-Shopware.Component.register('sw-sales-channel-products-assignment-modal', swSalesChannelProductsAssignmentModal);
 
 async function createWrapper(activeTab = 'singleProducts') {
     return mount(await wrapTestComponent('sw-sales-channel-products-assignment-modal', { sync: true }), {
@@ -35,6 +33,7 @@ async function createWrapper(activeTab = 'singleProducts') {
                 'sw-tabs-item': true,
                 'sw-icon': true,
                 'sw-loader': true,
+                'router-link': true,
             },
         },
         props: {

@@ -21,12 +21,14 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['modal-close', 'products-add'],
 
     directives: {
         hide: {
-            bind: updateElementVisibility,
-            update: updateElementVisibility,
+            beforeMount: updateElementVisibility,
+            updated: updateElementVisibility,
         },
     },
 
@@ -89,9 +91,13 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.product?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.$set(this.productContainerStyle, 'grid-template-rows', `auto calc(
-                ${this.tabContentHeight} - ${cardSectionSecondaryHeight}
-            )`);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line max-len
+                this.$set(this.productContainerStyle, 'grid-template-rows', `auto calc(${this.tabContentHeight} - ${cardSectionSecondaryHeight})`);
+            } else {
+                this.productContainerStyle['grid-template-rows'] =
+                    `auto calc(${this.tabContentHeight} - ${cardSectionSecondaryHeight})`;
+            }
         },
 
         getCategoryContainerStyle() {
@@ -100,9 +106,14 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.$set(this.categoryContainerStyle, 'grid-template-rows', `auto calc(
-                ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})
-            )`);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line max-len
+                this.$set(this.categoryContainerStyle, 'grid-template-rows', `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight}))`);
+            } else {
+                this.productContainerStyle['grid-template-rows'] =
+                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
+                        cardSectionSecondaryHeight}))`;
+            }
         },
 
         getProductGroupContainerStyle() {
@@ -111,9 +122,14 @@ export default {
             // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.$set(this.productGroupContainerStyle, 'grid-template-rows', `auto calc(
-                ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})
-            )`);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                // eslint-disable-next-line max-len
+                this.$set(this.productGroupContainerStyle, 'grid-template-rows', `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight}))`);
+            } else {
+                this.productContainerStyle['grid-template-rows'] =
+                    `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
+                        cardSectionSecondaryHeight}))`;
+            }
         },
 
         onChangeSelection(products, type) {

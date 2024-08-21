@@ -437,4 +437,17 @@ class DataAbstractionLayerException extends HttpException
             )
         );
     }
+
+    public static function invalidArraySerialization(Field $field, mixed $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_WRITE_INPUT,
+            \sprintf(
+                'Expected a string but got an array or invalid type in field "%s". Value: "%s".',
+                $field->getPropertyName(),
+                print_r($value, true)
+            )
+        );
+    }
 }

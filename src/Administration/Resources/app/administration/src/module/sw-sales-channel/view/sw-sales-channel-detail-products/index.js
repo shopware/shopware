@@ -12,6 +12,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'feature', 'acl'],
 
     mixins: [

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,9 +40,6 @@ async function createWrapper() {
     });
 }
 
-/**
- * @package buyers-experience
- */
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
     it('should have fields disabled when the user has no privileges', async () => {
         const wrapper = await createWrapper();

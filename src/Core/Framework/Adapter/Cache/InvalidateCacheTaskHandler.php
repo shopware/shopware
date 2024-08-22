@@ -18,8 +18,7 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly CacheInvalidator $cacheInvalidator,
-        private readonly int $delay
+        private readonly CacheInvalidator $cacheInvalidator
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -27,12 +26,6 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         try {
-            if ($this->delay <= 0) {
-                $this->cacheInvalidator->invalidateExpired();
-
-                return;
-            }
-
             $this->cacheInvalidator->invalidateExpired();
         } catch (\Throwable) {
         }

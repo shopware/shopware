@@ -4,4 +4,4 @@ author: Fabian Boensch
 author_github: @En0Ma1259
 ---
 # Core
-* Fixed partial hydrateEntity manyToOne Association bug. "Real" Entity vs PartialEntity
+* Changed isPartial check in hydrateEntity. Bug with manyToOne Associations. "Real" Entity vs PartialEntity

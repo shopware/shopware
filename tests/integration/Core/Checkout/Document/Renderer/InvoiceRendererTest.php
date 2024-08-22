@@ -161,7 +161,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -177,7 +177,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getLanguage());
                 static::assertNotNull($locale = $order->getLanguage()->getLocale());
                 $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
+                $formattedDate = $formatter->format($documentDate);
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
@@ -222,7 +222,7 @@ class InvoiceRendererTest extends TestCase
                     ],
                 ]);
             },
-            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container) use ($documentDate): void {
                 static::assertNotNull($order->getCurrency());
 
                 static::assertStringContainsString(
@@ -239,7 +239,7 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getLanguage());
                 static::assertNotNull($locale = $order->getLanguage()->getLocale());
                 $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
+                $formattedDate = $formatter->format($documentDate);
 
                 static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(

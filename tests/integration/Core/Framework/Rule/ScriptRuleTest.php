@@ -8,9 +8,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -43,10 +45,16 @@ class ScriptRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
     private EntityRepository $conditionRepository;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private AppStateService $appStateService;
@@ -138,7 +146,8 @@ class ScriptRuleTest extends TestCase
     {
         $this->installApp();
         $ruleId = Uuid::randomHex();
-        $expectedTrueScope = $this->getCheckoutScope($ruleId);
+        $conditionId = Uuid::randomHex();
+        $expectedTrueScope = $this->getCheckoutScope($ruleId, $conditionId);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customer = new CustomerEntity();
@@ -146,14 +155,15 @@ class ScriptRuleTest extends TestCase
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $expectedFalseScope = new CheckoutRuleScope($salesChannelContext);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(Rule::class, $payload);
-
         static::assertFalse($payload->match($expectedFalseScope));
-
         static::assertTrue($payload->match($expectedTrueScope));
+
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $conditionId]], $this->context);
     }
 
     public function testRuleValidationFails(): void
@@ -231,7 +241,7 @@ class ScriptRuleTest extends TestCase
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -245,8 +255,8 @@ class ScriptRuleTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(AndRule::class, $payload);
 
@@ -254,52 +264,61 @@ class ScriptRuleTest extends TestCase
         static::assertInstanceOf(ScriptRule::class, $scriptRule);
         static::assertSame($value, $scriptRule->getValues());
         static::assertSame([], $scriptRule->getConstraints());
+
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testRuleWithInactiveScript(): void
     {
         $this->installApp();
         $ruleId = Uuid::randomHex();
-        $scope = $this->getCheckoutScope($ruleId);
+        $conditionId = Uuid::randomHex();
+        $scope = $this->getCheckoutScope($ruleId, $conditionId);
 
         $this->appStateService->deactivateApp($this->appId, $this->context);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(Rule::class, $payload);
         static::assertFalse($payload->match($scope));
 
         $this->appStateService->activateApp($this->appId, $this->context);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(Rule::class, $payload);
-
         static::assertTrue($payload->match($scope));
+
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $conditionId]], $this->context);
     }
 
     public function testRuleWithUninstalledApp(): void
     {
         $this->installApp();
         $ruleId = Uuid::randomHex();
-        $scope = $this->getCheckoutScope($ruleId);
+        $conditionId = Uuid::randomHex();
+        $scope = $this->getCheckoutScope($ruleId, $conditionId);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(Rule::class, $payload);
         static::assertTrue($payload->match($scope));
 
         $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
 
-        /** @var RuleEntity $rule */
-        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         $payload = $rule->getPayload();
         static::assertInstanceOf(Rule::class, $payload);
         static::assertFalse($payload->match($scope));
+
+        $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
+        $this->conditionRepository->delete([['id' => $conditionId]], $this->context);
     }
 
     public function testRuleValueAssignment(): void
@@ -314,18 +333,17 @@ class ScriptRuleTest extends TestCase
         static::assertSame($value, $rule->getValues());
     }
 
-    private function getCheckoutScope(string $ruleId): CheckoutRuleScope
+    private function getCheckoutScope(string $ruleId, string $conditionId): CheckoutRuleScope
     {
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
+            $this->context
         );
 
         $groupId = Uuid::randomHex();
-        $id = Uuid::randomHex();
         $this->conditionRepository->create([
             [
-                'id' => $id,
+                'id' => $conditionId,
                 'type' => (new ScriptRule())->getName(),
                 'ruleId' => $ruleId,
                 'scriptId' => $this->scriptId,
@@ -356,9 +374,9 @@ class ScriptRuleTest extends TestCase
     private function setupApp(Manifest $manifest): void
     {
         $this->appLifecycle->install($manifest, false, $this->context);
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();
 
+        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();
+        static::assertInstanceOf(AppEntity::class, $app);
         $this->appId = $app->getId();
         $this->appStateService->activateApp($this->appId, $this->context);
         $conditions = $app->getScriptConditions();

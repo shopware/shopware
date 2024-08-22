@@ -183,7 +183,7 @@ parameters:
 
         - # It explicitly tests array access on object, so it works from twig scripts
             message: "#Use explicit methods over array access on object$#"
-            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
         - # Classes that are allowed to use dynamic property name access
             message: '#Use explicit names over dynamic ones#'
@@ -262,7 +262,7 @@ parameters:
 
         - # For testing purpose this error can be ignored
             message: '#Cannot assign new offset to Shopware\\Core\\Framework\\Script\\Facade\\ArrayFacade#'
-            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+            path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
         - # TestBuilders must not be internal
             message: '#must be flagged @internal to not be captured by the BC checker#'

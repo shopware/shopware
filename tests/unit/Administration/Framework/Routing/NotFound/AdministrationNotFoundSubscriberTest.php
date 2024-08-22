@@ -7,12 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Routing\NotFound\AdministrationNotFoundSubscriber;
 use Shopware\Core\Kernel;
-use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Twig\Environment;
 
 /**
  * @internal
@@ -33,9 +34,12 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     #[DataProvider('getInterceptingData')]
     public function testShowErrorPage(string $root, string $route): void
     {
+        $container = new ContainerBuilder();
+        $container->set('twig', $this->createMock(Environment::class));
+
         $subscriber = new AdministrationNotFoundSubscriber(
             $root,
-            $this->createMock(TemplateController::class)
+            $container
         );
 
         $event = new ExceptionEvent(
@@ -55,9 +59,12 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     #[DataProvider('getNonInterceptingData')]
     public function testDoNothingWhenNot404(string $route, \Exception $exception): void
     {
+        $container = new ContainerBuilder();
+        $container->set('twig', $this->createMock(Environment::class));
+
         $subscriber = new AdministrationNotFoundSubscriber(
             'admin',
-            $this->createMock(TemplateController::class)
+            $container
         );
 
         $event = new ExceptionEvent(

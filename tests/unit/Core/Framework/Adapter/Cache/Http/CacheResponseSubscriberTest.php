@@ -24,12 +24,10 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -47,7 +45,6 @@ class CacheResponseSubscriberTest extends TestCase
     public function testHasEvents(): void
     {
         $expected = [
-            KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
                 ['setResponseCacheHeader', 1500],
@@ -376,27 +373,6 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Always cache requests when maintenance is active' => [true, [], true];
         yield 'Do not cache requests of whitelisted ip' => [true, [self::IP], false];
         yield 'Cache requests if ip is not whitelisted' => [true, ['120.0.0.0'], true];
-    }
-
-    public function testAddHttpCacheToCoreRoutes(): void
-    {
-        $subscriber = new CacheResponseSubscriber(
-            [],
-            $this->createMock(CartService::class),
-            1,
-            true,
-            new MaintenanceModeResolver(new EventDispatcher()),
-            new RequestStack(),
-            null,
-            null,
-            new EventDispatcher()
-        );
-
-        $request = new Request();
-        $request->attributes->set('_route', 'api.acl.privileges.get');
-        $subscriber->addHttpCacheToCoreRoutes(new RequestEvent($this->createMock(KernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST));
-
-        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 
     #[DataProvider('providerCurrencyChange')]

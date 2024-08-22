@@ -35,11 +35,13 @@ class TwigEnvironment extends Environment
 
         $source = $this->compiler->compile($node)->getSource();
 
-        $source = str_replace('CoreExtension::getAttribute(', 'SwTwigFunction::getAttribute(', $source);
-        $source = str_replace('CoreExtension::callMacro(', 'SwTwigFunction::callMacro(', $source);
-        $source = str_replace('twig_escape_filter(', 'SwTwigFunction::escapeFilter(', $source);
-        $source = str_replace('use Twig\Environment;', "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;", $source);
+        $replaces = [
+            'CoreExtension::getAttribute(' => 'SwTwigFunction::getAttribute(',
+            'CoreExtension::callMacro(' => 'SwTwigFunction::callMacro(',
+            'twig_escape_filter(' => 'SwTwigFunction::escapeFilter(',
+            'use Twig\Environment;' => "use Twig\Environment;\nuse Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;",
+        ];
 
-        return $source;
+        return str_replace(array_keys($replaces), array_values($replaces), $source);
     }
 }

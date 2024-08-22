@@ -28,7 +28,7 @@ class AclController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/acl/privileges', name: 'api.acl.privileges.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_get']])]
+    #[Route(path: '/api/_action/acl/privileges', name: 'api.acl.privileges.get', methods: ['GET'], defaults: ['auth_required' => true, '_acl' => ['api_acl_privileges_get'], '_httpCache' => true])]
     public function getPrivileges(): JsonResponse
     {
         $privileges = $this->getFromRoutes();

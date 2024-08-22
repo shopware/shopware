@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\App\ShopId;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -24,8 +22,8 @@ class ShopIdProvider
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $appRepository,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ActiveAppsLoader $activeAppsLoader
     ) {
     }
 
@@ -45,7 +43,7 @@ class ShopIdProvider
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         if (\is_string($appUrl) && $appUrl !== ($shopId['app_url'] ?? '')) {
-            if ($this->hasApps()) {
+            if ($this->activeAppsLoader->getActiveApps()) {
                 throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
             }
 
@@ -81,15 +79,5 @@ class ShopIdProvider
     private function generateShopId(): string
     {
         return Random::getAlphanumericString(16);
-    }
-
-    private function hasApps(): bool
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $result = $this->appRepository->searchIds($criteria, Context::createDefaultContext());
-
-        return $result->firstId() !== null;
     }
 }

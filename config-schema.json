@@ -110,6 +110,9 @@
                 },
                 "system_config": {
                     "type": "object"
+                },
+                "feature_toggle": {
+                    "$ref": "#/definitions/feature_toggle"
                 }
             },
             "title": "Shopware"
@@ -229,6 +232,16 @@
                 }
             },
             "title": "Staging"
+        },
+        "feature_toggle": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Feature toggle"
         },
         "twig": {
             "type": "object",

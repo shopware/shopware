@@ -30,7 +30,7 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0",
         "cocur/slugify": "^4.3.0",
-        "doctrine/dbal": "^3.7",
+        "doctrine/dbal": "^3.9",
         "meyfa/php-svg": "^0.14.0",
         "padaliyajay/php-autoprefixer": "^1.4",
         "scssphp/scssphp": "v1.12.0",

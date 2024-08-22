@@ -33,6 +33,7 @@ import initializeExtensionDataHandling from './extension-data-handling.init';
 import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
+import initializeBlockOverride from './block-override.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -65,4 +66,5 @@ export default {
     inAppPurchaseCheckout: initializeInAppPurchaseCheckout,
     topbarButton: initializeTopBarButtons,
     teaserPopover: initializeTeaserPopovers,
+    blockOverride: initializeBlockOverride,
 };

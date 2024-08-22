@@ -1,61 +1,64 @@
 parameters:
-	ignoreErrors:
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountOrderPage.php
+    ignoreErrors:
+        -
+            message: "#^Parameter \\#1 \\$orders of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\\:\\:setOrders\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+            count: 1
+            path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
 
-		-
-			message: "#^Parameter \\#1 \\$orders of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\\:\\:setOrders\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
+        -
+            message: "#^Parameter \\#1 \\$searchResult of class Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+            count: 1
+            path: src/Storefront/Page/Product/Review/ProductReviewLoader.php
 
-		-
-			message: "#^Parameter \\#1 \\$searchResult of class Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/ProductReviewLoader.php
+        - # @deprecated tag:v6.7.0 Using autoload === true on associations is deprecated and must be refactored. See NEXT-25334 and child tasks
+            message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
+            paths:
+                - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
+                - src/Core/Content/Product/ProductDefinition.php
+                - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php
+                - src/Core/Checkout/Shipping/ShippingMethodDefinition.php
+                - src/Core/Checkout/Payment/PaymentMethodDefinition.php
+                - src/Core/System/NumberRange/NumberRangeDefinition.php
 
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
+        - # @deprecated tag:v6.7.0 Breaking changes in classes, but quite complex, so there are two classes in one file
+            message: "#^Multiple class/interface/trait is not allowed in single file$#"
+            paths:
+                - src/Core/Checkout/Cart/Event/BeforeLineItemQuantityChangedEvent.php
+                - src/Core/Checkout/Cart/Event/CartChangedEvent.php
+                - src/Core/Checkout/Order/Event/OrderStateChangeCriteriaEvent.php
+                - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
+                - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
+                - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
+                - src/Storefront/Page/Account/Order/AccountOrderPage.php
+                - src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
+                - src/Storefront/Page/Product/Review/ReviewLoaderResult.php
 
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+        - # Added optional request parameter @deprecated tag:v6.7.0 - remove this exclusion
+            message: '#Method .* invoked with 4 parameters, 3 required#'
+            paths:
+                - src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Event/CartChangedEvent.php
+        - # @deprecated tag:v6.7.0 - Can be removed. Added optional parameter and added it as annotation that consumers get hinted by the IDE to pass it
+            message: '#PHPDoc tag @param references unknown parameter\: \$recursive#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
 
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Core/Checkout/Order/Event/OrderStateChangeCriteriaEvent.php
+        - # @deprecated tag:v6.7.0 - Added new constructor parameter, remove this exclusion
+            message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent constructor invoked with 2 parameters, 3 required\\.$#"
+            count: 1
+            path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
 
-		-
-			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent constructor invoked with 2 parameters, 3 required\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
+        - # @deprecated tag:v6.7.0 - Method will be removed
+            message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent\\:\\:setContext\\(\\)\\.$#"
+            count: 1
+            path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
 
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent\\:\\:setContext\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
+        - # @deprecated tag:v6.7.0 - Method will be removed
+            message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent\\:\\:setBeforeUpdateQuantity\\(\\)\\.$#"
+            count: 1
+            path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php
 
-		-
-			message: "#^Multiple class/interface/trait is not allowed in single file$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Event/BeforeLineItemQuantityChangedEvent.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent\\:\\:setBeforeUpdateQuantity\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent constructor invoked with 3 parameters, 4 required\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php
+        - # @deprecated tag:v6.7.0 - Added new constructor parameter, remove this exclusion
+            message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent constructor invoked with 3 parameters, 4 required\\.$#"
+            count: 1
+            path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php

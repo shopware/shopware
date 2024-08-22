@@ -243,7 +243,7 @@ class ThumbnailServiceTest extends TestCase
 
     /**
      * @param array<string, int> $imageSize
-     * @param array<string, int> $preferredThumbnailSize
+     * @param array<string, int<1, max>> $preferredThumbnailSize
      * @param array<string, int> $expectedSize
      */
     #[DataProvider('thumbnailSizeProvider')]

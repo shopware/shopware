@@ -37,6 +37,7 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -171,8 +172,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $slot->setType('product-slider');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Property foo do not exist in class ' . CategoryEntity::class);
+        $this->expectException(PropertyNotFoundException::class);
+        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s"', CategoryEntity::class));
 
         $this->sliderResolver->collect($slot, $resolverContext);
     }
@@ -229,10 +230,9 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         static::assertCount(1, $collection->all());
-        static::assertEquals(ProductDefinition::class, key($collection->all()));
+        static::assertSame(ProductDefinition::class, key($collection->all()));
 
-        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
-        static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
+        static::assertSame('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
 
         $expectedCriteria = new Criteria();
         $expectedCriteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -248,22 +248,20 @@ class ProductSliderCmsElementResolverTest extends TestCase
         ));
         $expectedCriteria->setLimit(50);
 
-        /** @var Criteria $criteria */
-        /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
         foreach ($collection->getIterator()->current() as $criteria) {
             static::assertEquals($expectedCriteria->getSorting(), $criteria->getSorting());
-            static::assertEquals($expectedCriteria->getLimit(), $criteria->getLimit());
-            /** @var MultiFilter $expectedMultiFilter */
+            static::assertSame($expectedCriteria->getLimit(), $criteria->getLimit());
             $expectedMultiFilter = $expectedCriteria->getFilters()[0];
-            /** @var MultiFilter $multiFilter */
+            static::assertInstanceOf(MultiFilter::class, $expectedMultiFilter);
             $multiFilter = $expectedCriteria->getFilters()[0];
-            static::assertEquals($expectedMultiFilter->getQueries()[0], $multiFilter->getQueries()[0]);
-            /** @var RangeFilter $expectedRangeFilter */
+            static::assertInstanceOf(MultiFilter::class, $multiFilter);
+            static::assertSame($expectedMultiFilter->getQueries()[0], $multiFilter->getQueries()[0]);
             $expectedRangeFilter = $expectedMultiFilter->getQueries()[1];
-            /** @var RangeFilter $rangeFilter */
+            static::assertInstanceOf(RangeFilter::class, $expectedRangeFilter);
             $rangeFilter = $expectedMultiFilter->getQueries()[1];
-            static::assertEquals($rangeFilter->getField(), $rangeFilter->getField());
-            static::assertEquals($expectedRangeFilter->getParameters(), $rangeFilter->getParameters());
+            static::assertInstanceOf(RangeFilter::class, $rangeFilter);
+            static::assertSame($rangeFilter->getField(), $rangeFilter->getField());
+            static::assertSame($expectedRangeFilter->getParameters(), $rangeFilter->getParameters());
         }
     }
 
@@ -401,7 +399,6 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $productSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ProductSliderStruct|null $productSliderStruct */
         $productSliderStruct = $slot->getData();
 
         static::assertInstanceOf(ProductSliderStruct::class, $productSliderStruct);
@@ -468,17 +465,20 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
         $this->sliderResolver->enrich($slot, $resolverContext, $elementDataCollection);
 
-        /** @var ProductSliderStruct|null $productSlider */
         $productSlider = $slot->getData();
-        $products = $productSlider?->getProducts();
+        if ($productSlider === null) {
+            static::fail('ProductSlider is null.');
+        }
 
-        if ($products) {
-            static::assertCount(\count($expectedProductIds), $products);
-            foreach ($expectedProductIds as $expectedProductId) {
-                static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
-            }
-        } else {
-            static::fail('ProductSlider or its products are null.');
+        static::assertInstanceOf(ProductSliderStruct::class, $productSlider);
+        $products = $productSlider->getProducts();
+        if ($products === null) {
+            static::fail('Products of productSlider are null.');
+        }
+
+        static::assertCount(\count($expectedProductIds), $products);
+        foreach ($expectedProductIds as $expectedProductId) {
+            static::assertTrue($products->has($expectedProductId), "Expected product ID $expectedProductId to be included in the slider.");
         }
     }
 

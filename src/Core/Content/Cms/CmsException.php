@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms;
 
+use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,5 +49,10 @@ class CmsException extends HttpException
             'The source of the provided field config "{{ name }}" is invalid. It should be from type string.',
             ['name' => $name]
         );
+    }
+
+    public static function duplicateCriteriaKey(string $key): self
+    {
+        return new DuplicateCriteriaKeyException($key);
     }
 }

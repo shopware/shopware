@@ -37,13 +37,17 @@ class ThumbnailSizeCalculator
         }
 
         $calculatedWidth = (int) round($imageSize['width'] * $factor);
+        \assert($calculatedWidth > 0);
         $calculatedHeight = (int) round($imageSize['height'] * $factor);
+        \assert($calculatedHeight > 0);
 
         return $this->determineValidSize($imageSize, $calculatedWidth, $calculatedHeight);
     }
 
     /**
      * @param ImageSize $imageSize
+     * @param int<1, max> $thumbnailWith
+     * @param int<1, max> $thumbnailHeight
      *
      * @return ImageSize
      */

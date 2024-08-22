@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver;
 
-use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,14 +18,14 @@ class CriteriaCollection implements \IteratorAggregate
     private array $elements = [];
 
     /**
-     * @var bool[]
+     * @var array<string, bool>
      */
     private array $keys = [];
 
     public function add(string $key, string $definition, Criteria $criteria): void
     {
         if (isset($this->keys[$key])) {
-            throw new DuplicateCriteriaKeyException($key);
+            throw CmsException::duplicateCriteriaKey($key);
         }
 
         $this->elements[$definition][$key] = $criteria;
@@ -40,6 +40,9 @@ class CriteriaCollection implements \IteratorAggregate
         return $this->elements;
     }
 
+    /**
+     * @return \Generator<string, array<string, Criteria>>
+     */
     public function getIterator(): \Traversable
     {
         yield from $this->elements;

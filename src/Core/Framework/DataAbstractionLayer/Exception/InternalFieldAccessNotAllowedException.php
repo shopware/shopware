@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed. Use DataAbstractionLayerException::internalFieldAccessNotAllowed instead
+ */
 #[Package('core')]
 class InternalFieldAccessNotAllowedException extends \RuntimeException
 {

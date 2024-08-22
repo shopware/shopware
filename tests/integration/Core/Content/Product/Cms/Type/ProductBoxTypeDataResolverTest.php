@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -257,8 +258,8 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setType('product-box');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Property foo do not exist in class ' . SalesChannelProductEntity::class);
+        $this->expectException(PropertyNotFoundException::class);
+        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @phpstan-type ImageSize array{width: int, height: int}
+ * @phpstan-type ImageSize array{width: int<1, max>, height: int<1, max>}
  */
 #[Package('buyers-experience')]
 class ThumbnailService

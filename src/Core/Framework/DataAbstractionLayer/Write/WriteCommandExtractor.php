@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
@@ -195,8 +192,10 @@ class WriteCommandExtractor
 
         $pkData = $this->getPrimaryKey($rawData, $parameters);
 
-        /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
+            if (!$pkField instanceof StorageAware) {
+                continue;
+            }
             $parameters->getContext()->set(
                 $parameters->getDefinition()->getEntityName(),
                 $pkField->getPropertyName(),
@@ -270,24 +269,23 @@ class WriteCommandExtractor
             return null;
         }
 
-        /** @var ManyToOneAssociationField|null $parent */
         $parent = $definition->getFields()->get('parent');
 
         if (!$parent) {
-            throw new ParentFieldNotFoundException($definition);
+            throw DataAbstractionLayerException::parentFieldNotFound($definition);
         }
 
         if (!$parent instanceof ManyToOneAssociationField) {
-            throw new InvalidParentAssociationException($definition, $parent);
+            throw DataAbstractionLayerException::invalidParentAssociation($definition, $parent);
         }
 
         $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
 
         if (!$fk) {
-            throw new CanNotFindParentStorageFieldException($definition);
+            throw DataAbstractionLayerException::cannotFindParentStorageField($definition);
         }
         if (!$fk instanceof FkField) {
-            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
+            throw DataAbstractionLayerException::parentFieldForeignKeyConstraintMissing($definition, $fk);
         }
 
         return $fk;
@@ -470,11 +468,9 @@ class WriteCommandExtractor
         $pk = [];
 
         $pkFields = $parameters->getDefinition()->getPrimaryKeys();
-        /** @var StorageAware&Field $pkField */
         foreach ($pkFields as $pkField) {
             $id = $rawData[$pkField->getPropertyName()] ?? null;
 
-            /** @var array<string, string> $values */
             $values = $pkField->getSerializer()->encode(
                 $pkField,
                 EntityExistence::createForEntity($parameters->getDefinition()->getEntityName(), []),

@@ -33,7 +33,7 @@ class LastIdQuery implements IterableQuery
         // get first column for distinct selection
         $select = $query->getQueryPart('select');
 
-        $query->resetQueryPart('orderBy');
+        $query->resetOrderBy();
         $query->select('COUNT(DISTINCT ' . array_shift($select) . ')');
 
         return (int) $query->executeQuery()->fetchOne();

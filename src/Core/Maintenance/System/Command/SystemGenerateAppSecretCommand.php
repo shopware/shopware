@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
-use Defuse\Crypto\Key;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,11 +19,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SystemGenerateAppSecretCommand extends Command
 {
+    final public const APP_SECRET_LENGTH = 136;
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $key = Key::createNewRandomKey();
-
-        $output->writeln($key->saveToAsciiSafeString());
+        $output->writeln(Random::getString(self::APP_SECRET_LENGTH));
 
         return self::SUCCESS;
     }

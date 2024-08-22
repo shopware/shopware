@@ -30,7 +30,7 @@ class SystemSetupStagingCommandTest extends TestCase
 
         $tester->setInputs(['no']);
         $tester->execute([]);
-        static::assertEquals(Command::FAILURE, $tester->getStatusCode());
+        static::assertSame(Command::FAILURE, $tester->getStatusCode());
     }
 
     public function testRun(): void

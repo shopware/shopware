@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Maintenance\System;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed, use Shopware\Core\Maintenance\MaintenanceException instead
+ */
 #[Package('core')]
 class SystemException extends HttpException
 {
@@ -18,6 +22,11 @@ class SystemException extends HttpException
 
     public static function consoleApplicationNotFound(): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.7.0.0', 'MaintenanceException::consoleApplicationNotFound')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAINTENANCE_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND,
@@ -27,6 +36,11 @@ class SystemException extends HttpException
 
     public static function invalidVersionSelectionMode(string $mode): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.7.0.0', 'MaintenanceException::invalidVersionSelectionMode')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAINTENANCE_MIGRATION_INVALID_VERSION_SELECTION_MODE,

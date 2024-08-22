@@ -49,12 +49,12 @@ class SystemConfigureShopCommand extends Command
         $output->writeln('');
 
         if ($input->getOption('shop-locale')) {
-            if (!$input->getOption('no-interaction')) {
-                if (!$output->confirm('Changing the shops default locale after the fact can be destructive. Are you sure you want to continue', false)) {
-                    $output->writeln('Aborting due to user input');
+            if (!$input->getOption('no-interaction')
+                && !$output->confirm('Changing the shops default locale after the fact can be destructive. Are you sure you want to continue', false)
+            ) {
+                $output->writeln('Aborting due to user input');
 
-                    return (int) Command::SUCCESS;
-                }
+                return Command::SUCCESS;
             }
 
             $this->shopConfigurator->setDefaultLanguage($input->getOption('shop-locale'));
@@ -63,12 +63,12 @@ class SystemConfigureShopCommand extends Command
         }
 
         if ($input->getOption('shop-currency')) {
-            if (!$input->getOption('no-interaction')) {
-                if (!$output->confirm('Changing the shops default currency after the fact can be destructive. Are you sure you want to continue', false)) {
-                    $output->writeln('Aborting due to user input');
+            if (!$input->getOption('no-interaction')
+                && !$output->confirm('Changing the shops default currency after the fact can be destructive. Are you sure you want to continue', false)
+            ) {
+                $output->writeln('Aborting due to user input');
 
-                    return (int) Command::SUCCESS;
-                }
+                return Command::SUCCESS;
             }
 
             $this->shopConfigurator->setDefaultCurrency($input->getOption('shop-currency'));
@@ -78,6 +78,6 @@ class SystemConfigureShopCommand extends Command
 
         $this->cacheClearer->clear();
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

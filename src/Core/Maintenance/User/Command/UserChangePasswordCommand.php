@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal should be used over the CLI only
@@ -26,6 +29,9 @@ use Symfony\Component\Console\Question\Question;
 #[Package('core')]
 class UserChangePasswordCommand extends Command
 {
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(private readonly EntityRepository $userRepository)
     {
         parent::__construct();
@@ -49,13 +55,7 @@ class UserChangePasswordCommand extends Command
 
         if (!$password) {
             $passwordQuestion = new Question('Enter new password for user');
-            $passwordQuestion->setValidator(static function ($value): string {
-                if ($value === null || trim($value) === '') {
-                    throw new \RuntimeException('The password cannot be empty');
-                }
-
-                return $value;
-            });
+            $passwordQuestion->setValidator(Validation::createCallable(new NotBlank()));
             $passwordQuestion->setHidden(true);
             $passwordQuestion->setMaxAttempts(3);
 

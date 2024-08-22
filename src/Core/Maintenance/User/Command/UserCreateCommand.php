@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * @internal should be used over the CLI only
@@ -28,24 +27,18 @@ class UserCreateCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
-            ->addOption('admin', 'a', InputOption::VALUE_NONE, 'mark the user as admin')
+            ->addOption('admin', 'a', InputOption::VALUE_NONE, 'Mark the user as admin')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
             ->addOption('firstName', null, InputOption::VALUE_REQUIRED, 'The user\'s firstname')
             ->addOption('lastName', null, InputOption::VALUE_REQUIRED, 'The user\'s lastname')
-            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'E-Mail for the user')
+            ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Email for the user')
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
@@ -53,38 +46,35 @@ class UserCreateCommand extends Command
         $username = $input->getArgument('username');
         $password = $input->getOption('password');
 
-        if (!$password) {
-            $passwordQuestion = new Question('Enter password for user');
-            $passwordQuestion->setValidator(static function ($value): string {
-                if ($value === null || trim($value) === '') {
-                    throw new \RuntimeException('The password cannot be empty');
-                }
-
-                return $value;
-            });
-            $passwordQuestion->setHidden(true);
-            $passwordQuestion->setMaxAttempts(3);
-
-            $password = $io->askQuestion($passwordQuestion);
-        }
-
         $additionalData = [];
-        if ($input->getOption('lastName')) {
-            $additionalData['lastName'] = $input->getOption('lastName');
+        $lastName = $input->getOption('lastName');
+        if ($lastName) {
+            $additionalData['lastName'] = $lastName;
         }
-        if ($input->getOption('firstName')) {
-            $additionalData['firstName'] = $input->getOption('firstName');
+
+        $firstName = $input->getOption('firstName');
+        if ($firstName) {
+            $additionalData['firstName'] = $firstName;
         }
-        if ($input->getOption('email')) {
-            $additionalData['email'] = $input->getOption('email');
+
+        $email = $input->getOption('email');
+        if ($email) {
+            $additionalData['email'] = $email;
         }
+
         if ($input->getOption('admin')) {
             $additionalData['admin'] = true;
         }
 
-        $this->userProvisioner->provision($username, $password, $additionalData);
+        $savedPassword = $this->userProvisioner->provision($username, $password, $additionalData);
 
-        $io->success(\sprintf('User "%s" successfully created.', $username));
+        $message = \sprintf('User "%s" successfully created.', $username);
+        if ($password === null) {
+            $message .= \sprintf(' The newly generated password is: %s', $savedPassword);
+            $io->warning('You didn\'t pass a password so a random one was generated. Please call "user:change-password" to set a new password.');
+        }
+
+        $io->success($message);
 
         return self::SUCCESS;
     }

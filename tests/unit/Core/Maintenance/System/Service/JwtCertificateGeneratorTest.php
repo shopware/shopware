@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Maintenance\System\Service;
+namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -61,17 +61,17 @@ class JwtCertificateGeneratorTest extends TestCase
 
         $data = 'test data';
 
-        /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var \OpenSSLAsymmetricKey $privateKey */
+        static::assertIsString($privateCertificate);
         $privateKey = openssl_pkey_get_private($privateCertificate, $passphrase);
+        static::assertInstanceOf(\OpenSSLAsymmetricKey::class, $privateKey);
 
         openssl_sign($data, $signature, $privateKey);
 
-        /** @var string $publicCertificate */
         $publicCertificate = file_get_contents($this->publicPath);
+        static::assertIsString($publicCertificate);
 
-        static::assertEquals(
+        static::assertSame(
             1,
             openssl_verify($data, $signature, $publicCertificate)
         );
@@ -91,17 +91,17 @@ class JwtCertificateGeneratorTest extends TestCase
         static::assertFileIsReadable($this->publicPath);
 
         $data = 'test data';
-        /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var \OpenSSLAsymmetricKey $privateKey */
+        static::assertIsString($privateCertificate);
         $privateKey = openssl_pkey_get_private($privateCertificate);
+        static::assertInstanceOf(\OpenSSLAsymmetricKey::class, $privateKey);
 
         openssl_sign($data, $signature, $privateKey);
 
-        /** @var string $publicCertificate */
         $publicCertificate = file_get_contents($this->publicPath);
+        static::assertIsString($publicCertificate);
 
-        static::assertEquals(
+        static::assertSame(
             1,
             openssl_verify($data, $signature, $publicCertificate)
         );

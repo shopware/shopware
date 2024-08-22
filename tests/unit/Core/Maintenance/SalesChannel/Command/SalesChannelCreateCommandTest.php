@@ -48,7 +48,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 
-        static::assertEquals(Command::SUCCESS, $result);
+        static::assertSame(Command::SUCCESS, $result);
     }
 
     /**
@@ -90,7 +90,7 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
 
-        static::assertEquals(Command::SUCCESS, $result);
+        static::assertSame(Command::SUCCESS, $result);
     }
 
     public static function dataProviderTestExecuteSuccess(): \Generator

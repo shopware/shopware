@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @internal
@@ -23,12 +23,15 @@ class SalesChannelCreatorTest extends TestCase
 
     private SalesChannelCreator $salesChannelCreator;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
     protected function setUp(): void
     {
-        $this->salesChannelCreator = $this->getContainer()->get(SalesChannelCreator::class);
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->salesChannelCreator = static::getContainer()->get(SalesChannelCreator::class);
+        $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
     public function testCreateSalesChannel(): void
@@ -36,11 +39,10 @@ class SalesChannelCreatorTest extends TestCase
         $id = Uuid::randomHex();
         $this->salesChannelCreator->createSalesChannel($id, 'test', Defaults::SALES_CHANNEL_TYPE_API);
 
-        /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+        $salesChannel = $this->salesChannelRepository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($salesChannel);
-        static::assertEquals('test', $salesChannel->getName());
-        static::assertEquals(Defaults::SALES_CHANNEL_TYPE_API, $salesChannel->getTypeId());
+        static::assertSame('test', $salesChannel->getName());
+        static::assertSame(Defaults::SALES_CHANNEL_TYPE_API, $salesChannel->getTypeId());
     }
 }

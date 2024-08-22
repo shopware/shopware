@@ -36,9 +36,6 @@ class UserListCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this->addOption('json', null, InputOption::VALUE_NONE, 'Return users as json');

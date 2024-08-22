@@ -29,6 +29,7 @@ parameters:
                 - src/Core/Checkout/Payment/Cart/PaymentHandler/DefaultPayment.php
                 - src/Core/Checkout/Payment/Cart/PaymentHandler/InvoicePayment.php
                 - src/Core/Checkout/Payment/Cart/PaymentHandler/PrePayment.php
+                - src/Core/Maintenance/System/Exception/DatabaseSetupException.php
                 - src/Storefront/Page/Account/Order/AccountOrderPage.php
                 - src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
                 - src/Storefront/Page/Product/Review/ReviewLoaderResult.php
@@ -43,10 +44,12 @@ parameters:
             paths:
                 - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
 
-        - # @deprecated tag:v6.7.0 - Added new constructor parameter, remove this exclusion
-            message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent constructor invoked with 2 parameters, 3 required\\.$#"
-            count: 1
-            path: src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
+        - # @deprecated tag:v6.7.0 - Constructor changed, remove those exclusions
+            message: '#Class Shopware.* constructor invoked with \d (parameter|parameters), .* required#'
+            paths:
+                - src/Core/Checkout/Order/Listener/OrderStateChangeEventListener.php
+                - src/Core/Checkout/Cart/LineItemFactoryRegistry.php
+                - src/Core/Maintenance/MaintenanceException.php
 
         - # @deprecated tag:v6.7.0 - Method will be removed
             message: "#^Call to an undefined method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent\\:\\:setContext\\(\\)\\.$#"
@@ -58,7 +61,6 @@ parameters:
             count: 1
             path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php
 
-        - # @deprecated tag:v6.7.0 - Added new constructor parameter, remove this exclusion
-            message: "#^Class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent constructor invoked with 3 parameters, 4 required\\.$#"
-            count: 1
-            path: src/Core/Checkout/Cart/LineItemFactoryRegistry.php
+        - # @deprecated tag:v6.7.0 - Constructor changed, remove this exclusion
+            message: '#Parameter .* of class Shopware\\Core\\Maintenance\\System\\Exception\\DatabaseSetupException constructor expects .*, .* given#'
+            path: src/Core/Maintenance/MaintenanceException.php

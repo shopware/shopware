@@ -110,7 +110,7 @@ $box-image-height-img: 332px;
     margin-top: 10px;
     // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
     font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, 0.875rem);
-    line-height: if(feature('ACCESSIBILITY_TWEAKS'), 1.5rem, 1.125rem);
+    line-height: if(feature('ACCESSIBILITY_TWEAKS'), $line-height-base, 1.125rem);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

@@ -1005,4 +1005,83 @@ describe('src/app/component/form/sw-text-editor', () => {
         const selection = document.getSelection();
         expect(selection.toString()).toBe('Hello World');
     });
+
+    it('should fix loose text nodes and wrap them in paragraphs on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum</p><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should fix consecutive minor nodes and wrap them all together in a single paragraph on "Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i><p>Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum<br><b>Lorem ipsum</b> Lorem <i>ipsum</i></p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter' });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should not trigger the node fix on "Shift + Enter" key press', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+        const expectedContent = 'Lorem ipsum<div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        await contentEditor.trigger('click');
+        await contentEditor.trigger('keyup', { key: 'Enter', shiftKey: true });
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should replace div elements including their attributes if option is set', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        const content = 'Lorem ipsum<div class="foo" style="font-weight: bold">Lorem ipsum</div><p class="bar">Lorem ipsum</p>';
+        const expectedContent = '<p>Lorem ipsum</p><p class="foo" style="font-weight: bold">Lorem ipsum</p><p class="bar">Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        wrapper.vm.fixWrongNodes(true);
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+    });
+
+    it('should correctly detect minor nodes in the editor content', async () => {
+        wrapper = await createWrapper();
+
+        const content = 'Lorem ipsum<b>Lorem ipsum</b><div>Lorem ipsum</div><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, content);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(true);
+
+        const contentWithoutMinorNode = '<p>Lorem ipsum</p><p>Lorem ipsum</p>';
+
+        await addTextToEditor(wrapper, contentWithoutMinorNode);
+
+        expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
+    });
 });

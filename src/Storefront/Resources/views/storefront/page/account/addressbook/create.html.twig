@@ -29,9 +29,10 @@
 
                             {% block page_account_address_form_create_general %}
                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                    'data': data.get('address'),
-                                    'prefix': 'address',
-                                    'showFormCompany': true
+                                    data: data.get('address'),
+                                    prefix: 'address',
+                                    showFormCompany: true,
+                                    scopeElementSelector: '.account-address-form',
                                 } %}
                             {% endblock %}
 

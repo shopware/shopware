@@ -28,10 +28,11 @@
 
                             {% block page_account_address_form_edit_general %}
                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                    'data': page.address,
-                                    'prefix': 'address',
-                                    'showFormCompany': true,
-                                    'showNoShippingPostfix': true,
+                                    data: page.address,
+                                    prefix: 'address',
+                                    showFormCompany: true,
+                                    showNoShippingPostfix: true,
+                                    scopeElementSelector: '.account-address-form',
                                 } %}
                             {% endblock %}
 

@@ -52,17 +52,18 @@
                                         'parentSelector': 'form'
                                     } %}
 
-                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                        'data': postedData ?? address,
-                                        'prefix': 'address',
-                                        'idPrefix': typePrefix,
-                                        'scope': 'parent',
-                                        'parentSelector': 'form',
-                                        'showFormCompany': true,
-                                        'showNoShippingPostfix': true,
-                                        'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false
-                                    } %}
-                                {% endblock %}
+                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                    'data': postedData ?? address,
+                                    'prefix': 'address',
+                                    'idPrefix': typePrefix,
+                                    'scope': 'parent',
+                                    'parentSelector': 'form',
+                                    'showFormCompany': true,
+                                    'showNoShippingPostfix': true,
+                                    'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false,
+                                    scopeElementSelector: '.address-editor-create-address-wrapper',
+                                } %}
+                            {% endblock %}
 
                                 {% block component_address_address_editor_modal_create_address_required_hint %}
                                     <p class="address-required-info required-fields">

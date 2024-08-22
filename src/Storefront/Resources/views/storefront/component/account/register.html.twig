@@ -263,9 +263,10 @@
 
                                         {% block component_account_register_address_billing_fields %}
                                             {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                'prefix': 'billingAddress',
-                                                'data': data.get('billingAddress'),
-                                                'showNoShippingPostfix': true,
+                                                prefix: 'billingAddress',
+                                                data: data.get('billingAddress'),
+                                                showNoShippingPostfix: true,
+                                                scopeElementSelector: '.register-billing',
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -326,10 +327,11 @@
 
                                                     {% block component_account_register_address_shipping_fields_address %}
                                                         {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                            'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress'),
-                                                            'showNoShippingPostfix': true,
-                                                            'disableNonShippableCountries': true,
+                                                            prefix: 'shippingAddress',
+                                                            data: data.get('shippingAddress'),
+                                                            showNoShippingPostfix: true,
+                                                            disableNonShippableCountries: true,
+                                                            scopeElementSelector: '.register-shipping',
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}

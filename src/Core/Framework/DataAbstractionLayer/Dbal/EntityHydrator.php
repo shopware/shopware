@@ -94,7 +94,7 @@ class EntityHydrator
         }
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context, $partial));
+            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context));
         }
 
         return $collection;
@@ -379,7 +379,7 @@ class EntityHydrator
             self::$partialFullPaths[$key] = true;
         }
 
-        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
+        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context);
     }
 
     /**
@@ -549,11 +549,10 @@ class EntityHydrator
 
     /**
      * @param array<mixed> $row
-     * @param array<string|array<string>> $partial
      */
-    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context, array $partial = []): Entity
+    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context): Entity
     {
-        $isPartial = $partial !== [];
+        $isPartial = self::$partial !== [];
         $hydratorClass = $definition->getHydratorClass();
         $entityClass = $isPartial ? PartialEntity::class : $entityClass;
 

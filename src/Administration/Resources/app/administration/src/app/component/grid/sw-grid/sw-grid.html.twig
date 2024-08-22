@@ -109,7 +109,7 @@
 
                     <slot
                         v-for="(item, index) in items"
-                        :key="item.id"
+                        :key="getKey(item)"
                         name="items"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

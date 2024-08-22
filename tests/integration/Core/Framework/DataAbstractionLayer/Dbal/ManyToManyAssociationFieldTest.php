@@ -165,7 +165,7 @@ class ManyToManyAssociationFieldTest extends TestCase
             'cover' => [
                 'position' => -1,
                 'media' => ['fileName' => 'myFile'],
-            ]
+            ],
         ];
 
         $this->productRepository->create([$data], Context::createDefaultContext());
@@ -186,10 +186,10 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertInstanceOf(PartialEntity::class, $group);
 
         $cover = $product->get('cover');
-        self::assertInstanceOf(PartialEntity::class, $cover);
+        static::assertInstanceOf(PartialEntity::class, $cover);
 
         $media = $cover->get('media');
-        self::assertInstanceOf(PartialEntity::class, $media);
+        static::assertInstanceOf(PartialEntity::class, $media);
 
         static::assertEquals($id, $product->get('productNumber'));
         static::assertFalse($product->has('name'));
@@ -203,6 +203,6 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertFalse($group->has('name'));
         static::assertEquals('value', $group->get('customFields')['key']);
 
-        self::assertEquals('myFile', $media->get('fileName'));
+        static::assertEquals('myFile', $media->get('fileName'));
     }
 }

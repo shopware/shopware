@@ -75,5 +75,9 @@ return [
 
         // v6.7.0.0 Changes
         'The number of required arguments for Shopware\\\\Core\\\\Checkout\\\\Order\\\\Event\\\\OrderStateChangeCriteriaEvent#__construct\(\) increased from 2 to 3',
+        'The number of required arguments for Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#__construct\(\) increased from 3 to 4',
+        'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$lineItem changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem',
+        'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$cart changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart',
+        'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$salesChannelContext changed from having no type to Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
     ],
 ];

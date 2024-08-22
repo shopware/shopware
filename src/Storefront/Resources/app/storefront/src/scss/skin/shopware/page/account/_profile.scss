@@ -4,5 +4,6 @@
 
 .account-profile-change {
     font-weight: $font-weight-bold;
-    font-size: $font-size-sm;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-sm);
 }

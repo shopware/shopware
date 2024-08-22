@@ -37,7 +37,8 @@ https://getbootstrap.com/docs/5.2/forms/overview
 }
 
 .form-text {
-    font-size: 0.875rem;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, 0.875rem);
 }
 
 .forms-boolean {

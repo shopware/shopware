@@ -105,10 +105,12 @@ $box-image-height-img: 332px;
 }
 
 .product-description {
-    height: 3.375rem;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    height: if(feature('ACCESSIBILITY_TWEAKS'), 4.5rem, 3.375rem);
     margin-top: 10px;
-    font-size: 0.875rem;
-    line-height: 1.125rem;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, 0.875rem);
+    line-height: if(feature('ACCESSIBILITY_TWEAKS'), 1.5rem, 1.125rem);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

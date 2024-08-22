@@ -18,7 +18,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-    margin-bottom: 10px;
+    margin-bottom: 1rem;
 }
 
 h1,
@@ -49,4 +49,10 @@ h5,
 h6,
 .h6 {
     line-height: 1.25rem;
+}
+
+ol,
+ul,
+dl {
+    margin-bottom: $paragraph-margin-bottom;
 }

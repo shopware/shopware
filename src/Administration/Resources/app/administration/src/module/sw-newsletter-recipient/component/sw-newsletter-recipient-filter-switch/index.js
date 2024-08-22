@@ -8,6 +8,8 @@ import template from './sw-newsletter-recipient-filter-switch.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     emits: ['update:value'],
 
     props: {

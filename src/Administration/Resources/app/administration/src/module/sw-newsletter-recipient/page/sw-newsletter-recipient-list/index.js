@@ -11,6 +11,8 @@ const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [

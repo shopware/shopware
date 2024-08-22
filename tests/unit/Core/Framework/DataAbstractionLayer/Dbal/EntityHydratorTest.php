@@ -30,6 +30,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Singl
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestRootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SingleEntityDependencyTestSubDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToManyAssociationDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestHydrator;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\TranslatableTestTranslationDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -57,6 +60,8 @@ class EntityHydratorTest extends TestCase
                 CustomFieldPlainTestDefinition::class,
                 CustomFieldTestDefinition::class,
                 CustomFieldTestTranslationDefinition::class,
+                TranslatableTestDefinition::class,
+                TranslatableTestTranslationDefinition::class,
                 SingleEntityDependencyTestRootDefinition::class,
                 SingleEntityDependencyTestSubDefinition::class,
                 SingleEntityDependencyTestDependencyDefinition::class,
@@ -106,6 +111,35 @@ class EntityHydratorTest extends TestCase
 
         static::assertTrue($foreignKeys->has('extendedFk'));
         static::assertSame(Uuid::fromBytesToHex($extended), $foreignKeys->get('extendedFk'));
+    }
+
+    public function testTranslationWithZeroStringField(): void
+    {
+        $definition = $this->definitionInstanceRegistry->get(TranslatableTestDefinition::class);
+
+        $id = Uuid::randomBytes();
+
+        $rows = [
+            [
+                'test.id' => $id,
+                'test.name' => '0',
+                'test.translation.name' => '0',
+            ],
+        ];
+
+        $container = new ContainerBuilder();
+        $hydrator = new TranslatableTestHydrator($container);
+        $container->set(TranslatableTestHydrator::class, $hydrator);
+
+        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+        static::assertCount(1, $structs);
+
+        static::assertEquals(1, $structs->count());
+
+        $first = $structs->first();
+        static::assertNotNull($first);
+        static::assertSame('0', $first->get('name'));
+        static::assertSame('0', $first->getTranslation('name'));
     }
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void

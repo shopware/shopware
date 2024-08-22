@@ -61,7 +61,6 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument>%shopware.cache.invalidation.delay%</argument>
 
             <tag name="messenger.message_handler"/>
         </service>

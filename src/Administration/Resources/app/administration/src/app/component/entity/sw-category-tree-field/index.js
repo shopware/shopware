@@ -100,13 +100,17 @@ Component.register('sw-category-tree-field', {
         },
 
         numberOfHiddenTags() {
-            const hiddenTagsLength = this.selectedCategoriesTotal - this.visibleTags.length;
+            const hiddenTagsLength = this.selectedCategoriesItemsTotal - this.visibleTags.length;
 
             return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
 
         selectedCategoriesItemsIds() {
-            return this.selectedCategories;
+            return this.pageId ? this.selectedCategories : this.categoriesCollection.getIds();
+        },
+
+        selectedCategoriesItemsTotal() {
+            return this.pageId ? this.selectedCategoriesTotal : this.categoriesCollection.length;
         },
 
         selectedCategoriesPathIds() {
@@ -286,8 +290,10 @@ Component.register('sw-category-tree-field', {
                     this.isExpanded = false;
                 }
 
-                this.selectedCategories.push(item.id);
-                this.selectedCategoriesTotal += 1;
+                if (this.pageId) {
+                    this.selectedCategories.push(item.id);
+                    this.selectedCategoriesTotal += 1;
+                }
 
                 return true;
             }
@@ -299,9 +305,11 @@ Component.register('sw-category-tree-field', {
         removeItem(item) {
             this.categoriesCollection.remove(item.id);
 
-            const itemIndex = this.selectedCategories.findIndex(id => id === item.id);
-            this.selectedCategories.splice(itemIndex, 1);
-            this.selectedCategoriesTotal -= 1;
+            if (this.pageId) {
+                const itemIndex = this.selectedCategories.findIndex(id => id === item.id);
+                this.selectedCategories.splice(itemIndex, 1);
+                this.selectedCategoriesTotal -= 1;
+            }
 
             if (item.data) {
                 this.$emit('selection-remove', item.data);

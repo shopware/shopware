@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\FieldSerializer;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -15,22 +17,43 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\Context\ExecutionContextFactory;
+use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
+use Symfony\Component\Validator\Validator\RecursiveValidator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
  */
+#[CoversClass(PriceFieldSerializer::class)]
 class PriceFieldSerializerTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     protected PriceFieldSerializer $serializer;
 
     protected function setUp(): void
     {
-        $this->serializer = $this->getContainer()->get(PriceFieldSerializer::class);
+        $validator = new RecursiveValidator(
+            new ExecutionContextFactory(
+                $this->createMock(TranslatorInterface::class)
+            ),
+            new BlackHoleMetadataFactory(),
+            new ConstraintValidatorFactory()
+        );
+
+        $this->serializer = new PriceFieldSerializer(
+            $validator,
+            new StaticDefinitionInstanceRegistry(
+                [
+                    new ProductDefinition(),
+                ],
+                $validator,
+                $this->createMock(EntityWriteGateway::class)
+            )
+        );
     }
 
     public function testSerializeStrings(): void
@@ -339,7 +362,7 @@ class PriceFieldSerializerTest extends TestCase
         $existence = new EntityExistence('test', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
-            $this->getContainer()->get(ProductDefinition::class),
+            new ProductDefinition(),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()

@@ -39,6 +39,10 @@ class DomainExceptionRule implements Rule
         'Order',
     ];
 
+    private const EXCLUDED_NAMESPACES = [
+        'Shopware\Core\DevOps\StaticAnalyze\\',
+    ];
+
     /**
      * @var array<string, string>
      */
@@ -88,6 +92,15 @@ class DomainExceptionRule implements Rule
 
         if (!$node->expr instanceof New_) {
             return [];
+        }
+
+        $namespace = $scope->getNamespace();
+        if (\is_string($namespace)) {
+            foreach (self::EXCLUDED_NAMESPACES as $excludedNamespace) {
+                if (\str_starts_with($namespace, $excludedNamespace)) {
+                    return [];
+                }
+            }
         }
 
         \assert($node->expr->class instanceof Name);

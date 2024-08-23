@@ -59,6 +59,9 @@ jobs:
       - name: Code Style
         run: composer run ecs -- --no-progress-bar
 
+      - name: Generate Schema
+        run: composer run framework:schema:dump
+
       - name: Cache PHPStan Fixer
         uses: actions/cache@v3
         with:

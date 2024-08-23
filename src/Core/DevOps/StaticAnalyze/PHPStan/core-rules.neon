@@ -13,3 +13,5 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ExtensionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAfterStatementRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNewRequestInStorefrontRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInMethodRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule

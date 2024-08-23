@@ -1,0 +1,1130 @@
+{
+  "acl_role": {
+    "entity": "acl_role",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "name": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "description": {
+        "type": "text",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        }
+      },
+      "privileges": {
+        "type": "json_list",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "deletedAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        }
+      },
+      "users": {
+        "type": "association",
+        "relation": "many_to_many",
+        "local": "aclRoleId",
+        "reference": "userId",
+        "mapping": "acl_user_role",
+        "entity": "user",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "id"
+      },
+      "app": {
+        "type": "association",
+        "relation": "one_to_one",
+        "entity": "app",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "restrict_delete": true
+        },
+        "localField": "id",
+        "referenceField": "aclRoleId"
+      },
+      "integrations": {
+        "type": "association",
+        "relation": "many_to_many",
+        "local": "aclRoleId",
+        "reference": "integrationId",
+        "mapping": "integration_role",
+        "entity": "integration",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "id"
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      }
+    },
+    "write-protected": true,
+    "read-protected": false
+  },
+  "acl_user_role": {
+    "entity": "acl_user_role",
+    "properties": {
+      "userId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "aclRoleId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        }
+      },
+      "user": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "user",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "userId",
+        "referenceField": "id"
+      },
+      "aclRole": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "acl_role",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "aclRoleId",
+        "referenceField": "id"
+      }
+    },
+    "write-protected": false,
+    "read-protected": false
+  },
+  "order": {
+    "entity": "order",
+    "properties": {
+      "id": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "versionId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "primary_key": true,
+          "required": true
+        }
+      },
+      "autoIncrement": {
+        "type": "int",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "orderNumber": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "search_ranking": 500
+        }
+      },
+      "billingAddressId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true,
+          "no_constraint": true
+        }
+      },
+      "billingAddressVersionId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "currencyId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "languageId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "salesChannelId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "orderDateTime": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "orderDate": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "price": {
+        "type": "json_object",
+        "properties": {
+          "netPrice": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "positionPrice": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "rawTotal": {
+            "type": "float",
+            "flags": {
+              "required": true,
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ]
+            }
+          },
+          "taxStatus": {
+            "type": "string",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          }
+        },
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "amountTotal": {
+        "type": "float",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ],
+          "search_ranking": 250
+        }
+      },
+      "amountNet": {
+        "type": "float",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "positionPrice": {
+        "type": "float",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "taxStatus": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "shippingCosts": {
+        "type": "json_object",
+        "properties": {
+          "unitPrice": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "totalPrice": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "quantity": {
+            "type": "int",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "calculatedTaxes": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "taxRules": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "referencePrice": {
+            "type": "json_object",
+            "properties": [],
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ]
+            }
+          },
+          "listPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": {
+                  "read_protected": [
+                    [
+                      "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                    ]
+                  ]
+                }
+              },
+              "discount": {
+                "type": "float",
+                "flags": {
+                  "read_protected": [
+                    [
+                      "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                    ]
+                  ]
+                }
+              },
+              "percentage": {
+                "type": "float",
+                "flags": {
+                  "read_protected": [
+                    [
+                      "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                    ]
+                  ]
+                }
+              }
+            },
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ]
+            }
+          },
+          "regulationPrice": {
+            "type": "json_object",
+            "properties": {
+              "price": {
+                "type": "float",
+                "flags": {
+                  "read_protected": [
+                    [
+                      "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                    ]
+                  ]
+                }
+              }
+            },
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ]
+            }
+          }
+        },
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "shippingTotal": {
+        "type": "float",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "write_protected": [
+            []
+          ]
+        }
+      },
+      "currencyFactor": {
+        "type": "float",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "deepLinkCode": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "affiliateCode": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "campaignCode": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "customerComment": {
+        "type": "text",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "allow_empty_string": true
+        }
+      },
+      "source": {
+        "type": "string",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "stateId": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "stateMachineState": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "state_machine_state",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "stateId",
+        "referenceField": "id"
+      },
+      "ruleIds": {
+        "type": "json_list",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        }
+      },
+      "customFields": {
+        "type": "json_object",
+        "properties": [],
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "createdById": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "updatedById": {
+        "type": "uuid",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      },
+      "orderCustomer": {
+        "type": "association",
+        "relation": "one_to_one",
+        "entity": "order_customer",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "cascade_delete": true,
+          "search_ranking": 0.5
+        },
+        "localField": "id",
+        "referenceField": "orderId"
+      },
+      "currency": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "currency",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "currencyId",
+        "referenceField": "id"
+      },
+      "language": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "language",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "languageId",
+        "referenceField": "id"
+      },
+      "salesChannel": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "sales_channel",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "salesChannelId",
+        "referenceField": "id"
+      },
+      "addresses": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_address",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "cascade_delete": true,
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "orderId",
+        "primary": "id"
+      },
+      "billingAddress": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "order_address",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "billingAddressId",
+        "referenceField": "id"
+      },
+      "deliveries": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_delivery",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "cascade_delete": true,
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "orderId",
+        "primary": "id"
+      },
+      "lineItems": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_line_item",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "orderId",
+        "primary": "id"
+      },
+      "transactions": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "order_transaction",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "cascade_delete": true
+        },
+        "localField": "id",
+        "referenceField": "orderId",
+        "primary": "id"
+      },
+      "documents": {
+        "type": "association",
+        "relation": "one_to_many",
+        "entity": "document",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        },
+        "localField": "id",
+        "referenceField": "orderId",
+        "primary": "id"
+      },
+      "tags": {
+        "type": "association",
+        "relation": "many_to_many",
+        "local": "orderId",
+        "reference": "tagId",
+        "mapping": "order_tag",
+        "entity": "tag",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "search_ranking": 0.25
+        },
+        "localField": "id",
+        "referenceField": "id"
+      },
+      "createdBy": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "user",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "createdById",
+        "referenceField": "id"
+      },
+      "updatedBy": {
+        "type": "association",
+        "relation": "many_to_one",
+        "entity": "user",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ]
+        },
+        "localField": "updatedById",
+        "referenceField": "id"
+      },
+      "itemRounding": {
+        "type": "json_object",
+        "properties": {
+          "decimals": {
+            "type": "int",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "interval": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "roundForNet": {
+            "type": "boolean",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          }
+        },
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "totalRounding": {
+        "type": "json_object",
+        "properties": {
+          "decimals": {
+            "type": "int",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "interval": {
+            "type": "float",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          },
+          "roundForNet": {
+            "type": "boolean",
+            "flags": {
+              "read_protected": [
+                [
+                  "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+                ]
+              ],
+              "required": true
+            }
+          }
+        },
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "createdAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ],
+          "required": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "flags": {
+          "read_protected": [
+            [
+              "Shopware\\Core\\Framework\\Api\\Context\\AdminApiSource",
+              "Shopware\\Core\\Framework\\Api\\Context\\SalesChannelApiSource"
+            ]
+          ]
+        }
+      }
+    },
+    "write-protected": false,
+    "read-protected": false
+  }
+}

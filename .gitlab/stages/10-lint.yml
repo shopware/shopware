@@ -153,6 +153,7 @@ PHP static analysis:
               - '**/*.php'
     before_script:
         - !reference [ .scripts, init, composer ]
+        - composer run framework:schema:dump
     script:
         - composer run phpstan -- --error-format=gitlab | tee phpstan-report.json
 

@@ -38,13 +38,11 @@
 
         .tree-items {
             padding: 16px 16px 0;
-            width: max-content;
-            min-width: 100%;
+            width: 100%;
         }
 
         .sw-tree-item {
-            width: max-content;
-            min-width: 100%;
+            width: 100%;
         }
 
         .sw-tree-item__children {
@@ -70,7 +68,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             padding-right: 8px;
-            max-width: 340px;
         }
     }
 }

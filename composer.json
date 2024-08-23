@@ -99,6 +99,7 @@
         "ramsey/uuid": "^4.7",
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
+        "setasign/tfpdf": "^1.33",
         "shopware/conflicts": ">=0.2.0",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.8.0",

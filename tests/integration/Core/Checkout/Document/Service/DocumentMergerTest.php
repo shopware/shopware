@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\TestCase;
-use setasign\Fpdi\Tcpdf\Fpdi;
+use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -57,6 +58,7 @@ class DataAbstractionLayerException extends HttpException
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
+    public const MISSING_FIELD_VALUE = 'FRAMEWORK__MISSING_FIELD_VALUE';
     public const NOT_CUSTOM_FIELDS_SUPPORT = 'FRAMEWORK__NOT_CUSTOM_FIELDS_SUPPORT';
     public const INTERNAL_FIELD_ACCESS_NOT_ALLOWED = 'FRAMEWORK__INTERNAL_FIELD_ACCESS_NOT_ALLOWED';
     public const PROPERTY_NOT_FOUND = 'FRAMEWORK__PROPERTY_NOT_FOUND';
@@ -497,6 +499,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    public static function missingFieldValue(Field $field): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_FIELD_VALUE,
+            'A value for the field "{{ field }}" is required, but it is missing or `null`.',
+            ['field' => $field->getPropertyName()]
+        );
+    }
+
     public static function notCustomFieldsSupport(string $methodName): self
     {
         return new self(
@@ -700,5 +712,10 @@ class DataAbstractionLayerException extends HttpException
             'Given "{{ timeZone }}" is not a valid timezone',
             ['timeZone' => $timeZone]
         );
+    }
+
+    public static function invalidWriteConstraintViolation(\Symfony\Component\Validator\ConstraintViolationList $violationList, string $getPath): WriteConstraintViolationException
+    {
+        return new WriteConstraintViolationException($violationList, $getPath);
     }
 }

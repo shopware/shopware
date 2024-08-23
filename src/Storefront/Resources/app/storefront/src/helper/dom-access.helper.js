@@ -6,7 +6,7 @@ import StringHelper from 'src/helper/string.helper';
 export default class DomAccess {
 
     /**
-     * Returns whether or not the element is an HTML node
+     * Returns if the element is an HTML node
      *
      * @param {HTMLElement} element
      * @returns {boolean}
@@ -145,5 +145,46 @@ export default class DomAccess {
         }
 
         return elements;
+    }
+
+    /**
+     * Returns all focusable elements in the given parent node.
+     *
+     * @param {HTMLElement|document} parentNode
+     * @returns {NodeListOf<Element>}
+     */
+    static getFocusableElements(parentNode = document.body) {
+        const focusAbleElements = `
+            input:not([tabindex^="-"]):not([disabled]):not([type="hidden"]),
+            select:not([tabindex^="-"]):not([disabled]),
+            textarea:not([tabindex^="-"]):not([disabled]),
+            button:not([tabindex^="-"]):not([disabled]),
+            a[href]:not([tabindex^="-"]):not([disabled]),
+            [tabindex]:not([tabindex^="-"]):not([disabled])
+        `;
+
+        return parentNode.querySelectorAll(focusAbleElements);
+    }
+
+    /**
+     * Returns the first focusable element in the given parent node.
+     *
+     * @param parentNode
+     * @returns {HTMLElement}
+     */
+    static getFirstFocusableElement(parentNode = document.body) {
+        return this.getFocusableElements(parentNode)[0];
+    }
+
+    /**
+     * Returns the last focusable element in the given parent node.
+     *
+     * @param parentNode
+     * @returns {HTMLElement}
+     */
+    static getLastFocusableElement(parentNode = document) {
+        const result = this.getFocusableElements(parentNode);
+
+        return result[result.length - 1];
     }
 }

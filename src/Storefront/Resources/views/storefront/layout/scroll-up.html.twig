@@ -1,13 +1,10 @@
 {% block layout_scroll_up_inner %}
-    <div class="scroll-up-container"
-         data-scroll-up="true">
+    <div class="scroll-up-container" data-scroll-up="true">
         {% block layout_scroll_up_button %}
             <div class="scroll-up-button js-scroll-up-button">
-                <button type="submit"
-                        class="btn btn-primary"
-                        aria-hidden="true">
+                <button class="btn btn-primary" aria-label="{{ 'general.scrollUpBtn'|trans|striptags }}">
                     {% block layout_scroll_up_button_icon %}
-                        {% sw_icon 'arrow-up' style { size: 'sm' } %}
+                        {% sw_icon 'arrow-up' style { size: 'sm', ariaHidden: true } %}
                     {% endblock %}
                 </button>
             </div>

@@ -316,6 +316,36 @@ Component.register('sw-text-editor', {
             },
             isTableEdit: false,
             cmsPageState: Shopware.Store.get('cmsPageState'),
+            minorElementTags: [
+                '#text',
+                'br',
+                'b',
+                'strong',
+                'mark',
+                'del',
+                's',
+                'ins',
+                'small',
+                'i',
+                'em',
+                'u',
+                'a',
+                'ul',
+                'ol',
+                'dl',
+                'img',
+            ],
+            sectionElementTags: [
+                'p',
+                'h1',
+                'h2',
+                'h3',
+                'h4',
+                'h5',
+                'h6',
+                'blockquote',
+                'table',
+            ],
         };
     },
 
@@ -811,7 +841,107 @@ Component.register('sw-text-editor', {
 
         onFocus() {
             this.setFocus();
-            document.execCommand('defaultParagraphSeparator', false, 'span');
+            document.execCommand('defaultParagraphSeparator', false, 'p');
+        },
+
+        /**
+         * When initiating a proper line break, loose text nodes get fixed.
+         * It is not called on inline line breaks (shift + enter) to wait
+         * until the next proper line break initializes a new paragraph.
+         */
+        onEnter(event) {
+            if (event.key === 'Enter' && !event.shiftKey && this.hasDirectMinorElements()) {
+                this.fixWrongNodes(false);
+            }
+        },
+
+        /**
+         * This method optimizes the produced markup of the editor.
+         * The default behaviour of a contenteditable element can result
+         * in loose text nodes or unwanted `<div>` elements.
+         *
+         * It will wrap loose text nodes and minor elements into paragraphs.
+         * Optionally you can replace falsy `<div>` nodes with paragraphs, too.
+         * This helps to achieve a consistent text formatting.
+         *
+         * @param {boolean} replaceDivNodes - Defines if <div> nodes should be replaced. Defaults to false.
+         */
+        fixWrongNodes(replaceDivNodes = false) {
+            // Valid section elements that should stay as they are.
+            const sectionElements = this.sectionElementTags;
+
+            // Elements that should be replaced by a paragraph element.
+            const replaceElements = ['div'];
+
+            // Elements that should be wrapped in a paragraph element.
+            const wrapElements = this.minorElementTags;
+
+            const nodes = this.$refs.textEditor.childNodes;
+            let newParagraph = null;
+            let replaceNode = null;
+            let removeNodes = [];
+
+            nodes.forEach((node) => {
+                const nodeName = node.nodeName.toLowerCase();
+                const isMinorNode = wrapElements.includes(nodeName);
+                const isSectionNode = sectionElements.includes(nodeName);
+                const shouldBeReplaced = replaceDivNodes === true && replaceElements.includes(nodeName);
+                const shouldBeWrapped = (isMinorNode || !isSectionNode) && !replaceElements.includes(nodeName);
+
+                // Replace wrong section elements, like `<div>`.
+                if (shouldBeReplaced) {
+                    const paragraph = document.createElement('p');
+                    paragraph.innerHTML = node.innerHTML;
+
+                    // Copy the attributes to maintain applied formatting like text alignment.
+                    if (node.hasAttributes()) {
+                        Array.from(node.attributes).forEach((attr) => {
+                            paragraph.setAttribute(attr.name, attr.value);
+                        });
+                    }
+
+                    this.$refs.textEditor.replaceChild(paragraph, node);
+
+                // Wrap minor elements in a proper paragraph element.
+                } else if (shouldBeWrapped) {
+                    // If there are several following elements to wrap, they are collected in one paragraph.
+                    if (newParagraph === null) {
+                        newParagraph = document.createElement('p');
+                        newParagraph.appendChild(node.cloneNode(true));
+
+                        replaceNode = node;
+                    } else {
+                        newParagraph.appendChild(node.cloneNode(true));
+                        removeNodes.push(node);
+                    }
+
+                // If a new section starts, replace all collected minor elements with the new paragraph.
+                } else {
+                    if (newParagraph !== null && replaceNode !== null) {
+                        this.$refs.textEditor.replaceChild(newParagraph, replaceNode);
+                    }
+
+                    removeNodes.forEach((removeNode) => {
+                        this.$refs.textEditor.removeChild(removeNode);
+                    });
+
+                    newParagraph = null;
+                    replaceNode = null;
+                    removeNodes = [];
+                }
+            });
+
+            this.emitContent();
+        },
+
+        /**
+         * Checks if nodes of the content are not wrapped in a proper section element.
+         *
+         * @returns {boolean}
+         */
+        hasDirectMinorElements() {
+            const nodes = Array.from(this.$refs.textEditor.childNodes);
+            return nodes.some(node => this.minorElementTags.includes(node.nodeName.toLowerCase()));
         },
 
         setFocus() {
@@ -855,7 +985,6 @@ Component.register('sw-text-editor', {
         onContentChange() {
             this.isEmpty = this.emptyCheck(this.getContentValue());
             this.placeholderVisible = this.isEmpty;
-
             this.setWordCount();
         },
 

@@ -44,9 +44,13 @@ $border-radius-sm: 0 !default;
 // Typography
 $font-family-base: $sw-font-family-base !default;
 
-$font-size-base: 0.875rem !default;
-$font-size-lg: 1rem !default;
-$font-size-sm: 0.75rem !default;
+// @deprecated tag:v6.7.0 - The standard paragraph spacing will be increased to apply to accessibility standards.
+$paragraph-margin-bottom: if(feature('ACCESSIBILITY_TWEAKS'), 2rem, 1rem) !default;
+
+// @deprecated tag:v6.7.0 - The standard font-size will be set to 1rem and the other sizes adjusted accordingly.
+$font-size-base: if(feature('ACCESSIBILITY_TWEAKS'), 1rem, 0.875rem) !default;
+$font-size-lg: if(feature('ACCESSIBILITY_TWEAKS'), 1.125rem, 1rem) !default;
+$font-size-sm: if(feature('ACCESSIBILITY_TWEAKS'), 0.875rem, 0.75rem) !default;
 $font-weight-normal: 400 !default;
 
 $h1-font-size: 36px !default;
@@ -55,6 +59,8 @@ $h3-font-size: 24px !default;
 $h4-font-size: 20px !default;
 $h5-font-size: 16px !default;
 $h6-font-size: 14px !default;
+
+$nav-link-font-size: $font-size-base !default;
 
 $headings-font-weight: 700 !default;
 $headings-font-family: $sw-font-family-headline !default;
@@ -73,17 +79,17 @@ $form-label-margin-bottom: 3px !default;
 // Buttons
 $btn-padding-y: 2px !default;
 $btn-padding-x: 12px !default;
-$btn-line-height: 34px !default;
+$btn-line-height: 2.125rem !default;
 
 $btn-padding-y-sm: 2px !default;
 $btn-padding-x-sm: 12px !default;
 $btn-font-size-sm: 14px !default;
-$btn-line-height-sm: 30px !default;
+$btn-line-height-sm: 1.875rem !default;
 
 $btn-padding-y-lg: 2px !default;
 $btn-padding-x-lg: 12px !default;
 $btn-font-size-lg: 16px !default;
-$btn-line-height-lg: 38px !default;
+$btn-line-height-lg: 2.375rem !default;
 
 $btn-font-weight: 600 !default;
 $btn-link-disabled-color: $gray-300 !default;

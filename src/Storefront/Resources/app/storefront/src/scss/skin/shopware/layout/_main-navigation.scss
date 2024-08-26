@@ -8,7 +8,8 @@ https://getbootstrap.com/docs/5.2/components/navs-tabs
 */
 
 .main-navigation-menu {
-    font-size: $font-size-lg;
+    // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
+    font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg);
 }
 
 @include media-breakpoint-up(md) {

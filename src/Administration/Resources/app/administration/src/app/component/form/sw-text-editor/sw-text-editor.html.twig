@@ -70,6 +70,7 @@
             class="sw-text-editor__content"
             :class="contentClasses"
         >
+            <!-- eslint-disable -->
             <div
                 ref="textEditor"
                 class="sw-text-editor__content-editor"
@@ -78,12 +79,14 @@
                 :spellcheck="true"
                 tabindex="-1"
                 @focus="onFocus"
+                @keyup.enter="onEnter"
                 @paste="onPaste"
                 @input="onInput"
                 @copy="onCopy"
                 @mousedown.right.stop
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
             ></div>
+            <!-- eslint-enable -->
             <div
                 v-if="placeholderVisible"
                 class="sw-text-editor__content-placeholder"

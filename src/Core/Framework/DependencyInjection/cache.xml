@@ -210,6 +210,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument>%shopware.cache.invalidation.http_cache%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <tag name="kernel.event_listener"/>
         </service>
 

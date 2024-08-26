@@ -15,6 +15,7 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber">
             <argument type="service" id="shopware.increment.gateway.registry"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -58,5 +59,24 @@
         <service id="Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware">
             <argument>%shopware.messenger.routing_overwrite%</argument>
         </service>
+
+
+        <service id="Shopware\Core\Framework\MessageQueue\Stats\RedisCircularBuffer">
+            <argument>%shopware.messenger.stats.messages_number%</argument>
+            <argument type="service">
+                <service class="Redis">
+                    <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+                    <argument>%shopware.messenger.stats.redis_dsn%</argument>
+                </service>
+            </argument>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\MessageQueue\Stats\StatsService">
+            <argument type="service" id="messenger.receiver_locator"/>
+            <argument type="abstract"/>
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\RedisCircularBuffer"/>
+        </service>
+
     </services>
 </container>

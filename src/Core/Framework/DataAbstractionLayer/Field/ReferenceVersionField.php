@@ -11,16 +11,22 @@ use Shopware\Core\Framework\Log\Package;
 class ReferenceVersionField extends FkField
 {
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $versionReferenceClass;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var EntityDefinition
      */
     protected $versionReferenceDefinition;
 
     /**
+     * @deprecated tag:v6.7.0 - Will be natively typed
+     *
      * @var string
      */
     protected $storageName;

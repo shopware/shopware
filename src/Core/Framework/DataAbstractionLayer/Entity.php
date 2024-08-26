@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -55,7 +57,11 @@ class Entity extends Struct
     private ?FieldVisibility $_fieldVisibility = null;
 
     /**
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     *
      * @param string $name
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
      *
      * @return mixed
      */
@@ -112,6 +118,12 @@ class Entity extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from \InvalidArgumentException to PropertyNotFoundException
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
+     * @throws PropertyNotFoundException|\InvalidArgumentException
+     *
      * @return mixed|Struct|null
      */
     public function get(string $property)
@@ -291,11 +303,15 @@ class Entity extends Struct
 
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from InternalFieldAccessNotAllowedException to DataAbstractionLayerException
+     *
+     * @throws DataAbstractionLayerException|InternalFieldAccessNotAllowedException
      */
     protected function checkIfPropertyAccessIsAllowed(string $property): void
     {
         if (!$this->isPropertyVisible($property)) {
-            throw DataAbstractionLayerException::internalFieldAccessNotAllowed($property, static::class);
+            throw DataAbstractionLayerException::internalFieldAccessNotAllowed($property, static::class, $this);
         }
     }
 

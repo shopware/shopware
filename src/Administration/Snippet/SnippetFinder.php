@@ -126,7 +126,7 @@ class SnippetFinder implements SnippetFinderInterface
         if ($isBaseLanguage) {
             $finder->name('/[a-z]{2}\.json/');
         } else {
-            $finder->name(sprintf('%s.json', $locale));
+            $finder->name(\sprintf('%s.json', $locale));
         }
 
         $iterator = $finder->getIterator();

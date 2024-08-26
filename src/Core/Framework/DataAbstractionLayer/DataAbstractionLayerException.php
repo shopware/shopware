@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
@@ -519,8 +520,16 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function internalFieldAccessNotAllowed(string $property, string $entityClassName): self
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.7.0 - Parameter `entity` will be removed
+     */
+    public static function internalFieldAccessNotAllowed(string $property, string $entityClassName, object $entity): self|InternalFieldAccessNotAllowedException
     {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new InternalFieldAccessNotAllowedException($property, $entity);
+        }
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INTERNAL_FIELD_ACCESS_NOT_ALLOWED,
@@ -529,8 +538,15 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function propertyNotFound(string $property, string $entityClassName): self
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function propertyNotFound(string $property, string $entityClassName): self|\InvalidArgumentException
     {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \InvalidArgumentException(\sprintf('Property %s do not exist in class %s', $property, $entityClassName));
+        }
+
         return new PropertyNotFoundException($property, $entityClassName);
     }
 

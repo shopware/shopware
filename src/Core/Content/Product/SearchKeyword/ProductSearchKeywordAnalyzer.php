@@ -126,7 +126,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                 if (\is_array($value)) {
                     return $value;
                 }
-            } catch (PropertyNotFoundException $ex) {
+            } catch (PropertyNotFoundException|\InvalidArgumentException $ex) {
                 if (!$smartDetect) {
                     throw $ex;
                 }

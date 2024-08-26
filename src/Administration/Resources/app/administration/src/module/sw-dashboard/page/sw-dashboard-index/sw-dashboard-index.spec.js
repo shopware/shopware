@@ -28,7 +28,7 @@ async function createWrapper(privileges = []) {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {
-                    locale: 'en-GB',
+                    locale: 'en',
                     messages: {
                         en: dictionary,
                     },

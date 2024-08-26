@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is not used anywhere. #}
 {% block page_account_address_item_content %}
     <div class="col-lg-6 card-col address-card{% if feature('v6.7.0.0') %} p-0{% endif %}">
         <div class="card {% if defaultBillingAddress is same as(address.id) %}billing-address{% elseif defaultShippingAddress is same as(address.id) %}shipping-address{% else %}other-address{% endif %}">

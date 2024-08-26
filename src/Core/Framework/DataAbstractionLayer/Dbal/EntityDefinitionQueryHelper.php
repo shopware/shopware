@@ -493,6 +493,14 @@ class EntityDefinitionQueryHelper
 
             $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
 
+            $selects = array_unique($selects);
+
+            if (\count($selects) === 1) {
+                $query->addSelect(\sprintf('%s as %s', $selects[0], self::escape($root . '.' . $field->getPropertyName())));
+
+                continue;
+            }
+
             // add selection for resolved parent-child and language inheritance
             $query->addSelect(
                 \sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '

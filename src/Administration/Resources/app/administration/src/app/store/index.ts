@@ -95,4 +95,16 @@ export default class Store {
         // Clear cached store
         Store.#stores.delete(id);
     }
+
+    /** Define a Pinia store without registering it, having types in the definition */
+    public wrapStoreDefinition<
+        Id extends string,
+        S extends StateTree = NonNullable<unknown>,
+        G extends _GettersTree<S> = NonNullable<unknown>,
+        A = NonNullable<unknown>
+    >(
+        options: DefineStoreOptions<Id, S, G, A>,
+    ) {
+        return options;
+    }
 }

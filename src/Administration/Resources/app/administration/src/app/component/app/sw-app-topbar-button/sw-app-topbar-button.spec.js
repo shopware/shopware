@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import topBarButtonState from 'src/app/state/topbar-button.store';
+import topBarButtonState from 'src/app/store/topbar-button.store';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-app-topbar-button', { sync: true }), {

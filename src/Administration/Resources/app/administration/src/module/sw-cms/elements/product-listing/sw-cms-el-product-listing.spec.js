@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import 'src/module/sw-cms/state/cms-page.state';
+import 'src/module/sw-cms/store/cms-page.store';
 
 const currentDemoProducts = [
     { id: 'PRODUCT-0' },

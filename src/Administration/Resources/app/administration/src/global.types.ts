@@ -89,8 +89,8 @@ import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
-import type { CmsPageState } from './module/sw-cms/state/cms-page.state';
-import type { TopBarButtonState } from './app/state/topbar-button.store';
+import type { CmsPageState } from './module/sw-cms/store/cms-page.store';
+import type { TopBarButtonState } from './app/store/topbar-button.store';
 
 // trick to make it an "external module" to support global type extension
 

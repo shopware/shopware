@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils';
 import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/module/sw-cms/state/cms-page.state';
+import 'src/module/sw-cms/store/cms-page.store';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
 

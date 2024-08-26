@@ -76,7 +76,12 @@
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden.",
     "wishlist": "Merkzettel",
-    "navigationAriaLabel": "Hauptnavigation"
+    "navigationAriaLabel": "Hauptnavigation",
+    "topBarAriaLabel": "Shop-Einstellungen",
+    "languageTrigger": "Sprache ändern (%lang% ist die aktuelle Sprache)",
+    "languageList": "Verfügbare Sprachen",
+    "currencyTrigger": "Währung ändern (%currency% ist die aktuelle Währung)",
+    "currencyList": "Verfügbare Währungen"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",

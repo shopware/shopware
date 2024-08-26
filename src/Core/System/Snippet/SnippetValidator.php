@@ -81,11 +81,11 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
+        $return = preg_match('/([a-z]{2})(?:\.base)?\.json$/', $fileName, $matches);
 
-        // Snippet file name not known, return 'en-GB' per default
+        // Snippet file name not known, return 'en' per default
         if (!$return) {
-            return 'en-GB';
+            return 'en';
         }
 
         return $matches[1];

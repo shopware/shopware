@@ -112,11 +112,12 @@ export default {
         async getIconConfigFromFolder() {
             const { mediaFolder } = this;
 
-            if (mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
+            if (!mediaFolder.defaultFolderId || mediaFolder.defaultFolderId === this.lastDefaultFolderId) {
                 return;
             }
 
             this.lastDefaultFolderId = mediaFolder.defaultFolderId;
+
             const defaultFolder = await this.mediaDefaultFolderRepository.get(mediaFolder.defaultFolderId, Context.api);
 
             if (!defaultFolder) {
@@ -130,8 +131,8 @@ export default {
                 return;
             }
 
-            this.iconConfig.name = module.manifest.icon ?? '';
-            this.iconConfig.color = module.manifest.color ?? '#000000';
+            this.iconConfig.name = module.manifest?.icon ?? '';
+            this.iconConfig.color = module.manifest?.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

@@ -15,7 +15,7 @@ export default class HitTest {
     private markerVisible: boolean;
 
     private hitTestSourceRequested: boolean;
-    private hitTestSource: XRHitTestSource | null
+    private hitTestSource: XRHitTestSource | null;
     private lastHitPose: Float32Array;
 
     constructor(renderer: WebGLRenderer, scene: Scene) {

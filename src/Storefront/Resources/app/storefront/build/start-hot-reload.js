@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 const createLiveReloadServer = require('./live-reload-server/index');
 const createProxyServer = require('./proxy-server-hot/index');
 

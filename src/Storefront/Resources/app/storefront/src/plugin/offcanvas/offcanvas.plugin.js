@@ -151,7 +151,7 @@ class OffCanvasSingleton {
                     });
                 }, delay);
 
-                offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose)
+                offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose);
             };
 
             offCanvas.addEventListener('hide.bs.offcanvas', onBsClose);

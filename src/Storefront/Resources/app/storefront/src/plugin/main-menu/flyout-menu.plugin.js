@@ -65,7 +65,7 @@ export default class FlyoutMenuPlugin extends Plugin {
             if (this._hasOpenedFlyouts === true && event.code === 'Escape' || event.keyCode === 27) {
                 this._debounce(this._closeAllFlyouts);
             }
-        })
+        });
 
         // register opening triggers
         Iterator.iterate(this._triggerEls, el => {

@@ -74,7 +74,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         const zipcodeInput = DomAccess.querySelector(document, this.options.zipcodeFieldInput, false);
         const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
 
-        this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired)
+        this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired);
 
         if (vatIdInput) {
             this._updateRequiredVatId(vatIdInput, vatIdRequired);
@@ -91,7 +91,7 @@ export default class CountryStateSelectPlugin extends Plugin {
                 let responseData = JSON.parse(response);
                 responseData = {...responseData, ...{ stateRequired }};
 
-                updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options)
+                updateStateSelect(responseData, countryStateId, this.el, CountryStateSelectPlugin.options);
             }
         );
     }

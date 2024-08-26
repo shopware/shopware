@@ -441,6 +441,7 @@
         "eslint:e2e": "@npm:e2e run lint",
         "eslint:e2e:fix": "@npm:e2e run lint:fix",
         "eslint:storefront": "@npm:storefront run lint:js",
+        "eslint:storefront:fix": "@npm:storefront run lint:js:fix",
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"

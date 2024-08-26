@@ -10,7 +10,7 @@ export default class AddToWishlistPlugin extends Plugin {
             add: 'Add to wishlist',
             remove: 'Remove from wishlist',
         },
-    }
+    };
 
     init() {
         this.classList = {

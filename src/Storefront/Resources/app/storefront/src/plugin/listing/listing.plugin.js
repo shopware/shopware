@@ -120,7 +120,7 @@ export default class ListingPlugin extends Plugin {
             const stateChanged = filterItem.setValuesFromUrl(this._urlFilterParams);
 
             // Return if state of filter has not changed or filter panel is not active
-            if(!stateChanged || !this._filterPanelActive) return;
+            if (!stateChanged || !this._filterPanelActive) return;
 
             this._showResetAll = true;
             this._buildLabels();

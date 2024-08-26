@@ -54,7 +54,7 @@ class PluginConfigManagerSingleton {
      * @returns {Map<any, any>}
      */
     getRegistry() {
-        return this._registry
+        return this._registry;
     }
 
 }

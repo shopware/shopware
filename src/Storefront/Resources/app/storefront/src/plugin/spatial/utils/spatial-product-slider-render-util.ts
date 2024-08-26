@@ -16,7 +16,7 @@ export default class SpatialProductSliderRenderUtil {
     private sliderElement: HTMLElement | undefined | null = null;
     // @ts-ignore
     private tnsSlider: tns | null = null;
-    private sliderPlugin: GallerySliderPlugin | null = null
+    private sliderPlugin: GallerySliderPlugin | null = null;
     private plugin: SpatialProductViewerPlugin;
 
     static options = {

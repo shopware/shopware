@@ -57,7 +57,7 @@ export default class NativeEventEmitter {
 
         this.el.dispatchEvent(event);
 
-        return event
+        return event;
     }
 
     /**

@@ -239,6 +239,11 @@ class Feature
                 ScriptTraces::addDeprecationNotice($message);
             }
 
+            if (EnvironmentHelper::getVariable('TESTS_RUNNING')) {
+                // no need to trigger deprecation in tests as we cover all cases of the feature flag behaviour
+                return;
+            }
+
             trigger_deprecation('shopware/core', '', $message);
         }
     }

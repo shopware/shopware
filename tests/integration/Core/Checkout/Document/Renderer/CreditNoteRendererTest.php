@@ -35,7 +35,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -563,7 +563,7 @@ class CreditNoteRendererTest extends TestCase
 
         $data = [
             'id' => $paymentMethodId,
-            'handlerIdentifier' => SyncTestPaymentHandler::class,
+            'handlerIdentifier' => TestPaymentHandler::class,
             'name' => 'Payment',
             'technicalName' => Uuid::randomHex(),
             'active' => true,

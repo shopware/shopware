@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -45,10 +44,9 @@ class PaymentRecurringProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testCorrectCriteriaIsUsed(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
         $orderId = 'foo';
 
         $criteria = new Criteria([$orderId]);
@@ -103,10 +101,9 @@ class PaymentRecurringProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testOldOrderNotFoundException(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
         $repo = $this->createMock(EntityRepository::class);
         $repo
             ->expects(static::once())
@@ -288,10 +285,9 @@ class PaymentRecurringProcessorTest extends TestCase
     /**
      * @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
      */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testOldPaymentHandlerCalled(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('foo');
         $paymentMethod->setHandlerIdentifier('foo_recurring_handler');

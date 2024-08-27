@@ -33,7 +33,7 @@ class ScssPhpCompilerTest extends TestCase
         $compiled = $scssCompiler->compileString(
             new CompilerConfiguration(
                 [
-                    'importPaths' => [''],
+                    'importPaths' => [getcwd()],
                     'outputStyle' => OutputStyle::COMPRESSED,
                 ]
             ),

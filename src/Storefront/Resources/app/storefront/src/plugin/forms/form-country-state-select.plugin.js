@@ -40,8 +40,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
         const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
-        const zipcodeLabel = DomAccess.querySelector(document, this.options.zipcodeLabel, false);
-        const zipcodeInput = DomAccess.querySelector(document, this.options.zipcodeFieldInput, false);
+        const zipcodeLabel = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
+        const zipcodeInput = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
         const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.zipcodeRequired, false);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
@@ -70,8 +70,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-        const zipcodeLabel = DomAccess.querySelector(document, this.options.zipcodeLabel, false);
-        const zipcodeInput = DomAccess.querySelector(document, this.options.zipcodeFieldInput, false);
+        const zipcodeLabel = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
+        const zipcodeInput = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
         const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
 
         this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired);
@@ -116,19 +116,22 @@ export default class CountryStateSelectPlugin extends Plugin {
         vatIdFieldInput.removeAttribute('required');
     }
 
-    _updateZipcodeRequired(label, input, required) {
+    _updateZipcodeRequired(labels, inputs, required) {
         if (!label || !input) {
             return;
         }
 
-        label.className = required ? '' : 'd-none';
+        labels.forEach(label => {
+            label.className = required ? '' : 'd-none';
+        });
 
-        if (required) {
-            input.setAttribute('required', 'required');
-            return;
-        }
-
-        input.removeAttribute('required');
+        inputs.forEach(input => {
+            if (required) {
+                input.setAttribute('required', 'required');
+            } else {
+                input.removeAttribute('required');
+            }
+        });
     }
 }
 

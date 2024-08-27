@@ -1,0 +1,71 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {{ include('@WebProfiler/Icon/cache.svg') }}
+        <span class="sf-toolbar-value">{{ collector.total }} tags</span>
+    {% endset %}
+
+    {% if collector.data|keys|length > 1 %}
+        {% set text %}
+            {% foreach collector.data as route => tags %}
+                <div class="sf-toolbar-info-piece">
+                    <b>{{ route }}</b>
+                    <span>{{ tags|length }} tags</span>
+                </div>
+            {% endforeach %}
+        {% endset %}
+    {% endif %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock %}
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label">
+        <span class="icon">{{ include('@WebProfiler/Icon/form.svg') }}</span>
+        <strong>Cache tags</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Http cache tags per route</h2>
+    <p>This section shows which cache tags were collected in which route. The routes are splitted into tabs. Each tab contains a list of the collected tags and which service triggers it</p>
+    {% if collector.data|length <= 0 %}
+        <div class="empty">
+            <p>No cache tags collected</p>
+        </div>
+        {% return %}
+    {% endif %}
+
+    <div class="sf-tabs" data-proccessed="true">
+        {% foreach collector.data as route => tags %}
+            <div class="tab">
+                <h3 class="tab-title">{{ route|u.truncate(20) }}</h3>
+                <div class="tab-content">
+                    <p>URL: {{ route }}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tag</th>
+                                <th class="full-width">Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% foreach tags as tag => callers %}
+                            <tr>
+                                <td>{{ tag }}</td>
+                                <td>
+                                    {% foreach callers as caller => count %}
+                                        <div>{{ count }}x {{ caller }}</div>
+                                    {% endforeach %}
+                                </td>
+                            </tr>
+                        {% endforeach %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endforeach %}
+    </div>
+{% endblock %}

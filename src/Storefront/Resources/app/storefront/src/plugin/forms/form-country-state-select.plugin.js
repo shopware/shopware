@@ -40,8 +40,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
         const stateRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.stateRequired, false);
-        const zipcodeLabel = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
-        const zipcodeInput = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
+        const zipcodeLabels = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
+        const zipcodeInputs = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
         const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.zipcodeRequired, false);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
@@ -52,7 +52,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         this.requestStateData(initialCountryId, initialCountryStateId, stateRequired);
 
         if (zipcodeRequired) {
-            this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired);
+            this._updateZipcodeRequired(zipcodeLabels, zipcodeInputs, zipcodeRequired);
         }
 
         if (!vatIdInput) {
@@ -70,11 +70,11 @@ export default class CountryStateSelectPlugin extends Plugin {
         const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-        const zipcodeLabel = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
-        const zipcodeInput = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
+        const zipcodeLabels = DomAccess.querySelectorAll(document, this.options.zipcodeLabel, false);
+        const zipcodeInputs = DomAccess.querySelectorAll(document, this.options.zipcodeFieldInput, false);
         const zipcodeRequired = !!DomAccess.getDataAttribute(countrySelect, this.options.zipcodeRequired, false);
 
-        this._updateZipcodeRequired(zipcodeLabel, zipcodeInput, zipcodeRequired);
+        this._updateZipcodeRequired(zipcodeLabels, zipcodeInputs, zipcodeRequired);
 
         if (vatIdInput) {
             this._updateRequiredVatId(vatIdInput, vatIdRequired);

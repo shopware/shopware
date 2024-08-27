@@ -5,7 +5,7 @@ class FilenameToChunkNamePlugin {
         this.isDevMode = isDevMode ?? false;
     }
 
-    allChunkNames = {}
+    allChunkNames = {};
     apply(compiler) {
         compiler.hooks.compilation.tap('FilenameToChunkNamePlugin', (compilation) => {
             compilation.hooks.chunkIds.tap('FilenameToChunkNamePlugin', (chunks) => {
@@ -22,9 +22,9 @@ class FilenameToChunkNamePlugin {
                         }
                         this.allChunkNames[chunk.id] = name;
                     }
-                })
-            })
-        })
+                });
+            });
+        });
     }
 }
 

@@ -331,7 +331,7 @@ class TranslatorTest extends TestCase
         );
 
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
-
+        error_log(print_r("---------", true) . PHP_EOL, 3, '/var/log/test.log');
         $translator->reset();
 
         // Assign the SwagTheme and assert that the snippet is overwritten
@@ -340,6 +340,7 @@ class TranslatorTest extends TestCase
         $themeId = $themeRepo->searchIds($criteria, $salesChannelContext->getContext())->firstId();
 
         static::assertNotNull($themeId);
+
 
         $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
 
@@ -350,8 +351,10 @@ class TranslatorTest extends TestCase
             $salesChannelContext->getContext()
         );
 
+
         static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
 
+        error_log(print_r("<<<---------", true) . PHP_EOL, 3, '/var/log/test.log');
         $translator->reset();
 
         // In reset, we ignore all theme snippets and use the default ones

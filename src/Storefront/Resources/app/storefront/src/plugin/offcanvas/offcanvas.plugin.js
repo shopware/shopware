@@ -204,6 +204,7 @@ class OffCanvasSingleton {
         const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
+        offCanvas.setAttribute('tabindex', '-1');
 
         if (fullwidth === true) {
             offCanvas.classList.add(OFF_CANVAS_FULLWIDTH_CLASS);

@@ -121,4 +121,42 @@ describe('focus-handler.helper', () => {
 
         consoleSpy.mockRestore();
     });
+
+    test('should save and resume focus persistent with session storage', () => {
+        document.body.innerHTML = `
+            <button id="modal-open">Open Modal</button>
+
+            <div class="modal">
+                <button id="modal-close">X</button>
+            </div>`;
+
+        const modalButton = document.getElementById('modal-open');
+        const modalCloseButton = document.getElementById('modal-close');
+
+        // 1. Focus the modal button manually and verify current focus
+        modalButton.focus();
+        expect(document.activeElement).toBe(modalButton);
+
+        // 2. Save the focus state with key
+        focusHandler.saveFocusStatePersistent('test-modal', '#modal-open');
+        expect(window.sessionStorage.getItem('sw-last-focus-test-modal')).toBe('#modal-open');
+
+        // 2. Focus the close button manually and verify current focus
+        modalCloseButton.focus();
+        expect(document.activeElement).toBe(modalCloseButton);
+
+        // 3. Resume the focus state from session storage and verify current focus and storage has been removed
+        focusHandler.resumeFocusStatePersistent('test-modal');
+        expect(document.activeElement).toBe(modalButton);
+        expect(window.sessionStorage.getItem('sw-last-focus-test-modal')).toBeNull();
+    });
+
+    test('should show a console error during persistent save when no sufficient parameters are given', () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        focusHandler.saveFocusStatePersistent();
+
+        expect(consoleSpy).toHaveBeenCalledWith('[FocusHandler]: Unable to save focus state. Parameters "focusStorageKey" and "uniqueSelector" are required.');
+        consoleSpy.mockRestore();
+    });
 });

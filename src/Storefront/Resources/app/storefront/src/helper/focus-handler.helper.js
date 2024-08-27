@@ -6,10 +6,13 @@
  */
 export default class FocusHandler {
 
-    constructor(defaultHistoryKey = 'lastFocus') {
+    constructor(defaultHistoryKey = 'lastFocus', defaultStorageKeyPrefix = 'sw-last-focus') {
 
         // The key under which the focus state is saved by default.
         this._defaultHistoryKey = defaultHistoryKey;
+
+        // The prefix for the session storage key.
+        this._defaultStorageKeyPrefix = defaultStorageKeyPrefix;
 
         // Stores different focus states.
         this._focusMap = new Map();
@@ -51,6 +54,54 @@ export default class FocusHandler {
 
         document.$emitter.publish('Focus/StateResumed', {
             focusHistoryKey,
+            focusEl,
+        });
+    }
+
+    /**
+     * Saves the current focus state under the given key in the session storage.
+     * By default, the given key will be prefixed with the `defaultStorageKeyPrefix` "sw-last-focus".
+     * A unique selector is mandatory to resume the focus state on the correct element. (e.g. after a page reload)
+     *
+     * @param focusStorageKey
+     * @param uniqueSelector
+     */
+    saveFocusStatePersistent(focusStorageKey, uniqueSelector) {
+        if (!uniqueSelector || !focusStorageKey) {
+            console.error('[FocusHandler]: Unable to save focus state. Parameters "focusStorageKey" and "uniqueSelector" are required.');
+            return;
+        }
+
+        // Default sessionStorage structure:
+        // key: "sw-last-focus-my-example-element" | value: "#my-example-unique-id"
+        const storageKey = `${this._defaultStorageKeyPrefix}-${focusStorageKey}`;
+        window.sessionStorage.setItem(storageKey, uniqueSelector);
+
+        document.$emitter.publish('Focus/StateSavedPersistent', {
+            focusStorageKey,
+            uniqueSelector,
+        });
+    }
+
+    /**
+     * Resumes the focus to the element that was saved for the given key in the session storage.
+     *
+     * @param focusStorageKey
+     * @param focusOptions
+     */
+    resumeFocusStatePersistent(focusStorageKey, focusOptions) {
+        const uniqueSelector = window.sessionStorage.getItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+        if (!uniqueSelector) {
+            return;
+        }
+
+        const focusEl = document.querySelector(uniqueSelector);
+
+        this.setFocus(focusEl, focusOptions);
+        window.sessionStorage.removeItem(`${this._defaultStorageKeyPrefix}-${focusStorageKey}`);
+
+        document.$emitter.publish('Focus/StateResumedPersistent', {
+            focusStorageKey,
             focusEl,
         });
     }

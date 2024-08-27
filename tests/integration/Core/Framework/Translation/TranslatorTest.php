@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Theme\CachedResolvedConfigLoader;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
@@ -309,7 +312,6 @@ class TranslatorTest extends TestCase
         $translator = $this->getContainer()->get(Translator::class);
         $themeService = $this->getContainer()->get(ThemeService::class);
         $themeRepo = $this->getContainer()->get('theme.repository');
-        $themeLoader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
@@ -350,7 +352,6 @@ class TranslatorTest extends TestCase
             'en-GB',
             $salesChannelContext->getContext()
         );
-
 
         static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
 

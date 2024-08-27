@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator;
@@ -54,6 +55,10 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
         $this->cachedResolvedConfigLoaderInvalidator->assigned($event);
 
+        if (Feature::isActive('cache_rework')) {
+            $expectedInvalidatedTags = [$name];
+        }
+
         static::assertEquals(
             $expectedInvalidatedTags,
             $this->cacheInvalidator->getInvalidatedTags()
@@ -71,6 +76,10 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         ];
 
         $this->cachedResolvedConfigLoaderInvalidator->invalidate($event);
+
+        if (Feature::isActive('cache_rework')) {
+            $expectedInvalidatedTags = ['theme-config-' . $themeId];
+        }
 
         static::assertEquals(
             $expectedInvalidatedTags,
@@ -90,6 +99,10 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         ];
 
         $this->cachedResolvedConfigLoaderInvalidator->invalidate($event);
+
+        if (Feature::isActive('cache_rework')) {
+            $expectedInvalidatedTags = ['theme-config-' . $themeId];
+        }
 
         static::assertEquals(
             $expectedInvalidatedTags,

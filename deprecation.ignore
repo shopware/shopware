@@ -17,3 +17,5 @@
 %Enqueue\\MessengerAdapter\\EnvelopeItem\\TransportConfiguration%
 # should be fixed with NEXT-23859
 %Returning a file to import for CSS or external references in custom importer callables is deprecated%
+# trigger by ezimuel/ringphp~1.1.2, was fixed in v1.2.2, we are not directly using them but its used by the latest version of opensearch
+%Creation of dynamic property GuzzleHttp\\Ring\\Client\\CurlMultiHandler\:\:\$\_mh is deprecated%

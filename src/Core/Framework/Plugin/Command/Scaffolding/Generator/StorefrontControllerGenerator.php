@@ -28,6 +28,9 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
                 <call method="setContainer">
                     <argument type="service" id="service_container"/>
                 </call>
+                <call method="setTwig">
+                     <argument type="service" id="twig"/>
+                 </call>
             </service>
 
     EOL;

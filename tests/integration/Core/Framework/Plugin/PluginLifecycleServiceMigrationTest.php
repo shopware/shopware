@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
+use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -61,6 +62,8 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     private Context $context;
 
+    private string $fixturePath;
+
     public static function tearDownAfterClass(): void
     {
         $connection = Kernel::getConnection();
@@ -82,8 +85,10 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         $this->context = Context::createDefaultContext();
 
+        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+
         $this->pluginService = $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            $this->fixturePath . 'plugins',
             $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
@@ -91,7 +96,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         );
 
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin',
+            $this->fixturePath . 'plugins/SwagManualMigrationTestPlugin',
             'SwagManualMigrationTestPlugin'
         );
         $this->requireMigrationFiles();
@@ -198,9 +203,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     private function requireMigrationFiles(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration1.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration2.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration3.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration4.php';
+        require_once $this->fixturePath . 'plugins/SwagManualMigrationTestPlugin/src/Migration/Migration1.php';
+        require_once $this->fixturePath . 'plugins/SwagManualMigrationTestPlugin/src/Migration/Migration2.php';
+        require_once $this->fixturePath . 'plugins/SwagManualMigrationTestPlugin/src/Migration/Migration3.php';
+        require_once $this->fixturePath . 'plugins/SwagManualMigrationTestPlugin/src/Migration/Migration4.php';
     }
 }

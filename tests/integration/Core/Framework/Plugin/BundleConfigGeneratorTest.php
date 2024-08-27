@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
@@ -19,14 +19,17 @@ class BundleConfigGeneratorTest extends TestCase
 
     private BundleConfigGeneratorInterface $configGenerator;
 
+    private string $fixturePath;
+
     protected function setUp(): void
     {
+        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
         $this->configGenerator = $this->getContainer()->get(BundleConfigGenerator::class);
     }
 
     public function testGenerateAppConfigWithThemeAndScriptAndStylePaths(): void
     {
-        $appPath = __DIR__ . '/_fixture/apps/theme/';
+        $appPath = $this->fixturePath . 'apps/theme/';
         $this->loadAppsFromDir($appPath);
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
@@ -57,18 +60,18 @@ class BundleConfigGeneratorTest extends TestCase
 
         // Style files can and need only be imported if storefront is installed
         if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+            $appPath = 'src/Core/Framework/Test/Plugin/_fixture/apps/theme/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
                 $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
             ];
-
             static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
         }
     }
 
     public function testGenerateAppConfigWithPluginAndScriptAndStylePaths(): void
     {
-        $appPath = __DIR__ . '/_fixture/apps/plugin/';
+        $appPath = $this->fixturePath . 'apps/plugin/';
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();
@@ -110,7 +113,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigIgnoresInactiveApps(): void
     {
-        $appPath = __DIR__ . '/_fixture/apps/theme/';
+        $appPath = $this->fixturePath . 'apps/theme/';
         $this->loadAppsFromDir($appPath, false);
 
         $configs = $this->configGenerator->getConfig();
@@ -120,7 +123,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testGenerateAppConfigWithWebpackConfig(): void
     {
-        $appPath = __DIR__ . '/_fixture/apps/with-webpack/';
+        $appPath = $this->fixturePath . 'apps/with-webpack/';
         $this->loadAppsFromDir($appPath);
 
         $configs = $this->configGenerator->getConfig();

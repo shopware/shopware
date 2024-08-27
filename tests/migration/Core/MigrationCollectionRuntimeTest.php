@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Migration\MigrationCollection;
@@ -12,11 +13,13 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1;
+use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[CoversClass(MigrationCollection::class)]
 class MigrationCollectionRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +54,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         );
     }
 
-    public function testMigrationExecutionInGenerall(): void
+    public function testMigrationExecutionInGeneral(): void
     {
         $cnt = 0;
         $generator = $this->validMigrationCollection->migrateInSteps();
@@ -285,6 +288,9 @@ class MigrationCollectionRuntimeTest extends TestCase
         iterator_to_array($runtime->migrate($source), true);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getMigrations(): array
     {
         return $this->connection->createQueryBuilder()

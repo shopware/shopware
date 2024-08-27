@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\KernelPluginLoader;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -284,7 +284,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader->build($container);
 
         $definition = $container->getDefinition(SwagTestPlugin::class);
-        static::assertNotNull($definition);
+
         static::assertTrue($definition->isAutowired());
         static::assertTrue($definition->isPublic());
     }

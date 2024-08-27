@@ -1,33 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
-use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[CoversClass(MigrationCollectionLoader::class)]
 class MigrationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MigrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var MigrationCollectionLoader
-     */
-    private $loader;
+    private MigrationCollectionLoader $loader;
 
     protected function setUp(): void
     {
@@ -57,13 +53,12 @@ class MigrationLoaderTest extends TestCase
     {
         $collection = $this->loader->collect('core');
 
-        static::assertInstanceOf(MigrationCollection::class, $collection);
         static::assertSame('core', $collection->getName());
         static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
         static::assertCount(0, $collection->getMigrationSteps());
 
         $collection = $this->loader->collect('core.V6_3');
-        static::assertInstanceOf(MigrationCollection::class, $collection);
+
         static::assertSame('core.V6_3', $collection->getName());
         static::assertContainsOnlyInstancesOf(MigrationStep::class, $collection->getMigrationSteps());
         static::assertGreaterThan(1, \count($collection->getMigrationSteps()));
@@ -78,7 +73,9 @@ class MigrationLoaderTest extends TestCase
 
         $migrationsObjects = [];
         foreach ($migrations as $migration) {
-            $migrationsObjects[] = new $migration['class']();
+            $migrationObject = new $migration['class']();
+            static::assertInstanceOf(MigrationStep::class, $migrationObject);
+            $migrationsObjects[] = $migrationObject;
         }
 
         static::assertCount(2, $migrationsObjects);
@@ -124,6 +121,9 @@ class MigrationLoaderTest extends TestCase
         static::assertCount(0, $nullCollection->getExecutableDestructiveMigrations());
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getMigrations(): array
     {
         return $this->connection->createQueryBuilder()

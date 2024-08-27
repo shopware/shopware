@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Tests\Migration\Core;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -28,6 +29,7 @@ use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKi
 /**
  * @internal
  */
+#[CoversClass(MigrationSource::class)]
 class MigrationSourceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -112,6 +114,9 @@ class MigrationSourceTest extends TestCase
         static::assertSame($expected, $sourceAb->getSourceDirectories());
     }
 
+    /**
+     * @return list<array{class-string|string, bool}>
+     */
     public static function provideCoreRegexDataV6_3(): array
     {
         $cases = [
@@ -139,6 +144,9 @@ class MigrationSourceTest extends TestCase
         return $cases;
     }
 
+    /**
+     * @return list<array{string, bool}>
+     */
     public static function provideUnitTestData(): array
     {
         return [

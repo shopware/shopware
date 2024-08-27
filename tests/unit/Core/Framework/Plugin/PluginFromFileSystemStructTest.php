@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 /**
  * @internal
  */
+#[CoversClass(PluginFromFileSystemStruct::class)]
 class PluginFromFileSystemStructTest extends TestCase
 {
     #[DataProvider('dataProviderTestGetName')]
@@ -17,6 +19,9 @@ class PluginFromFileSystemStructTest extends TestCase
         static::assertSame($expectedResult, $pluginFromFileSystem->getName());
     }
 
+    /**
+     * @return list<array{PluginFromFileSystemStruct, string}>
+     */
     public static function dataProviderTestGetName(): array
     {
         return [

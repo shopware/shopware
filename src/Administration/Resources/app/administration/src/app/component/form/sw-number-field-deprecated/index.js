@@ -167,10 +167,13 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
                     val = this.min;
                 }
 
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else if (this.allowEmpty === true) {
+                this.currentValue = val;
                 this.$emit('input-change', val);
             } else {
+                this.currentValue = this.min ?? 0;
                 this.$emit('input-change', this.min ?? 0);
             }
         },

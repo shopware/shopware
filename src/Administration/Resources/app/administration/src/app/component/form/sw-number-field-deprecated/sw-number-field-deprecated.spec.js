@@ -318,4 +318,28 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         expect(input.exists()).toBe(true);
         expect(input.element.value).toBe('0');
     });
+
+    it('should increase the value after typing some value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        input.element.value = '5';
+        await input.trigger('input');
+        await input.trigger('keydown.up');
+
+        expect(input.element.value).toBe('5.01');
+    });
+
+    it('should decrease the value after typing some value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        input.element.value = '5';
+        await input.trigger('input');
+        await input.trigger('keydown.down');
+
+        expect(input.element.value).toBe('4.99');
+    });
 });

@@ -51,6 +51,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask">

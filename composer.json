@@ -90,7 +90,6 @@
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "^2.0",
-        "ezimuel/ringphp": "^1.2.2",
         "padaliyajay/php-autoprefixer": "^1.4",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",

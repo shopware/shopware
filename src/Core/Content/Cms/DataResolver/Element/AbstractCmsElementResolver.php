@@ -67,7 +67,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
                 if ($value === null && $parentValue instanceof Entity) {
                     $value = $parentValue->getTranslation($entityPathPart);
                 }
-            } catch (PropertyNotFoundException $ex) {
+            } catch (PropertyNotFoundException|\InvalidArgumentException $ex) {
                 if (!$smartDetect) {
                     throw $ex;
                 }
@@ -174,7 +174,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             function ($matches) use ($resolverContext) {
                 try {
                     return $this->resolveEntityValueToString($resolverContext->getEntity(), $matches['property'], $resolverContext);
-                } catch (PropertyNotFoundException) {
+                } catch (PropertyNotFoundException|\InvalidArgumentException) {
                     return $matches[0];
                 }
             },

@@ -75,6 +75,9 @@ export default defineConfig({
             name: 'Platform',
             use: {
                 ...devices['Desktop Chrome'],
+                launchOptions: {
+                    args: ['--remote-debugging-port=9222'],
+                },
             },
             dependencies: ['Setup'],
             grepInvert: /@Install|@Update|@Setup.*/,

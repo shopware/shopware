@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\KernelPluginLoader;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;

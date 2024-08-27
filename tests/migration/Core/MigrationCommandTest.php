@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -21,6 +23,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[CoversClass(MigrationCommand::class)]
 class MigrationCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
+use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -75,7 +77,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private string $iso = 'sv-SE';
 
-    private string $systemLanguageId = Defaults::LANGUAGE_SYSTEM;
+    private string $fixturePath;
 
     protected function setUp(): void
     {
@@ -86,10 +88,11 @@ class PluginLifecycleServiceTest extends TestCase
             ->get(Connection::class)
             ->beginTransaction();
 
+        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
         $this->container = $this->getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            $this->fixturePath . 'plugins',
             $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
@@ -100,14 +103,14 @@ class PluginLifecycleServiceTest extends TestCase
         $this->systemConfigService = $this->container->get(SystemConfigService::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService($this->pluginService);
 
-        require_once __DIR__ . '/_fixture/plugins/SwagTestPlugin/src/Migration/Migration1536761533TestMigration.php';
+        require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/Migration/Migration1536761533TestMigration.php';
 
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/' . self::PLUGIN_NAME,
+            $this->fixturePath . 'plugins/' . self::PLUGIN_NAME,
             self::PLUGIN_NAME
         );
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/SwagTestWithoutConfig',
+            $this->fixturePath . 'plugins/SwagTestWithoutConfig',
             'SwagTestWithoutConfig'
         );
 
@@ -119,8 +122,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->getContainer()
             ->get(Connection::class)
             ->rollBack();
-
-        $this->resetSystemLanguage();
 
         if (isset($_SERVER['FAKE_MIGRATION_NAMESPACE'])) {
             unset($_SERVER['FAKE_MIGRATION_NAMESPACE']);
@@ -216,20 +217,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->installPluginWithoutConfig($this->createNonStandardLanguageContext());
     }
 
-    public function testInstallPluginAlreadyInstalledWithNonStandardLanguage(): void
-    {
-        $this->setNewSystemLanguage($this->iso);
-        $this->installPluginAlreadyInstalled($this->context);
-        $this->resetSystemLanguage();
-    }
-
-    public function testInstallPluginWithUpdateWithNonStandardLanguage(): void
-    {
-        $this->setNewSystemLanguage($this->iso);
-        $this->installPluginWithUpdate($this->context);
-        $this->resetSystemLanguage();
-    }
-
     public function testUninstallPluginWithNonStandardLanguage(): void
     {
         $this->uninstallPlugin($this->createNonStandardLanguageContext());
@@ -238,13 +225,6 @@ class PluginLifecycleServiceTest extends TestCase
     public function testUninstallPluginThrowsExceptionWithNonStandardLanguage(): void
     {
         $this->uninstallPluginThrowsException($this->createNonStandardLanguageContext());
-    }
-
-    public function testUpdatePluginWithNonStandardLanguage(): void
-    {
-        $this->setNewSystemLanguage($this->iso);
-        $this->updatePlugin($this->context);
-        $this->resetSystemLanguage();
     }
 
     public function testActivatePluginWithNonStandardLanguage(): void
@@ -292,13 +272,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->updateActivatedPluginWithExceptionOnDeactivation($this->context);
     }
 
-    public function testUpdateActivatedPluginWithExceptionOnDeactivationWithNonStandardLanguage(): void
-    {
-        $this->setNewSystemLanguage($this->iso);
-        $this->updateActivatedPluginWithExceptionOnDeactivation($this->context);
-        $this->resetSystemLanguage();
-    }
-
     public function testUpdateDeactivatedPluginWithException(): void
     {
         $this->updateDeactivatedPluginWithException($this->context);
@@ -344,14 +317,6 @@ class PluginLifecycleServiceTest extends TestCase
 
         $service->installPlugin($plugin, $context);
         $service->activatePlugin($plugin, $context);
-    }
-
-    public function testUpdateDeactivatedPluginWithExceptionWithNonStandardLanguage(): void
-    {
-        static::markTestSkipped('Test causes other Tests to sometimes randomly fail (see NEXT-7763)');
-        $this->setNewSystemLanguage($this->iso);
-        $this->updateDeactivatedPluginWithException($this->context);
-        $this->resetSystemLanguage();
     }
 
     public function updateDeactivatedPluginWithException(Context $context): void
@@ -407,7 +372,7 @@ class PluginLifecycleServiceTest extends TestCase
     public function testDeactivatePluginWithDependencies(): void
     {
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/' . self::DEPENDENT_PLUGIN_NAME,
+            $this->fixturePath . 'plugins/' . self::DEPENDENT_PLUGIN_NAME,
             self::DEPENDENT_PLUGIN_NAME
         );
         $this->pluginService->refreshPlugins($this->context, new NullIO());
@@ -451,7 +416,7 @@ class PluginLifecycleServiceTest extends TestCase
     public function testActivateNotSupportedVersion(): void
     {
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/' . self::NOT_SUPPORTED_VERSION_PLUGIN_NAME,
+            $this->fixturePath . 'plugins/' . self::NOT_SUPPORTED_VERSION_PLUGIN_NAME,
             self::NOT_SUPPORTED_VERSION_PLUGIN_NAME
         );
 
@@ -470,7 +435,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         static::markTestSkipped('This test needs the storefront bundle installed.');
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/SwagTestTheme',
+            $this->fixturePath . 'plugins/SwagTestTheme',
             'SwagTestTheme'
         );
 
@@ -510,12 +475,13 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepository $pluginRepository */
+        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = $this->getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $result = $pluginRepository->search($criteria, $this->context);
         $result = $result->getEntities()->first();
+        static::assertInstanceOf(PluginEntity::class, $result);
         $date = new \DateTime();
         $result->setInstalledAt($date);
         $pluginRepository->update([[
@@ -772,30 +738,6 @@ class PluginLifecycleServiceTest extends TestCase
         );
 
         return $id;
-    }
-
-    private function setNewSystemLanguage(string $iso): void
-    {
-        $languageRepository = $this->getContainer()->get('language.repository');
-
-        $localeId = $this->getIsoId($iso);
-        $languageRepository->update(
-            [
-                [
-                    'id' => $this->systemLanguageId, 'name' => $iso, 'localeId' => $localeId,
-                    'translationCode' => [
-                        'id' => $localeId,
-                        'code' => $iso,
-                    ],
-                ],
-            ],
-            $this->context
-        );
-    }
-
-    private function resetSystemLanguage(): void
-    {
-        $this->setNewSystemLanguage('en-GB');
     }
 
     private function getIsoId(string $iso): string

@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Composer;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
 use Composer\IO\NullIO;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 /**
  * @internal
  */
+#[CoversClass(PackageProvider::class)]
 class PackageProviderTest extends TestCase
 {
     public function testGetPluginInformation(): void

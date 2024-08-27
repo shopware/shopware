@@ -1,25 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use SwagTestPlugin\SwagTestPlugin;
 
 /**
  * @internal
  */
+#[CoversClass(SwagTestPlugin::class)]
 class PluginTest extends TestCase
 {
-    /**
-     * @var string
-     */
-    private static $swagTestPluginPath;
+    private static string $swagTestPluginPath;
 
     private static string $symlinkedSwagTestPluginPath;
 
     public static function setUpBeforeClass(): void
     {
-        $pluginsDir = __DIR__ . '/_fixture/plugins';
+        $pluginsDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/';
         self::$swagTestPluginPath = $pluginsDir . '/SwagTestPlugin';
 
         self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();

@@ -82,7 +82,6 @@ parameters:
         - # ignore errors caused by static::markTestSkipped
             message: '#Unreachable statement - code above always terminates.#'
             paths:
-                - src/**/*Test.php
                 - tests/**/*Test.php
 
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented

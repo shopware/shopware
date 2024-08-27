@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
 use PHPUnit\Framework\Attributes\Group;
@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -34,9 +36,9 @@ class PluginServiceTest extends TestCase
     use PluginTestsHelper;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PluginCollection>
      */
-    private $pluginRepo;
+    private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
 
@@ -44,13 +46,16 @@ class PluginServiceTest extends TestCase
 
     private string $iso = 'nl-NL';
 
+    private string $fixturePath;
+
     protected function setUp(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagTestPlugin/src/SwagTestPlugin.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
+        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
+        require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = $this->getContainer()->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            $this->fixturePath . 'plugins/',
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->getContainer()->get('language.repository'),
@@ -75,8 +80,8 @@ class PluginServiceTest extends TestCase
     public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
     {
         $this->pluginService = $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
-            __DIR__ . '/_fixture/root-plugin',
+            $this->fixturePath . 'plugins',
+            $this->fixturePath . 'root-plugin',
             $this->pluginRepo,
             $this->getContainer()->get('language.repository'),
             $this->getContainer()->get(PluginFinder::class)
@@ -103,7 +108,7 @@ class PluginServiceTest extends TestCase
         $errorString = 'Plugin composer.json has invalid "type" (must be "shopware-platform-plugin"), or invalid "extra/shopware-plugin-class" value, or missing extra.label property';
 
         foreach ($composerJsonException->getIterator() as $exception) {
-            if (empty($exception->getParameters()['composerJsonPath']) || $exception->getParameters()['composerJsonPath'] !== __DIR__ . '/_fixture/plugins/SwagTestNoExtraLabelProperty/composer.json') {
+            if (empty($exception->getParameters()['composerJsonPath']) || !str_contains($exception->getParameters()['composerJsonPath'], '/plugins/SwagTestNoExtraLabelProperty/composer.json')) {
                 continue;
             }
 
@@ -219,9 +224,9 @@ class PluginServiceTest extends TestCase
         $pluginCollection = $this->pluginRepo->search(new Criteria(), $this->context)->getEntities();
 
         static::assertNull($pluginCollection->filterByProperty('baseClass', $nonExistentPluginBaseClass)->first());
-        /** @var PluginEntity $plugin */
-        $plugin = $pluginCollection->filterByProperty('baseClass', SwagTestPlugin::class)->first();
 
+        $plugin = $pluginCollection->filterByProperty('baseClass', SwagTestPlugin::class)->first();
+        static::assertInstanceOf(PluginEntity::class, $plugin);
         $this->assertDefaultPlugin($plugin);
         static::assertNull($plugin->getUpgradeVersion());
     }

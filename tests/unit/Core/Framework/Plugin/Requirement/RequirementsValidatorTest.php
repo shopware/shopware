@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Requirement;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,60 +23,59 @@ class RequirementsValidatorTest extends TestCase
 {
     private string $projectDir;
 
+    private string $fixturePath;
+
     protected function setUp(): void
     {
         $this->projectDir = (new TestBootstrapper())->getProjectDir();
+        $this->fixturePath = __DIR__ . '/../../../../../../src/Core/Framework/Test/Plugin/Requirement/_fixture/';
     }
 
     public function testValidateRequirementsValid(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementValidTest');
 
         $plugin = $this->createPlugin($path);
 
+        $exception = null;
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
-        } catch (\Exception $e) {
-            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        } catch (RequirementStackException $exception) {
         }
-        static::assertTrue(true);
+        static::assertNull($exception);
     }
 
     public function testValidateRequirementsSubpackageValid(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementValidSubpackageTest');
 
         $plugin = $this->createPlugin($path);
 
+        $exception = null;
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
-        } catch (\Exception $e) {
-            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        } catch (RequirementStackException $exception) {
         }
-        static::assertTrue(true);
+        static::assertNull($exception);
     }
 
     public function testValidateRequirementsSubpackageWithWildcardValid(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageWildcardTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementValidSubpackageWildcardTest');
 
         $plugin = $this->createPlugin($path);
 
+        $exception = null;
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
-        } catch (\Exception $e) {
-            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        } catch (RequirementStackException $exception) {
         }
-        static::assertTrue(true);
+        static::assertNull($exception);
     }
 
     public function testValidateRequirementsDoNotMatch(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementInvalidTest');
 
         $plugin = $this->createPlugin($path);
 
@@ -100,8 +98,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsMissing(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementInvalidTest');
 
         $plugin = $this->createPlugin($path);
 
@@ -126,8 +123,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testDoesNotValidateIfPluginIsManagedByComposer(): void
     {
-        $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementInvalidTest');
 
         $plugin = $this->createPlugin($path);
         $plugin->setManagedByComposer(true);
@@ -144,11 +140,8 @@ class RequirementsValidatorTest extends TestCase
 
     public function testResolveActiveDependants(): void
     {
-        $basePluginPath = __DIR__ . '/_fixture/SwagRequirementValidTest';
-        $dependentPluginPath = __DIR__ . '/_fixture/SwagRequirementValidTestExtension';
-
-        $basePlugin = $this->createPlugin(str_replace($this->projectDir, '', $basePluginPath));
-        $dependentPlugin = $this->createPlugin(str_replace($this->projectDir, '', $dependentPluginPath));
+        $basePlugin = $this->createPlugin(str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementValidTest'));
+        $dependentPlugin = $this->createPlugin(str_replace($this->projectDir, '', $this->fixturePath . 'SwagRequirementValidTestExtension'));
 
         $basePlugin->setActive(true);
         $dependentPlugin->setActive(true);
@@ -170,25 +163,24 @@ class RequirementsValidatorTest extends TestCase
         static::assertEmpty($dependants);
     }
 
-    #[DoesNotPerformAssertions]
     public function testValidateConflictsValid(): void
     {
-        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsValid';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagTestValidateConflictsValid');
 
         $plugin = $this->createPlugin($path);
 
+        $exception = null;
         try {
             $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
-        } catch (\Exception $e) {
-            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        } catch (\Exception $exception) {
         }
+
+        static::assertNull($exception);
     }
 
     public function testValidateConflictsWildcardIncompatibility(): void
     {
-        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsWildcardIncompatibility';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagTestValidateConflictsWildcardIncompatibility');
 
         $plugin = $this->createPlugin($path);
 
@@ -198,8 +190,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateConflictsSpecificMessage(): void
     {
-        $path = __DIR__ . '/_fixture/SwagTestValidateConflictsSpecificMessage';
-        $path = str_replace($this->projectDir, '', $path);
+        $path = str_replace($this->projectDir, '', $this->fixturePath . 'SwagTestValidateConflictsSpecificMessage');
 
         $plugin = $this->createPlugin($path);
 

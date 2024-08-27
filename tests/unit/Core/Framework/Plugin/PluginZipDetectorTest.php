@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -17,14 +17,17 @@ class PluginZipDetectorTest extends TestCase
 {
     private PluginZipDetector $zipDetector;
 
+    private string $fixturePath;
+
     protected function setUp(): void
     {
         $this->zipDetector = new PluginZipDetector();
+        $this->fixturePath = __DIR__ . '/_fixtures/archives/';
     }
 
     public function testIsPlugin(): void
     {
-        $archive = ZipUtils::openZip(__DIR__ . '/_fixture/archives/SwagFashionTheme.zip');
+        $archive = ZipUtils::openZip($this->fixturePath . 'SwagFashionTheme.zip');
 
         $isPlugin = $this->zipDetector->isPlugin($archive);
 
@@ -33,7 +36,7 @@ class PluginZipDetectorTest extends TestCase
 
     public function testIsNoPlugin(): void
     {
-        $archive = ZipUtils::openZip(__DIR__ . '/_fixture/archives/NoPlugin.zip');
+        $archive = ZipUtils::openZip($this->fixturePath . 'NoPlugin.zip');
 
         $isPlugin = $this->zipDetector->isPlugin($archive);
 
@@ -43,21 +46,21 @@ class PluginZipDetectorTest extends TestCase
     public function testThrowsExceptionWithNoZip(): void
     {
         $this->expectException(PluginException::class);
-        ZipUtils::openZip(__DIR__ . '/_fixture/archives/NoZip.zip');
+        ZipUtils::openZip($this->fixturePath . 'NoZip.zip');
     }
 
     public function testDetectThrowsExceptionWhenNoPluginInZip(): void
     {
         $this->expectException(PluginException::class);
-        $this->zipDetector->detect(__DIR__ . '/_fixture/archives/NoPlugin.zip');
+        $this->zipDetector->detect($this->fixturePath . 'NoPlugin.zip');
     }
 
     #[DataProvider('archiveProvider')]
-    public function testDetect(string $archivePath, string $expectedType): void
+    public function testDetect(string $archiveName, string $expectedType): void
     {
         static::assertEquals(
             $expectedType,
-            $this->zipDetector->detect($archivePath),
+            $this->zipDetector->detect($this->fixturePath . $archiveName),
         );
     }
 
@@ -67,8 +70,8 @@ class PluginZipDetectorTest extends TestCase
     public static function archiveProvider(): array
     {
         return [
-            [__DIR__ . '/_fixture/archives/SwagFashionTheme.zip', 'plugin'],
-            [__DIR__ . '/_fixture/archives/App.zip', 'app'],
+            ['SwagFashionTheme.zip', 'plugin'],
+            ['App.zip', 'app'],
         ];
     }
 }

@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Exception;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchExceptio
 /**
  * @internal
  */
+#[CoversClass(RequirementStackException::class)]
 class RequirementStackExceptionTest extends TestCase
 {
     public function testDoesNotConvertInnerExceptions(): void

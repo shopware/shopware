@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[CoversClass(PluginAclPrivilegesSubscriber::class)]
 class PluginAclTest extends TestCase
 {
     private const PLUGINS_NAMESPACE = 'SwagTestPluginAcl';
@@ -36,16 +38,13 @@ class PluginAclTest extends TestCase
      */
     private array $plugins = [];
 
-    /**
-     * @var string
-     */
-    private $testPluginBaseDir;
+    private string $testPluginBaseDir;
 
     private PluginAclPrivilegesSubscriber $pluginAclSubscriber;
 
     protected function setUp(): void
     {
-        $this->testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . self::PLUGINS_NAMESPACE;
+        $this->testPluginBaseDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/' . self::PLUGINS_NAMESPACE;
 
         foreach (self::PLUGINS_TO_LOAD as $pluginToLoad) {
             require_once $this->testPluginBaseDir . '/src/' . $pluginToLoad . '.php';
@@ -296,6 +295,9 @@ class PluginAclTest extends TestCase
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedRole->getPrivileges());
     }
 
+    /**
+     * @param array<string> $privileges
+     */
     private function getAclRoleMock(string $name, array $privileges): AclRoleEntity
     {
         return (new AclRoleEntity())->assign(
@@ -310,12 +312,20 @@ class PluginAclTest extends TestCase
     private function activatePlugin(string $pluginName): void
     {
         $class = '\\' . self::PLUGINS_NAMESPACE . '\\' . $pluginName;
-        $this->plugins[$pluginName] = new $class(true, $this->testPluginBaseDir);
+        $plugin = new $class(true, $this->testPluginBaseDir);
+
+        static::assertInstanceOf(Plugin::class, $plugin);
+
+        $this->plugins[$pluginName] = $plugin;
     }
 
     private function deactivatePlugin(string $pluginName): void
     {
         $class = '\\' . self::PLUGINS_NAMESPACE . '\\' . $pluginName;
-        $this->plugins[$pluginName] = new $class(false, $this->testPluginBaseDir);
+        $plugin = new $class(false, $this->testPluginBaseDir);
+
+        static::assertInstanceOf(Plugin::class, $plugin);
+
+        $this->plugins[$pluginName] = $plugin;
     }
 }

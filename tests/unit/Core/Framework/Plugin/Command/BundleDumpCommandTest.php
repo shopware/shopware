@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin\Command;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\Command\BundleDumpCommand;
@@ -13,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[CoversClass(BundleConfigGenerator::class)]
 class BundleDumpCommandTest extends TestCase
 {
     public function testDumperWritesFile(): void

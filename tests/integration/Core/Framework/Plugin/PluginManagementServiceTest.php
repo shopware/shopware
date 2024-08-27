@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -35,7 +36,7 @@ class PluginManagementServiceTest extends TestCase
 
     private const TEST_PLUGIN_ZIP_NAME = 'SwagFashionTheme.zip';
     private const TEST_APP_ZIP_NAME = 'App.zip';
-    private const FIXTURE_PATH = __DIR__ . '/_fixture/';
+    private const FIXTURE_PATH = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
     private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_PLUGIN_ZIP_NAME;
     private const APP_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_APP_ZIP_NAME;
     private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';

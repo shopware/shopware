@@ -1,6 +1,6 @@
 ---
 title: Only select used fields of `translation` tables
-issue: NEXT-00000
+issue: NEXT-37731
 author: Sven Münnich
 author_email: sven.muennich@pickware.de
 author_github: svenmuennich

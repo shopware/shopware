@@ -23,6 +23,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinitio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -77,7 +78,7 @@ class ProductPageLoaderTest extends TestCase
         static::assertInstanceOf(ProductReviewEntity::class, $firstReview);
         static::assertSame('this product changed my life', $firstReview->getComment());
         $crossSellingDeprecated = $page->getCrossSellings();
-        static::assertNotNull($crossSellingDeprecated);
+        static::assertInstanceOf(CrossSellingElementCollection::class, $crossSellingDeprecated);
         static::assertCount(0, $crossSellingDeprecated);
 
         $page->assign([
@@ -162,12 +163,16 @@ class ProductPageLoaderTest extends TestCase
         $reviewBlock = $this->getReviewBlock($productEntity);
         $crossSellingBlock = $this->getCrossSellingBlock();
 
-        $cmsSectionEntity = new CmsSectionEntity();
-        $cmsSectionEntity->setId(Uuid::randomHex());
-        $cmsSectionEntity->setBlocks(new CmsBlockCollection([$reviewBlock, $crossSellingBlock]));
+        $firstCmsSectionEntity = new CmsSectionEntity();
+        $firstCmsSectionEntity->setId(Uuid::randomHex());
+        $firstCmsSectionEntity->setBlocks(new CmsBlockCollection([$reviewBlock]));
+
+        $secondCmsSectionEntity = new CmsSectionEntity();
+        $secondCmsSectionEntity->setId(Uuid::randomHex());
+        $secondCmsSectionEntity->setBlocks(new CmsBlockCollection([$crossSellingBlock]));
 
         $cmsPageEntity = new CmsPageEntity();
-        $cmsPageEntity->setSections(new CmsSectionCollection([$cmsSectionEntity]));
+        $cmsPageEntity->setSections(new CmsSectionCollection([$firstCmsSectionEntity, $secondCmsSectionEntity]));
 
         return $cmsPageEntity;
     }

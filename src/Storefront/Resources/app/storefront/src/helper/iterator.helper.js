@@ -28,7 +28,7 @@ export default class Iterator {
         }
 
         if (source instanceof FormData) {
-            for(var entry of source.entries()) {
+            for (var entry of source.entries()) {
                 callback(entry[1], entry[0]);
             }
             return;
@@ -44,7 +44,7 @@ export default class Iterator {
 
         if (source instanceof Object) {
             return Object.keys(source).forEach(key => {
-                callback(source[key], key)
+                callback(source[key], key);
             });
         }
 

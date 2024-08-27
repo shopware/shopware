@@ -129,7 +129,7 @@ export default class HttpClient {
                 console.warn(`the request to ${request.responseURL} was aborted`);
             });
             request.addEventListener('error', () => {
-                console.warn(`the request to ${request.responseURL} failed with status ${request.status}`)
+                console.warn(`the request to ${request.responseURL} failed with status ${request.status}`);
             });
             request.addEventListener('timeout', () => {
                 console.warn(`the request to ${request.responseURL} timed out`);

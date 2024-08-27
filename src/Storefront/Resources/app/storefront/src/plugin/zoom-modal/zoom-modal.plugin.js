@@ -276,7 +276,7 @@ export default class ZoomModalPlugin extends Plugin {
 
         const hideModalListener = () => {
             window.focusHandler.resumeFocusState('zoom-modal');
-        }
+        };
 
         modal.removeEventListener('shown.bs.modal', this._showModalListener);
         modal.addEventListener('shown.bs.modal', this._showModalListener);

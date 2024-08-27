@@ -188,9 +188,9 @@ export default class SearchWidgetPlugin extends Plugin {
     _registerInputFocus() {
         this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector, false);
 
-        if(!this._toggleButton) {
+        if (!this._toggleButton) {
             console.warn(`Called selector '${this.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`);
-            return
+            return;
         }
 
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';

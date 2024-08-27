@@ -8,7 +8,7 @@ export default class FormAjaxPaginationPlugin extends Plugin {
     static options = {
         paginationItemSelector: '.pagination .page-link',
         pageInputSelector: 'input[name="p"]',
-    }
+    };
 
     init() {
         /**

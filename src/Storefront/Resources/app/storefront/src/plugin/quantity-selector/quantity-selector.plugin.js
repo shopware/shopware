@@ -29,7 +29,7 @@ export default class QuantitySelectorPlugin extends Plugin {
                 this._triggerChange();
                 return false;
             }
-        })
+        });
     }
 
     /**

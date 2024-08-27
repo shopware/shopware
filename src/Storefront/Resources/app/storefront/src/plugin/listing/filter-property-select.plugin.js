@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin'
+import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin';
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
@@ -68,13 +68,13 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
         const actualValues = this.getValues();
 
         if (activeItems.length < 1 && actualValues.properties.length === 0) {
-            this.disableFilter()
+            this.disableFilter();
             return;
         } else {
             this.enableFilter();
         }
 
-        if(actualValues.properties.length > 0) {
+        if (actualValues.properties.length > 0) {
             return;
         }
 

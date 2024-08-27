@@ -1,9 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 const stylelint = require('stylelint');
 
 const ruleName = 'shopware/object-fit-polyfill';
 const messages = stylelint.utils.ruleMessages(ruleName, {
-    expected: (value) => value
+    expected: (value) => value,
 });
 
 /**
@@ -36,7 +35,7 @@ module.exports = stylelint.createPlugin(ruleName, (primaryOption, secondaryOptio
                         ruleName: ruleName,
                         message: messages.expected(`Missing object-fit polyfill for "${declaration.toString()}"`),
                         node: declaration,
-                        word: declaration.value
+                        word: declaration.value,
                     });
                     return;
                 }
@@ -58,7 +57,7 @@ module.exports = stylelint.createPlugin(ruleName, (primaryOption, secondaryOptio
                         ruleName: ruleName,
                         message: messages.expected(`Expected "${polyfillValue}" to match "${declaration.toString()}"`),
                         node: polyfillDeclaration,
-                        word: declaration.value
+                        word: declaration.value,
                     });
                 }
             }

@@ -10,7 +10,7 @@ export default async function iosQuickLook(scene: Object3D) {
 
     const anchor = document.createElement('a');
     anchor.innerHTML = '<picture></picture>'; // This is actually needed so the viewer opens instantly
-    anchor.setAttribute('rel', 'ar')
+    anchor.setAttribute('rel', 'ar');
     anchor.setAttribute('download', 'model.usdz');
     anchor.setAttribute('href', modelUrl);
     anchor.style.display = 'none';

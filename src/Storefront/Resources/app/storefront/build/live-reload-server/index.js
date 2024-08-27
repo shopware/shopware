@@ -1,7 +1,8 @@
+/* eslint no-console: 0 */
+
 /**
  * This module creates a live reload server for the Shopware storefront.
  */
-
 module.exports = function createLiveReloadServer() {
     return new Promise((resolve, reject) => {
         const webpack = require('webpack');
@@ -30,7 +31,6 @@ module.exports = function createLiveReloadServer() {
                 reject(error);
             }
 
-            // eslint-disable-next-line no-console
             console.log('Starting the hot reload server: \n');
         })();
 

@@ -53,7 +53,7 @@ export default class VariantSwitchPlugin extends Plugin {
      * @private
      */
     _preserveCurrentValues() {
-        if(this._radioFields) {
+        if (this._radioFields) {
             Iterator.iterate(this._radioFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.dataset) {
@@ -124,7 +124,7 @@ export default class VariantSwitchPlugin extends Plugin {
      */
     _getFormValue() {
         const serialized = {};
-        if(this._radioFields) {
+        if (this._radioFields) {
             Iterator.iterate(this._radioFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     if (field.checked) {
@@ -134,7 +134,7 @@ export default class VariantSwitchPlugin extends Plugin {
             });
         }
 
-        if(this._selectFields) {
+        if (this._selectFields) {
             Iterator.iterate(this._selectFields, field => {
                 if (VariantSwitchPlugin._isFieldSerializable(field)) {
                     const selectedOption = [...field.options].find(option => option.selected);

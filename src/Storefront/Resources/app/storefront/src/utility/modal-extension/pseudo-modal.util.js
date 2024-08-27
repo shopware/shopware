@@ -205,7 +205,7 @@ export default class PseudoModalUtil {
             const titleElement = DomAccess.querySelector(contentElement, this._templateTitleSelector);
             if (titleElement) {
                 this._setModalTitle(titleElement.innerHTML);
-                titleElement.parentNode.removeChild(titleElement)
+                titleElement.parentNode.removeChild(titleElement);
             }
         } catch (err) {
             // do nothing

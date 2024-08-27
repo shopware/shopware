@@ -1,5 +1,7 @@
+/* eslint no-console: 0 */
+
 /**
- * This module creates an proxy server. It is used in Shopware storefront for the
+ * This module creates a proxy server. It is used in Shopware storefront for the
  * hot module replacement to allow the server to automatically detect if the hot mode
  * is activated or not.
  */
@@ -94,7 +96,7 @@ function openBrowserWithUrl(url) {
         child.on('error', error => {
             console.log('Unable to open browser! Details:');
             console.log(error);
-        })
+        });
     } catch (ex) {
         console.log(ex);
     }
@@ -113,8 +115,8 @@ function replaceOriginalUrl(response, clientResponse, originalUrl, proxyUrl) {
         const responseBody = responseData
             .replace(new RegExp(`${originalUrl}/`, 'g'), `${proxyUrl}/`)
             // Replace Symfony Profiler URL to relative url @see: https://regex101.com/r/HMQd2n/2
-            .replace(/http[s]?\\u003A\\\/\\\/[\w\.]*(\:\d*|\\u003A\d*)?\\\/_wdt/gm, `/_wdt`)
-            .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\(\'XDEBUG_IGNORE\'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'')
+            .replace(/http[s]?\\u003A\\\/\\\/[\w.]*(:\d*|\\u003A\d*)?\\\/_wdt/gm, '/_wdt')
+            .replace(/new\s*URL\(url\);\s*url\.searchParams\.set\('XDEBUG_IGNORE'/gm, 'new URL(window.location.protocol+\'//\'+window.location.host+url);                url.searchParams.set(\'XDEBUG_IGNORE\'');
 
         // end the client response with sufficient headers
         clientResponse.writeHead(response.statusCode, response.headers);

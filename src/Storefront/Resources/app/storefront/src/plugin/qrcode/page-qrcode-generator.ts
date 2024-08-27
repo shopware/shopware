@@ -23,7 +23,7 @@ export default class PageQrcodeGeneratorPlugin extends Plugin {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (this.options.params) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            for(const key in this.options.params) {
+            for (const key in this.options.params) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
                 qrLink.searchParams.set(key, this.options.params[key]);
             }
@@ -37,6 +37,6 @@ export default class PageQrcodeGeneratorPlugin extends Plugin {
                 canvas.dataset.arModelId = this.options.params.autostartAr;
             }
             this.el.appendChild(canvas);
-        })
+        });
     }
 }

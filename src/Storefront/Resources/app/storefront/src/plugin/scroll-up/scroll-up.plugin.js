@@ -57,7 +57,7 @@ export default class ScrollUpPlugin extends Plugin {
         observer.observe(document.body, {
             attributes: true,
             attributeFilter: ['style'],
-        })
+        });
     }
 
     /**

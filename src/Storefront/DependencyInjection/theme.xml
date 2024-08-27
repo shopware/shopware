@@ -33,7 +33,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
-            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument>%storefront.theme.file_delete_delay%</argument>

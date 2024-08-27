@@ -50,7 +50,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
-        private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly MessageBusInterface $messageBus,
         private readonly int $themeFileDeleteDelay,
@@ -289,8 +288,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if ($asset[0] !== '/' && file_exists($this->projectDir . '/' . $asset)) {
-                $asset = $this->projectDir . '/' . $asset;
+
+            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
+            if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
+                $asset = $fs->path('Resources', $asset);
             }
 
             $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];

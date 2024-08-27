@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -486,6 +487,16 @@ PHP_EOL
 
     public function testAssetPathWillBeAbsoluteConverted(): void
     {
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        $fs = new StaticFilesystem(['Resources/assets' => 'directory']);
+
+        $this->themeFilesystemResolver->expects(static::once())
+            ->method('getFilesystemForStorefrontConfig')
+            ->with($config)
+            ->willReturn($fs);
+
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => new FileCollection(),
@@ -495,16 +506,13 @@ PHP_EOL
         $this->filesystem->write('temp/test.png', '');
         $png = $this->filesystem->readStream('temp/test.png');
 
-        $this->copyBatchInputFactory->method('fromDirectory')->with('assets', 'theme/test')->willReturn(
+        $this->copyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
             [
                 new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
             ]
         );
 
         $compiler = $this->getThemeCompiler();
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
 
         $pathBuilder = new MD5ThemePathBuilder();
         static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
@@ -650,7 +658,7 @@ PHP_EOL
             ->with($expectedMessage, $expectedStamps)
             ->willReturn($expectedEnvelop);
 
-        $compiler = $this->getThemeCompiler(__DIR__, 900);
+        $compiler = $this->getThemeCompiler(900);
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);
@@ -688,7 +696,7 @@ PHP_EOL
         ]);
 
         $projectDir = __DIR__ . '/fixtures';
-        $compiler = $this->getThemeCompiler($projectDir);
+        $compiler = $this->getThemeCompiler();
 
         $filesystems = [
             'AsyncPlugin' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/AsyncPlugin'),
@@ -783,7 +791,7 @@ PHP_EOL
         ];
     }
 
-    protected function getThemeCompiler(string $projectDir = __DIR__, int $themeFileDeleteDelay = 0): ThemeCompiler
+    protected function getThemeCompiler(int $themeFileDeleteDelay = 0): ThemeCompiler
     {
         return new ThemeCompiler(
             $this->filesystem,
@@ -797,7 +805,6 @@ PHP_EOL
             $this->cacheInvalidator,
             $this->logger,
             $this->pathBuilder,
-            $projectDir,
             $this->scssPhpCompiler,
             $this->messageBus,
             $themeFileDeleteDelay,

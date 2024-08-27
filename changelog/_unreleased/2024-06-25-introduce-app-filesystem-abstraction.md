@@ -13,9 +13,20 @@ author_github: Aydin Hassan
 * Added (internal) filesystem abstraction for scoped access `\Shopware\Core\Framework\Util\Filesystem`
 ___
 # Storefront
-* Deprecated `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` they will be removed in v6.8.0
+* Deprecated `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` they will be removed in v6.7.0
+* Deprecated `getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` they will be removed in  v6.7.0. Paths are now stored relative to the app/plugin/bundle.
 * Added (internal) `\Shopware\Storefront\Theme\ThemeFilesystemResolver` for accessing a scoped filesystem for an instance of `\Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration`
 ___
 # Next Major Version Changes
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` will be removed without replacement. These classes are already not used as of v6.7.0 and therefore this extension point is removed with no planned replacement.
+
+`getBasePath` & `setBasePath` methods and `basePath` property on `StorefrontPluginConfiguration` are removed. If you need to get the absolute path you should ask for a filesystem instance via `\Shopware\Storefront\Theme\ThemeFilesystemResolver::getFilesystemForStorefrontConfig()` passing in the config object. 
+This filesystem instance can read files via a relative path and also return the absolute path of a file. Eg:
+
+```php
+$fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($storefrontPluginConfig);
+foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
+    $absolutePath = $fs->path('Resources', $relativePath);
+}
+```

@@ -179,9 +179,9 @@ class TranslationFieldResolver extends AbstractFieldResolver
     ): string {
         $translationField = $translationDefinition->getFields()->get($field->getPropertyName());
         if (!$translationField || !$translationField instanceof StorageAware) {
-            throw DataAbstractionLayerException::fieldNotFound(
-                $translationDefinition->getEntityName(),
+            throw DataAbstractionLayerException::propertyNotFound(
                 $field->getPropertyName(),
+                $translationDefinition->getEntityName(),
             );
         }
 

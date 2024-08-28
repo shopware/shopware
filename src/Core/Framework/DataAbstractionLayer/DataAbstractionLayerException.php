@@ -298,15 +298,6 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function fieldNotFound(string $entity, string $propertyName): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FIELD_NOT_FOUND,
-            \sprintf('Field %s not found in entity %s', $propertyName, $entity)
-        );
-    }
-
     public static function fieldByStorageNameNotFound(string $entity, string $storageName): self
     {
         return new self(

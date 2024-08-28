@@ -193,7 +193,8 @@
         "symfony/phpunit-bridge": "~7.1.1",
         "symfony/var-dumper": "~7.1.1",
         "symplify/phpstan-rules": "13.0.0",
-        "tomasvotruba/type-coverage": "0.3.1"
+        "tomasvotruba/type-coverage": "0.3.1",
+        "friendsofphp/php-cs-fixer": "v3.63.2"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -238,8 +239,8 @@
         "e2e:web-update:open": " ",
         "e2e:web-update:prepare": " ",
         "e2e:web-update:start": " ",
-        "ecs": "Checks all files regarding the Easy Coding Standard",
-        "ecs-fix": "Checks all files regarding the Easy Coding Standard and fixes them if possible",
+        "ecs": "Checks all files regarding the PHP-CS-Fixer",
+        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
         "eslint": "Codestyle checks all (Administration/Storefront/E2E) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
@@ -430,8 +431,8 @@
             "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
             "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d"
         ],
-        "ecs": "ecs check src tests",
-        "ecs-fix": "ecs check --fix src tests",
+        "ecs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": "php-cs-fixer fix",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",

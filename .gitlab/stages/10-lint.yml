@@ -174,7 +174,7 @@ PHP lint:
     before_script:
         - !reference [ .scripts, init, composer_full ]
     script:
-        - composer run ecs -- --no-progress-bar
+        - composer run ecs
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run

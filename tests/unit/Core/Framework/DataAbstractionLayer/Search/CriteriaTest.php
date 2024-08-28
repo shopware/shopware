@@ -151,4 +151,18 @@ class CriteriaTest extends TestCase
         yield 'plain id list' => [['id1', 'id2']];
         yield 'multiple pks' => [[['pk-1' => 'id1.1', 'pk-2' => 'id1.2'], ['pk-1' => 'id2.1', 'pk-2' => 'id2.2']]];
     }
+
+    public function testGetNestingLevel(): void
+    {
+        $criteria = new Criteria();
+        static::assertSame(0, $criteria->getNestingLevel());
+
+        $nested = $criteria->getAssociation('nested');
+
+        static::assertSame(1, $nested->getNestingLevel());
+
+        $nestedNested = $nested->getAssociation('nestedNested');
+
+        static::assertSame(2, $nestedNested->getNestingLevel());
+    }
 }

@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -54,7 +52,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -1147,87 +1144,6 @@ class EntityRepositoryTest extends TestCase
         foreach ($oldAddressIds as $id) {
             static::assertNotContains($id, $newAddressIds);
         }
-    }
-
-    public function testCloneWithManyToMany(): void
-    {
-        static::markTestSkipped('ManyToMany are currently intendedly not cloned - to be discussed');
-        $recordA = Uuid::randomHex();
-        $data = [
-            'id' => $recordA,
-            'bindShippingfree' => false,
-            'name' => 'test',
-            'availabilityRule' => [
-                'id' => Uuid::randomHex(),
-                'name' => 'asd',
-                'priority' => 2,
-            ],
-            'deliveryTime' => [
-                'id' => Uuid::randomHex(),
-                'name' => 'testDeliveryTime',
-                'min' => 1,
-                'max' => 90,
-                'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
-            ],
-            'tags' => [
-                [
-                    'name' => 'tag1',
-                ],
-                [
-                    'name' => 'tag2',
-                ],
-            ],
-        ];
-
-        $repository = $this->createRepository(ShippingMethodDefinition::class);
-        $context = Context::createDefaultContext();
-
-        $result = $repository->create([$data], $context);
-        $newId = Uuid::randomHex();
-
-        $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
-        static::assertNotNull($written);
-        static::assertCount(1, $written->getIds());
-
-        $result = $repository->clone($recordA, $context, $newId);
-        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
-
-        $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
-        static::assertNotNull($written);
-        static::assertCount(1, $written->getIds());
-
-        $criteria = new Criteria([$recordA, $newId]);
-        $criteria->addAssociation('tags');
-        $entities = $repository->search($criteria, $context);
-        static::assertEquals([$recordA, $newId], $criteria->getIds());
-        static::assertEmpty($criteria->getSorting());
-        static::assertEmpty($criteria->getFilters());
-        static::assertEmpty($criteria->getPostFilters());
-        static::assertEmpty($criteria->getAggregations());
-        static::assertNull($criteria->getLimit());
-        static::assertNull($criteria->getOffset());
-        static::assertCount(1, $criteria->getAssociations());
-        static::assertNotNull($criteria->getAssociation('tags'));
-        static::assertEmpty($criteria->getAssociation('tags')->getSorting());
-        static::assertEmpty($criteria->getAssociation('tags')->getFilters());
-        static::assertEmpty($criteria->getAssociation('tags')->getPostFilters());
-        static::assertEmpty($criteria->getAssociation('tags')->getAggregations());
-        static::assertEmpty($criteria->getAssociation('tags')->getAssociations());
-        static::assertNull($criteria->getAssociation('tags')->getLimit());
-        static::assertNull($criteria->getAssociation('tags')->getOffset());
-
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($recordA));
-        static::assertTrue($entities->has($newId));
-
-        $old = $entities->get($recordA);
-        $new = $entities->get($newId);
-
-        static::assertInstanceOf(ShippingMethodEntity::class, $old);
-        static::assertInstanceOf(ShippingMethodEntity::class, $new);
-
-        static::assertCount(2, $old->getTags());
-        static::assertCount(2, $new->getTags());
     }
 
     public function testCloneWithChildren(): void

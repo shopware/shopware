@@ -75,4 +75,24 @@ describe('FormAjaxSubmitPlugin tests', () => {
 
         expect(cb).toHaveBeenCalledTimes(1);
     });
+
+    test('executes callback when submitting form via form submit event', () => {
+        const cb = jest.fn();
+        const formElement = document.querySelector('form');
+
+        formAjaxSubmit.addCallback(cb);
+        formElement.dispatchEvent(new Event('submit', { cancelable: true }));
+
+        expect(cb).toHaveBeenCalledTimes(1);
+    });
+
+    test('prevents callback execution when submitting form via non-cancelable form submit event', () => {
+        const cb = jest.fn();
+        const formElement = document.querySelector('form');
+
+        formAjaxSubmit.addCallback(cb);
+        formElement.dispatchEvent(new Event('submit'));
+
+        expect(cb).toHaveBeenCalledTimes(0);
+    });
 });

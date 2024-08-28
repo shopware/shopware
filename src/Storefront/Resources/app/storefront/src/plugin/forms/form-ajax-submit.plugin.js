@@ -122,6 +122,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _onSubmit(event) {
+        if (!event.cancelable) {
+            throw new Error('The submit event cannot be prevented as it is not cancelable and would be handled by the navigator');
+        }
+
         event.preventDefault();
 
         // checks form validity before submit

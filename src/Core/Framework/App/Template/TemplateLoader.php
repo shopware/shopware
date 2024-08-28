@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Template;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
@@ -57,7 +58,7 @@ class TemplateLoader extends AbstractTemplateLoader
         $fs = $this->sourceResolver->filesystemForManifest($app);
 
         if (!$fs->has(self::TEMPLATE_DIR, $path)) {
-            throw new \RuntimeException(\sprintf('Unable to read file from: %s.', $fs->path(self::TEMPLATE_DIR, $path)));
+            throw AppException::cannotReadFile($fs->path(self::TEMPLATE_DIR, $path));
         }
 
         return $fs->read(self::TEMPLATE_DIR, $path);

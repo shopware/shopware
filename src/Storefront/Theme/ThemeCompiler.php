@@ -288,7 +288,6 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-
             $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
             if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
                 $asset = $fs->path('Resources', $asset);

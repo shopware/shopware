@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -45,7 +46,7 @@ class ConfigurationService
         $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
-            throw new \InvalidArgumentException('Expected domain');
+            throw SystemConfigException::invalidDomain();
         }
 
         $scope = $match[1];
@@ -53,7 +54,7 @@ class ConfigurationService
 
         $config = $this->fetchConfiguration($scope === 'core' ? 'System' : $scope, $configName, $context);
         if (!$config) {
-            throw new ConfigurationNotFoundException($scope);
+            throw SystemConfigException::configurationNotFound($scope);
         }
 
         $domain = rtrim($domain, '.') . '.';
@@ -118,7 +119,7 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException|ConfigurationNotFoundException|BundleConfigNotFoundException) {
+        } catch (\InvalidArgumentException|SystemConfigException|BundleConfigNotFoundException) {
             return false;
         }
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
@@ -57,7 +58,7 @@ class ScriptFileReader
         try {
             $content = $fs->read(self::SCRIPT_DIR, $path);
         } catch (\Exception $e) {
-            throw new \RuntimeException(\sprintf('Unable to read file from: %s.', $fs->path(self::SCRIPT_DIR, $path)));
+            throw AppException::cannotReadFile($fs->path(self::SCRIPT_DIR, $path));
         }
 
         return $content;

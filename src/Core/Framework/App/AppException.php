@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
+use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -36,8 +37,9 @@ class AppException extends HttpException
     final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
     public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
     public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
-
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
+    public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -289,6 +291,25 @@ class AppException extends HttpException
             'Cannot mount a filesystem for App "{{ app }}". Error: "{{ error }}"',
             ['app' => $appName, 'error' => $exception->getMessage()],
             $exception
+        );
+    }
+
+    public static function userAborted(): self
+    {
+        return new UserAbortedCommandException(
+            Response::HTTP_BAD_REQUEST,
+            self::USER_ABORTED,
+            'User aborted operation'
+        );
+    }
+
+    public static function cannotReadFile(string $file): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_READ_FILE,
+            'Unable to read file: "{{ file }}"',
+            ['file' => $file]
         );
     }
 }

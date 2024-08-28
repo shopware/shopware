@@ -7,6 +7,7 @@ author_github: Aydin Hassan
 ---
 # Core
 * Deprecated `\Shopware\Core\Framework\App\Exception\AppXmlParsingException::__construct`, use static methods instead
+* Deprecated `\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException`, use `\Shopware\Core\System\SystemConfig\SystemConfigException::configurationNotFound` instead
 * Added (internal) `\Shopware\Core\Framework\App\Source\SourceResolver` for accessing a scoped app filesystem
 * Added (internal) `\Shopware\Core\Framework\App\Source\Source` interface to handle accessing the different types of app sources
 * Added (internal) utilities for validating and extracting apps `\Shopware\Core\Framework\App\AppArchiveValidator` & `\Shopware\Core\Framework\App\AppExtractor`
@@ -30,3 +31,5 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
     $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
+
+`\Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException` is removed, if it was previously caught you should change your catch to `\Shopware\Core\System\SystemConfig\SystemConfigException` instead and inspect the code for `\Shopware\Core\System\SystemConfig\SystemConfigException::CONFIG_NOT_FOUND`.

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
@@ -150,7 +151,7 @@ class InstallAppCommand extends Command
                 \sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

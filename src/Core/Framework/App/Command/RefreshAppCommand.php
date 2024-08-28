@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
@@ -145,7 +146,7 @@ class RefreshAppCommand extends Command
             ),
             $default
         )) {
-            throw new UserAbortedCommandException();
+            throw AppException::userAborted();
         }
 
         foreach ($refreshableApps->getToBeInstalled() as $app) {
@@ -170,7 +171,7 @@ class RefreshAppCommand extends Command
                 \sprintf('Do you want to grant these permissions for app "%s"?', $app->getMetadata()->getName()),
                 false
             )) {
-                throw new UserAbortedCommandException();
+                throw AppException::userAborted();
             }
         }
     }

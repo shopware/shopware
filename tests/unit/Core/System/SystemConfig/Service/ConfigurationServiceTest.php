@@ -13,7 +13,9 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -61,8 +63,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testInvalidDomain(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Expected domain');
+        $this->expectException(SystemConfigException::class);
+        $this->expectExceptionMessage('Invalid domain');
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
@@ -79,9 +81,27 @@ class ConfigurationServiceTest extends TestCase
         $configService->getConfiguration('invalid!', Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testMissingConfig(): void
     {
         $this->expectException(ConfigurationNotFoundException::class);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([])]);
+        $configService = new ConfigurationService(
+            [],
+            new ConfigReader(),
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
+            new StaticSystemConfigService([])
+        );
+
+        $configService->getConfiguration('missing', Context::createDefaultContext());
+    }
+
+    public function testMissingConfig67(): void
+    {
+        $this->expectException(SystemConfigException::class);
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
@@ -150,9 +170,17 @@ class ConfigurationServiceTest extends TestCase
         static::assertEmpty($actualConfig);
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testEmptyConfigThrowsError(): void
     {
         $this->expectException(ConfigurationNotFoundException::class);
+
+        $this->getConfiguration([]);
+    }
+
+    public function testEmptyConfigThrowsError67(): void
+    {
+        $this->expectException(SystemConfigException::class);
 
         $this->getConfiguration([]);
     }

@@ -13,8 +13,8 @@
                     variant="form"
                     class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
                     :placeholder="$tc('sw-property-search.placeholderSearch')"
-                    @focus="onFocusSearch"
-                    @update:value="onSearchOptions"
+                    :delay="600"
+                    @search-term-change="onSearchOptions"
                 />
                 {% endblock %}
             </slot>

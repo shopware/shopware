@@ -671,6 +671,25 @@ class EntityDefinitionQueryHelper
         $query->andWhere($wheres);
     }
 
+    public function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
+    {
+        if ($criteria->getGroupFields()) {
+            foreach ($criteria->getGroupFields() as $grouping) {
+                $accessor = $this->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
+
+                $query->addGroupBy($accessor);
+            }
+
+            return;
+        }
+
+        if ($query->hasState(self::HAS_TO_MANY_JOIN)) {
+            $query->addGroupBy(
+                self::escape($table) . '.' . self::escape('id')
+            );
+        }
+    }
+
     /**
      * @param list<string> $chain
      */

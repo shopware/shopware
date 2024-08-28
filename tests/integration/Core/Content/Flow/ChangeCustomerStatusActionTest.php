@@ -160,7 +160,6 @@ class ChangeCustomerStatusActionTest extends TestCase
             'active' => true,
         ];
 
-
         if (!Feature::isActive('v6.7.0.0')) {
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }

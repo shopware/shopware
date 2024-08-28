@@ -14,8 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(CustomerSalutationSubscriber::class)]

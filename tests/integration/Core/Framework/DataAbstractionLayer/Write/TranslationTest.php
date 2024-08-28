@@ -886,7 +886,6 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
         static::assertEquals('en translation', $enTranslation->getName());
 
-
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
         static::assertEquals('de übersetzung', $deTranslation->getName());
@@ -926,7 +925,6 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
         static::assertEquals('en translation', $enTranslation->getName());
-
 
         $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $deTranslation);
@@ -1000,7 +998,6 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('translations');
 
-
         $category = $this->categoryRepository
             ->search($criteria, $context)
             ->getEntities()
@@ -1068,7 +1065,6 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         $enTranslation = $translations->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $enTranslation);
         static::assertEquals('default', $enTranslation->getName());
-
 
         $childTranslation = $translations->filterByLanguageId($this->ids->get('language-parent'))->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $childTranslation);

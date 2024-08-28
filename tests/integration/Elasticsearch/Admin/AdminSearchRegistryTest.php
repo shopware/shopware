@@ -26,8 +26,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[Group('skip-paratest')]

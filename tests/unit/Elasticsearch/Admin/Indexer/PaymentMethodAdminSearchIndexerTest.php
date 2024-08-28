@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(PaymentMethodAdminSearchIndexer::class)]

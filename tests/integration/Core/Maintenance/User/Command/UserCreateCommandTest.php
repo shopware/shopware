@@ -9,8 +9,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package core
- *
  * @internal
  */
 class UserCreateCommandTest extends TestCase

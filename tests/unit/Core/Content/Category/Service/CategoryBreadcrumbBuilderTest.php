@@ -27,8 +27,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
- *
- * @package content
  */
 #[CoversClass(CategoryBreadcrumbBuilder::class)]
 class CategoryBreadcrumbBuilderTest extends TestCase

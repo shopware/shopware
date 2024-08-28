@@ -224,7 +224,6 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());

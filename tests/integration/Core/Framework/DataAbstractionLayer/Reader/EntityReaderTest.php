@@ -2586,7 +2586,6 @@ class EntityReaderTest extends TestCase
 
         $product = $result->getEntities()->first();
 
-
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $consistsOf = $product->getExtension('consistsOf');

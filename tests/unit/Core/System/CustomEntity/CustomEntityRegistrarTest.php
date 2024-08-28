@@ -20,8 +20,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package core
  */
 #[CoversClass(CustomEntityRegistrar::class)]
 class CustomEntityRegistrarTest extends TestCase

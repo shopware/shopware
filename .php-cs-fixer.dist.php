@@ -17,11 +17,15 @@ return (new Config())
         'blank_line_after_opening_tag' => false,
         'phpdoc_summary' => false,
         'phpdoc_annotation_without_dot' => false,
+        'phpdoc_to_comment' => false,
         'yoda_style' => [
             'equal' => false,
             'identical' => false,
             'less_and_greater' => false,
         ],
+        'single_line_throw' => false,
+        'fopen_flags' => false,
+        'self_accessor' => false,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_order' => ['order' => ['param', 'throws', 'return']],
         'class_attributes_separation' => ['elements' => ['property' => 'one', 'method' => 'one']],
@@ -42,5 +46,6 @@ return (new Config())
     ->setFinder(
         (new Finder())
             ->in([__DIR__ . '/src', __DIR__ . '/tests'])
-            ->exclude(['node_modules', '*/vendor/*', 'src/WebInstaller/Tests/_fixtures/Options.php'])
+            ->exclude(['node_modules', '*/vendor/*'])
+            ->notPath('WebInstaller/Tests/_fixtures/Options.php')
     );

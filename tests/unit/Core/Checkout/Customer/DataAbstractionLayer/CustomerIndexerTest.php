@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(CustomerIndexer::class)]

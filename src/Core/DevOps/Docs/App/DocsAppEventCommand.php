@@ -24,9 +24,6 @@ use Twig\Loader\ArrayLoader;
     description: 'Dump the app events',
 )]
 #[Package('core')]
-/**
- * @package core
- */
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';

@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\TaxProviderExceptions;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(TaxProviderExceptions::class)]

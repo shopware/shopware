@@ -23,8 +23,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(SystemInstallCommand::class)]

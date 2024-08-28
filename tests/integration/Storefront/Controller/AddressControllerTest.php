@@ -30,8 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class AddressControllerTest extends TestCase

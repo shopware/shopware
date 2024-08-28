@@ -234,9 +234,6 @@ class CacheInvalidationSubscriberTest extends TestCase
                 );
         }
 
-
-
-
         $subscriber->invalidateMedia($event);
     }
 

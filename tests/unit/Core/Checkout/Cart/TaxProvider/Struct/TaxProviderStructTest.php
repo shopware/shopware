@@ -10,8 +10,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(TaxProviderResult::class)]

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable;
 
 /**
- * @package core
- *
  * @internal
  */
 #[CoversClass(Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable::class)]

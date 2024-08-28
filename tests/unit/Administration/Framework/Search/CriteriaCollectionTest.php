@@ -20,7 +20,6 @@ class CriteriaCollectionTest extends TestCase
 
         $collection->add(new Criteria());
 
-
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage(\sprintf('Expected collection element of type %s got %s', Criteria::class, NotificationEntity::class));
         /** @phpstan-ignore-next-line intentionally wrong parameter provided **/

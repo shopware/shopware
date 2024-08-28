@@ -37,6 +37,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+use function Symfony\Component\String\u;
+
 /**
  * @internal
  */
@@ -732,11 +734,6 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        // build inverse accessor `product.categories.id`
-        $accessor = $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.id';
-
-        $fieldCriteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
-
         $root = EntityDefinitionQueryHelper::escape(
             $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.mapping'
         );
@@ -755,6 +752,29 @@ class EntityReader implements EntityReaderInterface
 
         $localColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
         $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
+
+        $condition = $root . '.' . $referenceColumn . ' = ' . EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()) . '.id';
+
+        if (str_ends_with($association->getMappingReferenceColumn(), '_id')) {
+            $referenceVersionColumn = u($association->getMappingReferenceColumn())->trimSuffix('_id')->append('_version_id')->toString();
+        } else {
+            $referenceVersionColumn = $association->getMappingReferenceColumn() . '_version_id';
+        }
+
+        if ($association->getToManyReferenceDefinition()->isVersionAware() && $association->getMappingDefinition()->getField($referenceVersionColumn)) {
+            $condition .= ' AND ' . $root . '.version_id = ' . EntityDefinitionQueryHelper::escape($referenceVersionColumn) . '.version_id';
+        }
+
+        $query
+            ->leftJoin(
+                EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()),
+                EntityDefinitionQueryHelper::escape($association->getMappingDefinition()->getEntityName()),
+                $root,
+                $condition
+            );
+
+        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
 
         $orderBy = '';
         $parts = $query->getQueryPart('orderBy');

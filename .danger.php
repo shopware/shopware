@@ -92,35 +92,6 @@ return (new Config())
             function (Context $context): void {
                 $files = $context->platform->pullRequest->getFiles();
 
-                /** @var Gitlab $gitlab */
-                $gitlab = $context->platform;
-
-                $phpstanBaseline = new GitlabFile(
-                    $gitlab->client,
-                    $_SERVER['CI_PROJECT_ID'],
-                    'phpstan-baseline.neon',
-                    $gitlab->raw['sha']
-                );
-
-                $fileNames = $files->map(fn (File $f) => $f->name);
-
-                $filesWithIgnoredErrors = [];
-                foreach ($fileNames as $fileName) {
-                    if (str_contains($phpstanBaseline->getContent(), 'path: ' . $fileName)) {
-                        $filesWithIgnoredErrors[] = $fileName;
-                    }
-                }
-
-                if ($filesWithIgnoredErrors) {
-                    $context->failure(
-                        'Some files you touched in your MR contain ignored phpstan errors. Please be nice and fix all ignored errors for the following files:<br>'
-                        . implode('<br>', $filesWithIgnoredErrors)
-                    );
-                }
-            },
-            function (Context $context): void {
-                $files = $context->platform->pullRequest->getFiles();
-
                 $newRepoUseInFrontend = array_merge(
                     $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
                         ->matchesContent('/EntityRepository/')

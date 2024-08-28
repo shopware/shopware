@@ -106,6 +106,7 @@
         "symfony/mailer": "~6.4.0",
         "symfony/messenger": "~6.4.0",
         "symfony/mime": "~6.4.0",
+        "symfony/string": "~6.4.0",
         "symfony/monolog-bridge": "~6.4.0",
         "symfony/monolog-bundle": "~3.8.0",
         "symfony/options-resolver": "~6.4.0",

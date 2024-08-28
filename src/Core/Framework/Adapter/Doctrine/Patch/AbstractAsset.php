@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+/**
+ * Doctrine breaks all FK fields due namespacing. This reverts that feature
+ */
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;

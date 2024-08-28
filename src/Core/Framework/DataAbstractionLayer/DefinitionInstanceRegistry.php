@@ -72,7 +72,7 @@ class DefinitionInstanceRegistry
             return $definition;
         }
 
-        throw new DefinitionNotFoundException($class);
+        throw DataAbstractionLayerException::definitionNotFound($class);
     }
 
     /**
@@ -103,7 +103,7 @@ class DefinitionInstanceRegistry
             return $this->get($definitionClass);
         }
 
-        throw new DefinitionNotFoundException($entityName);
+        throw DataAbstractionLayerException::definitionNotFound($entityName);
     }
 
     /**
@@ -160,7 +160,7 @@ class DefinitionInstanceRegistry
             $this->container->set($serviceId, $definition);
         }
 
-        if ($this->entityClassMapping !== null) {
+        if ($this->entityClassMapping !== null && !$definition instanceof MappingEntityDefinition) {
             $this->entityClassMapping[$definition->getEntityClass()] = $definition;
         }
 
@@ -207,7 +207,7 @@ class DefinitionInstanceRegistry
     private function getDefinitionClassByEntityName(string $entityName): string
     {
         if (!isset($this->definitions[$entityName])) {
-            throw new DefinitionNotFoundException($entityName);
+            throw DataAbstractionLayerException::definitionNotFound($entityName);
         }
 
         return $this->definitions[$entityName];
@@ -219,7 +219,7 @@ class DefinitionInstanceRegistry
     private function getEntityRepositoryClassByEntityName(string $entityName): string
     {
         if (!isset($this->repositoryMap[$entityName])) {
-            throw new EntityRepositoryNotFoundException($entityName);
+            throw DataAbstractionLayerException::entityRepositoryNotFound($entityName);
         }
 
         return $this->repositoryMap[$entityName];

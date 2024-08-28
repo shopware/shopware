@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
@@ -175,5 +177,15 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_WRITE_INPUT,
             $message,
         );
+    }
+
+    public static function definitionNotFound(string $entity): DefinitionNotFoundException
+    {
+        return new DefinitionNotFoundException($entity);
+    }
+
+    public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
+    {
+        return new EntityRepositoryNotFoundException($entity);
     }
 }

@@ -143,10 +143,6 @@
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
         </testsuite>
-        <testsuite name="framework">
-            <directory>src/Core/Framework/Test</directory>
-            <directory>src/Core/Test</directory>
-        </testsuite>
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
         </testsuite>

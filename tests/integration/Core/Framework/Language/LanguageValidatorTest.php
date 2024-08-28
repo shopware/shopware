@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Language;
+namespace Shopware\Tests\Integration\Core\Framework\Language;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -20,10 +20,7 @@ class LanguageValidatorTest extends TestCase
 
     private Context $defaultContext;
 
-    /**
-     * @var EntityRepository
-     */
-    private $languageRepository;
+    private EntityRepository $languageRepository;
 
     protected function setUp(): void
     {
@@ -873,16 +870,29 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
+    /**
+     * @param list<array<string, string>> $languages
+     */
     protected function addLanguagesWithDefaultLocales(array $languages): void
     {
         $this->languageRepository->create($this->addDefaultTranslationCodes($this->addDefaultLocales($languages)), $this->defaultContext);
     }
 
+    /**
+     * @param list<array<string, string>> $languages
+     *
+     * @return list<array<string, string>>
+     */
     protected function addDefaultLocales(array $languages): array
     {
         return array_map(fn ($lang) => $this->addDefaultLocale($lang), $languages);
     }
 
+    /**
+     * @param array<string, mixed> $lang
+     *
+     * @return array<string, mixed>
+     */
     protected function addDefaultLocale(array $lang): array
     {
         if (!isset($lang['locale']) && !isset($lang['localeId'])) {
@@ -895,11 +905,21 @@ class LanguageValidatorTest extends TestCase
         return $lang;
     }
 
+    /**
+     * @param list<array<string, string>> $languages
+     *
+     * @return list<array<string, string>>
+     */
     protected function addDefaultTranslationCodes(array $languages)
     {
         return array_map(fn ($lang) => $this->addDefaultTranslationCode($lang), $languages);
     }
 
+    /**
+     * @param array<string, mixed> $lang
+     *
+     * @return array<string, mixed>
+     */
     protected function addDefaultTranslationCode(array $lang)
     {
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {

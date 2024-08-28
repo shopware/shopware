@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\TestCaseBase;
+namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal

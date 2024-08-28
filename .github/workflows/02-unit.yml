@@ -18,7 +18,6 @@ jobs:
           # some suites are merged to reduce the number of jobs
           - integration
           - content
-          - framework
           - unit
           - migration,migration-tests
           - devops

@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\TestCaseBase;
+namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
@@ -20,7 +22,7 @@ class KernelTestBehaviourTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (!$this->kernelId === spl_object_hash($this->getKernel())) {
+        if (!($this->kernelId === spl_object_hash($this->getKernel()))) {
             throw new \RuntimeException('Kernel has changed');
         }
     }

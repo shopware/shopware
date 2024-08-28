@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\TestCaseBase;
+namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
@@ -64,6 +67,5 @@ class DatabaseTransactionBehaviourTest extends TestCase
         static::expectExceptionMessage('The previous test case\'s transaction was not closed properly');
         static::expectExceptionMessage('Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase);
         static::startTransactionBefore();
-        static::assertTrue(true);
     }
 }

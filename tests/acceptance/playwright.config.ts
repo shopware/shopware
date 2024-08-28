@@ -51,7 +51,7 @@ export default defineConfig({
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-        trace: 'on',
+        trace: 'on-first-retry',
         video: 'off',
     },
 

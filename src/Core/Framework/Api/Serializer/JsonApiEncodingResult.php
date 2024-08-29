@@ -171,12 +171,12 @@ class JsonApiEncodingResult implements \JsonSerializable
             if ($value['data'] === null) {
                 continue;
             }
-            $recordA->addExtension($key, $value);
+            $recordA->addExtension((string) $key, $value);
         }
 
         foreach ($recordB->getLinks() as $key => $value) {
             if (!empty($value)) {
-                $recordA->addLink($key, $value);
+                $recordA->addLink((string) $key, $value);
             }
         }
     }

@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
     database:
         image: mysql:${MYSQL_VERSION:-8}-oracle

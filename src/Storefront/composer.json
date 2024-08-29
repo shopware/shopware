@@ -52,7 +52,7 @@
         "symfony/mime": "~7.1.1",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.10.3"
+        "twig/twig": "^3.12.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.1.1",

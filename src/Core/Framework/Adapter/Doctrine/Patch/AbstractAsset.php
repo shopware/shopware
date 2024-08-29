@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
+
 /**
- * @package core
  * Doctrine breaks all FK fields due namespacing. This reverts that feature
  */
 

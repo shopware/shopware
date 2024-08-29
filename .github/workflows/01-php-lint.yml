@@ -57,7 +57,7 @@ jobs:
             ${{ runner.os }}-cs-fixer-
 
       - name: Code Style
-        run: composer run ecs -- --no-progress-bar
+        run: composer run ecs
 
       - name: Generate Schema
         run: composer run framework:schema:dump

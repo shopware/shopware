@@ -10,8 +10,6 @@ use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(RefreshIndexSubscriber::class)]

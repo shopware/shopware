@@ -19,8 +19,6 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(SalesChannelCreateCommand::class)]

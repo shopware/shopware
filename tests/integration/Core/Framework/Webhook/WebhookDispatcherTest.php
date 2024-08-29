@@ -1628,7 +1628,6 @@ class WebhookDispatcherTest extends TestCase
             'company' => 'Test',
         ];
 
-
         if (!Feature::isActive('v6.7.0.0')) {
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }

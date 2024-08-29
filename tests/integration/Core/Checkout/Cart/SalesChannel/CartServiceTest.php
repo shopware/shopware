@@ -511,7 +511,6 @@ class CartServiceTest extends TestCase
             'customerNumber' => 'not',
         ];
 
-
         if (!Feature::isActive('v6.7.0.0')) {
             $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
         }

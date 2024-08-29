@@ -36,8 +36,6 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @deprecated tag:v6.7.0 - Remove full class
  *
  * @internal
- *
- * @package content
  */
 #[CoversClass(CachedCategoryRoute::class)]
 class CachedCategoryRouteTest extends TestCase

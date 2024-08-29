@@ -112,7 +112,6 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
             ->method('upsert')
             ->with([], $context);
 
-
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
     }
 

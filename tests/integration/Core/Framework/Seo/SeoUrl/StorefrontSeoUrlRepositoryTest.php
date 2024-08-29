@@ -272,7 +272,6 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
 
         $criteria = new Criteria([$expectedId, $expectedFallbackId, $otherId]);
 
-
         $seoUrls = $this->salesChannelSeoUrlRepository->search($criteria, $salesChannelContext)->getEntities();
         static::assertNotNull($seoUrls);
         static::assertCount(2, $seoUrls);

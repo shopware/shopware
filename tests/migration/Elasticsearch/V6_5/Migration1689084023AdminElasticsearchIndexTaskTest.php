@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask;
 
 /**
- * @package core
- *
  * @internal
  */
 #[CoversClass(Migration1689084023AdminElasticsearchIndexTask::class)]

@@ -364,7 +364,6 @@ class AntiJoinSearchTest extends TestCase
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
 
-
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertIsArray($ids);
         static::assertEmpty($ids);

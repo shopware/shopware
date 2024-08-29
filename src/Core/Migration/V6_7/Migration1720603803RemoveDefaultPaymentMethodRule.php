@@ -35,7 +35,6 @@ class Migration1720603803RemoveDefaultPaymentMethodRule extends MigrationStep
                           )
             WHERE `type` = "customerDefaultPaymentMethod"');
 
-
         // clear the payload in the updated rules
         $connection->executeStatement('UPDATE `rule` SET `payload` = NULL WHERE id in (:rule_ids)', [
             'rule_ids' => $ruleIds,

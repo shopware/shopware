@@ -157,7 +157,6 @@ class ProductApiTest extends TestCase
         $products = $this->repository->search($criteria, $context);
         static::assertTrue($products->has($id));
 
-
         $product = $products->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);

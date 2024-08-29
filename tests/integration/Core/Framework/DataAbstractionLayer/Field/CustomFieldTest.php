@@ -926,13 +926,11 @@ class CustomFieldTest extends TestCase
         $parent = $repo->search(new Criteria([$parentId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $parent);
 
-
         static::assertEquals('parent', $parent->get('name'));
         static::assertEquals(['foo' => 'bar'], $parent->get('custom'));
 
         $child = $repo->search(new Criteria([$childId]), $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $child);
-
 
         static::assertEquals('child', $child->get('name'));
         static::assertNull($child->get('custom'));

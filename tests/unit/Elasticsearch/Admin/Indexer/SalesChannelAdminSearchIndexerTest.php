@@ -18,8 +18,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(SalesChannelAdminSearchIndexer::class)]

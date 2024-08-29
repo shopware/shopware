@@ -17,8 +17,6 @@ use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(AdminSearcher::class)]

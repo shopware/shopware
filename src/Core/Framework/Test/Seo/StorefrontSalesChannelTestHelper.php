@@ -168,7 +168,6 @@ trait StorefrontSalesChannelTestHelper
         $customerRepository = $container->get('customer.repository');
         $customerRepository->upsert([$customer], Context::createDefaultContext());
 
-
         $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);

@@ -26,8 +26,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(RegisterConfirmRoute::class)]

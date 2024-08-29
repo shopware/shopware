@@ -21,6 +21,7 @@ export default {
         'cmsService',
         'repositoryFactory',
         'seoUrlService',
+        'systemConfigApiService',
     ],
 
     mixins: [
@@ -656,6 +657,14 @@ export default {
 
             this.isLoading = true;
             await this.updateSeoUrls();
+
+            const response = await this.systemConfigApiService.getValues('core.cms');
+
+            this.defaultCategoryId = response['core.cms.default_category_cms_page'];
+
+            if (this.category.cmsPageId === this.defaultCategoryId) {
+                this.category.cmsPageId = null;
+            }
 
             return this.categoryRepository.save(this.category, { ...Shopware.Context.api }).then(() => {
                 this.isSaveSuccessful = true;

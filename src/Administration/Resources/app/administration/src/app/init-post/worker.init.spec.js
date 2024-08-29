@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 import initializeWorker from './worker.init';
 import contextStore from '../state/context.store';

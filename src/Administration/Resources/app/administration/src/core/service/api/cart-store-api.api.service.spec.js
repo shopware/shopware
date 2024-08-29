@@ -11,6 +11,10 @@ function createCartStoreServiceService() {
     return { cartStoreService, clientMock };
 }
 
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
 describe('cartStoreService', () => {
     it('is registered correctly', async () => {
         const { cartStoreService } = createCartStoreServiceService();

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import Store from 'src/app/store/index';
 
 describe('src/app/store/index.ts', () => {

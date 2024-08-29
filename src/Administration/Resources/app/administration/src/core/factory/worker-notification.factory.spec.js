@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';

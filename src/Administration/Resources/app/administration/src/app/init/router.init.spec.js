@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initializeRouter from 'src/app/init/router.init';
 
 describe('src/app/init/router.init.ts', () => {

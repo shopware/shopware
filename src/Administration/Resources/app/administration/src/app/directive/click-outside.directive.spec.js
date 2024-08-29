@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 describe('directives/click-outside', () => {
     it('should register the directive', () => {

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 
 const oneDay = 24 * 60 * 60 * 1000;

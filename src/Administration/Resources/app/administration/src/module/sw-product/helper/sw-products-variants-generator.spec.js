@@ -1,5 +1,6 @@
-/*
+/**
  * @package inventory
+ * @group disabledCompat
  */
 
 import VariantsGenerator from 'src/module/sw-product/helper/sw-products-variants-generator';

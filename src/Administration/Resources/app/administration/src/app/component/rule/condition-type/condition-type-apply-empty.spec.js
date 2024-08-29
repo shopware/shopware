@@ -1,4 +1,8 @@
 /* global adminPath */
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 // eslint-disable-next-line
@@ -62,6 +66,11 @@ async function createWrapperForComponent(componentName) {
                 'sw-icon': true,
                 'sw-popover': true,
                 'sw-datepicker': true,
+                'sw-loader': true,
+                'sw-context-menu': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

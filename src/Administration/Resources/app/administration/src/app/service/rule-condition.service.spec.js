@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;

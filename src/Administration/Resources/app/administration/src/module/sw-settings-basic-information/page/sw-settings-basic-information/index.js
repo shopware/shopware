@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-basic-information.html.twig';
 
 const { Mixin } = Shopware;

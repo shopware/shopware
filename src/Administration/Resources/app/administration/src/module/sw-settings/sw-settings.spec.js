@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 const { Module } = Shopware;
 const ModuleFactory = Module;

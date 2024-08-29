@@ -1,13 +1,9 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
 
 const createWrapper = async (additionalOptions = {}, value = null) => {
     return mount(await wrapTestComponent('sw-number-field-deprecated', { sync: true }), {
@@ -19,6 +15,10 @@ const createWrapper = async (additionalOptions = {}, value = null) => {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 validationService: {},

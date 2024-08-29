@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 
 const responses = global.repositoryFactoryMock.responses;
@@ -34,6 +35,12 @@ async function createWrapper() {
                 'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'i18n-t': true,
+                'sw-alert': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-loader': true,
+                'router-link': true,
             },
             provide: {
                 shortcutService: {

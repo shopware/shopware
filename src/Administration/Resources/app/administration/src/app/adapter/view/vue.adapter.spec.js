@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { shallowMount, config } from '@vue/test-utils';
@@ -15,7 +16,7 @@ import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import ModuleFactory from 'src/core/factory/module.factory';
 import initializeRouter from 'src/app/init/router.init';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
-import Vue from 'vue';
+import { h, defineComponent } from 'vue';
 
 // Mock performance api for vue devtools
 window.performance.mark = () => {};
@@ -80,14 +81,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         // reset node env
         process.env.NODE_ENV = 'test';
-
-        // reset vue spies
-        if (Vue.set.mock) {
-            Vue.set.mockReset();
-        }
-        if (Vue.delete.mock) {
-            Vue.delete.mockReset();
-        }
     });
 
     afterEach(() => {
@@ -514,7 +507,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const componentDefinition = {
             name: 'sw-foo',
 
-            render(h) {
+            render() {
                 return h('div', {
                     class: {
                         'sw-foo': true,
@@ -530,6 +523,19 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     describe('should initialize everything correctly', () => {
         let rootComponent;
+
+        beforeAll(() => {
+            global.allowedErrors.push({
+                method: 'warn',
+                msgCheck: (_, msg) => {
+                    if (typeof msg !== 'string') {
+                        return false;
+                    }
+
+                    return msg.includes('plugin is already installed');
+                },
+            });
+        });
 
         beforeEach(async () => {
             process.env.NODE_ENV = 'development';
@@ -593,7 +599,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             // create router
             const router = VueRouter.createRouter({
                 history: VueRouter.createWebHashHistory(),
-                routes: [],
+                routes: [
+                    {
+                        path: '/',
+                        component: defineComponent({
+                            template: '<sw-admin></sw-admin>',
+                        }),
+                    },
+                ],
             });
 
             // add main component
@@ -616,6 +629,11 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 router,
                 {},
             );
+        });
+
+        afterEach(() => {
+            rootComponent.unmount();
+            rootComponent = undefined;
         });
 
         it('should initialize the plugins correctly', async () => {
@@ -709,13 +727,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should update the i18n global locale to update the locale in UI when the locale in the session store changes', async () => {
-            // Init Vue so that i18n is available
-            vueAdapter.initVue(
-                '#app',
-                {},
-                {},
-            );
-
             const expectedLocale = 'de-DE';
 
             Shopware.State.commit('setAdminLocale', {

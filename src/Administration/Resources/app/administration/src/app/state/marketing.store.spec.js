@@ -1,3 +1,6 @@
+/**
+ * @group disabledCompat
+ */
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import marketingStore from 'src/app/state/marketing.store';
 

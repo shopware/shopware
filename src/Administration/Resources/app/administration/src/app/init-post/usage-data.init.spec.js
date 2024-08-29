@@ -1,3 +1,7 @@
+/**
+ * @package data-services
+ * @group disabledCompat
+ */
 import initializeUsageDataContext from 'src/app/init-post/usage-data.init';
 
 describe('src/app/init-post/usage-data.init.ts', () => {

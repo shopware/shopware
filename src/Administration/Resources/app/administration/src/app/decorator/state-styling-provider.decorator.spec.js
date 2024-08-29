@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ * @group disabledCompat
+ */
 import 'src/app/decorator/state-styling-provider.decorator';
 
 describe('src/app/decorator/state-styling-provider.decorator.ts', () => {

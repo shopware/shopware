@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -9,6 +10,7 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'mt-url-field': true,
+                'sw-url-field-deprecated': true,
             },
         },
         props: {},

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -31,13 +32,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-product-listing', {
         sync: true,
     }), {
-        data() {
-            return {
-                cmsPageState: {
-                    currentDemoProducts,
-                },
-            };
-        },
         props: {
             element: {
                 config: {
@@ -72,10 +66,13 @@ async function createWrapper() {
 
 
 describe('module/sw-cms/elements/product-listing/component/index', () => {
-    const cmsPageStateBackup = { ...Shopware.Store._rootState.state.value.cmsPageState };
-
-    beforeEach(async () => {
-        Shopware.Store._rootState.state.value.cmsPageState = { ...cmsPageStateBackup };
+    beforeAll(() => {
+        Shopware.Store.register({
+            id: 'cmsPageState',
+            state: () => ({
+                currentDemoProducts,
+            }),
+        });
     });
 
     it('should be a Vue.js component', async () => {

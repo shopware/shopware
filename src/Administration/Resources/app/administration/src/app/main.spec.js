@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/main.ts', () => {
     let VueAdapter;
 

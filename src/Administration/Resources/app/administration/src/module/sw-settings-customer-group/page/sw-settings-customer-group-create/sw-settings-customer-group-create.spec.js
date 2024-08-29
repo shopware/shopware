@@ -6,6 +6,7 @@ Shopware.Component.override('sw-settings-customer-group-detail', settingCustomer
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-customer-group-detail', {
@@ -70,6 +71,26 @@ async function createWrapper() {
                 'sw-highlight-text': true,
                 'sw-skeleton': true,
                 'sw-icon': true,
+                'sw-app-topbar-button': true,
+                'router-link': true,
+                'sw-context-menu-item': true,
+                'sw-notification-center-item': true,
+                'sw-ai-copilot-badge': true,
+                'sw-tabs-item': true,
+                'sw-tabs': true,
+                'sw-iframe-renderer': true,
+                'sw-context-menu': true,
+                'sw-help-sidebar': true,
+                'sw-shortcut-overview': true,
+                'sw-product-variant-info': true,
+                'sw-app-action-button': true,
+                'sw-checkbox-field': true,
+                'sw-alert': true,
+                'sw-field-copyable': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
+                'sw-loader-deprecated': true,
+                'sw-textarea-field-deprecated': true,
             },
 
             provide: {
@@ -80,6 +101,7 @@ async function createWrapper() {
                                 id: 'aNiceId',
                                 name: '',
                                 displayGross: true,
+                                registrationSalesChannels: [],
                                 isNew: () => true,
                             };
                         },
@@ -98,6 +120,9 @@ async function createWrapper() {
                         return true;
                     },
                 },
+                customFieldDataProviderService: {},
+                appActionButtonService: {},
+                extensionSdkService: {},
             },
         },
     });

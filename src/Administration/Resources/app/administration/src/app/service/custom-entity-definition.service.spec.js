@@ -96,6 +96,7 @@ let service;
 
 /**
  * @package content
+ * @group disabledCompat
  */
 describe('src/app/service/custom-entity-definition.service', () => {
     beforeEach(() => {

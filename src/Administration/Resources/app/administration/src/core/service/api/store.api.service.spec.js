@@ -16,6 +16,7 @@ function getStoreApiService(client = null, loginService = null) {
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 describe('storeService', () => {
     it('is registered correctly', async () => {

@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import CmsBlockFavorites from 'src/module/sw-cms/service/cms-block-favorites.service';
 
 const responses = global.repositoryFactoryMock.responses;

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import registerAsyncComponents from 'src/app/asyncComponent/asyncComponents';

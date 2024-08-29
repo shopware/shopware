@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -56,6 +57,22 @@ async function createWrapper(profiles = null) {
                     `,
                 },
                 'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-loader': true,
+                'router-link': true,
+                'sw-bulk-edit-modal': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-pagination': true,
             },
             provide: {
                 importExport: new ImportExportService(),

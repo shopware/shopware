@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -53,6 +54,13 @@ async function createWrapper(customProps = {}) {
                 'sw-loader': true,
                 'sw-datepicker': true,
                 'sw-text-editor': true,
+                'sw-button-process': true,
+                'sw-media-collapse': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
+                'sw-help-text': true,
+                'sw-ai-copilot-badge': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 validationService: {},

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 import retryHelper from './retry.helper';
 

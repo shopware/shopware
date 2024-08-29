@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/filter/striphtml.filter.ts', () => {
     const stripHtmlFilter = Shopware.Filter.getByName('striphtml');
 

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initializeFilterFactory from 'src/app/init/filter-factory.init';
 import FilterFactory from 'src/core/data/filter-factory.data';
 

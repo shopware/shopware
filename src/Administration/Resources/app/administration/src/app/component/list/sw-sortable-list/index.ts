@@ -30,6 +30,20 @@ interface ScrollOnDragConf {
     accelerationMargin: number,
 }
 
+const defaultConfig = {
+    delay: 300,
+    dragGroup: 'sw-sortable-list',
+    validDragCls: 'is--valid-drag',
+    preventEvent: true,
+    disabled: false,
+} as DragConfig;
+
+const defaultScrollOnDragConf = {
+    speed: 50,
+    margin: 100,
+    accelerationMargin: 0,
+} as ScrollOnDragConf;
+
 /**
  * @package admin
  *
@@ -69,9 +83,7 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<DragConfig>,
             required: false,
             default(): DragConfig {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultConfig;
+                return defaultConfig;
             },
         },
         scrollOnDrag: {
@@ -86,9 +98,7 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<ScrollOnDragConf>,
             required: false,
             default(): ScrollOnDragConf {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return this.defaultScrollOnDragConf;
+                return defaultScrollOnDragConf;
             },
         },
     },
@@ -101,18 +111,8 @@ Component.register('sw-sortable-list', {
         scrollEventTicking: boolean,
         } {
         return {
-            defaultConfig: {
-                delay: 300,
-                dragGroup: 'sw-sortable-list',
-                validDragCls: 'is--valid-drag',
-                preventEvent: true,
-                disabled: false,
-            } as DragConfig,
-            defaultScrollOnDragConf: {
-                speed: 50,
-                margin: 100,
-                accelerationMargin: 0,
-            } as ScrollOnDragConf,
+            defaultConfig,
+            defaultScrollOnDragConf,
             sortedItems: [...this.items],
             dragElement: null,
             scrollEventTicking: false,

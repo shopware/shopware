@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import LocaleHelperService from 'src/app/service/locale-helper.service';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import 'src/app/mixin/form-field.mixin';
 import { mount } from '@vue/test-utils';
 
@@ -12,16 +16,18 @@ async function createWrapper() {
             mixins: [
                 Shopware.Mixin.getByName('sw-form-field'),
             ],
-            data() {
-                return {
-                    name: 'sw-mock-field',
-                };
-            },
         },
         {
             attachTo: document.body,
+            props: {
+                name: 'sw-mock-field',
+            },
         },
     );
+}
+
+function skipIfCompatModeIsDisabled() {
+    return process.env.DISABLE_JEST_COMPAT_MODE === 'true' ? it.skip : it;
 }
 
 describe('src/app/mixin/form-field.mixin.ts', () => {
@@ -50,7 +56,9 @@ describe('src/app/mixin/form-field.mixin.ts', () => {
         expect(wrapper.vm.formFieldName).toBe('sw-mock-field');
     });
 
-    it('should handle the map inheritance correctly (restoreInheritance)', async () => {
+    // These events are no longer bound automatically therefore the test is skipped with compat disabled
+    /* eslint-disable jest/no-standalone-expect */
+    skipIfCompatModeIsDisabled()('should handle the map inheritance correctly (restoreInheritance)', async () => {
         await wrapper.setProps({
             mapInheritance: {
                 restoreInheritance: jest.fn(() => {}),
@@ -72,7 +80,8 @@ describe('src/app/mixin/form-field.mixin.ts', () => {
         });
     });
 
-    it('should handle the map inheritance correctly (removeInheritance)', async () => {
+    // These events are no longer bound automatically therefore the test is skipped with compat disabled
+    skipIfCompatModeIsDisabled()('should handle the map inheritance correctly (removeInheritance)', async () => {
         await wrapper.setProps({
             mapInheritance: {
                 restoreInheritance: jest.fn(() => {}),
@@ -93,6 +102,7 @@ describe('src/app/mixin/form-field.mixin.ts', () => {
             name: 'my-cool-product',
         });
     });
+    /* eslint-enable jest/no-standalone-expect */
 
     it('should handle the map inheritance correctly (isInherited)', async () => {
         await wrapper.setProps({

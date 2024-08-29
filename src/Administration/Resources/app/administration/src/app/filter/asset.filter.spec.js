@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/filter/asset.filter.ts', () => {
     const assetFilter = Shopware.Filter.getByName('asset');
 

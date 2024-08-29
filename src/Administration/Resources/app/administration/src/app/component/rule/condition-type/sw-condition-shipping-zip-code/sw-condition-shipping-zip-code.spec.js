@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
@@ -26,6 +30,10 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                     'sw-arrow-field': true,
                     'sw-condition-type-select': true,
                     'sw-label': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
                 provide: {
                     conditionDataProviderService: new ConditionDataProviderService(),

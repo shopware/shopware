@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/filter/file-size.filter.js', () => {
     const fileSizeFilter = Shopware.Filter.getByName('fileSize');
 

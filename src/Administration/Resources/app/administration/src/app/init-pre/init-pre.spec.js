@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initPreIndex from 'src/app/init-pre/index';
 
 describe('src/app/init-pre/index.ts', () => {

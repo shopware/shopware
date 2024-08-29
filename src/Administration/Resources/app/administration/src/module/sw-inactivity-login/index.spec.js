@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import 'src/module/sw-inactivity-login/index';
 
 describe('src/module/sw-inactivity-login/page/index.ts', () => {

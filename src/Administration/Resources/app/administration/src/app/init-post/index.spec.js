@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initPost from 'src/app/init-post/index';
 
 describe('src/app/init-post/index.ts', () => {

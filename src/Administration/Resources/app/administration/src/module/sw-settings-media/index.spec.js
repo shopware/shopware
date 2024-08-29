@@ -1,3 +1,7 @@
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
 import './index';
 
 const { Module } = Shopware;

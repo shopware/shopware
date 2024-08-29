@@ -5,7 +5,7 @@
     {% block sw_condition_goods_count_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -19,7 +19,7 @@
             size="medium"
             number-type="int"
             :step="1"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
         />
         {% endblock %}
 
@@ -28,7 +28,7 @@
         <div class="sw-condition-goods-count__filter">
             <sw-button
                 v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }"
-                :disabled="disabled"
+                :disabled="disabled || undefined"
                 @click="showFilterModal = true"
             >
                 <sw-icon
@@ -44,7 +44,7 @@
     {% block sw_condition_goods_count_condition_modal %}
     <sw-condition-modal
         v-if="showFilterModal"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         v-bind="{ condition, conditionDataProviderService }"
         @modal-close="showFilterModal = false"
     />

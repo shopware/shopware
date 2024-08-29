@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { shallowMount } from '@vue/test-utils';
@@ -19,6 +20,9 @@ async function createWrapper(userConfig = {}) {
             },
         },
         global: {
+            stubs: {
+                'sw-empty-state': true,
+            },
             directives: {
                 draggable: {},
                 droppable: {},

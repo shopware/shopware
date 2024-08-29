@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
     ],
@@ -108,7 +110,11 @@ export default {
     methods: {
         createdComponent() {
             if (this.currentCustomField.config.hasOwnProperty('options')) {
-                this.$delete(this.currentCustomField.config, 'options');
+                if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                    this.$delete(this.currentCustomField.config, 'options');
+                } else {
+                    delete this.currentCustomField.config.options;
+                }
             }
 
             if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
@@ -122,7 +128,11 @@ export default {
         onChangeEntityType(entity) {
             const entityType = this.entityTypes.find(type => type.value === entity);
 
-            this.$delete(this.currentCustomField.config, 'labelProperty');
+            if (this.isCompatEnabled('INSTANCE_DELETE')) {
+                this.$delete(this.currentCustomField.config, 'labelProperty');
+            } else {
+                delete this.currentCustomField.config.labelProperty;
+            }
 
             // pass the label property into the custom field's config to allow different / multiple labelProperties
             if (entityType.hasOwnProperty('config') && entityType.config.hasOwnProperty('labelProperty')) {

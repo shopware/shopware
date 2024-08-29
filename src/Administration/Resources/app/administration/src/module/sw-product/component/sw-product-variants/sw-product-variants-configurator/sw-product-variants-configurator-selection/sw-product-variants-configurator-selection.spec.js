@@ -1,13 +1,11 @@
-/*
+/**
  * @package inventory
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
-// eslint-disable-next-line max-len
-import swProductVariantsConfiguratorSelection from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-Shopware.Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', swProductVariantsConfiguratorSelection);
 
 async function createWrapper(additionalProps = {}) {
     const defaultProps = {
@@ -39,6 +37,14 @@ async function createWrapper(additionalProps = {}) {
                     template: '<div></div>',
                 },
                 'sw-grid': await wrapTestComponent('sw-grid', { sync: true }),
+                'sw-grid-column': true,
+                'sw-pagination': true,
+                'sw-container': true,
+                'sw-empty-state': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });
@@ -132,16 +138,19 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         await wrapper.setData({
             displayTree: true,
         });
+
+        const selectionOptionsMock = jest.fn(); jest.spyOn(wrapper.vm, 'selectOptions');
+        wrapper.vm.selectOptions = selectionOptionsMock;
+
         await wrapper.setProps({
             disabled: true,
         });
 
-        const selectionOption = jest.spyOn(wrapper.vm, 'selectOptions');
         const entityCollection = getPropertyCollection();
         await wrapper.setProps({
             disabled: false,
             options: entityCollection,
         });
-        expect(selectionOption).toHaveBeenCalled();
+        expect(selectionOptionsMock).toHaveBeenCalled();
     });
 });

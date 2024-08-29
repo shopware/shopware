@@ -1,3 +1,7 @@
+/**
+ * @package customer-order
+ * @group disabledCompat
+ */
 import topBarButtonState from './topbar-button.store';
 
 describe('topbar-button.store', () => {

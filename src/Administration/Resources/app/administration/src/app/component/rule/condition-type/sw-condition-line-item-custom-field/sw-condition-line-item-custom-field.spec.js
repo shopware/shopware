@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -67,6 +71,18 @@ async function createWrapper() {
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-product-variant-info': true,
+                'sw-icon': true,
+                'sw-highlight-text': true,
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-condition-type-select': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-field-copyable': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

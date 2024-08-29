@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import EntityCollection from 'src/core/data/entity-collection.data';

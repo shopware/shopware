@@ -1,3 +1,7 @@
+/**
+ * @package inventory
+ * @group disabledCompat
+ */
 import TagApiService from 'src/core/service/api/tag.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';

@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';

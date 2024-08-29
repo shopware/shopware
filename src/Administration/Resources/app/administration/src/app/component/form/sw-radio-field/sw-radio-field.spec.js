@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -39,6 +40,9 @@ const createWrapper = async () => {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
             },
         },
     });
@@ -119,6 +123,9 @@ describe('components/form/sw-radio-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
         });
@@ -139,6 +146,9 @@ describe('components/form/sw-radio-field', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-help-text': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
                 },
             },
             slots: {

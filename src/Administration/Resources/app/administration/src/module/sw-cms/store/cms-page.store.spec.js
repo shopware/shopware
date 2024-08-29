@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import './cms-page.store';
 
 describe('src/module/sw-cms/store/cms-page.store.ts', () => {

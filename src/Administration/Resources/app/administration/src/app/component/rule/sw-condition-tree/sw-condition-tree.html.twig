@@ -2,7 +2,7 @@
 {% block sw_condition_tree %}
 <div class="sw-condition-tree">
     <sw-condition-tree-node
-        v-if="conditionTree !== null"
+        v-if="conditionTree"
         :disabled="disabled"
         :parent-condition="rootCondition"
         :condition="conditionTree"

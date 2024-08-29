@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import 'src/app/decorator/condition-type-data-provider.decorator';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 

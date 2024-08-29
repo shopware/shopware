@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 
 const createMultiDataIpSelect = async () => {
@@ -13,6 +17,12 @@ const createMultiDataIpSelect = async () => {
                 'sw-icon': {
                     template: '<div></div>',
                 },
+                'sw-loader': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-label': true,
+                'sw-button': true,
             },
         },
         props: {

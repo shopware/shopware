@@ -1,5 +1,6 @@
 /**
  * @module app/recently-search-service
+ * @package buyers-experience
  */
 
 /**

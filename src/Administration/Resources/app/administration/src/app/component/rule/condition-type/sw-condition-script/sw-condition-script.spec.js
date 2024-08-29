@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
@@ -83,6 +87,11 @@ async function createWrapper(condition = {}) {
                 'sw-product-variant-info': {
                     template: '<div class="sw-product-variant-info"><slot></slot></div>',
                 },
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-button': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

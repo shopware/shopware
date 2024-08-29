@@ -1,7 +1,7 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
-
 
 describe('core/application.js', () => {
     const originalInjectJs = Shopware.Application.injectJs;

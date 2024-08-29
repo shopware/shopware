@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigYoutubeVideo from 'src/module/sw-cms/elements/youtube-video/config';

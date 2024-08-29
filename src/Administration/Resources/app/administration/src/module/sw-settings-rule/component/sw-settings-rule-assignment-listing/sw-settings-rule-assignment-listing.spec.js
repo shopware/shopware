@@ -3,6 +3,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 function createEntityCollectionMock(entityName, items = []) {
@@ -59,6 +60,21 @@ async function createWrapper(props = defaultProps) {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                'sw-bulk-edit-modal': true,
+                'sw-icon': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-pagination': true,
+                'sw-field-error': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-loader': true,
+                'router-link': true,
             },
         },
     });

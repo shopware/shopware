@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 /* global adminPath */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
@@ -78,6 +82,13 @@ async function createWrapperForComponent(componentName, props = {}) {
                 'sw-textarea-field': {
                     template: '<div class="sw-textarea-field"></div>',
                 },
+                'sw-form-field-renderer': true,
+                'sw-condition-unit-menu': true,
+                'sw-condition-modal': true,
+                'sw-product-variant-info': true,
+                'sw-select-result': true,
+                'sw-highlight-text': true,
+                'sw-help-text': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import SyncApiService from './sync.api.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigVimeoVideo from 'src/module/sw-cms/elements/vimeo-video/config';

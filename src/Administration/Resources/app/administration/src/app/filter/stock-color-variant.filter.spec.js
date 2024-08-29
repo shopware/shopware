@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/filter/stock-color-variant.filter.ts', () => {
     const stockColorVariantFilter = Shopware.Filter.getByName('stockColorVariant');
 

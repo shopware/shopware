@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import AdminWorker from 'src/core/worker/admin-worker';

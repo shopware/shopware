@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import genericRuleCondition from 'src/core/service/utils/generic-rule-condition.utils';

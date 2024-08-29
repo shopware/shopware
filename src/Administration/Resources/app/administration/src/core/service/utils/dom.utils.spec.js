@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import dom from 'src/core/service/utils/dom.utils';

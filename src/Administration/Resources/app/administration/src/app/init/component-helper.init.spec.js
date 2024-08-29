@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initComponentHelper from 'src/app/init/component-helper.init';
 
 describe('src/app/init/component-helper.init.ts', () => {

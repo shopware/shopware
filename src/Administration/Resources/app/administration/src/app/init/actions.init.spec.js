@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initActions from 'src/app/init/actions.init';
 import { actionExecute } from '@shopware-ag/meteor-admin-sdk/es/app/action';
 import ExtensionSdkService from '../../core/service/api/extension-sdk.service';

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 describe('src/app/filter/date.filter.ts', () => {
     const dateFilter = Shopware.Filter.getByName('date');
 

@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initializeModal from 'src/app/init/modals.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 

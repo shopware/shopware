@@ -89,6 +89,16 @@ async function createWrapper(extension) {
                 'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
                 'sw-extension-rating-modal': true,
+                'sw-extension-deactivation-modal': true,
+                'sw-extension-uninstall-modal': true,
+                'sw-extension-permissions-modal': true,
+                'sw-extension-privacy-policy-extensions-modal': true,
+                'sw-tabs': true,
+                'sw-base-field': true,
+                'sw-field-error': true,
+                'sw-loader-deprecated': true,
+                i18n: true,
+                'sw-label': true,
             },
             provide: {
                 extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -109,6 +119,7 @@ async function createWrapper(extension) {
 
 /**
  * @package checkout
+ * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {

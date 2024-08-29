@@ -2,6 +2,7 @@ import ExtensionHelperService from 'src/app/service/extension-helper.service';
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 describe('src/app/service/extension-helper.service.js', () => {
     /**

@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import FlatTree from 'src/core/helper/flattree.helper';

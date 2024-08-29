@@ -1,5 +1,6 @@
 /**
  * @package buyers-experience
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -25,6 +26,7 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'router-view': true,
+                'sw-skeleton': true,
             },
             provide: {
                 repositoryFactory: {

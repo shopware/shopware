@@ -1,5 +1,6 @@
 /**
  * @package content
+ * @group disabledCompat
  */
 import './index';
 

@@ -7,7 +7,7 @@
 <sw-switch-field
     v-model:value="multiSelectSwitch"
     class="sw-custom-field-detail__switch"
-    :disabled="multiSelectSwitchDisabled"
+    :disabled="multiSelectSwitchDisabled || undefined"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
     @update:value="onChangeMultiSelectSwitch"
 />

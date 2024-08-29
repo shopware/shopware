@@ -2,6 +2,7 @@ import createRuleAssignmentConfigService from 'src/module/sw-settings-rule/servi
 
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 describe('src/module/sw-settings-rule/service/rule-assignment-configuration.service.js', () => {
     it('should contain configurations', () => {

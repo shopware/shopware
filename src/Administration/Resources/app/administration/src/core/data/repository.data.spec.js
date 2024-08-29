@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';

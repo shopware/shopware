@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initComponents from 'src/app/init/component.init';
 
 describe('src/app/init/component.init.ts', () => {

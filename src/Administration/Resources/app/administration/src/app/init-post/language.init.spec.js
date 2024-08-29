@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initLanguageService from 'src/app/init-post/language.init';
 
 describe('src/app/init-post/language.init.ts', () => {

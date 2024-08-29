@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';

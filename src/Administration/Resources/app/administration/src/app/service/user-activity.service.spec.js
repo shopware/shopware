@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import UserActivityService from './user-activity.service';
 
 describe('src/app/service/user-activity.service.ts', () => {

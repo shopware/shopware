@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import initializeSettingItems from 'src/app/init/settings-item.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 

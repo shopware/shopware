@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ * @group disabledCompat
+ */
 import ApiService from 'src/core/service/api.service';
 
 describe('/core/service/api.service.ts', () => {

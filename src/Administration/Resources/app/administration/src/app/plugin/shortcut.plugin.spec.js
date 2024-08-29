@@ -1,5 +1,6 @@
 /**
  * @package admin
+ * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -375,6 +376,10 @@ describe('app/plugins/shortcut.plugin', () => {
                     'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
                     'sw-container': await Shopware.Component.build('sw-container'),
                     'sw-button': await Shopware.Component.build('sw-button'),
+                    'sw-text-editor-table-toolbar': true,
+                    'sw-code-editor': true,
+                    'sw-text-editor-link-menu': true,
+                    'sw-text-editor-toolbar-table-button': true,
                 },
             },
         });

@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';

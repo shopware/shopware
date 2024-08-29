@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import CaptchaService from 'src/module/sw-settings-basic-information/service/captcha.service';
 
 describe('src/module/sw-settings-basic-information/service/captcha.service.js', () => {

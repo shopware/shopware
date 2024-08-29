@@ -1,5 +1,6 @@
 /**
  * @package services-settings
+ * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
@@ -108,6 +109,10 @@ async function createWrapper(privileges = []) {
                 'sw-data-grid': true,
                 'sw-button': true,
                 'sw-context-menu-item': true,
+                'sw-button-process': true,
+                'sw-verify-user-modal': true,
+                'sw-media-modal-v2': true,
+                'sw-alert': true,
             },
         },
     });
@@ -160,9 +165,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
     it('should not be an admin by default', async () => {
         await wrapper.setData({ isLoading: false });
-        const adminSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
 
-        expect(adminSwitch.attributes().value).toBeUndefined();
         expect(wrapper.vm.user.admin).toBe(false);
     });
 });

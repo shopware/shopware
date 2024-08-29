@@ -1,3 +1,7 @@
+/**
+ * @package buyers-experience
+ * @group disabledCompat
+ */
 import './cmsDataResolver.service';
 
 const pageMock = {

@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import { shallowMount, config } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -49,6 +53,13 @@ async function createWrapper(customProps = {}) {
             associationValue: 'rule_uuid',
             ...customProps,
         },
+        global: {
+            stubs: {
+                'sw-loader': {
+                    template: '<div class="sw-loader"></div>',
+                },
+            },
+        },
     });
 }
 
@@ -58,8 +69,11 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             const wrapper = await createWrapper({
                 initialConditions: null,
             });
+            await flushPromises();
 
-            const swLoader = wrapper.find('sw-loader');
+            expect(wrapper.vm.conditionTree).toBeNull();
+
+            const swLoader = wrapper.find('.sw-loader');
 
             expect(swLoader.exists()).toBe(true);
         });

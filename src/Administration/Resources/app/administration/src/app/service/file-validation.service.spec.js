@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ * @group disabledCompat
+ */
 import fileValidationService from './file-validation.service';
 
 const { checkByExtension, checkByType } = fileValidationService();

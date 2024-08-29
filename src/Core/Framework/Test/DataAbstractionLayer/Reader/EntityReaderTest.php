@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
@@ -2539,6 +2540,42 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductCollection::class, $consistsOf);
 
         static::assertCount(1, $consistsOf);
+    }
+
+    public function testAssociationWithOrderBy(): void
+    {
+        $ids = new IdsCollection();
+        $productBuilder = (new ProductBuilder($ids, 'test'))
+            ->active(true)
+            ->price(100)
+            ->visibility()
+            ->variant(
+                (new ProductBuilder($ids, 'test-1'))
+                    ->active(true)
+                    ->name('foo')
+                    ->visibility()
+                    ->build()
+            );
+
+        /** @var EntityRepository<ProductCollection> $entityRepository */
+        $entityRepository = $this->getContainer()->get('product.repository');
+        $entityRepository->create(
+            [$productBuilder->build()],
+            Context::createDefaultContext()
+        );
+
+        $criteria = new Criteria();
+
+        $criteria->getAssociation('children')
+            ->addSorting(new FieldSorting('purchaseUnit'))
+            ->addGroupField(new FieldGrouping('displayGroup'));
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $result = $entityRepository->search($criteria, $context);
+
+        static::assertEquals($ids->get('test'), $result->getEntities()->first()?->getId());
     }
 
     /**

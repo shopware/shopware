@@ -302,6 +302,8 @@ class EntityReader implements EntityReaderInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
+        $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+
         if ($criteria->getTitle()) {
             $query->setTitle($criteria->getTitle() . '::read');
         }

@@ -89,7 +89,7 @@
         "meyfa/php-svg": "^0.14.0",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
-        "opensearch-project/opensearch-php": "^2.0",
+        "opensearch-project/opensearch-php": "^2.3.1",
         "padaliyajay/php-autoprefixer": "^1.4",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",

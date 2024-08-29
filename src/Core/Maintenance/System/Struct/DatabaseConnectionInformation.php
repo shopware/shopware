@@ -5,8 +5,11 @@ namespace Shopware\Core\Maintenance\System\Struct;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
+use Shopware\Core\Maintenance\MaintenanceException;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class DatabaseConnectionInformation extends Struct
 {
@@ -28,6 +31,11 @@ class DatabaseConnectionInformation extends Struct
 
     protected ?bool $sslDontVerifyServerCert = null;
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Native return type will be added
+     *
+     * @return DatabaseConnectionInformation
+     */
     public function assign(array $options)
     {
         // We pass request values directly to the assign method,
@@ -48,12 +56,12 @@ class DatabaseConnectionInformation extends Struct
     {
         $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));
         if ($dsn === '') {
-            throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' not defined.');
+            throw MaintenanceException::environmentVariableNotDefined('DATABASE_URL');
         }
 
         $params = parse_url($dsn);
         if ($params === false) {
-            throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
+            throw MaintenanceException::environmentVariableNotValid('DATABASE_URL', $dsn, 'Not a valid DSN');
         }
 
         foreach ($params as $param => $value) {
@@ -66,8 +74,8 @@ class DatabaseConnectionInformation extends Struct
 
         $path = (string) ($params['path'] ?? '/');
         $dbName = substr($path, 1);
-        if (!isset($params['scheme']) || !isset($params['host']) || trim($dbName) === '') {
-            throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
+        if (!isset($params['scheme'], $params['host']) || trim($dbName) === '') {
+            throw MaintenanceException::environmentVariableNotValid('DATABASE_URL', $dsn, 'Not a valid DSN');
         }
 
         return (new self())->assign([
@@ -188,10 +196,16 @@ class DatabaseConnectionInformation extends Struct
 
     public function validate(): void
     {
-        if ($this->hostname !== '' && $this->databaseName !== '' && $this->username !== null && $this->username !== '') {
-            return;
+        if ($this->hostname === '') {
+            throw MaintenanceException::dbConnectionParameterMissing('hostname');
         }
 
-        throw new DatabaseSetupException('Provided database connection information is not valid.');
+        if ($this->databaseName === '') {
+            throw MaintenanceException::dbConnectionParameterMissing('databaseName');
+        }
+
+        if ($this->username === null || $this->username === '') {
+            throw MaintenanceException::dbConnectionParameterMissing('username');
+        }
     }
 }

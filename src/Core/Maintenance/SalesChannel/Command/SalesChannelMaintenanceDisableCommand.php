@@ -15,5 +15,5 @@ use Symfony\Component\Console\Attribute\AsCommand;
 #[Package('core')]
 class SalesChannelMaintenanceDisableCommand extends SalesChannelMaintenanceEnableCommand
 {
-    protected $setMaintenanceMode = false;
+    protected bool $setMaintenanceMode = false;
 }

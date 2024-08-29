@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
@@ -27,7 +28,7 @@ class UserRecoveryServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private const VALID_EMAIL = 'info@shopware.com';
+    private const VALID_EMAIL = UserProvisioner::USER_EMAIL_FALLBACK;
 
     private UserRecoveryService $userRecoveryService;
 
@@ -219,7 +220,7 @@ class UserRecoveryServiceTest extends TestCase
  */
 class RuleValidator extends CallableClass
 {
-    public ?UserRecoveryRequestEvent $event;
+    public ?UserRecoveryRequestEvent $event = null;
 
     public function __invoke(): void
     {

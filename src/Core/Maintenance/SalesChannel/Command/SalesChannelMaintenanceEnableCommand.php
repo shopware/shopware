@@ -23,10 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
-    /**
-     * @var bool
-     */
-    protected $setMaintenanceMode = true;
+    protected bool $setMaintenanceMode = true;
 
     public function __construct(
         private readonly EntityRepository $salesChannelRepository

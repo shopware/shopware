@@ -4,7 +4,7 @@ namespace Shopware\Core\Maintenance\System\Service;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException;
+use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
  * @deprecated tag:v6.7.0 - will be removed without a replacement
@@ -17,7 +17,10 @@ class JwtCertificateGenerator
      */
     public function generateString(?string $passphrase = null): array
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret');
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret'
+        );
 
         $key = \openssl_pkey_new([
             'private_key_bits' => 2048,
@@ -28,16 +31,16 @@ class JwtCertificateGenerator
         ]);
 
         if ($key === false) {
-            throw new JwtCertificateGenerationException('Failed to generate key');
+            throw MaintenanceException::jwtCertificateGenerationFailed('Failed to generate key');
         }
 
         if (!openssl_pkey_export($key, $privateKey, $passphrase)) {
-            throw new JwtCertificateGenerationException('Failed to export private key');
+            throw MaintenanceException::jwtCertificateGenerationFailed('Failed to export private key');
         }
 
         $keyData = openssl_pkey_get_details($key);
         if ($keyData === false) {
-            throw new JwtCertificateGenerationException('Failed to export public key');
+            throw MaintenanceException::jwtCertificateGenerationFailed('Failed to export public key');
         }
 
         return [$privateKey, $keyData['key']];
@@ -45,7 +48,10 @@ class JwtCertificateGenerator
 
     public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret');
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret'
+        );
 
         [$private, $public] = $this->generateString($passphrase);
 

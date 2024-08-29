@@ -67,9 +67,8 @@ class SystemSetupCommandTest extends TestCase
 
         static::assertArrayHasKey('APP_SECRET', $env);
         static::assertArrayHasKey('INSTANCE_ID', $env);
-        unset($env['APP_SECRET'], $env['INSTANCE_ID']);
-        unset($env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT']);
-        static::assertEquals([
+        unset($env['APP_SECRET'], $env['INSTANCE_ID'], $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT']);
+        static::assertSame([
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',
             'DATABASE_URL' => 'mysql://localhost:3306/shopware',
@@ -128,7 +127,7 @@ class SystemSetupCommandTest extends TestCase
         $env = (new Dotenv())->parse($envContent);
 
         $envLocal = require __DIR__ . '/.env.local.php';
-        static::assertEquals($env, $envLocal);
+        static::assertSame($env, $envLocal);
     }
 
     public function testSymfonyFlexGeneratesWarning(): void

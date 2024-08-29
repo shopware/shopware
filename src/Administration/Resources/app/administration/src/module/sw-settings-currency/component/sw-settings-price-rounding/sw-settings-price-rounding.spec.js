@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 
 /* eslint-disable max-len */

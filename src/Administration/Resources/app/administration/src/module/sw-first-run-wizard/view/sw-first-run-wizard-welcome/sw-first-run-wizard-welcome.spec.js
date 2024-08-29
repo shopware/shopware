@@ -85,7 +85,6 @@ const searchLanguage = [
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () => {
     async function createWrapper() {

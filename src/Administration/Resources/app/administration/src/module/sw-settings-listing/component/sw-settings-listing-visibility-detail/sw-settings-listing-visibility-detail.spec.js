@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package inventory
- * @group disabledCompat
  */
 
 // Turn off known errors

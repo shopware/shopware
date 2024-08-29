@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 async function createWrapper(privileges = [], additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-settings-tax-list', {

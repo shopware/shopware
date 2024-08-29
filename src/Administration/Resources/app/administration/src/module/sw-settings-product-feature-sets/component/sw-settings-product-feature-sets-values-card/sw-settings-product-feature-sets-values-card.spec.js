@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package inventory
- * @group disabledCompat
  */
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {

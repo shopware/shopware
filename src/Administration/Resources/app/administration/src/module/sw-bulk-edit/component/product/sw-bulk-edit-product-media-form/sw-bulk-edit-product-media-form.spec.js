@@ -1,6 +1,5 @@
 /**
- * @package services-settingsg
- * @group disabledCompat
+ * @package services-settings
  */
 import { mount } from '@vue/test-utils';
 import { createStore } from 'vuex';

@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

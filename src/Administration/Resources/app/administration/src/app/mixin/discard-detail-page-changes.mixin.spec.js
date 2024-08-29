@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import 'src/app/mixin/discard-detail-page-changes.mixin';
 import { mount, config } from '@vue/test-utils';

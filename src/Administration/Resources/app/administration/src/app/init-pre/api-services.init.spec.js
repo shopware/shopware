@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeApiServices from 'src/app/init-pre/api-services.init';
 

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeRepositoryFactory from './repository.init';
 

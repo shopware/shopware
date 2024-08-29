@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import Vuex from 'vuex';
 import adminHelpCenterStore from './admin-help-center.store';

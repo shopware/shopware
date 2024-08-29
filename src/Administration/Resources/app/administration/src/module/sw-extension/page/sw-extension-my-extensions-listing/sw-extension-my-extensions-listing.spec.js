@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeShortcutService from 'src/app/init/shortcut.init';
 

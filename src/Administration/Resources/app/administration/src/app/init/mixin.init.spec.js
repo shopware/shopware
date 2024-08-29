@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import createAppMixin from 'src/app/init/mixin.init';
 

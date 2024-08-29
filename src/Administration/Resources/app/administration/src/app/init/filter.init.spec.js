@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import createAppFilter from 'src/app/init/filter.init';
 

@@ -13,7 +13,6 @@ function createUpdateApiService() {
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('updateApiService', () => {
     it('is registered correctly', async () => {

@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import PromotionSyncApiService from 'src/core/service/api/promotion-sync.api.service';
 import createLoginService from 'src/core/service/login.service';

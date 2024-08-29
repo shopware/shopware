@@ -5,7 +5,6 @@ import MockAdapter from 'axios-mock-adapter';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 function getDocumentApiService() {

@@ -3,7 +3,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;

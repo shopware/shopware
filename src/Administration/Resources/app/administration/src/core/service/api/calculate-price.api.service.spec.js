@@ -1,6 +1,5 @@
 /**
  * @package checkout
- * @group disabledCompat
  */
 import CalculatePriceService from 'src/core/service/api/calculate-price.api.service';
 import createLoginService from 'src/core/service/login.service';

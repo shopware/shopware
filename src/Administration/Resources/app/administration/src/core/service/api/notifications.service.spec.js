@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import NotificationsService from 'src/core/service/api/notifications.service';
 import createLoginService from 'src/core/service/login.service';

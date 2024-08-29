@@ -3,7 +3,6 @@ import 'src/app/component/base/sw-icon';
 
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 
 async function createWrapper() {

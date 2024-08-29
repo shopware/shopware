@@ -6,7 +6,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const fieldClasses = [

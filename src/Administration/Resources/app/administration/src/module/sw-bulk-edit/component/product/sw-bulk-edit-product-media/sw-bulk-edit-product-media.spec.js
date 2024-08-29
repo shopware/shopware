@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
- * @group disabledCompat
  * @returns {Promise<Wrapper<Vue>>}
  */
 async function createWrapper() {

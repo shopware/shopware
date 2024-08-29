@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initLanguageService from 'src/app/init-post/language.init';
 

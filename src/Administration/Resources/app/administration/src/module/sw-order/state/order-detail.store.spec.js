@@ -1,6 +1,5 @@
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 import orderDetailState from 'src/module/sw-order/state/order-detail.store';

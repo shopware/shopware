@@ -5,7 +5,6 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 const mockItem = {

@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
@@ -136,7 +135,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const editProfileModal = wrapper.find('.sw-import-export-edit-profile-modal');
 
         expect(editProfileModal.exists()).toBe(true);
-        expect(editProfileModal.attributes('show')).toBeUndefined();
+        const showEditProfileModal = editProfileModal.attributes('show');
+        expect(showEditProfileModal === 'false' || showEditProfileModal === undefined).toBe(true);
 
         const createProfileButton = wrapper.find('.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-open-action');
         await createProfileButton.trigger('click');

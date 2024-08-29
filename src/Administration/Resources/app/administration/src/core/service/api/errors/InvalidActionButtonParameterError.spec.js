@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import InvalidActionButtonParameterError from './InvalidActionButtonParameterError';
 

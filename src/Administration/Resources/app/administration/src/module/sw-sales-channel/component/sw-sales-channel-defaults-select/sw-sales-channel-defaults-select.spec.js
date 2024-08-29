@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import { shallowMount } from '@vue/test-utils';
 

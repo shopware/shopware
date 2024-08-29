@@ -2,7 +2,6 @@ import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.s
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('src/app/service/discount-campaign.service.ts', () => {
     beforeAll(() => {

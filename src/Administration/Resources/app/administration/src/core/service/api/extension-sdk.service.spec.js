@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import ExtensionSdkService from 'src/core/service/api/extension-sdk.service';

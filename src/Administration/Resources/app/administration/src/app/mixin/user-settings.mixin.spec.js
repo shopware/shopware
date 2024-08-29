@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import 'src/app/mixin/user-settings.mixin';
 import { mount } from '@vue/test-utils';

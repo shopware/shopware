@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {

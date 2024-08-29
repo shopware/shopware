@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeNotifications from 'src/app/init/notification.init';
 import { notification } from '@shopware-ag/meteor-admin-sdk';

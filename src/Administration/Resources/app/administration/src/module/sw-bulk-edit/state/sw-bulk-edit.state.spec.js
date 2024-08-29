@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 

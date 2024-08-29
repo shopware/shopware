@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import CmsPageTypeService from '../service/cms-page-type.service';
 import initCmsPageTypes from './cmsPageTypes.init';

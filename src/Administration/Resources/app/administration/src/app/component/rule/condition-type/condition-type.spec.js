@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 /* global adminPath */
 import { mount } from '@vue/test-utils';

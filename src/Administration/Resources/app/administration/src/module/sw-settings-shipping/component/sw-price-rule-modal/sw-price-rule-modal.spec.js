@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 function createRuleMock(isNew) {

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import UtilService from './util.service';
 

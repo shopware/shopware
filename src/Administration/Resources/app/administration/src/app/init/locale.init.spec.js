@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeLocaleService from 'src/app/init/locale.init';
 

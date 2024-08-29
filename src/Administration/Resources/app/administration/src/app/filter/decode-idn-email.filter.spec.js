@@ -1,7 +1,6 @@
 
 /**
  * @package admin
- * @group disabledCompat
  */
 
 const { Filter } = Shopware;

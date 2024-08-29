@@ -6,7 +6,6 @@ Shopware.Component.override('sw-settings-customer-group-detail', settingCustomer
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-customer-group-detail', {

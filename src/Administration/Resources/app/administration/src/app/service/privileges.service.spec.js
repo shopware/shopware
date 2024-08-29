@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import PrivilegesService from 'src/app/service/privileges.service';

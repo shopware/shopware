@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import { fileSize, date, dateWithUserTimezone, toISODate } from 'src/core/service/utils/format.utils';

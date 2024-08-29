@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import { createRouter, createWebHistory } from 'vue-router';
 import initTabs from 'src/app/init/tabs.init';
@@ -122,14 +121,6 @@ describe('src/app/init/tabs.init', () => {
 
         // start handler for extensionAPI
         initTabs();
-    });
-
-    beforeEach(async () => {
-        // Shopware.State.unregisterModule('tabs');
-        // // Reset tab store
-        // Object.keys(Shopware.State.get('tabs').tabItems).forEach(key => {
-        //     Vue.set(Shopware.State.get('tabs').tabItems, key, []);
-        // });
     });
 
     it('should initialize tab extension API correctly', async () => {

@@ -5,7 +5,6 @@ import 'src/module/sw-order/mixin/cart-notification.mixin';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 const addresses = [

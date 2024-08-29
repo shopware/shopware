@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initPreIndex from 'src/app/init-pre/index';
 

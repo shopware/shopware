@@ -78,12 +78,15 @@ class DeprecationPlugin {
 
         Vue.mixin({
             created() {
-                const instance = getCurrentInstance();
-                if (!instance) return;
+                /**
+                 * This could break with any minor version of Vue as it's concidered interanl api.
+                 */
+                const _instance = getCurrentInstance();
+                if (!_instance) return;
 
 
-                const { props } = instance.type;
-                const propsData = instance.props;
+                const { props } = _instance.type;
+                const propsData = _instance.props;
 
                 const deprecatedProps = _this.getDeprecatedProps(props);
 

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import eventBus from 'src/core/service/utils/eventBus.utils';

@@ -5,7 +5,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 async function createWrapper() {

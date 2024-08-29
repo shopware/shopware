@@ -119,7 +119,6 @@ async function createWrapper(extension) {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {

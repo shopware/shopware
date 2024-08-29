@@ -2,7 +2,6 @@ import convertUnit from './unit-conversion.utils';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
     describe('weights', () => {

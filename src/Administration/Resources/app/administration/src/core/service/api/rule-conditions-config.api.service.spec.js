@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import RuleConditionsConfigApiService from 'src/core/service/api/rule-conditions-config.api.service';
 import createLoginService from 'src/core/service/login.service';

@@ -4,7 +4,6 @@ import Entity from 'src/core/data/entity.data';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;

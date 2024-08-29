@@ -1,8 +1,6 @@
-/*
+/**
  * @package inventory
- * @group disabledCompat
  */
-
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';

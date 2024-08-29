@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import MockAdapter from 'axios-mock-adapter';
 import SystemConfigService from 'src/core/service/api/system-config.api.service';

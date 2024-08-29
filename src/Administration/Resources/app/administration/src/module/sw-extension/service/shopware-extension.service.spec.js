@@ -27,7 +27,6 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;

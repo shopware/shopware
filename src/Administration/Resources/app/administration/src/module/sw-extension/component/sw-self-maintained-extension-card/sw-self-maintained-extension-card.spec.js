@@ -50,7 +50,6 @@ async function createWrapper() {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     beforeAll(() => {

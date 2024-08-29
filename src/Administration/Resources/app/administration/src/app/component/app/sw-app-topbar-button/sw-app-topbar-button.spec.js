@@ -1,6 +1,5 @@
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';

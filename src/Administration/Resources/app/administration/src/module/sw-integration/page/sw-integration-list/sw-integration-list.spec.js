@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';

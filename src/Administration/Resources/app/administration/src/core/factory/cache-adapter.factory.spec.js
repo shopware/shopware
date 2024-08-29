@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';

@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeUserContext from 'src/app/init-post/user-information.init';
 import { initializeUserNotifications } from 'src/app/state/notification.store';

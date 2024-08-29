@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import RecentlySearchService from 'src/app/service/recently-search.service';
 

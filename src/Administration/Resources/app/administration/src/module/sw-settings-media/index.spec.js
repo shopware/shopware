@@ -1,6 +1,5 @@
 /**
  * @package inventory
- * @group disabledCompat
  */
 import './index';
 

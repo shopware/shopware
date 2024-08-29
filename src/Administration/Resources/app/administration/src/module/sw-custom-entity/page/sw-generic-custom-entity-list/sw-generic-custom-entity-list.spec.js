@@ -115,7 +115,6 @@ async function createWrapper(query = {}) {
 
 /**
  * @package content
- * @group disabledCompat
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
     it('should display the empty state when 0 entities are found', async () => {

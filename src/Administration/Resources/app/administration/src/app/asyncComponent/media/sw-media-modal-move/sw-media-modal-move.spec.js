@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';

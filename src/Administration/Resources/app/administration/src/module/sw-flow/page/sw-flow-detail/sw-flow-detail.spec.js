@@ -5,7 +5,6 @@ import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service'
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 class MockFlowBuilderService extends FlowBuilderService {

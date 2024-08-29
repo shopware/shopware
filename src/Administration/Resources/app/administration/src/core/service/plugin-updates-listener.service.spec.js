@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 

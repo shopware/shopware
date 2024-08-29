@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import MediaApiService from 'src/core/service/api/media.api.service';
 import createLoginService from 'src/core/service/login.service';

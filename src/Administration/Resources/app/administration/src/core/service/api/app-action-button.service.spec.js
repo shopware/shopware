@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import AppActionButtonService from 'src/core/service/api/app-action-button.service';

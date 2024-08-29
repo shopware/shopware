@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 

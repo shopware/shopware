@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import template from './sw-settings-custom-field-set-create.html.twig';
 

@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     async function createWrapper() {

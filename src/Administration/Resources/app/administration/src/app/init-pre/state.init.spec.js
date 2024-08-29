@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initState from 'src/app/init-pre/state.init';
 

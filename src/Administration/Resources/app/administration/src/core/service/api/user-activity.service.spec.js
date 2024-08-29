@@ -13,7 +13,6 @@ function createUserActivityApiService() {
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('userActivityApiService', () => {
     it('is registered correctly', async () => {

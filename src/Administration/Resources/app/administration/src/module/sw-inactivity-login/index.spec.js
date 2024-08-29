@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import 'src/module/sw-inactivity-login/index';
 

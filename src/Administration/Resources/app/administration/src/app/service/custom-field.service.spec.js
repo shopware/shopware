@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import createCustomFieldService from 'src/app/service/custom-field.service';

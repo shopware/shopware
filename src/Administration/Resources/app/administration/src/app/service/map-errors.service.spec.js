@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import * as mapErrors from 'src/app/service/map-errors.service';
 import ShopwareError from 'src/core/data/ShopwareError';

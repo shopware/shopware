@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import jsonApiParserService from 'src/core/service/jsonapi-parser.service';

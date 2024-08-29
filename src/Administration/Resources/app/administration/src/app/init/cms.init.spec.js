@@ -1,6 +1,5 @@
 /**
  * @package content
- * @group disabledCompat
  */
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';

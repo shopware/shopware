@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeAppModules from 'src/app/init/modules.init';
 import baseModules from 'src/module';

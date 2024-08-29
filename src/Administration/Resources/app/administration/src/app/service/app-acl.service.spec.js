@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import AppAclService from 'src/app/service/app-acl.service';

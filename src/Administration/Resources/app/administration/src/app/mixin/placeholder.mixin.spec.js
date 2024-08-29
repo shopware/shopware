@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import 'src/app/mixin/placeholder.mixin';
 import { shallowMount } from '@vue/test-utils';

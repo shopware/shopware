@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import vueHelper from 'src/core/service/utils/vue-helper.utils';

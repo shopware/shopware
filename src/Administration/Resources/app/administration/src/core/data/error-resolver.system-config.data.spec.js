@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import ShopwareError from 'src/core/data/ShopwareError';

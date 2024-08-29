@@ -13,7 +13,6 @@ function createCartStoreServiceService() {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('cartStoreService', () => {
     it('is registered correctly', async () => {

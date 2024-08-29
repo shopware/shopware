@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeHttpClient from 'src/app/init/http.init';
 

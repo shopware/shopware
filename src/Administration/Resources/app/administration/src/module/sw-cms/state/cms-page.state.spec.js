@@ -1,6 +1,5 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import 'src/module/sw-cms/state/cms-page.state';
 

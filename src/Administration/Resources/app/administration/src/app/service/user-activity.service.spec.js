@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import UserActivityService from './user-activity.service';
 

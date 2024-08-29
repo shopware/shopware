@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import { reactive } from 'vue';
 import UserConfigBaseClass from './user-config.class';

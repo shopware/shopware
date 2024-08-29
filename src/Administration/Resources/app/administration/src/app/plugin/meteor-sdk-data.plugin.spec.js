@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';

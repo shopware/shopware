@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initializeExtensionDataLoader from 'src/app/init/extension-data-handling.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';

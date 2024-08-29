@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import RuleConditionService from 'src/app/service/rule-condition.service';
 

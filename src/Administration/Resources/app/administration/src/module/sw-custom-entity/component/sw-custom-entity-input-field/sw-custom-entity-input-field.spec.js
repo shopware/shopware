@@ -40,7 +40,6 @@ const basicMockData = {
 
 /**
  * @package content
- * @group disabledCompat
  */
 describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () => {
     ['string', 'text', 'int', 'float', 'boolean', 'date'].forEach((type) => {

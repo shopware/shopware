@@ -4,7 +4,6 @@ import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 function getCollection(entity, collection) {

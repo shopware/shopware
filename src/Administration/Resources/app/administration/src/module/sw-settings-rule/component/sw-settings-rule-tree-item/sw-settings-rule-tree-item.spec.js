@@ -3,7 +3,6 @@ import getTreeItems from 'src/app/component/tree/sw-tree/fixtures/treeItems';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const testAssociationName = 'testAssociation';

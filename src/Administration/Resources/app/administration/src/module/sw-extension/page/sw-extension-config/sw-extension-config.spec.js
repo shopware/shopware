@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
     let SwExtensionConfig;

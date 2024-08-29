@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 describe('src/app/filter/thumbnail-size.filter.ts', () => {
     const thumbnailSizeFilter = Shopware.Filter.getByName('thumbnailSize');

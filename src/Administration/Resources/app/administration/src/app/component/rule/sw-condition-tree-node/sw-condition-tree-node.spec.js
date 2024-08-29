@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import { mount, config } from '@vue/test-utils';
 
 const subComponent = {

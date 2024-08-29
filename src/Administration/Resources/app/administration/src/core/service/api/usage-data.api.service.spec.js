@@ -1,6 +1,5 @@
 /**
  * @package data-services
- * @group disabledCompat
  */
 import MockAdapter from 'axios-mock-adapter';
 import createLoginService from 'src/core/service/login.service';

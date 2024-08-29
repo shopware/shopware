@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import initContext from 'src/app/init/context.init';
 import {

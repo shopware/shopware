@@ -6,7 +6,6 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 async function createWrapper() {

@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -379,6 +380,12 @@ class OpenApiDefinitionSchemaBuilder
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
                 'items' => $this->getPropertyAssocsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
+            ]);
+        } elseif ($jsonField instanceof PriceField) {
+            $definition = new Property([
+                'type' => 'array',
+                'property' => $jsonField->getPropertyName(),
+                'items' => new Schema(['ref' => '#/components/schemas/Price']),
             ]);
         } else {
             $definition = new Property([

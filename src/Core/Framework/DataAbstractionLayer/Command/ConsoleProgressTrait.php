@@ -22,8 +22,6 @@ trait ConsoleProgressTrait
      */
     protected $progress;
 
-    protected bool $noProgress = false;
-
     /**
      * @return array<string, string>
      */
@@ -38,7 +36,7 @@ trait ConsoleProgressTrait
 
     public function startProgress(ProgressStartedEvent $event): void
     {
-        if (!$this->io || $this->noProgress) {
+        if (!$this->io) {
             return;
         }
 

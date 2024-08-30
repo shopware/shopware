@@ -51,8 +51,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
-        $this->noProgress = (bool) $input->getOption('no-progress');
+        $this->io = $input->getOption('no-progress') ? null : new ShopwareStyle($input, $output);
 
         $skip = \is_string($input->getOption('skip')) ? explode(',', (string) $input->getOption('skip')) : [];
         $only = \is_string($input->getOption('only')) ? explode(',', (string) $input->getOption('only')) : [];

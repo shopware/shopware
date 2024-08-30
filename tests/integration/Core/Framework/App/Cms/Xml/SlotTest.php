@@ -8,6 +8,13 @@ use Shopware\Core\Framework\App\Cms\CmsExtensions;
 
 /**
  * @internal
+ *
+ * @phpstan-type SlotArray array{
+ *      name: string,
+ *      type: string,
+ *      config: array<string, array<string, string|int>>,
+ *      position: int
+ * }
  */
 class SlotTest extends TestCase
 {
@@ -52,6 +59,7 @@ class SlotTest extends TestCase
             [
                 'name' => $name,
                 'type' => $type,
+                'position' => 0,
                 'config' => $config,
             ],
             $slot->toArray('en-GB')
@@ -59,7 +67,7 @@ class SlotTest extends TestCase
     }
 
     /**
-     * @return array<array<string|int|array<string, mixed>>>
+     * @return list<SlotArray>
      */
     public static function provideSlots(): array
     {
@@ -74,6 +82,7 @@ class SlotTest extends TestCase
                         'value' => 'cover',
                     ],
                 ],
+                'position' => 0,
             ],
             [
                 1,
@@ -89,6 +98,7 @@ class SlotTest extends TestCase
                         'value' => 'auto',
                     ],
                 ],
+                'position' => 0,
             ],
             [
                 2,
@@ -100,6 +110,7 @@ class SlotTest extends TestCase
                         'value' => 'contain',
                     ],
                 ],
+                'position' => 0,
             ],
         ];
     }

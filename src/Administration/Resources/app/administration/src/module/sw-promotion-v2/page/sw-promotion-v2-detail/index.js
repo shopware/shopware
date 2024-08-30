@@ -85,8 +85,7 @@ export default {
             criteria.getAssociation('discounts')
                 .addSorting(Criteria.sort('createdAt', 'ASC'));
 
-            criteria.getAssociation('individualCodes')
-                .setLimit(25);
+            criteria.getAssociation('individualCodes');
 
             return criteria;
         },

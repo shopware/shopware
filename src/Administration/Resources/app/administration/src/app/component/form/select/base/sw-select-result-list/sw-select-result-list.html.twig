@@ -6,6 +6,8 @@
         :popover-class="popoverClass"
         :z-index="1100"
         :resize-width="popoverResizeWidth"
+        :popover-config-extension="{ stopScrollPropagation: true }"
+
     >
         <div
             ref="popoverContent"

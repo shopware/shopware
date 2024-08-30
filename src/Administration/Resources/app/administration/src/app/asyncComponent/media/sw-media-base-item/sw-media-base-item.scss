@@ -39,29 +39,11 @@ $sw-media-base-item-preview-background: $color-white;
     }
 
     .sw-media-base-item__selected-indicator {
-        display: grid;
         visibility: hidden;
         position: absolute;
         top: $sw-media-base-item-pseudo-padding;
         left: $sw-media-base-item-pseudo-padding;
-        width: 16px;
-        height: 16px;
-        background: $sw-media-base-item-color-input-background;
-        border: 1px solid $sw-media-base-item-color-input-border;
-        border-radius: $sw-media-base-item-border-radius-input;
         z-index: 1;
-
-        &.selected-indicator--checked {
-            background: $sw-media-base-item-color-selected;
-            border: 1px solid $sw-media-base-item-color-selected;
-        }
-
-        .sw-icon {
-            color: $sw-media-base-item-color-checkmark;
-            position: relative;
-            top: 2px;
-            left: 2px;
-        }
     }
 
     .selected-indicator--list {

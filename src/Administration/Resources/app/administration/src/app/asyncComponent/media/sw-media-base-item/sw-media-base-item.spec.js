@@ -23,6 +23,7 @@ const setup = async (itemChanges = {}) => {
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-color-badge': true,
                 'mt-icon': MtIcon,
+                'mt-checkbox': true,
             },
             provide: {
                 systemConfigApiService: {

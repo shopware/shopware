@@ -1,6 +1,6 @@
 ---
 title: Mark autoprefixer as deprecated
-issue: NEXT-0000
+issue: NEXT-38109
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect

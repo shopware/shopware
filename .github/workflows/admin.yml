@@ -1,0 +1,68 @@
+name: Admin checks and tests
+
+on:
+  push:
+    branches:
+      - trunk
+    paths:
+      - src/Administration/Resources/app/administration/**/*
+  pull_request:
+    paths:
+      - src/Administration/Resources/app/administration/**/*
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          installAdmin: true
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Cache ESLint and Stylelint
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/Administration/Resources/app/administration/node_modules/.eslintcache
+            src/Administration/Resources/app/administration/node_modules/.stylelintcache
+          key: admin-lint-${{ runner.os }}-6.6
+
+      - name: Lint
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run lint
+      - name: Lint types
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run lint:types
+      - name: Lint scss
+        working-directory: src/Administration/Resources/app/administration
+        run: npm run lint:scss
+
+  admin:
+    runs-on: ubuntu-latest
+    name: "Jest Admin"
+    env:
+      APP_ENV: prod
+      DATABASE_URL: mysql://root:root@database:3306/root
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      OPENSEARCH_URL: elasticsearch:9200
+      BLUE_GREEN_DEPLOYMENT: 1
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          installAdmin: true
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      # idea: Only run tests that have changed or the tests for files that have changed
+      - name: Run Jest Admin
+        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent

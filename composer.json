@@ -230,7 +230,6 @@
         "e2e:cypress": " ",
         "e2e:cypress-repeat": " ",
         "e2e:open": "Launches the Cypress E2E test-suite UI",
-        "e2e:percy": " ",
         "e2e:prepare": "Installs the Admin Extension SDK test plugin with fixtures and dumps the database",
         "e2e:sdk-plugin:fixture-to-plugin": " ",
         "e2e:sdk-plugin:plugin-to-fixture": " ",
@@ -365,9 +364,6 @@
         "e2e:open": [
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
-        ],
-        "e2e:percy": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
         ],
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",

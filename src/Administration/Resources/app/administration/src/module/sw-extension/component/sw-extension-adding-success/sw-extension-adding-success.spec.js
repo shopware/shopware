@@ -18,7 +18,6 @@ async function createWrapper() {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     it('passes correct props to sw-circle-icon', async () => {

@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import { mount } from '@vue/test-utils';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));

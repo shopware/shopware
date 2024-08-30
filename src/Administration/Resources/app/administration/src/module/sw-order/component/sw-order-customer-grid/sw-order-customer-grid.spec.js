@@ -3,7 +3,6 @@ import orderState from 'src/module/sw-order/state/order.store';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 let customerData = [];

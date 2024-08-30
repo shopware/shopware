@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import CmsElementFavorites from 'src/module/sw-cms/service/cms-element-favorites.service';
 
 const responses = global.repositoryFactoryMock.responses;

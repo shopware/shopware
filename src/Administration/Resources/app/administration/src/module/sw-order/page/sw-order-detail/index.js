@@ -15,6 +15,8 @@ const ApiService = Shopware.Classes.ApiService;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'acl',

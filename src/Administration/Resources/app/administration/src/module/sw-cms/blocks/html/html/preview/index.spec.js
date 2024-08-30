@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 
 async function createWrapper() {

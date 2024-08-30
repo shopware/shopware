@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/discard-detail-page-changes.mixin';
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -12,6 +15,9 @@ async function createWrapper(...entityNames) {
             {
                 name: 'sw.jest.index',
                 path: '/jest/:id',
+                component: {
+                    template: '<div></div>',
+                },
             },
         ],
     });

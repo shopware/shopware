@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import TimezoneService from './timezone.service';
 
 describe('src/core/service/timezone.service.ts', () => {

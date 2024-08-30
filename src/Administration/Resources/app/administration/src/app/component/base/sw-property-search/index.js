@@ -274,7 +274,7 @@ Component.register('sw-property-search', {
                 });
         },
 
-        /** @deprecated tag:v6.7.0 - Will be removed. */
+
         sortOptions(options) {
             if (options.length > 0 && options[0].group.sortingType === 'alphanumeric') {
                 options.sort((a, b) => (a.translated.name.localeCompare(b.translated.name, undefined, { numeric: true })));

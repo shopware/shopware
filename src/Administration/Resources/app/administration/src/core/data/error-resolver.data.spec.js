@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import ErrorResolver from 'src/core/data/error-resolver.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 

@@ -28,7 +28,6 @@ const pageMock = {
 
 /**
  * @package content
- * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-cms-page-assignment', { sync: true }), {

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import ApiService from '../api.service';
 
 const { Service } = Shopware;

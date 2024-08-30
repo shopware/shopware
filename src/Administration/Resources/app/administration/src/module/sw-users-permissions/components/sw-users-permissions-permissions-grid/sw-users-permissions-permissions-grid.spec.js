@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';

@@ -1,10 +1,10 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-
-/**
- * @package customer-order
- */
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-settings-customer-group-list', {
@@ -43,11 +43,12 @@ async function createWrapper(privileges = []) {
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
-                                    <sw-context-menu-item-stub class="sw-entity-listing__context-menu-edit-action"
-                                                          v-if="detailRoute"
-                                                          :disabled="!allowEdit"
-                                                          :routerLink="{ name: detailRoute, params: { id: item.id } }">
-                                    </sw-context-menu-item-stub>
+                                    <div class="sw-entity-listing__context-menu-edit-action"
+                                         v-if="detailRoute"
+                                         :disabled="!allowEdit || undefined"
+                                         :routerLink="{ name: detailRoute, params: { id: item.id } }"
+                                    >
+                                    </div>
                                 </slot>
 
                                 <slot name="delete-action" v-bind="{ item }"></slot>
@@ -57,6 +58,10 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-empty-state': true,
                 'router-link': true,
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-language-info': true,
+                'sw-language-switch': true,
             },
             provide: {
                 repositoryFactory: {

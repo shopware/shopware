@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import Store from 'src/app/store/index';
 
 describe('src/app/store/index.ts', () => {

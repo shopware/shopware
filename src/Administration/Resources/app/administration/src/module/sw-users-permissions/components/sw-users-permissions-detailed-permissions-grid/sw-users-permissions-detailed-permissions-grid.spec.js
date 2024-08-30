@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 // eslint-disable-next-line
 import fs from 'fs';

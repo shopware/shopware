@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -34,6 +37,19 @@ async function createWrapper() {
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-error-summary': true,
+                'mt-slider': true,
+                'sw-app-topbar-button': true,
+                'sw-notification-center': true,
+                'sw-help-center-v2': true,
+                'router-link': true,
+                'sw-app-actions': true,
+                'sw-button-deprecated': true,
+                'sw-sales-channel-switch': true,
+                'sw-alert': true,
+                'sw-form-field-renderer': true,
+                'sw-inherit-wrapper': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': true,
             },
             provide: {
                 systemConfigApiService: {

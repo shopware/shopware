@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 async function createWrapper(customPropsData = {}) {
     return mount(await wrapTestComponent('sw-multi-snippet-drag-and-drop', {

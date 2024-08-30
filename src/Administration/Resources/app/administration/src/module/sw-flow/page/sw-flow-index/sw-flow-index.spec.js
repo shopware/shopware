@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-flow-index', {

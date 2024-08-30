@@ -31,6 +31,9 @@ const createWrapper = async () => {
                 'sw-field-error': {
                     template: '<div></div>',
                 },
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
         attachTo: document.body,
@@ -111,6 +114,9 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
         });
@@ -131,6 +137,9 @@ describe('app/component/form/sw-switch-field-deprecated', () => {
                     'sw-field-error': {
                         template: '<div></div>',
                     },
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
                 },
             },
             slots: {

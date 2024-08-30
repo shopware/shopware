@@ -54,15 +54,6 @@ async function createWrapper() {
         props: {
             ...defaultProps,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'product_detail',
-                    },
-                },
-            };
-        },
         global: {
             stubs: {
                 'sw-dynamic-url-field': true,
@@ -72,6 +63,8 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'sw-switch-field': true,
+                'sw-alert': true,
+                'sw-media-modal-v2': true,
             },
             provide: {
                 repositoryFactory: {
@@ -95,6 +88,11 @@ describe('module/sw-cms/elements/manufacturer-logo/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state: () => ({
+                currentPage: {
+                    type: 'product_detail',
+                },
+            }),
         });
     });
 

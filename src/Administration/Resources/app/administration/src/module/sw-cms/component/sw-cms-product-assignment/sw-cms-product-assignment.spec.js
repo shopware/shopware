@@ -28,6 +28,10 @@ async function createWrapper() {
                 'sw-card': {
                     template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
                 },
+                'sw-highlight-text': true,
+                'sw-select-result': true,
+                'sw-select-result-list': true,
+                'sw-pagination': true,
             },
             provide: {
                 repositoryFactory: {},

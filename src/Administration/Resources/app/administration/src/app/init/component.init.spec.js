@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initComponents from 'src/app/init/component.init';
 
 describe('src/app/init/component.init.ts', () => {

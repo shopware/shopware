@@ -11,7 +11,7 @@ let pluginInstalled = false;
  * @private
  */
 export default {
-    install(Vue) {
+    install(app) {
         if (pluginInstalled) {
             warn('DeviceHelper', 'This plugin is already installed');
             return false;
@@ -19,7 +19,7 @@ export default {
 
         const deviceHelper = new DeviceHelper();
 
-        Object.defineProperties(Vue.prototype, {
+        Object.defineProperties(app.config.globalProperties, {
             $device: {
                 get() {
                     return deviceHelper;
@@ -27,7 +27,7 @@ export default {
             },
         });
 
-        Vue.mixin({
+        app.mixin({
             unmounted() {
                 this.$device.removeResizeListener(this);
             },

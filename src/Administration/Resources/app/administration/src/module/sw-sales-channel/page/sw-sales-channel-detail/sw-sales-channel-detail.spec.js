@@ -3,9 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import swSalesChannelDetail from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
-
-Shopware.Component.register('sw-sales-channel-detail', swSalesChannelDetail);
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {

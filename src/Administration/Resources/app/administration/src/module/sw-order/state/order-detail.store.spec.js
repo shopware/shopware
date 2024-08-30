@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import orderDetailState from 'src/module/sw-order/state/order-detail.store';
 
 describe('src/module/sw-order/state/order-detail.store', () => {

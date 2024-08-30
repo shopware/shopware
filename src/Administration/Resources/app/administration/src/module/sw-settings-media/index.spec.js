@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import './index';
 
 const { Module } = Shopware;

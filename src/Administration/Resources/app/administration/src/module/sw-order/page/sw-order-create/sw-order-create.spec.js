@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const remindPaymentMock = jest.fn(() => {
@@ -89,6 +89,12 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                     </div>
                 `,
             },
+            'sw-order-create-invalid-promotion-modal': true,
+            'sw-app-topbar-button': true,
+            'sw-help-center-v2': true,
+            'router-link': true,
+            'sw-error-summary': true,
+            'sw-tabs-deprecated': true,
         };
     });
 
@@ -194,7 +200,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         const buttonProcess = wrapper.find('.sw-button-process');
         await buttonProcess.trigger('click');
 
-        await wrapper.getComponent('.sw-button-process').vm.$emit('update:process-success');
+        await wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess');
         await flushPromises();
 
         expect(contextState.mutations.setLanguageId).toHaveBeenCalledWith(expect.anything(), '2fbb5fe2e29a4d70aa5854ce7ce3e20b');

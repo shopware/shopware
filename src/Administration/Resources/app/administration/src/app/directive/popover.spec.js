@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import popover from 'src/app/directive/popover.directive';
 import { mount } from '@vue/test-utils';
 

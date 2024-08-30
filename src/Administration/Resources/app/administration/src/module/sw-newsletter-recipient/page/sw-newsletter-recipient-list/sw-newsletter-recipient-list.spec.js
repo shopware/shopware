@@ -90,6 +90,11 @@ async function createWrapper() {
                 },
                 'sw-entity-listing': {
                     props: ['items', 'allowView', 'allowEdit', 'allowDelete', 'allowInlineEdit'],
+                    data() {
+                        return {
+                            isInlineEdit: false,
+                        };
+                    },
                     template: `
                     <div>
                     <template v-for="item in items">
@@ -129,6 +134,16 @@ async function createWrapper() {
                 'sw-container': true,
                 'sw-button': true,
                 'sw-loader': true,
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-text-field': true,
+                'sw-label': true,
+                'router-link': true,
+                'sw-sidebar-item': true,
+                'sw-newsletter-recipient-filter-switch': true,
+                'sw-sidebar-collapse': true,
+                'sw-entity-multi-select': true,
+                'sw-sidebar': true,
             },
             provide: {
                 repositoryFactory: {

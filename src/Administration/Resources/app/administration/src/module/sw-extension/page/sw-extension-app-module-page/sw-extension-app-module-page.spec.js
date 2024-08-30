@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 import testApps from '../../../../app/service/_mocks/testApps.json';

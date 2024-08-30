@@ -83,6 +83,12 @@ async function createWrapper(props = defaultProps) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'router-link': true,
+                'sw-loader': true,
+                'sw-field-copyable': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
         },
     });

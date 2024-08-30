@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import 'src/module/sw-cms/service/cms.service';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import Entity from 'src/core/data/entity.data';

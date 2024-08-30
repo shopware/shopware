@@ -20,7 +20,6 @@ async function createWrapper(propsData) {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     it('should not show any domains: null', async () => {

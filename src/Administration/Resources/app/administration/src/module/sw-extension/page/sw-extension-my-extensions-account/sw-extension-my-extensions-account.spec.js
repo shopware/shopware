@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import { mount } from '@vue/test-utils';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 

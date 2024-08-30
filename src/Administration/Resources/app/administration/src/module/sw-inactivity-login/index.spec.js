@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/module/sw-inactivity-login/index';
 
 describe('src/module/sw-inactivity-login/page/index.ts', () => {

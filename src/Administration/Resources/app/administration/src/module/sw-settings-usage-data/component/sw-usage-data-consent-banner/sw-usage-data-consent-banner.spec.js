@@ -9,7 +9,6 @@ const usageDataService = {
 
 /**
  * @package data-services
- * @group disabledCompat
  */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
     const wrapper = mount(await wrapTestComponent('sw-usage-data-consent-banner', {

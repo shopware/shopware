@@ -49,6 +49,13 @@ async function createWrapper() {
                 'sw-checkbox-field': true,
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-button': true,
+                'sw-data-grid-skeleton': true,
             },
         },
     });

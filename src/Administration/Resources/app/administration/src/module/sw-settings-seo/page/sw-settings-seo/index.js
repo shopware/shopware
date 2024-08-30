@@ -8,6 +8,8 @@ import template from './sw-settings-seo.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     data() {
         return {
             isLoading: false,

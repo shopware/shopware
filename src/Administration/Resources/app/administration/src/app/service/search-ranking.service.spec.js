@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 import SearchRankingService, { searchRankingPoint, KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import searchRankingModules from './_mocks/searchRankingModules.json';

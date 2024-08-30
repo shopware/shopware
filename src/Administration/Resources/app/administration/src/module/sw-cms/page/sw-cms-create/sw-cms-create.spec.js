@@ -92,9 +92,6 @@ async function createWrapper(routeParams = {}) {
     });
 }
 
-/**
- * @package buyers-experience
- */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {
         Shopware.Store.unregister('cmsPageState');

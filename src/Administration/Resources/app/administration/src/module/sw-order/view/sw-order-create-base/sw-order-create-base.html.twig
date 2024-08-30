@@ -174,10 +174,8 @@
                                     </sw-order-saveable-field>
                                 </dd>
                             </template>
-                            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                             <template
-                                v-for="(delivery, index) in cartDeliveryDiscounts"
-                                v-if="cartDeliveryDiscounts"
+                                v-for="(_, index) in cartDeliveryDiscounts"
                                 :key="index"
                             >
                                 <dt

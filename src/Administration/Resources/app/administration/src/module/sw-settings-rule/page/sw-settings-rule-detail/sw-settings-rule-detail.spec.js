@@ -4,7 +4,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const { EntityCollection, Criteria } = Shopware.Data;

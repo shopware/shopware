@@ -52,7 +52,7 @@
                 showOnDisabledElements: true
             }"
             class="sw-order-list__add-order"
-            :disabled="!acl.can('order.creator')"
+            :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             :router-link="{ name: 'sw.order.create' }"
         >

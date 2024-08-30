@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package inventory
- * @group disabledCompat
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-general-info', () => {
     async function createWrapper() {

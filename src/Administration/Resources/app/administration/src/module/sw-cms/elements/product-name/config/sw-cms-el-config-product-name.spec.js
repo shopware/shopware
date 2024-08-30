@@ -24,15 +24,6 @@ async function createWrapper(propsOverride) {
             defaultConfig: {},
             ...propsOverride,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'product_detail',
-                    },
-                },
-            };
-        },
         global: {
             provide: {
                 cmsService: {},
@@ -53,6 +44,9 @@ async function createWrapper(propsOverride) {
                 },
                 'sw-container': true,
                 'sw-tabs-item': true,
+                'sw-text-editor': true,
+                'sw-cms-mapping-field': true,
+                'sw-select-field': true,
             },
         },
     });
@@ -64,6 +58,11 @@ describe('module/sw-cms/elements/product-name/config', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state: () => ({
+                currentPage: {
+                    type: 'product_detail',
+                },
+            }),
         });
     });
 

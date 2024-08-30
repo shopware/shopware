@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import UtilService from './util.service';
 
 describe('src/core/service/util.service.spec.js', () => {

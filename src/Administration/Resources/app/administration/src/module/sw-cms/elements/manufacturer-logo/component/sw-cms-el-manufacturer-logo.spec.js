@@ -54,15 +54,6 @@ async function createWrapper() {
             defaultConfig: {},
             ...defaultProps,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'product_detail',
-                    },
-                },
-            };
-        },
         global: {
             provide: {
                 cmsService: {
@@ -82,6 +73,11 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state: () => ({
+                currentPage: {
+                    type: 'product_detail',
+                },
+            }),
         });
     });
 

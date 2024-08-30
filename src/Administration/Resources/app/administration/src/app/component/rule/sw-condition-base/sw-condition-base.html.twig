@@ -26,7 +26,7 @@
                 class="sw-condition__placeholder"
                 size="medium"
                 :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
-                disabled
+                :disabled="disabled || undefined"
             />
             {% endblock %}
         </div>

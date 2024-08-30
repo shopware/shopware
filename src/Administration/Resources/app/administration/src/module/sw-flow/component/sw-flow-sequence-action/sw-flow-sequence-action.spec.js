@@ -9,7 +9,6 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 Shopware.Service().register('shopwareDiscountCampaignService', () => {

@@ -98,6 +98,9 @@ async function createWrapper({ salesChannel, products } = {}) {
                 'sw-context-menu-item': true,
                 'sw-extension-component-section': true,
                 'sw-ignore-class': true,
+                'sw-checkbox-field': true,
+                'router-link': true,
+                'sw-product-variant-info': true,
             },
             provide: {
                 repositoryFactory: {
@@ -168,13 +171,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.setData({
             searchTerm: 'Awesome Product',
         });
-
-        wrapper.vm.$refs.entityListing = {
-            selection: {
-                101: productMock,
-            },
-        };
-        await flushPromises();
 
         wrapper.vm.productVisibilityRepository.delete = jest.fn(() => Promise.reject(new Error('Error')));
         wrapper.vm.createNotificationError = jest.fn();

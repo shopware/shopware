@@ -1,8 +1,6 @@
-/*
+/**
  * @package inventory
- * @group disabledCompat
  */
-
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';

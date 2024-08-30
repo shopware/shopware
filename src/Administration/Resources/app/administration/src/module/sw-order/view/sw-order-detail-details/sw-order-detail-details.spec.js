@@ -1,3 +1,7 @@
+/**
+ * @package checkout
+ */
+
 import { mount } from '@vue/test-utils';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
@@ -111,6 +115,8 @@ async function createWrapper() {
                 'sw-textarea-field': true,
                 'sw-order-promotion-field': true,
                 'sw-extension-component-section': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-order-state-history-modal': true,
             },
             provide: {
                 repositoryFactory: {

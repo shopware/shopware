@@ -5,7 +5,6 @@ Shopware.State.registerModule('swShippingDetail', state);
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 const createWrapper = async () => {
     return mount(await wrapTestComponent('sw-settings-shipping-price-matrix', {

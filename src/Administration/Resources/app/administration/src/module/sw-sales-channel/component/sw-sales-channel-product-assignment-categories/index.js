@@ -12,6 +12,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-product-assignment-categories', {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory'],
 
     emits: ['selection-change', 'product-loading'],
@@ -91,6 +93,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                         this.isProductLoading = false;
                     });
             },
+            deep: true,
         },
     },
 

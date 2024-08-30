@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-arrow-field';
 

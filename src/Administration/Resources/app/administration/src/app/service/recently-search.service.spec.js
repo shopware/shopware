@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import RecentlySearchService from 'src/app/service/recently-search.service';
 
 describe('app/service/recently-search.service.js', () => {

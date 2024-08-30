@@ -1,6 +1,3 @@
-/**
- * @group disabledCompat
- */
 import 'src/app/component/filter/sw-existence-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/form/sw-select-field';

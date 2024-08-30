@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import InvalidActionButtonParameterError from './InvalidActionButtonParameterError';
 
 describe('InvalidActionButtonParameterError.ts', () => {

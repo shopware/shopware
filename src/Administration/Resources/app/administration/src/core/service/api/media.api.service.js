@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { fileReader, array } from 'src/core/service/util.service';
 import UploadTask from 'src/core/helper/upload-task.helper';
 import ApiService from '../api.service';

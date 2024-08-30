@@ -9,6 +9,8 @@ const { State } = Shopware;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         generateData: {
             get() {

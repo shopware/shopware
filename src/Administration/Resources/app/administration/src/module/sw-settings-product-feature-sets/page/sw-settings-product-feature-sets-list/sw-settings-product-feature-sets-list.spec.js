@@ -4,7 +4,6 @@ import Criteria from 'src/core/data/criteria.data';
 
 /**
  * @package inventory
- * @group disabledCompat
  */
 
 const { Mixin } = Shopware;

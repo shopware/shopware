@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package data-services
- * @group disabledCompat
  */
 
 const usageDataService = {

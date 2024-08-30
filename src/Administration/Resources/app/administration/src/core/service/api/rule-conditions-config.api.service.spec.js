@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import RuleConditionsConfigApiService from 'src/core/service/api/rule-conditions-config.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';

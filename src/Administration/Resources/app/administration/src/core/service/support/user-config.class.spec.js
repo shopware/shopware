@@ -1,10 +1,13 @@
-import Vue from 'vue';
+/**
+ * @package admin
+ */
+import { reactive } from 'vue';
 import UserConfigBaseClass from './user-config.class';
 
 class UserConfigImplementation extends UserConfigBaseClass {
     static USER_CONFIG_KEY = 'favorites';
 
-    state = Vue.observable({ favorites: [] });
+    state = reactive({ favorites: [] });
 
     getFavoriteBlockNames() {
         return this.state.favorites;

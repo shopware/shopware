@@ -3,7 +3,6 @@ import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 const { Context } = Shopware;

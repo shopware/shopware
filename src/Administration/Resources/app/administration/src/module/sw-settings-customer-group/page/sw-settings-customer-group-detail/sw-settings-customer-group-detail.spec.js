@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils';
-
 /**
- * @package customer-order
+ * @package services-settings
  */
+
+import { mount } from '@vue/test-utils';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -76,6 +76,12 @@ async function createWrapper(privileges = []) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-custom-field-set-renderer': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
+                'sw-product-variant-info': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-field-error': true,
             },
 
             provide: {

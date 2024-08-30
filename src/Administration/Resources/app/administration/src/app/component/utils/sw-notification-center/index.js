@@ -42,7 +42,7 @@ Component.register('sw-notification-center', {
 
     created() {
         this.unsubscribeFromStore = Shopware.State.subscribeAction(this.createNotificationFromSystemError);
-        if (!this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+        if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
             this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
         } else {
             Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);

@@ -3,7 +3,6 @@
  */
 import './index';
 
-
 describe('module/sw-cms/blocks/app/app-renderer/index', () => {
     it('should register the components', async () => {
         const registry = Shopware.Component.getComponentRegistry();

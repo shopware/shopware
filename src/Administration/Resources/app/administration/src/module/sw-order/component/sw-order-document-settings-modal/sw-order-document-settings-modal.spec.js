@@ -4,7 +4,6 @@ import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 const orderFixture = {

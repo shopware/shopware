@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import 'src/module/sw-cms/state/cms-page.state';
 
 describe('src/module/sw-cms/state/cms-page.state.ts', () => {

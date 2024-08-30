@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/listing.mixin';
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -28,10 +31,12 @@ async function createWrapper({
             {
                 name: 'sw.product.index',
                 path: '/sw/product/index',
+                component: { template: '<div></div>' },
             },
             {
                 name: 'sw.product.detail',
                 path: '/sw/product/detail',
+                component: { template: '<div></div>' },
             },
         ],
         history: createWebHashHistory(),

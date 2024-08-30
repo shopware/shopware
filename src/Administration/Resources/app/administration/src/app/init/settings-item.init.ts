@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package admin
  */
 export default function initializeSettingItems(): void {
     Shopware.ExtensionAPI.handle('settingsItemAdd', async (settingsItemConfig, additionalInformation) => {

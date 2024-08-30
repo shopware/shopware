@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 

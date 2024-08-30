@@ -34,7 +34,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="!allowSave"
+            :disabled="!allowSave || undefined"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
@@ -86,7 +86,7 @@
                         required
                         :label="$tc('sw-mail-header-footer.detail.basic.labelName')"
                         :placeholder="placeholder(mailHeaderFooter, 'name', $tc('sw-mail-header-footer.detail.basic.placeholderName'))"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                         :error="mailHeaderFooterNameError"
                     />
                     {% endblock %}
@@ -98,7 +98,7 @@
                         name="sw-field--mailHeaderFooter-description"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
                         :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -110,7 +110,7 @@
                         class="sw-mail-header-footer-detail__sales-channel"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
                 </sw-card>
@@ -133,7 +133,7 @@
                         :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
                         :completer-function="completerFunction"
                         :editor-config="editorConfig"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -148,7 +148,7 @@
                         :placeholder="placeholder(mailHeaderFooter, 'headerHtml', $tc('sw-mail-header-footer.detail.header.placeholderHtml'))"
                         :completer-function="completerFunction"
                         :editor-config="editorConfig"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
                 </sw-card>
@@ -171,7 +171,7 @@
                         :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
                         :completer-function="completerFunction"
                         :editor-config="editorConfig"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
 
@@ -186,7 +186,7 @@
                         :placeholder="placeholder(mailHeaderFooter, 'footerHtml', $tc('sw-mail-header-footer.detail.footer.placeholderHtml'))"
                         :completer-function="completerFunction"
                         :editor-config="editorConfig"
-                        :disabled="!acl.can('mail_templates.editor')"
+                        :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
                 </sw-card>

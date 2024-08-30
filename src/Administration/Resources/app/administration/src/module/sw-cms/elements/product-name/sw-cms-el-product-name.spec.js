@@ -24,15 +24,6 @@ async function createWrapper(propsOverride) {
             defaultConfig: {},
             ...propsOverride,
         },
-        data() {
-            return {
-                cmsPageState: {
-                    currentPage: {
-                        type: 'product_detail',
-                    },
-                },
-            };
-        },
         global: {
             mocks: {
                 $sanitize: key => key,
@@ -53,6 +44,12 @@ describe('module/sw-cms/elements/product-name/component', () => {
     beforeAll(() => {
         Shopware.Store.register({
             id: 'cmsPageState',
+            state: () => ({
+                currentPage: {
+                    type: 'product_detail',
+                },
+                currentDemoEntity: undefined,
+            }),
         });
     });
 
@@ -94,12 +91,6 @@ describe('module/sw-cms/elements/product-name/component', () => {
     it('should display skeleton on product name block if entity demo is null', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentDemoEntity: null,
-            },
-        });
-
         expect(wrapper.find('.sw-cms-el-product-name__placeholder').exists()).toBeTruthy();
     });
 
@@ -118,12 +109,6 @@ describe('module/sw-cms/elements/product-name/component', () => {
                         value: null,
                     },
                 },
-            },
-        });
-
-        await wrapper.setData({
-            cmsPageState: {
-                currentDemoEntity: null,
             },
         });
 
@@ -148,11 +133,8 @@ describe('module/sw-cms/elements/product-name/component', () => {
             },
         });
 
-        await wrapper.setData({
-            cmsPageState: {
-                currentDemoEntity: null,
-            },
-        });
+        Shopware.Store.get('cmsPageState').currentDemoEntity = null;
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-el-product-name__skeleton').exists()).toBeTruthy();
     });

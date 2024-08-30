@@ -4,7 +4,6 @@ import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/serv
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const { Criteria } = Shopware.Data;

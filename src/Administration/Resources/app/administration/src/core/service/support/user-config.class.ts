@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 const { Context, Data, Service, State } = Shopware;

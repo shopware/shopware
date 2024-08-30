@@ -16,6 +16,8 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['repositoryFactory', 'feature'],
 
     mixins: [
@@ -82,7 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
         this.createdComponent();
     },
 
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.unregisterModule();
     },
 

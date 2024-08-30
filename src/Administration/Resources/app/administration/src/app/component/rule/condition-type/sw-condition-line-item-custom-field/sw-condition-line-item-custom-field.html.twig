@@ -10,7 +10,7 @@
         entity="custom_field"
         :criteria="customFieldCriteria"
         :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         size="medium"
         show-clearable-button
         @update:value="onFieldChange"
@@ -45,7 +45,7 @@
         v-if="renderedField"
         name="sw-field--operator"
         v-bind="{ operators, condition }"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -57,7 +57,7 @@
         size="medium"
         :value="renderedFieldValue"
         :config="renderedField.config"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         @update:value="renderedFieldValue = $event"
     />
     {% endblock %}

@@ -3,7 +3,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));

@@ -13,7 +13,7 @@
     >
         <sw-form-field-renderer
             v-bind="getBind(field)"
-            :disabled="disabled"
+            :disabled="disabled || undefined"
             :value="values[field.name]"
             size="medium"
             show-clearable-button

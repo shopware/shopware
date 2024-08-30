@@ -22,7 +22,7 @@
                 {% block sw_product_stream_filter_field_select %}
                 <sw-product-stream-field-select
                     v-bind="{ field: fields[index], definition, index }"
-                    :disabled="!acl.can('product_stream.editor')"
+                    :disabled="!acl.can('product_stream.editor') || undefined"
                     :has-error="hasError"
                     @field-changed="updateFields"
                 />
@@ -34,7 +34,7 @@
             {% block sw_product_stream_filter_value %}
             <sw-product-stream-value
                 v-bind="{ condition, ...lastField }"
-                :disabled="!acl.can('product_stream.editor')"
+                :disabled="!acl.can('product_stream.editor') || undefined"
                 @type-change="changeType"
                 @boolean-change="changeBooleanValue"
                 @empty-change="changeEmptyValue"
@@ -48,7 +48,7 @@
         <sw-context-button
             v-tooltip="getNoPermissionsTooltip('product_stream.editor', false)"
             class="sw-product-stream-filter__context-button"
-            :disabled="!acl.can('product_stream.editor')"
+            :disabled="!acl.can('product_stream.editor') || undefined"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_filter_field_create_before_action %}

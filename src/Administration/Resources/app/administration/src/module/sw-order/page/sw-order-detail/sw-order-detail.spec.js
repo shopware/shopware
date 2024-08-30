@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 async function createWrapper(order = {}) {
@@ -59,6 +59,10 @@ async function createWrapper(order = {}) {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-order-leave-page-modal': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
             },
             provide: {
                 repositoryFactory: {

@@ -1,8 +1,6 @@
 import template from './sw-mail-template-index.html.twig';
 import './sw-mail-template-index.scss';
 
-const { Mixin } = Shopware;
-
 /**
  * @package buyers-experience
  */
@@ -10,11 +8,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    compatConfig: Shopware.compatConfig,
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    inject: ['acl'],
 
     data() {
         return {

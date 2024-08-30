@@ -77,6 +77,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-code-editor': true,
                 'sw-button': true,
                 'sw-skeleton': true,
+                'sw-language-switch': true,
             },
         },
     });

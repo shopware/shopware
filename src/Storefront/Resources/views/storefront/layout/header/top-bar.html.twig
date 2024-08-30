@@ -2,7 +2,8 @@
     <div class="top-bar d-none d-lg-block">
         {% block layout_header_top_bar_inner %}
             {% if page.header.languages.count > 1 or page.header.currencies.count > 1 or not feature('ACCESSIBILITY_TWEAKS') %}
-                <nav class="top-bar-nav">
+                {# @deprecated tag:v6.7.0 - The "top-bar" layout will use Bootstrap helper classes instead of custom CSS. #}
+                <nav class="top-bar-nav{% if feature('ACCESSIBILITY_TWEAKS') %} d-flex justify-content-end gap-3{% endif %}" aria-label="{{ 'header.topBarAriaLabel'|trans|striptags }}">
                     {% block layout_header_top_bar_language %}
                         {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' %}
                     {% endblock %}

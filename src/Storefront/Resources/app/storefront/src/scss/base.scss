@@ -82,6 +82,7 @@ https://sass-guidelin.es/#the-7-1-pattern
  * Layout-related sections
  * ----------------------- */
 @import 'layout/container';
+// @deprecated tag:v6.7.0 - File "_top-bar.scss" will be removed. Appearance will be styled by Bootstrap variables in "scss/skin/shopware/layout/_top-bar.scss".
 @import 'layout/top-bar';
 @import 'layout/header';
 @import 'layout/header-minimal';

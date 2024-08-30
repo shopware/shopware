@@ -21,37 +21,50 @@
                                     id="languagesDropdown-{{ position }}"
                                     data-bs-toggle="dropdown"
                                     aria-haspopup="true"
-                                    aria-expanded="false">
-                                <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
-                                <span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
+                                    aria-expanded="false"
+                                    aria-label="{{ 'header.languageTrigger'|trans({ '%lang%': page.header.activeLanguage.name })|striptags }}">
+                                <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></span>
+                                {# @deprecated tag:v6.7.0 - Toggling the text display will use Bootstrap helper classes instead of custom CSS. #}
+                                <span class="top-bar-nav-text{% if feature('ACCESSIBILITY_TWEAKS') %} d-none d-md-inline{% endif %}">{{ page.header.activeLanguage.name }}</span>
                             </button>
 
                             {% block layout_header_actions_languages_widget_form_items %}
-                                <div class="top-bar-list dropdown-menu dropdown-menu-end"
-                                    aria-labelledby="languagesDropdown-{{ position }}">
+                                <ul class="top-bar-list dropdown-menu dropdown-menu-end"
+                                    aria-label="{{ 'header.languageList'|trans|striptags }}">
                                     {% for language in page.header.languages %}
-                                        <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
-                                             title="{{ language.translated.name }}">
+                                        {% set isActiveLanguage = language.id is same as(page.header.activeLanguage.id) %}
+
+                                        {# @deprecated tag:v6.7.0 - `dropdown-item` class will be on the button as docuented by Bootstrap: https://getbootstrap.com/docs/5.3/components/dropdowns/#menu-items #}
+                                        {# @deprecated tag:v6.7.0 - `item-checked` class will be removed. Bootstrap class `active` will be used instead. #}
+                                        <li class="top-bar-list-item{% if not feature('ACCESSIBILITY_TWEAKS') %} dropdown-item{% endif %}{% if isActiveLanguage %} item-checked active{% endif %}">
                                             {% block layout_header_actions_languages_widget_form_items_flag %}
                                                 {% set isoCode = language.translationCode.code|lower|split('-') %}
                                                 {% set flagLanguage = isoCode[0] %}
                                                 {% set flagCountry = isoCode[1] %}
 
-                                                <label class="top-bar-list-label"
-                                                       for="{{ position }}-{{ language.id }}">
-                                                    <input id="{{ position }}-{{ language.id }}"
-                                                           class="top-bar-list-radio"
-                                                           value="{{ language.id }}"
-                                                           name="languageId"
-                                                           type="radio"
-                                                        {% if language.id is same as(page.header.activeLanguage.id) %} checked{% endif %}>
-                                                    <div class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></div>
-                                                    {{ language.name }}
-                                                </label>
+                                                {# @deprecated tag:v6.7.0 - Dropdown items will be buttons instead of radio inputs to imrpove accessibility #}
+                                                {% if feature('ACCESSIBILITY_TWEAKS') %}
+                                                    <button class="dropdown-item d-flex align-items-center gap-2{% if isActiveLanguage %} active{% endif %}" type="submit" name="languageId" id="{{ position }}-{{ language.id }}" value="{{ language.id }}">
+                                                        <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></span>
+                                                        {{ language.name }}
+                                                    </button>
+                                                {% else %}
+                                                    <label class="top-bar-list-label"
+                                                           for="{{ position }}-{{ language.id }}">
+                                                        <input id="{{ position }}-{{ language.id }}"
+                                                               class="top-bar-list-radio"
+                                                               value="{{ language.id }}"
+                                                               name="languageId"
+                                                               type="radio"
+                                                            {% if isActiveLanguage%} checked{% endif %}>
+                                                        <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ flagCountry }} language-{{ flagLanguage }}"></span>
+                                                        {{ language.name }}
+                                                    </label>
+                                                {% endif %}
                                             {% endblock %}
-                                        </div>
+                                        </li>
                                     {% endfor %}
-                                </div>
+                                </ul>
                             {% endblock %}
                         </div>
 

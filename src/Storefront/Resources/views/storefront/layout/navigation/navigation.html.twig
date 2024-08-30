@@ -54,50 +54,67 @@
                                                 <span itemprop="name">{{ name }}</span>
                                             </div>
                                         </a>
+                                        {% if feature('ACCESSIBILITY_TWEAKS') and (treeItem.children|length > 0) %}
+                                        <div class="position-absolute w-100 start-0 z-5">
+                                            <div class="navigation-flyout"
+                                                 data-flyout-menu-id="{{ treeItem.category.id }}">
+                                                <div class="container">
+                                                        {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                            themeIconConfig: themeIconConfig,
+                                                            navigationTree: treeItem,
+                                                            level: level+1,
+                                                            page: page
+                                                        } only %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endblock %}
                             {% endfor %}
                         {% endblock %}
                     </nav>
                 {% endblock %}
-            </div>
-        {% endblock %}
 
-        {% block layout_main_navigation_menu_flyout_wrapper %}
-            {% set navigationChildrenCount = 0 %}
-            {% for treeItem in page.header.navigation.tree %}
-                {% if treeItem.category.childCount > 0 %}
-                    {% set navigationChildrenCount = navigationChildrenCount + 1 %}
-                {% endif %}
-            {% endfor %}
+                {% if not feature('ACCESSIBILITY_TWEAKS') %}
+                {% block layout_main_navigation_menu_flyout_wrapper %}
+                    {% set navigationChildrenCount = 0 %}
+                    {% for treeItem in page.header.navigation.tree %}
+                        {% if treeItem.category.childCount > 0 %}
+                            {% set navigationChildrenCount = navigationChildrenCount + 1 %}
+                        {% endif %}
+                    {% endfor %}
 
-            {% if navigationChildrenCount > 0 %}
-                {% block layout_main_navigation_menu_flyout_container %}
-                    <div class="navigation-flyouts">
-                        {% block layout_main_navigation_menu_flyouts %}
-                            {% for treeItem in page.header.navigation.tree %}
-                                {% if treeItem.children|length > 0 %}
-                                    {% block layout_main_navigation_menu_flyout %}
-                                        <div class="navigation-flyout"
-                                             data-flyout-menu-id="{{ treeItem.category.id }}">
-                                            <div class="container">
-                                                {% block layout_main_navigation_menu_flyout_include %}
-                                                    {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
-                                                        themeIconConfig: themeIconConfig,
-                                                        navigationTree: treeItem,
-                                                        level: level+1,
-                                                        page: page
-                                                    } only %}
-                                                {% endblock %}
-                                            </div>
-                                        </div>
-                                    {% endblock %}
-                                {% endif %}
-                            {% endfor %}
+                    {% if navigationChildrenCount > 0 %}
+                        {% block layout_main_navigation_menu_flyout_container %}
+                            <div class="navigation-flyouts">
+                                {% block layout_main_navigation_menu_flyouts %}
+                                    {% for treeItem in page.header.navigation.tree %}
+                                        {% if treeItem.children|length > 0 %}
+                                            {% block layout_main_navigation_menu_flyout %}
+                                                <div class="navigation-flyout"
+                                                     data-flyout-menu-id="{{ treeItem.category.id }}">
+                                                    <div class="container">
+                                                        {% block layout_main_navigation_menu_flyout_include %}
+                                                            {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                                themeIconConfig: themeIconConfig,
+                                                                navigationTree: treeItem,
+                                                                level: level+1,
+                                                                page: page
+                                                            } only %}
+                                                        {% endblock %}
+                                                    </div>
+                                                </div>
+                                            {% endblock %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endblock %}
+                            </div>
                         {% endblock %}
-                    </div>
+                    {% endif %}
                 {% endblock %}
-            {% endif %}
+                {% endif %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

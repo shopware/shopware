@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 
 /**
@@ -25,9 +26,19 @@ export default class FlyoutMenuPlugin extends Plugin {
         activeCls: 'is-open',
 
         /**
+         * Class to remove when flyout is shown.
+         */
+        hiddenCls: 'hidden',
+
+        /**
          * Selector for the close buttons.
          */
         closeSelector: '.js-close-flyout-menu',
+
+        /**
+         * Selector id for the main navigation.
+         */
+        mainNavigationId: 'mainNavigation',
 
         /**
          * Id attribute for the flyout.
@@ -62,15 +73,35 @@ export default class FlyoutMenuPlugin extends Plugin {
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
 
         document.addEventListener('keydown', (event) => {
-            if (this._hasOpenedFlyouts === true && event.code === 'Escape' || event.keyCode === 27) {
+            if (this._hasOpenedFlyouts === true && (event.code === 'Escape' || event.keyCode === 27)) {
                 this._debounce(this._closeAllFlyouts);
             }
         });
+
+        const mainContent = document.getElementsByTagName('main')[0];
+        if (mainContent) {
+            mainContent.addEventListener('focusin', () => {
+                this._debounce(this._closeAllFlyouts);
+            });
+        }
 
         // register opening triggers
         Iterator.iterate(this._triggerEls, el => {
             const flyoutId = DomAccess.getDataAttribute(el, this.options.triggerDataAttribute);
             el.addEventListener(openEvent, this._openFlyoutById.bind(this, flyoutId, el));
+            el.addEventListener('keydown', (event) => {
+                if (event.code === 'Enter' || event.keyCode === 13) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this._hasOpenedFlyouts) {
+                        this._openFlyoutById(flyoutId, el, event);
+                        this._hasOpenedFlyouts = true;
+                    } else {
+                        this._closeAllFlyouts();
+                        this._hasOpenedFlyouts = false;
+                    }
+                }
+            });
             el.addEventListener(closeEvent, () => this._debounce(this._closeAllFlyouts));
         });
 
@@ -116,6 +147,10 @@ export default class FlyoutMenuPlugin extends Plugin {
     _closeFlyout(flyoutEl, triggerEl) {
         if (this._isOpen(triggerEl)) {
             flyoutEl.classList.remove(this.options.activeCls);
+            if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+                flyoutEl.classList.add(this.options.hiddenCls);
+                flyoutEl.style.removeProperty('top');
+            }
             triggerEl.classList.remove(this.options.activeCls);
             this._hasOpenedFlyouts = false;
         }
@@ -136,6 +171,12 @@ export default class FlyoutMenuPlugin extends Plugin {
         const flyoutEl = this.el.querySelector(`[${this.options.flyoutIdDataAttribute}='${flyoutId}']`);
 
         if (flyoutEl) {
+            if (Feature.isActive('ACCESSIBILITY_TWEAKS')) {
+                // padding is needed to see the complete focus style (otherwise it will be cut off)
+                const padding = parseInt(getComputedStyle(triggerEl).getPropertyValue('padding-bottom'), 10);
+                flyoutEl.style.top = `${this.el.offsetHeight + padding}px`;
+                flyoutEl.classList.remove(this.options.hiddenCls);
+            }
             this._debounce(this._openFlyout, flyoutEl, triggerEl);
         }
 

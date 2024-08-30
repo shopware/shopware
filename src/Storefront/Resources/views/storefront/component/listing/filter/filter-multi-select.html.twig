@@ -55,7 +55,7 @@
         {% endblock %}
 
         {% block component_filter_multi_select_dropdown %}
-            <div class="filter-multi-select-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+            <div class="filter-multi-select-dropdown filter-panel-item-dropdown z-4{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
                  id="{{ filterItemId }}">
                 {% block component_filter_multi_select_list %}
                     <ul class="filter-multi-select-list" aria-label="{{ displayName }}">

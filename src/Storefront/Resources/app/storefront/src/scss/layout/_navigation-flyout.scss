@@ -4,48 +4,59 @@ Navigation flyout
 Custom styling for navigation flyout which opens on hover over the main navigation.
 */
 
-.navigation-flyouts {
-    position: absolute;
-    z-index: $menu-flyout-zindex;
-    height: 0;
-    width: 100%;
-}
+/**
+* @deprecated tag:v6.7.0 - The complete navigation-flyout.scss file will be removed without replacement.
+* Starting with v6.7.0, the navigation flyout is implemented in the template with bootstrap.
+* See: src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig
+*/
 
-.navigation-flyout {
-    width: 100%;
-    box-shadow: 0 43px 43px -6px rgba($black, 0.2);
-    background-color: $white;
-    pointer-events: none;
-    position: absolute;
-    display: none;
-    height: 0;
-
-    &.is-open {
-        pointer-events: all;
-        display: block;
-        height: auto;
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .navigation-flyouts {
+        position: absolute;
+        z-index: $menu-flyout-zindex;
+        left: 0;
+        height: 0;
+        width: 100%;
     }
 }
 
-.navigation-flyout-content {
-    padding-bottom: 60px;
-}
+@if not feature('v6.7.0.0') {
+    .navigation-flyout {
+        width: 100%;
+        box-shadow: 0 43px 43px -6px rgba($black, 0.2);
+        background-color: $white;
+        pointer-events: none;
+        position: absolute;
+        display: none;
+        height: 0;
 
-.navigation-flyout-close {
-    padding: 10px 0 10px 10px;
-    cursor: pointer;
-}
+        &.is-open {
+            pointer-events: all;
+            display: block;
+            height: auto;
+        }
+    }
 
-.navigation-flyout-teaser-image-container {
-    display: block;
-    max-width: 100%;
-    height: 250px;
-}
+    .navigation-flyout-content {
+        padding-bottom: 60px;
+    }
 
-.navigation-flyout-teaser-image {
-    object-fit: cover;
-    display: block;
-    max-width: 100%;
-    width: 100%;
-    height: 100%;
+    .navigation-flyout-close {
+        padding: 10px 0 10px 10px;
+        cursor: pointer;
+    }
+
+    .navigation-flyout-teaser-image-container {
+        display: block;
+        max-width: 100%;
+        height: 250px;
+    }
+
+    .navigation-flyout-teaser-image {
+        object-fit: cover;
+        display: block;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+    }
 }

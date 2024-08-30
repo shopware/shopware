@@ -88,6 +88,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'layout/header-minimal';
 @import 'layout/footer';
 @import 'layout/main-navigation';
+/** @deprecated tag:v6.7.0 - Can be removed, is covered via template layout/navbar/navbar.html.twig */
 @import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 @import 'layout/offcanvas-cart';

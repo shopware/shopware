@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
@@ -56,7 +57,11 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
         $this->cachedResolvedConfigLoaderInvalidator->assigned($event);
 
         if (Feature::isActive('cache_rework')) {
-            $expectedInvalidatedTags = [$name];
+            $expectedInvalidatedTags = [
+                $name,
+                CachedDomainLoader::CACHE_KEY,
+                Translator::tag($salesChannelId),
+            ];
         }
 
         static::assertEquals(

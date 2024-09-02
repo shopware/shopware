@@ -21,12 +21,12 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
-        <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis">
+        <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis" public="true">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
             <argument>%shopware.cache.invalidation.delay_options.dsn%</argument>
         </service>
 
-        <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage">
+        <service id="shopware.cache.invalidator.storage.redis" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage" lazy="true">
             <argument type="service" id="shopware.cache.invalidator.storage.redis_adapter"/>
 
             <tag name="shopware.cache.invalidator.storage" storage="redis"/>
@@ -42,7 +42,7 @@
             <argument>%shopware.cache.invalidation.delay_options.storage%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator" public="true" lazy="true">
             <argument>%shopware.cache.invalidation.delay%</argument>
             <argument type="collection">
                 <argument type="service" id="cache.object"/>
@@ -213,6 +213,11 @@
             <argument>%shopware.cache.invalidation.http_cache%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
             <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheInvalidateDelayedCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
         <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>

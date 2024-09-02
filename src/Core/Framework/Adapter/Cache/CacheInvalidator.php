@@ -64,8 +64,6 @@ class CacheInvalidator
             return;
         }
 
-        error_log(print_r(implode('||', $tags), true) . PHP_EOL, 3, '/var/log/test.log');
-
         $this->purge($tags);
     }
 

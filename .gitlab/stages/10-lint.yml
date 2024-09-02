@@ -155,7 +155,7 @@ PHP static analysis:
         - !reference [ .scripts, init, composer ]
         - composer run framework:schema:dump
     script:
-        - composer run phpstan -- --error-format=gitlab | tee phpstan-report.json
+        - composer run phpstan -- --error-format=gitlab -vvv | tee phpstan-report.json
 
 PHP lint:
     extends: .base-no-setup

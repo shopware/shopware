@@ -228,7 +228,7 @@ class CacheStore implements StoreInterface
             return $this->collector->get($request);
         }
 
-        $tags = $this->tracer->get('all');
+        $tags = array_merge($this->tracer->get('all'), $this->collector->get($request));
 
         return array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request

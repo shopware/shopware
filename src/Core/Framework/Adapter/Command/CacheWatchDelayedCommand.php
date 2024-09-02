@@ -9,7 +9,9 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleSignalEvent;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Package('core')]
@@ -18,18 +20,22 @@ class CacheWatchDelayedCommand extends Command
 {
     /**
      * @internal
-     *
-     * @param \Redis|\RedisCluster $redis
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
-        private $redis
+        private readonly ContainerInterface $container
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if (!$output instanceof ConsoleOutputInterface) {
+            $output->write('This command is only available in console context.');
+
+            return self::FAILURE;
+        }
+
         $this->dispatcher->addListener(ConsoleEvents::SIGNAL, function (ConsoleSignalEvent $event): void {
             $signal = $event->getHandlingSignal();
             $event->setExitCode(0);
@@ -39,16 +45,23 @@ class CacheWatchDelayedCommand extends Command
             }
         });
 
-        $before = $this->redis->sMembers('invalidation');
+        $before = $this->container
+            ->get('shopware.cache.invalidator.storage.redis_adapter')
+            ->sMembers('invalidation');
 
-        $table = new Table($output);
+        $section = $output->section();
+
+        $table = new Table($section);
         $this->render($table, $before);
 
         // @phpstan-ignore-next-line
         while (true) {
-            $current = $this->redis->sMembers('invalidation');
+            $current = $this->container
+                ->get('shopware.cache.invalidator.storage.redis_adapter')
+                ->sMembers('invalidation');
 
             if ($before !== $current) {
+                $section->clear();
                 $this->render($table, $current);
                 $before = $current;
             }

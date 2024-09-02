@@ -110,8 +110,13 @@ class CacheInvalidationSubscriber
 
     public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
-        $keys = [];
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(['global.system.config', CachedSystemConfigLoader::CACHE_TAG]);
 
+            return;
+        }
+
+        $keys = [];
         if ($this->fineGrainedCacheConfig) {
             /** @var list<string> $keys */
             $keys = array_map(
@@ -137,6 +142,19 @@ class CacheInvalidationSubscriber
         if (!$snippets) {
             return;
         }
+
+        if (Feature::isActive('cache_rework')) {
+            $setIds = $this->getSetIds($snippets->getIds());
+
+            if (empty($setIds)) {
+                return;
+            }
+
+            $this->cacheInvalidator->invalidate(array_map(Translator::tag(...), $setIds));
+
+            return;
+        }
+
         if (!$this->fineGrainedCacheSnippet) {
             $this->cacheInvalidator->invalidate(['shopware.translator']);
 
@@ -978,6 +996,20 @@ class CacheInvalidationSubscriber
              WHERE product_stream_mapping.product_id IN (:ids)
              AND product_stream_mapping.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
+    private function getSetIds(array $ids): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(snippet_set_id)) FROM snippet WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
     }

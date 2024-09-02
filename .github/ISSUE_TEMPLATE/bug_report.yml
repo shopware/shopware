@@ -25,6 +25,7 @@ body:
           description: In which area or extension of the product does the behavior occur?
           options:
             - Platform(Default)
+            - Extension:Commercial
             - Extension:B2B-Suite
             - Extension:CINEMA-Theme
             - Extension:CMS-Professional

@@ -1,0 +1,44 @@
+name: Formatting the issue description to improve readability in Jira
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  replace-strings-with-regex:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Replace multiple strings using regex in issue description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            if (!issue.body) {
+              return;
+            }
+
+            const replacements = [
+              { pattern: /^###\s+(PHP Version)\n\n(.*)\n\n^###\s+(Shopware Version)\n\n(.*)\n\n^###\s+(Affected area \/ extension)\n\n(.*)/gm, replacement: "*$1:* $2   | *$3:* $4  | *$5:* $6 \n\n ----" },
+              { pattern: /^###\s+(Expected behaviour)\n\n(.*)\n\n^###\s+(Actual behaviour)\n\n(.*)\n\n^###\s+(How to reproduce)\n\n(.*)/gm, replacement: "*_$1:_*\n\n\n$2\n\n*_$3:_*\n\n\n$4\n\n*_$5:_*\n\n\n$6\n\n" }
+            ];
+
+            let updatedBody = issue.body;
+
+            for (const { pattern, replacement } of replacements) {
+              updatedBody = updatedBody.replace(pattern, replacement);
+            }
+
+            if (updatedBody !== issue.body) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: updatedBody
+              });
+
+              console.log(`Updated issue #${issue.number} with multiple regex replacements`);
+            } else {
+              console.log(`No replacements found in issue #${issue.number}`);
+            }

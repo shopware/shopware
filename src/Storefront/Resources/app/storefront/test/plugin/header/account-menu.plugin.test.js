@@ -11,7 +11,7 @@ describe('OffCanvasAccountMenuPlugin tests', () => {
                     <span class="icon icon-avatar"></span>
                 </button>
 
-                <div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown show" aria-labelledby="accountWidget" data-popper-placement="bottom-end">
+                <div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown" aria-labelledby="accountWidget">
                     <div class="offcanvas-header p-0">
                         <button class="btn btn-light offcanvas-close js-offcanvas-close">
                             <span class="icon icon-x icon-sm"></span>
@@ -57,9 +57,6 @@ describe('OffCanvasAccountMenuPlugin tests', () => {
 
         plugin = new OffCanvasAccountMenu(el);
 
-        // Simulate mobile viewport
-        plugin._isInAllowedViewports = () => true;
-
         jest.useFakeTimers();
     });
 
@@ -71,13 +68,92 @@ describe('OffCanvasAccountMenuPlugin tests', () => {
         expect(typeof plugin).toBe('object');
     });
 
-    test('Opens an OffCanvas with the account menu HTML', () => {
+    test('Opens an OffCanvas with the account menu HTML on mobile viewports', () => {
+        // Simulate mobile viewport for viewport detection helper
+        window.getComputedStyle = jest.fn(() => {
+            return {
+                content: 'xs',
+                getPropertyValue: jest.fn(() => 'xs'),
+            };
+        });
+
+        const event = new Event('click', { bubbles: true });
+
+        // We need to mock composedPath because it's not available in JSDOM and used internally by Bootstrap
+        event.composedPath = () => [document.body];
+
         // Click on trigger element
-        plugin.el.dispatchEvent(new Event('click'));
+        plugin.el.dispatchEvent(event);
 
         jest.runAllTimers();
 
         // Ensure OffCanvas exists with account menu HTML
         expect(document.querySelector('.offcanvas.account-menu-offcanvas .account-menu-inner')).toBeTruthy();
+    });
+
+    test('Does not open OffCanvas on desktop viewports', () => {
+        // Simulate desktop viewport for viewport detection helper
+        window.getComputedStyle = jest.fn(() => {
+            return {
+                content: 'xl',
+                getPropertyValue: jest.fn(() => 'xl'),
+            };
+        });
+
+        const event = new Event('click', { bubbles: true });
+
+        // We need to mock composedPath because it's not available in JSDOM and used internally by Bootstrap
+        event.composedPath = () => [document.body];
+
+        // Click on trigger element
+        plugin.el.dispatchEvent(event);
+
+        jest.runAllTimers();
+
+        // Ensure no OffCanvas exists on desktop viewport
+        expect(document.querySelector('.offcanvas.account-menu-offcanvas')).toBeFalsy();
+    });
+
+    test('Closes the dropdown when the viewport changes to allowed viewports', () => {
+        // Initially, simulate desktop viewport for viewport detection helper
+        window.getComputedStyle = jest.fn(() => {
+            return {
+                content: 'xl',
+                getPropertyValue: jest.fn(() => 'xl'),
+            };
+        });
+
+        // Mock the bootstrap dropdown instance
+        const mockDropdown = {
+            show: jest.fn(),
+            hide: jest.fn(),
+        };
+        window.bootstrap = {
+            Dropdown: {
+                getInstance: jest.fn().mockReturnValue(mockDropdown),
+            },
+        };
+
+        const event = new Event('click', { bubbles: true });
+
+        // We need to mock composedPath because it's not available in JSDOM and used internally by Bootstrap
+        event.composedPath = () => [document.body];
+
+        // Click on trigger element
+        document.querySelector('.account-menu-btn').dispatchEvent(event);
+
+        jest.runAllTimers();
+
+        // Simulate a change to mobile viewport (xl to xs)
+        window.getComputedStyle = jest.fn(() => {
+            return {
+                content: 'xs',
+                getPropertyValue: jest.fn(() => 'xs'),
+            };
+        });
+        document.dispatchEvent(new CustomEvent('Viewport/hasChanged'));
+
+        // Should close dropdown on mobile viewport after the viewport change
+        expect(mockDropdown.hide).toHaveBeenCalled();
     });
 });

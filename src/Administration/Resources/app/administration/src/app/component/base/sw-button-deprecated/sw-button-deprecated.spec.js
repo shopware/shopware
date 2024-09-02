@@ -2,8 +2,8 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { mount, RouterLinkStub } from '@vue/test-utils';
+import { createRouter, createWebHashHistory, createWebHistory, RouterLink } from 'vue-router';
 
 describe('components/base/sw-button-deprecated', () => {
     it('should be a Vue.js component', async () => {
@@ -223,5 +223,47 @@ describe('components/base/sw-button-deprecated', () => {
         await flushPromises();
 
         expect(wrapper.vm.$router.currentRoute.value.name).toBe('sw.dashboard.index');
+    });
+
+    it('should trigger a click event when is a router link', async () => {
+        const click = jest.fn();
+
+        let router;
+        if (!process.env.DISABLE_JEST_COMPAT_MODE) {
+            router = createRouter({
+                history: createWebHistory(),
+                routes: [
+                    {
+                        path: '/',
+                    },
+                ],
+            });
+            router.push('/');
+            await router.isReady();
+        }
+
+        const wrapper = mount({
+            template: `
+                <sw-button-deprecated :router-link="{ path: 'some/relative/link' }" @click="click">
+                    Router link
+                </sw-button-deprecated>`,
+            methods: {
+                click,
+            },
+        }, {
+            global: {
+                stubs: {
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
+                    'router-link': process.env.DISABLE_JEST_COMPAT_MODE ? RouterLinkStub : RouterLink,
+                    'sw-loader': true,
+                },
+                plugins: router ? [router] : [],
+            },
+        });
+
+        await wrapper.find('a').trigger('click');
+        expect(wrapper.emitted().click).toStrictEqual(expect.any(Array));
+        expect(wrapper.emitted().click).toHaveLength(1);
+        expect(click).toHaveBeenCalled();
     });
 });

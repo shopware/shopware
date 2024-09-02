@@ -1,23 +1,31 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_button %}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_button_router_link %}
+    {% block sw_button_router_link %}
 <router-link
     v-if="routerLink && !disabled"
+    v-slot="{ href, navigate }"
     :to="routerLink"
-    class="sw-button"
-    :class="buttonClasses"
-    v-bind="$attrs"
+    custom
 >
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_button_router_link_content %}
-    <span class="sw-button__content">
-        <slot>
+    <a
+        :href="href"
+        class="sw-button"
+        :class="buttonClasses"
+        v-bind="$attrs"
+        @click="navigate($event)"
+        v-on="disabled ? {} : listeners"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_button_router_link_slot_default %}{% endblock %}
-        </slot>
-    </span>
-    {% endblock %}
+                {% block sw_button_router_link_content %}
+        <span class="sw-button__content">
+            <slot>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_button_router_link_slot_default %}{% endblock %}
+            </slot>
+        </span>
+                {% endblock %}
+    </a>
 </router-link>
 
 <span
@@ -36,10 +44,10 @@
     </span>
     {% endblock %}
 </span>
-{% endblock %}
+    {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_button_link %}
+    {% block sw_button_link %}
 <a
     v-else-if="link"
     :href="!disabled ? link : ''"
@@ -48,21 +56,22 @@
     class="sw-button"
     :class="buttonClasses"
     v-bind="$attrs"
+    v-on="disabled ? {} : listeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_button_link_content %}
+            {% block sw_button_link_content %}
     <span class="sw-button__content">
         <slot>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_button_link_slot_default %}{% endblock %}
         </slot>
     </span>
-    {% endblock %}
+            {% endblock %}
 </a>
-{% endblock %}
+    {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_button_button %}
+    {% block sw_button_button %}
 <button
     v-else
     class="sw-button"
@@ -72,7 +81,7 @@
     v-on="disabled ? {} : listeners"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_button_button_content %}
+            {% block sw_button_button_content %}
     <sw-loader
         v-if="isLoading"
         class="sw-button_loader"
@@ -87,7 +96,7 @@
         {% block sw_button_button_slot_default %}{% endblock %}
         </slot>
     </span>
-    {% endblock %}
+            {% endblock %}
 </button>
     {% endblock %}
 {% endblock %}

@@ -17,6 +17,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     ],
     'strict' => [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
+        '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
         '^symplify\/phpstan-rules$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^rector\/type-perfect$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^tomasvotruba\/type-coverage$'  => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',

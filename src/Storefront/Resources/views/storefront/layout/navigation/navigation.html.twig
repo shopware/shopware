@@ -55,19 +55,19 @@
                                             </div>
                                         </a>
                                         {% if feature('ACCESSIBILITY_TWEAKS') and (treeItem.children|length > 0) %}
-                                        <div class="position-absolute w-100 start-0 z-5">
-                                            <div class="navigation-flyout"
-                                                 data-flyout-menu-id="{{ treeItem.category.id }}">
-                                                <div class="container">
-                                                        {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
-                                                            themeIconConfig: themeIconConfig,
-                                                            navigationTree: treeItem,
-                                                            level: level+1,
-                                                            page: page
-                                                        } only %}
+                                            <div class="navigation-flyouts position-absolute w-100 start-0">
+                                                <div class="navigation-flyout"
+                                                     data-flyout-menu-id="{{ treeItem.category.id }}">
+                                                    <div class="container">
+                                                            {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                                themeIconConfig: themeIconConfig,
+                                                                navigationTree: treeItem,
+                                                                level: level+1,
+                                                                page: page
+                                                            } only %}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         {% endif %}
                                     {% endif %}
                                 {% endblock %}

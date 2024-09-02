@@ -60,7 +60,8 @@ $h4-font-size: 20px !default;
 $h5-font-size: 16px !default;
 $h6-font-size: 14px !default;
 
-$nav-link-font-size: $font-size-base !default;
+// @deprecated tag:v6.7.0 - The standard font-size of 1rem will be used for $nav-link-font-size.
+$nav-link-font-size: if(feature('ACCESSIBILITY_TWEAKS'), $font-size-base, $font-size-lg) !default;
 
 $headings-font-weight: 700 !default;
 $headings-font-family: $sw-font-family-headline !default;

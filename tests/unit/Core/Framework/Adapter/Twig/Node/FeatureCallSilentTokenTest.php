@@ -18,7 +18,7 @@ class FeatureCallSilentTokenTest extends TestCase
 {
     public function testCompile(): void
     {
-        $token = new FeatureCallSilentToken('v6.5.0.0', new TextNode('test', 1), 1, 'sw_feature');
+        $token = new FeatureCallSilentToken('v6.5.0.0', new TextNode('test', 1), 1);
 
         $compiler = new Compiler(new Environment(new ArrayLoader()));
 

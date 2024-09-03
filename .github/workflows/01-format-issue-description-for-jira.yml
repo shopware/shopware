@@ -21,7 +21,9 @@ jobs:
 
             const replacements = [
               { pattern: /^###\s+(PHP Version)\n\n(.*)\n\n^###\s+(Shopware Version)\n\n(.*)\n\n^###\s+(Affected area \/ extension)\n\n(.*)/gm, replacement: "*$1:* $2   | *$3:* $4  | *$5:* $6 \n\n ----" },
-              { pattern: /^###\s+(Expected behaviour)\n\n(.*)\n\n^###\s+(Actual behaviour)\n\n(.*)\n\n^###\s+(How to reproduce)\n\n(.*)/gm, replacement: "*_$1:_*\n\n\n$2\n\n*_$3:_*\n\n\n$4\n\n*_$5:_*\n\n\n$6\n\n" }
+              { pattern: /^###\s*(Expected behaviour)/gm, replacement: "*_$1:_*\n\n" },
+              { pattern: /^###\s*(Actual behaviour)/gm, replacement: "*_$1:_*\n\n" },
+              { pattern: /^###\s*(How to reproduce)/gm, replacement: "*_$1:_*\n\n" }
             ];
 
             let updatedBody = issue.body;

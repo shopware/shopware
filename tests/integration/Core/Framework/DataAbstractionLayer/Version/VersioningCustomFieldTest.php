@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -98,6 +100,11 @@ class VersioningCustomFieldTest extends TestCase
      */
     private function getOrderFixture(string $orderId, string $orderVersionId): array
     {
+        $stateId = $this->getContainer()->get('state_machine_state.repository')
+            ->searchIds((new Criteria())->addFilter(new EqualsFilter('stateMachine.technicalName', OrderStates::STATE_MACHINE)), Context::createDefaultContext())
+            ->firstId();
+        static::assertIsString($stateId);
+
         return [
             'id' => $orderId,
             'versionId' => $orderVersionId,
@@ -152,7 +159,7 @@ class VersioningCustomFieldTest extends TestCase
                 ],
             ],
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'stateId' => Uuid::randomHex(),
+            'stateId' => $stateId,
             'orderDateTime' => new \DateTime(),
             'customFields' => [
                 'custom_test' => 0,

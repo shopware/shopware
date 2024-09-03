@@ -8726,11 +8726,6 @@ parameters:
 			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Unit\\\\Aggregate\\\\UnitTranslation\\\\UnitTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Unit/Aggregate/UnitTranslation/UnitTranslationCollection.php

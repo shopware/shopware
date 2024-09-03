@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[Package('services-settings')]
@@ -183,6 +184,15 @@ class MailService extends AbstractMailService
             );
 
             return null;
+        }
+
+        if (isset($data['attachments'])) {
+            foreach ($data['attachments'] as $attachment) {
+                if (!$attachment instanceof DataPart) {
+                    continue;
+                }
+                $mail->addPart($attachment);
+            }
         }
 
         $event = new MailBeforeSentEvent($data, $mail, $context, $templateData['eventName'] ?? null);

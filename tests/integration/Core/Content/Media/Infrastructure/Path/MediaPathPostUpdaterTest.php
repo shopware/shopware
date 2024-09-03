@@ -43,13 +43,19 @@ class MediaPathPostUpdaterTest extends TestCase
         $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'test', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
+        $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'test', 'path' => 'foo', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
+
         $queue->execute();
 
         $message = $updater->iterate(null);
 
         static::assertNotNull($message);
+        // There are some medias, like dummy theme images etc. that are created by the system and can not be cleaned up because of FKs
         static::assertNotEmpty($message->getData());
-        static::assertNotNull($message->getOffset());
+        static::assertContains($ids->get('media-1'), $message->getData());
+        static::assertContains($ids->get('media-2'), $message->getData());
+        static::assertContains($ids->get('media-3'), $message->getData());
+        static::assertGreaterThanOrEqual(3, $message->getOffset());
     }
 
     public function testHandle(): void
@@ -61,13 +67,14 @@ class MediaPathPostUpdaterTest extends TestCase
         );
 
         $ids = new IdsCollection();
-        $message = new EntityIndexingMessage([$ids->get('media-1'), $ids->get('media-2')]);
+        $message = new EntityIndexingMessage([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')]);
 
         $indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
         $indexerRegistry->expects(static::once())
             ->method('__invoke')
             ->with(static::callback(function (MediaIndexingMessage $message) use ($ids) {
-                static::assertEquals([$ids->get('media-1'), $ids->get('media-2')], $message->getData());
+                // It is expected that indexer is triggered, even if the path was already generated
+                static::assertEquals([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')], $message->getData());
                 static::assertEquals('media.indexer', $message->getIndexer());
 
                 return true;
@@ -83,6 +90,7 @@ class MediaPathPostUpdaterTest extends TestCase
         $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'media-1', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'media-2', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
+        $queue->addInsert('media', ['id' => $ids->getBytes('media-3'), 'file_name' => 'media-3', 'path' => 'already/generated.png', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->execute();
 
         $updater->handle($message);

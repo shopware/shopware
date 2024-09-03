@@ -32,6 +32,7 @@
             @update:value="onPriceGrossChange"
             @keyup="keymonitor"
             @input-change="onPriceGrossInputChange"
+            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix"
@@ -85,6 +86,7 @@
             @update:value="onPriceNetChange"
             @keyup="keymonitor"
             @input-change="onPriceNetInputChange"
+            @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
             <template
                 v-if="!disableSuffix"

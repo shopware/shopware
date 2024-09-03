@@ -27,6 +27,21 @@
 /storefront/component/address/address-editor-modal-list.html.twig
 /storefront/utilities/alert.html.twig
 
+# Ignored because of exchanging opening and closing tags behind {% if %} conditions
+/storefront/page/account/order-history/index.html.twig
+/storefront/page/account/order-history/order-detail-list.html.twig
+/storefront/page/account/order-history/order-detail-document-item.html.twig
+/storefront/page/checkout/cart/index.html.twig
+/storefront/page/checkout/confirm/index.html.twig
+/storefront/page/checkout/finish/index.html.twig
+/storefront/page/checkout/address/index.html.twig
+/storefront/component/checkout/offcanvas-cart.html.twig
+/storefront/component/checkout/cart-header.html.twig
+/storefront/component/line-item/type/product.html.twig
+/storefront/component/line-item/type/discount.html.twig
+/storefront/component/line-item/type/generic.html.twig
+/storefront/component/line-item/type/container.html.twig
+
 # -------------------------------------------
 # Ludtwig related parser errors below.
 # These are ignored until this syntax is supported in ludtwig

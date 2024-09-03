@@ -1,5 +1,10 @@
 {% block page_account_order_document_item_detail %}
-    <div class="row order-detail-content-row">
+    {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
+    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+        <li class="row order-detail-content-row">
+    {%- else -%}
+        <div class="row order-detail-content-row" role="listitem">
+    {%- endif -%}
         {% set documentLink = path('frontend.account.order.single.document', {documentId: document.id, deepLinkCode: document.deepLinkCode}) %}
 
         {% block page_account_order_document_item_detail_file_name %}
@@ -21,7 +26,8 @@
 
         {% block page_account_order_document_item_detail_date %}
             <div class="col-9 col-md-4 document-item document-item-date">
-                {{ document.createdAt|format_date(pattern='dd/MM/Y HH:mm', locale=app.request.locale) }}
+                <span class="document-item-date-label visually-hidden">{{ "account.documentItemColumnDate"|trans|sw_sanitize }}:</span>
+                {{ document.createdAt|format_datetime('medium', 'short', locale=app.request.locale) }}
             </div>
         {% endblock %}
 
@@ -38,11 +44,17 @@
                  {% block page_account_order_document_item_detail_view_file_btn_icon %}
                      <a href="{{ documentLink }}"
                         target="_blank"
-                        class="btn btn-light btn-sm document-item-view-file-icon-btn">
-                         <span class="icon icon-xs">{% sw_icon 'external' %}</span>
+                        class="btn btn-light btn-sm document-item-view-file-icon-btn"
+                        aria-label="{{ 'account.documentItemViewFileButton'|trans|striptags }}">
+                         {% sw_icon 'external' style { size: 'xs', ariaHidden: true } %}
                      </a>
                  {% endblock %}
             </div>
         {% endblock %}
-    </div>
+    {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
+    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+        </div>
+    {%- else -%}
+        </li>
+    {%- endif -%}
 {% endblock %}

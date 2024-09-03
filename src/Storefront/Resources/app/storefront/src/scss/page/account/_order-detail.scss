@@ -8,13 +8,13 @@
 
 .document-detail-content-header {
     display: block;
-    border-bottom: 1px solid $gray-300;
+    border-bottom: 1px solid $border-color;
     padding-bottom: $spacer-sm;
 }
 
 .download-detail-content-header {
     display: block;
-    border-bottom: 1px solid $gray-300;
+    border-bottom: 1px solid $border-color;
     padding-bottom: $spacer-sm;
 }
 
@@ -225,7 +225,7 @@
     }
 
     .order-detail-content-header {
-        border-bottom: 1px solid $gray-300;
+        border-bottom: 1px solid $border-color;
     }
 
     .order-detail-content {

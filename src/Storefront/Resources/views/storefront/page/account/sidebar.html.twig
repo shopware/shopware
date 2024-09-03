@@ -14,12 +14,13 @@
 
             {% block page_account_sidebar_menu %}
                 {% if not context.customer.guest %}
-                    <div class="list-group list-group-flush account-aside-list-group">
+                    <nav class="list-group list-group-flush account-aside-list-group"{% if headerWidget == null %} aria-label="{{ 'account.myAccount'|trans|striptags }}"{% endif %}>
                         {% block page_account_sidebar_menu_inner %}
                             {% block page_account_sidebar_link_home %}
                                 <a href="{{ path('frontend.account.home.page') }}"
                                    title="{{ 'account.overviewLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.home.page') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.home.page') %} is-active{% endif %}"
+                                   {% if activeRoute is same as('frontend.account.home.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.overviewLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -27,7 +28,8 @@
                             {% block page_account_sidebar_link_profile %}
                                 <a href="{{ path('frontend.account.profile.page') }}"
                                    title="{{ 'account.profileLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.profile.page') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.profile.page') %} is-active{% endif %}"
+                                   {% if activeRoute is same as('frontend.account.profile.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.profileLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -35,7 +37,8 @@
                             {% block page_account_sidebar_link_address %}
                                 <a href="{{ path('frontend.account.address.page') }}"
                                    title="{{ 'account.addressLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.address.page') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.address.page') %} is-active{% endif %}"
+                                   {% if activeRoute is same as('frontend.account.address.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.addressLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -45,7 +48,8 @@
                                 {% if not feature('v6.7.0.0') %}
                                 <a href="{{ path('frontend.account.payment.page') }}"
                                    title="{{ 'account.paymentLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}"
+                                   {% if activeRoute is same as('frontend.account.payment.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.paymentLink'|trans|sw_sanitize }}
                                 </a>
                                 {% endif %}
@@ -54,12 +58,13 @@
                             {% block page_account_sidebar_link_orders %}
                                 <a href="{{ path('frontend.account.order.page') }}"
                                    title="{{ 'account.ordersLink'|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.order.page') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.order.page') %} is-active{% endif %}"
+                                   {% if activeRoute is same as('frontend.account.order.page') %} aria-current="page"{% endif %}>
                                     {{ 'account.ordersLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         {% endblock %}
-                    </div>
+                    </nav>
                 {% endif %}
             {% endblock %}
 
@@ -70,7 +75,7 @@
                             {% block page_account_sidebar_logout %}
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' %}
+                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
                                     {{ 'account.logout'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -81,7 +86,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    data-account-guest-abort-button="true"
                                    class="btn btn-link account-aside-btn">
-                                    {% sw_icon 'log-out' %}
+                                    {% sw_icon 'log-out' style { ariaHidden: true } %}
                                     {{ 'account.guestAbort'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}

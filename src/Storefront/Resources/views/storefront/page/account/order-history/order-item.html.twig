@@ -8,7 +8,7 @@
 {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
 
 {% block page_account_order_item_overview %}
-    <div class="order-wrapper">
+    <article class="order-wrapper" aria-label="{{ 'account.orderItemAriaLabel'|trans({ '%order_number%': order.orderNumber }) }}">
         <div class="order-item-header">
             {% set states = [
                 ORDER_TRANSACTION_STATE_FAILED,
@@ -24,7 +24,9 @@
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}
-                    <div class="h3 col-auto order-table-header-heading">{{ 'account.orderHeadline'|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</div>
+                    <div class="h3 col-auto order-table-header-heading">
+                        {{ 'account.orderHeadline'|trans|sw_sanitize }} {{ order.orderDateTime|format_date('medium', locale=app.request.locale) }}
+                    </div>
                 {% endblock %}
 
                 {% block page_account_order_item_status_col %}
@@ -36,12 +38,13 @@
                                         <a href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}"
                                            class="badge badge-lg order-item-status-badge bg-danger">
                                             {{ 'account.orderStatusActionCompletePayment'|trans|sw_sanitize }}
-                                            {% sw_icon 'arrow-medium-right' style { size: 'sm', pack: 'solid' } %}
+                                            {% sw_icon 'arrow-medium-right' style { size: 'sm', pack: 'solid', ariaHidden: true } %}
                                         </a>
                                     {% endblock %}
                                 {% else %}
                                     {% block page_account_order_item_status_badge %}
                                         <span class="badge badge-lg order-item-status-badge order-item-status-badge-{{ orderState }}">
+                                            <span class="visually-hidden">{{ 'account.orderStatus'|trans|sw_sanitize }}</span>
                                             {{ order.stateMachineState.translated.name }}
                                         </span>
                                     {% endblock %}
@@ -59,14 +62,15 @@
 
                         {% block page_account_order_item_context_menu %}
                             {% block page_account_order_item_context_menu_button %}
-                                <button class="btn dropdown-toggle order-table-header-context-menu"
+                                {# @deprecated tag:v6.7.0 - Will use Bootstrap `btn-light` class instead of custom styling #}
+                                <button class="btn order-table-header-context-menu{% if feature('ACCESSIBILITY_TWEAKS') %} btn-light float-end{% else %} dropdown-toggle{% endif %}"
                                         type="button"
                                         id="accountOrderDropdown"
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false"
-                                        aria-label="{{ 'account.orderActions' }}">
-                                    {% sw_icon 'more-horizontal' %}
+                                        aria-label="{{ 'account.orderActions'|trans|sw_sanitize }}">
+                                    {% sw_icon 'more-horizontal' style { ariaHidden: true } %}
                                 </button>
                             {% endblock %}
 
@@ -76,12 +80,14 @@
                                     {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}
-                                                <a class="order-table-header-context-menu-content-link"
+                                                {# @deprecated tag:v6.7.0 - Will use Bootstrap `dropdown-item` class instead of custom styling #}
+                                                <a class="{% if feature('ACCESSIBILITY_TWEAKS') %}dropdown-item {% endif %}order-table-header-context-menu-content-link"
                                                    href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}">
                                                     <strong>{{ 'account.orderStatusActionCompletePayment'|trans|sw_sanitize }}</strong>
                                                 </a>
                                             {% else %}
-                                                <a class="order-table-header-context-menu-content-link"
+                                                {# @deprecated tag:v6.7.0 - Will use Bootstrap `dropdown-item` class instead of custom styling #}
+                                                <a class="{% if feature('ACCESSIBILITY_TWEAKS') %}dropdown-item {% endif %}order-table-header-context-menu-content-link"
                                                    href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}">
                                                     {{ 'account.orderContextMenuChangePayment'|trans|sw_sanitize }}
                                                 </a>
@@ -134,7 +140,8 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_context_menu_reorder_form_button %}
-                                                    <button class="order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>
+                                                    {# @deprecated tag:v6.7.0 - Will use Bootstrap `dropdown-item` class instead of custom styling #}
+                                                    <button class="{% if feature('ACCESSIBILITY_TWEAKS') %}dropdown-item {% endif %}order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>
                                                 {% endblock %}
                                             </form>
                                         {% endblock %}
@@ -142,8 +149,9 @@
 
                                     {% block page_account_order_item_context_menu_cancel_order %}
                                         {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
+                                            {# @deprecated tag:v6.7.0 - Will use Bootstrap `dropdown-item` class instead of custom styling #}
                                             <button type="button"
-                                                    class="order-table-header-context-menu-content-link"
+                                                    class="{% if feature('ACCESSIBILITY_TWEAKS') %}dropdown-item {% endif %}order-table-header-context-menu-content-link"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#order-{{ order.id }}">
                                                 {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
@@ -155,9 +163,7 @@
                         {% endblock %}
 
                         {% if orderState != ORDER_STATE_CANCELLED %}
-                            <div class="tester">
-                                {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
-                            </div>
+                            {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
                         {% endif %}
                     </div>
                 {% endblock %}
@@ -174,7 +180,7 @@
 
             {% block page_account_order_item_order_table_header_col %}
                 {% block page_account_order_item_order_table_header %}
-                    <div class="col-12 row order-table-header-order-table-header">
+                    <div class="col-12 row order-table-header-order-table-header" aria-hidden="true">
                         {% block page_account_order_item_order_table_header_cell_shipping_status %}
                             {% if order.deliveries|length > 0 %}
                                 <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingStatus'|trans|sw_sanitize }}</div>
@@ -249,7 +255,6 @@
                             <div class="col-12 col-sm-2 order-item order-item-actions order-table-header-order-table-body-cell">
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                     <button class="btn btn-light btn-sm order-hide-btn collapsed"
-                                            type="submit"
                                             data-bs-toggle="collapse"
                                             data-bs-target="#order{{ order.orderNumber }}"
                                             aria-expanded="false"
@@ -270,5 +275,5 @@
         {% block page_account_order_item_detail %}
             {% sw_include '@Storefront/storefront/page/account/order-history/order-detail.html.twig' %}
         {% endblock %}
-    </div>
+    </article>
 {% endblock %}

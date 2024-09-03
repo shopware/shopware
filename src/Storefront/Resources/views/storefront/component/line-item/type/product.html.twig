@@ -20,7 +20,12 @@
 {% endif %}
 
 {% block component_line_item_type_product %}
-    <div class="{{ lineItemClasses }}">
+    {# @deprecated tag:v6.7.0 - Line item wrapper element will be `<li>` element instead of `<div>` #}
+    {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+        <li class="{{ lineItemClasses }}">
+    {%- else -%}
+        <div class="{{ lineItemClasses }}" role="listitem">
+    {%- endif -%}
         <div class="row line-item-row">
             {% block component_line_item_type_product_col_info %}
                 <div class="line-item-info">
@@ -142,5 +147,10 @@
                 </div>
             {% endblock %}
         {% endif %}
-    </div>
+    {# @deprecated tag:v6.7.0 - Line item wrapper element will be `<li>` element instead of `<div>` #}
+    {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+        </div>
+    {%- else -%}
+        </li>
+    {%- endif -%}
 {% endblock %}

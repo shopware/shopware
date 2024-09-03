@@ -125,7 +125,12 @@
             <div class="confirm-product">
                 {% block page_checkout_confirm_table_container %}
                     <div class="card">
-                        <div class="card-body">
+                        {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                            <ul class="card-body list-unstyled">
+                        {%- else -%}
+                            <div class="card-body" role="list">
+                        {%- endif -%}
                             {% block page_checkout_confirm_table_header %}
                                 {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
                                     showTaxPrice: true
@@ -142,7 +147,12 @@
                                     {% endblock %}
                                 {% endfor %}
                             {% endblock %}
-                        </div>
+                        {# @deprecated tag:v6.7.0 - Line items wrapper will be `<ul>` element instead of `<div>` #}
+                        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                            </div>
+                        {%- else -%}
+                            </ul>
+                        {%- endif -%}
                     </div>
                 {% endblock %}
             </div>

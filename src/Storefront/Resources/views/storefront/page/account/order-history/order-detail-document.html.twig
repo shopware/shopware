@@ -1,8 +1,18 @@
 {% block page_account_order_detail_document_table_body %}
     {% if order.documents|length %}
-        <div class="order-detail-content-body">
+        {# @deprecated tag:v6.7.0 - Documents list will be `<ul>` instead if `<div>` #}
+        {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+            <ul class="order-detail-content-body list-unstyled" aria-label="{{ 'account.orderDocumentsAriaLabel'|trans|striptags }}">
+        {%- else -%}
+            <div class="order-detail-content-body" role="list" aria-label="{{ 'account.orderDocumentsAriaLabel'|trans|striptags }}">
+        {%- endif -%}
             {% block page_account_order_document_detail_table_header %}
-                <div class="order-detail-content-header document-detail-content-header">
+                {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
+                {%- if feature('ACCESSIBILITY_TWEAKS') -%}
+                    <li class="order-detail-content-header document-detail-content-header" aria-hidden="true">
+                {%- else -%}
+                    <div class="order-detail-content-header document-detail-content-header" role="listitem">
+                {%- endif -%}
                     <div class="row">
                         {% block page_account_order_document_detail_table_header_name %}
                             <div class="col-6 order-detail-content-header-cell document-header-file-name">
@@ -22,7 +32,12 @@
                             </div>
                         {% endblock %}
                     </div>
-                </div>
+                {# @deprecated tag:v6.7.0 - Document item will be `<li>` instead if `<div>` #}
+                {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+                    </div>
+                {%- else -%}
+                    </li>
+                {%- endif -%}
             {% endblock %}
 
             {% block page_account_orde_document_detail_items %}
@@ -32,6 +47,11 @@
                     {% endblock %}
                 {% endfor %}
             {% endblock %}
-        </div>
+        {# @deprecated tag:v6.7.0 - Documents list will be `<ul>` instead if `<div>` #}
+        {%- if not feature('ACCESSIBILITY_TWEAKS') -%}
+            </div>
+        {%- else -%}
+            </ul>
+        {%- endif -%}
     {% endif %}
 {% endblock %}

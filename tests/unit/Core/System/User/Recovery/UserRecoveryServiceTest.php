@@ -8,6 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -238,7 +242,14 @@ class UserRecoveryServiceTest extends TestCase
 
         /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([
-            new SalesChannelCollection([$salesChannelEntity]),
+            static function (Criteria $criteria, Context $context) use ($salesChannelEntity) {
+                static::assertCount(1, $criteria->getFilters());
+                static::assertEquals([
+                    new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON)]),
+                ], $criteria->getFilters());
+
+                return new SalesChannelCollection([$salesChannelEntity]);
+            },
         ], new SalesChannelDefinition());
 
         $this->router

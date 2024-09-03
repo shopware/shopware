@@ -26,6 +26,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         'input-change',
         'inheritance-restore',
         'inheritance-remove',
+        'ends-with-decimal-separator',
     ],
 
     props: {
@@ -157,6 +158,7 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         onInput(event) {
+            const targetValue = event.target.value;
             let val = this.getNumberFromString(event.target.value);
 
             if (!Number.isNaN(val)) {
@@ -175,6 +177,13 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             } else {
                 this.currentValue = this.min ?? 0;
                 this.$emit('input-change', this.min ?? 0);
+            }
+
+            // When target value ends with a dot or comma, emit this information to the parent component
+            if (targetValue.endsWith('.') || targetValue.endsWith(',')) {
+                this.$emit('ends-with-decimal-separator', true);
+            } else {
+                this.$emit('ends-with-decimal-separator', false);
             }
         },
 

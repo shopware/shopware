@@ -341,4 +341,24 @@ describe('app/component/form/sw-number-field-deprecated', () => {
 
         expect(input.element.value).toBe('4.99');
     });
+
+    it('should emit "ends-with-decimal-separator" event when input ends with decimal separator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        await input.setValue('5.');
+
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[true]]);
+    });
+
+    it('should emit "ends-with-decimal-separator" event with false value when input does not end with decimal separator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const input = wrapper.find('input');
+        await input.setValue('5');
+
+        expect(wrapper.emitted('ends-with-decimal-separator')).toStrictEqual([[false]]);
+    });
 });

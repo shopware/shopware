@@ -1,4 +1,78 @@
 # 6.7.0.0
+## Introduced in 6.6.6.0
+## Storefront pagination is using anchor links instead of radio inputs
+The storefront pagination component (`Resources/views/storefront/component/pagination.html.twig`) is no longer using radio inputs with styled labels. Anchor links are used instead.
+If you are modifying the `<label>` inside the pagination template, you need to change the markup to `<a>` instead. Please use one of the documented twig block alternatives inside `pagination.html.twig`.
+The hidden radio input will no longer be in the HTML. The current page value will be retrieved by the `data-page` attribute instead of the radio inputs value.
+
+### Before:
+```twig
+{% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
+
+{% block component_pagination_first_input %}
+    <input type="radio"
+           {% if currentPage == 1 %}disabled="disabled"{% endif %}
+           name="p"
+           id="p-first{{ paginationSuffix }}"
+           value="1"
+           class="d-none some-special-class"
+           title="pagination">
+{% endblock %}
+
+{% block component_pagination_first_label %}
+    <label class="page-link some-special-class" for="p-first{{ paginationSuffix }}">
+        {# Using text instead of icon and add some special CSS class #}
+        First
+    </label>
+{% endblock %}
+```
+
+### After:
+```twig
+{% sw_extends '@Storefront/storefront/component/pagination.html.twig '%}
+
+{# All information that was previously on the radio input, is now also on the anchor link. The id attribute is longer needed. The "disabled" state is now controlled via the parent `<li>` and tabindex. #}
+{% block component_pagination_first_link_element %}
+    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}" 
+       class="page-link some-special-class"
+       data-page="1"
+       aria-label="{{ 'general.first'|trans|striptags }}" 
+       data-focus-id="first"
+       {% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
+        {# Using text instead of icon and add some special CSS class #}
+        First
+    </a>
+{% endblock %}
+```
+## Removal of deprecated properties of `CustomerDeletedEvent`
+* The deprecated properties `customerId`, `customerNumber`, `customerEmail`, `customerFirstName`, `customerLastName`, `customerCompany` and `customerSalutationId` of `CustomerDeleteEvent` will be removed and cannot be accessed anymore in a mail template when sending a mail via the `Checkout > Customer > Deleted` flow trigger.
+## Message queue size limit
+
+Any message queue message bigger than 256KB will be now rejected by default.
+To reduce the size of your messages you should only store the ID of an entity in the message and fetch it later in the message handler.
+This can be disabled again with:
+
+```yaml
+shopware:
+    messenger:
+        enforce_message_size: false
+
+```
+## Removal of deprecated exceptions
+The following exceptions were removed:
+* `\Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException`
+* `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException`
+## Entity class throws different exceptions
+The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Entity` class are now throwing different exceptions:
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::__get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::checkIfPropertyAccessIsAllowed` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException` instead of a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException`.
+* `\Shopware\Core\Framework\DataAbstractionLayer\Entity::get` now throws a `\Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException` instead of a `\InvalidArgumentException`.
+
 ## Introduced in 6.6.5.0
 ## Payment: Reworked payment handlers
 * The payment handlers have been reworked to provide a more flexible and consistent way to handle payments.

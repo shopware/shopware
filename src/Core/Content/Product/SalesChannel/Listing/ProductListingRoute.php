@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,7 +32,8 @@ class ProductListingRoute extends AbstractProductListingRoute
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -65,7 +68,15 @@ class ProductListingRoute extends AbstractProductListingRoute
             throw ProductException::categoryNotFound($categoryId);
         }
 
-        $this->extendCriteria($context, $criteria, $category);
+        $criteria = $this->extensions->publish(
+            name: ProductListingCriteriaExtension::NAME,
+            extension: new ProductListingCriteriaExtension($criteria, $context, $categoryId),
+            function: function ($criteria, $context, $categoryId) use ($category): Criteria {
+                $this->extendCriteria($context, $criteria, $category);
+
+                return $criteria;
+            }
+        );
 
         $entities = $this->listingLoader->load($criteria, $context);
 

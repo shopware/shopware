@@ -2,7 +2,15 @@
  * @package admin
  *
  */
-import { computed, onBeforeUnmount, provide, ref, type Slot } from 'vue';
+import {
+    computed,
+    onBeforeUnmount,
+    provide,
+    ref,
+    type ComponentInternalInstance,
+    type PropType,
+    type Slot,
+} from 'vue';
 import parentsInjectionKey from './parents-injection-key';
 
 /**
@@ -18,8 +26,11 @@ import parentsInjectionKey from './parents-injection-key';
  * block name to override and the `extends` attribute. The `sw-block-parent` component is used to render the parent
  * block default content.
  *
+ * The prop `data` is used to pass data to the block content. The `$dataScope` is used to pass the entire component
+ * scoped data to the block content.
+ *
  * @example override
- * <sw-block name="block-name">
+ * <sw-block name="block-name" :data="$dataScope">
  *     <div>Default content</div>
  * </sw-block-extension>
  *
@@ -28,7 +39,7 @@ import parentsInjectionKey from './parents-injection-key';
  * </sw-block>
  *
  * @example extend
- * <sw-block name="block-name">
+ * <sw-block name="block-name" :data="$dataScope">
  *     <div>Default content</div>
  * </sw-block>
  *
@@ -38,7 +49,7 @@ import parentsInjectionKey from './parents-injection-key';
  * </sw-block>
  *
  * @example extend with multiple blocks
- * <sw-block name="block-name">
+ * <sw-block name="block-name" :data="$dataScope">
  *     <div>Default content</div>
  * </sw-block>
  *
@@ -62,9 +73,8 @@ Shopware.Component.register('sw-block', {
             type: String,
         },
         data: {
-            type: Object,
-            default: () => {
-            },
+            type: Object as PropType<ComponentInternalInstance['proxy']>,
+            default: null,
         },
     },
     setup(props, { slots }) {
@@ -90,26 +100,18 @@ Shopware.Component.register('sw-block', {
             }
 
             const blocks = store.getBlocks(props.name);
-            return blocks?.length
-                ? composeBlocks(blocks)
-                : slots.default?.();
+            const blocksAndParent = [slots.default ?? (() => []), ...blocks];
+            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
+
+            // The last block is not parent of any other block, and it is the one that renders all the blocks
+            const lastNode = blocksNodes.pop();
+            providedParents.value.push(...blocksNodes);
+            return lastNode;
         });
 
         return {
             template,
         };
-
-        function composeBlocks(blocks: Slot[]) {
-            return blocks.reduce<ReturnType<Slot> | undefined>(
-                (parent, block) => {
-                    if (parent) {
-                        providedParents.value.push(parent);
-                    }
-                    return block(props.data);
-                },
-                slots.default?.(),
-            );
-        }
     },
     render() {
         return this.template;

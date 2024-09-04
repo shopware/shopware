@@ -23,6 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SystemCheckCommand extends Command
 {
+    private const OUTPUT_FORMATS = ['table', 'json'];
+
     /**
      * @internal
      */
@@ -43,6 +45,8 @@ class SystemCheckCommand extends Command
             SystemCheckExecutionContext::CLI->value,
             $this->getAllowedContexts()
         );
+
+        $this->addOption('format', null, InputOption::VALUE_REQUIRED, 'Change the output format.', 'table', self::OUTPUT_FORMATS);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -58,9 +62,15 @@ class SystemCheckCommand extends Command
             return Command::INVALID;
         }
 
-        $result = $this->systemChecker->check($context);
+        $format = $input->getOption('format');
+        if (!\in_array($format, self::OUTPUT_FORMATS, true)) {
+            $output->writeln(\sprintf('Invalid format provided. Allowed values are %s', implode(', ', self::OUTPUT_FORMATS)));
 
-        $this->printOutput($input, $output, $verbose, $result);
+            return Command::INVALID;
+        }
+
+        $result = $this->systemChecker->check($context);
+        $this->printOutput($input, $output, $verbose, $result, $format);
 
         foreach ($result as $check) {
             if ($check->healthy !== true) {
@@ -81,22 +91,31 @@ class SystemCheckCommand extends Command
 
     /**
      * @param array<Result> $result
+     * @param 'json'|'table' $format
      */
-    private function printOutput(InputInterface $input, OutputInterface $output, bool $verbose, array $result): void
+    private function printOutput(InputInterface $input, OutputInterface $output, bool $verbose, array $result, string $format): void
     {
         $io = new ShopwareStyle($input, $output);
         $headers = ['Name', 'Healthy', 'Status', 'Message', 'Extra'];
+
+        $isJsonOutput = $format === 'json';
         $rows = array_map(
             fn (Result $result) => [
-                $result->name,
-                $result->healthy,
-                $result->status->name,
-                $result->message,
-                $verbose ? json_encode($result->extra, \JSON_PRETTY_PRINT) : null,
+                'name' => $result->name,
+                'healthy' => $result->healthy,
+                'status' => $result->status->name,
+                'message' => $result->message,
+                'extra' => $verbose ? json_encode($result->extra, \JSON_PRETTY_PRINT) : ($isJsonOutput ? [] : null),
             ],
             $result
         );
 
-        $io->table($headers, $rows);
+        if ($isJsonOutput) {
+            $io->write(json_encode(['checks' => $rows], \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR));
+        }
+
+        if ($format === 'table') {
+            $io->table($headers, array_values($rows));
+        }
     }
 }

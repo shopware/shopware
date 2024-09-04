@@ -1,6 +1,21 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.13
+*  [NEXT-34410 - Allow Twig array filters to accept null](./changelog/release-6-5-8-13/2024-03-09-allow-twig-array-filters-to-accept-null.md) ([Max](https://github.com/aragon999))
+*  [NEXT-34301 - Changed default recipient for mails send via the Flow Builder on the product review send trigger](./changelog/release-6-5-8-13/2024-06-04-changed-default-recipient-for-mails-send-via-the-flow-builder-on-the-product-review-send-trigger.md)
+*  [NEXT-36433 - Fix the inability to use admin order when the system default language is not available in the sales channel](./changelog/release-6-5-8-13/2024-06-05-fix-the-inability-to-use-admin-order-when-the-system-default-language-is-not-available-in-the-sales-channel.md)
+*  [NEXT-35343 - The selected order language is not saved for a manually created orders](./changelog/release-6-5-8-13/2024-06-20-the-selected-order-language-is-not-saved-for-a-manually-created-orders.md)
+*  [NEXT-36924 - Fix StoreApiSeoResolver priority and add context check before accessing it](./changelog/release-6-5-8-13/2024-06-24-fix-store-api-seo-resolver-priority-and-add-context-check-before-accessing-it.md) ([Marcel Romeike](https://github.com/mromeike))
+*  [NEXT-37034 - Fix automatically applied promotions does not work after save the order](./changelog/release-6-5-8-13/2024-07-08-fix-automatically-applied-promotions-does-not-work-after-save-the-order.md)
+*  [NEXT-37175 - Set correct asset path for bundle assets](./changelog/release-6-5-8-13/2024-07-11-set-correct-asset-path-for-bundle-assets.md)
+*  [NEXT-37399 - Context object improvements](./changelog/release-6-5-8-13/2024-07-24-context-object-improvements.md)
+*  [NEXT-37348 - Fix shipping address in order detail work not correct after changes](./changelog/release-6-5-8-13/2024-07-24-fix-shipping-address-in-order-detail-work-not-correct-after-changes.md)
+*  [NEXT-37397 - Improve aggregation name validation](./changelog/release-6-5-8-13/2024-07-24-improve-aggregation-name-validation.md)
+*  [NEXT-37398 - Improve feature silent token validation](./changelog/release-6-5-8-13/2024-07-24-improve-feature-silent-token-validation.md)
+*  [NEXT-36445 - Fix missing salutation error when creating a customer](./changelog/release-6-5-8-13/2024-07-31-fix-missing-salutation-error-when-creating-a-customer.md)
+*  [NEXT-37525 - Allow empty tax provider results](./changelog/release-6-5-8-13/2024-08-02-allow-empty-tax-provider-results.md)
+
 ## 6.5.8.12
 *  [NEXT-31890 - Fix Bulk Edit one to many associations length evaluation and infinite requests](./changelog/release-6-5-8-12/2023-09-27-fix-one-to-many-bulk-edit.md) ([Lily Berkow](https://github.com/TheAnimeGuru))
 *  [NEXT-28322 - buld and variant retry](./changelog/release-6-5-8-12/2023-12-14-buld-and-variant-retry.md) ([Pascal Thesing](https://github.com/Pascal Thesing))

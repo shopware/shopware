@@ -60,6 +60,11 @@ class FeatureFlagCallTokenParserTest extends TestCase
             '{% do foo.call %}',
             true,
         ];
+
+        yield 'test injection' => [
+            '{% sw_silent_feature_call "aaa\' . system(\'id\') . \'bbb" %}{% do foo.call %}{% endsw_silent_feature_call %}',
+            true,
+        ];
     }
 }
 

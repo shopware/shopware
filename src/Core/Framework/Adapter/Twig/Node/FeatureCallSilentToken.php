@@ -22,7 +22,9 @@ class FeatureCallSilentToken extends Node
     {
         $compiler
             ->addDebugInfo($this)
-            ->raw('\Shopware\Core\Framework\Feature::callSilentIfInactive(\'' . $this->flag . '\', function () use(&$context) { ')
+            ->raw('\Shopware\Core\Framework\Feature::callSilentIfInactive(')
+            ->string($this->flag)
+            ->raw(', function () use(&$context) { ')
             ->subcompile($this->getNode('body'))
             ->raw('});');
     }

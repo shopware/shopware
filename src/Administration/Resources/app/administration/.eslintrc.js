@@ -145,6 +145,8 @@ module.exports = {
                 'vue/no-deprecated-events-api': 'off',
                 'vue/require-slots-as-functions': 'off',
                 'vue/no-deprecated-props-default-this': 'off',
+                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
             },
         }, {
             extends: [
@@ -281,6 +283,8 @@ module.exports = {
                 // Disable the base rule as it can report incorrect errors
                 'no-unused-vars': 'off',
                 '@typescript-eslint/no-unused-vars': 'error',
+                'sw-deprecation-rules/no-compat-conditions': ['warn', 'disableFix'],
+                'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
             },
         },
     ],

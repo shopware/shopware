@@ -8,7 +8,7 @@ $search-suggest-zindex: 1000 !default;
 $offcanvas-zindex: 1050 !default;
 $cookie-msg-zindex: 1100 !default;
 $scroll-up-zindex: 700 !default;
-$menu-flyout-zindex: 750 !default;
+$menu-flyout-zindex: if(feature('ACCESSIBILITY_TWEAKS'), 1030, 750) !default;
 $zoom-modal-action-zindex: 1051 !default;
 $magnifier-overlay-zindex: 1100 !default;
 

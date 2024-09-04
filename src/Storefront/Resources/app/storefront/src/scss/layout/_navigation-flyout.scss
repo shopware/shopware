@@ -10,7 +10,11 @@ Custom styling for navigation flyout which opens on hover over the main navigati
 * See: src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig
 */
 
-@if not feature('ACCESSIBILITY_TWEAKS') {
+@if feature('ACCESSIBILITY_TWEAKS') {
+    .navigation-flyouts {
+        z-index: $menu-flyout-zindex;
+    }
+} @else {
     .navigation-flyouts {
         position: absolute;
         z-index: $menu-flyout-zindex;

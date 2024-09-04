@@ -8,6 +8,10 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @see \Shopware\Core\Migration\V6_5\Migration1708685282MigrateToReferencedColumns
+ * This migration is left empty intentionally, to prevent possible side effects.
+ * The content has been moved to the 6.5 migration namespace, so the change is executed with 6.7 and not just with 6.8.
  */
 #[Package('core')]
 class Migration1673964565MigrateToReferencedColumns extends MigrationStep
@@ -19,29 +23,5 @@ class Migration1673964565MigrateToReferencedColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = $connection->executeQuery('
-            SELECT COLUMN_NAME,EXTRA FROM information_schema.columns
-                WHERE table_schema = :database
-                  AND table_name = \'state_machine_history\'
-                  AND (COLUMN_NAME = \'referenced_id\'
-                    OR COLUMN_NAME = \'referenced_version_id\'
-                    OR COLUMN_NAME = \'entity_id\');
-        ', ['database' => $connection->getDatabase()])->fetchAllAssociativeIndexed();
-
-        if ($columns['referenced_id']['EXTRA'] === 'STORED GENERATED') {
-            $connection->executeStatement('
-                ALTER TABLE `state_machine_history`
-                MODIFY COLUMN `referenced_id` BINARY(16) NOT NULL;
-            ');
-        }
-
-        if ($columns['referenced_version_id']['EXTRA'] === 'STORED GENERATED') {
-            $connection->executeStatement('
-                ALTER TABLE `state_machine_history`
-                MODIFY COLUMN `referenced_version_id` BINARY(16) NOT NULL;
-            ');
-        }
-
-        $this->dropColumnIfExists($connection, 'state_machine_history', 'entity_id');
     }
 }

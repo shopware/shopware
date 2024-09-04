@@ -13,9 +13,9 @@
       "cacheAdapter": "Cache-Adapter"
     },
     "section": {
-      "clearCachesHeadline": "Caches leeren",
-      "clearCachesText": "Der Cache wird sofort synchron geleert für alle verwendeten Adapter.",
-      "clearCachesButton": "Caches leeren",
+      "clearCachesHeadline": "Cache löschen",
+      "clearCachesText": "Löscht sofort alle zwischengespeicherten Daten synchron für alle Adapter.",
+      "clearCachesButton": "Cache löschen",
       "indexesHeadline": "Indizes",
       "indexesText": "Es werden alle Indizes asynchron aktualisiert. Der Fortschritt kann in den Mitteilungen eingesehen werden. Dies betrifft unter anderem die Produkt- und Kategorieindizes oder auch die SEO-URLs.",
       "indexesButton": "Indizes aktualisieren",
@@ -25,12 +25,20 @@
       "indexesSkipSelectLabel": "Indexer und/oder Updater zum Überspringen",
       "indexesOnlySelectLabel": "Indexer und/oder Updater",
       "indexesSkipSelectPlaceholder": "Indexer und/oder Updater auswählen zum Überspringen",
-      "indexesOnlySelectPlaceholder": "Indexer und/oder Updater auswählen"
+      "indexesOnlySelectPlaceholder": "Indexer und/oder Updater auswählen",
+      "clearDataCachesHeadline": "Datencache löschen",
+      "clearDataCachesText": "Änderungen an nicht wesentlichen Shopdaten (alles, was nicht mit der Preisberechnung zusammenhängt) sind möglicherweise nicht sofort sichtbar. Lösche den Datencache, um Deine letzten Änderungen zu sehen.",
+      "clearDataCachesButton": "Datencache löschen"
     },
     "notifications": {
       "clearCache": {
         "started": "Cache wird geleert.",
         "success": "Cache wurde geleert.",
+        "error": "Cache konnte nicht geleert werden."
+      },
+      "clearDataCache": {
+        "started": "Data cache wird geleert.",
+        "success": "Alle ausstehenden Änderungen wurden angewendet.",
         "error": "Cache konnte nicht geleert werden."
       },
       "index": {

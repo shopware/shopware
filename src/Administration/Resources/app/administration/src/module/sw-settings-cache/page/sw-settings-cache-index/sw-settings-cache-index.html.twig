@@ -109,6 +109,40 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_cache_content_clear_cache_row %}
                 <sw-card-section divider="bottom">
+                    <sw-container align="center" columns="1fr auto" gap="20px">
+                        <div>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_cache_content_clear_data_cache_row_heading %}
+                            <p class="sw-settings-cache__card-section-heading">
+                                {{ $tc('sw-settings-cache.section.clearDataCachesHeadline') }}
+                            </p>
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_cache_content_clear_data_cache_row_text %}
+                            <p>{{ $tc('sw-settings-cache.section.clearDataCachesText') }}</p>
+                            {% endblock %}
+                        </div>
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_cache_content_clear_data_cache_row_button %}
+                        <sw-button-process
+                            variant="ghost"
+                            :is-loading="processes.normalClearCache"
+                            :process-success="processSuccess.normalClearCache"
+                            @update:process-success="resetButtons"
+                            @click="clearDataCache"
+                        >
+                            {{ $tc('sw-settings-cache.section.clearDataCachesButton') }}
+                        </sw-button-process>
+                        {% endblock %}
+                    </sw-container>
+                </sw-card-section>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_cache_content_clear_cache_row %}
+                <sw-card-section divider="bottom">
                     <sw-container
                         align="center"
                         columns="1fr auto"
@@ -143,7 +177,7 @@
                         {% endblock %}
                     </sw-container>
                 </sw-card-section>
-            {% endblock %}
+                {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_cache_content_indexes_row %}

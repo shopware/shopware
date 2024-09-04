@@ -10,8 +10,20 @@
             <tag name="shopware.profiler" integration="Symfony"/>
         </service>
 
+        <service id="Shopware\Core\Profiling\Subscriber\HttpCacheTagDataCollectorSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <tag name="data_collector"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
         <service id="Shopware\Core\Profiling\Integration\Tideways">
             <tag name="shopware.profiler" integration="Tideways"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\CacheWatchDelayedCommand">
+            <tag name="console.command"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service id="Shopware\Core\Profiling\Integration\Datadog">

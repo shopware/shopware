@@ -78,5 +78,7 @@ return [
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$lineItem changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem',
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$cart changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart',
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$salesChannelContext changed from having no type to Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
+
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\) changed from void'
     ],
 ];

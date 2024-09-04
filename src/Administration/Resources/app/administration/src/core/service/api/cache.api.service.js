@@ -23,6 +23,11 @@ class CacheApiService {
         return this.httpClient.post('/_action/index-products', { skip, ids: ids }, { headers });
     }
 
+    delayed() {
+        const headers = this.getHeaders();
+        return this.httpClient.delete('/_action/cache-delayed', { headers });
+    }
+
     clear() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache', { headers }).then((response) => {

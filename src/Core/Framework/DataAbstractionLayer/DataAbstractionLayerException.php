@@ -31,6 +31,7 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const INVALID_RANGE_FILTER_PARAMS = 'FRAMEWORK__INVALID_RANGE_FILTER_PARAMS';
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
+    public const INVALID_AGGREGATION_NAME = 'FRAMEWORK__INVALID_AGGREGATION_NAME';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -176,6 +177,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_WRITE_INPUT,
             $message,
+        );
+    }
+
+    public static function invalidAggregationName(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_AGGREGATION_NAME,
+            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            ['name' => $name]
         );
     }
 

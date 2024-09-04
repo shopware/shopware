@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -116,6 +117,10 @@ class EntityAggregator implements EntityAggregatorInterface
         Criteria $criteria,
         Context $context
     ): AggregationResult {
+        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
+        }
+
         $clone = clone $criteria;
         $clone->resetAggregations();
         $clone->resetSorting();
@@ -248,7 +253,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $aggregation instanceof StatsAggregation => $this->parseStatsAggregation($aggregation, $query, $definition, $context),
             $aggregation instanceof EntityAggregation => $this->parseEntityAggregation($aggregation, $query, $definition, $context),
             $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $query, $definition, $context),
-            default => throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', $aggregation::class)),
+            default => throw new InvalidAggregationQueryException(\sprintf('Aggregation of type %s not supported', $aggregation::class)),
         };
     }
 
@@ -293,11 +298,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($groupBy);
 
         $key = $aggregation->getName() . '.key';
-        $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($key)));
+        $query->addSelect(\sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($key)));
 
         $key = $aggregation->getName() . '.count';
         $countAccessor = $this->queryHelper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
+        $query->addSelect(\sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         if ($aggregation->getSorting()) {
             $this->addSorting($aggregation->getSorting(), $definition, $query, $context);
@@ -326,12 +331,12 @@ class EntityAggregator implements EntityAggregatorInterface
             $keyAccessor = 'LOWER(HEX(' . $keyAccessor . '))';
         }
 
-        $query->addSelect(sprintf('%s as %s', $keyAccessor, EntityDefinitionQueryHelper::escape($key)));
+        $query->addSelect(\sprintf('%s as %s', $keyAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         $key = $aggregation->getName() . '.count';
 
         $countAccessor = $this->queryHelper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
+        $query->addSelect(\sprintf('COUNT(%s) as %s', $countAccessor, EntityDefinitionQueryHelper::escape($key)));
 
         if ($aggregation->getLimit()) {
             $query->setMaxResults($aggregation->getLimit());
@@ -354,7 +359,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     private function parseSumAggregation(
@@ -365,7 +370,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     private function parseMaxAggregation(
@@ -376,7 +381,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     private function parseMinAggregation(
@@ -387,7 +392,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     private function parseCountAggregation(
@@ -398,7 +403,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('COUNT(DISTINCT %s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('COUNT(DISTINCT %s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     private function parseStatsAggregation(
@@ -410,16 +415,16 @@ class EntityAggregator implements EntityAggregatorInterface
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
         if ($aggregation->fetchAvg()) {
-            $query->addSelect(sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.avg')));
+            $query->addSelect(\sprintf('AVG(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.avg')));
         }
         if ($aggregation->fetchMin()) {
-            $query->addSelect(sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.min')));
+            $query->addSelect(\sprintf('MIN(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.min')));
         }
         if ($aggregation->fetchMax()) {
-            $query->addSelect(sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.max')));
+            $query->addSelect(\sprintf('MAX(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.max')));
         }
         if ($aggregation->fetchSum()) {
-            $query->addSelect(sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.sum')));
+            $query->addSelect(\sprintf('SUM(%s) as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.sum')));
         }
     }
 
@@ -432,20 +437,20 @@ class EntityAggregator implements EntityAggregatorInterface
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
         $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
         if (!$field instanceof PriceField && !$field instanceof FloatField && !$field instanceof IntField) {
-            throw new \RuntimeException(sprintf('Provided field "%s" is not supported in RangeAggregation (supports : PriceField, FloatField, IntField)', $aggregation->getField()));
+            throw new \RuntimeException(\sprintf('Provided field "%s" is not supported in RangeAggregation (supports : PriceField, FloatField, IntField)', $aggregation->getField()));
         }
         // build SUM() with range criteria for each range and add it to select
         foreach ($aggregation->getRanges() as $range) {
             $id = $range['key'] ?? (($range['from'] ?? '*') . '-' . ($range['to'] ?? '*'));
             $sum = '1';
             if (isset($range['from'])) {
-                $sum .= sprintf(' AND %s >= %f', $accessor, $range['from']);
+                $sum .= \sprintf(' AND %s >= %f', $accessor, $range['from']);
             }
             if (isset($range['to'])) {
-                $sum .= sprintf(' AND %s < %f', $accessor, $range['to']);
+                $sum .= \sprintf(' AND %s < %f', $accessor, $range['to']);
             }
 
-            $query->addSelect(sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
+            $query->addSelect(\sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
         }
     }
 
@@ -459,7 +464,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($accessor);
 
         $accessor = 'LOWER(HEX(' . $accessor . '))';
-        $query->addSelect(sprintf('%s as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
+        $query->addSelect(\sprintf('%s as %s', $accessor, EntityDefinitionQueryHelper::escape($aggregation->getName())));
     }
 
     /**
@@ -528,7 +533,7 @@ class EntityAggregator implements EntityAggregatorInterface
             case $aggregation instanceof RangeAggregation:
                 return $this->hydrateRangeAggregation($aggregation, $rows);
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', $aggregation::class));
+                throw new InvalidAggregationQueryException(\sprintf('Aggregation of type %s not supported', $aggregation::class));
         }
     }
 
@@ -635,7 +640,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         $countAccessor = $this->queryHelper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $countAccessor = sprintf('COUNT(%s)', $countAccessor);
+        $countAccessor = \sprintf('COUNT(%s)', $countAccessor);
 
         $direction = $sorting->getDirection() === FieldSorting::ASCENDING ? FieldSorting::ASCENDING : FieldSorting::DESCENDING;
 
@@ -682,7 +687,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $row = array_shift($rows);
         if ($row) {
             foreach ($aggregation->getRanges() as $range) {
-                $ranges[(string) $range['key']] = (int) $row[sprintf('%s.%s', $aggregation->getName(), $range['key'])];
+                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), $range['key'])];
             }
         }
 

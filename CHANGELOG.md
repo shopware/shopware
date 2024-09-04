@@ -1,6 +1,23 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.14
+*  [NEXT-34155 - Search for a composer.json in `custom/static-plugins/`](./changelog/release-6-5-8-14/2024-03-11-include-static-plugins-path-in-testbootstrapper.md)
+*  [NEXT-37462 - Upsert custom fields in app lifecycle](./changelog/release-6-5-8-14/2024-07-31-upsert-custom-fields-in-app-lifecycle.md)
+*  [NEXT-37684 - Fix updating thumbnails in strict mode](./changelog/release-6-5-8-14/2024-08-07-fix-updating-thumbnails-in-strict-mode.md) ([Philipp Zabel](https://github.com/phizab))
+*  [NEXT-37480 - Fix issue promotions with rules cannot apply](./changelog/release-6-5-8-14/2024-08-12-fix-issue-promotions-with-rules-cannot-apply.md)
+*  [NEXT-37571 - Validate VAT Reg.No. format does not work correct](./changelog/release-6-5-8-14/2024-08-12-validate-vat-reg-no-format-does-not-work-correct.md)
+*  [NEXT-37600 - Change typehint in MediaUrlPlaceholderHandler](./changelog/release-6-5-8-14/2024-08-13-fix-transition-loop-in-statemachineregistry.md)
+*  [NEXT-37593 - Fix issue promotions are not applied anymore when the max. uses per customer is reached](./changelog/release-6-5-8-14/2024-08-14-fix-issue-promotions-are-not-applied-anymore-when-the-max-uses-per-customer-is-reached.md)
+*  [NEXT-27410 - Fix price validation in custom fields](./changelog/release-6-5-8-14/2024-08-14-fix-price-validation-in-custom-fields.md)
+*  [NEXT-37567 - Sign static iframe module src](./changelog/release-6-5-8-14/2024-08-14-sign-static-iframe-module-src.md)
+*  [NEXT-37991 - Fix many to many filtered join to same table](./changelog/release-6-5-8-14/2024-08-21-fix-many-to-many-filtered-join.md)
+*  [NEXT-37745 - Undefined TCPDF constant caused by opcache preloading](./changelog/release-6-5-8-14/2024-08-21-undefined-tcpdf-constant-caused-by-opcache-preloading.md)
+*  [NEXT-38012 - Prevent overwriting of media path](./changelog/release-6-5-8-14/2024-08-22-prevent-overwriting-of-media-path.md)
+*  [NEXT-37456 - Fix generate individual code more than 25 items](./changelog/release-6-5-8-14/2024-08-27-Fix-generate-individual-code-more-than-25-items.md)
+*  [NEXT-38050 - Add missing GROUP BY to EntityReader](./changelog/release-6-5-8-14/2024-08-27-add-missing-group-by-to-entity-reader.md)
+*  [NEXT-38080 - Add criteria nesting level](./changelog/release-6-5-8-14/2024-08-28-add-criteria-nesting-level.md)
+
 ## 6.5.8.13
 *  [NEXT-34410 - Allow Twig array filters to accept null](./changelog/release-6-5-8-13/2024-03-09-allow-twig-array-filters-to-accept-null.md) ([Max](https://github.com/aragon999))
 *  [NEXT-34301 - Changed default recipient for mails send via the Flow Builder on the product review send trigger](./changelog/release-6-5-8-13/2024-06-04-changed-default-recipient-for-mails-send-via-the-flow-builder-on-the-product-review-send-trigger.md)

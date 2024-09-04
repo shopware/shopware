@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import {VNode} from "vue";
+import { VNode } from "vue";
 import { ComponentPublicInstance } from "vue";
 
 const { Directive } = Shopware;
@@ -30,13 +30,15 @@ interface PopoverConfig {
     targetSelector: string;
     resizeWidth: boolean;
     style: Record<string, string>;
+    stopScrollPropagation?: boolean;
 }
 
 const defaultConfig: PopoverConfig = {
     active: false,
     targetSelector: '',
     resizeWidth: false,
-    style: {}
+    style: {},
+    stopScrollPropagation: false
 };
 
 const customStylingBlacklist = ['width', 'position', 'top', 'left', 'right', 'bottom'];
@@ -94,7 +96,7 @@ Directive.register('popover', {
  * v-placement
  */
 
-function calculateOutsideEdges(el: HTMLElement, vnode: VNode|ComponentPublicInstance) {
+function calculateOutsideEdges(el: HTMLElement, vnode: VNode | ComponentPublicInstance) {
     // @ts-expect-error - parent exists on the vnode but is private
     // orientation element is needed for calculating the available space
     const orientationElement = vnode.$parent?.$el;
@@ -125,7 +127,7 @@ function calculateOutsideEdges(el: HTMLElement, vnode: VNode|ComponentPublicInst
     el.classList.add(...placementClasses);
 }
 
-function setElementPosition(element: HTMLElement, refElement: Element|undefined, config: PopoverConfig) {
+function setElementPosition(element: HTMLElement, refElement: Element | undefined, config: PopoverConfig) {
     const originElement = refElement ? refElement : element;
     const elementPosition = originElement.getBoundingClientRect();
 
@@ -168,7 +170,7 @@ function stopVirtualScrolling() {
     window.removeEventListener('scroll', virtualScrollingHandler, true);
 }
 
-function virtualScrollingHandler() {
+function virtualScrollingHandler(event: Event) {
     if (virtualScrollingElements.size <= 0) {
         stopVirtualScrolling();
         return;
@@ -176,10 +178,13 @@ function virtualScrollingHandler() {
 
     virtualScrollingElements.forEach((entry) => {
         setElementPosition(entry.el, entry.ref, entry.config);
+        if (entry.config.stopScrollPropagation) {
+            event.stopPropagation();
+        }
     });
 }
 
-function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: ComponentPublicInstance|undefined, config: PopoverConfig) {
+function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: ComponentPublicInstance | undefined, config: PopoverConfig) {
     // @ts-expect-error - _uid exists on the context but is private
     const uid = vnodeContext?._uid;
 

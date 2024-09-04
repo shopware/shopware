@@ -651,6 +651,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$router).toBeDefined();
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
+            expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
         });
 
         it('should initialize the directives correctly', async () => {

@@ -4,6 +4,7 @@
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
+import getBlockDataScope from './get-block-data-scope';
 
 async function createWrapper(
     {
@@ -11,12 +12,14 @@ async function createWrapper(
         defaultContent = '<div class="default-content"></div>',
         renderExtensions = true,
         moreBlockExtensions = '',
+        extraData = {},
+        extraOptions = {},
     } = {},
 ) {
     const wrapper = mount({
         template: `
             <div class="component-root">
-                <sw-block name="test-extension-point">
+                <sw-block name="test-extension-point" :data="$dataScope()">
                     ${defaultContent}
                 </sw-block>
             </div>
@@ -32,7 +35,15 @@ async function createWrapper(
         data() {
             return {
                 renderExtensions,
+                ...extraData,
             };
+        },
+        ...extraOptions,
+    }, {
+        global: {
+            mocks: {
+                $dataScope: getBlockDataScope,
+            },
         },
     });
 
@@ -283,5 +294,37 @@ describe('sw-block', () => {
         expect(wrapper.find('.component-root > .extension-content-2').exists()).toBeTruthy();
         expect(wrapper.find('.component-root > .extension-content-1').exists()).toBeTruthy();
         expect(wrapper.find('.default-content + .default-content-2 + .default-content-3 + .extension-content-3 + .extension-content-2 + .extension-content-1').exists()).toBeTruthy();
+    });
+
+    it('has access to the component data scope', async () => {
+        const { wrapper } = await createWrapper({
+            extraData: {
+                testData: 'Hello World',
+            },
+            extraOptions: {
+                methods: {
+                    testMethod(param) {
+                        return `This is a method with parameter: ${param}`;
+                    },
+                },
+                computed: {
+                    testComputed() {
+                        return 'This is a computed';
+                    },
+                },
+            },
+            extensions: `
+                <sw-block extends="test-extension-point" #default="{testData, testMethod, testComputed}">
+                    <sw-block-parent/>
+                    <div class="extension-content-1">{{testData}}</div>
+                    <div class="extension-content-2">{{testMethod('param')}}</div>
+                    <div class="extension-content-3">{{testComputed}}</div>
+                </sw-block>
+            `,
+        });
+
+        expect(wrapper.find('.component-root > .extension-content-1').text()).toBe('Hello World');
+        expect(wrapper.find('.component-root > .extension-content-2').text()).toBe('This is a method with parameter: param');
+        expect(wrapper.find('.component-root > .extension-content-3').text()).toBe('This is a computed');
     });
 });

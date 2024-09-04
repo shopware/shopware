@@ -114,3 +114,4 @@
 |`app.installed` |  | - | 
 |`app.updated` |  | - | 
 |`shopware.updated` |  | - | 
+|`app.config.changed` | Fires when the app configuration has been updated | system_config:read | {"changes": ["changed-config-key"]}

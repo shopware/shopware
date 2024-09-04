@@ -18,7 +18,7 @@ Component.register('sw-icon', {
         name: {
             type: String,
             required: true,
-        }
+        },
     },
 
     computed: {
@@ -45,6 +45,6 @@ Component.register('sw-icon', {
             }
 
             return {};
-        }
+        },
     },
 });

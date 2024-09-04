@@ -1,32 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_5;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_5\Migration1708685282MigrateToReferencedColumns;
+use Shopware\Core\Migration\V6_6\Migration1673964565MigrateToReferencedColumns;
 
 /**
  * @internal
  */
-#[CoversClass(Migration1708685282MigrateToReferencedColumns::class)]
-class Migration1708685281MigrateToReferencedColumnsTest extends TestCase
+#[CoversClass(Migration1673964565MigrateToReferencedColumns::class)]
+class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
 {
     private Connection $connection;
 
-    private Migration1708685282MigrateToReferencedColumns $migration;
+    private Migration1673964565MigrateToReferencedColumns $migration;
 
     protected function setUp(): void
     {
-        $this->migration = new Migration1708685282MigrateToReferencedColumns();
+        $this->migration = new Migration1673964565MigrateToReferencedColumns();
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1708685282, $this->migration->getCreationTimestamp());
+        static::assertSame(1673964565, $this->migration->getCreationTimestamp());
     }
 
     public function testUpdateDestructive(): void

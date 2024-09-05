@@ -280,6 +280,7 @@ Component.register('sw-search-bar', {
             document.addEventListener('click', this.closeOnClickOutside);
 
             if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // eslint-disable-next-line vue/no-deprecated-events-api
                 this.$on('mouse-over', this.setActiveResultPosition);
             }
         },

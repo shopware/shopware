@@ -198,7 +198,9 @@ Component.register('sw-page', {
     methods: {
         createdComponent() {
             if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // eslint-disable-next-line vue/no-deprecated-events-api
                 this.$on('mount', this.setSidebarOffset);
+                // eslint-disable-next-line vue/no-deprecated-events-api
                 this.$on('destroy', this.removeSidebarOffset);
             }
 

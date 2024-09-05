@@ -6,10 +6,12 @@
 >
     <template
         v-for="(index, name) in getSlots()"
-        #[name]="data">
+        #[name]="data"
+    >
         <slot
             :name="name"
-            v-bind="data">
+            v-bind="data"
+        >
         </slot>
     </template>
     <slot></slot>
@@ -24,7 +26,8 @@
 >
     <template
         v-for="(index, name) in getSlots()"
-        #[name]="data">
+        #[name]="data"
+    >
         <slot
             :name="name"
             v-bind="data"

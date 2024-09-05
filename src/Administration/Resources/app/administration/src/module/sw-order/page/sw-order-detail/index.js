@@ -24,6 +24,21 @@ export default {
         'feature',
     ],
 
+    provide() {
+        return {
+            swOrderDetailOnIdentifierChange: this.updateIdentifier,
+            swOrderDetailOnCreatedByIdChange: this.updateCreatedById,
+            swOrderDetailOnLoadingChange: this.onUpdateLoading,
+            swOrderDetailOnEditingChange: this.onUpdateEditing,
+            swOrderDetailOnSaveAndRecalculate: this.onSaveAndRecalculate,
+            swOrderDetailOnRecalculateAndReload: this.onRecalculateAndReload,
+            swOrderDetailOnReloadEntityData: this.reloadEntityData,
+            swOrderDetailOnSaveAndReload: this.onSaveAndReload,
+            swOrderDetailOnSaveEdits: this.onSaveEdits,
+            swOrderDetailOnError: this.onError,
+        };
+    },
+
     mixins: [
         Mixin.getByName('notification'),
     ],

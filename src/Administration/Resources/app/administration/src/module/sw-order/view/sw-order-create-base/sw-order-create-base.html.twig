@@ -178,12 +178,10 @@
                                 v-for="(_, index) in cartDeliveryDiscounts"
                                 :key="index"
                             >
-                                <dt
-                                >
+                                <dt>
                                     {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
-                                <dd
-                                >
+                                <dd>
                                     {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode) }}
                                 </dd>
                             </template>
@@ -204,12 +202,10 @@
                                     v-for="(calculatedTax, index) in filteredCalculatedTaxes"
                                     :key="index"
                                 >
-                                    <dt
-                                    >
+                                    <dt>
                                         {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                     </dt>
-                                    <dd
-                                    >
+                                    <dd>
                                         {{ currencyFilter(calculatedTax.tax, currency.isoCode) }}
                                     </dd>
                                 </template>

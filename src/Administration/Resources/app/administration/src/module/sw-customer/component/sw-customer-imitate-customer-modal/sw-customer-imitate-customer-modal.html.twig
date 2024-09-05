@@ -9,7 +9,8 @@
     <sw-alert>
         <i18n-t
             keypath="sw-customer.imitateCustomerModal.modalInfo"
-            tag="p">
+            tag="p"
+        >
             <template #logout>
                 <b>{{ $tc('sw-customer.imitateCustomerModal.modalInfoLogout') }}</b>
             </template>
@@ -36,7 +37,8 @@
             v-for="salesChannelDomain of salesChannelDomains"
             :key="salesChannelDomain.id"
             target="_blank"
-            @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)">
+            @click="onSalesChannelDomainMenuItemClick(salesChannelDomain.salesChannelId, salesChannelDomain.url)"
+        >
 
             <div
                 class="imitate-customer-modal-item-content"

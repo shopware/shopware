@@ -58,8 +58,11 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
         $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_CATEGORY);
         $category->setInternalLink(Uuid::randomHex());
-        $category->addTranslated('internalLink', $category->getInternalLink());
-        $this->salesChannel->setNavigationCategoryId($category->getInternalLink());
+
+        $internalLink = $category->getInternalLink();
+        static::assertIsString($internalLink);
+        $category->addTranslated('internalLink', $internalLink);
+        $this->salesChannel->setNavigationCategoryId($internalLink);
 
         static::assertSame('frontend.home.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
@@ -82,6 +85,9 @@ class CategoryUrlGeneratorTest extends TestCase
         static::assertSame($route, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
+    /**
+     * @return list<list<string|null>>
+     */
     public static function dataProviderLinkTypes(): array
     {
         return [

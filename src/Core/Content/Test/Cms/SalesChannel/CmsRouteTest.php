@@ -44,7 +44,10 @@ class CmsRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CONTENT__CMS_PAGE_NOT_FOUND', $response['errors'][0]['code']);
@@ -62,7 +65,10 @@ class CmsRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($this->ids->get('page'), $response['id']);
         static::assertSame('test page', $response['name']);

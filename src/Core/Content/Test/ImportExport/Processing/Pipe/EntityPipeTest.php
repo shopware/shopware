@@ -55,9 +55,14 @@ class EntityPipeTest extends TestCase
         $product->setUniqueIdentifier($id);
 
         $result = iterator_to_array($entityPipe->in($config, $product->jsonSerialize()));
+        static::assertInstanceOf(ProductTranslationCollection::class, $product->getTranslations());
+        $first = $product->getTranslations()->first();
+        static::assertInstanceOf(ProductTranslationEntity::class, $first);
+        $translation = $first->getName();
+        static::assertIsString($translation);
 
         static::assertSame($product->getId(), $result['id']);
-        static::assertSame($product->getTranslations()->first()->getName(), $result['translations']['DEFAULT']['name']);
+        static::assertSame($translation, $result['translations']['DEFAULT']['name']);
         static::assertSame((string) $product->getStock(), $result['stock']);
         static::assertSame($product->getProductNumber(), $result['productNumber']);
         static::assertSame('1', $result['active']);
@@ -65,7 +70,7 @@ class EntityPipeTest extends TestCase
         $result = iterator_to_array($entityPipe->out($config, $result));
 
         static::assertSame($product->getId(), $result['id']);
-        static::assertSame($product->getTranslations()->first()->getName(), $result['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
+        static::assertSame($translation, $result['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
         static::assertSame($product->getStock(), $result['stock']);
         static::assertSame($product->getProductNumber(), $result['productNumber']);
         static::assertSame($product->getActive(), $result['active']);

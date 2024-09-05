@@ -21,14 +21,6 @@ class ProductFeatureSetEntityTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testEntityDefinitionExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetDefinition::class,
-            new ProductFeatureSetDefinition()
-        );
-    }
-
     #[DataProvider('definitionMethodProvider')]
     public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
     {
@@ -49,14 +41,6 @@ class ProductFeatureSetEntityTest extends TestCase
         static::assertTrue($definition->getFields()->has($field));
     }
 
-    public function testEntityExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetEntity::class,
-            new ProductFeatureSetEntity()
-        );
-    }
-
     #[TestWith(['getName'])]
     #[TestWith(['getDescription'])]
     #[TestWith(['getFeatures'])]
@@ -64,14 +48,6 @@ class ProductFeatureSetEntityTest extends TestCase
     public function testEntityIsComplete(string $method): void
     {
         static::assertTrue(method_exists(ProductFeatureSetEntity::class, $method));
-    }
-
-    public function testCollectionExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetCollection::class,
-            new ProductFeatureSetCollection()
-        );
     }
 
     public function testRepositoryIsWorking(): void
@@ -90,6 +66,9 @@ class ProductFeatureSetEntityTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array<string>>
+     */
     public static function definitionMethodProvider(): array
     {
         return [

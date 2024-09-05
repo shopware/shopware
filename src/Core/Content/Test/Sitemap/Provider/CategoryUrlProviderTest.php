@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
@@ -29,22 +28,13 @@ class CategoryUrlProviderTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    private SalesChannelRepository $categorySalesChannelRepository;
-
     private SalesChannelContext $salesChannelContext;
-
-    private SalesChannelRepository $seoUrlSalesChannelRepository;
 
     protected function setUp(): void
     {
         if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
-
-        parent::setUp();
-
-        $this->categorySalesChannelRepository = $this->getContainer()->get('sales_channel.category.repository');
-        $this->seoUrlSalesChannelRepository = $this->getContainer()->get('sales_channel.seo_url.repository');
 
         $navigationCategoryId = $this->createRootCategoryData();
 

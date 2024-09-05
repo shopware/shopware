@@ -101,7 +101,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
@@ -125,7 +124,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
@@ -150,7 +148,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
@@ -189,7 +186,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
@@ -229,7 +225,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
@@ -268,7 +263,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
@@ -291,13 +285,10 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
-
         $media = $imageStruct->getMedia();
         static::assertInstanceOf(MediaEntity::class, $media);
-
         static::assertEquals('shopware', $media->getFileName());
         static::assertEquals('image/jpeg', $media->getMimeType());
         static::assertEquals('jpg', $media->getFileExtension());
@@ -333,7 +324,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
@@ -376,7 +366,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
@@ -406,7 +395,6 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageStruct|null $imageStruct */
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame($manufacturer->getLink(), $imageStruct->getUrl());

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Framework\Context;
@@ -21,8 +22,11 @@ class FileServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @param array<string, string> $fileData
+     */
     #[DataProvider('fileTypesProvider')]
-    public function testDetectType($fileData): void
+    public function testDetectType(array $fileData): void
     {
         $fileService = new FileService(
             $this->getContainer()->get('shopware.filesystem.private'),
@@ -62,12 +66,14 @@ class FileServiceTest extends TestCase
 
         static::assertSame('testfile.csv', $storedFile->getOriginalName());
 
-        $dbFile = $fileRepository->search(new Criteria([$storedFile->getId()]), Context::createDefaultContext())->first();
-        static::assertNotNull($dbFile);
+        $dbFile = $fileRepository->search(new Criteria([$storedFile->getId()]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(ImportExportFileEntity::class, $dbFile);
         static::assertSame('testfile.csv', $dbFile->getOriginalName());
     }
 
-    public static function fileTypesProvider(): iterable
+    public static function fileTypesProvider(): \Generator
     {
         yield 'CSV file with correct type' => [
             [

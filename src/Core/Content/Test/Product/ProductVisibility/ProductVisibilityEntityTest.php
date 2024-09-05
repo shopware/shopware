@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -30,9 +31,9 @@ class ProductVisibilityEntityTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductCollection>
      */
-    protected $productRepository;
+    protected EntityRepository $productRepository;
 
     private string $salesChannelId1;
 
@@ -81,8 +82,7 @@ class ProductVisibilityEntityTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('visibilities');
 
-        /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         // check visibilities can be loaded as association
         static::assertInstanceOf(ProductEntity::class, $product);
@@ -127,6 +127,11 @@ class ProductVisibilityEntityTest extends TestCase
         static::assertCount(2, $event->getWriteResults());
     }
 
+    /**
+     * @param array<string, int> $visibilities
+     *
+     * @return array<string, mixed>
+     */
     private function createProduct(string $id, array $visibilities): array
     {
         $mapped = [];

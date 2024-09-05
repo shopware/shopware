@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -64,11 +66,13 @@ class ProductLoadedSubscriberTest extends TestCase
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        /** @var SalesChannelProductEntity $productEntity */
+
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
             ->search(new Criteria([$ids->get('p.1')]), $salesChannelContext)
             ->first();
+
+        static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
 
         static::assertInstanceOf(CheapestPrice::class, $productEntity->getCheapestPrice());
     }
@@ -92,12 +96,12 @@ class ProductLoadedSubscriberTest extends TestCase
         $criteria = new Criteria([$ids->get('p.1')]);
         $criteria->addFields(['id', 'cheapestPrice', 'taxId', 'price']);
 
-        /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
 
+        static::assertNotNull($productEntity);
         static::assertInstanceOf(CheapestPrice::class, $productEntity->get('cheapestPrice'));
         static::assertInstanceOf(CalculatedCheapestPrice::class, $productEntity->get('calculatedCheapestPrice'));
     }
@@ -119,11 +123,12 @@ class ProductLoadedSubscriberTest extends TestCase
         $criteria->setIds([$product['id']])
             ->addAssociation('properties.group');
 
-        /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
+
+        static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
 
         $subscriber = $this->getContainer()->get(ProductSubscriber::class);
         $productLoadedEvent = new EntityLoadedEvent(
@@ -178,24 +183,35 @@ class ProductLoadedSubscriberTest extends TestCase
             ->addAssociation('properties.group')
             ->addFields(['properties', 'price']);
 
-        /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        $sortedProperties = $productEntity->get('sortedProperties')->getElements();
+        static::assertNotNull($productEntity);
+
+        $sortedProperties = $productEntity->get('sortedProperties');
+        static::assertInstanceOf(PropertyGroupCollection::class, $sortedProperties);
+        $sortedProperties = $sortedProperties->getElements();
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
-            $optionElements = $sortedProperties[$expectedGroupKey]->get('options')->getElements();
+            $sortedProperty = $sortedProperties[$expectedGroupKey];
+            static::assertInstanceOf(PropertyGroupEntity::class, $sortedProperty);
 
-            static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->get('name'));
-            static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
+            $optionElements = $sortedProperty->get('options');
+            static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElements);
+            $optionElements = $optionElements->getElements();
+
+            static::assertEquals($expectedGroup['name'], $sortedProperty->get('name'));
+            static::assertEquals($expectedGroup['id'], $sortedProperty->getId());
             static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
-                static::assertEquals($option['id'], $optionElements[$optionId]->getId());
-                static::assertEquals($option['name'], $optionElements[$optionId]->get('name'));
+                $optionElement = $optionElements[$optionId];
+                static::assertInstanceOf(PropertyGroupOptionEntity::class, $optionElement);
+
+                static::assertEquals($option['id'], $optionElement->getId());
+                static::assertEquals($option['name'], $optionElement->get('name'));
             }
         }
 
@@ -399,7 +415,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->get('product.repository')
             ->search($criteria, $context)
             ->first();
-
+        static::assertInstanceOf(ProductEntity::class, $productEntity);
         $subscriber = $this->getContainer()->get(ProductSubscriber::class);
         $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
         $subscriber->loaded($productLoadedEvent);
@@ -1330,6 +1346,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
             $price = $product->get('calculatedPrice');
 
+            static::assertInstanceOf(CalculatedPrice::class, $price);
             static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
             static::assertEquals($case->expectedPrice, $price->getUnitPrice());

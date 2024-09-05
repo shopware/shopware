@@ -20,14 +20,6 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testEntityDefinitionExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetTranslationDefinition::class,
-            new ProductFeatureSetTranslationDefinition()
-        );
-    }
-
     #[DataProvider('definitionMethodProvider')]
     public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
     {
@@ -46,14 +38,6 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
         static::assertTrue($definition->getFields()->has($field));
     }
 
-    public function testEntityExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetTranslationEntity::class,
-            new ProductFeatureSetTranslationEntity()
-        );
-    }
-
     #[TestWith(['getProductFeatureSetId'])]
     #[TestWith(['getName'])]
     #[TestWith(['getDescription'])]
@@ -63,19 +47,14 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
         static::assertTrue(method_exists(ProductFeatureSetTranslationEntity::class, $method));
     }
 
-    public function testCollectionExists(): void
-    {
-        static::assertInstanceOf(
-            ProductFeatureSetTranslationCollection::class,
-            new ProductFeatureSetTranslationCollection()
-        );
-    }
-
     public function testRepositoryIsWorking(): void
     {
         static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('product_feature_set_translation.repository'));
     }
 
+    /**
+     * @return list<array<string>>
+     */
     public static function definitionMethodProvider(): array
     {
         return [

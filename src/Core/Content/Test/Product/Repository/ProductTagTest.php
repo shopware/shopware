@@ -131,6 +131,9 @@ class ProductTagTest extends TestCase
         static::assertContains($id2, $ids->getIds());
     }
 
+    /**
+     * @param list<array<string, string>> $tags
+     */
     private function createProduct(string $id, array $tags): void
     {
         $data = [

@@ -28,18 +28,21 @@ class SearchKeywordUpdaterTest extends TestCase
 
     private EntityRepository $salesChannelLanguageRepository;
 
-    private EntityRepository $searchKeywordRepository;
-
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->salesChannelLanguageRepository = $this->getContainer()->get('sales_channel_language.repository');
-        $this->searchKeywordRepository = $this->getContainer()->get('product_search_keyword.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    /**
+     * @param array<mixed> $productData
+     * @param string[] $englishKeywords
+     * @param string[] $germanKeywords
+     * @param string[] $additionalDictionaries
+     */
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsAndDictionary(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
@@ -155,6 +158,9 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public static function productKeywordProvider(): array
     {
         $idsCollection = new IdsCollection();
@@ -270,6 +276,9 @@ class SearchKeywordUpdaterTest extends TestCase
         ];
     }
 
+    /**
+     * @param string[] $expectedKeywords
+     */
     private function assertKeywords(string $productId, string $languageId, array $expectedKeywords): void
     {
         $keywords = $this->connection->fetchFirstColumn(
@@ -301,6 +310,9 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertCount(0, $keywords);
     }
 
+    /**
+     * @param string[] $expectedKeywords
+     */
     private function assertDictionary(string $languageId, array $expectedKeywords): void
     {
         $dictionary = $this->connection->fetchFirstColumn(
@@ -336,8 +348,12 @@ class SearchKeywordUpdaterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
-        return $this->getContainer()->get('locale.repository')
+        $firstId = $this->getContainer()->get('locale.repository')
             ->searchIds($criteria, Context::createDefaultContext())
             ->firstId();
+
+        static::assertIsString($firstId);
+
+        return $firstId;
     }
 }

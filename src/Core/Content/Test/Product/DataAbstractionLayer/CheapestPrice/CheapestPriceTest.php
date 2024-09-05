@@ -392,9 +392,6 @@ class CheapestPriceTest extends TestCase
                     $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
                     static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
 
-                    $error = \sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
-                    static::assertInstanceOf(CalculatedPrice::class, $product->getCalculatedPrice(), $error);
-
                     $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
                     static::assertEquals($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
 
@@ -476,9 +473,6 @@ class CheapestPriceTest extends TestCase
 
                     $error = \sprintf('Case "%s": Product with key %s not found', $message, $key);
                     static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
-
-                    $error = \sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
-                    static::assertInstanceOf(CalculatedPrice::class, $product->getCalculatedPrice(), $error);
 
                     $error = \sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
                     static::assertEquals($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);

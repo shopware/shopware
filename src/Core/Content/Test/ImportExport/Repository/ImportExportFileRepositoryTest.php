@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,15 +23,9 @@ class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private Context $context;
 
@@ -146,6 +141,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $id = $expect['id'];
             $result = $this->repository->search(new Criteria([$id]), $this->context);
             $importExportFile = $result->get($id);
+            static::assertInstanceOf(ImportExportFileEntity::class, $importExportFile);
             static::assertEquals(1, $result->count());
             static::assertEquals($expect['originalName'], $importExportFile->getOriginalName());
             static::assertEquals($expect['path'], $importExportFile->getPath());
@@ -278,6 +274,8 @@ class ImportExportFileRepositoryTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {

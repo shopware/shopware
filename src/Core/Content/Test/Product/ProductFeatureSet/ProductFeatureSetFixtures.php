@@ -13,9 +13,9 @@ trait ProductFeatureSetFixtures
     use EntityFixturesBase;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    public $featureSetFixtures;
+    public array $featureSetFixtures;
 
     #[Before]
     public function initializeFeatureSetFixtures(): void
@@ -61,12 +61,13 @@ trait ProductFeatureSetFixtures
 
     private function getFeatureSetFixture(string $fixtureName): ProductFeatureSetEntity
     {
-        /** @var ProductFeatureSetEntity $template */
         $template = $this->createFixture(
             $fixtureName,
             $this->featureSetFixtures,
             self::getFixtureRepository(ProductFeatureSetDefinition::ENTITY_NAME)
         );
+
+        static::assertInstanceOf(ProductFeatureSetEntity::class, $template);
 
         return $template;
     }

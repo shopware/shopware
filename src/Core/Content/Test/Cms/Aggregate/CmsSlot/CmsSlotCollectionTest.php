@@ -21,6 +21,11 @@ class CmsSlotCollectionTest extends TestCase
             $this->getSlot('bottom'),
         ]);
 
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('left'));
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('right'));
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('top'));
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('bottom'));
+
         static::assertEquals('left', $collection->getSlot('left')->getSlot());
         static::assertEquals('right', $collection->getSlot('right')->getSlot());
         static::assertEquals('top', $collection->getSlot('top')->getSlot());
@@ -35,6 +40,9 @@ class CmsSlotCollectionTest extends TestCase
             $this->getSlot('top'),
             $this->getSlot('bottom'),
         ]);
+
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('top'));
+        static::assertInstanceOf(CmsSlotEntity::class, $collection->getSlot('bottom'));
 
         static::assertEquals('top', $collection->getSlot('top')->getSlot());
         static::assertEquals('bottom', $collection->getSlot('bottom')->getSlot());

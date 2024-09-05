@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -72,7 +71,6 @@ class RulePayloadSubscriberTest extends TestCase
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
-        static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertFalse($rule->isInvalid());
     }
 
@@ -135,7 +133,6 @@ class RulePayloadSubscriberTest extends TestCase
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
-        static::assertInstanceOf(AndRule::class, $rule->getPayload());
         static::assertFalse($rule->isInvalid());
         static::assertNotNull($rule2->getPayload());
         static::assertInstanceOf(OrRule::class, $rule2->getPayload());
@@ -163,7 +160,6 @@ class RulePayloadSubscriberTest extends TestCase
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
-        static::assertInstanceOf(AndRule::class, $rule->getPayload());
         static::assertFalse($rule->isInvalid());
         static::assertNull($rule2->getPayload());
         static::assertTrue($rule2->isInvalid());
@@ -230,7 +226,6 @@ class RulePayloadSubscriberTest extends TestCase
 
         $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
-        static::assertNotNull($rule);
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
 

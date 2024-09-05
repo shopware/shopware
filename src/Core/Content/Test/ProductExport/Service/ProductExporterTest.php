@@ -17,9 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
@@ -84,18 +87,25 @@ class ProductExporterTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $first);
+
+        return $first->getId();
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $first);
+
+        return $first;
     }
 
     private function createTestEntity(): string

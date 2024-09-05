@@ -106,6 +106,10 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
+    /**
+     * @param array<string> $current
+     * @param array<string> $config
+     */
     #[DataProvider('stateProvider')]
     public function testStates(array $current, array $config): void
     {
@@ -426,6 +430,9 @@ class CachedProductListingRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, list<array<string, string>>>
+     */
     private static function assign(string $categoryId): array
     {
         return ['categories' => [['id' => $categoryId]]];

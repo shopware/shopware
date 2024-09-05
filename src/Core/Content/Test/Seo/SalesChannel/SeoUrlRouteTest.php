@@ -39,7 +39,7 @@ class SeoUrlRouteTest extends TestCase
             [
             ]
         );
-
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
@@ -61,6 +61,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);
@@ -85,6 +86,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(0, $response['total']);
@@ -106,6 +108,7 @@ class SeoUrlRouteTest extends TestCase
             ]
         );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(1, $response['total']);

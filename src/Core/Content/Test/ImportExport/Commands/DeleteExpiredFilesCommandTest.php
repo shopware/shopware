@@ -25,15 +25,9 @@ class DeleteExpiredFilesCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $fileRepository;
+    private EntityRepository $fileRepository;
 
-    /**
-     * @var DeleteExpiredFilesCommand
-     */
-    private $deleteExpiredFilesCommand;
+    private DeleteExpiredFilesCommand $deleteExpiredFilesCommand;
 
     private Context $context;
 
@@ -174,6 +168,8 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = 'x'): array
     {

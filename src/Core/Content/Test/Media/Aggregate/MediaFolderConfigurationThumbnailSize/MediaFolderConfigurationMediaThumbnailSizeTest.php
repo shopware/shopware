@@ -3,7 +3,12 @@
 namespace Shopware\Core\Content\Test\Media\Aggregate\MediaFolderConfigurationThumbnailSize;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +23,9 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
     public function testCreateConfiguration(): void
     {
         $context = Context::createDefaultContext();
+        /**
+         * @var EntityRepository<MediaFolderConfigurationCollection> $repository
+         */
         $repository = $this->getContainer()->get('media_folder_configuration.repository');
 
         $configurationId = Uuid::randomHex();
@@ -43,14 +51,19 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $read = $repository->search($criteria, $context);
         $configuration = $read->get($configurationId);
 
-        static::assertNotNull($configuration);
-        static::assertEquals(1, $configuration->getMediaThumbnailSizes()->count());
-        static::assertNotNull($configuration->getMediaThumbnailSizes()->get($sizeId));
+        static::assertInstanceOf(MediaFolderConfigurationEntity::class, $configuration);
+        $sizes = $configuration->getMediaThumbnailSizes();
+        static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
+        static::assertEquals(1, $sizes->count());
+        static::assertNotNull($sizes->get($sizeId));
     }
 
     public function testCreateThumbnailSize(): void
     {
         $context = Context::createDefaultContext();
+        /**
+         * @var EntityRepository<MediaThumbnailSizeCollection> $repository
+         */
         $repository = $this->getContainer()->get('media_thumbnail_size.repository');
 
         $sizeId = Uuid::randomHex();
@@ -76,8 +89,10 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $search = $repository->search($criteria, $context);
 
         $size = $search->getEntities()->get($sizeId);
-        static::assertNotNull($size);
-        static::assertEquals(1, $size->getMediaFolderConfigurations()->count());
-        static::assertNotNull($size->getMediaFolderConfigurations()->get($confId));
+        static::assertInstanceOf(MediaThumbnailSizeEntity::class, $size);
+        $configurations = $size->getMediaFolderConfigurations();
+        static::assertInstanceOf(MediaFolderConfigurationCollection::class, $configurations);
+        static::assertEquals(1, $configurations->count());
+        static::assertNotNull($configurations->get($confId));
     }
 }

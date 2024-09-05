@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
@@ -14,10 +13,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -35,14 +39,19 @@ class HreflangLoaderTest extends TestCase
 
     private HreflangLoaderInterface $hreflangLoader;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
+    private EntityRepository $languageRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->cleanDefaultSalesChannelDomain();
 
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
-
         $this->salesChannelDomainRepository = $this->getContainer()->get('sales_channel_domain.repository');
+        $this->languageRepository = $this->getContainer()->get('language.repository');
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
@@ -61,7 +70,6 @@ class HreflangLoaderTest extends TestCase
         static::assertNotNull($randomId);
         $links = $this->hreflangLoader->load($this->createParameter($randomId));
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(0, $links->count());
     }
 
@@ -69,7 +77,7 @@ class HreflangLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $languageId = $this->getContainer()->get('language.repository')->searchIds(new Criteria(), $this->salesChannelContext->getContext())->firstId();
+        $languageId = $this->languageRepository->searchIds(new Criteria(), $this->salesChannelContext->getContext())->firstId();
         static::assertNotNull($languageId);
 
         $domain = new SalesChannelDomainEntity();
@@ -78,13 +86,16 @@ class HreflangLoaderTest extends TestCase
         $domain->setHreflangUseOnlyLocale(false);
         $domain->setLanguageId($languageId);
 
+        static::assertInstanceOf(SalesChannelDomainCollection::class, $this->salesChannelContext->getSalesChannel()->getDomains());
         $this->salesChannelContext->getSalesChannel()->getDomains()->add($domain);
+        $firstDomain = $this->salesChannelContext->getSalesChannel()->getDomains()->first();
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $firstDomain);
 
         $this->seoUrlRepository->create([
             [
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $this->salesChannelContext->getSalesChannel()->getDomains()->first()->getLanguageId(),
+                'languageId' => $firstDomain->getLanguageId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -93,7 +104,6 @@ class HreflangLoaderTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(0, $links->count());
     }
 
@@ -103,15 +113,13 @@ class HreflangLoaderTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('locale');
-        $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        list($first, $last) = $this->getFirstAndLastLanguages();
 
         $this->salesChannelDomainRepository->create([
             [
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
@@ -119,7 +127,7 @@ class HreflangLoaderTest extends TestCase
             [
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
@@ -129,7 +137,7 @@ class HreflangLoaderTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -138,7 +146,7 @@ class HreflangLoaderTest extends TestCase
             ],
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -149,17 +157,19 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(2, $links->count());
         $foundLinks = 0;
 
+        static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
+        static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
+
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === $languages->first()->getLocale()->getCode()) {
+            if ($element->getLocale() === $first->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
-            if ($element->getLocale() === $languages->last()->getLocale()->getCode()) {
+            if ($element->getLocale() === $last->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
@@ -174,9 +184,7 @@ class HreflangLoaderTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('locale');
-        $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        list($first, $last) = $this->getFirstAndLastLanguages();
 
         $defaultDomainId = Uuid::randomHex();
         $this->salesChannelContext->getSalesChannel()->setHreflangDefaultDomainId($defaultDomainId);
@@ -186,7 +194,7 @@ class HreflangLoaderTest extends TestCase
                 'id' => $defaultDomainId,
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
@@ -194,7 +202,7 @@ class HreflangLoaderTest extends TestCase
             [
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
@@ -204,7 +212,7 @@ class HreflangLoaderTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -213,7 +221,7 @@ class HreflangLoaderTest extends TestCase
             ],
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -224,18 +232,20 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(3, $links->count());
 
         $foundLinks = 0;
 
+        static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
+        static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
+
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === $languages->first()->getLocale()->getCode()) {
+            if ($element->getLocale() === $first->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
-            if ($element->getLocale() === $languages->last()->getLocale()->getCode()) {
+            if ($element->getLocale() === $last->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
@@ -255,9 +265,7 @@ class HreflangLoaderTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('locale');
-        $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        list($first, $last) = $this->getFirstAndLastLanguages();
 
         $defaultDomainId = Uuid::randomHex();
         $this->salesChannelContext->getSalesChannel()->setHreflangDefaultDomainId($defaultDomainId);
@@ -267,7 +275,7 @@ class HreflangLoaderTest extends TestCase
                 'id' => $defaultDomainId,
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => true,
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
@@ -275,7 +283,7 @@ class HreflangLoaderTest extends TestCase
             [
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
@@ -285,7 +293,7 @@ class HreflangLoaderTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -294,7 +302,7 @@ class HreflangLoaderTest extends TestCase
             ],
             [
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
                 'pathInfo' => '/test/' . $productId,
@@ -305,18 +313,20 @@ class HreflangLoaderTest extends TestCase
 
         $links = $this->hreflangLoader->load($this->createParameter($productId));
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(3, $links->count());
 
         $foundLinks = 0;
 
+        static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
+        static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
+
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === mb_substr((string) $languages->first()->getLocale()->getCode(), 0, 2)) {
+            if ($element->getLocale() === mb_substr((string) $first->getLocale()->getCode(), 0, 2)) {
                 static::assertEquals('https://test.de/test-path', $element->getUrl());
                 ++$foundLinks;
             }
 
-            if ($element->getLocale() === $languages->last()->getLocale()->getCode()) {
+            if ($element->getLocale() === $last->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/en/test-path', $element->getUrl());
                 ++$foundLinks;
             }
@@ -329,15 +339,13 @@ class HreflangLoaderTest extends TestCase
     {
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(true);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('locale');
-        $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        list($first, $last) = $this->getFirstAndLastLanguages();
 
         $this->salesChannelDomainRepository->create([
             [
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
@@ -345,7 +353,7 @@ class HreflangLoaderTest extends TestCase
             [
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
@@ -356,17 +364,19 @@ class HreflangLoaderTest extends TestCase
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
         );
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(2, $links->count());
         $foundLinks = 0;
 
+        static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
+        static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
+
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === $languages->first()->getLocale()->getCode()) {
+            if ($element->getLocale() === $first->getLocale()->getCode()) {
                 static::assertEquals('https://test.de', $element->getUrl());
                 ++$foundLinks;
             }
 
-            if ($element->getLocale() === $languages->last()->getLocale()->getCode()) {
+            if ($element->getLocale() === $last->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/en', $element->getUrl());
                 ++$foundLinks;
             }
@@ -379,9 +389,7 @@ class HreflangLoaderTest extends TestCase
     {
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(true);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('locale');
-        $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+        list($first, $last) = $this->getFirstAndLastLanguages();
 
         $defaultDomainId = Uuid::randomHex();
         $this->salesChannelContext->getSalesChannel()->setHreflangDefaultDomainId($defaultDomainId);
@@ -391,7 +399,7 @@ class HreflangLoaderTest extends TestCase
                 'id' => $defaultDomainId,
                 'url' => 'https://test.de',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->first()->getId(),
+                'languageId' => $first->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                 'currencyId' => Defaults::CURRENCY,
@@ -399,7 +407,7 @@ class HreflangLoaderTest extends TestCase
             [
                 'url' => 'https://test.de/en',
                 'hreflangUseOnlyLocale' => false,
-                'languageId' => $languages->last()->getId(),
+                'languageId' => $last->getId(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                 'currencyId' => Defaults::CURRENCY,
@@ -410,17 +418,19 @@ class HreflangLoaderTest extends TestCase
             new HreflangLoaderParameter('frontend.home.page', [], $this->salesChannelContext)
         );
 
-        static::assertInstanceOf(HreflangCollection::class, $links);
         static::assertEquals(3, $links->count());
         $foundLinks = 0;
 
+        static::assertInstanceOf(LocaleEntity::class, $first->getLocale());
+        static::assertInstanceOf(LocaleEntity::class, $last->getLocale());
+
         foreach ($links->getElements() as $element) {
-            if ($element->getLocale() === $languages->first()->getLocale()->getCode()) {
+            if ($element->getLocale() === $first->getLocale()->getCode()) {
                 static::assertEquals('https://test.de', $element->getUrl());
                 ++$foundLinks;
             }
 
-            if ($element->getLocale() === $languages->last()->getLocale()->getCode()) {
+            if ($element->getLocale() === $last->getLocale()->getCode()) {
                 static::assertEquals('https://test.de/en', $element->getUrl());
                 ++$foundLinks;
             }
@@ -457,9 +467,14 @@ class HreflangLoaderTest extends TestCase
         $this->getContainer()->get('product.repository')->create($products, $this->salesChannelContext->getContext());
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getProductTestData(SalesChannelContext $salesChannelContext): array
     {
-        $taxId = $salesChannelContext->getTaxRules()->first()->getId();
+        $first = $salesChannelContext->getTaxRules()->first();
+        static::assertInstanceOf(TaxEntity::class, $first);
+        $taxId = $first->getId();
 
         $products = [
             [
@@ -525,5 +540,23 @@ class HreflangLoaderTest extends TestCase
         ];
 
         return $products;
+    }
+
+    /**
+     * @return LanguageEntity[]
+     */
+    private function getFirstAndLastLanguages(): array
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('locale');
+
+        $languages = $this->languageRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities();
+
+        $first = $languages->first();
+        static::assertInstanceOf(LanguageEntity::class, $first);
+        $last = $languages->last();
+        static::assertInstanceOf(LanguageEntity::class, $last);
+
+        return [$first, $last];
     }
 }

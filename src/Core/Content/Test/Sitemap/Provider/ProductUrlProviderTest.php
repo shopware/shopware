@@ -19,10 +19,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -38,11 +38,7 @@ class ProductUrlProviderTest extends TestCase
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
-    private SalesChannelRepository $productSalesChannelRepository;
-
     private SalesChannelContext $salesChannelContext;
-
-    private SalesChannelRepository $seoUrlSalesChannelRepository;
 
     private EntityRepository $productRepository;
 
@@ -56,9 +52,6 @@ class ProductUrlProviderTest extends TestCase
             static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
         }
 
-        parent::setUp();
-        $this->productSalesChannelRepository = $this->getContainer()->get('sales_channel.product.repository');
-        $this->seoUrlSalesChannelRepository = $this->getContainer()->get('sales_channel.seo_url.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlPlaceholderHandler = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -231,6 +224,9 @@ class ProductUrlProviderTest extends TestCase
         );
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $products = $this->getProductTestData();
@@ -240,6 +236,9 @@ class ProductUrlProviderTest extends TestCase
         return $products;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getProductTestData(): array
     {
         $products = [
@@ -296,9 +295,15 @@ class ProductUrlProviderTest extends TestCase
         return $this->seoUrlPlaceholderHandler->replace($loc, $this->getHost($this->salesChannelContext), $this->salesChannelContext);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getBasicProductData(): array
     {
-        $taxId = $this->salesChannelContext->getTaxRules()->first()->getId();
+        $first = $this->salesChannelContext->getTaxRules()->first();
+        static::assertInstanceOf(TaxEntity::class, $first);
+
+        $taxId = $first->getId();
 
         return [
             'stock' => 100,

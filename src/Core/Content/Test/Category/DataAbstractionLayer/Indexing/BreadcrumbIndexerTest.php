@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Category\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,9 @@ class BreadcrumbIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $repository;
 
     private string $deLanguageId;
@@ -26,7 +30,6 @@ class BreadcrumbIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('category.repository');
-        parent::setUp();
 
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
@@ -42,7 +45,6 @@ class BreadcrumbIndexerTest extends TestCase
             [Defaults::LANGUAGE_SYSTEM]
         );
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -50,6 +52,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['EN-A'], $c1->getBreadcrumb());
         static::assertSame(['EN-A', 'EN-B'], $c2->getBreadcrumb());
@@ -62,7 +68,6 @@ class BreadcrumbIndexerTest extends TestCase
             [$this->deLanguageId]
         );
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -70,6 +75,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['DE-A'], $c1->getBreadcrumb());
         static::assertSame(['DE-A',  'DE-B'], $c2->getBreadcrumb());
@@ -112,7 +121,6 @@ class BreadcrumbIndexerTest extends TestCase
             ],
         ], $context);
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -121,6 +129,9 @@ class BreadcrumbIndexerTest extends TestCase
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
 
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
         static::assertSame(['EN-A-1'], $c1->getBreadcrumb());
         static::assertSame(['EN-A-1', 'EN-B-1'], $c2->getBreadcrumb());
         static::assertSame(['EN-A-1', 'EN-B-1', 'EN-C-1'], $c3->getBreadcrumb());
@@ -132,7 +143,6 @@ class BreadcrumbIndexerTest extends TestCase
             [$this->deLanguageId]
         );
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -140,6 +150,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['DE-A'], $c1->getBreadcrumb());
         static::assertSame(['DE-A', 'DE-B'], $c2->getBreadcrumb());
@@ -182,7 +196,6 @@ class BreadcrumbIndexerTest extends TestCase
             ],
         ], $context);
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -190,6 +203,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['EN-A'], $c1->getBreadcrumb());
         static::assertSame(['EN-A', 'EN-B'], $c2->getBreadcrumb());
@@ -202,7 +219,6 @@ class BreadcrumbIndexerTest extends TestCase
             [$this->deLanguageId]
         );
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -210,6 +226,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['EN-A'], $c1->getBreadcrumb());
         static::assertSame(['EN-A', 'EN-B'], $c2->getBreadcrumb());
@@ -231,7 +251,6 @@ class BreadcrumbIndexerTest extends TestCase
             ],
         ], $context);
 
-        /** @var CategoryCollection $categories */
         $categories = $this->repository
             ->search(new Criteria($ids->all()), $context)
             ->getEntities();
@@ -239,6 +258,10 @@ class BreadcrumbIndexerTest extends TestCase
         $c1 = $categories->get($ids->level1);
         $c2 = $categories->get($ids->level2);
         $c3 = $categories->get($ids->level3);
+
+        static::assertInstanceOf(CategoryEntity::class, $c1);
+        static::assertInstanceOf(CategoryEntity::class, $c2);
+        static::assertInstanceOf(CategoryEntity::class, $c3);
 
         static::assertSame(['EN-A'], $c1->getBreadcrumb());
         static::assertSame(['EN-A', 'DE-B'], $c2->getBreadcrumb());
@@ -298,20 +321,11 @@ class BreadcrumbIndexerTest extends TestCase
  */
 class SetUpData
 {
-    /**
-     * @var string
-     */
-    public $level1;
+    public string $level1;
 
-    /**
-     * @var string
-     */
-    public $level2;
+    public string $level2;
 
-    /**
-     * @var string
-     */
-    public $level3;
+    public string $level3;
 
     public function __construct(
         string $level1,
@@ -323,6 +337,9 @@ class SetUpData
         $this->level3 = $level3;
     }
 
+    /**
+     * @return array<string>
+     */
     public function all(): array
     {
         return [$this->level1, $this->level2, $this->level3];

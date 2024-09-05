@@ -43,6 +43,13 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
         'Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\FkReference#__construct\(\)',
 
+        // ProductReviewLoader moved to core, we have now deprecated the entire classes, can be removed after 6.7.0.0 release
+        'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#\\$.+ changed from .+ to having no type',
+        'The return type of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult#.+ changed from .+ to .+',
+        'Type of property Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#\\$.+ changed from .+ to having no type',
+        'The return type of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#.+ changed from .+ to .+',
+        'The parameter .+ of Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent#.+ changed from .+ to .+',
+
         'Shopware\\\\Core\\\\Framework\\\\Context.*changed from callable.*',
 
         // Removed boot method from Bundle

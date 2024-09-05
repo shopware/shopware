@@ -8,13 +8,16 @@ use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
+use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent as StorefrontProductReviewsLoadedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +40,7 @@ class CmsController extends StorefrontController
         private readonly AbstractCategoryRoute $categoryRoute,
         private readonly AbstractProductListingRoute $listingRoute,
         private readonly AbstractProductDetailRoute $productRoute,
-        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractFindProductVariantRoute $findVariantRoute,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
@@ -144,10 +147,20 @@ class CmsController extends StorefrontController
         $product = $result->getProduct();
         $configurator = $result->getConfigurator();
 
-        $request->request->set('parentId', $product->getParentId());
-        $request->request->set('productId', $product->getId());
-        $reviews = $this->productReviewLoader->load($request, $context);
-        $reviews->setParentId($product->getParentId() ?? $product->getId());
+        $reviews = $this->productReviewLoader->load($request, $context, $product->getId(), $product->getParentId());
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $storefrontReviews = new StorefrontSearchResult(
+                $reviews->getEntity(),
+                $reviews->getTotal(),
+                $reviews->getEntities(),
+                $reviews->getAggregations(),
+                $reviews->getCriteria(),
+                $reviews->getContext()
+            );
+
+            $this->eventDispatcher->dispatch(new StorefrontProductReviewsLoadedEvent($storefrontReviews, $context, $request));
+        }
 
         $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
         $this->eventDispatcher->dispatch($event);

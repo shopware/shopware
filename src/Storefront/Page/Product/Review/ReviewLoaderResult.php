@@ -4,215 +4,143 @@ namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
-if (Feature::isActive('v6.7.0.0')) {
+/**
+ * @deprecated tag:v6.7.0 - Use \Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult instead
+ *
+ * @template-extends StorefrontSearchResult<ProductReviewCollection>
+ */
+#[Package('storefront')]
+class ReviewLoaderResult extends StorefrontSearchResult
+{
     /**
-     * @template-extends EntitySearchResult<ProductReviewCollection>
+     * @var string|null
      */
-    #[Package('storefront')]
-    class ReviewLoaderResult extends EntitySearchResult
+    protected $parentId;
+
+    /**
+     * @var string
+     */
+    protected $productId;
+
+    /**
+     * @var StorefrontSearchResult<ProductReviewCollection>
+     */
+    protected $reviews;
+
+    protected RatingMatrix $matrix;
+
+    /**
+     * @var ProductReviewEntity|null
+     */
+    protected $customerReview;
+
+    /**
+     * @var int
+     */
+    protected $totalReviews;
+
+    /**
+     * @var int
+     */
+    protected $totalNativeReviews;
+
+    public function getProductId(): string
     {
-        /**
-         * @var string|null
-         */
-        protected $parentId;
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        /**
-         * @var string
-         */
-        protected $productId;
-
-        /**
-         * @var EntitySearchResult<ProductReviewCollection>
-         */
-        protected EntitySearchResult $reviews;
-
-        protected RatingMatrix $matrix;
-
-        /**
-         * @var ProductReviewEntity|null
-         */
-        protected $customerReview;
-
-        /**
-         * @var int
-         */
-        protected $totalReviews;
-
-        public function getProductId(): string
-        {
-            return $this->productId;
-        }
-
-        public function setProductId(string $productId): void
-        {
-            $this->productId = $productId;
-        }
-
-        /**
-         * @return EntitySearchResult<ProductReviewCollection>
-         */
-        public function getReviews(): EntitySearchResult
-        {
-            return $this->reviews;
-        }
-
-        public function getMatrix(): RatingMatrix
-        {
-            return $this->matrix;
-        }
-
-        public function setMatrix(RatingMatrix $matrix): void
-        {
-            $this->matrix = $matrix;
-        }
-
-        public function getCustomerReview(): ?ProductReviewEntity
-        {
-            return $this->customerReview;
-        }
-
-        public function setCustomerReview(?ProductReviewEntity $customerReview): void
-        {
-            $this->customerReview = $customerReview;
-        }
-
-        public function getTotalReviews(): int
-        {
-            return $this->totalReviews;
-        }
-
-        public function setTotalReviews(int $totalReviews): void
-        {
-            $this->totalReviews = $totalReviews;
-        }
-
-        public function getParentId(): ?string
-        {
-            return $this->parentId;
-        }
-
-        public function setParentId(?string $parentId): void
-        {
-            $this->parentId = $parentId;
-        }
+        return $this->productId;
     }
-} else {
-    /**
-     * @deprecated tag:v6.7.0 - Will inherit from EntitySearchResult<ProductReviewCollection>
-     *
-     * @template-extends StorefrontSearchResult<ProductReviewCollection>
-     */
-    #[Package('storefront')]
-    class ReviewLoaderResult extends StorefrontSearchResult
+
+    public function setProductId(string $productId): void
     {
-        /**
-         * @var string|null
-         */
-        protected $parentId;
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        /**
-         * @var string
-         */
-        protected $productId;
+        $this->productId = $productId;
+    }
 
-        /**
-         * @var StorefrontSearchResult<ProductReviewCollection>
-         */
-        protected $reviews;
+    /**
+     * @return StorefrontSearchResult<ProductReviewCollection>
+     */
+    public function getReviews(): StorefrontSearchResult
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        protected RatingMatrix $matrix;
+        return $this->reviews;
+    }
 
-        /**
-         * @var ProductReviewEntity|null
-         */
-        protected $customerReview;
+    public function getMatrix(): RatingMatrix
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        /**
-         * @var int
-         */
-        protected $totalReviews;
+        return $this->matrix;
+    }
 
-        public function getProductId(): string
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+    public function setMatrix(RatingMatrix $matrix): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-            return $this->productId;
-        }
+        $this->matrix = $matrix;
+    }
 
-        public function setProductId(string $productId): void
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
-            $this->productId = $productId;
-        }
+    public function getCustomerReview(): ?ProductReviewEntity
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        /**
-         * @deprecated tag:v6.7.0 - Return type will change to EntitySearchResult<ProductReviewCollection>
-         *
-         * @return StorefrontSearchResult<ProductReviewCollection>
-         */
-        public function getReviews(): StorefrontSearchResult
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+        return $this->customerReview;
+    }
 
-            return $this->reviews;
-        }
+    public function setCustomerReview(?ProductReviewEntity $customerReview): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        public function getMatrix(): RatingMatrix
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+        $this->customerReview = $customerReview;
+    }
 
-            return $this->matrix;
-        }
+    public function getTotalReviews(): int
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        public function setMatrix(RatingMatrix $matrix): void
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
-            $this->matrix = $matrix;
-        }
+        return $this->totalReviews;
+    }
 
-        public function getCustomerReview(): ?ProductReviewEntity
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+    public function setTotalReviews(int $totalReviews): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-            return $this->customerReview;
-        }
+        $this->totalReviews = $totalReviews;
+    }
 
-        public function setCustomerReview(?ProductReviewEntity $customerReview): void
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
-            $this->customerReview = $customerReview;
-        }
+    public function getTotalNativeReviews(): int
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        public function getTotalReviews(): int
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+        return $this->totalNativeReviews;
+    }
 
-            return $this->totalReviews;
-        }
+    public function setTotalNativeReviews(int $totalNativeReviews): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-        public function setTotalReviews(int $totalReviews): void
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
-            $this->totalReviews = $totalReviews;
-        }
+        $this->totalNativeReviews = $totalNativeReviews;
+    }
 
-        public function getParentId(): ?string
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+    public function getParentId(): ?string
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
 
-            return $this->parentId;
-        }
+        return $this->parentId;
+    }
 
-        public function setParentId(?string $parentId): void
-        {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
-            $this->parentId = $parentId;
-        }
+    public function setParentId(?string $parentId): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', ProductReviewResult::class));
+
+        $this->parentId = $parentId;
     }
 }

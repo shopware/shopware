@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Page\Product\Review;
+namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader as CoreProductReviewLoader;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\Context;
@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -35,7 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxCollection;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,23 +44,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewLoader::class)]
 class ProductReviewLoaderTest extends TestCase
 {
+    private SystemConfigService $systemConfigService;
+
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-    }
+        Feature::skipTestIfInActive('v6.7.0.0', $this);
 
-    public function testExceptionWithoutProductId(): void
-    {
-        $request = new Request([], [], []);
-        $salesChannelContext = $this->getSalesChannelContext();
-
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
-
-        $this->expectException(RoutingException::class);
-
-        $productReviewLoader->load($request, $salesChannelContext);
+        $this->systemConfigService = new StaticSystemConfigService();
+        $this->systemConfigService->set('core.listing.reviewsPerPage', 10, 'salesChannelId');
     }
 
     public function testItLoadsReviewsWithProductId(): void
@@ -88,7 +78,7 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());
         static::assertEquals($result->first()->getId(), $reviewId);
@@ -123,7 +113,7 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
         $firstResult = $result->first();
         static::assertInstanceOf(ProductReviewEntity::class, $firstResult);
@@ -160,7 +150,7 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());
         static::assertEquals($result->first()->getId(), $reviewId);
@@ -193,7 +183,7 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());
         static::assertEquals($reviewId, $result->first()->getId());
@@ -226,7 +216,7 @@ class ProductReviewLoaderTest extends TestCase
                 new ProductReviewRouteResponse($reviewResult)
             );
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
         static::assertInstanceOf(ProductReviewEntity::class, $result->first());
         static::assertEquals($result->first()->getId(), $reviewId);
@@ -248,14 +238,9 @@ class ProductReviewLoaderTest extends TestCase
     private function getProductReviewLoader(
         ProductReviewRoute $productReviewRouteMock
     ): ProductReviewLoader {
-        $coreProductReviewLoader = new CoreProductReviewLoader(
-            $productReviewRouteMock,
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(EventDispatcherInterface::class)
-        );
-
         return new ProductReviewLoader(
-            $coreProductReviewLoader,
+            $productReviewRouteMock,
+            $this->systemConfigService,
             $this->createMock(EventDispatcherInterface::class)
         );
     }
@@ -277,7 +262,7 @@ class ProductReviewLoaderTest extends TestCase
             new AggregationResultCollection(
                 [
                     'ratingMatrix' => new TermsResult('ratingMatrix', []),
-                ]
+                ],
             ),
             $criteria,
             Context::createDefaultContext()
@@ -316,7 +301,7 @@ class ProductReviewLoaderTest extends TestCase
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        $limit = (int) $request->get('limit', 10);
+        $limit = (int) $request->get('limit', $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId()));
         $page = (int) $request->get('p', 1);
         $offset = max(0, $limit * ($page - 1));
 
@@ -351,6 +336,14 @@ class ProductReviewLoaderTest extends TestCase
                 'customer-login-filter',
                 new TermsAggregation('ratingMatrix', 'points'),
                 [
+                    new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
+                ]
+            ),
+            new FilterAggregation(
+                'language-filter',
+                new TermsAggregation('languageMatrix', 'languageId'),
+                [
+                    new EqualsFilter('languageId', $context->getContext()->getLanguageId()),
                     new MultiFilter(MultiFilter::CONNECTION_OR, $reviewFilters),
                 ]
             )

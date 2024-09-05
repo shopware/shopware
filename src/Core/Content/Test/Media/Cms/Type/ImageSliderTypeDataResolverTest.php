@@ -250,8 +250,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
 
         $medias = [
-            ['fileName' => 'core/assets/default/cms/animated.gif'],
-            ['fileName' => 'core/assets/default/cms/shopware.jpg'],
+            ['fileName' => 'bundles/core/assets/default/cms/animated.gif'],
+            ['fileName' => 'bundles/core/assets/default/cms/shopware.jpg'],
         ];
 
         $fieldConfig = new FieldConfigCollection();

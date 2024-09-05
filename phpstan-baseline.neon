@@ -2146,31 +2146,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Aggregate/MediaFolderConfigurationThumbnailSize/MediaFolderConfigurationMediaThumbnailSizeTest.php
 
 		-
-			message: "#^Cannot call method getFileExtension\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getMedia\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\SalesChannel\\\\Struct\\\\ImageStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getMimeType\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Constant Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Cms\\\\Type\\\\ImageTypeDataResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php

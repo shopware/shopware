@@ -35,7 +35,7 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultMediaEntityWithValidFileName(): void
     {
         $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
-        $media = $this->mediaResolver->getDefaultCmsMediaEntity('core/assets/default/cms/shopware.jpg');
+        $media = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/core/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertEquals('shopware', $media->getFileName());

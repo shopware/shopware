@@ -46,7 +46,7 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
         ]);
 
         // add the asset url
-        $media->setUrl($package->getUrl('/bundles/' . $mediaAssetFilePath));
+        $media->setUrl($package->getUrl($mediaAssetFilePath));
 
         return $media;
     }

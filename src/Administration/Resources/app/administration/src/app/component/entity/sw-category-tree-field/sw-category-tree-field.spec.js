@@ -212,4 +212,36 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         wrapper.vm.$emit('categories-load-more');
         expect(wrapper.emitted('categories-load-more')).toBeTruthy();
     });
+
+    it('should have checked categories', async () => {
+        const selectedCategories = [{
+            id: 'categoryId-2',
+            attributes: {
+                id: 'categoryId-2',
+            },
+            translated: {
+                name: 'categoryName-2',
+            },
+            relationships: {},
+        }, {
+            id: 'categoryId-4',
+            attributes: {
+                id: 'categoryId-4',
+            },
+            translated: {
+                name: 'categoryName-4',
+            },
+            relationships: {},
+        }];
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            categoriesCollection: createCategoryCollection(selectedCategories),
+            pageId: null,
+        });
+
+        expect(wrapper.vm.selectedCategoriesItemsIds).toHaveLength(2);
+        expect(wrapper.vm.selectedCategoriesItemsIds[0]).toBe('categoryId-2');
+        expect(wrapper.vm.selectedCategoriesItemsIds[1]).toBe('categoryId-4');
+    });
 });

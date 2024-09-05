@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipeFactory;
@@ -14,10 +13,11 @@ use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriterFactory;
 use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
+use Shopware\Core\Content\ImportExport\Strategy\Import\OneByOneImportStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -27,7 +27,6 @@ class ImportExportFactory
     /**
      * @internal
      *
-     * @param EntityRepository<ImportExportLogCollection> $logRepository
      * @param \IteratorAggregate<mixed, AbstractReaderFactory> $readerFactories
      * @param \IteratorAggregate<mixed, AbstractWriterFactory> $writerFactories
      * @param \IteratorAggregate<mixed, AbstractPipeFactory> $pipeFactories
@@ -37,7 +36,6 @@ class ImportExportFactory
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly FilesystemOperator $filesystem,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly EntityRepository $logRepository,
         private readonly Connection $connection,
         private readonly AbstractFileService $fileService,
         private readonly \IteratorAggregate $readerFactories,
@@ -46,10 +44,18 @@ class ImportExportFactory
     ) {
     }
 
-    public function create(string $logId, int $importBatchSize = 250, int $exportBatchSize = 250): ImportExport
-    {
-        $logEntity = $this->findLog($logId);
+    public function create(
+        string $logId,
+        int $importBatchSize = 250,
+        int $exportBatchSize = 250,
+        bool $useBatchImport = false
+    ): ImportExport {
+        $logEntity = $this->importExportService->findLog(Context::createDefaultContext(), $logId);
         $repository = $this->getRepository($logEntity);
+
+        $importStrategy = $useBatchImport
+            ? new BatchImportStrategy($this->eventDispatcher, $repository, $importBatchSize)
+            : new OneByOneImportStrategy($this->eventDispatcher, $repository);
 
         return new ImportExport(
             $this->importExportService,
@@ -62,24 +68,10 @@ class ImportExportFactory
             $this->getReader($logEntity),
             $this->getWriter($logEntity),
             $this->fileService,
+            $importStrategy,
             $importBatchSize,
             $exportBatchSize
         );
-    }
-
-    private function findLog(string $logId): ImportExportLogEntity
-    {
-        $criteria = new Criteria([$logId]);
-        $criteria->addAssociation('profile');
-        $criteria->addAssociation('file');
-        $criteria->addAssociation('invalidRecordsLog.file');
-        $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
-
-        if ($logEntity === null) {
-            throw ImportExportException::processingError('LogEntity not found');
-        }
-
-        return $logEntity;
     }
 
     private function getRepository(ImportExportLogEntity $logEntity): EntityRepository

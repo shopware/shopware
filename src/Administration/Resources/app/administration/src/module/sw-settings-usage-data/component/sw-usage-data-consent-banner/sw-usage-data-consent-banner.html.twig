@@ -13,7 +13,8 @@
         :keypath="showThankYouBanner ? 'sw-usage-data-consent-banner.thankYouMessage' : 'sw-usage-data-consent-banner.rejectedMessage'"
     >
         <template
-            #thanksForParticipation>
+            #thanksForParticipation
+        >
             <strong>{{ $tc('sw-usage-data-consent-banner.thanksForParticipation') }}</strong>
         </template>
         <template #link>
@@ -202,7 +203,8 @@
 
             <div
                 v-if="isAccepted && !canBeHidden"
-                class="sw-usage-data-consent-banner__footer-accepted-message">
+                class="sw-usage-data-consent-banner__footer-accepted-message"
+            >
                 <sw-icon
                     name="solid-check-circle"
                     size="16px"

@@ -14,6 +14,17 @@ export default {
 
     emits: ['save-and-reload', 'update-loading'],
 
+    inject: {
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnLoadingChange: {
+            from: 'swOrderDetailOnLoadingChange',
+            default: null,
+        },
+    },
+
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',
@@ -28,10 +39,16 @@ export default {
     methods: {
         saveAndReload() {
             this.$emit('save-and-reload');
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            }
         },
 
         onUpdateLoading(loading) {
             this.$emit('update-loading', loading);
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(loading);
+            }
         },
     },
 };

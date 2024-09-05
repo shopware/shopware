@@ -33,6 +33,14 @@ export default {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
             };
         },
+
+        listeners() {
+            if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
+                return this.$listeners;
+            }
+
+            return {};
+        },
     },
 
     methods: {

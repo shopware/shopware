@@ -11,6 +11,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    inject: {
+        swOrderDetailOnLoadingChange: {
+            from: 'swOrderDetailOnLoadingChange',
+            default: null,
+        },
+    },
+
     compatConfig: Shopware.compatConfig,
 
     emits: ['loading-change'],
@@ -153,12 +160,20 @@ export default {
         },
 
         getCart() {
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(true);
+            }
+
             this.$emit('loading-change', true);
 
             State.dispatch('swOrder/getCart', {
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             }).finally(() => {
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
+
                 this.$emit('loading-change', false);
             });
         },

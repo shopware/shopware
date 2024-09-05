@@ -15,10 +15,40 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: {
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveEdits: {
+            from: 'swOrderDetailOnSaveEdits',
+            default: null,
+        },
+        swOrderDetailOnLoadingChange: {
+            from: 'swOrderDetailOnLoadingChange',
+            default: null,
+        },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
+        swOrderDetailOnReloadEntityData: {
+            from: 'swOrderDetailOnReloadEntityData',
+            default: null,
+        },
+        swOrderDetailOnError: {
+            from: 'swOrderDetailOnError',
+            default: null,
+        },
+        acl: {
+            from: 'acl',
+            default: null,
+        },
+        repositoryFactory: {
+            from: 'repositoryFactory',
+            default: null,
+        },
+    },
 
     emits: ['update-loading', 'save-and-recalculate', 'save-and-reload', 'save-edits', 'reload-entity-data', 'error'],
 
@@ -137,10 +167,16 @@ export default {
     methods: {
         createdComponent() {
             this.$emit('update-loading', true);
+            if (this.swOrderDetailOnLoadingChange) {
+                this.swOrderDetailOnLoadingChange(true);
+            }
 
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
                 this.$emit('update-loading', false);
+                if (this.swOrderDetailOnLoadingChange) {
+                    this.swOrderDetailOnLoadingChange(false);
+                }
             });
         },
 
@@ -153,22 +189,37 @@ export default {
 
         saveAndRecalculate() {
             this.$emit('save-and-recalculate');
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                this.swOrderDetailOnSaveAndRecalculate();
+            }
         },
 
         saveAndReload() {
             this.$emit('save-and-reload');
+            if (this.swOrderDetailOnSaveAndReload) {
+                this.swOrderDetailOnSaveAndReload();
+            }
         },
 
         onSaveEdits() {
             this.$emit('save-edits');
+            if (this.swOrderDetailOnSaveEdits) {
+                this.swOrderDetailOnSaveEdits();
+            }
         },
 
         reloadEntityData() {
             this.$emit('reload-entity-data');
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            }
         },
 
         showError(error) {
             this.$emit('error', error);
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            }
         },
 
         updateLoading(loadingValue) {

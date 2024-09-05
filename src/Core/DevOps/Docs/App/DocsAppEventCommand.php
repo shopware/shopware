@@ -143,5 +143,12 @@ class DocsAppEventCommand extends Command
                 null,
             );
         }
+
+        $eventsDoc[] = new HookableEventDoc(
+            'app.config.changed',
+            'Fires when the app configuration has been updated',
+            'system_config:read',
+            '{"changes": ["changed-config-key"]}',
+        );
     }
 }

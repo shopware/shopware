@@ -196,6 +196,22 @@ class OrderConverterTest extends TestCase
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
     }
 
+    public function testConvertToOrderShouldNotContainDeliveriesWithNoAddress(): void
+    {
+        $cart = $this->getCart();
+
+        $cart->setDeliveries(
+            $this->getDeliveryCollection(true)
+        );
+
+        $orderConversionContext = new OrderConversionContext();
+        $orderConversionContext->setIncludeDeliveries(false);
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
+
+        static::assertEmpty($result['deliveries']);
+    }
+
     public function testConvertToOrderWithDeliveries(): void
     {
         $cart = $this->getCart();

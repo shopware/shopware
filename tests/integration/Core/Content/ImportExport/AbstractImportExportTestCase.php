@@ -17,6 +17,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Strategy\Import\OneByOneImportStrategy;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -118,6 +119,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         $pipeFactory = $this->getContainer()->get(PipeFactory::class);
         $readerFactory = $this->getContainer()->get(CsvReaderFactory::class);
         $writerFactory = $this->getContainer()->get(CsvFileWriterFactory::class);
+        $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
 
         $mockRepository = new MockRepository($this->getContainer()->get(CustomerDefinition::class));
 
@@ -132,6 +134,7 @@ abstract class AbstractImportExportTestCase extends TestCase
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
             $this->getContainer()->get(FileService::class),
+            new OneByOneImportStrategy($eventDispatcher, $mockRepository),
             5,
             5
         );
@@ -452,8 +455,9 @@ abstract class AbstractImportExportTestCase extends TestCase
         string $path,
         string $originalName,
         ?string $profileId = null,
-        bool $dryrun = false,
-        bool $absolutePath = false
+        bool $dryRun = false,
+        bool $absolutePath = false,
+        bool $useBatchImport = false
     ): Progress {
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
@@ -470,13 +474,13 @@ abstract class AbstractImportExportTestCase extends TestCase
             $expireDate,
             $file,
             [],
-            $dryrun
+            $dryRun
         );
 
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
         do {
             $progress = $importExportService->getProgress($logEntity->getId(), $progress->getOffset());
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
+            $importExport = $factory->create($logEntity->getId(), 5, 5, $useBatchImport);
             $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 

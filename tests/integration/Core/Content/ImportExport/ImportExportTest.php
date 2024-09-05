@@ -32,11 +32,16 @@ use Shopware\Core\Content\ImportExport\Exception\UpdatedByValueNotFoundException
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
+use Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
+use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
+use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
+use Shopware\Core\Content\ImportExport\Strategy\Import\ImportStrategyService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
@@ -62,6 +67,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Test\ImportExport\MockRepository;
 use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
 use Shopware\Core\Content\Test\ImportExport\TestSubscriber;
 use Shopware\Core\Defaults;
@@ -88,6 +94,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
@@ -204,8 +211,7 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
-        $csvContent = \sprintf('url
-%s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
+        $csvContent = \sprintf('url %s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
 
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
         file_put_contents($fixturesPath, $csvContent);
@@ -902,6 +908,8 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         ]);
 
         $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService->method('findLog')->willReturn($logEntity);
+
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
@@ -913,6 +921,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $reader,
             $writer,
             static::getContainer()->get(FileService::class),
+            $this->createMock(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')
@@ -1677,6 +1686,114 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             (new UpdatedByValueNotFoundException(ProductManufacturerDefinition::ENTITY_NAME, 'link'))->getMessage(),
             $first['_error']
         );
+    }
+
+    public function testBatchImport(): void
+    {
+        $categoryRepository = static::getContainer()->get('category.repository');
+
+        $categories = $categoryRepository->search(new Criteria(), Context::createDefaultContext());
+        $categoryCount = $categories->getTotal();
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $progress = $this->import(
+            $context,
+            CategoryDefinition::ENTITY_NAME,
+            '/fixtures/categories.csv',
+            'categories.csv',
+            useBatchImport: true
+        );
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $numberOfCategoriesInCsv = 67;
+
+        $categories = $categoryRepository->search(new Criteria(), Context::createDefaultContext());
+        static::assertEquals($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
+    }
+
+    public function testBatchImportNumberOfCalls(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+
+        $file = new UploadedFile(__DIR__ . '/fixtures/products.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $this->getDefaultProfileId('product'),
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+
+        $pipeFactory = $this->getContainer()->get(PipeFactory::class);
+        $readerFactory = $this->getContainer()->get(CsvReaderFactory::class);
+        $writerFactory = $this->getContainer()->get(CsvFileWriterFactory::class);
+        $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
+
+        $mockRepository = new MockRepository($this->getContainer()->get(CustomerDefinition::class));
+
+        $importExport = new ImportExport(
+            $importExportService,
+            $logEntity,
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $mockRepository,
+            $pipeFactory->create($logEntity),
+            $readerFactory->create($logEntity),
+            $writerFactory->create($logEntity),
+            $this->getContainer()->get(FileService::class),
+            new BatchImportStrategy($eventDispatcher, $mockRepository),
+            10,
+            10
+        );
+
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        static::assertEquals(6, $mockRepository->upsertCalls);
+    }
+
+    public function testInvalidFileInBatch(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM `product`');
+
+        $progress = $this->import(
+            Context::createDefaultContext(),
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_invalid.csv',
+            'products.csv',
+            useBatchImport: true
+        );
+
+        static::assertImportExportFailed($progress);
+
+        $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
+        static::assertCount(8, $ids->getIds());
+
+        $invalid = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+
+        static::assertCount(2, $invalid);
+
+        $first = $invalid[0];
+        static::assertSame('e5c8b8f701034e8dbea72ac0fc32521e', $first['id']);
+        static::assertStringContainsString('CONSTRAINT `fk.product_', $first['_error']);
+
+        $second = $invalid[1];
+        static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
+        static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
     }
 
     /**

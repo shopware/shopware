@@ -49,7 +49,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     public static function buildName(string $id): string
     {
-        return ProductCrossSellingRoute::buildName($id);
+        return 'cross-selling-route-' . $id;
     }
 
     #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
@@ -107,6 +107,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $tags = array_merge(
             $this->tracer->get(self::buildName($productId)),
             $this->extractStreamTags($response),
+            [EntityCacheKeyGenerator::buildProductTag($productId)],
             $this->extractProductIds($response),
             [self::buildName($productId)]
         );

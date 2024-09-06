@@ -83,7 +83,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
 
     public static function buildName(string $productId): string
     {
-        return ProductReviewRoute::buildName($productId);
+        return 'product-review-route-' . $productId;
     }
 
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
@@ -106,6 +106,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($productId)),
+            [EntityCacheKeyGenerator::buildProductTag($productId)],
             [self::buildName($productId)]
         );
 

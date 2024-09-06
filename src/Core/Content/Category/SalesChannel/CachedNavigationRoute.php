@@ -88,7 +88,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     public static function buildName(string $id): string
     {
-        return NavigationRoute::buildName($id);
+        return 'navigation-route-' . $id;
     }
 
     /**

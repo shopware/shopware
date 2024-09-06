@@ -1,6 +1,6 @@
 ---
 title: fix base-slider plugin _initAccessibilityTweaks method
-issue: NEXT-00000
+issue: NEXT-38216
 author: Carlo Cecco
 author_email: 6672778+luminalpark@users.noreply.github.com
 author_github: @luminalpark

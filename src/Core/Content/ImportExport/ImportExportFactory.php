@@ -44,12 +44,17 @@ class ImportExportFactory
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $useBatchImport will be added - reason:new-optional-parameter
+     */
     public function create(
         string $logId,
         int $importBatchSize = 250,
         int $exportBatchSize = 250,
-        bool $useBatchImport = false
+        /* , bool $useBatchImport = false */
     ): ImportExport {
+        $useBatchImport = \func_get_args()[3] ?? false;
+
         $logEntity = $this->importExportService->findLog(Context::createDefaultContext(), $logId);
         $repository = $this->getRepository($logEntity);
 

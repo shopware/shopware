@@ -6,4 +6,4 @@ author_email: 6672778+luminalpark@users.noreply.github.com
 author_github: @luminalpark
 ---
 # Storefront
-* In `base-slider.plugin.js` `_initAccessibilityTweaks` sliderInfo.controlsContainer may be undefined, causing plugin initialization to fail => handling that case.
+* Changed `base-slider.plugin.js` `_initAccessibilityTweaks` : sliderInfo.controlsContainer may be undefined, causing plugin initialization to fail => handling that case.

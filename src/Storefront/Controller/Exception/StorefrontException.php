@@ -13,10 +13,13 @@ use Twig\Error\Error as TwigError;
 class StorefrontException extends HttpException
 {
     final public const CAN_NOT_RENDER_VIEW = 'STOREFRONT__CAN_NOT_RENDER_VIEW';
+    final public const CAN_NOT_RENDER_CUSTOM_APP_VIEW = 'STOREFRONT__CAN_NOT_RENDER_CUSTOM_APP_VIEW';
     final public const UN_SUPPORT_STOREFRONT_RESPONSE = 'STOREFRONT__UN_SUPPORT_STOREFRONT_RESPONSE';
     final public const CLASS_DONT_HAVE_TWIG_INJECTED = 'STOREFRONT__CLASS_DONT_HAVE_TWIG_INJECTED';
     final public const NO_REQUEST_PROVIDED = 'STOREFRONT__NO_REQUEST_PROVIDED';
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'STOREFRONT__REVIEW_NOT_ACTIVE';
+
+    private const CUSTOM_APP_PATH = 'custom/apps/';
 
     /**
      * @param array<string, mixed> $parameters
@@ -31,9 +34,12 @@ class StorefrontException extends HttpException
             return !\is_object($param);
         });
 
+        $isCustomApp = str_contains($error->getFile(), self::CUSTOM_APP_PATH);
+        $errorCode = $isCustomApp ? self::CAN_NOT_RENDER_CUSTOM_APP_VIEW : self::CAN_NOT_RENDER_VIEW;
+
         $exception = new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CAN_NOT_RENDER_VIEW,
+            $errorCode,
             'Can not render {{ view }} view: {{ message }} with these parameters: {{ parameters }}',
             [
                 'message' => $error->getMessage(),

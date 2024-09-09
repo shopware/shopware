@@ -479,8 +479,12 @@
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross-Selling-Konfiguration.",
+      "inheritedEmptyStateDescription": "Dieses Produkt hat vererbte Cross Sellings vom Hauptprodukt.",
+      "notInheritedEmptyStateDescription": "Du kannst jetzt benutzerdefinierte Cross-Selling-Konfigurationen für diese Variante verwenden.",
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
-      "assignPlaceholder": "Durchsuche Produkte ..."
+      "assignPlaceholder": "Durchsuche Produkte ...",
+      "linkCrossSellingsOfParent": "Zeige die Cross Sellings des Hauptprodukts",
+      "inheritSwitchLabel": "Nutze die Cross Sellings des Hauptprodukts"
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",

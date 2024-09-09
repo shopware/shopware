@@ -234,7 +234,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_detail_content_tabs_cross_selling %}
                 <sw-tabs-item
-                    v-show="!isChild && showModeSetting"
+                    v-show="showModeSetting"
                     class="sw-product-detail__tab-cross-selling"
                     :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
                     :has-error="swProductDetailCrossSellingError"

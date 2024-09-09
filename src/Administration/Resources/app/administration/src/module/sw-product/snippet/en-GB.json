@@ -479,8 +479,12 @@
       "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
+      "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",
+      "notInheritedEmptyStateDescription": "You can now use custom Cross Selling configurations for this variant.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
-      "assignPlaceholder": "Search products..."
+      "assignPlaceholder": "Search products...",
+      "linkCrossSellingsOfParent": "Show cross sellings of parent product",
+      "inheritSwitchLabel": "Use cross sellings from parent product"
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",

@@ -132,6 +132,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
+                $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
             }
 
             $this->featureBuilder->add($items, $data, $context);

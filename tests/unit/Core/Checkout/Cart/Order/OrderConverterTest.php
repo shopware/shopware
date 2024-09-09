@@ -616,11 +616,11 @@ class OrderConverterTest extends TestCase
     {
         $cart = new Cart('cart-token');
         $cart->add(
-            (new LineItem('line-item-id-1', 'line-item-type-1'))
+            (new LineItem('line-item-id-1', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-1')
         )->add(
-            (new LineItem('line-item-id-2', 'line-item-type-2'))
+            (new LineItem('line-item-id-2', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-2')
         );
@@ -635,7 +635,7 @@ class OrderConverterTest extends TestCase
         $orderLineItem->setIdentifier('order-line-item-identifier');
         $orderLineItem->setId('order-line-item-id');
         $orderLineItem->setQuantity(1);
-        $orderLineItem->setType('order-line-item-type');
+        $orderLineItem->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
         $orderLineItem->setLabel('order-line-item-label');
         $orderLineItem->setGood(true);
         $orderLineItem->setRemovable(false);
@@ -972,7 +972,7 @@ class OrderConverterTest extends TestCase
                     'referencedId' => null,
                     'label' => 'order-line-item-label',
                     'quantity' => 1,
-                    'type' => 'order-line-item-type',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'priceDefinition' => null,
                     'price' => null,
                     'good' => true,
@@ -990,6 +990,7 @@ class OrderConverterTest extends TestCase
                     'extensions' => [],
                     'states' => [],
                     'modifiedByApp' => false,
+                    'shippingCostAware' => true,
                 ],
             ],
             'errors' => [],
@@ -1003,7 +1004,7 @@ class OrderConverterTest extends TestCase
                                 'referencedId' => null,
                                 'label' => 'order-line-item-label',
                                 'quantity' => 1,
-                                'type' => 'order-line-item-type',
+                                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                                 'priceDefinition' => null,
                                 'price' => null,
                                 'good' => true,
@@ -1026,6 +1027,7 @@ class OrderConverterTest extends TestCase
                                 ],
                                 'states' => [],
                                 'modifiedByApp' => false,
+                                'shippingCostAware' => true,
                             ],
                             'quantity' => 1,
                             'price' => [
@@ -1197,7 +1199,7 @@ class OrderConverterTest extends TestCase
                 [
                     'identifier' => 'line-item-id-1',
                     'quantity' => 1,
-                    'type' => 'line-item-type-1',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'label' => 'line-item-label-1',
                     'good' => true,
                     'removable' => false,
@@ -1220,7 +1222,7 @@ class OrderConverterTest extends TestCase
                 [
                     'identifier' => 'line-item-id-2',
                     'quantity' => 1,
-                    'type' => 'line-item-type-2',
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
                     'label' => 'line-item-label-2',
                     'good' => true,
                     'removable' => false,

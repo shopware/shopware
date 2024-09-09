@@ -84,7 +84,11 @@ class PromotionProcessor implements CartProcessorInterface
 
             // calculate the whole cart with the
             // new list of created promotion discount line items
-            $items = new LineItemCollection($discountLineItems);
+            $items = new LineItemCollection();
+            foreach ($discountLineItems as $lineItem) {
+                $lineItem->setShippingCostAware(true);
+                $items->add($lineItem);
+            }
 
             $this->promotionCalculator->calculate($items, $original, $toCalculate, $context, $behavior);
         }, 'cart');

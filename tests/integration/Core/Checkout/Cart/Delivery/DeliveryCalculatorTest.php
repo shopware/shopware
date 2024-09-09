@@ -20,12 +20,18 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -36,8 +42,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -58,6 +66,8 @@ class DeliveryCalculatorTest extends TestCase
 
     private DeliveryTimeEntity $deliveryTimeEntity;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         $this->deliveryCalculator = $this->getContainer()->get(DeliveryCalculator::class);
@@ -74,6 +84,8 @@ class DeliveryCalculatorTest extends TestCase
             'unit' => 'day',
             'name' => '1-3 days',
         ]);
+
+        $this->ids = new IdsCollection();
     }
 
     public function testCalculateWithEmptyDelivery(): void
@@ -93,7 +105,7 @@ class DeliveryCalculatorTest extends TestCase
         $positions->add(
             new DeliveryPosition(
                 Uuid::randomHex(),
-                new LineItem('test', 'test'),
+                (new LineItem('test', 'test'))->setShippingCostAware(true),
                 1,
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new DeliveryDate(new \DateTime(), new \DateTime())
@@ -147,6 +159,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
@@ -200,6 +213,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
@@ -263,6 +277,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -311,6 +326,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -367,6 +383,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -431,6 +448,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $freeDeliveryItem = new LineItem(Uuid::randomHex(), 'product');
@@ -443,6 +461,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $freeDeliveryItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem, $freeDeliveryItem]), $context);
@@ -502,6 +521,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $freeDeliveryItem = new LineItem(Uuid::randomHex(), 'product');
@@ -514,6 +534,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $freeDeliveryItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem, $freeDeliveryItem]), $context);
@@ -578,6 +599,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -633,6 +655,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -691,6 +714,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -745,6 +769,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -802,6 +827,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(7.5, 15.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -861,6 +887,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(7.5, 37.5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -921,6 +948,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -976,6 +1004,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1048,6 +1077,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1098,6 +1128,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1169,6 +1200,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1227,6 +1259,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1289,6 +1322,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1347,6 +1381,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1405,6 +1440,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1475,6 +1511,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1545,6 +1582,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1777,6 +1815,7 @@ class DeliveryCalculatorTest extends TestCase
         $lineItem1->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $lineItem1->setStackable(true);
         $lineItem1->setQuantity($quantity);
+        $lineItem1->setShippingCostAware(true);
 
         $lineItem2 = new LineItem(Uuid::randomHex(), 'product');
         $lineItem2->setDeliveryInformation(
@@ -1794,6 +1833,7 @@ class DeliveryCalculatorTest extends TestCase
         $lineItem2->setPrice(new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $lineItem2->setStackable(true);
         $lineItem2->setQuantity($quantity);
+        $lineItem1->setShippingCostAware(true);
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem1, $lineItem2]), $context);
 
@@ -1847,6 +1887,7 @@ class DeliveryCalculatorTest extends TestCase
                 $this->deliveryTime
             )
         );
+        $lineItem->setShippingCostAware(true);
         $lineItem->setPrice(new CalculatedPrice(0.3, 0.3, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
@@ -1859,6 +1900,89 @@ class DeliveryCalculatorTest extends TestCase
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
         static::assertSame(5.0, $delivery->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithShippingCostsDiscount(): void
+    {
+        $discountItem = new LineItem($this->ids->get('line-item-promotion'), PromotionProcessor::LINE_ITEM_TYPE);
+        $discountItem->setPriceDefinition(new AbsolutePriceDefinition(-100.0));
+        $discountItem->setPrice(
+            new CalculatedPrice(
+                -100.0,
+                -100.0,
+                new CalculatedTaxCollection([new CalculatedTax(-15.97, 19, -100)]),
+                new TaxRuleCollection([new TaxRule(19)]),
+            )
+        );
+        $discountItem->setShippingCostAware(true);
+
+        $data = new CartDataCollection();
+        $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection([$discountItem]));
+
+        $cart = $this->createCart();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+
+        $lineItemA = $cart->getLineItems()->first();
+        $lineItemB = $cart->getLineItems()->last();
+
+        static::assertNotNull($lineItemA);
+        static::assertNotNull($lineItemB);
+
+        static::assertNotNull($lineItemA->getPrice());
+        static::assertNotNull($lineItemB->getPrice());
+        static::assertNotNull($discountItem->getPrice());
+
+        $deliveries = new DeliveryCollection([
+            new Delivery(
+                new DeliveryPositionCollection([
+                    new DeliveryPosition(
+                        $this->ids->get('delivery-position-1'),
+                        $lineItemA,
+                        1,
+                        clone $lineItemA->getPrice(),
+                        new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable())
+                    ),
+
+                    new DeliveryPosition(
+                        $this->ids->get('delivery-position-2'),
+                        $lineItemB,
+                        1,
+                        clone $lineItemB->getPrice(),
+                        new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable())
+                    ),
+
+                    new DeliveryPosition(
+                        $this->ids->get('delivery-position-discount'),
+                        $discountItem,
+                        1,
+                        clone $discountItem->getPrice(),
+                        new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable())
+                    ),
+                ]),
+                new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+                $shippingMethod,
+                new ShippingLocation(new CountryEntity(), new CountryStateEntity(), null),
+                new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            ),
+        ]);
+
+        $cart->add($discountItem);
+
+        $this->deliveryCalculator->calculate($data, $cart, $deliveries, $this->createMock(SalesChannelContext::class));
+
+        $calculatedPrice = $deliveries->getShippingCosts()->first();
+
+        static::assertNotNull($calculatedPrice);
+        static::assertEquals(
+            new TaxRuleCollection([
+                new TaxRule(7),
+                new TaxRule(19, 0.0),
+            ]),
+            $calculatedPrice->getTaxRules(),
+        );
     }
 
     /**
@@ -1891,7 +2015,94 @@ class DeliveryCalculatorTest extends TestCase
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation($deliveryInformation);
         $lineItem->setPrice($calculatedPrice);
+        $lineItem->setShippingCostAware(true);
 
         return $lineItem;
+    }
+
+    private function createCart(): Cart
+    {
+        $cart = new Cart('test');
+
+        $lineItemA = new LineItem(
+            $this->ids->get('line-item-1'),
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
+            $this->ids->get('line-item-1'),
+            1,
+        );
+
+        $lineItemA->setShippingCostAware(true);
+
+        $lineItemB = new LineItem(
+            $this->ids->get('line-item-2'),
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
+            $this->ids->get('line-item-2'),
+            1,
+        );
+        $lineItemB->setShippingCostAware(true);
+
+        $lineItemA->assign(['uniqueIdentifier' => $this->ids->get('line-item-1'), 'shippingCostAware' => true]);
+        $lineItemB->assign(['uniqueIdentifier' => $this->ids->get('line-item-2'), 'shippingCostAware' => true]);
+
+        $calculatedPriceA = new CalculatedPrice(
+            100,
+            100,
+            new CalculatedTaxCollection([
+                new CalculatedTax(
+                    6.54,
+                    7,
+                    100.0
+                ),
+            ]),
+            new TaxRuleCollection([new TaxRule(7)]),
+            1
+        );
+
+        $calculatedPriceB = new CalculatedPrice(
+            100,
+            100,
+            new CalculatedTaxCollection([
+                new CalculatedTax(
+                    15.97,
+                    19,
+                    100.0
+                ),
+            ]),
+            new TaxRuleCollection([new TaxRule(19)]),
+            1
+        );
+
+        $lineItemA->setPrice($calculatedPriceA);
+        $lineItemB->setPrice($calculatedPriceB);
+
+        $cart->add($lineItemA);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            $this->getContainer()->get(PercentageTaxRuleBuilder::class),
+            new TaxCalculator()
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->method('getTotalRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        // let the cart calculate with the real tax calculator to simulate previous cart calculation
+        $cartPrice = $calculator->calculate(
+            $cart->getLineItems()->getPrices(),
+            $cart->getDeliveries()->getShippingCosts(),
+            $context
+        );
+
+        $cart = new Cart('test');
+        $cart->add($lineItemA);
+        $cart->add($lineItemB);
+        $cart->setPrice($cartPrice);
+
+        static::assertNotNull($cart->get($this->ids->get('line-item-1')));
+        static::assertNotNull($cart->get($this->ids->get('line-item-2')));
+
+        return $cart;
     }
 }

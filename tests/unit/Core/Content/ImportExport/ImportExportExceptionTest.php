@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -30,7 +31,7 @@ class ImportExportExceptionTest extends TestCase
             static::markTestSkipped();
         }
 
-        \assert($exception instanceof ImportExportException);
+        static::assertInstanceOf(ShopwareHttpException::class, $exception);
         static::assertSame($statusCode, $exception->getStatusCode());
         static::assertSame($errorCode, $exception->getErrorCode());
         static::assertSame($message, $exception->getMessage());

@@ -20,7 +20,7 @@ class CacheIdLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->storage = $this->createMock(AbstractKeyValueStorage::class);
-        unset($_SERVER['SHOPWARE_CACHE_ID']);
+        unset($_SERVER['SHOPWARE_CACHE_ID'], $_ENV['SHOPWARE_CACHE_ID']);
     }
 
     public function testLoadExisting(): void

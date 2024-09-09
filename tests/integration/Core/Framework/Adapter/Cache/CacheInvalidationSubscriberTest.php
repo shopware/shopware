@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
+use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -374,7 +375,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
             // use ProductDetailRoute::buildName()
             static::assertSame(
-                array_map(fn (string $product) => ProductDetailRoute::buildName($this->ids->get($product)), $scenario['expected']),
+                array_map(fn (string $product) => CachedProductDetailRoute::buildName($this->ids->get($product)), $scenario['expected']),
                 $listener->tags
             );
         }

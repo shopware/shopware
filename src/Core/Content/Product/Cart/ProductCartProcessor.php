@@ -65,8 +65,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
             $items = array_column($lineItems, 'item');
 
+            $hash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
+
             // find products in original cart which requires data from gateway
-            $ids = $this->getNotCompleted($data, $items, $context);
+            $ids = $this->getNotCompleted($data, $items, $context, $hash);
 
             if (!empty($ids)) {
                 // fetch missing data over gateway
@@ -76,8 +78,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 foreach ($products as $product) {
                     $data->set($this->getDataKey($product->getId()), $product);
                 }
-
-                $hash = $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]);
 
                 // refresh data timestamp to prevent unnecessary gateway calls
                 foreach ($items as $lineItem) {
@@ -121,8 +121,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
         Profiler::trace('cart::product::process', function () use ($data, $original, $toCalculate, $context): void {
-            $hash = $this->generator->getSalesChannelContextHash($context);
-
             $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
             foreach ($items as $item) {
@@ -134,7 +132,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-                $item->setDataContextHash($hash);
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -419,13 +416,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      *
      * @return mixed[]
      */
-    private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context): array
+    private function getNotCompleted(CartDataCollection $data, array $lineItems, SalesChannelContext $context, string $hash): array
     {
         $ids = [];
 
         $changes = [];
-
-        $hash = $this->generator->getSalesChannelContextHash($context);
 
         foreach ($lineItems as $lineItem) {
             $id = $lineItem->getReferencedId();

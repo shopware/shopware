@@ -73,19 +73,35 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
 
     steps:
-      - name: Setup Shopware
-        uses: shopware/setup-shopware@main
+      - name: Clone shopware
+        uses: actions/checkout@v4
         with:
-          shopware-version: ${{ github.ref }}
-          shopware-repository: ${{ github.repository }}
-          keep-composer-tools: true
+          fetch-depth: '0'
+          fetch-tags: '1'
 
-      - name: BC Checker
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Dependencies
+        run: |
+          composer install
+      - name: Prepare repo
         run: |
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
-          composer run bc-check
+        # TAG=$(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' | tail -n 2 | head -n 1 | cut -f 2)
+        # git fetch --prune --depth=1 bc-checker-upstream +$TAG:refs/remotes/bc-checker-upstream/$TAG
+        # git fetch --no-tags bc-checker-upstream +refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+        # git fetch --no-tags origin +refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+      - name: BC Checker lastest tag
+        if: github.event_name != 'pull_request'
+        run: composer run bc-check
+      - name: BC Checker PR
+        if: github.event_name == 'pull_request'
+        run: composer run bc-check -- --from="origin/${{ github.base_ref }}"
 
   openapi-lint:
     runs-on: ubuntu-latest

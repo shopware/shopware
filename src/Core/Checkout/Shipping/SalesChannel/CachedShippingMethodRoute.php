@@ -81,7 +81,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     public static function buildName(string $salesChannelId): string
     {
-        return ShippingMethodRoute::buildName($salesChannelId);
+        return 'shipping-method-route-' . $salesChannelId;
     }
 
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string

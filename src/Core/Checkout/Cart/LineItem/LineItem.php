@@ -61,6 +61,8 @@ class LineItem extends Struct
 
     protected bool $modified = false;
 
+    protected bool $shippingCostAware = true;
+
     /**
      * The data timestamp can be used to record when the line item was last updated with data from the database.
      * Updating the data timestamp must be done by the corresponding cart data collector.
@@ -570,6 +572,18 @@ class LineItem extends Struct
         }
 
         return $content;
+    }
+
+    public function setShippingCostAware(bool $shippingCostAware): self
+    {
+        $this->shippingCostAware = $shippingCostAware;
+
+        return $this;
+    }
+
+    public function isShippingCostAware(): bool
+    {
+        return $this->shippingCostAware;
     }
 
     public function jsonSerialize(): array

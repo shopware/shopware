@@ -46,16 +46,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Command/CartMigrateCommand.php
 
 		-
-			message: "#^Cannot call method getDeliveryDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
-			message: "#^Expected domain exception class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException, got Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingException$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php
-
-		-
 			message: "#^Expected domain exception class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartException, got Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\ShippingException$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryCalculator.php

@@ -171,12 +171,29 @@ class LineItemTransformer
 
     private static function createLineItem(OrderLineItemEntity $entity): LineItem
     {
-        return new LineItem(
+        $item = new LineItem(
             $entity->getIdentifier(),
             $entity->getType() ?? '',
             $entity->getReferencedId(),
             $entity->getQuantity()
         );
+
+        $isNonProduct = \in_array($entity->getType(), [
+            LineItem::CREDIT_LINE_ITEM_TYPE,
+            LineItem::DISCOUNT_LINE_ITEM,
+        ], true);
+        $isProduct = \in_array($entity->getType(), [
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
+            LineItem::CUSTOM_LINE_ITEM_TYPE,
+        ], true);
+        $isDownloadState = \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
+        if ($isNonProduct || ($isProduct && $isDownloadState)) {
+            $item->setShippingCostAware(false);
+
+            return $item;
+        }
+
+        return $item;
     }
 
     private static function setProductData(LineItem $lineItem, ProductEntity $product): void

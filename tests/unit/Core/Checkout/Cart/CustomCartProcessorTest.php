@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -64,6 +65,11 @@ class CustomCartProcessorTest extends TestCase
     {
         $data = new CartDataCollection();
         $original = $this->getCart();
+        $item1 = new LineItem('custom-3', 'custom', 'custom-1', 1);
+        $item1->setPriceDefinition(new QuantityPriceDefinition(5.0, new TaxRuleCollection(), 1));
+        $item1->setStates([State::IS_DOWNLOAD]);
+        $original->add($item1);
+
         $toCalculate = new Cart('toCalculate');
         $context = Generator::createSalesChannelContext();
         $behavior = new CartBehavior($context->getPermissions());
@@ -73,7 +79,7 @@ class CustomCartProcessorTest extends TestCase
 
         $quantityPriceCalculator = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculator
-            ->expects(static::once())
+            ->expects(static::exactly(2))
             ->method('calculate')
             ->with($price, $context)
             ->willReturn(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -81,8 +87,12 @@ class CustomCartProcessorTest extends TestCase
         $processor = new CustomCartProcessor($quantityPriceCalculator);
         $processor->process($data, $original, $toCalculate, $context, $behavior);
 
-        static::assertCount(1, $toCalculate->getLineItems());
+        static::assertCount(2, $toCalculate->getLineItems());
         static::assertEquals(5.0, $toCalculate->getLineItems()->get('custom-1')?->getPrice()?->getTotalPrice());
+        static::assertTrue($toCalculate->getLineItems()->get('custom-1')?->isShippingCostAware());
+
+        static::assertEquals(5.0, $toCalculate->getLineItems()->get('custom-3')?->getPrice()?->getTotalPrice());
+        static::assertFalse($toCalculate->getLineItems()->get('custom-3')?->isShippingCostAware());
     }
 
     private function getCart(): Cart

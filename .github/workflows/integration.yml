@@ -172,3 +172,54 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+
+  docker:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }} 
+    permissions:
+      packages: write
+    env:
+      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
+      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install: true
+          installAdmin: true
+          installStorefront: true
+          env: prod
+      
+      - name: Build
+        run: |
+          composer run build:js
+      -
+        name: Ignore node_modules folders
+        run: |
+          echo '**/node_modules' >> .dockerignore
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Login into Github Docker Registery
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      -
+        name: Build and push
+        uses: docker/build-push-action@v5
+        if: ${{ !github.ref_protected }}
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }}
+          file: .gitlab/docker/dev/Dockerfile
+      - name: Build and push trunk
+        uses: docker/build-push-action@v5
+        if: ${{ github.ref_protected }}
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/ci-e2e:${{ github.run_id }},ghcr.io/${{ github.repository }}/ci-e2e:${{ github.ref_name }}
+          file: .gitlab/docker/dev/Dockerfile

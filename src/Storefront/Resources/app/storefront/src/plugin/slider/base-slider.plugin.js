@@ -190,8 +190,10 @@ export default class BaseSliderPlugin extends Plugin {
     _initAccessibilityTweaks(sliderInfo, wrapperEl) {
         const sliderItems = sliderInfo.slideItems;
 
-        // Remove controls div container from tab index for better accessibility.
-        sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
+        if (sliderInfo.controlsContainer) {
+            // Remove controls div container from tab index for better accessibility.
+            sliderInfo.controlsContainer.setAttribute('tabindex', '-1');
+        }
 
         for (let index = 0; index < sliderItems.length; index++) {
             const item = sliderItems.item(index);

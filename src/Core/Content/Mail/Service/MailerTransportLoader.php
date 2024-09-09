@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
-use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mailer\Transport\Transports;
 
@@ -88,7 +87,7 @@ class MailerTransportLoader
 
         return match ($emailAgent) {
             'smtp' => $this->createSmtpTransport($this->configService),
-            'local' => new SendmailTransport($this->getSendMailCommandLineArgument($this->configService)),
+            'local' => $this->createSendmailTransport($this->configService),
             default => throw MailException::givenMailAgentIsInvalid($emailAgent),
         };
     }
@@ -116,6 +115,19 @@ class MailerTransportLoader
             'tls' => 'tls',
             default => null,
         };
+    }
+
+    private function createSendmailTransport(SystemConfigService $configService): TransportInterface
+    {
+        $dsn = new Dsn(
+            scheme: 'sendmail',
+            host: '',
+            options: [
+                'command' => $this->getSendMailCommandLineArgument($configService),
+            ]
+        );
+
+        return $this->envBasedTransport->fromDsnObject($dsn);
     }
 
     private function getSendMailCommandLineArgument(SystemConfigService $configService): string

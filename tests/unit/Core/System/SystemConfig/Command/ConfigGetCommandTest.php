@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Command\ConfigGet;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -74,10 +74,9 @@ class ConfigGetCommandTest extends TestCase
     }
 
     #[DataProvider('configFormatLegacyProvider')]
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testConfigGetLegacy(string $key, string $output): void
     {
-        Feature::skipTestIfActive('v6.7.0.0', $this);
-
         $commandOutput = $this->executeCommand($key, 'legacy');
         static::assertEquals(addslashes($commandOutput), addslashes($output));
     }

@@ -1,6 +1,6 @@
 ---
 title: Deprecate legacy format in system:config:get command
-issue: NEXT-0000
+issue: NEXT-38226
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

@@ -221,17 +221,8 @@ export default {
         /*
          * Media uploads
          */
-        async onUploadsAdded({ data }) {
+        async onUploadsAdded() {
             await this.mediaService.runUploads(this.uploadTag);
-
-            await Promise.all(data.map(({ targetId }) => {
-                return new Promise((resolve) => {
-                    this.mediaRepository.get(targetId, Context.api).then((media) => {
-                        this.uploads.push(media);
-                        resolve();
-                    });
-                });
-            }));
         },
 
         async onUploadFinished({ targetId }) {

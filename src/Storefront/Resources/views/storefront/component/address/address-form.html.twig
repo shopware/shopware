@@ -103,7 +103,8 @@
 
     {% block component_address_form_address_fields %}
         {% set options = {
-            scopeElementSelector: scopeElementSelector,
+            scopeElementSelector,
+            prefix,
         } %}
 
         <div class="row g-2">

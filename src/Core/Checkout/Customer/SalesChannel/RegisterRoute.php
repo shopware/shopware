@@ -351,8 +351,10 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $countryId = $billingAddress instanceof DataBag ? $billingAddress->get('countryId') :
-                ($shippingAddress instanceof DataBag ? $shippingAddress->get('countryId') : null);
+            $countryId = $shippingAddress instanceof DataBag
+                ? $shippingAddress->get('countryId')
+                : ($billingAddress instanceof DataBag ? $billingAddress->get('countryId') : null);
+
             if ($countryId) {
                 if ($this->requiredVatIdField($countryId, $context)) {
                     $definition->add('vatIds', new NotBlank());

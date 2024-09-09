@@ -53,10 +53,6 @@
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
-
-        <service id="Shopware\Storefront\Framework\Twig\Extension\EmailIdnTwigFilter">
-            <tag name="twig.extension"/>
-        </service>
     </services>
 </container>
 

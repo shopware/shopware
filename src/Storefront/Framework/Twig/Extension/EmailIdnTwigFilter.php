@@ -2,19 +2,17 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
-use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.7.0 - unused, is moved to core, reason:remove-subscriber
+ */
+#[Package('checkout')]
 class EmailIdnTwigFilter extends AbstractExtension
 {
     public function getFilters(): array
     {
-        return [
-            new TwigFilter('decodeIdnEmail', [EmailIdnConverter::class, 'decode']),
-            new TwigFilter('encodeIdnEmail', [EmailIdnConverter::class, 'encode']),
-        ];
+        return [];
     }
 }

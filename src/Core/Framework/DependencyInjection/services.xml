@@ -395,6 +395,10 @@ base-uri 'self';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Filter\EmailIdnTwigFilter">
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Cocur\Slugify\Bridge\Twig\SlugifyExtension">
             <argument type="service" id="slugify"/>
             <tag name="twig.extension"/>

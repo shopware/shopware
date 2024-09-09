@@ -421,6 +421,7 @@ PHP Full:
           rm -rf tests/integration/Elasticsearch
           rm -rf tests/integration/Storefront
           composer dump-autoload -o
+          php bin/console lint:container
       fi
     - unset SHOPWARE_CACHE_ID
     - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Webhook\Hookable;
 #[Package('core')]
 class SystemConfigChangedHook implements Hookable
 {
+    public const EVENT_NAME = 'app.config.changed';
+
     /**
      * @param array<string, mixed> $values
      * @param array<string, string> $appMapping

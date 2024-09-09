@@ -47,7 +47,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     public static function buildName(string $id): string
     {
-        return SitemapRoute::buildName($id);
+        return 'sitemap-route-' . $id;
     }
 
     public function getDecorated(): AbstractSitemapRoute

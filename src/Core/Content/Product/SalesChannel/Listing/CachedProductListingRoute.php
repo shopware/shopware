@@ -75,7 +75,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
 
     public static function buildName(string $categoryId): string
     {
-        return ProductListingRoute::buildName($categoryId);
+        return 'product-listing-route-' . $categoryId;
     }
 
     private function generateKey(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string

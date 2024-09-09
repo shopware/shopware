@@ -54,6 +54,7 @@ class CartException extends HttpException
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const CART_HASH_MISMATCH = 'CHECKOUT__CART_HASH_MISMATCH';
     public const CART_WRONG_DATA_TYPE = 'CHECKOUT__CART_WRONG_DATA_TYPE';
+    public const CHECKOUT_CURRENCY_NOT_FOUND = 'CHECKOUT__CURRENCY_NOT_FOUND';
 
     public static function deserializeFailed(): self
     {
@@ -440,6 +441,15 @@ class CartException extends HttpException
             self::CART_WRONG_DATA_TYPE,
             'Cart data {{ fieldKey }} does not match expected type "{{ expectedType }}"',
             ['fieldKey' => $fieldKey, 'expectedType' => $expectedType]
+        );
+    }
+
+    public static function currencyCannotBeFound(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_CURRENCY_NOT_FOUND,
+            'Currency cannot be found.'
         );
     }
 }

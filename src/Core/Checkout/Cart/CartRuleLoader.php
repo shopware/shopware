@@ -12,7 +12,6 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -102,6 +101,10 @@ class CartRuleLoader implements ResetInterface
                 return $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             });
 
+            $dataHashes = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
+                return $lineItem->getDataContextHash();
+            });
+
             // start first cart calculation to have all objects enriched
             $cart = $this->processor->process($cart, $context, $behaviorContext);
 
@@ -151,7 +154,7 @@ class CartRuleLoader implements ResetInterface
             $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
-            if ($this->updated($cart, $timestamps) || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()) {
+            if ($this->updated($cart, $timestamps, $dataHashes) || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()) {
                 $cart->setErrorHash($cart->getErrors()->getUniqueHash());
                 $this->cartPersister->save($cart, $context);
             }
@@ -208,19 +211,25 @@ class CartRuleLoader implements ResetInterface
 
     /**
      * @param array<string, string> $timestamps
+     * @param array<string, string> $dataHashes
      */
-    private function updated(Cart $cart, array $timestamps): bool
+    private function updated(Cart $cart, array $timestamps, array $dataHashes): bool
     {
         foreach ($cart->getLineItems() as $lineItem) {
-            if (!isset($timestamps[$lineItem->getId()])) {
+            $lineItemId = $lineItem->getId();
+            if (!isset($timestamps[$lineItemId], $dataHashes[$lineItemId])) {
                 return true;
             }
 
-            $original = $timestamps[$lineItem->getId()];
+            $original = $timestamps[$lineItemId];
 
             $timestamp = $lineItem->getDataTimestamp() !== null ? $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
 
             if ($original !== $timestamp) {
+                return true;
+            }
+
+            if ($dataHashes[$lineItemId] !== $lineItem->getDataContextHash()) {
                 return true;
             }
         }
@@ -270,7 +279,7 @@ class CartRuleLoader implements ResetInterface
         );
 
         if (!$currencyFactor) {
-            throw new EntityNotFoundException('currency', $currencyId);
+            throw CartException::currencyCannotBeFound();
         }
 
         return $this->currencyFactor[$currencyId] = (float) $currencyFactor;

@@ -17,7 +17,7 @@ class TwigEnvironment extends Environment
     /**
      * @param array<mixed> $options
      */
-    public function __construct(LoaderInterface $loader, $options = [])
+    public function __construct(LoaderInterface $loader, array $options = [])
     {
         // There is no Symfony configuration yet to toggle this feature
         $options['use_yield'] = true;

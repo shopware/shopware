@@ -25,8 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(CustomerGroupRegistrationActionController::class)]

@@ -215,7 +215,7 @@ class JsonApiEncoder
      */
     private function formatToJson(JsonApiEncodingResult $result): string
     {
-        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION|\JSON_THROW_ON_ERROR);
+        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR);
     }
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void

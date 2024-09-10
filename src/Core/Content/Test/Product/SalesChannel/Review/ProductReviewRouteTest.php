@@ -45,7 +45,7 @@ class ProductReviewRouteTest extends TestCase
     {
         $this->browser->request('POST', $this->getUrl());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('total', $response);
         static::assertEquals(5, $response['total']);
@@ -63,7 +63,7 @@ class ProductReviewRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $first = array_shift($response['elements']);
         $properties = array_keys($first);
@@ -91,7 +91,7 @@ class ProductReviewRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('aggregations', $response);
 
@@ -154,8 +154,16 @@ class ProductReviewRouteTest extends TestCase
             ->create($reviews, Context::createDefaultContext());
     }
 
-    private function getUrl()
+    private function getUrl(): string
     {
         return '/store-api/product/' . $this->ids->get('product') . '/reviews';
+    }
+
+    private function getResponseContent(): string
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return $content;
     }
 }

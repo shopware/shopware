@@ -117,15 +117,11 @@ Shopware.Service().list().forEach(serviceKey => {
 // Set important functions for Shopware Core
 Shopware.Application.view = {
     setReactive: (target, propertyName, value) => {
-        if (compatUtils.isCompatEnabled('GLOBAL_SET')) {
-            return Vue.set(target, propertyName, value);
-        }
-
         // eslint-disable-next-line no-return-assign
         return target[propertyName] = value;
     },
     deleteReactive(target, propertyName) {
-        Vue.delete(target, propertyName);
+        delete target[propertyName];
     },
     root: {
         $tc: v => v,
@@ -293,6 +289,47 @@ global.allowedErrors = [
                 msg1?.includes?.('is deprecated and will be removed in v6.7.0.0. Please use');
         },
     },
+    /*
+     * Duplicate registrations will happen, when the root index file of CMS components is imported.
+     * This file has to be imported during tests, since it's usually also registering the same
+     * components to the CMS registries.
+     */
+    {
+        method: 'warn',
+        msgCheck: (msg0, msg1) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('is already registered. Please select a unique name for your component.') ||
+                msg1?.includes?.('is already registered. Please select a unique name for your component.');
+        },
+    },
+
+    {
+        method: 'warn',
+        msgCheck: (msg0, msg1) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('Missing registration for slot type') ||
+                msg1?.includes?.('Missing registration for slot type');
+        },
+    },
+
+    {
+        method: 'warn',
+        msgCheck: (msg0, msg1) => {
+            if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            return msg0?.includes('No definition found for entity type') ||
+                msg1?.includes?.('No definition found for entity type');
+        },
+    },
+
     sendTimeoutExpired,
 ];
 

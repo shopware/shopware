@@ -10,11 +10,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ListingTestData
 {
     /**
-     * @var array
+     * @var array<string>
      */
-    protected $ids = [];
+    protected array $ids = [];
 
-    public function getId(string $key)
+    public function getId(string $key): string
     {
         return $this->ids[$key];
     }
@@ -24,13 +24,18 @@ class ListingTestData
         return $this->ids[$key] = Uuid::randomHex();
     }
 
-    public function getKey(string $id)
+    public function getKey(string $id): string
     {
         $ids = array_flip($this->ids);
 
         return $ids[$id];
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
     public function getKeyList(array $ids): array
     {
         $keys = [];
@@ -42,6 +47,9 @@ class ListingTestData
         return $keys;
     }
 
+    /**
+     * @return array<string>
+     */
     public function all(): array
     {
         return $this->ids;

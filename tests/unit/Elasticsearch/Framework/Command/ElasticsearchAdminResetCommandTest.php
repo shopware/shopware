@@ -14,8 +14,6 @@ use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(ElasticsearchAdminResetCommand::class)]

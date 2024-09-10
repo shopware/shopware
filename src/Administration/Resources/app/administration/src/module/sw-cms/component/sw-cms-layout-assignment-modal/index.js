@@ -362,13 +362,16 @@ export default {
         onConfirm() {
             this.isLoading = true;
 
-            Promise
-                .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
-                .then(() => {
-                    this.onModalClose(true);
-                }).catch(() => {
-                    this.isLoading = false;
-                });
+            Promise.all([
+                this.validateCategories(),
+                this.saveShopPages(),
+                this.validateProducts(),
+                this.validateLandingPages(),
+            ]).then(() => {
+                this.onModalClose(true);
+            }).catch(() => {
+                this.isLoading = false;
+            });
         },
 
         openConfirmChangesModal() {

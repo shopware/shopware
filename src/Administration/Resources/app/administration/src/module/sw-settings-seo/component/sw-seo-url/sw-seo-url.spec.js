@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import { mount } from '@vue/test-utils';
@@ -19,6 +19,8 @@ async function createWrapper() {
                     template: '<div><slot name="toolbar"></slot></div>',
                 },
                 'sw-sales-channel-switch': true,
+                'sw-text-field': true,
+                'sw-inherit-wrapper': true,
             },
             provide: {
                 repositoryFactory: {

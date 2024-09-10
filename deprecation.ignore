@@ -6,3 +6,6 @@
 
 # We rely on the deprecated functionality to resolve vendor files, we hope that we can get rid of the phpscss compiler, before the break happens
 %Returning a file to import for CSS or external references in custom importer callables is deprecated and will not be supported anymore in ScssPhp 2\.0\. This behavior is not compliant with the Sass specification\.%
+
+%Twig Filter "spaceless" is deprecated in%
+%The "tag" constructor argument of the ".*" class is deprecated and ignored \(check which TokenParser class set it to ".*"\), the tag is now automatically set by the Parser when needed.%

@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';

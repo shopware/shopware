@@ -10,10 +10,11 @@ const { Context } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
  */
 export default {
     template,
+
+    compatConfig: Shopware.compatConfig,
 
     inject: [
         'repositoryFactory',

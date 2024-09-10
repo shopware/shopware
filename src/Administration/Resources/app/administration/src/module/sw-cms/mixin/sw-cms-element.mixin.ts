@@ -38,10 +38,6 @@ export default Mixin.register('cms-element', defineComponent({
         },
     },
 
-    data() {
-        return {};
-    },
-
     computed: {
         cmsPageState() {
             return Shopware.Store.get('cmsPageState');

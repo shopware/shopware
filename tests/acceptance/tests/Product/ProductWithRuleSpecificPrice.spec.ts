@@ -12,30 +12,30 @@ test('Customer gets a special product price depending on rules.', {
 }) => {
 
     const product = await TestDataService.createBasicProduct();
-    const rule = await TestDataService.getRule('Always valid (Default)');
-
+    const rule = await TestDataService.createBasicRule();
     const priceResponse = await AdminApiContext.post('./product-price', {
         data: {
             productId: product.id,
             ruleId: rule.id,
             price: [{
-                currencyId: SalesChannelBaseConfig.eurCurrencyId,
-                gross: 99.99,
-                linked: false,
-                net: 93.45,
-            }, {
                 currencyId: SalesChannelBaseConfig.defaultCurrencyId,
-                gross: 99.99,
+                gross: 8.99,
                 linked: false,
-                net: 93.45,
+                net: 7.55,
+            }, {
+                currencyId: SalesChannelBaseConfig.eurCurrencyId,
+                gross: 8.99,
+                linked: false,
+                net: 7.55,
             }],
             quantityStart: 1,
         },
-    });
 
+    });
     expect(priceResponse.ok()).toBeTruthy();
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+    await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText('€10.00*');
     await ShopCustomer.attemptsTo(AddProductToCart(product));
-    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText('€99.99*');
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toHaveText('€8.99*');
 });

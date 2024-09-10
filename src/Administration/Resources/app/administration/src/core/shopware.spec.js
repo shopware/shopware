@@ -2,7 +2,6 @@
  * @package admin
  */
 
-// merge 16.11.2020
 const {
     Module,
     Component,

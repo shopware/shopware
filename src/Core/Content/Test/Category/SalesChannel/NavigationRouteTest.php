@@ -47,7 +47,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -67,7 +67,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -94,7 +94,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -122,7 +122,7 @@ class NavigationRouteTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             static::assertCount(2, $response);
             $ids = array_column($response, 'id');
@@ -155,7 +155,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -171,7 +171,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -191,7 +191,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -210,7 +210,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -232,7 +232,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -277,5 +277,13 @@ class NavigationRouteTest extends TestCase
 
         $this->getContainer()->get('category.repository')
             ->create([$data], Context::createDefaultContext());
+    }
+
+    private function getResponseContent(): string
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return $content;
     }
 }

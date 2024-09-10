@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import template from './sw-settings-captcha-select-v2.html.twig';
 import './sw-settings-captcha-select-v2.scss';
 

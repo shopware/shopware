@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Command;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,6 +23,9 @@ class ConfigGet extends Command
     private const FORMAT_SCALAR = 'scalar';
     private const FORMAT_JSON = 'json';
     private const FORMAT_JSON_PRETTY = 'json-pretty';
+    /**
+     * @deprecated tag:v6.7.0 - the legacy format will be removed, new default will be `self::FORMAT_DEFAULT`
+     */
     private const FORMAT_LEGACY = 'legacy';
 
     private const ALLOWED_FORMATS = [
@@ -45,7 +49,7 @@ class ConfigGet extends Command
         $this
             ->addArgument('key', InputArgument::REQUIRED)
             ->addOption('salesChannelId', 's', InputOption::VALUE_OPTIONAL)
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Supported formats: ' . implode(', ', self::ALLOWED_FORMATS), self::FORMAT_LEGACY)
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Supported formats: ' . implode(', ', self::ALLOWED_FORMATS), Feature::isActive('v6.7.0.0') ? self::FORMAT_DEFAULT : self::FORMAT_LEGACY)
         ;
     }
 
@@ -63,6 +67,8 @@ class ConfigGet extends Command
         );
 
         if ($format === self::FORMAT_LEGACY) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The legacy format will be removed');
+
             $this->writeConfigLegacy($output, $value);
 
             return self::SUCCESS;

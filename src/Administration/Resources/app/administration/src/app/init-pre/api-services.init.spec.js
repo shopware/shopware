@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init-pre/api-services.init.ts', () => {

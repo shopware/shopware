@@ -1,4 +1,6 @@
-import Vue from 'vue';
+/**
+ * @package admin
+ */
 import { createRouter, createWebHistory } from 'vue-router';
 import initTabs from 'src/app/init/tabs.init';
 import { ui } from '@shopware-ag/meteor-admin-sdk';
@@ -7,13 +9,16 @@ describe('src/app/init/tabs.init', () => {
     let routerMock;
 
     beforeAll(() => {
-        global.allowedErrors = [
-            ...global.allowedErrors,
-            {
-                msg: "[vue-router] Route with name 'sw.category.index.route-example-component-section-id' does not exist",
-                method: 'warn',
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes('No match found for location with path');
             },
-        ];
+        });
 
         // Mock component
         Shopware.Application.view.getComponent = () => ({});
@@ -32,14 +37,17 @@ describe('src/app/init/tabs.init', () => {
             {
                 name: 'sw.category.index',
                 path: '/sw/category/index/:id?',
+                component: { template: '<div></div>' },
             },
             {
                 name: 'sw.product.index',
                 path: '/sw/product/index/:id',
+                component: { template: '<div></div>' },
             },
             {
                 name: 'sw.settings.usage.data.index',
                 path: '/sw/settings/usage/data/index',
+                component: { template: '<div></div>' },
             },
         ];
 
@@ -113,13 +121,6 @@ describe('src/app/init/tabs.init', () => {
 
         // start handler for extensionAPI
         initTabs();
-    });
-
-    beforeEach(async () => {
-        // Reset tab store
-        Object.keys(Shopware.State.get('tabs').tabItems).forEach(key => {
-            Vue.set(Shopware.State.get('tabs').tabItems, key, []);
-        });
     });
 
     it('should initialize tab extension API correctly', async () => {

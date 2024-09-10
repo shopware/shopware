@@ -18,6 +18,11 @@ async function createWrapper() {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'router-link': true,
             },
         },
     });

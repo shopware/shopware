@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package admin
- * @group disabledCompat
  */
 async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return mount(await wrapTestComponent('sw-inactivity-login', { sync: true }), {

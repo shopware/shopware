@@ -6,7 +6,7 @@
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
         :plural="matchesAll"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
     />
     {% endblock %}
 
@@ -15,7 +15,7 @@
     <sw-entity-multi-select
         entity="product"
         size="medium"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :entity-collection="products"
         :criteria="productCriteria"
         :context="productContext"

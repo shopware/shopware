@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -50,28 +52,19 @@ class RulePayloadIndexerTest extends TestCase
     private Context $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<RuleCollection>
      */
-    private $repository;
+    private EntityRepository $ruleRepository;
 
-    /**
-     * @var RuleIndexer
-     */
-    private $indexer;
+    private RuleIndexer $indexer;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('rule.repository');
+        $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->indexer = $this->getContainer()->get(RuleIndexer::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
@@ -107,16 +100,17 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $this->context);
+        $this->ruleRepository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->get('payload'));
 
         $this->indexer->handle(new EntityIndexingMessage([$id]));
 
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule->getPayload());
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
@@ -153,10 +147,10 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $this->context);
+        $this->ruleRepository->create([$data], $this->context);
 
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule->getPayload());
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
@@ -215,24 +209,25 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create($data, $this->context);
+        $this->ruleRepository->create($data, $this->context);
 
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->get('payload'));
 
         $this->indexer->handle(new EntityIndexingMessage([$id, $rule2Id]));
 
-        $rules = $this->repository->search(new Criteria([$id, $rule2Id]), $this->context);
+        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context);
         $rule = $rules->get($id);
-        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
         $rule = $rules->get($rule2Id);
-        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => [$salesChannelId1, $salesChannelId2]])]),
@@ -291,18 +286,18 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create($data, $this->context);
+        $this->ruleRepository->create($data, $this->context);
 
-        $rules = $this->repository->search(new Criteria([$id, $rule2Id]), $this->context);
+        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context);
         $rule = $rules->get($id);
-        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([new OrRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])])]),
             $rule->getPayload()
         );
         $rule = $rules->get($rule2Id);
-        static::assertNotNull($rule->getPayload());
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([(new SalesChannelRule())->assign(['salesChannelIds' => [$salesChannelId1, $salesChannelId2]])]),
@@ -345,15 +340,16 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $this->context);
+        $this->ruleRepository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->get('payload'));
         $this->indexer->handle(new EntityIndexingMessage([$id]));
 
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule->getPayload());
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
 
         static::assertCount(2, $rule->getPayload()->getRules());
@@ -384,16 +380,17 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $this->context);
+        $this->ruleRepository->create([$data], $this->context);
 
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNull($rule->get('payload'));
 
         $this->indexer->handle(new EntityIndexingMessage([$id]));
 
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule->getPayload());
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])]),
@@ -425,10 +422,10 @@ class RulePayloadIndexerTest extends TestCase
             ],
         ];
 
-        $this->repository->create([$data], $this->context);
+        $this->ruleRepository->create([$data], $this->context);
 
-        $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule->getPayload());
+        $rule = $this->ruleRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
         static::assertEquals(
             new AndRule([(new CurrencyRule())->assign(['currencyIds' => [$currencyId1, $currencyId2]])]),
@@ -467,6 +464,9 @@ class RulePayloadIndexerTest extends TestCase
         }
     }
 
+    /**
+     * @return list<array<PluginLifecycleEvent>>
+     */
     public static function dataProviderForTestPostEventNullsPayload(): array
     {
         $plugin = new PluginEntity();

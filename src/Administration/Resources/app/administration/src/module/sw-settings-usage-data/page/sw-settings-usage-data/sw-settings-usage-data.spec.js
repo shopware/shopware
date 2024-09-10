@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-usage-data', {

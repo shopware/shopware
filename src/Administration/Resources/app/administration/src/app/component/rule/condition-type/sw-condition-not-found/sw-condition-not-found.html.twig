@@ -2,7 +2,7 @@
 {% block sw_condition_base_field_condition %}
 <sw-condition-type-select
     :condition="condition"
-    :disabled="disabled"
+    :disabled="disabled || undefined"
     :available-types="extendedTypes"
 />
 {% endblock %}

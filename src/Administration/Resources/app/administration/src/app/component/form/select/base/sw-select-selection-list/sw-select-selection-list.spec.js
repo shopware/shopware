@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list';

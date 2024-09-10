@@ -32,11 +32,20 @@ class MigrationCollectionLoader
      */
     final public const VERSION_SELECTION_SAFE = 'safe';
 
-    public const VALID_VERSION_SELECTION_SAFE_VALUES = [
+    final public const VALID_VERSION_SELECTION_VALUES = [
         self::VERSION_SELECTION_ALL,
         self::VERSION_SELECTION_BLUE_GREEN,
         self::VERSION_SELECTION_SAFE,
     ];
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed. Use VALID_VERSION_SELECTION_VALUES instead
+     */
+    public const VALID_VERSION_SELECTION_SAFE_VALUES = self::VALID_VERSION_SELECTION_VALUES;
+
+    private const SW_MAJOR_VERSION_WHICH_INTRODUCED_MIGRATION_NAMESPACES = 3;
+    private const BEFORE_PREVIOUS_MAJOR_VERSION_SUBTRAHEND = 2;
+    private const FIRST_MINOR_VERSION = 1;
 
     /**
      * @var array<string, MigrationSource>
@@ -71,7 +80,7 @@ class MigrationCollectionLoader
     public function collect(string $name): MigrationCollection
     {
         if (!isset($this->migrationSources[$name])) {
-            throw new UnknownMigrationSourceException($name);
+            throw MigrationException::unknownMigrationSource($name);
         }
 
         $source = $this->migrationSources[$name];
@@ -87,7 +96,10 @@ class MigrationCollectionLoader
         $safeMajorVersion = $this->getLastSafeMajorVersion($version, $mode);
 
         $namespaces = [];
-        for ($major = 3; $safeMajorVersion >= 3 && $major <= $safeMajorVersion; ++$major) {
+        for ($major = self::SW_MAJOR_VERSION_WHICH_INTRODUCED_MIGRATION_NAMESPACES;
+            $safeMajorVersion >= self::SW_MAJOR_VERSION_WHICH_INTRODUCED_MIGRATION_NAMESPACES && $major <= $safeMajorVersion;
+            ++$major
+        ) {
             $namespaces[] = $this->getSource('core.V6_' . $major);
         }
         $namespaces[] = $this->getSource('core');
@@ -102,14 +114,11 @@ class MigrationCollectionLoader
      */
     public function getLastSafeMajorVersion(string $currentVersion, string $mode = self::VERSION_SELECTION_ALL): int
     {
-        if (!\in_array($mode, self::VALID_VERSION_SELECTION_SAFE_VALUES, true)) {
-            throw new \RuntimeException(\sprintf(
-                'mode needs to be one of these values: "%s"',
-                implode('", "', self::VALID_VERSION_SELECTION_SAFE_VALUES)
-            ));
+        if (!\in_array($mode, self::VALID_VERSION_SELECTION_VALUES, true)) {
+            throw MigrationException::invalidVersionSelectionMode($mode);
         }
 
-        [$_, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
+        [, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
         $safeMajorVersion = (int) $safeMajorVersion;
 
         $simulateMajor = EnvironmentHelper::getVariable('FEATURE_ALL') === 'major';
@@ -118,12 +127,12 @@ class MigrationCollectionLoader
         }
 
         if ($mode === self::VERSION_SELECTION_SAFE) {
-            return $safeMajorVersion - 2;
+            return $safeMajorVersion - self::BEFORE_PREVIOUS_MAJOR_VERSION_SUBTRAHEND;
         }
 
         if ($mode === self::VERSION_SELECTION_BLUE_GREEN) {
             --$safeMajorVersion;
-            if ($currentMinor < 1) {
+            if ($currentMinor < self::FIRST_MINOR_VERSION) {
                 --$safeMajorVersion;
             }
 
@@ -144,7 +153,8 @@ class MigrationCollectionLoader
         $collections = [];
 
         foreach ($this->migrationSources as $source) {
-            $collections[$source->getName()] = $this->collect($source->getName());
+            $sourceName = $source->getName();
+            $collections[$sourceName] = $this->collect($sourceName);
         }
 
         return $collections;
@@ -153,7 +163,7 @@ class MigrationCollectionLoader
     private function getSource(string $name): MigrationSource
     {
         if (!isset($this->migrationSources[$name])) {
-            throw new UnknownMigrationSourceException($name);
+            throw MigrationException::unknownMigrationSource($name);
         }
 
         return $this->migrationSources[$name];

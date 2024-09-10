@@ -5,7 +5,6 @@ import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const { cloneDeep } = Shopware.Utils.object;

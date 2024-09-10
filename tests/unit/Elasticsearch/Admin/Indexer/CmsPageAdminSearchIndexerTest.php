@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(CmsPageAdminSearchIndexer::class)]

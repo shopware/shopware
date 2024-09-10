@@ -11,7 +11,7 @@ export default {
 
     compatConfig: Shopware.compatConfig,
 
-    emits: ['value-change', 'update:value'],
+    emits: ['value-change'],
 
     props: {
         // eslint-disable-next-line vue/require-prop-types
@@ -76,6 +76,9 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         listeners() {
             if (this.isCompatEnabled('INSTANCE_LISTENERS')) {
                 return this.$listeners;

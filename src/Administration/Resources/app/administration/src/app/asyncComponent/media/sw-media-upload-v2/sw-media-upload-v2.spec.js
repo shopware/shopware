@@ -1,6 +1,5 @@
 /**
  * @package content
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';

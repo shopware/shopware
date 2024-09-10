@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class TaxAdjustmentTest extends TestCase

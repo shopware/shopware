@@ -150,6 +150,7 @@ Component.register('sw-sidebar', {
             this.items.push(item);
 
             if (this.isCompatEnabled('INSTANCE_EVENT_EMITTER')) {
+                // eslint-disable-next-line vue/no-deprecated-events-api
                 this.$on('item-click', item.sidebarButtonClick);
                 item.$on('toggle-active', this.setItemActive);
                 item.$on('close-content', this.closeSidebar);

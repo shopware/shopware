@@ -25,6 +25,7 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'router-view': true,
+                'sw-skeleton': true,
             },
             provide: {
                 repositoryFactory: {

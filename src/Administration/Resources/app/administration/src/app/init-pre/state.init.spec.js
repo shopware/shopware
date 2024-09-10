@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initState from 'src/app/init-pre/state.init';
 
 describe('src/app/init-pre/state.init.ts', () => {
@@ -46,6 +49,18 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should be able to get cmsPageState backwards compatible', () => {
+        // The cmsPageState is deprecated and causes a warning, therefore ignore it
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (_, msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg === 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get instead.';
+            },
+        });
+
         Shopware.Store.register({
             id: 'cmsPageState',
             state: () => ({
@@ -58,6 +73,18 @@ describe('src/app/init-pre/state.init.ts', () => {
     });
 
     it('should be able to commit cmsPageState backwards compatible', () => {
+        // The cmsPageState is deprecated and causes a warning, therefore ignore it
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (_, msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg === 'Shopware.State.get("cmsPageState") is deprecated! Use Shopware.Store.get instead.';
+            },
+        });
+
         Shopware.Store.register({
             id: 'cmsPageState',
             state: () => ({

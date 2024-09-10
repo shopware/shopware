@@ -1,5 +1,6 @@
 /**
  * @private
+ * @package admin
  */
 export default class UserActivityService {
     updateLastUserActivity(date?: Date): void {

@@ -259,7 +259,6 @@ class CustomEntityTest extends TestCase
                 $entityValue = $entityValue->format('Y-m-d H:i:s');
             }
 
-
             static::assertSame($defaultValue, $entityValue);
         }
 

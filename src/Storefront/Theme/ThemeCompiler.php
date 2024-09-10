@@ -142,6 +142,14 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate([
+                CachedResolvedConfigLoader::buildName($themeId),
+            ]);
+
+            return;
+        }
+
         // Reset cache buster state for improving performance in getMetadata
         $this->cacheInvalidator->invalidate([
             'theme-metaData',
@@ -341,6 +349,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         if ($this->autoPrefix === true) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+
             $autoPreFixer = new Autoprefixer($cssOutput);
             /** @var string|false $cssOutput */
             $cssOutput = $autoPreFixer->compile($this->debug);

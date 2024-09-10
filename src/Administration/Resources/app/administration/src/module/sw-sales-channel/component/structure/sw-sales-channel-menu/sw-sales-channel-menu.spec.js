@@ -142,6 +142,8 @@ async function createWrapper(salesChannels = []) {
                 'sw-context-menu-item': true,
                 'sw-loader': true,
                 'sw-internal-link': true,
+                'sw-sales-channel-modal': true,
+                'router-link': true,
             },
             provide: {
                 domainLinkService: {

@@ -90,11 +90,17 @@ class MetadataLoaderTest extends TestCase
 
     private function createMediaFile(string $filePath): MediaFile
     {
+        $mimeType = mime_content_type($filePath);
+        static::assertIsString($mimeType);
+
+        $fileSize = filesize($filePath);
+        static::assertIsInt($fileSize);
+
         return new MediaFile(
             $filePath,
-            mime_content_type($filePath),
+            $mimeType,
             pathinfo($filePath, \PATHINFO_EXTENSION),
-            filesize($filePath)
+            $fileSize
         );
     }
 }

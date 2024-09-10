@@ -30,7 +30,10 @@ class ProductCategoryPathsSubscriberTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
     }
 
-    public static function provideCategoryPaths()
+    /**
+     * @return array<string, mixed>
+     */
+    public static function provideCategoryPaths(): array
     {
         return [
             '2 Layer assignment' => [
@@ -259,6 +262,12 @@ class ProductCategoryPathsSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $categoriesToWrite
+     * @param array<array<string, mixed|null>> $record
+     * @param array<array<string>> $row
+     * @param array<array<string>> $assertion
+     */
     #[DataProvider('provideCategoryPaths')]
     public function testCategoryPathToAssignment(array $categoriesToWrite, array $record, array $row, array $assertion): void
     {

@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -26,8 +27,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -89,6 +95,7 @@ class EntityReaderTest extends TestCase
         $this->deLanguageId = $this->getDeDeLanguageId();
 
         $this->registerDefinition(NonIdPrimaryKeyTestDefinition::class);
+        $this->registerDefinition(ConsistsOfManyToManyDefinition::class);
 
         $this->connection->rollBack();
 
@@ -101,6 +108,14 @@ class EntityReaderTest extends TestCase
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`test_field`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+            DROP TABLE IF EXISTS `acme_consists_of_mapping`;
+            CREATE TABLE acme_consists_of_mapping (
+                product_id         binary(16) not null,
+                product_version_id binary(16) not null,
+                product_id_to      binary(16) not null,
+                PRIMARY KEY (product_id, product_version_id, product_id_to)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
         $this->connection->beginTransaction();
@@ -112,6 +127,7 @@ class EntityReaderTest extends TestCase
         $this->connection->rollBack();
 
         $this->connection->executeStatement('DROP TABLE `non_id_primary_key_test`');
+        $this->connection->executeStatement('DROP TABLE `acme_consists_of_mapping`');
         $this->connection->beginTransaction();
 
         parent::tearDown();
@@ -2504,6 +2520,79 @@ class EntityReaderTest extends TestCase
 
             return $mediaEntity->getFileName();
         })));
+    }
+
+    public function testManyToManyJoinsIntoSameTableFiltered(): void
+    {
+        $field = (new ManyToManyAssociationField(
+            'consistsOf',
+            ProductDefinition::class,
+            ConsistsOfManyToManyDefinition::class,
+            'product_id',
+            'product_id_to'
+        ))
+            ->addFlags(new ApiAware(), new Extension());
+
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+
+        $this->getContainer()->get(ProductDefinition::class)->getFields()->add($field);
+
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50);
+
+        $product2 = (new ProductBuilder($ids, 'p2'))
+            ->name('Test Product2')
+            ->price(50, 50);
+
+        $product3 = (new ProductBuilder($ids, 'p3'))
+            ->name('Test Product3')
+            ->active(false)
+            ->price(50, 50);
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create([
+            $product->build(),
+            $product2->build(),
+            $product3->build(),
+        ], Context::createDefaultContext());
+
+        $repository = $this->getContainer()->get('acme_consists_of_mapping.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+
+        $repository
+            ->create([
+                [
+                    'productId' => $ids->get('p1'),
+                    'productIdTo' => $ids->get('p2'),
+                ],
+                [
+                    'productId' => $ids->get('p1'),
+                    'productIdTo' => $ids->get('p3'),
+                ],
+            ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->addAssociation('consistsOf');
+
+        $criteria->getAssociation('consistsOf')->addFilter(new EqualsFilter('active', true));
+
+        $result = $this->getContainer()->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        static::assertCount(1, $result->getEntities());
+
+        $product = $result->getEntities()->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $consistsOf = $product->getExtension('consistsOf');
+
+        static::assertInstanceOf(ProductCollection::class, $consistsOf);
+
+        static::assertCount(1, $consistsOf);
     }
 
     /**

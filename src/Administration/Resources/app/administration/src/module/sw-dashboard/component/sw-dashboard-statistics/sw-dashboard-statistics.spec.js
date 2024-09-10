@@ -69,7 +69,6 @@ async function createWrapper(privileges = [], repository = {}) {
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper;

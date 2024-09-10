@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';

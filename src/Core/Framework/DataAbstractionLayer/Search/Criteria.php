@@ -41,6 +41,8 @@ class Criteria extends Struct implements \Stringable
      */
     final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
+    final public const ROOT_NESTING_LEVEL = 0;
+
     /**
      * @var list<FieldSorting>
      */
@@ -124,7 +126,7 @@ class Criteria extends Struct implements \Stringable
     /**
      * @param array<string>|array<array<string, string>>|null $ids
      */
-    public function __construct(?array $ids = null)
+    public function __construct(?array $ids = null, protected int $nestingLevel = 0)
     {
         if ($ids === null) {
             return;
@@ -246,7 +248,7 @@ class Criteria extends Struct implements \Stringable
             }
 
             if (!$criteria->hasAssociation($part)) {
-                $criteria->associations[$part] = new Criteria();
+                $criteria->associations[$part] = new Criteria(nestingLevel: $this->nestingLevel + 1);
             }
 
             $criteria = $criteria->associations[$part];
@@ -616,6 +618,14 @@ class Criteria extends Struct implements \Stringable
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    /**
+     * Returns the nesting level of the criteria inside a criteria
+     */
+    public function getNestingLevel(): int
+    {
+        return $this->nestingLevel;
     }
 
     /**

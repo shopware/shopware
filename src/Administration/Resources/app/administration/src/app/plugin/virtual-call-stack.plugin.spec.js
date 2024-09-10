@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';

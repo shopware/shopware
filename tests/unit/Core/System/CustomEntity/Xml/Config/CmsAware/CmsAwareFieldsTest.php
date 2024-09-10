@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(CmsAwareFields::class)]

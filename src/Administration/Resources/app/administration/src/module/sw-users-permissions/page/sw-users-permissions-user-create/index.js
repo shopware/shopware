@@ -10,6 +10,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         ...mapPropertyErrors('user', [
             'password',

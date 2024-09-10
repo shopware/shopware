@@ -1,8 +1,6 @@
-/*
+/**
  * @package inventory
- * @group disabledCompat
  */
-
 import { mount } from '@vue/test-utils';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 

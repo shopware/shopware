@@ -37,8 +37,6 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  *
  * @deprecated tag:v6.7.0 - Remove full class
- *
- * @package content
  */
 #[CoversClass(CachedNavigationRoute::class)]
 class CachedNavigationRouteTest extends TestCase

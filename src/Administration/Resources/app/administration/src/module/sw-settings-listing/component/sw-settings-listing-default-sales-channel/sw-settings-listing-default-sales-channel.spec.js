@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @group disabledCompat
  * @package inventory
  */
 describe('src/module/sw-settings-listing/component/sw-settings-listing-default-sales-channel', () => {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -75,7 +76,7 @@ class ThemeChangeCommand extends Command
         \assert(\is_string($themeName));
 
         /** @var SalesChannelCollection $salesChannels */
-        $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();
+        $salesChannels = $this->salesChannelRepository->search((new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)), $this->context)->getEntities();
 
         if ($input->getOption('all')) {
             $selectedSalesChannel = $salesChannels;

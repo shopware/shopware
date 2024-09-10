@@ -4,7 +4,7 @@
     v-if="salesChannel && products"
     position-identifier="sw-sales-channel-detail-products"
     class="sw-sales-channel-detail-products"
-    :is-loading="isLoading"
+    :is-loading="isLoading || undefined"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_sales_channel_detail_products_filled_state %}
@@ -75,7 +75,7 @@
                     :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                     :is-record-selectable="isProductRemovable"
-                    @selection-change="onProductSelectionChange"
+                    @selection-change="onProductSelectionChanged"
                 >
                     <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">

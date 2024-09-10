@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/placeholder.mixin';
 import { shallowMount } from '@vue/test-utils';
 

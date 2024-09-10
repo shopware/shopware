@@ -4,6 +4,8 @@ appendOnly: true #only add labels never remove them automatically
 labels:
   - label: "Platform(Default)"
     body: 'Platform\(Default\)'
+  - label: "Extension:Commercial"
+    body: "Extension:Commercial"
   - label: "Extension:B2B-Suite"
     body: "Extension:B2B-Suite"
   - label: "Extension:CINEMA-Theme"

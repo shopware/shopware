@@ -183,9 +183,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": "0"}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": "0"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT DEUTSCH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
             ],
         ];
 
@@ -204,9 +204,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT DEUTSCH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "1"}',
             ],
         ];
 
@@ -224,9 +224,9 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": null, "custom_test_check": null}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": null}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "0"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_check": "0"}',
             ],
         ];
 
@@ -245,11 +245,11 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{}',
                 'test.translation.customTranslated' => '{"custom_test_inheritance": "CHILD ENGLISH"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_inheritance": "CHILD GERMAN"}',
-                'test.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "CHILD SWISS"}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_inheritance": "CHILD GERMAN"}',
+                'test.translation.override_2.customTranslated' => '{"custom_test_inheritance": "CHILD SWISS"}',
                 'test.parent.translation.customTranslated' => '{"custom_test_text": "PARENT ENGLISH", "custom_test_inheritance": "PARENT ENGLISH"}',
-                'test.parent.translation.fallback_1.customTranslated' => '{"custom_test_check": "0", "custom_test_inheritance": "PARENT GERMAN"}',
-                'test.parent.translation.fallback_2.customTranslated' => '{"custom_test_inheritance": "PARENT SWISS"}',
+                'test.parent.translation.override_1.customTranslated' => '{"custom_test_check": "0", "custom_test_inheritance": "PARENT GERMAN"}',
+                'test.parent.translation.override_2.customTranslated' => '{"custom_test_inheritance": "PARENT SWISS"}',
             ],
         ];
 
@@ -280,7 +280,7 @@ class EntityHydratorTest extends TestCase
                 'test.name' => 'example',
                 'test.customTranslated' => '{"custom_test_text": null, "custom_test_check": "1"}',
                 'test.translation.customTranslated' => '{"custom_test_text": null, "custom_test_check": "1"}',
-                'test.translation.fallback_1.customTranslated' => '{"custom_test_text": "Example", "custom_test_check": null}',
+                'test.translation.override_1.customTranslated' => '{"custom_test_text": "Example", "custom_test_check": null}',
             ],
         ];
 

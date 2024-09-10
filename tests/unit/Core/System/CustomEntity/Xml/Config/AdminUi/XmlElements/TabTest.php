@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Tab::class)]

@@ -277,6 +277,7 @@
                                                 prefix: 'billingAddress',
                                                 data: data.get('billingAddress'),
                                                 showNoShippingPostfix: true,
+                                                scopeElementSelector: '.register-billing',
                                             } %}
                                         {% endblock %}
                                     </fieldset>
@@ -341,6 +342,7 @@
                                                             data: data.get('shippingAddress'),
                                                             showNoShippingPostfix: true,
                                                             disableNonShippableCountries: true,
+                                                            scopeElementSelector: '.register-shipping',
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}

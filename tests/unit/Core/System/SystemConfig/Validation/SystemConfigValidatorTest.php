@@ -15,8 +15,6 @@ use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(SystemConfigValidator::class)]

@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import CaptchaService from './service/captcha.service';
 
 const { Module } = Shopware;

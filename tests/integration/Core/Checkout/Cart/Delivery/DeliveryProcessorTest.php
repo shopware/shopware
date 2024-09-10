@@ -76,6 +76,7 @@ class DeliveryProcessorTest extends TestCase
         $lineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
             new CalculatedTax(5, 19, 5),
         ]), new TaxRuleCollection()));
+        $lineItem->setShippingCostAware(true);
 
         $calculatedCart->setLineItems(new LineItemCollection([$lineItem]));
 

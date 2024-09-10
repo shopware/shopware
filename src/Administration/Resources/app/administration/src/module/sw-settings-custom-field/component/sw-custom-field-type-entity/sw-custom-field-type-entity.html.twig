@@ -16,7 +16,7 @@
 {% block sw_custom_field_type_entity_type %}
 <sw-single-select
     v-model:value="currentCustomField.config.entity"
-    :disabled="!currentCustomField._isNew"
+    :disabled="!currentCustomField._isNew || undefined"
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
     :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
     :options="sortedEntityTypes"

@@ -25,6 +25,9 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         $this->service = new ProductMaxPurchaseCalculator($configService);
     }
 
+    /**
+     * @param array<array<string>> $entityData
+     */
     #[DataProvider('cases')]
     public function testCalculate(array $entityData, int $expected): void
     {
@@ -34,7 +37,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         static::assertSame($expected, $this->service->calculate($entity, $this->createMock(SalesChannelContext::class)));
     }
 
-    public static function cases(): iterable
+    public static function cases(): \Generator
     {
         yield 'empty' => [
             [

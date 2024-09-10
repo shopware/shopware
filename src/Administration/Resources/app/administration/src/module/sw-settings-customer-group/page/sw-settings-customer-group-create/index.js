@@ -4,6 +4,8 @@
  * @private
  */
 export default {
+    compatConfig: Shopware.compatConfig,
+
     methods: {
         createdComponent() {
             this.isLoading = true;

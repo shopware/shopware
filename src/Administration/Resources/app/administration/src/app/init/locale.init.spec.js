@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeLocaleService from 'src/app/init/locale.init';
 
 describe('src/app/init/locale.init.ts', () => {

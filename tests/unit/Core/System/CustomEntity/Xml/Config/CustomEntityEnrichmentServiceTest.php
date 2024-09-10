@@ -14,8 +14,6 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(CustomEntityEnrichmentService::class)]

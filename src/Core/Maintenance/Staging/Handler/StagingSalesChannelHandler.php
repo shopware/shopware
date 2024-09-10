@@ -26,7 +26,7 @@ readonly class StagingSalesChannelHandler
 
     public function __invoke(SetupStagingEvent $event): void
     {
-        /** @var DomainURL[] $urls */
+        /** @var list<DomainURL> $urls */
         $urls = $this->connection->fetchAllAssociative('SELECT id, url FROM sales_channel_domain');
 
         $changes = [];

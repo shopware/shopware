@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
@@ -74,7 +73,9 @@ class ProductSearchRouteTest extends TestCase
         $connection->rollBack();
     }
 
-    #[DoesNotPerformAssertions]
+    /**
+     * @return array{0:KernelBrowser, 1:TestDataCollection}
+     */
     public function testIndexing(): array
     {
         $this->createNavigationCategory();
@@ -92,6 +93,9 @@ class ProductSearchRouteTest extends TestCase
         return [$browser, $this->ids];
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testFindingProductsByTerm(array $services): void
     {
@@ -107,7 +111,7 @@ class ProductSearchRouteTest extends TestCase
             [
             ]
         );
-
+        static::assertIsString($browser->getResponse()->getContent());
         $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
@@ -116,6 +120,9 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testNotFindingProducts(array $services): void
     {
@@ -139,6 +146,9 @@ class ProductSearchRouteTest extends TestCase
         static::assertCount(0, $response['elements']);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testMissingSearchTerm(array $services): void
     {
@@ -167,6 +177,10 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
+    /**
+     * @param array<string> $expected
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     #[DataProvider('searchOrCases')]
     public function testSearchOr(string $term, array $expected, array $services): void
@@ -180,6 +194,10 @@ class ProductSearchRouteTest extends TestCase
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
+    /**
+     * @param array<string> $expected
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     #[DataProvider('searchAndCases')]
     public function testSearchAnd(string $term, array $expected, array $services): void
@@ -193,6 +211,9 @@ class ProductSearchRouteTest extends TestCase
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(array $services): void
     {
@@ -231,6 +252,9 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(array $services): void
     {
@@ -269,6 +293,9 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(array $services): void
     {
@@ -295,6 +322,9 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     public function testFindingProductWithVariantsHaveDifferentKeyword(array $services): void
     {
@@ -333,6 +363,10 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @param array<string, bool> $searchTerms
+     * @param array{0:KernelBrowser, 1:TestDataCollection} $services
+     */
     #[Depends('testIndexing')]
     #[DataProvider('searchTestCases')]
     public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId, array $services): void
@@ -391,6 +425,9 @@ class ProductSearchRouteTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function searchTestCases(): array
     {
         return [
@@ -495,6 +532,9 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<list<string>|mixed>
+     */
     public static function searchAndCases(): array
     {
         return [
@@ -551,6 +591,9 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @return list<list<string>|mixed>
+     */
     public static function searchOrCases(): array
     {
         return [
@@ -627,6 +670,9 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $expected
+     */
     private function proceedTestSearch(KernelBrowser $browser, string $term, array $expected): void
     {
         $browser->request(
@@ -636,11 +682,11 @@ class ProductSearchRouteTest extends TestCase
             ]
         );
 
+        static::assertIsString($browser->getResponse()->getContent());
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        /** @var array $entites */
-        $entites = $response['elements'];
-        $resultProductName = array_column($entites, 'name');
+        $entities = $response['elements'];
+        $resultProductName = array_column($entities, 'name');
 
         sort($expected);
         sort($resultProductName);
@@ -806,7 +852,11 @@ class ProductSearchRouteTest extends TestCase
             new EqualsFilter('languageId', Context::createDefaultContext()->getLanguageId())
         );
 
-        return $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $firstId = $this->productSearchConfigRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        static::assertIsString($firstId);
+
+        return $firstId;
     }
 
     private function createGermanSalesChannelDomain(): void

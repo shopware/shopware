@@ -27,7 +27,6 @@ async function createWrapper(propsData = {}) {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-deactivation-modal', () => {
     it('should show the correct remove hint (is licensed)', async () => {

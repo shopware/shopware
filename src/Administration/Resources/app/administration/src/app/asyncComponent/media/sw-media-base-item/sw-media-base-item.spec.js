@@ -1,6 +1,5 @@
 /**
  * @package content
- * @group compatDisabled
  */
 import { mount } from '@vue/test-utils';
 import { MtIcon } from '@shopware-ag/meteor-component-library';
@@ -24,6 +23,7 @@ const setup = async (itemChanges = {}) => {
                 'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-color-badge': true,
                 'mt-icon': MtIcon,
+                'mt-checkbox': true,
             },
             provide: {
                 systemConfigApiService: {

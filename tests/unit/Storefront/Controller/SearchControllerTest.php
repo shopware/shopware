@@ -263,7 +263,6 @@ class SearchControllerTest extends TestCase
     {
         $exception = RoutingException::invalidRequestParameter('test');
 
-
         $context = $this->createMock(SalesChannelContext::class);
 
         $this->searchPageLoader->expects(static::once())

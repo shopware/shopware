@@ -15,6 +15,8 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: ['seoUrlTemplateService', 'repositoryFactory'],
 
     mixins: [Mixin.getByName('notification')],
@@ -162,7 +164,11 @@ export default {
                 }
             });
 
-            this.$set(this.variableStores, id, storeOptions);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.variableStores, id, storeOptions);
+            } else {
+                this.variableStores.id = storeOptions;
+            }
         },
         getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {
@@ -255,17 +261,30 @@ export default {
                     if (entity.template && entity.template !== '') {
                         this.fetchSeoUrlPreview(entity);
                     } else {
-                        this.$set(this.errorMessages, entity.id, null);
+                        this.setErrorMessagesForEntity(entity);
                     }
                 }, 400);
             } else {
-                this.$set(this.errorMessages, entity.id, null);
+                this.setErrorMessagesForEntity(entity);
             }
 
             this.debouncedPreviews[entity.id]();
         },
+        setErrorMessagesForEntity(entity, value = null) {
+            // eslint-disable-next-line no-lonely-if
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.errorMessages, entity.id, value);
+            } else {
+                this.errorMessages[entity.id] = value;
+            }
+        },
         fetchSeoUrlPreview(entity) {
-            this.$set(this.previewLoadingStates, entity.id, true);
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.previewLoadingStates, entity.id, true);
+            } else {
+                this.previewLoadingStates[entity.id] = true;
+            }
+
             const criteria = this.seoUrlPreviewCriteria[entity.routeName]
                 ? this.seoUrlPreviewCriteria[entity.routeName] : (new Criteria(1, 25));
             entity.criteria = criteria.parse();
@@ -273,16 +292,28 @@ export default {
                 this.noEntityError = this.noEntityError.filter((elem) => {
                     return elem !== entity.id;
                 });
-                this.$set(this.previews, entity.id, response);
+
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.previews, entity.id, response);
+                } else {
+                    this.previews[entity.id] = response;
+                }
+
                 if (response === null) {
                     this.noEntityError.push(entity.id);
                 } else {
-                    this.$set(this.errorMessages, entity.id, null);
+                    this.setErrorMessagesForEntity(entity);
                 }
                 this.previewLoadingStates[entity.id] = false;
             }).catch(err => {
-                this.$set(this.errorMessages, entity.id, err.response.data.errors[0].detail);
-                this.$set(this.previews, entity.id, []);
+                this.setErrorMessagesForEntity(entity, err.response.data.errors[0].detail);
+
+                if (this.isCompatEnabled('INSTANCE_SET')) {
+                    this.$set(this.previews, entity.id, []);
+                } else {
+                    this.previews[entity.id] = [];
+                }
+
                 this.previewLoadingStates[entity.id] = false;
             });
         },

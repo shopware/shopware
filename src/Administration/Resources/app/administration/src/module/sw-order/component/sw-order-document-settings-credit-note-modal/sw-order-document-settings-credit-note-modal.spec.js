@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils';
-
 /**
- * @package customer-order
+ * @package checkout
  */
+
+import { mount } from '@vue/test-utils';
 
 const orderFixture = {
     id: 'order1',
@@ -123,6 +123,12 @@ async function createWrapper() {
                 'sw-description-list': {
                     template: '<div class="sw-description-list"><slot></slot></div>',
                 },
+                'sw-media-upload-v2': true,
+                'sw-media-modal-v2': true,
+                'router-link': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             provide: {
                 numberRangeService: {

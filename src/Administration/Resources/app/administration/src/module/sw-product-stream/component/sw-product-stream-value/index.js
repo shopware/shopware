@@ -12,6 +12,8 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     inject: [
         'repositoryFactory',
         'conditionDataProviderService',
@@ -383,7 +385,12 @@ export default {
     },
 
     mounted() {
-        this.childComponents = this.$children;
+        if (this.isCompatEnabled('INSTANCE_CHILDREN')) {
+            this.childComponents = this.$children;
+            return;
+        }
+
+        this.childComponents = this.$refs;
     },
 
     methods: {

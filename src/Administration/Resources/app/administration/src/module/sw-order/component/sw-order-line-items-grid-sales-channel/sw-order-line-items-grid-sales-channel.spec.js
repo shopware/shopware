@@ -5,7 +5,6 @@ import 'src/app/component/base/sw-button';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 const mockItems = [

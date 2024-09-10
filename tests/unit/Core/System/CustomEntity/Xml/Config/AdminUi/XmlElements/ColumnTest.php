@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Column::class)]

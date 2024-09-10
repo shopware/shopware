@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import initializeShortcutService from 'src/app/init/shortcut.init';
 
 describe('src/app/init/shortcut.init.ts', () => {

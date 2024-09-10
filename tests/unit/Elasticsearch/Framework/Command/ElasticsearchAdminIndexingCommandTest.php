@@ -10,8 +10,6 @@ use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(ElasticsearchAdminIndexingCommand::class)]

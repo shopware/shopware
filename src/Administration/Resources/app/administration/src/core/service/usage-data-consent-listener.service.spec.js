@@ -1,3 +1,6 @@
+/**
+ * @package data-services
+ */
 import createLoginService from './login.service';
 import addUsageDataConsentListener from './usage-data-consent-listener.service';
 

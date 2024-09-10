@@ -54,7 +54,6 @@ async function createWrapper(privileges = []) {
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     let wrapper;

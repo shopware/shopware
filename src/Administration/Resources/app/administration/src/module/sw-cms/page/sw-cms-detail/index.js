@@ -294,6 +294,10 @@ export default {
             this.cmsPageTypeService.getType(this.page.type);
         },
 
+        layoutVersionContext() {
+            return Shopware.Context.api;
+        },
+
         ...mapPropertyErrors('page', [
             'name',
             'sections',
@@ -943,8 +947,12 @@ export default {
                 cloneChildren: true,
             };
 
-            const { id: clonedBlockID } = await this.blockRepository.clone(block.id, behavior, Shopware.Context.api);
-            const clonedBlock = await this.blockRepository.get(clonedBlockID);
+            const { id: clonedBlockID } = await this.blockRepository.clone(
+                block.id,
+                behavior,
+                this.layoutVersionContext,
+            );
+            const clonedBlock = await this.blockRepository.get(clonedBlockID, this.layoutVersionContext);
 
             const section = this.page.sections[sectionPosition];
 
@@ -962,9 +970,12 @@ export default {
                 cloneChildren: true,
             };
 
-            const { id: clonedSectionID } = await this.sectionRepository.clone(section.id, behavior, Shopware.Context.api);
-            const clonedSection = await this.sectionRepository.get(clonedSectionID);
-
+            const { id: clonedSectionID } = await this.sectionRepository.clone(
+                section.id,
+                behavior,
+                this.layoutVersionContext,
+            );
+            const clonedSection = await this.sectionRepository.get(clonedSectionID, this.layoutVersionContext);
 
             this.page.sections.splice(clonedSection.position, 0, clonedSection);
             this.updateSectionAndBlockPositions(section);

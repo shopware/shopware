@@ -47,7 +47,7 @@ class AnnotationTagTest extends TestCase
         'Test/AnnotationTagTester.php',
         'Test/AnnotationTagTesterTest.php',
         // uses @experimental annotation check
-        'Core/ApiRoutesHaveASchemaTest.php',
+        'Core/Framework/ApiRoutesHaveASchemaTest.php',
     ];
 
     private string $rootDir;

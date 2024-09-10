@@ -309,7 +309,7 @@ class TranslatorTest extends TestCase
         $translator = $this->getContainer()->get(Translator::class);
         $themeService = $this->getContainer()->get(ThemeService::class);
         $themeRepo = $this->getContainer()->get('theme.repository');
-        $themeLoader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
+        $loader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
@@ -331,8 +331,8 @@ class TranslatorTest extends TestCase
         );
 
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
-
         $translator->reset();
+        $loader->reset();
 
         // Assign the SwagTheme and assert that the snippet is overwritten
         $criteria = new Criteria();
@@ -353,6 +353,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
 
         $translator->reset();
+        $loader->reset();
 
         // In reset, we ignore all theme snippets and use the default ones
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
@@ -366,6 +367,7 @@ class TranslatorTest extends TestCase
         $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
 
         $translator->reset();
+        $loader->reset();
 
         $translator->injectSettings(
             $salesChannelContext->getSalesChannelId(),

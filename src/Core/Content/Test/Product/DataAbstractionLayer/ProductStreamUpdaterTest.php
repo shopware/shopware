@@ -7,9 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,6 +31,9 @@ class ProductStreamUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private EntityRepository $productStreamRepository;
@@ -73,10 +78,16 @@ class ProductStreamUpdaterTest extends TestCase
 
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('streams');
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
 
-        static::assertEquals(1, $product->getStreams()->count());
-        static::assertEquals($streamId, $product->getStreams()->first()->getId());
+        $streams = $product->getStreams();
+        static::assertNotNull($streams);
+        static::assertEquals(1, $streams->count());
+        $firstStream = $streams->first();
+        static::assertInstanceOf(ProductStreamEntity::class, $firstStream);
+        static::assertEquals($streamId, $firstStream->getId());
+        static::assertIsArray($product->getStreamIds());
         static::assertContains($streamId, $product->getStreamIds());
     }
 

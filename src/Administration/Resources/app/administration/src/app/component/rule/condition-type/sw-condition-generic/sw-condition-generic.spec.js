@@ -1,3 +1,6 @@
+/**
+ * @package services-settings
+ */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
@@ -86,6 +89,12 @@ async function createWrapper(condition = {}) {
                     'sw-tagged-field': {
                         template: '<div class="sw-tagged-field"></div>',
                     },
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                    'sw-product-variant-info': true,
+                    'sw-inheritance-switch': true,
+                    'sw-button': true,
+                    'sw-field-copyable': true,
                 },
                 provide: {
                     conditionDataProviderService: new ConditionDataProviderService(),

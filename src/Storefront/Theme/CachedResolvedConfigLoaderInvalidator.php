@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -41,8 +43,14 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     {
         $tags = [CachedResolvedConfigLoader::buildName($event->getThemeId())];
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate($tags);
+
+            return;
+        }
+
         if (!$this->fineGrainedCache) {
-            $this->cacheInvalidator->invalidate(['shopware.theme']);
+            $this->cacheInvalidator->invalidate($tags);
 
             return;
         }
@@ -58,12 +66,23 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 
     public function assigned(ThemeAssignedEvent $event): void
     {
-        $this->cacheInvalidator->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
-        $this->cacheInvalidator->invalidate([CachedDomainLoader::CACHE_KEY]);
-
         $salesChannelId = $event->getSalesChannelId();
 
-        $this->cacheInvalidator->invalidate(['translation.catalog.' . $salesChannelId]);
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate([
+                CachedResolvedConfigLoader::buildName($event->getThemeId()),
+                CachedDomainLoader::CACHE_KEY,
+                Translator::tag($salesChannelId),
+            ]);
+
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([
+            CachedResolvedConfigLoader::buildName($event->getThemeId()),
+            CachedDomainLoader::CACHE_KEY,
+            'translation.catalog.' . $salesChannelId,
+        ]);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

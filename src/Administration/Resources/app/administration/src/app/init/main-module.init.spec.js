@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import { ui } from '@shopware-ag/meteor-admin-sdk';
 import initMainModules from 'src/app/init/main-module.init';
 

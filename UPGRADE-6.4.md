@@ -607,7 +607,7 @@ We specified the following rules for overwrites of translation values in write-p
 1. Translations indexed by `iso-code` take precedence over values indexed by `language-id`
 2. Translations specified on the `translations`-association take precedence over values specified directly on the translated field.
 
-For a more information on those rules refer to the [according ADR](../../adr/2022-03-29-specify-priority-of-translations-in-dal-write-payloads.md).
+For a more information on those rules refer to the [according ADR](/adr/2022-03-29-specify-priority-of-translations-in-dal-write-payloads.md).
 
 Let's take a look on some example payloads, to see what those rules mean.
 **Note:** For all examples we assume that `en-GB` is the system language.

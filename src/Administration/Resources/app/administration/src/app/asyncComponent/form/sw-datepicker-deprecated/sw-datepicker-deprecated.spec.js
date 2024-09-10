@@ -1,6 +1,5 @@
 /**
  * @package admin
- * @group disabledCompat
  */
 
 import { mount } from '@vue/test-utils';
@@ -262,5 +261,20 @@ describe('src/app/component/form/sw-datepicker', () => {
         wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
 
         expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-21T23:00:00.000Z']);
+    });
+
+
+    it('should emit a date when is typed', async () => {
+        wrapper = await createWrapper({});
+        await flushPromises();
+
+        const input = wrapper.find('.form-control.input');
+
+        await input.trigger('focus');
+        input.element.value = '2023-03-27';
+        await input.trigger('input');
+        await input.trigger('blur');
+
+        expect(wrapper.emitted('update:value')).toHaveLength(1);
     });
 });

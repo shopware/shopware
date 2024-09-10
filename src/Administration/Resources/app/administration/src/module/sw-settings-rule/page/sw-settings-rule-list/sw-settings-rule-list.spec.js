@@ -5,7 +5,6 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 async function createWrapper(privileges = []) {

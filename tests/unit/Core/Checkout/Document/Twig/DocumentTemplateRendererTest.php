@@ -15,8 +15,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(DocumentTemplateRenderer::class)]

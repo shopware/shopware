@@ -41,6 +41,7 @@ class ImportExportFileApiTest extends TestCase
         foreach ($data as $entry) {
             $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
+            static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
@@ -65,6 +66,7 @@ class ImportExportFileApiTest extends TestCase
             unset($entry[$property]);
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
+            static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $response->getContent());
         }
     }
@@ -83,7 +85,7 @@ class ImportExportFileApiTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-
+            static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             $expectData = [];
@@ -130,7 +132,7 @@ class ImportExportFileApiTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
+        static::assertIsString($response->getContent());
         $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($num, $content['total']);
@@ -176,6 +178,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
+            static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             $importExportFile = $content['data'];
@@ -212,6 +215,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
+            static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame($expect['originalName'], $content['data']['originalName']);
             static::assertSame($expect['path'], $content['data']['path']);
@@ -247,6 +251,7 @@ class ImportExportFileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertEquals(0, $content['total']);
 
@@ -256,6 +261,7 @@ class ImportExportFileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertEquals(1, $content['total']);
         }
@@ -299,6 +305,8 @@ class ImportExportFileApiTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {
@@ -319,6 +327,11 @@ class ImportExportFileApiTest extends TestCase
         return $data;
     }
 
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<mixed>
+     */
     protected function rotateTestdata(array $data): array
     {
         $data[] = array_shift($data);

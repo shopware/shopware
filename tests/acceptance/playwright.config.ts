@@ -45,13 +45,13 @@ export default defineConfig({
 
     reporter: 'html',
 
-    timeout: 60000,
+    timeout: 60_000,
 
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-        trace: 'on',
+        trace: 'on-first-retry',
         video: 'off',
     },
 
@@ -75,6 +75,9 @@ export default defineConfig({
             name: 'Platform',
             use: {
                 ...devices['Desktop Chrome'],
+                launchOptions: {
+                    args: ['--remote-debugging-port=9222'],
+                },
             },
             dependencies: ['Setup'],
             grepInvert: /@Install|@Update|@Setup.*/,

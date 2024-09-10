@@ -6,16 +6,12 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 // eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
-import Vue from 'vue';
 
 const changesetGenerator = new ChangesetGenerator();
 const entityFactory = new EntityFactory();
 
 describe('src/core/data/changeset-generator.data.js', () => {
     beforeAll(() => {
-        Shopware.Application.view = {
-            setReactive: Vue.set,
-        };
         Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
             Shopware.EntityDefinition.add(entityName, entityDefinition);
         });
@@ -328,12 +324,12 @@ describe('src/core/data/changeset-generator.data.js', () => {
             const testEntity = entityFactory.create(entityName);
 
             Object.entries(originChanges).forEach(([key, value]) => {
-                Vue.set(testEntity.getDraft(), key, value);
-                Vue.set(testEntity.getOrigin(), key, value);
+                testEntity.getDraft()[key] = value;
+                testEntity.getOrigin()[key] = value;
             });
 
             Object.entries(entityChanges).forEach(([key, value]) => {
-                Vue.set(testEntity, key, value);
+                testEntity[key] = value;
             });
 
             const { changes } = changesetGenerator.generate(testEntity);

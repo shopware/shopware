@@ -10,9 +10,12 @@ use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDef
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -26,6 +29,9 @@ class CmsEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @return list<array<string>>
+     */
     public static function provideEntityClasses(): array
     {
         return [
@@ -40,8 +46,8 @@ class CmsEntityTest extends TestCase
     #[DataProvider('provideEntityClasses')]
     public function testCmsEntityIsVersionable(string $entityDefinitionClass): void
     {
-        /** @var EntityDefinition $definition */
         $definition = $this->getContainer()->get($entityDefinitionClass);
+        static::assertInstanceOf(EntityDefinition::class, $definition);
 
         static::assertTrue($definition->getFields()->has('versionId'));
         static::assertTrue($definition->isVersionAware());
@@ -52,6 +58,8 @@ class CmsEntityTest extends TestCase
     public function testCmsRepositoryLoadsData(string $entityDefinitionClass): void
     {
         $definition = $this->getContainer()->get($entityDefinitionClass);
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get($definition->getEntityName() . '.repository');
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
@@ -66,22 +74,25 @@ class CmsEntityTest extends TestCase
 
     public function testCreatingAPageVersion(): void
     {
+        /** @var EntityRepository<CmsPageCollection> $repository */
         $repository = $this->getContainer()->get('cms_page.repository');
         $context = Context::createDefaultContext();
         $fixture = $this->getCmsPageFixture();
-        $initialCount = $repository->search(new Criteria(), $context)->count();
+        $initialCount = $repository->search(new Criteria(), $context)->getEntities()->count();
 
         $result = $repository->create($fixture, $context);
-        static::assertSame($initialCount + 1, $repository->search(new Criteria(), $context)->count());
+        $newCount = $repository->search(new Criteria(), $context)->getEntities()->count();
+        static::assertSame($initialCount + 1, $newCount);
 
         static::assertEmpty($result->getErrors());
 
         $versionId = $repository->createVersion($fixture[0]['id'], $context, 'DRAFT');
         static::assertIsString($versionId);
-        static::assertSame($initialCount + 1, $repository->search(new Criteria(), $context)->count());
+        $newCount = $repository->search(new Criteria(), $context)->getEntities()->count();
+        static::assertSame($initialCount + 1, $newCount);
     }
 
-    public static function assertContainsInstanceOf(string $className, iterable $collection): void
+    public static function assertContainsInstanceOf(string $className, CompiledFieldCollection $collection): void
     {
         foreach ($collection as $item) {
             if ($item instanceof $className) {
@@ -92,6 +103,9 @@ class CmsEntityTest extends TestCase
         static::fail(\sprintf('Could not find %s in collection', $className));
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getCmsPageFixture(): array
     {
         return [[

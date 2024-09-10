@@ -8,8 +8,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(Listing::class)]

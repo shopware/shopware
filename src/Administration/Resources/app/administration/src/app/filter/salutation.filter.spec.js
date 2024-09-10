@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 describe('src/app/filter/salutation.filter.ts', () => {
     const salutationFilter = Shopware.Filter.getByName('salutation');
 

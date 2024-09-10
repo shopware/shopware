@@ -555,6 +555,11 @@ PHP_EOL;
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
+        if (Feature::isActive('v6.7.0.0')) {
+            static::expectException(Feature\FeatureException::class);
+            static::expectExceptionMessage('Tried to access deprecated functionality: Autoprefixer is deprecated and will be removed without replacement, including the config storefront.theme.auto_prefix_css.');
+        }
+
         try {
             $actual = $compileStyles->invoke(
                 $this->themeCompilerAutoPrefix,

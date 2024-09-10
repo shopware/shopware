@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';
 import * as cms from '@shopware-ag/meteor-admin-sdk/es/ui/cms';

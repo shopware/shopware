@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -5,10 +8,10 @@ import Criteria from 'src/core/data/criteria.data';
 async function createWrapper(isSelectable, tooltip) {
     // mock entity functions
     const items = [
-        { name: 'Apple' },
         { name: 'Shopware' },
-        { name: 'Google' },
-        { name: 'Microsoft' },
+        { name: 'Github' },
+        { name: 'PHP' },
+        { name: 'VueJS' },
     ];
     items.total = 4;
     items.criteria = {
@@ -29,7 +32,7 @@ async function createWrapper(isSelectable, tooltip) {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-            ]),
+            ], 2),
             repository: {
                 search: () => {},
             },
@@ -53,18 +56,31 @@ async function createWrapper(isSelectable, tooltip) {
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-bulk-edit-modal': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'router-link': true,
+                'sw-data-grid-skeleton': true,
+                'sw-context-menu': true,
+                'sw-popover': true,
+                'sw-button-group': true,
+                'sw-loader': true,
+                'sw-select-field': true,
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
             },
             directives: {
                 tooltip: {
-                    bind(el, binding) {
+                    beforeMount(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    inserted(el, binding) {
+                    mounted(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },
-                    update(el, binding) {
+                    updated(el, binding) {
                         el.setAttribute('data-tooltip-message', binding.value.message);
                         el.setAttribute('data-tooltip-disabled', binding.value.disabled);
                     },

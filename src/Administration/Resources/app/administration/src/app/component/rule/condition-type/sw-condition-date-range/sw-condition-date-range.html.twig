@@ -8,7 +8,7 @@
         name="sw-field--useTime"
         size="medium"
         :options="selectValues"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :placeholder="$tc('global.sw-condition.condition.withTime')"
         show-clearable-button
     />
@@ -22,7 +22,7 @@
         size="medium"
         required
         :date-type="isDateTime"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
@@ -35,7 +35,7 @@
         size="medium"
         required
         :date-type="isDateTime"
-        :disabled="disabled"
+        :disabled="disabled || undefined"
         :placeholder="$tc('sw-datepicker.date.placeholder')"
     />
     {% endblock %}

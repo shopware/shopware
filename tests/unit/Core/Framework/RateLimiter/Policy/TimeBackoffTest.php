@@ -26,7 +26,6 @@ class TimeBackoffTest extends TestCase
             ],
         ]);
 
-
         $stringLimits = ReflectionHelper::getProperty(TimeBackoff::class, 'stringLimits');
         $stringLimits->setValue($backoff, 'invalid');
 

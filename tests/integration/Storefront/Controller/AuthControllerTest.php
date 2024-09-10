@@ -60,8 +60,6 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * @package checkout
- *
  * @internal
  */
 class AuthControllerTest extends TestCase

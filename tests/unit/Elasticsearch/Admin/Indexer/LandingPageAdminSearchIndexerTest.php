@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(LandingPageAdminSearchIndexer::class)]

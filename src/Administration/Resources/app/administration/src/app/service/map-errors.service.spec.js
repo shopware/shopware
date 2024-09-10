@@ -1,8 +1,6 @@
 /**
  * @package admin
  */
-
-// import * as mapErrors from 'src/app/service/map-errors.service';
 import * as mapErrors from 'src/app/service/map-errors.service';
 import ShopwareError from 'src/core/data/ShopwareError';
 

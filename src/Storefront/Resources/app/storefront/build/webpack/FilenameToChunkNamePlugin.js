@@ -1,17 +1,13 @@
 const path = require('path');
 
 class FilenameToChunkNamePlugin {
-    constructor({isDevMode}) {
-        this.isDevMode = isDevMode ?? false;
-    }
-
     allChunkNames = {};
     apply(compiler) {
         compiler.hooks.compilation.tap('FilenameToChunkNamePlugin', (compilation) => {
             compilation.hooks.chunkIds.tap('FilenameToChunkNamePlugin', (chunks) => {
                 chunks.forEach((chunk) => {
                     // do not change the name in development mode (it is using the original chunkIds: 'named')
-                    if (!chunk.name && !this.isDevMode) {
+                    if (!chunk.name) {
                         const chunkModule = compilation.chunkGraph.getChunkRootModules(chunk)[0];
                         const rootModule = (chunkModule && chunkModule.rootModule) || chunkModule;
                         const rootPath = rootModule && rootModule.userRequest;

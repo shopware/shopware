@@ -89,8 +89,7 @@
         "meyfa/php-svg": "^0.14.0",
         "monolog/monolog": "^3.3.1",
         "nyholm/psr7": "^1.5",
-        "opensearch-project/opensearch-php": "^2.0",
-        "ezimuel/ringphp": "^1.2.2",
+        "opensearch-project/opensearch-php": "^2.3.1",
         "padaliyajay/php-autoprefixer": "^1.4",
         "psr/cache": "^3.0.0",
         "psr/event-dispatcher": "^1.0.0",
@@ -124,6 +123,7 @@
         "symfony/http-client": "~7.1.1",
         "symfony/http-foundation": "~7.1.1",
         "symfony/http-kernel": "~7.1.1",
+        "symfony/intl": "~7.1.1",
         "symfony/lock": "~7.1.1",
         "symfony/mailer": "~7.1.1",
         "symfony/messenger": "~7.1.1",
@@ -145,6 +145,7 @@
         "symfony/security-csrf": "~7.1.1",
         "symfony/serializer": "~7.1.1",
         "symfony/service-contracts": "~3.5.0",
+        "symfony/string": "~7.1.1",
         "symfony/stopwatch": "~7.1.1",
         "symfony/translation": "~7.1.1",
         "symfony/translation-contracts": "~3.5.0",
@@ -156,7 +157,7 @@
         "tecnickcom/tcpdf": "^6.6.1",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.10.3",
+        "twig/twig": "^3.13.0",
         "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {
@@ -193,7 +194,8 @@
         "symfony/phpunit-bridge": "~7.1.1",
         "symfony/var-dumper": "~7.1.1",
         "symplify/phpstan-rules": "13.0.0",
-        "tomasvotruba/type-coverage": "0.3.1"
+        "tomasvotruba/type-coverage": "0.3.1",
+        "friendsofphp/php-cs-fixer": "3.63.2"
     },
     "suggest": {
         "shopware/dev-tools": "For development tools, profiler, faker, etc",
@@ -228,7 +230,6 @@
         "e2e:cypress": " ",
         "e2e:cypress-repeat": " ",
         "e2e:open": "Launches the Cypress E2E test-suite UI",
-        "e2e:percy": " ",
         "e2e:prepare": "Installs the Admin Extension SDK test plugin with fixtures and dumps the database",
         "e2e:sdk-plugin:fixture-to-plugin": " ",
         "e2e:sdk-plugin:plugin-to-fixture": " ",
@@ -238,8 +239,8 @@
         "e2e:web-update:open": " ",
         "e2e:web-update:prepare": " ",
         "e2e:web-update:start": " ",
-        "ecs": "Checks all files regarding the Easy Coding Standard",
-        "ecs-fix": "Checks all files regarding the Easy Coding Standard and fixes them if possible",
+        "ecs": "Checks all files regarding the PHP-CS-Fixer",
+        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
         "eslint": "Codestyle checks all (Administration/Storefront/E2E) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
@@ -364,9 +365,6 @@
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
         ],
-        "e2e:percy": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
-        ],
         "e2e:prepare": [
             "@putenv APP_ENV=e2e",
             "@putenv CYPRESS_localUsage=1",
@@ -430,8 +428,8 @@
             "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
             "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d"
         ],
-        "ecs": "ecs check src tests",
-        "ecs-fix": "ecs check --fix src tests",
+        "ecs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": "php-cs-fixer fix",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront",

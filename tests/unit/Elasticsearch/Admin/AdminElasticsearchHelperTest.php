@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 
 /**
- * @package services-settings
- *
  * @internal
  */
 #[CoversClass(AdminElasticsearchHelper::class)]

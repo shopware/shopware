@@ -7,6 +7,8 @@ import template from './sw-price-rule-modal.html.twig';
 export default {
     template,
 
+    compatConfig: Shopware.compatConfig,
+
     computed: {
         modalTitle() {
             return this.$tc('sw-settings-shipping.shippingPriceModal.modalTitle');

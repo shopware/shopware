@@ -23,6 +23,11 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -777,6 +782,133 @@ class ProductCartProcessorTest extends TestCase
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
+    }
+
+    public function testProducePriceChangeAfterContextRuleChange(): void
+    {
+        $countryIds = $this->getCountryIds();
+
+        static::assertIsString($countryIds[0]);
+
+        $customerId = $this->createCustomer($countryIds[0]);
+
+        $this->createProduct([
+            'prices' => [
+                [
+                    'quantityStart' => 1,
+                    'rule' => [
+                        'id' => $this->ids->create('rule'),
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            [
+                                'type' => 'customerShippingCountry',
+                                'value' => [
+                                    'operator' => '=',
+                                    'countryIds' => [$countryIds[1]],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'price' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'gross' => 50,
+                            'net' => 9, 'linked' => false,
+                            'listPrice' => ['gross' => 60, 'net' => 60, 'linked' => false],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+        $token = $this->ids->create('token');
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
+
+        static::assertNotNull($context->getCustomer());
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
+
+        $cart = $this->cartService->getCart($token, $context);
+        $this->cartService->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+
+        static::assertSame(15.0, $actualProduct?->getPrice()?->getTotalPrice());
+
+        $this->getContainer()->get('customer_address.repository')->update([
+            [
+                'id' => $context->getCustomer()->getDefaultBillingAddressId(),
+                'countryId' => $countryIds[1],
+            ],
+        ], Context::createDefaultContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
+
+        $cart = $this->cartService->getCart($token, $context, false);
+
+        $actualProduct = $cart->get($product->getId());
+
+        static::assertSame(50.0, $actualProduct?->getPrice()?->getTotalPrice());
+    }
+
+    /**
+     * @return list<string>|list<array<string, string>>
+     */
+    private function getCountryIds(): array
+    {
+        /** @var EntityRepository $repository */
+        $repository = $this->getContainer()->get('country.repository');
+
+        $criteria = (new Criteria())->setLimit(2)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shippingAvailable', true))
+            ->addSorting(new FieldSorting('iso'));
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+    }
+
+    private function createCustomer(string $countryId): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $countryId,
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        if (!Feature::isActive('v6.7.0.0')) {
+            $customer['defaultPaymentMethodId'] = $this->getValidPaymentMethodId();
+        }
+
+        $this->getContainer()->get('customer.repository')->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 
     private function getProductCart(): Cart

@@ -94,6 +94,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[DataProvider('provideTracingTranslationExamples')]
     public function testInvalidateTranslation(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects(static::once())
             ->method('invalidate')
@@ -137,6 +138,8 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[DataProvider('provideTracingConfigExamples')]
     public function testInvalidateConfig(bool $enabled, array $tags): void
     {
+        Feature::skipTestIfActive('cache_rework', $this);
+
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects(static::once())
             ->method('invalidate')
@@ -233,9 +236,6 @@ class CacheInvalidationSubscriberTest extends TestCase
                     false
                 );
         }
-
-
-
 
         $subscriber->invalidateMedia($event);
     }

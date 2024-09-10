@@ -19,6 +19,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-loader': true,
                     'sw-icon': true,
+                    'router-link': true,
                 },
                 provide: {
                     shortcutService: {

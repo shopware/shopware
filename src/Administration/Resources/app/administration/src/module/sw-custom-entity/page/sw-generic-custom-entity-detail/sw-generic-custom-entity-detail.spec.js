@@ -5,7 +5,6 @@ import 'src/app/component/base/sw-button-process';
 
 /**
  * @package content
- * @group disabledCompat
  */
 
 Shopware.Component.register('sw-generic-custom-entity-detail', swGenericCustomEntityDetail);

@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/notification.mixin';
 import { mount } from '@vue/test-utils';
 

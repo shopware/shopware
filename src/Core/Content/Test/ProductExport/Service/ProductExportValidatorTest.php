@@ -5,19 +5,22 @@ namespace Shopware\Core\Content\Test\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
+use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
@@ -27,30 +30,19 @@ class ProductExportValidatorTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductExportCollection>
      */
-    private $repository;
+    private EntityRepository $productExportRepository;
 
     private Context $context;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var ProductExporterInterface
-     */
-    private $service;
+    private ProductExportGeneratorInterface $service;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->productExportRepository = $this->getContainer()->get('product_export.repository');
         $this->service = $this->getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
     public function testValidXmlExport(): void
@@ -61,10 +53,10 @@ class ProductExportValidatorTest extends TestCase
         $criteria->addAssociation('salesChannelDomain.language');
         $criteria->addAssociation('salesChannel');
 
-        /** @var ProductExportEntity $productExport */
-        $productExport = $this->repository->search($criteria, $this->context)->first();
-
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
 
         static::assertFalse($exportResult->hasErrors());
     }
@@ -77,28 +69,36 @@ class ProductExportValidatorTest extends TestCase
         $criteria->addAssociation('salesChannelDomain.language');
         $criteria->addAssociation('salesChannel');
 
-        $productExport = $this->repository->search($criteria, $this->context)->first();
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
         $productExport->setFooterTemplate('');
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
-
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertTrue($exportResult->hasErrors());
     }
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $first);
+
+        return $first->getId();
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $first);
+
+        return $first;
     }
 
     private function getSalesChannelDomainId(): string
@@ -111,7 +111,7 @@ class ProductExportValidatorTest extends TestCase
         $this->createProductStream();
 
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport.xml',
@@ -161,6 +161,9 @@ class ProductExportValidatorTest extends TestCase
     ");
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

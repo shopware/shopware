@@ -32,7 +32,6 @@ async function createWrapper(props) {
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     it('should display the values', async () => {

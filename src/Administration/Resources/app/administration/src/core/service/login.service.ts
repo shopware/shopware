@@ -254,7 +254,7 @@ export default function createLoginService(
             bearerAuth = authObject;
         }
 
-        if (isLoggedIn()) {
+        if (getToken()) {
             notifyOnTokenChangedListener(authObject);
         }
 
@@ -278,7 +278,6 @@ export default function createLoginService(
 
         if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
             logout(true);
-
             return;
         }
 
@@ -290,6 +289,12 @@ export default function createLoginService(
 
         autoRefreshTokenTimeoutId = setTimeout(() => {
             autoRefreshTokenTimeoutId = undefined;
+
+            if (shouldConsiderUserActivity() && lastActivityOverThreshold()) {
+                logout(true);
+                return;
+            }
+
             void refreshToken();
         }, timeUntilExpiry / 2);
     }

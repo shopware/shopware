@@ -18,8 +18,6 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 
 /**
- * @package content
- *
  * @internal
  */
 #[CoversClass(CustomEntityLifecycleService::class)]

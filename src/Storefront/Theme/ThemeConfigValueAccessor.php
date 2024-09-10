@@ -2,8 +2,11 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('storefront')]
 class ThemeConfigValueAccessor
@@ -19,6 +22,8 @@ class ThemeConfigValueAccessor
     private array $keys = ['all' => true];
 
     /**
+     * @deprecated tag:v6.7.0 - Will be removed, cache tags are collected via events
+     *
      * @var array<string, array<string, bool>>
      */
     private array $traces = [];
@@ -28,12 +33,21 @@ class ThemeConfigValueAccessor
      */
     public function __construct(
         private readonly AbstractResolvedConfigLoader $themeConfigLoader,
-        private readonly bool $fineGrainedCache
+        private readonly bool $fineGrainedCache,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed, use \Shopware\Storefront\Theme\CachedResolvedConfigLoader::buildName
+     */
     public static function buildName(string $key): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return 'theme.' . $key;
     }
 
@@ -42,13 +56,16 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        if ($this->fineGrainedCache) {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace][self::buildName($key)] = true;
-            }
-        } else {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace]['shopware.theme'] = true;
+        // @deprecated tag:v6.7.0 - remove full IF condition, tagging is done in `getThemeConfig`
+        if (!Feature::isActive('cache_rework')) {
+            if ($this->fineGrainedCache) {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace][self::buildName($key)] = true;
+                }
+            } else {
+                foreach (array_keys($this->keys) as $trace) {
+                    $this->traces[$trace]['shopware.theme'] = true;
+                }
             }
         }
 
@@ -62,6 +79,8 @@ class ThemeConfigValueAccessor
     }
 
     /**
+     * @deprecated tag:v6.7.0 - reason:decoration-will-be-removed - Will be removed, cache tags are collected via events
+     *
      * @template TReturn of mixed
      *
      * @param \Closure(): TReturn $param
@@ -116,6 +135,10 @@ class ThemeConfigValueAccessor
         if (!$themeId) {
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
         }
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(
+            CachedResolvedConfigLoader::buildName($themeId)
+        ));
 
         $themeConfig = array_merge(
             $themeConfig,

@@ -22,7 +22,7 @@ describe('sw-app-wrong-app-url-modal', () => {
                         <slot name="modal-body">
                              <slot></slot>
                         </slot>
-                        <slot name="modal-footer>
+                        <slot name="modal-footer">
                         </slot>
                     </div>
                 `,
@@ -33,6 +33,8 @@ describe('sw-app-wrong-app-url-modal', () => {
             'icons-small-default-x-line-medium': {
                 template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
             },
+            'router-link': true,
+            'sw-loader': true,
         };
 
         return mount(await wrapTestComponent('sw-app-wrong-app-url-modal', { sync: true }), {

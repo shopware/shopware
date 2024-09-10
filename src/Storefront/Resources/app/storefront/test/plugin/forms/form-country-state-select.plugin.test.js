@@ -50,7 +50,7 @@ describe('Form country state select plugin', () => {
 
     it('should not set vatIds field to required directly when there is no initial country', () => {
         template = `
-            <form id="registerForm" action="/register" method="post">
+            <form id="registerForm" class="register-shipping" action="/register" method="post">
 
                 <div class="form-group col-md-6">
                     <label class="form-label" for="vatIds">VAT Reg.No.</label>
@@ -70,7 +70,9 @@ describe('Form country state select plugin', () => {
 
         document.body.innerHTML = template;
 
-        createPlugin();
+        createPlugin({
+            scopeElementSelector: '.register-shipping',
+        });
 
         // Ensure vatIds is not required and label includes no required symbol "*"
         expect(document.querySelector('#vatIds').hasAttribute('required')).toBe(false);
@@ -115,7 +117,7 @@ describe('Form country state select plugin', () => {
 
     it('should set zipcode field to required when a country with required one setting is selected', () => {
         template = `
-            <form id="registerForm" action="/register" method="post">
+            <form id="registerForm" class="register-shipping" action="/register" method="post">
                <label class="form-label" for="addressZipcode">
                    Postal code<span id="zipcodeLabel" class="d-none">*</span>
                </label>
@@ -135,7 +137,9 @@ describe('Form country state select plugin', () => {
 
         document.body.innerHTML = template;
 
-        createPlugin();
+        createPlugin({
+            scopeElementSelector: '.register-shipping',
+        });
 
         expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(false);
         expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(true);
@@ -149,7 +153,7 @@ describe('Form country state select plugin', () => {
 
     it('should remove space around at country state label name when the state required', () => {
         template = `
-            <form id="registerForm" action="/register" method="post">
+            <form id="registerForm" action="/register" method="post" data-country-state-select="true">
                 <div class="register-shipping">
                     <div class="row g-2">
                         <div class="form-group">

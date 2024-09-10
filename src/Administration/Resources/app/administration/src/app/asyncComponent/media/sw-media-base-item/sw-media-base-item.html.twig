@@ -11,26 +11,17 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_selected_indicator %}
-    <div
+    <mt-checkbox
         v-if="!isList && allowEdit"
+        v-model:checked="listSelected"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
-        role="button"
-        tabindex="0"
-        @click="onClickedItem"
-        @keydown.enter="onClickedItem"
-    >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_media_base_item_selection_indicator_icon %}
-        <sw-icon
-            v-if="listSelected"
-            small
-            size="10px"
-            name="regular-checkmark-xxs"
-        />
-        {% endblock %}
-    </div>
+        @update:checked="onClickedItem"
+    />
+    {# @deprecated tag:v6.7.0 - Remove the block #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_base_item_selection_indicator_icon %}
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -48,7 +39,8 @@
         {% block sw_media_base_spatial_label_indicator %}
         <div
             v-if="isSpatial"
-            class="sw-media-base-item__labels">
+            class="sw-media-base-item__labels"
+        >
             <sw-label
                 variant="neutral-reversed"
                 appearance="pill"
@@ -125,26 +117,17 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_base_item_list_selected_indicator %}
-    <div
+    <mt-checkbox
         v-if="isList && showSelectionIndicator && allowMultiSelect"
+        v-model:checked="listSelected"
         class="sw-media-base-item__selected-indicator"
         :class="selectionIndicatorClasses"
-        role="button"
-        tabindex="0"
-        @click="onClickedItem"
-        @keydown.enter="onClickedItem"
-    >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_media_base_item_list_selection_indicator_icon %}
-        <sw-icon
-            v-if="listSelected"
-            small
-            name="regular-checkmark-xxs"
-            size="10px"
-        />
-        {% endblock %}
-    </div>
+        @update:checked="onClickedItem"
+    />
+    {# @deprecated tag:v6.7.0 - Remove the block #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_base_item_list_selection_indicator_icon %}
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

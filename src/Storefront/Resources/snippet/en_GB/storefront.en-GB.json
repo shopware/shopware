@@ -76,7 +76,12 @@
     "indexLinkService": "Service/help",
     "searchNoResult": "No results found.",
     "wishlist": "Wishlist",
-    "navigationAriaLabel": "Main navigation"
+    "navigationAriaLabel": "Main navigation",
+    "topBarAriaLabel": "Shop settings",
+    "languageTrigger": "Change language (%lang% is the current language)",
+    "languageList": "Available languages",
+    "currencyTrigger": "Change currency (%currency% is the current currency)",
+    "currencyList": "Available currencies"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "Input should not be empty.",

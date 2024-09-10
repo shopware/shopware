@@ -18,11 +18,7 @@ export default {
         },
 
         currentDeviceViewClass() {
-            if (this.currentDeviceView) {
-                return `is--${this.currentDeviceView}`;
-            }
-
-            return null;
+            return `is--${this.currentDeviceView}`;
         },
     },
 };

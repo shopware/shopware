@@ -4,9 +4,8 @@ import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 
-/*
+/**
  * @package inventory
- * @group disabledCompat
  */
 
 const { Utils } = Shopware;

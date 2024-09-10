@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -23,15 +28,15 @@ class ProductExportRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<ProductExportCollection>
      */
-    private $repository;
+    private EntityRepository $productExportRepository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->productExportRepository = $this->getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
 
         $this->createProductStream();
@@ -40,7 +45,7 @@ class ProductExportRepositoryTest extends TestCase
     public function testCreateEntity(): void
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport',
@@ -58,7 +63,8 @@ class ProductExportRepositoryTest extends TestCase
             ],
         ], $this->context);
 
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productExportRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
         static::assertSame('Testexport', $entity->getFileName());
         static::assertSame($id, $entity->getId());
     }
@@ -66,7 +72,7 @@ class ProductExportRepositoryTest extends TestCase
     public function testUpdateEntity(): void
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport',
@@ -83,14 +89,15 @@ class ProductExportRepositoryTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
             ],
         ], $this->context);
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Newexport',
             ],
         ], $this->context);
 
-        $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
+        $entity = $this->productExportRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
         static::assertSame('Newexport', $entity->getFileName());
         static::assertSame($id, $entity->getId());
     }
@@ -98,7 +105,7 @@ class ProductExportRepositoryTest extends TestCase
     public function testCreateDuplicateEntity(): void
     {
         $firstId = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $firstId,
                 'fileName' => 'Testexport',
@@ -120,7 +127,7 @@ class ProductExportRepositoryTest extends TestCase
         static::expectExceptionMessage('File name "Testexport" already exists.');
 
         $secondId = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $secondId,
                 'fileName' => 'Testexport',
@@ -142,7 +149,8 @@ class ProductExportRepositoryTest extends TestCase
     public function testFetchProductStream(): void
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $productStreamId = '137b079935714281ba80b40f83f8d7eb';
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport',
@@ -151,7 +159,7 @@ class ProductExportRepositoryTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'bodyTemplate' => 'test',
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'productStreamId' => $productStreamId,
                 'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
@@ -162,15 +170,16 @@ class ProductExportRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('productStream');
-        $entity = $this->repository->search($criteria, $this->context)->get($id);
-
-        static::assertNotNull($entity->getProductStream());
+        $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        $productStream = $entity->getProductStream();
+        static::assertSame($productStreamId, $productStream->getId());
     }
 
     public function testFetchSalesChannel(): void
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport',
@@ -190,15 +199,16 @@ class ProductExportRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('salesChannel');
-        $entity = $this->repository->search($criteria, $this->context)->get($id);
-
-        static::assertNotNull($entity->getSalesChannel());
+        $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        $salesChannel = $entity->getSalesChannel();
+        static::assertSame($this->getSalesChannelId(), $salesChannel->getId());
     }
 
     public function testFetchSalesChannelDomain(): void
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => 'Testexport',
@@ -218,25 +228,33 @@ class ProductExportRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('salesChannelDomain');
-        $entity = $this->repository->search($criteria, $this->context)->get($id);
-
-        static::assertNotNull($entity->getSalesChannelDomain());
+        $entity = $this->productExportRepository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        $salesChannelDomain = $entity->getSalesChannelDomain();
+        static::assertSame($this->getSalesChannelDomainId(), $salesChannelDomain->getId());
     }
 
-    protected function getSalesChannelId(): string
+    private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $first);
+
+        return $first->getId();
     }
 
-    protected function getSalesChannelDomainId(): string
+    private function getSalesChannelDomainId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $first = $repository->search(new Criteria(), $this->context)->getEntities()->first();
+
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $first);
+
+        return $first->getId();
     }
 
     private function createProductStream(): void
@@ -266,6 +284,9 @@ class ProductExportRepositoryTest extends TestCase
     ");
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

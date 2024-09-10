@@ -9,8 +9,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 
 /**
- * @package checkout
- *
  * @internal
  */
 #[CoversClass(TaxAdjustmentCalculator::class)]

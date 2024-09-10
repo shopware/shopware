@@ -36,6 +36,26 @@ class StorefrontExceptionTest extends TestCase
         static::assertEquals('test.html.twig', $res->getFile());
     }
 
+    public function testRenderViewExceptionUsesCustomAppErrorCodeForExternalIssues(): void
+    {
+        $parameters = [
+            'param' => 'Param',
+            'context' => Context::createDefaultContext(),
+        ];
+
+        $view = 'test.html.twig';
+        $path = 'platform/custom/apps/ElleChildTheme/Resources/views/storefront/layout/footer/footer.html.twig';
+
+        $twigError = new TwigError('Error message', 5, new Source('<div>ExampleCode</div>', $view, $path));
+        $exception = StorefrontException::renderViewException($view, $twigError, $parameters);
+
+        static::assertSame(500, $exception->getStatusCode());
+        static::assertSame('STOREFRONT__CAN_NOT_RENDER_CUSTOM_APP_VIEW', $exception->getErrorCode());
+        static::assertSame('Can not render test.html.twig view: Error message with these parameters: {"param":"Param"}', $exception->getMessage());
+        static::assertSame(5, $exception->getLine());
+        static::assertSame($path, $exception->getFile());
+    }
+
     #[DisabledFeatures(['v6.7.0.0'])]
     public function testCannotRenderView(): void
     {

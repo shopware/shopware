@@ -25,7 +25,7 @@ class SeoUrlTwigFactoryTest extends TestCase
     public function testLoadAdditionalExtension(): void
     {
         // extension loaded via custom tag in src/Core/Framework/DependencyInjection/seo_test.xml
-        static::assertIsObject($this->environment->getExtension(LastLetterBigTwigFilter::class));
+        static::assertInstanceOf(LastLetterBigTwigFilter::class, $this->environment->getExtension(LastLetterBigTwigFilter::class));
 
         $template = '{% autoescape \''
             . SeoUrlGenerator::ESCAPE_SLUGIFY

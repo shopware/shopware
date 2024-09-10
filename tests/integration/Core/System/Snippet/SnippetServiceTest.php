@@ -23,8 +23,6 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
  * @internal
- *
- * @package services-settings
  */
 class SnippetServiceTest extends TestCase
 {

@@ -25,7 +25,6 @@ return [
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
-        'Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\UnknownMigrationSourceExceptionBase', // Can not be inspected through reflection if() {class Foo {} }
         'Unable to compile initializer in method', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Could not locate constant .* while trying to evaluate constant expression', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Value.+of.+constant', // Changing const values in not a BC per se
@@ -79,5 +78,7 @@ return [
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$lineItem changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem',
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$cart changed from having no type to Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart',
         'Type of property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\BeforeLineItemQuantityChangedEvent#\\$salesChannelContext changed from having no type to Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext',
+
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator#invalidateExpired\(\) changed from void'
     ],
 ];

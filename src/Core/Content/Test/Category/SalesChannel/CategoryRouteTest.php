@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\Test\Category\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -25,16 +23,12 @@ class CategoryRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private AbstractCategoryRoute $route;
-
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
     protected function setUp(): void
     {
-        $this->route = $this->getContainer()->get(CategoryRoute::class);
-
         $this->ids = new TestDataCollection();
 
         $this->createData();
@@ -72,6 +66,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
@@ -153,6 +148,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertError(string $categoryId): void
     {
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = new CategoryNotFoundException($categoryId);
         $expectedError = [
@@ -166,6 +162,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertCmsPage(string $categoryId, string $cmsPageId): void
     {
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($categoryId, $response['id']);

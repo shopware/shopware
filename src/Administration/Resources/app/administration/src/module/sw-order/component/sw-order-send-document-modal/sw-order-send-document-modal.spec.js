@@ -4,7 +4,6 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @package checkout
- * @group disabledCompat
  */
 
 const mockOrderWithMailHeaderFooter = {

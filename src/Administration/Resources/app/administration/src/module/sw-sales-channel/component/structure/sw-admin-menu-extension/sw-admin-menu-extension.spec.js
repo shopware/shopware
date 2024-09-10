@@ -27,6 +27,7 @@ async function createWrapper() {
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,
                 'sw-sales-channel-menu': true,
+                'sw-admin-menu-item': true,
             },
             provide: {
                 loginService: {

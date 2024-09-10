@@ -84,12 +84,12 @@ class DatabaseConfigurationController extends InstallerController
                 $this->jwtDir . '/private.pem',
                 $this->jwtDir . '/public.pem'
             );
-        } catch (DatabaseSetupException $e) {
+        } catch (DatabaseSetupException) {
             return $this->renderInstaller('@Installer/installer/database-configuration.html.twig', [
                 'connectionInfo' => $connectionInfo,
                 'error' => $this->translator->trans('shopware.installer.database-configuration_invalid_requirements'),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->renderInstaller('@Installer/installer/database-configuration.html.twig', [
                 'connectionInfo' => $connectionInfo,
                 'error' => $e->getMessage(),
@@ -106,7 +106,7 @@ class DatabaseConfigurationController extends InstallerController
 
         try {
             $connection = $this->connectionFactory->getConnection($connectionInfo, true);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return new JsonResponse([
                 'error' => match (true) {
                     $e instanceof DatabaseSetupException => $this->translator->trans('shopware.installer.database-configuration_invalid_requirements'),

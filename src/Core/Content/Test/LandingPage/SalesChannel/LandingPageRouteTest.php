@@ -75,7 +75,7 @@ class LandingPageRouteTest extends TestCase
             'POST',
             '/store-api/landing-page/' . $this->ids->get('landing-page')
         );
-
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($this->ids->get('landing-page'), $response['id']);
@@ -117,7 +117,7 @@ class LandingPageRouteTest extends TestCase
                 ],
             ]
         );
-
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
@@ -142,6 +142,7 @@ class LandingPageRouteTest extends TestCase
 
     private function assertError(string $landingPageId): void
     {
+        static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = LandingPageException::notFound($landingPageId);
         $expectedError = [
@@ -153,6 +154,9 @@ class LandingPageRouteTest extends TestCase
         static::assertSame($expectedError['message'], $response['errors'][0]['detail']);
     }
 
+    /**
+     * @param array<string, mixed> $override
+     */
     private function createData(array $override = []): void
     {
         $data = [

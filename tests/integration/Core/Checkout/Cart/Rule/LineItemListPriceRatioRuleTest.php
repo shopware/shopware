@@ -443,7 +443,6 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => true,
         ];
 
-
         // OPERATOR_NEQ
         yield 'no match / operator not equals / same ratios' => [
             'operator' => Rule::OPERATOR_NEQ,

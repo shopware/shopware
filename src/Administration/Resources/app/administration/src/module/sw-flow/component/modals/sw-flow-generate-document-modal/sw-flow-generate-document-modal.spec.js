@@ -4,7 +4,6 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const documentTypeMock = [

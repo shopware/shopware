@@ -12,7 +12,6 @@ const TEST_OG_IMAGE = {
 
 /**
  * @package content
- * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-generic-social-media-card', { sync: true }), {

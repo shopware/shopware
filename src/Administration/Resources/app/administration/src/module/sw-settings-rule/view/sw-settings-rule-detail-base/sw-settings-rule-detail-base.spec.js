@@ -4,7 +4,6 @@ import RuleConditionService from 'src/app/service/rule-condition.service';
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 
 const swConditionTree = {

@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
+use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -54,6 +56,26 @@ class CartException extends HttpException
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const CART_HASH_MISMATCH = 'CHECKOUT__CART_HASH_MISMATCH';
     public const CART_WRONG_DATA_TYPE = 'CHECKOUT__CART_WRONG_DATA_TYPE';
+    public const SHIPPING_METHOD_NOT_FOUND = 'CHECKOUT__SHIPPING_METHOD_NOT_FOUND';
+    public const CHECKOUT_CURRENCY_NOT_FOUND = 'CHECKOUT__CURRENCY_NOT_FOUND';
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self|ShippingException
+    {
+        if (Feature::isActive('v6.7.0.0')) {
+            return new self(
+                Response::HTTP_BAD_REQUEST,
+                self::SHIPPING_METHOD_NOT_FOUND,
+                self::$couldNotFindMessage,
+                ['entity' => 'shipping method', 'field' => 'id', 'value' => $id],
+                $e
+            );
+        }
+
+        return ShippingException::shippingMethodNotFound($id, $e);
+    }
 
     public static function deserializeFailed(): self
     {
@@ -440,6 +462,15 @@ class CartException extends HttpException
             self::CART_WRONG_DATA_TYPE,
             'Cart data {{ fieldKey }} does not match expected type "{{ expectedType }}"',
             ['fieldKey' => $fieldKey, 'expectedType' => $expectedType]
+        );
+    }
+
+    public static function currencyCannotBeFound(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CHECKOUT_CURRENCY_NOT_FOUND,
+            'Currency cannot be found.'
         );
     }
 }

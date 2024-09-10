@@ -1,6 +1,5 @@
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {

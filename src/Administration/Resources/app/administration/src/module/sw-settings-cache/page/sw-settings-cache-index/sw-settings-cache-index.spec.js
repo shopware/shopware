@@ -1,6 +1,5 @@
 /**
  * @package services-settings
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
 
@@ -12,7 +11,7 @@ const cacheInfo = {
     },
 };
 
-async function createWrapper(indexMock = jest.fn(() => Promise.resolve())) {
+async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delayMock = jest.fn(() => Promise.resolve())) {
     return mount(await wrapTestComponent('sw-settings-cache-index', { sync: true }), {
         global: {
             provide: {
@@ -20,6 +19,7 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve())) {
                 indexerSelection: [],
                 cacheApiService: {
                     info: () => Promise.resolve(cacheInfo),
+                    delayed: delayMock,
                     index: indexMock,
                 },
             },
@@ -87,6 +87,20 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesOnlySelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesOnlySelectPlaceholder');
+    });
+
+    it('should send clear data cache request', async () => {
+        const mock = jest.fn(() => Promise.resolve());
+
+        const wrapper = await createWrapper(
+            jest.fn(() => Promise.resolve()),
+            mock,
+        );
+        await flushPromises();
+
+        wrapper.vm.clearDataCache();
+
+        expect(mock).toHaveBeenCalledTimes(1);
     });
 
     it('should send different values for skip and only on reindex', async () => {

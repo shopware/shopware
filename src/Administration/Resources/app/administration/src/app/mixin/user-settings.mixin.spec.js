@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 import 'src/app/mixin/user-settings.mixin';
 import { mount } from '@vue/test-utils';
 

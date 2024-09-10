@@ -56,6 +56,22 @@ async function createWrapper(profiles = null) {
                     `,
                 },
                 'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
+                'sw-context-button': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-loader': true,
+                'router-link': true,
+                'sw-bulk-edit-modal': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-data-grid-settings': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-data-grid-skeleton': true,
+                'sw-pagination': true,
             },
             provide: {
                 importExport: new ImportExportService(),
@@ -119,7 +135,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         const editProfileModal = wrapper.find('.sw-import-export-edit-profile-modal');
 
         expect(editProfileModal.exists()).toBe(true);
-        expect(editProfileModal.attributes('show')).toBeUndefined();
+        const showEditProfileModal = editProfileModal.attributes('show');
+        expect(showEditProfileModal === 'false' || showEditProfileModal === undefined).toBe(true);
 
         const createProfileButton = wrapper.find('.sw-data-grid__row--0 .sw-import-export-view-profiles__listing-open-action');
         await createProfileButton.trigger('click');

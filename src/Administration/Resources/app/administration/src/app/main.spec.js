@@ -1,3 +1,6 @@
+/**
+ * @package admin
+ */
 describe('src/app/main.ts', () => {
     let VueAdapter;
 

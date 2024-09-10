@@ -1,8 +1,8 @@
 /**
  * @package buyers-experience
- * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
+import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const expectedVisiblePageTypes = {
     page: {
@@ -70,38 +70,62 @@ async function createWrapper() {
             },
         },
         props: {
-            page: {},
+            page: {
+                type: 'landingpage',
+                sections: [{
+                    id: 'section-1',
+                    type: 'default',
+                    blocks: [{
+                        id: 'block-1',
+                        slots: [{
+                            id: 'slot-1',
+                            type: 'text',
+                            config: {
+                                content: {
+                                    source: 'static',
+                                    value: 'Lorem ipsum dolor sit amet',
+                                },
+                            },
+                        }],
+                    }],
+                }],
+            },
         },
     });
 }
 
-let wrapper;
-
 describe('module/sw-cms/component/sw-cms-create-wizard', () => {
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-
-        Shopware.Store.unregister('cmsPageState');
-        Shopware.Store.register({
-            id: 'cmsPageState',
-            actions: {
-                setCurrentPageType: () => {},
-            },
-        });
+    beforeAll(async () => {
+        await setupCmsEnvironment();
     });
 
     it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display the correct page types in selection step', async () => {
+        const wrapper = await createWrapper();
         const typeSelection = wrapper.findAll('.sw-cms-create-wizard__page-type');
 
         expect(typeSelection).toHaveLength(5);
     });
 
-    it('should show the correct pageType selection for type "page"', async () => {
-        const typePage = wrapper.find('.sw-cms-create-wizard__page-type-page');
+    it('should display the correct step name', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.getStepName(1)).toBe('pageType');
+        expect(wrapper.vm.getStepName(2)).toBe('sectionType');
+        expect(wrapper.vm.getStepName(3)).toBe('pageName');
+        expect(wrapper.vm.getStepName(100)).toBe('');
+    });
+
+    const pageTypeDataProvider = [
+        ['page', false],
+        ['custom-entity-detail', true],
+    ];
+    it.each(pageTypeDataProvider)('should show the correct pageType selection for type "%s"', async (pageType, expectedHasCustomEntitySelection) => {
+        const wrapper = await createWrapper();
+        const typePage = wrapper.find(`.sw-cms-create-wizard__page-type-${pageType}`);
         await typePage.trigger('click');
         await flushPromises();
 
@@ -112,10 +136,51 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
         expect(nameField.exists()).toBe(true);
 
         const customEntitySelection = wrapper.find('.sw-cms-create-wizard__page-completion-custom-entity');
-        expect(customEntitySelection.exists()).toBe(false);
+        expect(customEntitySelection.exists()).toBe(expectedHasCustomEntitySelection);
+    });
+
+    it('should generate the correct pagePreviewMedia tag', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.pagePreviewMedia)
+            .toBe('url(administration/static/img/cms/preview_landingpage_default.png)');
+    });
+
+    it('should not generate any pagePreviewMedia, when no sections are set', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            page: {
+                type: 'landingpage',
+                sections: [],
+            },
+        });
+
+        expect(wrapper.vm.pagePreviewMedia).toBe('');
+    });
+
+    it('should emit a wizard-complete event on page creation completion', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            page: {
+                type: 'landingpage',
+                name: 'nice name',
+                sections: [],
+            },
+        });
+
+        wrapper.vm.onCompletePageCreation();
+
+        expect(wrapper.emitted('wizard-complete')).toBeTruthy();
+    });
+
+    it('should not emit anything on page creation completion, when no name has been set', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.onCompletePageCreation();
+
+        expect(wrapper.emitted('wizard-complete')).toBeFalsy();
     });
 
     it('should show the correct pageType selection for type "custom_entity_detail"', async () => {
+        const wrapper = await createWrapper();
         const typePage = wrapper.find('.sw-cms-create-wizard__page-type-custom-entity-detail');
         await typePage.trigger('click');
         await flushPromises();

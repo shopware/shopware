@@ -254,6 +254,39 @@ async function lintFiles(filePaths, fix) {
                     'vue/jsx-uses-vars': 'off',
                 },
             },
+            {
+                extends: [
+                    'plugin:vue/vue3-recommended',
+                    '@shopware-ag/eslint-config-base',
+                ],
+                files: ['**/*.js'],
+                excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
+                rules: {
+                    'vue/no-deprecated-destroyed-lifecycle': 'error',
+                    'vue/no-deprecated-events-api': 'error',
+                    'vue/require-slots-as-functions': 'error',
+                    'vue/no-deprecated-props-default-this': 'error',
+                    'sw-deprecation-rules/no-compat-conditions': ['error'],
+                    'sw-deprecation-rules/no-empty-listeners': ['error'],
+                },
+            },
+            {
+                files: ['**/*.ts', '**/*.tsx'],
+                extends: [
+                    'plugin:vue/vue3-recommended',
+                    '@shopware-ag/eslint-config-base',
+                ],
+                parser: '@typescript-eslint/parser',
+                parserOptions: {
+                    tsconfigRootDir: __dirname,
+                    project: ['./tsconfig.json'],
+                },
+                plugins: ['@typescript-eslint'],
+                rules: {
+                    'sw-deprecation-rules/no-compat-conditions': ['error'],
+                    'sw-deprecation-rules/no-empty-listeners': ['error'],
+                },
+            },
         ],
     };
 

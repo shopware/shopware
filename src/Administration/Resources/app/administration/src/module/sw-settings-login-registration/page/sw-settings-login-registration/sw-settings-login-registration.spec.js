@@ -9,7 +9,6 @@ const classes = {
 
 /**
  * @package services-settings
- * @group disabledCompat
  */
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-login-registration', {

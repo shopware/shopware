@@ -4,7 +4,6 @@ import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
  * @package customer-order
- * @group disabledCompat
  */
 
 const contextState = {

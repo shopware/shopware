@@ -37,7 +37,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
+        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');
     });
 
@@ -76,7 +76,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
+        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');
 
         cy.get('.sw-theme-manager-detail__saleschannels-select')
@@ -102,7 +102,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
             .contains('.sw-select-result', 'Channel No 9')
             .click();
 
-        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
+        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
 
         cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Channel No 9')
             .should('not.have.class', 'is--disabled');
@@ -113,7 +113,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Channel No 9')
             .click();
 
-        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
+        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 1);
     });
 
     it('@content: can remove saved sales-channel from non-default theme', { tags: ['pa-sales-channels'] }, () => {
@@ -301,7 +301,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
             .contains('.sw-theme-list-item__title', 'Shopware default theme')
             .click();
 
-        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
+        cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');
     });
 });

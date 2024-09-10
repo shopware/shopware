@@ -43,6 +43,7 @@ jobs:
           name: context
           path: |
             .
+            .github/
             !var/cache
             !tests/
             !public

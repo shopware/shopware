@@ -21,33 +21,39 @@
     <router-link
         v-if="type === 'customer'"
         ref="routerLink"
-        class="sw-search-bar-item__link"
+        v-slot="{ href, navigate }"
         :to="{ name: 'sw.customer.detail.base', params: { id: item.id } }"
-        @click.native="onClickSearchResult('customer', item.id)"
+        custom
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_customer_label %}
-        <span
-            class="sw-search-bar-item__label"
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('customer', item.id) && navigate($event)"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_customer_label_name %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="`${item.firstName} ${item.lastName}`"
-            />
-            {% endblock %}
+            {% block sw_search_bar_item_customer_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_customer_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="`${item.firstName} ${item.lastName}`"
+                />
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_customer_label_number %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.customerNumber"
-            />
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_customer_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.customerNumber"
+                />
+                {% endblock %}
+            </span>
             {% endblock %}
-        </span>
-        {% endblock %}
-
+        </a>
     </router-link>
     {% endblock %}
 
@@ -56,34 +62,39 @@
     <router-link
         v-else-if="type === 'product'"
         ref="routerLink"
-        class="sw-search-bar-item__link"
+        v-slot="{ href, navigate }"
         :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
-        @click.native="onClickSearchResult('product', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_product_label %}
-        <span
-            class="sw-search-bar-item__label"
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('product', item.id) && navigate($event)"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_product_label_name %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="productDisplayName"
-            />
-            {% endblock %}
+            {% block sw_search_bar_item_product_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_product_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="productDisplayName"
+                />
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_product_label_number %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.productNumber"
-            />
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_product_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.productNumber"
+                />
+                {% endblock %}
+            </span>
             {% endblock %}
-        </span>
-        {% endblock %}
-
+        </a>
     </router-link>
     {% endblock %}
 
@@ -92,21 +103,27 @@
     <router-link
         v-else-if="type === 'category'"
         ref="routerLink"
+        v-slot="{ href, navigate }"
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.category.detail', params: { id: item.id } }"
-        @click.native="onClickSearchResult('category', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_category_label %}
-        <span class="sw-search-bar-item__label">
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.name"
-            />
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('category', item.id) && navigate($event)"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_search_bar_item_category_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
     </router-link>
     {% endblock %}
 
@@ -115,34 +132,40 @@
     <router-link
         v-else-if="type === 'order'"
         ref="routerLink"
+        v-slot="{ href, navigate }"
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.order.detail', params: { id: item.id } }"
-        @click.native="onClickSearchResult('order', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_order_label %}
-        <span
-            class="sw-search-bar-item__label"
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('order', item.id) && navigate($event)"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_order_label_name %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
-            />
-            {% endblock %}
+            {% block sw_search_bar_item_order_label %}
+            <span
+                class="sw-search-bar-item__label"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_order_label_name %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                />
+                {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_item_order_label_number %}
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.orderNumber"
-            />
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_search_bar_item_order_label_number %}
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.orderNumber"
+                />
+                {% endblock %}
+            </span>
             {% endblock %}
-        </span>
-        {% endblock %}
-
+        </a>
     </router-link>
     {% endblock %}
 
@@ -151,21 +174,27 @@
     <router-link
         v-else-if="type === 'media'"
         ref="routerLink"
+        v-slot="{ href, navigate }"
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.media.index', params: { folderId: item.mediaFolderId }, query: { term: item.fileName } }"
-        @click.native="onClickSearchResult('media', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_media_label %}
-        <span class="sw-search-bar-item__label">
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="mediaNameFilter(item)"
-            />
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('media', item.id) && navigate($event)"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_search_bar_item_media_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="mediaNameFilter(item)"
+                />
+            </span>
+            {% endblock %}
+        </a>
     </router-link>
     {% endblock %}
 
@@ -174,21 +203,27 @@
     <router-link
         v-else-if="type === 'cms_page'"
         ref="routerLink"
+        v-slot="{ href, navigate }"
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.cms.detail', params: { id: item.id } }"
-        @click.native="onClickSearchResult('cms_page', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_cms_page_label %}
-        <span class="sw-search-bar-item__label">
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.name"
-            />
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('cms_page', item.id) && navigate($event)"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_search_bar_item_cms_page_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
     </router-link>
     {% endblock %}
 
@@ -197,21 +232,27 @@
     <router-link
         v-else-if="type === 'landing_page'"
         ref="routerLink"
+        v-slot="{ href, navigate }"
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.category.landingPageDetail.base', params: { id: item.id } }"
-        @click.native="onClickSearchResult('landing_page', item.id)"
+        custom
     >
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_search_bar_item_cms_landing_page_label %}
-        <span class="sw-search-bar-item__label">
-            <sw-highlight-text
-                :search-term="searchTerm"
-                :text="item.name"
-            />
-        </span>
-        {% endblock %}
-
+        <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
+        <a
+            :href="href"
+            class="sw-search-bar-item__link"
+            @click="onClickSearchResult('landing_page', item.id) && navigate($event)"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_search_bar_item_cms_landing_page_label %}
+            <span class="sw-search-bar-item__label">
+                <sw-highlight-text
+                    :search-term="searchTerm"
+                    :text="item.name"
+                />
+            </span>
+            {% endblock %}
+        </a>
     </router-link>
     {% endblock %}
 

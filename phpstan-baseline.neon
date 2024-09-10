@@ -2598,41 +2598,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generateCollection\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generateEntity\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generateProperty\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:getClassTypeHint\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:getUsage\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
-			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php
-
-		-
 			message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
 			count: 4
 			path: src/Core/Framework/DataAbstractionLayer/EntityProtection/EntityProtectionValidator.php

@@ -79,24 +79,29 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
     it('should use demo products', async () => {
         const wrapper = await createWrapper();
-
         Shopware.Store.get('cmsPageState').setCurrentDemoProducts(currentDemoProducts);
 
         await wrapper.vm.$nextTick();
+        const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
 
+        expect(productBoxes).toHaveLength(currentDemoProducts.length);
+        productBoxes.forEach((productBox, index) => {
+            const product = currentDemoProducts[index];
+
+            expect(productBox.props('element')).toMatchObject({ ...defaultConfig, data: { product } });
+        });
+    });
+
+    it('should use fallback to empty products', async () => {
+        const wrapper = await createWrapper();
+        Shopware.Store.get('cmsPageState').setCurrentDemoProducts([]);
+
+        await wrapper.vm.$nextTick();
         const productBoxes = wrapper.findAllComponents({ name: 'sw-cms-el-product-box' });
 
         expect(productBoxes).toHaveLength(8);
-
-        productBoxes.forEach((productBox, index) => {
-            const expectedDefaultConfig = { ...defaultConfig };
-
-            const product = currentDemoProducts[index];
-            if (product) {
-                expectedDefaultConfig.data = { product };
-            }
-
-            expect(productBox.props('element')).toMatchObject(expectedDefaultConfig);
+        productBoxes.forEach((productBox) => {
+            expect(productBox.props('element')).toMatchObject({ ...defaultConfig, data: null });
         });
     });
 });

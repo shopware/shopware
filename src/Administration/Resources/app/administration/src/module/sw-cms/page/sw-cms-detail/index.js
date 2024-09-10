@@ -469,7 +469,7 @@ export default {
                 this.currentMappingEntity = mappingEntity;
                 this.currentMappingEntityRepo = this.repositoryFactory.create(mappingEntity);
 
-                this.loadFirstDemoEntity();
+                this.onDemoEntityChange();
             }
         },
 
@@ -525,6 +525,7 @@ export default {
 
         async loadDemoCategory(entityId) {
             const criteria = new Criteria(1, 1);
+            criteria.addAssociation('media');
 
             if (entityId) {
                 criteria.setIds([entityId]);
@@ -537,37 +538,17 @@ export default {
             this.cmsPageState.setCurrentDemoEntity(category);
 
             this.loadDemoCategoryProducts(category);
-
-            if (category.mediaId) {
-                this.loadDemoCategoryMedia(category);
-            }
         },
 
         async loadDemoCategoryProducts(entity) {
             const productCriteria = Criteria.fromCriteria(this.demoProductCriteria);
-
             productCriteria.setLimit(8);
+            productCriteria.addFilter(Criteria.equals('categoriesRo.id', entity.id));
+            productCriteria.addFilter(Criteria.equals('parentId', null));
 
-            const products = await this.repositoryFactory.create(
-                entity.products.entity,
-                entity.products.source,
-            ).search(productCriteria);
+            const products = await this.productRepository.search(productCriteria);
 
             this.cmsPageState.setCurrentDemoProducts(products);
-        },
-
-        async loadDemoCategoryMedia(entity) {
-            entity.media = await this.repositoryFactory.create('media').get(entity.mediaId);
-
-            this.cmsPageState.setCurrentDemoEntity(entity);
-        },
-
-        loadFirstDemoEntity() {
-            const demoMappingType = this.cmsPageTypeSettings?.entity;
-
-            if (demoMappingType === 'category') {
-                this.loadDemoCategory();
-            }
         },
 
         onDemoEntityChange(demoEntityId) {
@@ -589,16 +570,7 @@ export default {
             }
         },
 
-        addFirstSection(type, index) {
-            this.onAddSection(type, index);
-        },
-
-        addAdditionalSection(type, index) {
-            this.onAddSection(type, index);
-            this.onSave();
-        },
-
-        onAddSection(type, index) {
+        onAddSection(type, index, persist = false) {
             if (!type || index === 'undefined') {
                 return;
             }
@@ -617,6 +589,10 @@ export default {
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();
+
+            if (persist) {
+                this.onSave();
+            }
         },
 
         onCloseBlockConfig() {

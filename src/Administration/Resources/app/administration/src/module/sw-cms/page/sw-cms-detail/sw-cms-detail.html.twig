@@ -267,7 +267,7 @@
                                 :key="0"
                                 :disabled="!acl.can('cms.editor') || undefined"
                                 :force-choose="true"
-                                @stage-section-add="addAdditionalSection($event, 0)"
+                                @stage-section-add="onAddSection($event, 0, true)"
                             />
                         </div>
                         {% endblock %}
@@ -288,7 +288,7 @@
                         <sw-cms-stage-add-section
                             :key="0"
                             :disabled="!acl.can('cms.editor') || undefined"
-                            @stage-section-add="addAdditionalSection($event, 0)"
+                            @stage-section-add="onAddSection($event, 0, true)"
                         />
                         {% endblock %}
 
@@ -321,7 +321,7 @@
                         <sw-cms-stage-add-section
                             :key="page.sections.length + 1"
                             :disabled="!acl.can('cms.editor') || undefined"
-                            @stage-section-add="addAdditionalSection($event, page.sections.length)"
+                            @stage-section-add="onAddSection($event, page.sections.length, true)"
                         />
                         {% endblock %}
                     </div>

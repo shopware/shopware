@@ -356,7 +356,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.loadFirstDemoEntity();
+        wrapper.vm.onDemoEntityChange();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -400,7 +400,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.loadFirstDemoEntity();
+        wrapper.vm.onDemoEntityChange();
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

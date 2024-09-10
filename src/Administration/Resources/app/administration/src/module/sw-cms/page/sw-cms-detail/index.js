@@ -551,22 +551,6 @@ export default {
             this.cmsPageState.setCurrentDemoProducts(products);
         },
 
-        /**
-         * @deprecated tag:v6.7.0 - Media will be loaded using the association directly
-         */
-        async loadDemoCategoryMedia(entity) {
-            entity.media = await this.repositoryFactory.create('media').get(entity.mediaId);
-
-            this.cmsPageState.setCurrentDemoEntity(entity);
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Use onDemoEntityChange without an argument
-         */
-        loadFirstDemoEntity() {
-            this.onDemoEntityChange();
-        },
-
         onDemoEntityChange(demoEntityId) {
             const demoMappingType = this.cmsPageTypeSettings?.entity;
             const store = this.cmsPageState;
@@ -584,20 +568,6 @@ export default {
             if (demoMappingType === 'category') {
                 this.loadDemoCategory(demoEntityId);
             }
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Use onAddSection instead
-         */
-        addFirstSection(type, index) {
-            this.onAddSection(type, index);
-        },
-
-        /**
-         * @deprecated tag:v6.7.0 - Use onAddSection instead
-         */
-        addAdditionalSection(type, index) {
-            this.onAddSection(type, index, true);
         },
 
         onAddSection(type, index, persist = false) {

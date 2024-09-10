@@ -49,7 +49,7 @@ class MaintenanceException extends HttpException
             self::MAINTENANCE_MIGRATION_INVALID_VERSION_SELECTION_MODE,
             'Version selection mode needs to be one of these values: "{{ validModes }}", but "{{ mode }}" was given.',
             [
-                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_VALUES),
+                'validModes' => implode('", "', MigrationCollectionLoader::VALID_VERSION_SELECTION_SAFE_VALUES),
                 'mode' => $mode,
             ]
         );

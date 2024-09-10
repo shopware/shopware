@@ -3,19 +3,28 @@
 namespace Shopware\Core\Framework\Migration\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\MigrationException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Framework\ShopwareHttpException;
 
 #[Package('core')]
-class UnknownMigrationSourceException extends MigrationException
+class UnknownMigrationSourceException extends ShopwareHttpException
 {
-    public function __construct(string $name)
+    public function __construct(private readonly string $name)
     {
         parent::__construct(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::FRAMEWORK_MIGRATION_INVALID_MIGRATION_SOURCE,
             'No source registered for "{{ name }}"',
             ['name' => $name]
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__INVALID_MIGRATION_SOURCE';
+    }
+
+    public function getParameters(): array
+    {
+        return [
+            'name' => $this->name,
+        ];
     }
 }

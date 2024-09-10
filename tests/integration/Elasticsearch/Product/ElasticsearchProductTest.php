@@ -1813,7 +1813,7 @@ class ElasticsearchProductTest extends TestCase
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 2,
                     '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Ho_Chi_Minh'),
+                ], null, 'Asia/Saigon'),
             ],
         ];
     }

@@ -61,29 +61,39 @@ export default {
             this.initElementConfig('cross-selling');
         },
 
-        onProductChange(productId) {
-            if (!productId) {
-                this.element.config.product.value = null;
-
-                if (this.isCompatEnabled('INSTANCE_SET')) {
-                    this.$set(this.element.data, 'product', null);
-                } else {
-                    this.element.data.product = null;
-                }
+        async onProductChange(productId) {
+            if (productId) {
+                await this.fetchProduct(productId);
             } else {
-                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria)
-                    .then((product) => {
-                        this.element.config.product.value = productId;
-
-                        if (this.isCompatEnabled('INSTANCE_SET')) {
-                            this.$set(this.element.data, 'product', product);
-                        } else {
-                            this.element.data.product = product;
-                        }
-                    });
+                this.deleteProduct();
             }
 
             this.$emit('element-update', this.element);
+        },
+
+        async fetchProduct(productId) {
+            const product = await this.productRepository.get(
+                productId,
+                this.productSelectContext,
+                this.selectedProductCriteria,
+            );
+            this.element.config.product.value = productId;
+
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.element.data, 'product', product);
+            } else {
+                this.element.data.product = product;
+            }
+        },
+
+        deleteProduct() {
+            this.element.config.product.value = null;
+
+            if (this.isCompatEnabled('INSTANCE_SET')) {
+                this.$set(this.element.data, 'product', null);
+            } else {
+                this.element.data.product = null;
+            }
         },
     },
 };

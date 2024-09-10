@@ -9,7 +9,6 @@ Shopware.Component.register('sw-cms-preview-text-hero', () => import('./preview'
  */
 Shopware.Component.register('sw-cms-block-text-hero', () => import('./component'));
 
-
 /**
  * @private
  * @package buyers-experience
@@ -37,9 +36,9 @@ Shopware.Service('cmsService').registerCmsBlock({
                         value: `
                         <h2 style="text-align: center;">Lorem Ipsum dolor sit amet</h2>
                         <hr>
-                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
-                        sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
+                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+                        sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
                         Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
                         `.trim(),
                     },

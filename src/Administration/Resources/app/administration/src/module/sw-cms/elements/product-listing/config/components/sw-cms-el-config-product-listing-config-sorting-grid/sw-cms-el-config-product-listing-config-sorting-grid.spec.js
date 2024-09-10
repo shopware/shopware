@@ -2,11 +2,7 @@
  * @package buyers-experience
  */
 import { mount } from '@vue/test-utils';
-import swCmsElConfigProductListingConfigSortingGrid from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import { reactive } from 'vue';
-
-Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', swCmsElConfigProductListingConfigSortingGrid);
 
 const customFields = [
     {
@@ -41,7 +37,7 @@ const snippets = {
 };
 
 async function createWrapper(productSortings = [], defaultSorting = {}) {
-    return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
+    return mount(await wrapTestComponent('sw-cms-el-config-product-listing-config-sorting-grid', { sync: true }), {
         global: {
             provide: {
                 validationService: {},
@@ -78,17 +74,15 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 'sw-context-menu-item': {
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-pagination': true,
-                'sw-field-copyable': true,
-                'sw-inheritance-switch': true,
-                'sw-ai-copilot-badge': true,
-                'sw-help-text': true,
-                'sw-field-error': true,
+                'sw-number-field': {
+                    template: `
+                    <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
+                `,
+                    props: {
+                        value: 0,
+                    },
+                },
             },
             mocks: {
                 $tc: (param) => {
@@ -98,14 +92,14 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     return param;
                 },
             },
+            mixins: [
+                Shopware.Mixin.getByName('sw-inline-snippet'),
+            ],
         },
-        props: reactive({
-            productSortings: productSortings,
-            defaultSorting: defaultSorting,
-        }),
-        mixins: [
-            Shopware.Mixin.getByName('sw-inline-snippet'),
-        ],
+        props: {
+            productSortings,
+            defaultSorting,
+        },
     });
 }
 
@@ -172,12 +166,11 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         ]);
 
         const wrapper = await createWrapper(productSortings);
-        await flushPromises();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(3);
 
-        const itemBar = wrapper.find('.column-priority_bar input');
-        await itemBar.setValue(7);
+        const itemBar = wrapper.find('.column-priority_bar');
+        await itemBar.find('input').setValue(7);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$forceUpdate();

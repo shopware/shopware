@@ -18,4 +18,5 @@ yalc.lock
 src/entity-schema-definition.d.ts
 entity-schema-types
 .vscode
+.idea
 .vue-compat-components-statistics.json

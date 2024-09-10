@@ -153,7 +153,7 @@ describe('sw-app-actions', () => {
         expect(emptyState.exists()).toBe(true);
     });
 
-    it('throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
+    it('should throw a notification if appActionButtonService.appActionButtonService throws an error', async () => {
         wrapper = await createWrapper(router);
         wrapper.vm.createNotificationError = jest.fn();
 

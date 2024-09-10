@@ -1,5 +1,5 @@
 ---
-title: llow customFields on mapping on newsletter_recipient
+title: allow customFields on mapping on newsletter_recipient
 issue: NEXT-38241
 ---
 ### Core

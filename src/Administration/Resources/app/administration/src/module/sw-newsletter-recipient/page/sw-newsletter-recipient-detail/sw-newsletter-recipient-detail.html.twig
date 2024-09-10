@@ -169,10 +169,11 @@
                 {% endblock %}
             </sw-card>
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_newsletter_recipient_detail_custom_fields %}
-            <sw-card
+            <mt-card
                 v-if="newsletterRecipient && customFieldSets && customFieldSets.length > 0"
-                position-identifier="newsletter-customFields"
+                position-identifier="sw-newsletter-customFields"
                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
             >
                 <sw-custom-field-set-renderer
@@ -180,7 +181,7 @@
                     :disabled="!acl.can('newsletter_recipient.editor')"
                     :sets="customFieldSets"
                 />
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

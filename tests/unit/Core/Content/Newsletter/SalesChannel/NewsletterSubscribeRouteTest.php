@@ -171,8 +171,6 @@ class NewsletterSubscribeRouteTest extends TestCase
             }
         });
 
-        $this->createMock(StoreApiCustomFieldMapper::class);
-
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $entityRepository,
             $mock,
@@ -180,6 +178,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(RateLimiter::class),
             $this->createMock(RequestStack::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
         );
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);

@@ -59,11 +59,11 @@ abstract class AbstractAppLoader
     {
         $configPath = $this->locatePath($app->getPath(), 'Resources/flow.xml');
 
-        if ($configPath !== null) {
-            return Action::createFromXmlFile($configPath);
+        if ($configPath === null) {
+            return null;
         }
 
-        return null;
+        return Action::createFromXmlFile($configPath);
     }
 
     public function getFlowEvents(AppEntity $app): ?Event

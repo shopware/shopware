@@ -1,12 +1,11 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
+const { Filter, Store } = Shopware;
+
 /**
  * @package buyers-experience
  */
-
-const { Filter, Store } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -21,9 +20,6 @@ export default {
         block: {
             type: Object,
             required: true,
-            default() {
-                return {};
-            },
         },
 
         active: {
@@ -83,7 +79,7 @@ export default {
                 if (this.block.backgroundMedia.id) {
                     backgroundMedia = `url("${this.block.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url('${this.assetFilter(this.block.backgroundMedia.url)}')`;
+                    backgroundMedia = `url("${this.assetFilter(this.block.backgroundMedia.url)}")`;
                 }
             }
 

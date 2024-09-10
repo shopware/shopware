@@ -113,6 +113,7 @@
                     <sw-cms-list-item
                         :page="cmsPage"
                         :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
+                        @element-click="selectItem(cmsPage)"
                         @item-click="selectItem(cmsPage)"
                     />
                     {% endblock %}
@@ -218,6 +219,7 @@
         </sw-button>
         <sw-button
             variant="primary"
+            class="sw-cms-layout-modal__button-select-layout"
             @click="selectLayout"
         >
             {{ $tc('sw-cms.components.cmsLayoutModal.actionConfirm') }}

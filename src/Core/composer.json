@@ -141,7 +141,7 @@
         "symfony/yaml": "~7.1.1",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.13.0",
+        "twig/twig": "^3.14.0",
         "zircote/swagger-php": "^4.9.2",
         "squirrelphp/twig-php-syntax": "^1.8.0"
     },

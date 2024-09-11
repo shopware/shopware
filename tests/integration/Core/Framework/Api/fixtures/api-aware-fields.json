@@ -1331,6 +1331,7 @@
     "order_line_item.cover",
     "order_line_item.identifier",
     "order_line_item.referencedId",
+    "order_line_item.promotionId",
     "order_line_item.quantity",
     "order_line_item.label",
     "order_line_item.payload",

@@ -537,6 +537,11 @@
             <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\DomainNotMappedListener">
+            <argument type="service" id="service_container"/>
+
+            <tag name="kernel.event_listener" event="kernel.exception"/>
+        </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />

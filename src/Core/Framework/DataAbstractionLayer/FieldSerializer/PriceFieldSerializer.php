@@ -113,6 +113,10 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
+        if (!\is_array($value)) {
+            throw DataAbstractionLayerException::expectedArrayWithType('$value', \gettype($value));
+        }
+
         $collection = new PriceCollection();
 
         foreach ($value as $row) {

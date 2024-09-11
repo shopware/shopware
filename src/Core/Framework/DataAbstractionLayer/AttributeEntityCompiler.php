@@ -77,6 +77,7 @@ class AttributeEntityCompiler
         ManyToMany::class,
         ManyToOne::class,
         OneToOne::class,
+        State::class,
         ReferenceVersion::class,
         CustomFieldsAttr::class,
     ];

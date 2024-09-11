@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
@@ -263,8 +264,10 @@ class AttributeEntityIntegrationTest extends TestCase
             'transTimeZone' => 'Europe/Berlin',
             'differentName' => 'string',
             'currencyId' => null,
+            'stateId' => null,
             'followId' => null,
             'currency' => null,
+            'state' => null,
             'follow' => null,
             'aggs' => null,
             'currencies' => null,
@@ -534,6 +537,82 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertNotNull($record->currencies);
         static::assertCount(1, $record->currencies);
         static::assertArrayHasKey($ids->get('currency-2'), $record->currencies);
+    }
+
+    public function testState(): void
+    {
+        $ids = new IdsCollection();
+
+        $stateId = $this->getStateMachineState(OrderStates::STATE_MACHINE, OrderStates::STATE_COMPLETED);
+        $data = [
+            'id' => $ids->get('first-key'),
+            'string' => 'string',
+            'transString' => 'transString',
+            'stateId' => $stateId,
+        ];
+
+        $result = $this->repository('attribute_entity')->create([$data], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
+        static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
+
+        $search = $this->repository('attribute_entity')
+                       ->search(new Criteria([$ids->get('first-key')]), Context::createDefaultContext());
+
+        $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntity::class, $record);
+        static::assertNull($record->state);
+
+        $criteria = new Criteria([$ids->get('first-key')]);
+        $criteria->addAssociation('state');
+        $search = $this->repository('attribute_entity')
+                       ->search($criteria, Context::createDefaultContext());
+
+        $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntity::class, $record);
+        static::assertNotNull($record->state);
+        static::assertEquals($stateId, $record->state->getId());
+
+        // set stateId to null
+        $result = $this->repository('attribute_entity')->update([
+            [
+                'id' => $ids->get('first-key'),
+                'stateId' => null,
+            ],
+        ], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
+        static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
+
+        $criteria = new Criteria([$ids->get('first-key')]);
+        $criteria->addAssociation('state');
+        $search = $this->repository('attribute_entity')
+                       ->search($criteria, Context::createDefaultContext());
+
+        $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntity::class, $record);
+        static::assertNull($record->state);
+
+        // set stateId again
+        $result = $this->repository('attribute_entity')->update([
+            [
+                'id' => $ids->get('first-key'),
+                'stateId' => $stateId,
+            ],
+        ], Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getPrimaryKeys('attribute_entity'));
+        static::assertContains($ids->get('first-key'), $result->getPrimaryKeys('attribute_entity'));
+
+        $criteria = new Criteria([$ids->get('first-key')]);
+        $criteria->addAssociation('state');
+        $search = $this->repository('attribute_entity')
+                       ->search($criteria, Context::createDefaultContext());
+
+        $record = $search->get($ids->get('first-key'));
+        static::assertInstanceOf(AttributeEntity::class, $record);
+        static::assertNotNull($record->state);
+        static::assertEquals($stateId, $record->state->getId());
     }
 
     public function testTranslations(): void

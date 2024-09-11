@@ -6,8 +6,9 @@ import swOrderDetailState from '../../state/order-detail.store';
  * @package checkout
  */
 
-const { State, Mixin } = Shopware;
+const { State, Mixin, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
+const { array } = Utils;
 const { mapState } = Shopware.Component.getComponentHelper();
 const ApiService = Shopware.Classes.ApiService;
 
@@ -67,6 +68,7 @@ export default {
             hasOrderDeepEdit: false,
             missingProductLineItems: [],
             promotionsToDelete: [],
+            deliveryDiscountsToDelete: [],
         };
     },
 
@@ -115,6 +117,10 @@ export default {
 
         automaticPromotions() {
             return this.order.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
+        },
+
+        deliveryDiscounts() {
+            return array.slice(this.order.deliveries, 1) || [];
         },
 
         orderCriteria() {
@@ -269,10 +275,17 @@ export default {
                 );
             }
 
+            if (this.deliveryDiscountsToDelete.length > 0) {
+                this.order.deliveries = this.order.deliveries.filter(
+                    (delivery) => !this.deliveryDiscountsToDelete.includes(delivery.id),
+                );
+            }
+
             await this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
                     this.hasOrderDeepEdit = false;
                     this.promotionsToDelete = [];
+                    this.deliveryDiscountsToDelete = [];
                     return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
                 })
                 .then(() => this.createNewVersionId())
@@ -355,6 +368,8 @@ export default {
             this.isLoading = true;
 
             this.order.lineItems = this.order.lineItems.filter((lineItem) => !this.automaticPromotions.includes(lineItem));
+            this.order.deliveries = this.order.deliveries.filter((delivery) => !this.deliveryDiscounts.includes(delivery));
+
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
                 await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
@@ -372,15 +387,20 @@ export default {
             State.commit('swOrderDetail/setLoading', ['order', true]);
             try {
                 this.promotionsToDelete = this.automaticPromotions.map(promotion => promotion.id);
+                this.deliveryDiscountsToDelete = this.deliveryDiscounts.map(discount => discount.id);
                 await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
                 await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
                 await this.reloadEntityData();
                 this.order.lineItems = this.order.lineItems.filter(
                     (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
                 );
+                this.order.deliveries = this.order.deliveries.filter(
+                    (delivery) => !this.deliveryDiscountsToDelete.includes(delivery.id),
+                );
             } catch (error) {
                 this.onError('error', error);
                 this.promotionsToDelete = [];
+                this.deliveryDiscountsToDelete = [];
             } finally {
                 Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
             }

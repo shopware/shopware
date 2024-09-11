@@ -378,6 +378,42 @@ class RecalculationServiceTest extends TestCase
         $recalculationService->addPromotionLineItem($order->getId(), '', $this->context);
     }
 
+    public function testToggleAutomaticPromotion(): void
+    {
+        $order = $this->orderEntity();
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $entityRepository
+            ->expects(static::once())
+            ->method('upsert');
+
+        $this->orderConverter
+            ->expects(static::once())
+            ->method('convertToOrder')
+            ->with(static::anything(), static::anything(), static::callback(function (OrderConversionContext $context) {
+                return $context->shouldIncludeDeliveries();
+            }));
+
+        $recalculationService = new RecalculationService(
+            $entityRepository,
+            $this->orderConverter,
+            $this->createMock(CartService::class),
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $this->createMock(Processor::class),
+            $this->cartRuleLoader,
+            $this->createMock(PromotionItemBuilder::class)
+        );
+
+        $recalculationService->toggleAutomaticPromotion($order->getId(), $this->context, false);
+    }
+
     private function orderEntity(): OrderEntity
     {
         $order = new OrderEntity();

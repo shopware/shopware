@@ -54,6 +54,10 @@ class OrderConverter
 
     final public const ORIGINAL_ID = 'originalId';
 
+    final public const ORIGINAL_ADDRESS_ID = 'originalAddressId';
+
+    final public const ORIGINAL_ADDRESS_VERSION_ID = 'originalAddressVersionId';
+
     final public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
     final public const ORIGINAL_DOWNLOADS = 'originalDownloads';
@@ -97,11 +101,11 @@ class OrderConverter
     {
         if ($conversionContext->shouldIncludeDeliveries()) {
             foreach ($cart->getDeliveries() as $delivery) {
-                if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
+                if ($delivery->hasExtensionOfType(self::ORIGINAL_ADDRESS_ID, IdStruct::class) || $delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
                     continue;
                 }
 
-                throw new DeliveryWithoutAddressException();
+                throw OrderException::deliveryWithoutAddress();
             }
         }
 
@@ -337,7 +341,6 @@ class OrderConverter
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection
     {
         $cartDeliveries = new DeliveryCollection();
-
         foreach ($orderDeliveries as $orderDelivery) {
             $deliveryDate = new DeliveryDate(
                 $orderDelivery->getShippingDateEarliest(),
@@ -397,6 +400,8 @@ class OrderConverter
                 $orderDelivery->getShippingCosts()
             );
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
+            $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_ID, new IdStruct($orderDelivery->getShippingOrderAddressId()));
+            $cartDelivery->addExtension(self::ORIGINAL_ADDRESS_VERSION_ID, new IdStruct($orderDelivery->getShippingOrderAddressVersionId()));
 
             $cartDeliveries->add($cartDelivery);
         }

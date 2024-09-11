@@ -32,7 +32,7 @@ class SlotTest extends TestCase
      * @param array<string, mixed> $config
      */
     #[DataProvider('provideSlots')]
-    public function testSlotsFromXml(int $i, string $name, string $type, array $config): void
+    public function testSlotsFromXml(int $i, string $name, string $type, array $config, int $position): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');
         static::assertNotNull($cmsExtensions->getBlocks());
@@ -41,6 +41,7 @@ class SlotTest extends TestCase
 
         static::assertSame($name, $slot->getName());
         static::assertSame($type, $slot->getType());
+        static::assertSame($position, $slot->getPosition());
         static::assertEquals($config, $slot->getConfig()->toArray('en-GB'));
     }
 
@@ -48,7 +49,7 @@ class SlotTest extends TestCase
      * @param array<string, mixed> $config
      */
     #[DataProvider('provideSlots')]
-    public function testToArray(int $i, string $name, string $type, array $config): void
+    public function testToArray(int $i, string $name, string $type, array $config, int $position): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');
         static::assertNotNull($cmsExtensions->getBlocks());
@@ -59,7 +60,7 @@ class SlotTest extends TestCase
             [
                 'name' => $name,
                 'type' => $type,
-                'position' => 0,
+                'position' => $position,
                 'config' => $config,
             ],
             $slot->toArray('en-GB')

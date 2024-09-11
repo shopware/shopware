@@ -20,6 +20,7 @@ CREATE TABLE `attribute_entity` (
     `time_zone` VARCHAR(255) NULL,
     `serialized` JSON NULL,
     `currency_id` BINARY(16) NULL,
+    `state_id` BINARY(16) NULL,
     `follow_id` BINARY(16) NULL,
     `created_at` DATETIME(3) NOT NULL,
     `updated_at` DATETIME(3) NULL,
@@ -28,6 +29,7 @@ CREATE TABLE `attribute_entity` (
     CONSTRAINT `json.attribute_entity.json` CHECK (JSON_VALID(`json`)),
     KEY `fk.attribute_entity.currency_id` (`currency_id`),
     CONSTRAINT `fk.attribute_entity.currency_id` FOREIGN KEY (`currency_id`) REFERENCES `currency` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT `fk.attribute_entity.state_id` FOREIGN KEY (`state_id`) REFERENCES `state_machine_state` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT `fk.attribute_entity.follow_id` FOREIGN KEY (`follow_id`) REFERENCES `currency` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

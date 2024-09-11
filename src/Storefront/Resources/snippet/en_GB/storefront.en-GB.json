@@ -34,6 +34,8 @@
     "mainMenu": "Show all categories",
     "closeMenu": "Close menu",
     "back": "Back",
+    "expand": "Expand",
+    "collapse": "Collapse",
     "categories": "Categories",
     "showCategory": "Show %category%",
     "required": "*",

@@ -26,7 +26,7 @@ jobs:
           installAdmin: true
           installStorefront: true
           env: prod
-      
+
       - name: Build
         run: |
           composer run build:js
@@ -77,7 +77,7 @@ jobs:
             path: tests/integration/Elasticsearch
           - name: integration
             path: tests/integration/Storefront
-          - name: content,migration,devops
+          - name: migration,devops
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -112,7 +112,7 @@ jobs:
 
       - name: Run PHPUnit
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite.name }}" -- ${{ matrix.suite.path || '' }}
-  
+
   win-checkout:
     runs-on: windows-latest
     name: "Windows check"
@@ -175,7 +175,7 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }} 
+    if: ${{ github.repository == 'shopware/shopware' && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     permissions:
       packages: write
     env:
@@ -192,7 +192,7 @@ jobs:
           installAdmin: true
           installStorefront: true
           env: prod
-      
+
       - name: Build
         run: |
           composer run build:js

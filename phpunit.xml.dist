@@ -142,9 +142,6 @@
     </php>
     <testsuites>
         <!-- Legacy -->
-        <testsuite name="content">
-            <directory>src/Core/Content/Test</directory>
-        </testsuite>
         <testsuite name="migration">
             <directory>src/Core/Migration/Test</directory>
         </testsuite>

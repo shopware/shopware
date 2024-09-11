@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -60,7 +61,13 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
-        $ids = $this->collectOptionIds($result);
+        $aggregations = $result->getAggregations();
+        $ids = $this->collectOptionIds($aggregations);
+
+        // remove id results to prevent wrong usages
+        $aggregations->remove('properties');
+        $aggregations->remove('configurators');
+        $aggregations->remove('options');
 
         if (empty($ids)) {
             return;
@@ -89,11 +96,6 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         $grouped->sortByConfig();
 
         $aggregations = $result->getAggregations();
-
-        // remove id results to prevent wrong usages
-        $aggregations->remove('properties');
-        $aggregations->remove('configurators');
-        $aggregations->remove('options');
 
         $aggregations->add(new EntityResult('properties', $grouped));
     }
@@ -153,10 +155,8 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     /**
      * @return array<int, non-falsy-string>
      */
-    private function collectOptionIds(ProductListingResult $result): array
+    private function collectOptionIds(AggregationResultCollection $aggregations): array
     {
-        $aggregations = $result->getAggregations();
-
         $properties = $aggregations->get('properties');
         \assert($properties instanceof TermsResult || $properties === null);
 

@@ -126,12 +126,9 @@ class LandingPageRouteTest extends TestCase
         static::assertArrayNotHasKey('page', $listing);
         static::assertArrayNotHasKey('limit', $listing);
 
-        static::assertArrayHasKey('manufacturer', $listing['aggregations']);
-        $manufacturers = $listing['aggregations']['manufacturer'];
-
-        foreach ($manufacturers['entities'] as $manufacturer) {
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($manufacturer));
-        }
+        static::assertArrayHasKey('aggregations', $listing);
+        static::assertIsArray($listing['aggregations']);
+        static::assertEmpty($listing['aggregations']);
 
         $products = $listing['elements'];
         foreach ($products as $product) {

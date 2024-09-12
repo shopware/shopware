@@ -17,8 +17,8 @@
         </service>
 
         <service id="Shopware\Core\Service\ServiceRegistryClient">
+            <argument>%shopware.services.registry_url%</argument>
             <argument type="service" id="http_client"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">
@@ -39,6 +39,7 @@
         </service>
 
         <service id="Shopware\Core\Service\AllServiceInstaller">
+            <argument>%shopware.services.enabled%</argument>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistryClient"/>
             <argument type="service" id="Shopware\Core\Service\ServiceLifecycle"/>
             <argument type="service" id="app.repository"/>

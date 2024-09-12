@@ -41,6 +41,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
+            true,
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository(),
@@ -79,6 +80,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
+            true,
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1]),
@@ -115,6 +117,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
 
         $serviceInstaller = new AllServiceInstaller(
+            true,
             $serviceRegistryClient,
             $serviceLifeCycle,
             $this->buildAppRepository([$app1, $app2]),
@@ -129,6 +132,24 @@ class AllServiceInstallerTest extends TestCase
 
         $serviceLifeCycle->expects(static::never())
             ->method('install');
+
+        $serviceInstaller->install(Context::createDefaultContext());
+    }
+
+    public function testNoServicesAreInstalledIfDisabled(): void
+    {
+        $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
+        $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
+
+        $serviceInstaller = new AllServiceInstaller(
+            false,
+            $serviceRegistryClient,
+            $serviceLifeCycle,
+            $this->buildAppRepository(),
+        );
+
+        $serviceRegistryClient->expects(static::never())->method('getAll');
+        $serviceLifeCycle->expects(static::never())->method('install');
 
         $serviceInstaller->install(Context::createDefaultContext());
     }

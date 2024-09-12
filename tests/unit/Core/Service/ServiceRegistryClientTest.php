@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistryEntry;
-use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -22,9 +21,7 @@ class ServiceRegistryClientTest extends TestCase
             $response = new MockResponse(''),
         ]);
 
-        $registryClient = new ServiceRegistryClient($client, new StaticSystemConfigService([
-            'core.services.registryUrl' => 'https://www.shopware.com/services.json',
-        ]));
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
         static::assertEquals([], $registryClient->getAll());
         static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
@@ -36,9 +33,7 @@ class ServiceRegistryClientTest extends TestCase
             $response = new MockResponse('', ['http_code' => 503]),
         ]);
 
-        $registryClient = new ServiceRegistryClient($client, new StaticSystemConfigService([
-            'core.services.registryUrl' => 'https://www.shopware.com/services.json',
-        ]));
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
         static::assertEquals([], $registryClient->getAll());
         static::assertEquals('https://www.shopware.com/services.json', $response->getRequestUrl());
@@ -46,18 +41,16 @@ class ServiceRegistryClientTest extends TestCase
 
     public function testSuccessfulRequestReturnsListOfServices(): void
     {
-        $services = [
+        $service = [
             ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
             ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
         ];
 
         $client = new MockHttpClient([
-            $response = new MockResponse((string) json_encode($services)),
+            $response = new MockResponse((string) json_encode($service)),
         ]);
 
-        $registryClient = new ServiceRegistryClient($client, new StaticSystemConfigService([
-            'core.services.registryUrl' => 'https://www.shopware.com/services.json',
-        ]));
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/services.json', $client);
 
         $entries = $registryClient->getAll();
         static::assertCount(2, $entries);

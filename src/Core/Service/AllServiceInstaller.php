@@ -20,6 +20,7 @@ class AllServiceInstaller
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
+        private readonly bool $enabled,
         private readonly ServiceRegistryClient $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
         private readonly EntityRepository $appRepository,
@@ -31,6 +32,10 @@ class AllServiceInstaller
      */
     public function install(Context $context): array
     {
+        if (!$this->enabled) {
+            return [];
+        }
+
         $existingServices = $this->appRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
             $context

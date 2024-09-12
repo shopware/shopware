@@ -3,7 +3,6 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -13,11 +12,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('core')]
 class ServiceRegistryClient
 {
-    public const SYSTEM_CONFIG_KEY_SERVICES_REGISTRY = 'core.services.registryUrl';
-
     public function __construct(
+        private readonly string $registryUrl,
         private readonly HttpClientInterface $client,
-        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -40,7 +37,7 @@ class ServiceRegistryClient
     public function getAll(): array
     {
         try {
-            $response = $this->client->request('GET', $this->systemConfigService->getString(static::SYSTEM_CONFIG_KEY_SERVICES_REGISTRY), [
+            $response = $this->client->request('GET', $this->registryUrl, [
                 'headers' => [
                     'Accept' => 'application/json',
                 ],

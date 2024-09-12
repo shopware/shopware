@@ -9,8 +9,11 @@ use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\System\EntityFixturesBase;
+use Shopware\Core\Test\Integration\Traits\EntityFixturesBase;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 trait MediaFixtures
 {
     use EntityFixturesBase;

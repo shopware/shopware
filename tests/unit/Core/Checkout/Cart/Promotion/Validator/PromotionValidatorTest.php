@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
+use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**

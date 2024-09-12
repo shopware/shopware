@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
+namespace Shopware\Core\Test\Integration\Traits;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -22,8 +22,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\System\EntityFixturesBase;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('services-settings')]
 trait OrderFixture
 {
@@ -51,7 +53,7 @@ trait OrderFixture
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('id', TestDefaults::SALES_CHANNEL)),
-            Context::createDefaultContext()
+            $context
         )->first();
 
         $paymentMethodId = $salesChannel->getPaymentMethodId();

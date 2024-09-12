@@ -15,6 +15,6 @@ class SitemapGenerateTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400;
+        return self::DAILY;
     }
 }

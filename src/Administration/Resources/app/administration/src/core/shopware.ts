@@ -44,6 +44,10 @@ import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import type { VueI18n } from 'vue-i18n';
 import Store from 'src/app/store';
+import {
+    createExtendableSetup,
+    overrideComponentSetup,
+} from 'src/app/adapter/composition-extension-system';
 import ExtensionApi from './extension-api';
 
 /** Initialize feature flags at the beginning */
@@ -124,6 +128,8 @@ class ShopwareClass implements CustomShopwareProperties {
         registerComponentHelper: AsyncComponentFactory.registerComponentHelper,
         markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
+        createExtendableSetup: createExtendableSetup,
+        overrideComponentSetup: overrideComponentSetup,
     };
 
     public Template = {

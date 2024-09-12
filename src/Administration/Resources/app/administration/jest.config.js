@@ -101,6 +101,7 @@ module.exports = {
 
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
+        '<rootDir>/src/**/*.spec.ts',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
     ],

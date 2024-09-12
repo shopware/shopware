@@ -53,6 +53,9 @@ describe('Administration meta tests', () => {
             const specFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.js`);
             const specFileExists = fs.existsSync(specFile);
 
+            const specTsFile = whole.replace(fileName, `${fileNameWithoutExtension}.spec.ts`);
+            const specTsFileExists = fs.existsSync(specTsFile);
+
             const specFileWithFolderName = whole.replace(fileName, `${lastFolder}.spec.js`);
             const specFileWithFolderNameExists = fs.existsSync(specFileWithFolderName);
 
@@ -68,7 +71,7 @@ describe('Administration meta tests', () => {
             const specFileAlternativeExtensionExists = fs.existsSync(specFileAlternativeExtension);
             const specFileWithFolderNameAlternativeExtensionExists = fs.existsSync(specFileWithFolderNameAlternativeExtension);
 
-            const fileIsTested = isInBaseLine || specFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
+            const fileIsTested = isInBaseLine || specFileExists || specTsFileExists || specFileWithFolderNameExists || specFileAlternativeExtensionExists || specFileWithFolderNameAlternativeExtensionExists;
 
             // check if spec file exists but file is still in baseline
             expect(

@@ -214,7 +214,6 @@ const missingTests = [
     'src/core/service/api/recommendations.api.service.js',
     'src/core/service/api/sales-channel.api.service.js',
     'src/core/service/api/scheduled-task.api.service.ts',
-    'src/core/service/api/search.api.service.js',
     'src/core/service/api/seo-url-template.api.service.js',
     'src/core/service/api/seo-url.api.service.js',
     'src/core/service/api/snippet-set.api.service.js',

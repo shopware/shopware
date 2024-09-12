@@ -330,7 +330,7 @@ function storeSessionExpiredInterceptor(client) {
             'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
         ];
 
-        if (response.status === 403 && errorCodes.includes(code)) {
+        if (response?.status === 403 && errorCodes.includes(code)) {
             if (typeof config.storeSessionRequestRetries === 'number') {
                 config.storeSessionRequestRetries += 1;
             } else {

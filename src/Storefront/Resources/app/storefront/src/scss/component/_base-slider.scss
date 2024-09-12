@@ -31,7 +31,11 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
             &:hover,
             &.tns-nav-active {
-                background-color: $gray-600;
+                background-color: $primary;
+            }
+
+            &.tns-nav-active {
+                box-shadow: $input-btn-focus-box-shadow;
             }
 
             &:focus {

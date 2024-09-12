@@ -16,10 +16,9 @@
                     data-off-canvas-filter="true"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    aria-label="{{ 'general.menuLink'|trans }}"
                 >
                     {% block element_product_listing_filter_button_icon %}
-                        {% sw_icon 'sliders-horizontal' %}
+                        {% sw_icon 'sliders-horizontal' style { size: 'sm', ariaHidden: true } %}
                     {% endblock %}
 
                     {{ 'listing.filterTitleText'|trans }}

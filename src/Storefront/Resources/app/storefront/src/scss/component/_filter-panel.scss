@@ -189,25 +189,24 @@ This file contains the generic styling for all filter items.
 }
 
 .btn.filter-panel-wrapper-toggle {
+    --#{$prefix}btn-padding-x: 6px;
+    --#{$prefix}btn-padding-y: 6px;
+    --#{$prefix}btn-hover-bg: var(--#{$prefix}gray-200);
+    --#{$prefix}btn-hover-color: var(--#{$prefix}primary);
+    --#{$prefix}btn-active-bg: var(--#{$prefix}gray-200);
+    --#{$prefix}btn-active-color: var(--#{$prefix}primary);
     display: none;
     width: 100%;
-    padding: 6px;
 
     .icon {
-        color: $primary;
-        width: 20px;
-        height: 20px;
-        margin-right: 6px;
-    }
+        color: currentColor;
+        margin-right: $spacer-sm;
+        vertical-align: text-bottom;
 
-    &:hover {
-        background-color: $gray-200;
-        color: $primary;
+        svg {
+            top: 0;
+        }
     }
-}
-
-.filter-panel-offcanvas-only {
-    display: none;
 }
 
 .filter-panel-offcanvas-header {
@@ -225,7 +224,6 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-panel-offcanvas-close {
-    cursor: pointer;
     margin-left: auto;
 }
 
@@ -242,10 +240,6 @@ This file contains the generic styling for all filter items.
 .offcanvas-filter {
     overflow: hidden;
 
-    .filter-panel-offcanvas-close {
-        display: block;
-    }
-
     .filter-panel {
         height: calc(100% - 80px);
         overflow-y: auto;
@@ -255,9 +249,5 @@ This file contains the generic styling for all filter items.
 
     .filter-panel-offcanvas-header {
         display: flex;
-    }
-
-    .filter-panel-offcanvas-only {
-        display: inherit;
     }
 }

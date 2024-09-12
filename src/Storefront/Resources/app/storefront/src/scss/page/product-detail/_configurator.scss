@@ -19,7 +19,7 @@
 }
 
 .product-detail-configurator-option-input {
-    display: none;
+    @include visually-hidden();
 
     + .product-detail-configurator-option-label {
         align-items: center;
@@ -42,6 +42,10 @@
             height: auto;
             padding: 5px 10px;
         }
+    }
+
+    &:focus-visible + .product-detail-configurator-option-label {
+        box-shadow: $input-btn-focus-box-shadow;
     }
 
     &.is-combinable + .product-detail-configurator-option-label {

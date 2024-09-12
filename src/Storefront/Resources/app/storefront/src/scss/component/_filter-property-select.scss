@@ -58,8 +58,14 @@ This filter item should only be used inside a filter panel.
     bottom: 0;
     width: 100%;
     height: 100%;
+    border-radius: 4px;
     appearance: none;
-    opacity: 0;
+    background-color: transparent;
+    outline: none;
+
+    &:focus {
+        box-shadow: $input-btn-focus-box-shadow;
+    }
 
     &:checked ~ .filter-property-select-preview-checkmark {
         transform: translateY(0);

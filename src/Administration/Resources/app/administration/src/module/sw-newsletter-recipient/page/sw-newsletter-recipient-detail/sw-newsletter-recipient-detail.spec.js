@@ -67,11 +67,15 @@ async function createWrapper() {
                 },
                 'sw-skeleton': true,
                 'sw-error-summary': true,
+                'sw-custom-field-set-renderer': true,
             },
             provide: {
                 stateStyleDataProviderService: {},
                 repositoryFactory: {
                     create: (type) => new MockRepositoryFactory(type),
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
                 },
             },
             mocks: {
@@ -107,7 +111,6 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
-
 
         // check if the save-action-btn is enabled
         expect(wrapper.getComponent('#save-btn').props('disabled')).toBeFalsy();

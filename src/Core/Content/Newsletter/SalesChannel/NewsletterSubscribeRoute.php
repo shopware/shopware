@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -80,7 +82,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
         private readonly RateLimiter $rateLimiter,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly StoreApiCustomFieldMapper $customFieldMapper
     ) {
     }
 
@@ -126,7 +129,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             'street',
             'salutationId',
             'option',
-            'storefrontUrl'
+            'storefrontUrl',
+            'customFields'
         );
 
         $recipientId = $this->getNewsletterRecipientId($data['email'], $context);
@@ -143,6 +147,12 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         }
 
         $data = $this->completeData($data, $context);
+        if ($dataBag->get('customFields') instanceof RequestDataBag) {
+            $data['customFields'] = $this->customFieldMapper->map(
+                NewsletterRecipientDefinition::ENTITY_NAME,
+                $dataBag->get('customFields')
+            );
+        }
 
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 

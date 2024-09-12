@@ -100,7 +100,7 @@ class JsonApiEncoder
                 continue;
             }
 
-            if ($relationData instanceof EntityCollection) {
+            if ($relationData instanceof EntityCollection || \is_array($relationData)) {
                 foreach ($relationData as $sub) {
                     $this->serializeEntity($fields, $sub, $relationship['tmp']['definition'], $result, true);
                 }
@@ -235,7 +235,7 @@ class JsonApiEncoder
 
         foreach ($serialized->getExtensions() as $property => $value) {
             if ($value === null) {
-                $extension->setAttribute($property, $entity->getExtension($property));
+                $extension->setAttribute((string) $property, $entity->getExtension($property));
 
                 continue;
             }
@@ -243,7 +243,7 @@ class JsonApiEncoder
             /** @var EntityDefinition $definition */
             $definition = $value['tmp']['definition'];
 
-            $association = $entity->getExtension($property);
+            $association = $entity->getExtension((string) $property);
             if ($value['data'] === null) {
                 $relationship = [
                     'data' => null,
@@ -278,7 +278,7 @@ class JsonApiEncoder
                 }
             }
 
-            $extension->addRelationship($property, $relationship);
+            $extension->addRelationship((string) $property, $relationship);
         }
 
         $result->addIncluded($extension);

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -66,7 +67,7 @@ class NotificationDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('status', 'status'))->addFlags(new Required()),
-            (new StringField('message', 'message'))->addFlags(new Required()),
+            (new LongTextField('message', 'message'))->addFlags(new Required()),
             new BoolField('admin_only', 'adminOnly'),
             new ListField('required_privileges', 'requiredPrivileges'),
 

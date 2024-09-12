@@ -60,7 +60,7 @@ class CustomerValidationFactoryTest extends TestCase
 
         // test merge
         $profileDefinition->add('email', new Type('string'));
-        $expected->set('email', new Type('string'), new NotBlank(), new Email());
+        $expected->set('email', new Type('string'), new NotBlank(), new Email(null, 'VIOLATION::INVALID_EMAIL_FORMAT_ERROR'));
 
         yield [$profileDefinition, $expected];
 
@@ -69,15 +69,15 @@ class CustomerValidationFactoryTest extends TestCase
             $profileDefinition = new DataValidationDefinition();
 
             $notBlankName = $faker->name();
-            $profileDefinition->add($notBlankName, new NotBlank());
+            $profileDefinition->add($notBlankName, new NotBlank(null, 'VIOLATION::FIRST_NAME_IS_BLANK_ERROR'));
 
             $emailName = $faker->name();
-            $profileDefinition->add($emailName, new Email());
+            $profileDefinition->add($emailName, new Email(null, 'VIOLATION::INVALID_EMAIL_FORMAT_ERROR'));
 
             $expected = new DataValidationDefinition('customer.create');
 
-            $expected->add($notBlankName, new NotBlank());
-            $expected->add($emailName, new Email());
+            $expected->add($notBlankName, new NotBlank(null, 'VIOLATION::FIRST_NAME_IS_BLANK_ERROR'));
+            $expected->add($emailName, new Email(null, 'VIOLATION::INVALID_EMAIL_FORMAT_ERROR'));
 
             self::addConstraints($expected);
 
@@ -90,7 +90,7 @@ class CustomerValidationFactoryTest extends TestCase
      */
     private static function addConstraints(DataValidationDefinition $definition): void
     {
-        $definition->add('email', new NotBlank(), new Email());
+        $definition->add('email', new NotBlank(), new Email(null, 'VIOLATION::INVALID_EMAIL_FORMAT_ERROR'));
         $definition->add('active', new Type('boolean'));
     }
 }

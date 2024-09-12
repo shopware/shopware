@@ -19,6 +19,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 const WebpackBar = require('webpackbar');
 const { default: InjectPlugin, ENTRY_ORDER } = require('webpack-inject-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -263,6 +264,20 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     module: {
         rules: [
             {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                include: [
+                    /**
+                     * Only needed for unit tests in plugins. It throws an ESLint error
+                     * in production build
+                     */
+                    path.resolve(__dirname, 'src'),
+                    fs.realpathSync(path.resolve(pluginPath, '..', 'src')),
+                    path.resolve(pluginPath, '..', 'test'),
+                ],
+                options: {},
+            },
+            {
                 test: /\.(html|twig)$/,
                 use: [
                     {
@@ -284,7 +299,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 ],
             },
             {
-                test: /\.(js|ts|tsx?|vue)$/,
+                test: /\.(js|ts|tsx?)$/,
                 loader: 'swc-loader',
                 include: [
                     /**
@@ -531,6 +546,8 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         new webpack.ProvidePlugin({
             process: 'process/browser',
         }),
+
+        new VueLoaderPlugin(),
 
         ...(() => {
             if (isDev) {

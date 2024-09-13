@@ -89,6 +89,8 @@
 
         <service id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder">
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\Router"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryUrlGenerator">

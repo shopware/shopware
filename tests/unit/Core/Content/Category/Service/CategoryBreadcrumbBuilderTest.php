@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -24,6 +26,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -33,10 +36,16 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 {
     protected SalesChannelContext $context;
 
+    protected MockObject&RouterInterface $router;
+
+    protected MockObject&AbstractSeoResolver $seoResolver;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->context = $this->getSalesChannelContext();
+        $this->router = $this->createMock(RouterInterface::class);
+        $this->seoResolver = $this->createMock(AbstractSeoResolver::class);
     }
 
     public function testGetProductSeoCategoryShouldReturnMainCategory(): void
@@ -48,7 +57,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId($categoryIds[0]);
         $categoryEntity->setName('category-name-1');
 
-        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]));
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]), $this->router, $this->seoResolver);
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->context);
 
@@ -64,7 +73,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId('');
         $categoryEntity->setName('category-name-1');
 
-        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]));
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]), $this->router, $this->seoResolver);
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->context);
 
@@ -76,7 +85,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryIds = [Uuid::randomHex()];
         $streamIds = [Uuid::randomHex()];
 
-        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], []));
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], []), $this->router, $this->seoResolver);
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->context);
 
@@ -92,7 +101,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId($categoryIds[0]);
         $categoryEntity->setName('category-name-1');
 
-        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], [$categoryEntity]));
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], [$categoryEntity]), $this->router, $this->seoResolver);
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->context);
 
@@ -108,7 +117,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId($categoryIds[0]);
         $categoryEntity->setName('category-name-1');
 
-        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], [$categoryEntity]));
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder($this->getCategoryRepositoryMock([], [$categoryEntity]), $this->router, $this->seoResolver);
         $product = $this->getProductEntity($streamIds, []);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->context);
 

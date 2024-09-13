@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -524,6 +525,59 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
         static::assertInstanceOf(CategoryEntity::class, $seoCategory);
         static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
+    }
+
+    #[Group('slow')]
+    public function testGetProductSeoCategoryWithReferer(): void
+    {
+        // create and retrieve product and categories
+        $productData = [
+            [
+                'id' => $this->ids->get('referer-product'),
+                'categories' => [
+                    [
+                        'id' => $this->ids->get('navigation-a-1'),
+                        'name' => 'Referer A 1',
+                    ],
+                    [
+                        'id' => $this->ids->get('navigation-b-1'),
+                        'name' => 'Referer B 1',
+                    ],
+                ],
+            ],
+        ];
+        $this->createTestProduct($productData);
+
+        $criteria = new Criteria([$this->ids->get('referer-product')]);
+        $criteria->addAssociation('categories');
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $request = Request::create('http://test.to/foo-bar/P1234');
+
+        // test if you get the correct category if referer is url of navigation-a-1
+        $request->headers->set('referer', 'http://test.to/navigation/' . $this->ids->get('navigation-a-1'));
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext, $request);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
+
+        // test if you get the correct category if referer is url of navigation-b-1
+        $request->headers->set('referer', 'http://test.to/navigation/' . $this->ids->get('navigation-b-1'));
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext, $request);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertSame($this->ids->get('navigation-b-1'), $seoCategory->getId());
+
+        // test if you get the correct category if referer is seo url of navigation-a-1
+        $request->headers->set('referer', 'http://test.to/Referer-A-1/');
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext, $request);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertSame($this->ids->get('navigation-a-1'), $seoCategory->getId());
+
+        // test if you get the correct category if referer is seo url of navigation-b-1
+        $request->headers->set('referer', 'http://test.to/Referer-B-1/');
+        $seoCategory = $this->breadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext, $request);
+        static::assertInstanceOf(CategoryEntity::class, $seoCategory);
+        static::assertSame($this->ids->get('navigation-b-1'), $seoCategory->getId());
     }
 
     /**

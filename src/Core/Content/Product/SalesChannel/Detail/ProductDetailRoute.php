@@ -95,7 +95,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $this->dispatcher->dispatch(new AddCacheTagEvent(EntityCacheKeyGenerator::buildProductTag($parent)));
 
             $product->setSeoCategory(
-                $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+                $this->breadcrumbBuilder->getProductSeoCategory($product, $context, $request)
             );
 
             $configurator = $this->configuratorLoader->load($product, $context);

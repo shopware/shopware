@@ -15,6 +15,6 @@ class CleanupProductKeywordDictionaryTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 604800; // 1 week
+        return self::WEEKLY;
     }
 }

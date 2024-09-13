@@ -36,12 +36,11 @@ class NetPriceCalculator
         );
 
         foreach ($calculatedTaxes as $tax) {
-            $total = $this->priceRounding->mathRound(
-                $tax->getTax() * $definition->getQuantity(),
-                $config
-            );
+            $total = $this->priceRounding->mathRound($tax->getTax() * $definition->getQuantity(), $config);
+            $taxPrice = $this->priceRounding->mathRound($tax->getPrice() * $definition->getQuantity(), $config);
+
             $tax->setTax($total);
-            $tax->setPrice($tax->getPrice() * $definition->getQuantity());
+            $tax->setPrice($taxPrice);
         }
 
         $price = $this->round(

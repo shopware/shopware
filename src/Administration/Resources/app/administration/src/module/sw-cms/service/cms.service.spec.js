@@ -629,7 +629,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual({});
         });
 
-
         it('returns entity mapping types if property type is array and entity is already mapped', async () => {
             const testTypeArrayAlreadyMapped = {
                 entity: 'testTypeArrayAlreadyMapped',
@@ -650,7 +649,6 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 },
             });
         });
-
 
         it('returns entity mapping types if property type is not array nor object and type already mapped', async () => {
             const testTypeIsEntityAndAlreadyMapped = {

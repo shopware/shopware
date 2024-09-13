@@ -66,3 +66,34 @@ jobs:
       # idea: Only run tests that have changed or the tests for files that have changed
       - name: Run Jest Admin
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+
+  license-check:
+    runs-on: ubuntu-latest
+    name: "License check"
+    env:
+      WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: package*.json changed
+        id: changed-package-json
+        uses: tj-actions/changed-files@v45
+        with:
+          files: src/Administration/Resources/app/administration/package*.json
+      - uses: actions/setup-node@v4
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        with:
+          node-version: 20
+      - name: install packages
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm ci
+      - name: Check license
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        working-directory: src/Administration/Resources/app/administration
+        run: |
+          npx license-checker-rseidelsohn \
+            --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
+            --excludePackages "${WHITELISTED_JS_PACKAGES}" \
+            --excludePrivatePackages

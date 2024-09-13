@@ -130,47 +130,23 @@ export default {
         },
 
         shortenLink(link) {
-            let incomingLink = link;
-
             /* shareLink is the link you get when you click the share button under a YouTube video.
              *  e.g. https://youtu.be/bG57TZPYsyw
              *
              * urlLink is the link of the YouTube video from the searchbar. e.g. https://www.youtube.com/watch?v=bG57TZPYsyw
              */
+            const url = new URL(link);
 
-            const shareLink = /https\:\/\/youtu\.be\//;
-            const linkType = shareLink.test(incomingLink) ? 'shareLink' : 'urlLink';
-
-            if (linkType === 'shareLink') {
-                const linkPrefix = /https\:\/\/youtu\.be\//;
-                const linkPostfix = /\?/;
-
-                incomingLink = incomingLink.replace(linkPrefix, '');
-
-                if (linkPostfix.test(incomingLink)) {
-                    const positionOfPostfix = linkPostfix.exec(incomingLink).index;
-                    incomingLink = incomingLink.substring(0, positionOfPostfix);
-                }
-            } else {
-                const linkPrefix = /https\:\/\/www\.youtube\.com\/watch\?v\=/;
-                const linkPostfix = /\&/;
-
-                if (linkPrefix.test(incomingLink)) {
-                    // removing the https://www...
-                    incomingLink = incomingLink.replace(linkPrefix, '');
-                }
-
-                if (linkPostfix.test(incomingLink)) {
-                    /* removing everthing that comes after the video id.
-                     * Example: bG57TZPYsyw&t=3s -> bG57TZPYsyw
-                     */
-
-                    const positionOfPostfix = linkPostfix.exec(incomingLink).index;
-                    incomingLink = incomingLink.substring(0, positionOfPostfix);
-                }
+            switch (url.hostname) {
+                case 'www.youtu.be':
+                case 'youtu.be':
+                    return url.pathname.substring(1);
+                case 'www.youtube.com':
+                case 'youtube.com':
+                    return url.searchParams.get('v');
+                default:
+                    return link;
             }
-
-            return incomingLink;
         },
 
         async onImageUpload({ targetId }) {

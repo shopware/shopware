@@ -79,6 +79,7 @@ class DataAbstractionLayerException extends HttpException
     public const PARENT_FIELD_KEY_CONSTRAINT_MISSING = 'FRAMEWORK__PARENT_FIELD_KEY_CONSTRAINT_MISSING';
     public const PARENT_FIELD_NOT_FOUND_EXCEPTION = 'FRAMEWORK__PARENT_FIELD_NOT_FOUND_EXCEPTION';
     public const PRIMARY_KEY_NOT_PROVIDED = 'FRAMEWORK__PRIMARY_KEY_NOT_PROVIDED';
+    public const NO_GENERATOR_FOR_FIELD_TYPE = 'FRAMEWORK__NO_GENERATOR_FOR_FIELD_TYPE';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -486,6 +487,18 @@ class DataAbstractionLayerException extends HttpException
                 'Expected ID field value to be of type "string", but got "%s" in field "%s".',
                 \gettype($value),
                 $field->getPropertyName()
+            )
+        );
+    }
+
+    public static function noGeneratorForFieldTypeFound(Field $field): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_GENERATOR_FOR_FIELD_TYPE,
+            \sprintf(
+                'There is no generator for field type "%s".',
+                $field::class,
             )
         );
     }

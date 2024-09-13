@@ -15,6 +15,8 @@ class Slot extends XmlElement
 
     protected string $type;
 
+    protected int $position;
+
     protected Config $config;
 
     public function toArray(string $defaultLocale): array
@@ -35,6 +37,11 @@ class Slot extends XmlElement
         return $this->type;
     }
 
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
     public function getConfig(): Config
     {
         return $this->config;
@@ -44,6 +51,7 @@ class Slot extends XmlElement
     {
         $name = $element->getAttribute('name');
         $type = $element->getAttribute('type');
+        $position = (int) $element->getAttribute('position');
         $config = $element->getElementsByTagName('config')->item(0);
         \assert($config !== null);
         $config = Config::fromXml($config);
@@ -51,6 +59,7 @@ class Slot extends XmlElement
         return [
             'name' => $name,
             'type' => $type,
+            'position' => $position,
             'config' => $config,
         ];
     }

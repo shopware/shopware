@@ -39,6 +39,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.rate_limiter" />
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" public="true">

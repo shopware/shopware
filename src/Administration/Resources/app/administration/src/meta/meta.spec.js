@@ -7,7 +7,6 @@ import * as path from 'path';
 import { missingTests, positionIdentifiers, dataSetIds } from './baseline';
 import packageJson from '../../package.json';
 
-
 const getAllFiles = (dirPath, arrayOfFiles = null) => {
     const files = fs.readdirSync(dirPath);
 

@@ -63,3 +63,34 @@ jobs:
 
       - name: Run Jest Storefront
         run: npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent
+  
+  license-check:
+    runs-on: ubuntu-latest
+    name: "License check"
+    env:
+      WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: package*.json changed
+        id: changed-package-json
+        uses: tj-actions/changed-files@v45
+        with:
+          files: src/Storefront/Resources/app/storefront/package*.json
+      - uses: actions/setup-node@v4
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        with:
+          node-version: 20
+      - name: install packages
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npm ci
+      - name: Check license
+        if: steps.changed-package-json.outputs.any_changed == 'true'
+        working-directory: src/Storefront/Resources/app/storefront
+        run: |
+          npx license-checker-rseidelsohn \
+            --onlyAllow "$(tr \\n \; < ${{ github.workspace }}/.allowed-licenses)" \
+            --excludePackages "${WHITELISTED_JS_PACKAGES}" \
+            --excludePrivatePackages

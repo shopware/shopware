@@ -16,13 +16,13 @@ on:
   workflow_dispatch:
   workflow_call:
 
+env:
+  COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     name: "PHP lint"
-    env:
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
-
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -50,9 +50,6 @@ jobs:
   phpstan:
     runs-on: ubuntu-latest
     name: "PHPStan"
-    env:
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
-
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -69,9 +66,6 @@ jobs:
   bc-checker:
     runs-on: ubuntu-latest
     name: "BC check"
-    env:
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
-
     steps:
       - name: Clone shopware
         uses: actions/checkout@v4
@@ -107,7 +101,6 @@ jobs:
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/shopware
       DATABASE_HOST: "127.0.0.1"
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -156,7 +149,6 @@ jobs:
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-      COMPOSER_ROOT_VERSION: 6.6.9999999.9999999-dev
 
     services:
       elasticsearch:
@@ -187,3 +179,22 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: coverage.xml
+
+  license-check:
+    runs-on: ubuntu-latest
+    name: "PHP license check"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+      - name: composer.json changed
+        id: changed-composer-json
+        uses: tj-actions/changed-files@v45
+        with:
+          files: composer.json
+      - name: Check license
+        if: steps.changed-composer-json.outputs.any_changed == 'true'
+        run: vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
+  

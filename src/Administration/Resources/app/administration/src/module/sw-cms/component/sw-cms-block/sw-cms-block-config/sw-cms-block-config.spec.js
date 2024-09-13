@@ -3,18 +3,41 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-
-const { Store } = Shopware;
+import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const block = {
     name: 'Block name',
+    type: 'text',
     backgroundColor: '',
     backgroundMedia: {},
     backgroundMediaId: 'mediaId',
     backgroundMediaMode: '',
+    removable: true,
 };
 
 jest.useFakeTimers();
+
+const responses = global.repositoryFactoryMock.responses;
+responses.addResponse({
+    method: 'Post',
+    url: '/search/media',
+    status: 200,
+    response: {
+        data: [
+            {
+                id: 'newMediaId',
+                attributes: {
+                    id: 'newMediaId',
+                    fileName: 'puppy',
+                    mediaFolderId: 'newMediaFolderId',
+                    mimeType: 'image/png',
+                    fileExtension: 'png',
+                },
+                relationships: [],
+            },
+        ],
+    },
+});
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-block-config', {
@@ -29,15 +52,10 @@ async function createWrapper() {
                 validationService: {},
                 cmsService: {
                     getCmsBlockRegistry: () => {
-                        return Promise.resolve();
+                        return {
+                            text: block,
+                        };
                     },
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                    }),
                 },
             },
             stubs: {
@@ -62,11 +80,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-block-config', () => {
+    beforeAll(async () => {
+        await setupCmsEnvironment();
+    });
+
     beforeEach(() => {
-        Store.unregister('cmsPageState');
-        Store.register({
-            id: 'cmsPageState',
-        });
+        Shopware.Store.get('cmsPageState').setIsSystemDefaultLanguage(true);
     });
 
     it('should be a Vue.js component', async () => {
@@ -74,7 +93,7 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should able to config block name', async () => {
+    it('should be able to config block name', async () => {
         const wrapper = await createWrapper();
         const blockNameField = await wrapper.find('.sw-text-field');
 
@@ -87,10 +106,55 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         expect(wrapper.vm.block.name).toBe('test');
     });
 
-    it('should able to remove all media', async () => {
+    it('should be able to remove all media', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
         await wrapper.vm.removeMedia();
         expect(wrapper.vm.block.backgroundMediaId).toBeNull();
+    });
+
+    it('should be able to manually set background media', async () => {
+        const wrapper = await createWrapper();
+        const media = {
+            id: 'mediaId',
+        };
+
+        expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
+        await wrapper.vm.onSetBackgroundMedia([media]);
+        expect(wrapper.vm.block.backgroundMediaId).toBe(media.id);
+    });
+
+    it('should be able to set background media after upload', async () => {
+        const wrapper = await createWrapper();
+        const media = {
+            targetId: 'newMediaId',
+        };
+
+        expect(wrapper.vm.block.backgroundMediaId).toBe(block.backgroundMediaId);
+        await wrapper.vm.successfulUpload(media);
+        expect(wrapper.vm.block.backgroundMediaId).toBe(media.targetId);
+    });
+
+    const eventEmittedDataProvider = [
+        ['block-delete', 'onBlockDelete'],
+        ['block-duplicate', 'onBlockDuplicate'],
+    ];
+    it.each(eventEmittedDataProvider)('should be able to push the %s event on delete', async (eventName, handler) => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm[handler]();
+
+        expect(wrapper.emitted()).toHaveProperty(eventName, [[block]]);
+        expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': false });
+    });
+
+    it.each(eventEmittedDataProvider)('should not be able to push the %s event on delete, when quickactions are disabled', async (eventName, handler) => {
+        Shopware.Store.get('cmsPageState').setIsSystemDefaultLanguage(false);
+        const wrapper = await createWrapper();
+
+        wrapper.vm[handler]();
+
+        expect(wrapper.emitted()).not.toHaveProperty(eventName);
+        expect(wrapper.vm.quickactionClasses).toEqual({ 'is--disabled': true });
     });
 });

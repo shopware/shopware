@@ -50,15 +50,15 @@
                         <config-value name="display-mode" source="static" value="cover"/>
                     </config>
                 </slot>
+                <slot name="right" type="youtube-video">
+                    <config>
+                        <config-value name="display-mode" source="static" value="contain"/>
+                    </config>
+                </slot>
                 <slot name="middle" type="image">
                     <config>
                         <config-value name="display-mode" source="static" value="auto"/>
                         <config-value name="background-color" source="static" value="red"/>
-                    </config>
-                </slot>
-                <slot name="right" type="youtube-video">
-                    <config>
-                        <config-value name="display-mode" source="static" value="contain"/>
                     </config>
                 </slot>
             </slots>
@@ -69,7 +69,7 @@
                 <margin-left>20px</margin-left>
                 <margin-right>20px</margin-right>
                 <sizing-mode>boxed</sizing-mode>
-                <background-color>#000</background-color>
+                <background-color>#f00</background-color>
             </default-config>
         </block>
     </blocks>

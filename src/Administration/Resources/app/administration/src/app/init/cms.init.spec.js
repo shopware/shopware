@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';
@@ -119,7 +119,6 @@ describe('src/app/init/cms.init.ts', () => {
                     },
                 },
             },
-            // defaultConfig: [Object],
         });
     });
 

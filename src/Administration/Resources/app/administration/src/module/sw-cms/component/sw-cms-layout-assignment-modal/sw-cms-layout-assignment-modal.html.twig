@@ -199,7 +199,6 @@
                     :select-label="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
                 >
-
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
                     <template #column-name="{ item, column }">
@@ -241,6 +240,7 @@
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                     <template #empty-state>
                         <img
+                            class="sw-cms-product-assignment__empty-state"
                             :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                             alt=""
                         >

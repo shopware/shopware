@@ -26,90 +26,40 @@ class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1673964565, $this->migration->getCreationTimestamp());
+        static::assertEquals('1673964565', $this->migration->getCreationTimestamp());
     }
 
-    public function testUpdateDestructive(): void
+    public function testUpdate(): void
     {
-        $entityIdColumnExists = $this->entityIdColumnExists();
-        if (!$entityIdColumnExists) {
-            $this->addEntityIdColumn();
-        }
-        $referencedIdColumnHasGeneratedValue = $this->referenceColumnHasGeneratedValue('referenced_id');
-        if (!$referencedIdColumnHasGeneratedValue) {
-            $this->addGeneratedValueForReferencedId();
-        }
-        $referencedVersionIdColumnHasGeneratedValue = $this->referenceColumnHasGeneratedValue('referenced_version_id');
-        if (!$referencedVersionIdColumnHasGeneratedValue) {
-            $this->addGeneratedValueForReferencedVersionId();
-        }
+        $this->migration->update($this->connection);
 
-        $this->migration->updateDestructive($this->connection);
-        $this->migration->updateDestructive($this->connection);
-
-        static::assertFalse($this->entityIdColumnExists());
-        static::assertFalse($this->referenceColumnHasGeneratedValue('referenced_id'));
-        static::assertFalse($this->referenceColumnHasGeneratedValue('referenced_version_id'));
-
-        if ($entityIdColumnExists) {
-            $this->addEntityIdColumn();
-        }
-        if ($referencedIdColumnHasGeneratedValue) {
-            $this->addGeneratedValueForReferencedId();
-        }
-        if ($referencedVersionIdColumnHasGeneratedValue) {
-            $this->addGeneratedValueForReferencedVersionId();
-        }
+        static::assertStringContainsString('`referenced_id` binary(16) NOT NULL', $this->getSchema());
+        static::assertStringContainsString('`referenced_version_id` binary(16) NOT NULL', $this->getSchema());
+        static::assertStringNotContainsString('`entity_id`', $this->getSchema());
     }
 
-    private function entityIdColumnExists(): bool
+    public function testUpdateTwice(): void
     {
-        return (bool) $this->connection->fetchOne(
-            'SHOW COLUMNS
-             FROM `state_machine_history`
-             WHERE `Field` LIKE "entity_id"'
-        );
+        $this->migration->update($this->connection);
+        $expected = $this->getSchema();
+
+        static::assertStringContainsString('`referenced_id` binary(16) NOT NULL', $expected);
+        static::assertStringContainsString('`referenced_version_id` binary(16) NOT NULL', $expected);
+        static::assertStringNotContainsString('`entity_id`', $this->getSchema());
+
+        $this->migration->update($this->connection);
+        static::assertSame($expected, $this->getSchema());
     }
 
-    private function addEntityIdColumn(): void
+    /**
+     * @throws \Throwable
+     */
+    private function getSchema(): string
     {
-        $this->connection->executeStatement(
-            'ALTER TABLE `state_machine_history`
-             ADD COLUMN `entity_id` JSON NOT NULL;'
-        );
-    }
+        $schema = $this->connection->fetchAssociative(\sprintf('SHOW CREATE TABLE `%s`', 'state_machine_history'));
+        static::assertNotFalse($schema);
+        static::assertIsString($schema['Create Table']);
 
-    private function referenceColumnHasGeneratedValue(string $columnName): bool
-    {
-        return $this->connection->fetchOne(
-            'SELECT EXTRA
-             FROM information_schema.columns
-             WHERE table_schema = :database
-                AND table_name = \'state_machine_history\'
-                AND COlUMN_NAME = :columnName',
-            ['database' => $this->connection->getDatabase(), 'columnName' => $columnName]
-        ) === 'STORED GENERATED';
-    }
-
-    private function addGeneratedValueForReferencedId(): void
-    {
-        $this->connection->executeStatement(
-            'ALTER TABLE `state_machine_history`
-             MODIFY COLUMN `referenced_id` BINARY(16)
-             GENERATED ALWAYS AS (
-                COALESCE(UNHEX(JSON_UNQUOTE(JSON_EXTRACT(`entity_id`, \'$.id\'))), 0x0)
-             ) STORED;'
-        );
-    }
-
-    private function addGeneratedValueForReferencedVersionId(): void
-    {
-        $this->connection->executeStatement(
-            'ALTER TABLE `state_machine_history`
-             MODIFY COLUMN `referenced_version_id` BINARY(16)
-             GENERATED ALWAYS AS (
-                COALESCE(UNHEX(JSON_UNQUOTE(JSON_EXTRACT(`entity_id`, \'$.version_id\'))), 0x0)
-             ) STORED;'
-        );
+        return $schema['Create Table'];
     }
 }

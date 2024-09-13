@@ -22,9 +22,6 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('registry_url')
-                    ->defaultValue('https://services.shopware.io/services.json')
-                    ->end()
                 ->booleanNode('enabled')
                     ->defaultValue(false)
                     ->end();

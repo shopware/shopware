@@ -18,7 +18,6 @@ class ServiceExtension extends Extension
 
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('shopware.services.registry_url', $config['registry_url']);
         $container->setParameter('shopware.services.enabled', $config['enabled']);
     }
 }

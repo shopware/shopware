@@ -19,7 +19,6 @@ class ServiceExtensionTest extends TestCase
         $container = new ContainerBuilder();
         $extension->load([], $container);
 
-        static::assertSame('https://services.shopware.io/services.json', $container->getParameter('shopware.services.registry_url'));
         static::assertFalse($container->getParameter('shopware.services.enabled'));
     }
 }

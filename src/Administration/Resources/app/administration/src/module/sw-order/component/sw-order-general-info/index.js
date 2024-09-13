@@ -413,9 +413,10 @@ export default {
 
             this.getTransitionOptions()
                 .then(() => {
-                    this.$emit('save-edits');
                     if (this.swOrderDetailOnSaveEdits) {
                         this.swOrderDetailOnSaveEdits();
+                    } else {
+                        this.$emit('save-edits');
                     }
                 })
                 .catch((error) => {

@@ -13,6 +13,7 @@
     <import resource="../../Newsletter/**/*Controller.php" type="attribute" />
     <import resource="../../ProductExport/**/*Controller.php" type="attribute" />
     <import resource="../../Seo/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Breadcrumb/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Category/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../LandingPage/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../Product/SalesChannel/**/*Route.php" type="attribute" />

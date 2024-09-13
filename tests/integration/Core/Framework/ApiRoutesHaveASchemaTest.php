@@ -73,13 +73,24 @@ class ApiRoutesHaveASchemaTest extends TestCase
             if ($this->isRepositoryCrudRoute($route)) {
                 $listPath = str_replace('{path}', '', $path);
                 $crudPath = str_replace('{path}', '{id}', $path);
-                unset($schemaRoutes[$listPath]);
-                unset($schemaRoutes[$crudPath]);
+                unset($schemaRoutes[$listPath], $schemaRoutes[$crudPath]);
 
                 continue;
             }
 
             $missingRoutes[] = $path;
+        }
+
+        if (!empty($schemaRoutes)) {
+            foreach ($schemaRoutes as $path => $schema) {
+                $routesFromPathParameter = $this->getRoutesFromSchemaDefinitionPath($path, $schema);
+                foreach ($routesFromPathParameter as $routeFromPathParameter) {
+                    if (\in_array($routeFromPathParameter, $missingRoutes, true)) {
+                        unset($schemaRoutes[$path], $missingRoutes[array_search($routeFromPathParameter, $missingRoutes, true)]);
+                    }
+                }
+                $missingRoutes = array_values($missingRoutes);
+            }
         }
 
         static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
@@ -219,10 +230,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
     private function checkQueryParameters(Route $route, array $schema): void
     {
         $whitelist = [
-            '/store-api/category/{navigationId}:slots',
             '/store-api/shipping-method:onlyAvailable',
             '/store-api/checkout/cart/line-item:ids',
-            '/store-api/_info/openapi3.json:type',
         ];
 
         foreach ($schema as $operation) {
@@ -231,12 +240,41 @@ class ApiRoutesHaveASchemaTest extends TestCase
                     continue;
                 }
 
+                if ($item['schema']['type'] === 'string') {
+                    continue;
+                }
+
                 /** @var string $parameterName */
                 $parameterName = $item['name'];
                 $key = $route->getPath() . ':' . $parameterName;
 
-                static::assertContains($key, $whitelist, \sprintf('Route "%s" has a query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+                static::assertContains($key, $whitelist, \sprintf('Route "%s" has as query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string>
+     */
+    private function getRoutesFromSchemaDefinitionPath(string $path, array $schema): array
+    {
+        $paths = [];
+        foreach ($schema as $operation) {
+            foreach ($operation['parameters'] ?? [] as $item) {
+                if ($item['in'] !== 'path') {
+                    continue;
+                }
+
+                if ($item['schema']['type'] === 'string' && !empty($item['schema']['enum'])) {
+                    foreach ($item['schema']['enum'] as $enum) {
+                        $paths[] = str_replace('{' . $item['name'] . '}', $enum, $path);
+                    }
+                }
+            }
+        }
+
+        return $paths;
     }
 }

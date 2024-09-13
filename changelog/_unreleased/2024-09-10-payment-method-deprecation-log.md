@@ -1,6 +1,6 @@
 ---
-title: Improve cart page performance
-issue: 
+title: Fix deprecation message for `shopware.payment.method`
+issue: NEXT-00000
 flag: 
 author: Rahpaël HOMANN
 author_email: raph@e-frogg.com
